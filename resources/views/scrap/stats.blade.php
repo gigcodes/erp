@@ -31,10 +31,11 @@
             height: 250px;
         }
 
-        .fixed_header thead {
+        /* Purpose :  Comment code -  DEVTASK-4219*/
+        /* .fixed_header thead {
             background: black;
             color: #fff;
-        }
+        } */
         .modal-lg{
             max-width: 1500px !important; 
         }
@@ -48,6 +49,14 @@
         .status .select2 .select2-selection{
             width:80px;
         }
+
+        #remark-list tr td{
+            word-break : break-all !important;
+        }
+
+        table tr td{
+            word-wrap: break-word;
+        }
     </style>
 @endsection
 
@@ -60,7 +69,10 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2>
+            <!-- START - Purpose : Comment code and get total scrapper - DEVTASK-4219 -->
+            <!-- <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2> -->
+            <h2 class="page-heading">Supplier Scrapping Info ({{$scrapper_total}})</h2>
+            <!-- END - DEVTASK-4219 -->
         </div>
     </div>
 
@@ -97,6 +109,11 @@
                     <option <?php echo $excelOnly == 1 ? 'selected=selected' : '' ?> value="1">Excel only</option>
                 </select>
             </div>
+
+            <div class="form-group mb-3 col-md-2">
+                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),request('task_assigned_to'),["class" => "form-control select2"]); ?>
+            </div>
+
             <div class="form-group mb-3 col-md-2">
                 <select name="scrapers_status" class="form-control form-group">
                     @foreach(\App\Scraper::STATUS as $k => $v)
@@ -159,6 +176,21 @@
                         </button>
                     </a>
                 </div>
+                <div class="col-md-4 mt-1">
+                    <a href="javascript:void(0)">
+                        <button type="button" class="btn btn-default btn-sm position-all">
+                            <span class="glyphicon glyphicon-th-list"></span> Download Scraper position
+                        </button>
+                    </a>
+
+                    <!-- START - Purpose : Add Button - DEVTASK-20102-->
+                    <a href="javascript:void(0)">
+                        <button type="button" class="btn btn-default btn-sm scrapper_process_btn">
+                            <span class=""></span>Scraper Process
+                        </button>
+                    </a>
+                    <!-- END - DEVTASK-20102-->
+                </div>
             </div>
          </div>   
    </div>
@@ -174,7 +206,8 @@
                         if(!isset($date)) {
                             $date = date("Y-m-d");
                         }
-                        echo '<th>'.$date.' <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-history" title="Show Scraper server history"  data-date="'.$date.'"><i class="fa fa-info-circle"></i></button></th>';
+                        echo '<th>'.$date.' <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-history" title="Show Scraper server history"  data-date="'.$date.'"><i class="fa fa-info-circle"></i></button>
+                        <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-process" title="Show Scraper process history"  data-date="'.$date.'"><i class="fa fa-gear"></i></button></th>';
                         $date = date("Y-m-d",strtotime('-1 day', strtotime($date)));
                         # code...
                     } ?>
@@ -217,6 +250,9 @@
                         <th>Logs</th>
                         */ ?>
                         <th>Full scrap</th>
+                        <th>Scraper Duration</th> 
+                        <th>Suppiier Inventory</th>
+                        <th>Date Last Product Added</th>
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -414,6 +450,23 @@
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
+                            <td width="5%">
+                                @php
+                                    if(count($supplier->scraperDuration)){
+                                        echo $supplier->scraperDuration[0]->duration;
+                                        if(isset($supplier->scraperDuration[1])){
+                                            echo '<br>' . $supplier->scraperDuration[1]->duration;
+                                            if(isset($supplier->scraperDuration[2])){
+                                                echo '<br>' . $supplier->scraperDuration[2]->duration;
+                                            }
+                                        }
+                                    }else{
+                                        echo '-';
+                                    } 
+                                @endphp    
+                            </td>
+                            <td> {{$supplier->inventory }} </td>
+                            <td>{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</td>
                             <td width="14%">
                                  <div style="float:left;">       
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
@@ -439,6 +492,8 @@
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
+                                <!-- <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="update process" onclick="updateScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}', {{$supplier->id}} )"><i class="fa fa-send"></i></button> -->
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="kill process" onclick="killScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}')"><i class="fa fa-close"></i></button> 
                                 @if($isAdmin)
                                     <div class="flag-scraper-div" style="float:none;display:contents;"> 
                                         @if ($supplier->flag == 1)
@@ -456,6 +511,7 @@
                                     </div>
                                 @endif
                                 </div>
+                                <p class="d-none duration_display"></p>
                                 
                             </td>
                             </tr>
@@ -824,8 +880,8 @@
                         <div class="form-group">
                             <label>Select Scraper</label>
                             <select name="scraper_name" class="form-control select2" required>
-                                @forelse ($allScrapper as $item)
-                                    <option value="{{ $item }}">{{ $item }}</option>
+                                @forelse ($allScrapper as $k => $item)
+                                    <option value="{{ $item }}#{{$k}}">{{ $item }}</option>
                                 @empty
                                 @endforelse
                             </select>
@@ -933,6 +989,38 @@
             </div>
         </div>
       </div>
+
+      <!-- Modal -->
+    <div class="modal fade" id="scrapper_process_log" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="">Scraper Process List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 610px;overflow: auto;">
+                <table class="table table-bordered table-striped scraper-process">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Scraper Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="ScraperProcess">
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
@@ -1052,7 +1140,25 @@
                 var no = 1;
                 if(response.code == 200) {
                     $.each(response.data, function (index, value) {
-                        html += '<tr><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
+                        //Purpose : Add Index - DEVTASK-4219
+                        var i = index + 1;
+                        html += '<tr><td>' + i + '</td><td>' + value.scraper_name + '</td><td class="remark_created_at">' + moment(value.created_at).format('DD-M H:mm') + '</td><td>'+ value.inventory+'</td><td>'+(value.last_date?  moment(value.last_date).format('D-MMM-YYYY'):'-')  +'</td><td>'+ (value.log_messages?  value.log_messages.substr(0,19)+ (value.log_messages.length>19 ?   '...' : '  '):'-')+'</td><td class="remark_posted_by" >' + value.user_name + '</td><td class="remark_text">' + value.remark + '</td>';
+
+                        //START - Purpose : Send Remark - DEVTASK-4219
+                        if(value.user_name != '')
+                        {
+                            html += '<td>';
+                            html += '<textarea rows="1" cols="25" class="form-control remark_text" name="remark" placeholder="Remark"></textarea>';
+                            html += '<button class="btn btn-sm btn-image latestremarks_sendbtn" data-name="'+value.scraper_name+'"><img src="/images/filled-sent.png"></button>';
+                            html += '<button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="'+value.scraper_name+'"><img width="2px;" src="/images/remark.png"/></button>';
+                            html += '</td>';
+                        }else{
+                            html += '<td></td>';
+                        }
+
+                        html += '</tr>';
+                        //END - DEVTASK-4219
+
                         no++;
                     });
                     $("#latestRemark").find('.show-list-records').html(html);
@@ -1062,6 +1168,17 @@
                 }
             });
         });
+
+        //START - Purpose : Hide modal - DEVTASK-4219
+        $("#makeRemarkModal").on('hide.bs.modal', function(){
+            
+           var remark_modal = $("#latestRemark").attr('class');
+           if(remark_modal == 'modal fade in')
+           {
+               $(".modal-open .modal").css({"overflow-x": "auto","overflow-y": "auto"});
+           }
+        });
+        //END - DEVTASK-4219
 
         $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
@@ -1148,6 +1265,46 @@
             });
 
         });
+
+        //START - Purpose : Send Remark - DEVTASK-4219
+        $(document).on('click', '.latestremarks_sendbtn', function (e) {
+            
+            var id = $(this).data("name");
+            var remark = $(this).siblings('.remark_text').val();
+
+            if(remark == ''){
+                toastr['error']('Remark field is required');
+                return false;
+            }
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('scrap.addRemark') }}',
+                data: {
+                    id: id,
+                    remark: remark,
+                    need_to_send:  1 ,
+                    inlcude_made_by: 1
+                },
+            }).done(response => {
+                $(this).siblings('.remark_text').val('');
+                toastr['success']('Remark Added Successfully', 'success');
+                if(response.last_record != '')
+                {
+                    var data =  response.last_record;
+                    // console.log(data);
+
+                    $(this).closest('tr').children('.remark_created_at').html(moment(data.created_at).format('DD-M H:mm'));
+                    $(this).closest('tr').children('.remark_posted_by').html(data.user_name);
+                    $(this).closest('tr').children('.remark_text').html(data.remark);
+                }
+            }).fail(function (response) {
+                alert('Could not fetch remarks');
+            });
+        });
+        //END - DEVTASK-4219
 
         /*$(".sort-priority-scrapper").sortable({
             items: $(".sort-priority-scrapper").find(".history-item-scrap"),
@@ -1460,6 +1617,54 @@
             
         }
 
+        function updateScript(name,server_id, data_id) {
+            var data_id = data_id;
+            var x = confirm("Are you sure you want to update script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/update-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script updated Successfully');
+                        if(response.duration !== null){
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).html(`${response.duration}`);
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).css('display', 'inherit');
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).removeClass('d-none'); 
+                        }
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                }) ;
+            else
+                return false;    
+            
+        }
+
+        function killScript(name,server_id) {
+            var x = confirm("Are you sure you want to kill script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/kill-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script killed Successfully')
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                }) ;
+            else
+                return false;    
+            
+        }
+
 
         function getRunningStatus(name,server_id) {
             var x = confirm("Are you sure you want to restart script?");
@@ -1554,8 +1759,6 @@
             });
         });
 
-        
-
         $(document).on("click",".show-scraper-history",function (e){
             e.preventDefault();
             var date = $(this).data("date");
@@ -1570,6 +1773,28 @@
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Server status history");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".show-scraper-process",function (e){
+            e.preventDefault();
+            var date = $(this).data("date");
+            $.ajax({
+                url: '/scrap/server-status-process',
+                type: 'GET',
+                data: {date: date},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Server process history");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {
@@ -1833,5 +2058,130 @@
             }
         });
 
+        //STRAT - Purpose : Download  Position History - DEVTASK-4086
+        $(document).on("click",".downloadPositionHistory",function(e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: "/scrap/position-history-download",
+                type: 'POST',
+                "dataType": 'json',           // what to expect back from the PHP script, if anything
+                data: {
+                    id: id,
+                    "_token": "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                   
+                }
+            }).done(function (response) {
+                
+                if(response.downloadUrl){
+                    var form = $("<form/>", 
+                            { action:"/chat-messages/downloadChatMessages",
+                                method:"POST",
+                                target:'_blank',
+                                id:"chatHiddenForm",
+                                }
+                        );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'filename', 
+                            value:response.downloadUrl }
+                        )
+                    );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'_token', 
+                            value:$('meta[name="csrf-token"]').attr('content') }
+                        )
+                    );
+                    $("body").append(form);
+                    $('#chatHiddenForm').submit();
+                }else{
+                    console.log('no message found !')
+                }
+               
+            }).fail(function (errObj) {
+                
+            });
+        });
+        //END - DEVTASK-4086
+
+
+        $(document).on("click",".position-all",function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/scrap/position-all",
+                type: 'POST',
+                "dataType": 'json',           // what to expect back from the PHP script, if anything
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                   
+                }
+            }).done(function (response) {
+                
+                if(response.downloadUrl){
+                    var form = $("<form/>", 
+                            { action:"/chat-messages/downloadChatMessages",
+                                method:"POST",
+                                target:'_blank',
+                                id:"chatHiddenForm",
+                                }
+                        );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'filename', 
+                            value:response.downloadUrl }
+                        )
+                    );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'_token', 
+                            value:$('meta[name="csrf-token"]').attr('content') }
+                        )
+                    );
+                    $("body").append(form);
+                    $('#chatHiddenForm').submit();
+                }else{
+                    console.log('no message found !')
+                }
+               
+            }).fail(function (errObj) {
+                
+            });
+        });
+
+        //START - Purpose : Add get data for scrappers - DEVTASK-20102
+        $(document).on("click",".scrapper_process_btn",function(e) {
+            
+
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/logdata/view_scrappers_data',
+                // data: {
+                //     search: id,
+                //     field: "scraper_made_by",
+                //     field_value: tr.find(".scraper_made_by").val()
+                // },
+            }).done(function (response) {
+                // toastr['success']('Data updated Successfully', 'success');
+                $('#scrapper_process_log').modal('show');
+                $('.ScraperProcess').append(response);
+            }).fail(function (response) {
+
+            });
+        });
+
+        $( window ).scroll(function() {
+            $( "span" ).css( "display", "inline" ).fadeOut( "slow" );
+        });
+
+        //END - DEVTASK-20102
     </script>
 @endsection

@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
-use App\CroppedImageReference;
-use App\Supplier;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use App\Category;
+use App\CroppedImageReference;
 use App\Helpers\StatusHelper;
 use App\Product;
+use App\Supplier;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 
 class CroppedImageReferenceController extends Controller
 {
@@ -95,7 +94,7 @@ class CroppedImageReferenceController extends Controller
     public function grid(Request $request)
     {
         $query = CroppedImageReference::query();
-        
+
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
 
             if (is_array(request('category'))) {
@@ -111,7 +110,6 @@ class CroppedImageReferenceController extends Controller
                     });
                 }
             }
-
 
             if (isset($request->filter_id) && $request->filter_id) {
                 $query->whereHas('product', function ($qu) use ($request) {
@@ -172,7 +170,7 @@ class CroppedImageReferenceController extends Controller
         if (request('customer_range') != null) {
             $dateArray = explode('-', request('customer_range'));
             $startDate = trim($dateArray[0]);
-            $endDate = trim(end($dateArray));
+            $endDate   = trim(end($dateArray));
             if ($startDate == '1995/12/25') {
                 $totalCounts = CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subHour())->count();
             } elseif ($startDate == $endDate) {
@@ -183,7 +181,7 @@ class CroppedImageReferenceController extends Controller
 
             if ($request->ajax()) {
                 return response()->json([
-                    'count' => $totalCounts
+                    'count' => $totalCounts,
                 ], 200);
             }
         } else {
@@ -191,18 +189,18 @@ class CroppedImageReferenceController extends Controller
         }
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('image_references.partials.griddata', compact('products',  'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'))->render(),
+                'tbody' => view('image_references.partials.griddata', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'))->render(),
                 'links' => $products,
                 'total' => $total,
             ], 200);
         }
-        return view('image_references.grid', compact('products',  'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
+        return view('image_references.grid', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
     }
 
     public function rejectCropImage(Request $request)
     {
         $reference = CroppedImageReference::find($request->id);
-        $product = Product::find($reference->product_id);
+        $product   = Product::find($reference->product_id);
         dd($product);
     }
 
@@ -210,7 +208,7 @@ class CroppedImageReferenceController extends Controller
     {
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])
             ->renderAsArray();
-        $answer  = $this->setByParent($category_selection);
+        $answer = $this->setByParent($category_selection);
         return response()->json(['result' => $answer]);
     }
 
@@ -223,26 +221,92 @@ class CroppedImageReferenceController extends Controller
     public function getBrands(Request $request)
     {
         $response = Brand::select(['id', 'name as text'])->get()->toArray();
-        return response()->json(['result' => [['text'=>'Brands','children'=>$response]]]);
+        return response()->json(['result' => [['text' => 'Brands', 'children' => $response]]]);
     }
 
     public function getSupplier(Request $request)
     {
         $response = Supplier::select(['id', 'supplier as text'])->get();
-        return response()->json(['result' => [['text'=>'Suppliers','children'=>$response]]]);
+        return response()->json(['result' => [['text' => 'Suppliers', 'children' => $response]]]);
     }
 
-    private function setByParent($data, $step=0, &$result=[])
+    private function setByParent($data, $step = 0, &$result = [])
     {
         $nbsp = '';
-        if ($step) for($i=0; $i<$step*2; $i++) $nbsp.='&nbsp;';
+        if ($step) {
+            for ($i = 0; $i < $step * 2; $i++) {
+                $nbsp .= '&nbsp;';
+            }
+        }
+
         foreach ($data as $value) {
             $result[] = [
-                'id' =>  $value['id'],
-                'text' => $nbsp.$value['title'],
+                'id'   => $value['id'],
+                'text' => $nbsp . $value['title'],
             ];
-            if (!empty($value['child'])) $this->setByParent($value['child'], $step+1, $result);
+            if (!empty($value['child'])) {
+                $this->setByParent($value['child'], $step + 1, $result);
+            }
+
         }
         return $result;
+    }
+
+    public function manageInstance(Request $request)
+    {
+        $instances = \App\CroppingInstance::all();
+
+        return view("image_references.partials.manage-instance", compact('instances'));
+    }
+
+    public function addInstance(Request $request)
+    {
+        $params = $request->except('_token');
+        \App\CroppingInstance::create($params);
+
+        $instances = \App\CroppingInstance::all();
+
+        return view("image_references.partials.manage-instance", compact('instances'));
+
+    }
+
+    public function deleteInstance(Request $request)
+    {
+        \App\CroppingInstance::find($request->id)->delete();
+        $instances = \App\CroppingInstance::all();
+
+        return view("image_references.partials.manage-instance", compact('instances'));
+    }
+
+    public function startInstance(Request $request)
+    {
+        $instance = \App\CroppingInstance::find($request->id);
+        if ($instance) {
+            $client   = new Client();
+            $response = $client->request('POST', config('constants.py_crop_script')."/start", [
+                'form_params' => [
+                    'instanceId' => $instance->instance_id,
+                ],
+            ]);
+            return response()->json(["code" => 200, "message" => (string)$response->getBody()->getContents()]);
+        }else{
+            return response()->json(["code" => 500, "message" => "No instance id found"]);
+        }
+    }
+
+    public function stopInstance(Request $request)
+    {
+        $instance = \App\CroppingInstance::find($request->id);
+        if ($instance) {
+            $client   = new Client();
+            $response = $client->request('POST', config('constants.py_crop_script')."/stop", [
+                'form_params' => [
+                    'instanceId' => $instance->instance_id,
+                ],
+            ]);
+            return response()->json(["code" => 200, "message" => (string)$response->getBody()->getContents()]);
+        }else{
+            return response()->json(["code" => 500, "message" => "No instance id found"]);
+        }
     }
 }

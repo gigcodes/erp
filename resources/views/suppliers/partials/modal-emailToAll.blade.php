@@ -14,12 +14,13 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Suppliers</strong>
-            <select class="form-control select-multiple" name="suppliers[]" multiple>
-              {{-- <option value="">Select Suppliers</option> --}}
-
+            <select class="form-control globalSelect2" name="suppliers[]" data-ajax="{{ route('select2.suppliers')}}" multiple>
+              
+              <option value="">Select Suppliers</option>
+{{-- 
               @foreach ($suppliers_all as $supplier)
                 <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
-              @endforeach
+              @endforeach --}}
             </select>
           </div>
 

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use App\ColdLeads;
-use App\User;
+use App\{User,UserPemfileHistory};
 use App\UserRate;
 use App\Role;
 use App\Permission;
@@ -27,9 +27,13 @@ use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
 use App\PermissionRequest;
+use App\UserSysyemIp;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
+use App\UserFeedbackCategory;
+use App\UserFeedbackStatus;
+
 
 class UserManagementController extends Controller
 {
@@ -37,12 +41,87 @@ class UserManagementController extends Controller
      * Display a listing of the resource.
      * @return Response
      */
-    public function index()
+    public function index(Request $req)
     {
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
-        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
-        return view('usermanagement::index', compact('title','permissionRequest','statusList'));
+        $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
+
+
+        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+        $final_array = [];
+        if($shell_list != ''){
+            $lines=explode(PHP_EOL,$shell_list);
+            $final_array = [];
+            foreach($lines as $line){
+                $values = [];
+                $values=explode(' ',$line);
+                array_push($final_array,$values);
+            }
+        }
+        
+        
+        if(!empty($final_array))
+        {
+            foreach(array_reverse($final_array) as $values){
+                
+                $index   = $values[0]??0;
+                $ip      = $values[1]??0;
+                $comment = $values[2]??0;
+                
+                $where = ['ip' => $ip];
+
+                $insert = [
+                    'index_txt'       => $index??'-',
+                    'ip'              => $ip??'-',
+                    'notes'           => $comment??'-',
+                    // 'user_id'         => Auth::id(),
+                    // 'other_user_name' => $comment,
+                ];
+                $userips = UserSysyemIp::updateOrCreate($where,$insert);   
+            }    
+        }
+        
+
+
+        $usersystemips = UserSysyemIp::with('user')->get();
+        
+        $userlist = User::orderBy('name')->where('is_active',1)->get();
+
+        // $user = new feedback_table;
+        // $user->catagory=$req->input('catagory');
+        // //     // $user->adminrespose=$req->input('adminrespose');
+        // //     // $user->userrespose=$req->input('userrespose');
+        // //     // $user->status=$req->input('status');
+        // //     // $user->histry=$req->input('histry');
+        // $user->save();
+
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+    }
+
+
+    public function cat_name( Request $req){
+        $title = "User management";
+        $permissionRequest = PermissionRequest::count();
+        $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
+
+        $usersystemips = UserSysyemIp::with('user')->get();
+        
+        $userlist = User::orderBy('name')->where('is_active',1)->get();
+
+        // $user = new feedback_table;
+        // $user->catagory=$req->input('catagory');
+        //     // $user->adminrespose=$req->input('adminrespose');
+        //     // $user->userrespose=$req->input('userrespose');
+        //     // $user->status=$req->input('status');
+        //     // $user->histry=$req->input('histry');
+        // $user->save();
+        
+  
+
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+      
+    
     }
 
     public function permissionRequest( Request $request ){
@@ -50,12 +129,57 @@ class UserManagementController extends Controller
         return response()->json( ["code" => 200 , "data" => $history] );
     }
 
+    public function deletePermissionRequest( Request $request ){
+        $history = PermissionRequest::query()->delete();
+        return response()->json( ["code" => 200 , "data" => 'Permission Deleted Successfully'] );
+    }
+
+    public function todayTaskHistory(Request $request)
+    {
+        $date = "'%".date('Y-m-d')."%'";   
+        // $history = HubstaffActivity::select('users.name','developer_tasks.subject','developer_tasks.id as devtaskId','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
+        //           ->join('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
+        //           ->join('users','hubstaff_members.user_id','users.id')
+        //           ->join('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
+        //           ->whereDate('hubstaff_activities.starts_at',date('Y-m-d'))
+        //           ->groupBy('hubstaff_activities.starts_at','hubstaff_activities.user_id');
+        //           if( !empty( $request->id ) ){
+        //             $history->where('users.id',$request->id);
+        //           }
+        // $history =  $history->orderBy("hubstaff_activities.id","desc")->get(); 
+        $history = DB::select("SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId,tasks.id as task_id,tasks.task_subject as task_subject,  hubstaff_activities.starts_at, SUM(tracked) as day_tracked 
+                  FROM `users` 
+                  JOIN hubstaff_members ON hubstaff_members.user_id=users.id 
+                  JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
+                  LEFT JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
+                  LEFT JOIN tasks ON hubstaff_activities.task_id=tasks.hubstaff_task_id 
+                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE " . $date . ") AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
+                    GROUP by hubstaff_activities.task_id
+                    order by day_tracked desc ");
+                 // WHERE (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL ) group by users.id order by day_tracked desc ");
+                 
+                 //purpose : Add AND developer_tasks.id is NOT NULL in where condition ,  Remove group by users.id , Add left join task Table Old Query is Comment - DEVTASK-4256
+        $filterList = [];
+        if ( !empty( $history ) ) {
+            foreach ($history as $key => $value) {
+                $filterList[] = array(
+                    'user_name' => $value->name,
+                    'devtaskId' => empty($value->devtaskId) ? $value->task_id : $value->devtaskId,
+                    'task'      => empty($value->devtaskId) ? $value->task_subject : $value->subject,
+                    'date'      => $value->starts_at,
+                    'tracked'   => number_format($value->day_tracked / 60,2,".",","),
+                );
+            }
+        }
+        return response()->json( ["code" => empty($filterList ) ? 500 : 200 , "data" => array($filterList)] );
+
+    }
     public function taskActivity( Request $request ){
         $history = HubstaffActivity::select('users.name','developer_tasks.subject','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
                   ->leftjoin('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
                   ->leftjoin('users','hubstaff_members.user_id','users.id')
                   ->leftjoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
-                  ->whereBetween('hubstaff_activities.starts_at', [date('Y-m-d', strtotime('-7 days')),date('Y-m-d')])
+                  ->whereBetween('hubstaff_activities.starts_at', [date('Y-m-d', strtotime('-7 days')),date('Y-m-d',strtotime('+1 days'))])
                   ->groupBy('hubstaff_activities.starts_at','hubstaff_activities.user_id')
                   ->where('users.id',$request->id)
                   ->orderBy("hubstaff_activities.id","desc")->get();
@@ -92,8 +216,7 @@ class UserManagementController extends Controller
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
-            app('App\Http\Controllers\WhatsAppController')
-                ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
 
             return response()->json( ["code" => 200 , "data" => 'Permission added Successfully'] );       
@@ -151,15 +274,44 @@ class UserManagementController extends Controller
                     $user_in_team = 1;
                 }
 
-                $pending_tasks = Task::where('is_statutory', 0)
-            ->whereNull('is_completed')
-            ->Where('assign_to', $u->id)->count();
+                $taskList = DB::select('
+                select * from (
+                    (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.status as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
+                              LEFT JOIN
+                               (SELECT MAX(id) AS max_id,
+                                       task_id,
+                                       message,
+                                       created_at
+                                FROM chat_messages
+                                WHERE task_id > 0
+                                GROUP BY task_id) m_max ON m_max.task_id = tasks.id
+                            LEFT JOIN task_statuses ON task_statuses.id = tasks.status
+                             LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
+                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$u->id.') 
+                    
+                    union  
+                    
+                    (
+                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,developer_tasks.is_flagged as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$u->id.'
+                        
+                        ) 
+                    ) as c order by priority_no desc
+                ');
+ 
+            $pending_tasks =  0;
+            $total_tasks = count($taskList);
+            foreach($taskList as $t){
+                if($t->has_flag != 1) $pending_tasks++;
+            }
+            //     $pending_tasks = Task::where('is_statutory', 0)
+            // ->whereNull('is_completed')
+            // ->Where('assign_to', $u->id)->count();
 
             $no_time_estimate = DeveloperTask::whereNull('estimate_minutes')->where('assigned_to', $u->id)->count();
             $overdue_task     = DeveloperTask::where('estimate_date', '>', date('Y-m-d'))->where('status', '!=', 'Done')->where('assigned_to', $u->id)->count();
 
-            $total_tasks = Task::where('is_statutory', 0)
-            ->Where('assign_to', $u->id)->count();
+            // $total_tasks = Task::where('is_statutory', 0)
+            // ->Where('assign_to', $u->id)->count();
                 $u["pending_tasks"] = $pending_tasks;
                 $u["total_tasks"] = $total_tasks;
                 $u['no_time_estimate'] = $no_time_estimate;
@@ -677,14 +829,28 @@ class UserManagementController extends Controller
 
     public function getPermission($id) {
         $user = User::find($id);
-		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+		//$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+        
+        $permission = Permission::leftJoin('permission_user', function($join) use ($user)
+            {
+                $join->on('permissions.id', '=', 'permission_user.permission_id');
+                $join->where('permission_user.user_id', '=', $user->id);
+            })
+            ->select('permissions.name', 'permissions.id','permission_user.user_id')
+            ->orderBy('permission_user.user_id','DESC')
+            ->get()->toArray();
+
+            //->pluck('name','id');
+
+            //->pluck('permissions.name', 'permissions.id');
+
         $userPermission = $user->permissions->pluck('name', 'id')->all();
         
         return response()->json([
             "code"       => 200,
             "user"       => $user,
-            "userPermission"       => $userPermission,
-            "permissions"       => $permission
+            "userPermission" => $userPermission,
+            "permissions"    => $permission
         ]);
     }
 
@@ -898,29 +1064,30 @@ class UserManagementController extends Controller
 
 
     public function userTasks($id) {
-        $user = User::find($id);
+        $user = User::find($id)->toArray();
             $taskList = DB::select('
-            select * from (
-                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
-                          LEFT JOIN
-                           (SELECT MAX(id) AS max_id,
-                                   task_id,
-                                   message,
-                                   created_at
-                            FROM chat_messages
-                            WHERE task_id > 0
-                            GROUP BY task_id) m_max ON m_max.task_id = tasks.id
-                         LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
-                          WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
-                
-                union 
-                
-                (
-                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,"0" as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                select * from (
+                    (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.status as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
+                              LEFT JOIN
+                               (SELECT MAX(id) AS max_id,
+                                       task_id,
+                                       message,
+                                       created_at
+                                FROM chat_messages
+                                WHERE task_id > 0
+                                GROUP BY task_id) m_max ON m_max.task_id = tasks.id
+                            LEFT JOIN task_statuses ON task_statuses.id = tasks.status
+                             LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
+                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
                     
-                    ) 
-                ) as c order by orderBytime desc limit 10
-            ');
+                    union  
+                    
+                    (
+                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,developer_tasks.is_flagged as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                        
+                        ) 
+                    ) as c order by has_flag desc
+                '); 
 
 
         //  $tasks = Task::where('assign_to',$id)->where('is_verified',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
@@ -943,18 +1110,24 @@ class UserManagementController extends Controller
         }
         $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
 
-        $priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
+        //$priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
+        $p_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"));
+        $p_devtasks_time = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->where('priority','!=',0)->select(DB::raw("SUM(estimate_minutes) as approximate_time"));
+        $priority_tasks_time = ($p_devtasks_time)->union($p_tasks_time)->get();
+        // SELECT 
         /** get availablity hours */
         $user_avaibility = UserAvaibility::where('user_id',$id)->selectRaw('minute')->orderBy('id','desc')->first();
         $available_minute = !empty($user_avaibility) ? $user_avaibility->minute : 0;
 
-        $totalPriority = !empty($priority_tasks_time) ? $priority_tasks_time->approximate_time : 0;
+        $totalPriority = !empty($priority_tasks_time) ? $priority_tasks_time[0]->approximate_time : 0;
         $hours = 0;
+
         if($available_minute != 0) {
             $available_minute = $available_minute - $totalPriority;
             $hours = floor($available_minute / 60); // Get the number of whole hours
             $available_minute = $available_minute % 60; 
         }
+
         $u['total_priority_hours'] = intdiv($totalPriority, 60).':'. ($totalPriority % 60);
         $u['total_available_time'] = sprintf ("%d:%02d", $hours, $available_minute); 
         $today = date('Y-m-d');
@@ -981,7 +1154,7 @@ class UserManagementController extends Controller
         $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
         $u['today_avaibility_hour'] = $today_avaibility_hour;
 
-        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
+        $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
 
             return response()->json([
                 "code"       => 200,
@@ -1132,73 +1305,79 @@ class UserManagementController extends Controller
     }
 
     public function saveUserAvaibility(Request $request) {
-        // $this->validate($request, [
-		// 	'user_id' => 'required',
-		// 	'from' => 'required',
-		// 	'to' => 'required',
-		// 	'day' => 'required',
-		// 	'status' => 'required',
-        // ]);
-        if(!$request->user_id || $request->user_id == "" || !$request->day || $request->day == "") {
+        
+        $rules = [
+			'user_id' => 'required',
+			'to' => 'required',
+			'from' => 'required|lte:to',
+			'day' => 'required',
+			'status' => 'required',
+            'availableDay' => 'required',
+            'availableHour' => 'required',
+            'note' => 'required_if:status,"0"',
+        ];
+
+        $validator = \Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+
+           $errors = $validator->errors();
+
+           $message = '';
+             foreach ($errors->getMessages() as $field => $message) {
+                 $message = $message[0];
+             }
             return response()->json([
-                "code"       => 500,
-                "error"       => 'User name and day is required'
-            ]);
-        }
-        if($request->status == 1) {
-            if(!$request->from || $request->from == "" || !$request->to || $request->to == "") {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'From and To is required'
-                ]);
-            }
-            if($request->to <= $request->from) {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'Put time in 24 hours format'
-                ]);
-            }
-        }
-        if(!$request->availableDay || $request->availableDay == "") {
-            return response()->json([
-                "code"       => 500,
-                "error"       => 'Available day is required'
-            ]);
-        }
-        if(!$request->availableMinute || $request->availableMinute == "") {
-            return response()->json([
-                "code"       => 500,
-                "error"       => 'Available day is required'
+                "code"  => 500,
+                "error" => $message
             ]);
         }
 
-        $note = trim($request->note);
-        if(!$request->status) {
-            
-            if(!$note || $note == "") {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'Please provide reason for absence'
-                ]);
-            }
-        }
         $nextDay = 'next '.$request->day;
-        $day = date('Y-m-d', strtotime($nextDay));
-        $user_avaibility = new UserAvaibility;
-        $user_avaibility->date = $day;
-        $user_avaibility->from = $request->from;
-        $user_avaibility->user_id = $request->user_id;
-        $user_avaibility->to = $request->to;
-        $user_avaibility->day = $request->availableDay;
-        $user_avaibility->minute = $request->availableMinute;
-        $user_avaibility->status = $request->status;
-        $user_avaibility->note = $note;
-        $user_avaibility->save();
+
+        UserAvaibility::updateOrCreate([
+            'user_id'   => $request->user_id,
+        ],[
+            'date'     => date('Y-m-d', strtotime($nextDay)),
+            'user_id'  => $request->user_id,
+            'from'     => $request->from,
+            'to'       => $request->to,
+            'day'      => $request->availableDay,
+            'minute'   => $request->availableHour,
+            'status'   => $request->status,
+            'note'     => trim($request->note)
+        ]);
+
+        // $user_avaibility = new UserAvaibility;
+        // $user_avaibility->date = $day;
+        // $user_avaibility->from = $request->from;
+        // $user_avaibility->user_id = $request->user_id;
+        // $user_avaibility->to = $request->to;
+        // $user_avaibility->day = $request->availableDay;
+        // $user_avaibility->minute = $request->availableHour;
+        // $user_avaibility->status = $request->status;
+        // $user_avaibility->note = $note;
+        // $user_avaibility->save();
+        
         return response()->json([
             "code"       => 200,
             "message"       => 'Successful'
         ]);
         
+    }
+
+    public function userAvaibilityForModal($id) {
+        
+        $avaibility = UserAvaibility::where('user_id',$id)->first();
+        
+
+        if($avaibility){
+            $avaibility['weekday'] = strtolower(date('l', strtotime($avaibility['date'])));
+        }
+
+        $avaibility['user_id'] = $id;
+        
+        return response()->json(["code" => 200,"data" => $avaibility]);
     }
 
     public function userAvaibility($id) {
@@ -1228,6 +1407,17 @@ class UserManagementController extends Controller
         $user = User::find($id);
         if($user) {
             $user->update(['approve_login' => date('Y-m-d')]);
+
+            $params = [];
+            $params['user_id'] = $user->id;
+            $params['message'] = "Your activity has been approved for today's date ".date("Y-m-d");
+            // send chat message
+            $chat_message = \App\ChatMessage::create($params);
+            // send
+            app('App\Http\Controllers\WhatsAppController')
+                ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
+
             return response()->json(['message' => 'Successfully approved','code' => 200]);
         }
         return response()->json(['message' => 'User not found','code' => 404]);
@@ -1303,6 +1493,14 @@ class UserManagementController extends Controller
                     "user_id"  => $id
                 ]);
 
+                $params = [];
+                $params['user_id'] = $user->id;
+                $params['message'] = "We have created user with username : " .$username ." and password : ".$password." , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.";
+                // send chat message
+                $chat_message = \App\ChatMessage::create($params);
+                // send
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
                 return response()->json(["code" => 200, "message" => "User created successfully"]);
             }
 
@@ -1326,6 +1524,7 @@ class UserManagementController extends Controller
         }
 
         $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
+        $user = \App\User::find($id);
         $tables   = !empty($request->tables) ? $request->tables : [];
         $permissionType = $request->get("assign_permission","read");
 
@@ -1367,6 +1566,14 @@ class UserManagementController extends Controller
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput,true));
+
+            $params = [];
+            $params['user_id'] = $user->id;
+            $params['message'] = "Your request for given table (" .implode(",",$tables) .")  has been approved , please verify at your end.";
+            // send chat message
+            $chat_message = \App\ChatMessage::create($params);
+            // send
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
             return response()->json(["code" => 200, "message" => "Table assigned successfully"]);
 
@@ -1440,5 +1647,143 @@ class UserManagementController extends Controller
         ];
 
         return response()->json(['code' => 200 , 'data' => $data]);
+    }
+
+    public function updateStatus(Request $request){
+        if($request->type == "TASK"){
+            //issue_id
+            $status = \DB::table("task_statuses")->where('name',$request->is_resolved)->select("id")->get();
+            if($status){
+                Task::where('id', $request->issue_id)
+                    ->update(['status' => $status[0]->id]);
+                return response()->json(['code' => 200 , 'data' => 'Success']);
+            }
+        }
+        if($request->type == "DEVTASK"){
+            DeveloperTask::where('id', $request->issue_id)
+              ->update(['status' => $request->is_resolved]);
+            return response()->json(['code' => 200 , 'data' => 'Success']);
+        }
+        return response()->json(['code' => 500 , 'data' => 'Error']);
+    }
+    public function systemIps(Requests $request){
+        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+        return response()->json( ["code" => 200 , "data" => $shell_list] );
+    }
+
+    public function userGenerateStorefile(Request $request)
+    {
+
+        $server = $request->get("for_server");
+        $user   = \App\User::find($request->get('userid',0));
+        if(!$user) {
+            return false;
+        }
+
+        $username = str_replace(" ", "_", $user->name);
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$username.' -f add -s '.$server.' 2>&1';
+
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+
+        \Log::info(print_r($allOutput,true));
+
+        $string  = [];
+        if(!empty($allOutput)) {
+            $continuetoFill = false;
+            foreach($allOutput as $ao) {
+                if($ao == "-----BEGIN RSA PRIVATE KEY-----" || $continuetoFill) {
+                   $string[] = $ao;
+                   $continuetoFill = true; 
+                }
+            }
+        }
+
+        $content = implode("\n",$string);
+
+        $nameF = $server.".pem";
+
+
+        UserPemfileHistory::create([
+            'user_id' => $request->userid, 
+            'server_name' => $server,
+            'username' => $username,
+            'action' => 'add',
+            'created_by' => $request->user()->id,
+        ]);
+        
+        //header download
+        header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
+        header("Content-Type: application/force-download");
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header("Content-Type: application/x-pem-file");
+
+        echo $content;
+        die;
+    }
+
+    public function userPemfileHistoryListing(Request $request)
+    {
+        $history = UserPemfileHistory::where('user_id',$request->userid)->latest()->get();
+        return response()->json(["code" => 200, "data" => $history]);
+    }
+
+    public function deletePemFile(Request $request,$id)
+    {
+        $pemHistory = UserPemfileHistory::find($id);
+        if($pemHistory) {
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$pemHistory->username.' -f delete -s '.$pemHistory->server_name.' 2>&1';
+
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            $pemHistory->delete();
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Pem remove file request submitted successfully"]);
+
+        }else{
+            return response()->json(["code" => 500, "data" => [], "message" => "No request found"]);
+        }
+
+    }
+
+    public function addFeedbackCategory(Request $request)
+    {
+        $category = new UserFeedbackCategory;
+        $category->user_id=$request->user_id;
+        $category->category=$request->category;
+        $category->save();
+        $status = UserFeedbackStatus::get();
+
+        return view('usermanagement::user-feedback-data',compact('category','status'));
+        // return response()->json(["status" => true , 'category' => $category]);
+    }
+
+    public function addFeedbackStatus(Request $request)
+    {
+        $status = UserFeedbackStatus::where('status',$request->status);
+        if($status->count() === 0){
+            $feedback_status = new UserFeedbackStatus;
+            $feedback_status->status=$request->status;
+            $feedback_status->save();
+            // return view('usermanagement::user-feedback-data',compact('status'));
+        }
+        $all_status = UserFeedbackStatus::get();
+        return response()->json(["status" => true , 'feedback_status' => $all_status]);
+    }
+
+    public function addFeedbackTableData(Request $request)
+    {
+        $status = UserFeedbackStatus::get();
+
+        $user_id = $request->user_id;
+        $category = UserFeedbackCategory::where('user_id',$user_id)->groupBy('category')->get();
+        return view('usermanagement::user-feedback-table',compact('category', 'status'));
+
     }
 }

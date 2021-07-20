@@ -62,4 +62,14 @@ class Tickets extends Model {
             return $this->hasMany('App\ChatMessage', 'ticket_id')->latest();
         }
     }
+
+    public function customer()
+    {
+      return $this->hasOne(\App\Customer::class,'id','customer_id');
+    }
+
+    public function user()
+    {
+      return $this->hasOne(\App\User::class,'id', 'assigned_to');
+    }
 }

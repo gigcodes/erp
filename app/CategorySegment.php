@@ -8,5 +8,18 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CategorySegment extends Model
 {
-    //
+
+
+    public function categorySegmentDiscount()
+    {
+        return $this->hasMany(CategorySegmentDiscount::class,'category_segment_id','id');
+    }
+
+
+    public function category()
+    {   
+        return $this->hasMany(Category::class,'category_segment_id','id');
+    }
+
+
 }

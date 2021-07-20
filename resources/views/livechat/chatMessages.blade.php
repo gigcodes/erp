@@ -48,9 +48,32 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             padding: 0px 0px;
             margin-top: -8px;
         }
+        .table-responsive{
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .chat-righbox{
+            border: none;
+            background: transparent;
+            padding: 0;
+        }
+        .typing-indicator{
+            height: auto;
+            padding: 0;
+        }
+        textarea{
+            border: 1px solid #ddd !important;
+        }
+        .send_btn{
+            background-color: transparent !important;
+
+        }
+        .send_btn i{
+            color: #808080;
+        }
     </style>
         <div class="row">
-            <div class="col-lg-12 margin-tb">
+            <div class="col-lg-12 margin-tb p-0">
                 <h2 class="page-heading">Live Chat</h2>
                 <div class="pull-right">
                 </div>
@@ -136,7 +159,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                     <option value="">Quick Reply</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-4 cls_remove_rightpadding">
+                                            <div class="col-md-4 cls_remove_rightpadding pl-3">
                                                 @php
                                                     $all_categories = \App\ReplyCategory::all();
                                                 @endphp
@@ -149,7 +172,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                     @endif
                                                 </select>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-4 pl-3">
                                                 <div class="row">
                                                     <div class="col-md-9 cls_remove_rightpadding">
                                                         <input type="text" name="quick_comment" placeholder="New Quick Comment" class="form-control quick_comment">
@@ -169,7 +192,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="chat-righbox">
+                                        <div class="chat-righbox pt-3">
                                             <a href="javascript:;" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" ><i class="fa fa-info" aria-hidden="true"></i></a>
                                             &nbsp;
                                             <a href="javascript:;" title="Visited Pages" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" ><i class="fa fa-map-marker" aria-hidden="true"></i></a>

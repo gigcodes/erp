@@ -123,7 +123,7 @@ return [
         'scraper'        => [
             'driver' => 'daily',
             'path'   => storage_path('logs/scraper/scraper.log'),
-            'days'   => 14,
+            'days'   => 7,
         ],
         'update_category_job'        => [
             'driver' => 'daily',
@@ -134,7 +134,28 @@ return [
             'driver' => 'daily',
             'path'   => storage_path('logs/color_job/color_job.log'),
             'days'   => 7,
-        ]
+        ],
+        'broadcast_log' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/general/broadcast.log'),
+            'days'   => 1,
+        ],
+        'hubstaff_activity_command' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/hubstaff-activity-command/hubstaff-activity-command.log'),
+            'days'   => 7,
+        ],
+
+        'product-thumbnail' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/product-thumbnail/product-thumbnail-command.log'),
+            'days'   => 7,
+        ],
+        'scrapper_images'    => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/scrapper_images/scrapper_images.log'),
+            'days'   => 7,
+        ],
     ],
 
 ];

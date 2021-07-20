@@ -20,6 +20,9 @@ use App\ChatMessage;
 use App\PaymentReceipt;
 use Carbon\Carbon;
 use App\Order;
+use App\Learning;
+use App\Sop;
+
 class ChatMessagesController extends Controller
 {
     /**
@@ -28,8 +31,7 @@ class ChatMessagesController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function loadMoreMessages(Request $request)
-    {   
-        
+    {
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -39,6 +41,12 @@ class ChatMessagesController extends Controller
         switch ($request->object) {
             case 'customer':
                 $object = Customer::find($request->object_id);
+                break;
+            case 'user-feedback':
+                $object = User::find($request->object_id);
+                break;
+            case 'hubstuff':
+                $object = User::find($request->object_id);
                 break;
             case 'user':
                 $object = User::find($request->object_id);
@@ -76,6 +84,15 @@ class ChatMessagesController extends Controller
             case 'payment-receipts':
                 $object = PaymentReceipt::find($request->object_id);
             break;
+            //START - Purpose - Add learning - DEVTASK-4020
+            case 'learning':
+                $object = Learning::find($request->object_id);
+            break;
+            //END - DEVTASK-4020
+            case 'SOP':
+                $object = User::find($request->object_id);
+
+            break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -101,9 +118,23 @@ class ChatMessagesController extends Controller
            $onlyBroadcast   = true;
            $loadType        = "images";
         }
-
+       
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
 
+        if ($request->object == "SOP") {
+            $chatMessages = ChatMessage::where('sop_user_id', $object->id);
+        } 
+      
+        
+        if ($request->object == "user-feedback") {
+            $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
+            if ($request->feedback_status_id != null) {
+                $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id)->where('user_feedback_status',$request->feedback_status_id);
+            }
+        }
+        if ($request->object == "hubstuff") {
+            $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
+        }
         if(!$onlyBroadcast){
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
@@ -113,7 +144,7 @@ class ChatMessagesController extends Controller
         }
 
         if($request->keyword != null) {
-            $chatMessages = $chatMessages->whereDate('message',"like", "%".$request->keyword."%"); 
+            $chatMessages = $chatMessages->where('message',"like", "%".$request->keyword."%"); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
         }
 
 
@@ -165,9 +196,38 @@ class ChatMessagesController extends Controller
                                             });
                     });
                 break;
+            case 'incoming_img':
+                    $chatMessages = $chatMessages->where(function($query) use ($object) {
+                    $query->whereRaw("(chat_messages.number = ".$object->phone." and ( media_url is not null 
+                                                or id in (
+                                                select
+                                                    mediable_id
+                                                from
+                                                    mediables
+                                                    join media on id = media_id and extension != 'pdf'
+                                                WHERE
+                                                    mediable_type LIKE 'App%ChatMessage'
+                                            )) )");
+                    });
+                break;
+            case 'outgoing_img':
+                $chatMessages = $chatMessages->where(function($query) use ($object) {
+                $query->whereRaw("((chat_messages.number != ".$object->phone."  or chat_messages.number is null) and ( media_url is not null 
+                                            or id in (
+                                            select
+                                                mediable_id
+                                            from
+                                                mediables
+                                                join media on id = media_id and extension != 'pdf'
+                                            WHERE
+                                                mediable_type LIKE 'App%ChatMessage'
+                                        )) )");
+                });
+            break;  
         }
 
         $chatMessages = $chatMessages->get();
+        
         // Set empty array with messages
         $messages = [];
         $chatFileData = '';
@@ -340,6 +400,17 @@ class ChatMessagesController extends Controller
                     //parent image ends
                 }
             }
+
+            //START - Purpose : Get Excel sheet - DEVTASK-4236
+            $excel_attach = json_decode($chatMessage->additional_data);
+            if(!empty($excel_attach))
+            {
+                $path = $excel_attach->attachment[0];
+                $additional_data =  $path;
+            }else{
+                $additional_data = '';
+            }
+            //END - DEVTASK-4236
             
             if(isset($request->downloadMessages) && $request->downloadMessages==1){
                 if($textMessage!=''){
@@ -373,7 +444,8 @@ class ChatMessagesController extends Controller
                     'error_info' => $chatMessage->error_info,
                     'is_queue' => $chatMessage->is_queue,
                     'is_reviewed' => $chatMessage->is_reviewed,
-                    'quoted_message_id' => $chatMessage->quoted_message_id
+                    'quoted_message_id' => $chatMessage->quoted_message_id,
+                    'additional_data' => $additional_data//Purpose : Add additional data - DEVTASK-4236
                 ];
             }
         }
@@ -526,4 +598,89 @@ class ChatMessagesController extends Controller
 
           return response()->json(["code" => 200 , "data" => [], "messages" => "Customer updated Successfully"]);
     }
+
+
+
+    public function customChatListing()
+    {
+        $title = "List | Custom Chat Message";
+        
+        $users = User::orderBy('name')->get();
+
+        $vendors = Vendor::orderBy('name')->get();
+
+        return view('custom-chat-message.index', compact('title','users','vendors'));
+    }
+
+    public function customChatRecords(Request $request)
+    {
+        $keyword = $request->get("keyword");
+
+        $records = ChatMessage::with('user','vendor')
+            ->where(function($query){
+                $query->whereNotNull('vendor_id');
+                $query->orWhereNotNull('user_id');
+            });
+
+
+
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("message", "LIKE", "%$keyword%");
+            });
+        }
+
+        if (!empty($request->user_id)) {
+            $records = $records->where("user_id", $request->user_id);
+        }
+
+        if (!empty($request->vendor_id)) {
+            $records = $records->where("vendor_id",$request->vendor_id);
+        }
+
+
+        $records = $records->latest()->paginate(20);
+
+        $recorsArray = [];
+
+        foreach ($records as $row) {
+
+            $type = $sender = '';
+            if($row->user_id){
+                $type = 'user';
+                $sender = optional($row->user)->name;
+            }else if ($row->vendor_id) {
+                $type = 'vendor';
+                $sender = optional($row->vendor)->name;
+            }
+
+            $recorsArray[] = [
+                'created_at' => $row->created_at->format('d-m-y H:i:s'),
+                'type'       => $type,
+                'message'    => $row->message,
+                'sender'     => $type.' - '.$sender,
+            ];
+        }    
+
+        return response()->json([
+            "code"       => 200,
+            "data"       => $recorsArray,
+            "pagination" => (string) $records->links(),
+            "total"      => $records->total(),
+            "page"       => $records->currentPage(),
+        ]);
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }

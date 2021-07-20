@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Library\Github\GithubClient;
+use App\MemoryUsage;
 use Illuminate\Http\Request;
 use ProjectDirectory;
 
@@ -43,6 +44,7 @@ class MasterDevTaskController extends Controller
                 ->first();
         }
 
+        $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at',date("Y-m-d"))->groupBy('database_name')->orderBy('size','desc')->limit(5)->get();
         // find the open branches
         //$github     = new GithubClient;
         //$repository = $github->getRepository();
@@ -136,8 +138,20 @@ class MasterDevTaskController extends Controller
 		//DB Image size management#3118
 		$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
 
-		$projectDirectoryData = \DB::select($projectDirectorySql);	 
+        $memory_use = MemoryUsage::
+                whereDate('created_at', now()->format('Y-m-d'))
+                ->orderBy('used','desc')
+                ->first();
+
+
+        $projectDirectoryData = \DB::select($projectDirectorySql);
+
+
+        $logRequest = \App\LogRequest::where('status_code',"!=",200)->whereDate("created_at",date("Y-m-d"))->groupBy('status_code')->select(["status_code",\DB::raw("count(*) as total_error")])->get();
+
+
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest'));
     }
+
 }

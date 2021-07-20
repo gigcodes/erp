@@ -46,7 +46,7 @@ border-radius: 0 0 15px 15px !important;
 
 .type_msg{
 	background-color: white !important;
-	border:0 !important;
+	/*border:0 !important;*/
 	color:black !important;
 	height: 60px !important;
 	overflow-y: auto;
@@ -238,7 +238,7 @@ margin-bottom: 15px !important;
 }
 
 .chat-button-float{
-	position: fixed;
+	/* position: fixed; */
     top: 1em;
     right: 2em;
     z-index: 19999;
@@ -379,7 +379,7 @@ var accessToken = '';
 var websocket = false;
 var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
-const instance = AccountsSDK.init({
+const instance_1 = AccountsSDK.init({
 	client_id: client_id,
 	// response_type: "code",
 	onIdentityFetched: (error, data) => {
@@ -387,10 +387,10 @@ const instance = AccountsSDK.init({
 			console.log(error)
 		} 
 		if (data) {
-			//console.log("User authorized!");
+			console.log("User authorized!");
 			accessToken = data.access_token;
-			console.log(accessToken)
-			setTimeout(instance, data.expires_in);
+			console.log("accessToken "+accessToken)
+			// setTimeout(instance_1, data.expires_in);
 			try{
 				$.ajax({
 					url: '/livechat/save-token',
@@ -398,8 +398,9 @@ const instance = AccountsSDK.init({
 					dataType: 'json',
 					data: {accessToken: accessToken ,'seconds' : data.expires_in, "_token": "{{ csrf_token() }}"},
 				})
-				.done(function() {
+				.done(function(e) {
 					console.log("AccessToken Saved In Session");
+					console.log(e);
 				})
 				.fail(function() {
 					console.log("Cannot Save AccessToken In Session");
@@ -417,7 +418,10 @@ const instance = AccountsSDK.init({
 function runWebSocket(chatId) {
 	websocket = new WebSocket(wsUri);
 
+	console.log("runWebSocket : "+websocket);
+
 	websocket.onopen = function(evt) {
+		console.log("runWebSocket onopen : ");
 		pingSock();
 		websocket.send('{ "action": "login", "payload": { "token": "Bearer ' + accessToken + '" }}');
 	};
@@ -442,6 +446,7 @@ function runWebSocket(chatId) {
 
 var pingTimerObj = false;
 function pingSock() {
+	console.log("pingSock");
 	if (!websocket) return;
 	if (websocket.readyState !== 1) return;
 	websocket.send('{ "action": "ping" }');
@@ -451,15 +456,23 @@ function pingSock() {
 var currentChatId = 0;
 var chatTimerObj = false;
 function openChatBox(show){
+	console.log("openChatBox");
+	console.log(show);
+	console.log("currentChatId :"+currentChatId);
 	if(show){
+
+		console.log("Open Socket >>>");
 		//open socket
 		if(currentChatId != 0){
 			runWebSocket(currentChatId);
 		}
 		getUserList();
 		getChatsWithoutRefresh();
+		getCustDetails();
 	}
 	else{
+		console.log("Close Socket >>>");
+
 		clearTimeout(chatTimerObj);
 		clearTimeout(pingTimerObj);
 		// Close the connection, if open.
@@ -471,6 +484,12 @@ function openChatBox(show){
 
 $(window).on("blur focus", function(e) {
     var prevType = $(this).data("prevType");
+
+	console.log("blur focus");
+	console.log("prevType : "+prevType);
+	console.log("e.type : "+e.type);
+	console.log("chatBoxOpen : "+chatBoxOpen);
+
     if (prevType != e.type) {
         switch (e.type) {
             case "blur":
@@ -480,6 +499,7 @@ $(window).on("blur focus", function(e) {
                 break;
             case "focus":
             	if(chatBoxOpen){
+
             		openChatBox(true);
             	}
                 break;
@@ -547,6 +567,7 @@ function getCustomerInfoOnLoad(){
 		data: { _token: "{{ csrf_token() }}" },
 	})
 	.done(function(data) {
+		console.log("data :"+data.threadId);
 		var customerInfo = data.customerInfo;
 		if(customerInfo!=''){
 			customerInfoSetter(customerInfo);
@@ -557,6 +578,9 @@ function getCustomerInfoOnLoad(){
 	    	$('#chatAdditionalInfo').html('');
 	    	$('#chatTechnology').html('');
 		}
+
+
+		console.log("threadId :"+data.threadId);
 
 		if(data.threadId != ''){
 			currentChatId = data.threadId;
@@ -571,6 +595,118 @@ function getCustomerInfoOnLoad(){
 }
 
 getCustomerInfoOnLoad();
+
+function getLeadOrderDetails(customer_id){
+
+	var customer_id = customer_id;
+	$.ajax({
+    	url: "{{ route('livechat.getorderdetails') }}",
+    	type: 'GET',
+    	dataType: 'json',
+    	data: { customer_id : customer_id ,   _token: "{{ csrf_token() }}" },
+    })
+    .done(function(data) {
+    	
+
+		if (data[0] == true) {
+			let information = data[1];
+			let name = information.customer.name;
+			let number = information.customer.phone;
+			let email = information.customer.email ;
+			let accordion_data = '';
+			if (information.leads_total){
+				accordion_data = get_leads_table_data(information.leads,information.leads_total)
+			}
+			if (information.orders_total){
+				accordion_data += get_orders_table_data(information.orders,information.orders_total)
+			}
+			if (information.exchanges_return_total){
+				accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
+			}
+
+			$('#customer_order_details').html(accordion_data);
+
+		} else {
+			$('#customer_order_details').html('');
+		}
+    	
+    })
+    .fail(function() {
+		console.log("error");
+		
+    });
+
+}
+
+const createCard = (id,target,buttonName,body)=>{
+	let string = '<div class="card card-in-modal"><div class="card-header" '
+	if (id){
+		string += 'id="'+id+'"'
+	}
+	string += '><h5 class="mb-0"><button class="btn btn-link leads__button" type="button" data-toggle="collapse" '
+	if (target){
+		string += 'data-target="#'+target+'" aria-expanded="false" aria-controls="collapseOne">'
+	}
+	string += buttonName+'</button></h5></div><div id="'
+	string += target+'" class="collapse" aria-labelledby="headingOne" data-parent="#accordionTables"><div class="card-body">'
+	string += body+' </div></div></div>'
+	return string
+}
+
+const createTable = (head,body,bodyElements)=>{
+	let string = '<div class="table-responsive mt-3"><table class="table table-bordered" ><thead><tr>'
+	if (head.length){
+		for (let i in head){
+			string += '<th>'+head[i]+'</th>'
+		}
+	}
+	string += '</tr></thead><tbody>'
+	if (body.length){
+		for (let i in body){
+			string += '<tr>'
+			for (let j in bodyElements){
+				string += '<td>'
+				string += body[i][bodyElements[j]] ? body[i][bodyElements[j]] : 'N/A'
+				string += '</td>';
+			}
+			string += '</tr>'
+		}
+	}
+	string += '</tbody></table></div>'
+	return string
+}
+
+const get_leads_table_data = (leads,total) => {
+	if (leads.length){
+		let head = ['#','Status','Customer','Brand','Brand Segment','Category','Color','Size']
+		let bodyElements = ['id','status_name','customer_name','brand_name','brand_segment','cat_title','color','size']
+		let table = createTable(head,leads,bodyElements)
+		return createCard('leads__card__id','leads__target','Leads <span>('+total+')</span>	',table)
+	}
+	return ''
+}
+
+const get_orders_table_data = (orders,total) => {
+	if (orders.length){
+		let head = ['Id','Date','Site Name','Brands','Order Status']
+		let bodyElements = ['id','order_date','storeWebsite','brand_name_list','status']
+		let table = createTable(head,orders,bodyElements)
+		return createCard('orders__card__id','orders__target','Orders <span>('+total+')</span>	',table)
+	}
+	return ''
+}
+
+const get_exchanges_return_table_data = (data,total) => {
+	if (data.length){
+		let head = ['Id','Customer Name','Product Name','Type','Refund amount',
+			'Reason for refund','Status','Pickuo Address','Remarks','Created At']
+		let bodyElements = ['id','customer_name','name','type','refund_amount',
+		'reason_for_refund','status_name','pickup_address','remarks','created_at']
+		let table = createTable(head,data,bodyElements)
+		return createCard('exchanges_return__card__id','exchanges_return__target','return/exchange <span>('+total+')</span>	',table)
+	}
+	return ''
+}
 
 function getChats(id){
 
@@ -594,7 +730,9 @@ function getChats(id){
     	console.log('data');
     	//if(typeof data.data.message != "undefined" && data.length > 0 && data.data.length > 0) {
 
-	       // $('#message-recieve').empty().html(data.data.message);
+			console.log(data.data);
+
+	        $('#message-recieve').empty().html(data.data.message);
 	        $('#message-id').val(data.data.id);
 			$('#new_message_count').text(data.data.count);
 			$('#user_name').text(data.data.name);
@@ -613,13 +751,21 @@ function getChats(id){
 				$('#chatTechnology').html('');
 			}
 
+
+			console.log("threadId :: :"+data.data.threadId);
+
+
 			currentChatId = data.data.threadId;
 
 			//open socket
 			runWebSocket(data.data.threadId);
 			
     	//}
+		var customer_id = data.data.id;
         console.log("success");
+		console.log("Customer_id",data.data.id);
+
+		getLeadOrderDetails(customer_id);
     })
     .fail(function() {
 		console.log("error");
@@ -628,6 +774,24 @@ function getChats(id){
     	$('#chatAdditionalInfo').html('');
     	$('#chatTechnology').html('');
     });
+}
+
+function getCustDetails()
+{
+	var lastMsgId = $("#message-recieve").find(".d-flex").last().data("chat-id");
+	$.ajax({
+		url: "{{ route('livechat.message.withoutrefresh') }}",
+		type: 'POST',
+		dataType: 'json',
+		data: { _token: "{{ csrf_token() }}", last_msg_id : lastMsgId },
+	})
+	.done(function(data) {
+		var customer_id = data.data.id;
+		getLeadOrderDetails(customer_id);
+	})
+	.fail(function() {
+		console.log("error");
+	});
 }
 
 function getChatsWithoutRefresh(){
@@ -698,7 +862,7 @@ function getUserList(){
 		data: { _token: "{{ csrf_token() }}" },
 	})
 	.done(function(data) {
-		 $('#customer-list-chat').empty().html(data.data.message);
+		//  $('#customer-list-chat').empty().html(data.data.message);
 		 $('#new_message').text(data.data.count);
 	})
 	.fail(function() {

@@ -40,7 +40,9 @@ class SendEmail implements ShouldQueue
         try {
 
             $multimail = \MultiMail::to($email->to);
-            $multimail->from($email->from);
+
+            // $multimail->from($email->from);
+            
             if(!empty($email->cc)) {
                 $multimail->cc($email->cc);
             }
@@ -49,14 +51,20 @@ class SendEmail implements ShouldQueue
             }
 
             $data = json_decode($email->additional_data,true);
-            if(!empty($data['attachments'])) {
-                foreach ($data['attachments'] as $file_path) {
-                    $multimail->attachFromStorageDisk('files', $file_path);
-                }
-            }
-            
-            $multimail->send(new DefaultSendEmail($email));
 
+            $attchments = [];
+
+            if(!empty($data['attachment'])) {
+
+                $attchments = $data['attachment'];
+
+                // foreach ($data['attachment'] as $file_path) {
+                //     $attchments[] = 
+                //     $multimail->attachFromStorageDisk('files', $file_path);
+                // }
+            }
+            $multimail->send(new DefaultSendEmail($email, $attchments));
+           
             \App\CommunicationHistory::create([
                 'model_id'   => $email->model_id,
                 'model_type' => $email->model_type,

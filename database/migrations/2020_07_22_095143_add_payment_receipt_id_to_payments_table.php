@@ -16,8 +16,9 @@ class AddPaymentReceiptIdToPaymentsTable extends Migration
         Schema::table('payments', function (Blueprint $table) {
             $table->integer('payment_receipt_id');
             $table->date('date');
-            $table->date('paid_upto')->nullable()->change();
+            //$table->date('paid_upto')->nullable()->change();
         });
+        \DB::statement("ALTER TABLE `payments` CHANGE `paid_upto` `paid_upto` DATE NULL;");
     }
 
     /**

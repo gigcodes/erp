@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\StoreWebsite;
 use Crypt;
 use App\StoreSocialAccount;
@@ -19,6 +20,7 @@ use App\Task;
 use App\StoreSocialContentMilestone;
 use App\PaymentReceipt;
 use App\StoreSocialContentReview;
+use App\ContentManageentEmail;
 use Auth;
 use App\Helpers;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -35,7 +37,7 @@ class ContentManagementController extends Controller
         $title = "List | Content Management";
 
         $websites = StoreWebsite::whereNull("deleted_at");
-
+        $content_management_email = ContentManageentEmail::first();
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $websites = $websites->where(function ($q) use ($keyword) {
@@ -46,6 +48,8 @@ class ContentManagementController extends Controller
         }
 
         $websites = $websites->get();
+
+        $gmail_data = \App\GmailDataList::get();
 
         foreach($websites as $w) {
             // $media = $w->getMedia('website-image-attach');
@@ -58,7 +62,7 @@ class ContentManagementController extends Controller
             $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
 
         }
-        return view('content-management.index', compact('title','websites'));
+        return view('content-management.index', compact('title','websites','gmail_data','content_management_email'));
     }
 
     public function getAttachImages(Request $request)
@@ -66,6 +70,17 @@ class ContentManagementController extends Controller
         $website = StoreWebsite::where("id",$request->websiteId)->first();
         $media   = $website->getMedia('website-image-attach');
         return view('content-management.attach-images', compact('media'));
+    }
+
+    public function downloadAttachImages(Request $request)
+    {
+        $content = file_get_contents($request->image_url);
+        $random = bin2hex(random_bytes(20)).'.png';
+        $path = asset('/uploads/gmail_media/'.$random);
+
+        Storage::disk('uploads')->put('gmail_media/'.$random, $content);
+
+        return response()->json(['random' => $random,'image_path' => $path,'status' => true]);
     }
 
     public function viewAddSocialAccount() {
@@ -722,5 +737,19 @@ class ContentManagementController extends Controller
        $store_websites = StoreWebsite::pluck('title','id');
        $categories = StoreSocialContentCategory::pluck('title','id');
         return view('content-management.all-contents',compact('records','users','selected_publisher','selected_creator','store_websites','selected_website','categories','selected_category'));
+    }
+
+    public function emailStore(Request $request)
+    {
+        $email = ContentManageentEmail::first();
+        if ($email) {
+            $email->email = $request->email;
+            $email->save();
+            return response()->json(['status' => true, 'message' => "Email Updated successfully"]);
+        }
+            $email = new ContentManageentEmail;
+            $email->email = $request->email;
+            $email->save();
+            return response()->json(['status' => true, 'message' => "Email Saved successfully"]);
     }
 }

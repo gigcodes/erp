@@ -141,6 +141,11 @@ class Brand extends Model
         return self::pluck("name","id")->toArray();
     }
 
+    public function storewebbrand()
+    {
+        return $this->hasOne(StoreWebsiteBrand::class,'brand_id','id');
+    }
+
     public function storewebsitebrand($StoreID)
     {
         $record = $this->hasOne(StoreWebsiteBrand::class,'brand_id','id')->where('store_website_id',$StoreID)->first();
@@ -150,4 +155,10 @@ class Brand extends Model
             return '';
         }
     }
+
+    // public function categorySegment()
+    // {
+    //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
+    // }
+
 }

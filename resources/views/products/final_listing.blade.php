@@ -182,7 +182,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) 
-                <a href="{{ action('ProductController@showSOP') }}?type=ListingApproved" class="pull-right">SOP</a>
+                <a href="{{ route('sop.index') }}?type=ListingApproved" class="pull-right">SOP</a>
             </h2>
             <form class="product_filter" action="{{ action('ProductController@approvedListing') }}/{{ $pageType }}" method="GET">
                 <div class="row">

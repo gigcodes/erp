@@ -10,6 +10,8 @@ use File;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Session;
+use App\ChatMessage;
+use Illuminate\Support\Carbon;
 
 class LaravelLogController extends Controller
 {
@@ -92,8 +94,9 @@ class LaravelLogController extends Controller
         return view('logging.laravellog', compact('logs'));
     }
 
-    public function liveLogs(Request $request)
+    public function liveLogsSingle(Request $request)
     {
+        
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path         = storage_path('logs');
@@ -162,8 +165,8 @@ class LaravelLogController extends Controller
         $perPage = Setting::get('pagination');
 
         $final = $key = [];
-        if (isset($_GET['channel'])) {
-            session(['channel' => $_GET['channel']]);
+        if (isset($request->channel)) {
+            session(['channel' => $request->channel]);
         }
         foreach ($errors as $key => $error) {
 
@@ -171,25 +174,123 @@ class LaravelLogController extends Controller
             $temp1 = explode(".", $str);
             $temp2 = explode(" ", $temp1[0]);
             $type  = $temp2[2];
-            if (isset($_GET['channel']) && $_GET['channel'] == $type) {
-                // echo "<pre>";
-                // print_r($key);
-                array_push($final, $error);
+            $if_available = false;
+            if (stripos(strtolower($request->msg), $temp1[1]) !== false){
+                array_push($final, $temp2[0].$temp2[1]);
+            }
+        }
+        return $final;
+    }
+    public function liveLogs(Request $request)
+    {
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+        //$filename = '/laravel-2020-09-10.log';
+        $path         = storage_path('logs');
+        $fullPath     = $path . $filename;
+        $errSelection = [];
+        try {
+            $content = File::get($fullPath);
+            preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
+            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeSeparated = implode('|', $errorTypeArr);
 
+            $defaultSearchTerm = 'ERROR';
+            if ($request->get('type')) {
+                $defaultSearchTerm = $request->get('type');
             }
 
-            if (!isset($_GET['channel'])) {
+            foreach ($match[0] as $value) {
+                foreach ($errorTypeArr as $errType) {
+                    if (preg_match("/" . $errType . "/", $value)) {
+                        $errSelection[] = $errType;
 
-                // echo "<pre>";
-                // print_r($key);
-                array_push($final, $error);
+                        break;
+                    }
+                }
+                if ($request->get('search') && $request->get('search') != '') {
+                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
+                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                        $str   = $value;
+                        $temp1 = explode(".", $str);
+                        $temp2 = explode(" ", $temp1[0]);
+                        $type  = $temp2[2];
+                        array_push($this->channel_filter, $type);
+
+                        $errors[] = $value . "===" . str_replace('/', '', $filename);
+                    }
+                } else {
+                    if (preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                        $str   = $value;
+                        $temp1 = explode(".", $str);
+                        $temp2 = explode(" ", $temp1[0]);
+                        $type  = $temp2[2];
+                        array_push($this->channel_filter, $type);
+
+                        $errors[] = $value . "===" . str_replace('/', '', $filename);
+                    }
+                }
+
+            }
+            //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
+            $errors = array_reverse($errors);
+            //}
+        } catch (\Exception $e) {
+            $errors = [];
+
+        }
+
+        /*$other_channel_data = $this->getDirContents($path);
+        foreach ($other_channel_data as $other) {
+            array_push($errors, $other);
+        }*/
+        $allErrorTypes = array_values(array_unique($errSelection));
+
+        $users       = User::all();
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        $perPage = Setting::get('pagination');
+
+        $final = $key = [];
+        if (isset($request->channel)) {
+            session(['channel' => $request->channel]);
+        }
+        foreach ($errors as $key => $error) {
+
+            $str   = $error;
+            $temp1 = explode(".", $str);
+            $temp2 = explode(" ", $temp1[0]);
+            $type  = $temp2[2];
+            
+            $if_available = false;
+            if (isset($request->channel) && $request->channel == $type) {
+                foreach ($final as $value) {
+                    if (stripos(strtolower($value), $temp1[1]) !== false) $if_available = true;
+                }
+                if($if_available){
+                    continue;
+                }else{
+                    array_push($final, $error);
+                }
+            }
+
+            if (!isset($request->channel)) {
+                
+                foreach ($final as $value) {
+                    if (stripos(strtolower($value), $temp1[1]) !== false) $if_available = true;
+                }
+                if($if_available){
+                    continue;
+                }else{
+                    array_push($final, $error);
+                }
+                
             }
         }
         //     dd($final);
         //    exit;
 
         $errors       = [];
-        $errors       = $final;
+        $errors       = array_unique($final);
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
         //dd($currentItems);
 
@@ -207,7 +308,10 @@ class LaravelLogController extends Controller
             }
         }
         $logKeywords = LogKeyword::all();
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords]);
+        $ChatMessages = ChatMessage::where('message_application_id',10001)->orderBy('created_at','DESC')->whereDate('created_at', '>', Carbon::now()->subDays(30))->get();
+
+
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords,'ChatMessages'=>$ChatMessages]);
 
     }
 

@@ -8,6 +8,9 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Email Addresses List</h2>
             <div class="pull-right">
+                
+                <button class="btn btn-secondary ml-3 error-email-history">View Errors</button>
+
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#emailAddressModal">+</button>
             </div>
         </div>
@@ -45,6 +48,8 @@
             <th>ID</th>
             <th>From Name</th>
             <th>From Address</th>
+            <th>Recovery Phone</th>
+            <th>Recovery Email</th>
             <th>Driver</th>
             <th>Host</th>
             <th>Port</th>
@@ -66,6 +71,12 @@
               </td>
               <td>
                   {{ $server->from_address }}
+              </td>
+              <td>
+                  {{ $server->recovery_phone }}
+              </td>
+              <td>
+                  {{ $server->recovery_email }}
               </td>
               <td>
                   {{ $server->driver }}
@@ -91,7 +102,9 @@
               <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
+                  
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
+
                   {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!}
@@ -134,6 +147,27 @@
               <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
             @endif
           </div>
+
+
+          <div class="form-group">
+            <strong>Recovery Phone:</strong>
+            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}" required>
+
+            @if ($errors->has('recovery_phone'))
+              <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Recovery Email:</strong>
+            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}" required>
+
+            @if ($errors->has('recovery_email'))
+              <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
+            @endif
+          </div>
+
+
 			<div class="form-group">
             	<strong>Store Website:</strong>
 				<Select name="store_website_id" class="form-control">
@@ -235,6 +269,42 @@
 			</div>
 		</div>
 	</div>
+
+</div><div id="ErrorHistoryModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Email Error History</h4>
+        
+        <a class="btn btn-secondary ml-3" href="{{ route('email.failed.download') }}">Download</a>
+
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>From Name</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>    
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="emailAddressEditModal" class="modal fade" role="dialog">
@@ -267,6 +337,28 @@
               <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
             @endif
           </div>
+
+
+          <div class="form-group">
+            <strong>Recovery Phone:</strong>
+            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}" required>
+
+            @if ($errors->has('recovery_phone'))
+              <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
+            @endif
+          </div>
+
+
+          <div class="form-group">
+            <strong>Recovery Email:</strong>
+            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}" required>
+
+            @if ($errors->has('recovery_email'))
+              <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
+            @endif
+          </div>
+
+
 		  <div class="form-group">
             	<strong>Store Website:</strong>
 				<Select name="store_website_id" id="edit_store_website_id" class="form-control">
@@ -281,11 +373,23 @@
 			</div>
           <div class="form-group">
             <strong>Driver:</strong>
-            <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
+            
 
+            <!-- <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required> -->
+            
+            <Select name="driver" id="edit_driver" class="form-control required">
+              <option value = ''>Select Driver</option>
+              @foreach ($allDriver as $driver)
+                <option value="{{ $driver }}">{{ $driver }}</option>
+              @endforeach
+            </Select>
             @if ($errors->has('driver'))
               <div class="alert alert-danger">{{$errors->first('driver')}}</div>
             @endif
+
+
+
+
           </div>
           <div class="form-group">
             <strong>Host:</strong>
@@ -297,7 +401,14 @@
           </div>
           <div class="form-group">
             <strong>Port:</strong>
-            <input type="text" name="port" class="form-control" value="{{ old('port') }}" required>
+            <!-- <input type="text" name="port" class="form-control" value="{{ old('port') }}" required> -->
+
+            <Select name="port" id="edit_port" class="form-control required">
+              <option value = ''>Select Port</option>
+              @foreach ($allPort as $port)
+                <option value="{{ $port }}">{{ $port }}</option>
+              @endforeach
+            </Select>
 
             @if ($errors->has('port'))
               <div class="alert alert-danger">{{$errors->first('port')}}</div>
@@ -305,7 +416,15 @@
           </div>
           <div class="form-group">
             <strong>Encryption:</strong>
-            <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
+            
+            <!-- <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required> -->
+
+            <Select name="encryption" id="edit_encryption" class="form-control required">
+              <option value = ''>Select Encryption</option>
+              @foreach ($allEncryption as $encryption)
+                <option value="{{ $encryption }}">{{ $encryption }}</option>
+              @endforeach
+            </Select>
 
             @if ($errors->has('encryption'))
               <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
@@ -367,14 +486,26 @@
       $('#emailAddressEditModal form').attr('action', url);
       $('#emailAddressEditModal').find('input[name="from_name"]').val(emailAddress.from_name);
       $('#emailAddressEditModal').find('input[name="from_address"]').val(emailAddress.from_address);
-      $('#emailAddressEditModal').find('input[name="driver"]').val(emailAddress.driver);
+      
+      // $('#emailAddressEditModal').find('input[name="driver"]').val(emailAddress.driver);
+
       $('#emailAddressEditModal').find('input[name="host"]').val(emailAddress.host);
-      $('#emailAddressEditModal').find('input[name="port"]').val(emailAddress.port);
-      $('#emailAddressEditModal').find('input[name="encryption"]').val(emailAddress.encryption);
+      
+      // $('#emailAddressEditModal').find('input[name="port"]').val(emailAddress.port);
+      
+      // $('#emailAddressEditModal').find('input[name="encryption"]').val(emailAddress.encryption);
+
       $('#emailAddressEditModal').find('input[name="username"]').val(emailAddress.username);
       $('#emailAddressEditModal').find('input[name="password"]').val(emailAddress.password);
+
+      $('#emailAddressEditModal').find('input[name="recovery_phone"]').val(emailAddress.recovery_phone);
+      $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
 	  
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
+
+    $('#edit_driver').val(emailAddress.driver).trigger('change');
+    $('#edit_port').val(emailAddress.port).trigger('change');
+    $('#edit_encryption').val(emailAddress.encryption).trigger('change');
       
     });
 
@@ -394,6 +525,28 @@
           // Show data in modal
           $('#EmailRunHistoryModal tbody').html(response.data);
           $('#EmailRunHistoryModal').modal('show');
+
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('click', '.error-email-history', function(e) {
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/email/geterroremailhistory',
+          dataType: 'json',
+          type: 'post',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          // Show data in modal
+          $('#ErrorHistoryModal tbody').html(response.data);
+          $('#ErrorHistoryModal').modal('show');
 
           $("#loading-image").hide();
         }).fail(function(errObj) {

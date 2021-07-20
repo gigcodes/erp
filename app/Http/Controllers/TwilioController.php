@@ -109,7 +109,8 @@ class TwilioController extends FindByNumberController
                 $tokens=[];
                 foreach ($devices as $device){
                     $capability = new ClientToken($device->account_id, $device->auth_token);
-                    $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+                    // $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+                    $capability->allowClientOutgoing($device->twiml_app_sid);
                     
                     $capability->allowClientIncoming($agent);
                     $expiresIn = (3600 * 1);
@@ -190,6 +191,7 @@ class TwilioController extends FindByNumberController
      */
     public function ivr(Request $request)
     {
+
         Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 
         $count = $request->get("count");
@@ -541,6 +543,7 @@ class TwilioController extends FindByNumberController
         ]);
 
         //Change Agent Call Status - START
+        Log::channel('customerDnd')->info('AuthId: ' . $request->get("AuthId"));	
         $user_id =$request->get("AuthId");
         $user_data = User::find($user_id);
         
@@ -1235,7 +1238,7 @@ class TwilioController extends FindByNumberController
                 return redirect()->back()->with('success','Twilio details updated successfully');
 
             }else{
-                TwilioCredential::create([
+                $create_new = TwilioCredential::create([
                    'twilio_email' => $request->email,
                    'account_id' => $request->account_id,
                    'auth_token' => $request->auth_token
@@ -1254,6 +1257,12 @@ class TwilioController extends FindByNumberController
                             "friendlyName" => "voice call"
                         ]
                 );
+
+                
+                if($application)
+                {
+                    TwilioCredential::where('id','=',$create_new->id)->update(['twiml_app_sid' => $application->sid]);
+                }
                 //Create TwiML Apps - END 
 
                 //Get Phone Number - START
@@ -1433,7 +1442,8 @@ class TwilioController extends FindByNumberController
                'forwarding_on' => $request->agent_id,
                'twilio_active_number_id' => $request->twilio_number_id
             ]);
-            $base_url = env('APP_URL');
+            // $base_url = env('APP_URL');
+            $base_url = config('env.APP_URL');
             //update webhook url on twilio console using api
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'https://api.twilio.com/2010-04-01/Accounts/'.$account_details->account_id.'/IncomingPhoneNumbers/'.$number_details->sid.'.json');

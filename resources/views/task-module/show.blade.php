@@ -5,10 +5,17 @@
 @section('title', 'Tasks')
 
 @section('styles')
+   
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+   
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
     <style>
         #message-wrapper {
             height: 450px;
@@ -109,7 +116,7 @@
             padding: 4px 8px;
         }
         .btn.btn-image.btn-call-data {
-            margin-top: -9px;
+            margin-top: -15px;
         }
         .dis-none {
         display: none;
@@ -139,6 +146,21 @@
     transform: scale(1.5); 
     }
 
+    .status-selection .btn-group {
+            padding: 0;
+            width: 100%;
+        }
+        .status-selection .multiselect {
+            width : 100%;
+        }
+
+      .green-notification { 
+        color:green;
+     }
+    .red-notification { 
+        color:grey;
+     }   
+
     </style>
 @endsection
 
@@ -155,6 +177,7 @@
     @include('task-module.partials.modal-task-category')
     @include('task-module.partials.modal-task-view')
     @include('task-module.partials.modal-whatsapp-group')
+    @include('task-module.partials.modal-task-bell')
 
     @include('partials.flash_messages')
 
@@ -215,8 +238,28 @@
                             </select>
                         </div>
                     </div>
+                    
+                    {{-- <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="filter_status" id="filter_status" class="form-control input-sm">
+                                <option value="">Status Filter</option>
+                                @foreach($task_statuses as $task_statuse)
+                                    <option @if(request('filter_status') == $task_statuse->id) selected @endif value="{{$task_statuse->id}}">{{$task_statuse->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div> --}}
+
+                    <div class="col-xs-12 col-md-1 pd-2 status-selection">
+                        <?php echo Form::select("filter_status[]",$statuseslist,request()->get('filter_status', $selectStatusList),["class" => "form-control multiselect","multiple" => true]); ?>
+                    </div>
+
+
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <input type="checkbox" checked="checked" name="flag_filter"> Flagged
+                    </div>
                     <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
-                        <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
+                    <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
                 </div>    
                 
             </form>
@@ -235,6 +278,8 @@
                 @csrf
                 <input type="hidden" name="has_render" value="1">
                 <input type="hidden" name="from" value="task-page">
+                <!-- Purpose : Add If condition for Only Admin create Task - DEVTASK-4354 -->
+                @if(auth()->user()->isAdmin())
                 <div class="row">
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group cls_task_subject">
@@ -367,6 +412,7 @@
                     </div>
                    </div>
                 </div>
+                @endif
                 <div class="row">
                     <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
                         <div class="row">
@@ -485,16 +531,23 @@
 
     <div id="exTab2" style="overflow: auto">
         <ul class="nav nav-tabs">
+
             <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
             <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
+
+             <li> <button type="button"  onclick="window.location.href = '{{ action("DevelopmentController@exportTask",request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
 
-            @if(auth()->user()->isAdmin())
+
+{{--            href="{{ action('DevelopmentController@exportTask',request()->all()) }}"--}}
+
+        @if(auth()->user()->isAdmin())
 
             <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
 
@@ -529,7 +582,7 @@
                             @foreach($data['task']['pending'] as $task)
                             @php $task->due_date='';
                                  //$task->lead_hubstaff_task_id=0;
-                                 $task->status=1;
+                                 //$task->status=1;
                                 @endphp
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                     <td class="p-2">
@@ -646,7 +699,11 @@
                                             </select>
                                             @else 
                                                 @if($task->master_user_id) 
-                                                <p>{{$users[$task->master_user_id]}}</p>
+                                                    @if(isset($users[$task->master_user_id]))
+                                                        <p>{{$users[$task->master_user_id]}}</p>
+                                                    @else 
+                                                         <p>-</p>
+                                                    @endif
                                                 @endif
                                             @endif
 
@@ -680,7 +737,7 @@
                                     </td>
                                     <td>
 
-                                        
+                                            
 
                                             
                                             <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
@@ -705,17 +762,17 @@
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
                                         @endif
                                         
-                                        <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                        <div class="col-md-12 expand-col" style="padding:0px;">
                                             <div class="d-flex">
                                             <br>
                                                 <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
-                                                <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+                                                <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}" data-user_id="{{$task->assign_to}}"><i class="fa fa-info-circle"></i></button>
                                                 <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
                                                 <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
                                             </div>
                                             @if(!$task->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->assign_to)) 
-                                            <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
+                                            <button type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
                                             @endif
                                             @if(!$task->lead_hubstaff_task_id && $task->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->master_user_id)) 
                                             <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
@@ -754,12 +811,16 @@
                                                             <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                             
                                                                 <?php 
-                                                                $pos = strpos($task->message,$task->task_subject);
-                                                                $length = strlen($task->task_subject);
-                                                                if($pos) {
-                                                                    $start = $pos + $length + 1;
-                                                                }
-                                                                else {
+                                                                if(!empty($task->message) && !empty($task->task_subject)) {
+                                                                    $pos = strpos($task->message,$task->task_subject);
+                                                                    $length = strlen($task->task_subject);
+                                                                    if($pos) {
+                                                                        $start = $pos + $length + 1;
+                                                                    }
+                                                                    else {
+                                                                        $start = 0;
+                                                                    }
+                                                                }else{
                                                                     $start = 0;
                                                                 }
                                                                 ?>
@@ -792,6 +853,10 @@
                                     <td class="p-2">
                                         <div>
                                             <div class="row cls_action_box" style="margin:0px;">
+
+                                                
+
+
                                                 @if(auth()->user()->isAdmin())
                                                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
 
@@ -799,6 +864,19 @@
 
                                                     
                                                 @endif
+
+                                                <button data-toggle="modal" data-target="#taskReminderModal"  
+                                                    class='btn pd-5 task-set-reminder' 
+                                                    data-id="{{ $task->id }}"
+                                                    data-frequency="{{ !empty($task->reminder_message) ? $task->frequency : '60' }}"
+                                                    data-reminder_message="{{ !empty($task->reminder_message) ? $task->reminder_message : 'Plz update' }}"
+                                                    data-reminder_from="{{ $task->reminder_from }}"
+                                                    data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}"
+                                                >
+                                                    <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
+                                                </button>                                                
+
+                                    
 
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id())
                                                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
@@ -828,14 +906,6 @@
 
                                                 @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
                                                     <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}"/></a>
-                                                @endif
-
-                                                @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                                                    @if ($task->is_private == 1)
-                                                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/private.png')}}"/></button>
-                                                    @else
-                                                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/not-private.png')}}"/></button>
-                                                    @endif
                                                 @endif
 
                                                 @if ($task->is_flagged == 1)
@@ -929,7 +999,7 @@
                                 <div class="form-group">
                                     <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="task_id" title="Choose a Task" required>
                                         @foreach ($data['task']['pending'] as $task)
-                                            <option data-tokens="{{ $task->id }} {{ $task->task_subject }} {{ $task->task_details }} {{ array_key_exists($task->assign_from, $users) ? $users[$task->assign_from] : '' }} {{ array_key_exists($task->assign_to, $users) ? $users[$task->assign_to] : '' }}" value="{{ $task->id }}">{{ $task->id }} from {{ $users[$task->assign_from] }} {{ $task->task_subject }}</option>
+                                            <option data-tokens="{{ $task->id }} {{ $task->task_subject }} {{ $task->task_details }} {{ array_key_exists($task->assign_from, $users) ? $users[$task->assign_from] : '' }} {{ array_key_exists($task->assign_to, $users) ? $users[$task->assign_to] : '' }}" value="{{ $task->id }}">{{ $task->id }} from {{ @$users[$task->assign_from] }} {{ $task->task_subject }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -1074,7 +1144,7 @@
         </div>
     </div>
 
-    <div id="preview-task-image" class="modal fade" role="dialog">
+<div id="preview-task-image" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
         	<div class="modal-body">
@@ -1100,10 +1170,10 @@
         </div>
     </div>
 </div>
-    <div id="file-upload-area-section" class="modal fade" role="dialog">
+<div id="file-upload-area-section" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+           <form action="{{ route('task.save-documents') }}" method="POST" enctype="multipart/form-data">
 	            <input type="hidden" name="task_id" id="hidden-task-id" value="">
 	            <div class="modal-header">
 	                <h4 class="modal-title">Upload File(s)</h4>
@@ -1130,6 +1200,60 @@
     </div>
 </div>
 
+<div id="send-message-text-box" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route('task.send-brodcast') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title">Send Brodcast Message</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                    @csrf
+                    <div class="form-group">
+                        <label for="document">Message</label>
+                        <textarea class="form-control message-for-brodcast" name="message" placeholder="Enter your message"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-send-brodcast-message">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload File(s)</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                        @csrf
+                        <div class="form-group">
+                            <label for="document">Documents</label>
+                            <div class="needsclick dropzone" id="document-dropzone">
+
+                            </div>
+                        </div>
+                        <div class="form-group add-task-list">
+                            
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-save-documents">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
@@ -1144,6 +1268,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+
+    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $(".multiselect").multiselect({
+                nonSelectedText: 'Status Filter',
+                allSelectedText: 'All',
+                includeSelectAllOption: true
+            });
+
+        });
+    </script>    
+
+
     <script>
         var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
         var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
@@ -1215,6 +1354,58 @@
                     }
                 });
             }            
+        });
+
+        $('#task_reminder_from').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        var TaskToRemind = null
+        $(document).on('click', '.task-set-reminder', function () {
+            let taskId = $(this).data('id');
+            let frequency = $(this).data('frequency');
+            let message = $(this).data('reminder_message');
+            let reminder_from = $(this).data('reminder_from');
+            let reminder_last_reply = $(this).data('reminder_last_reply');
+
+            $('#frequency').val(frequency);
+            $('#reminder_message').val(message);
+            $("#taskReminderModal").find("#task_reminder_from").val(reminder_from);
+            if(reminder_last_reply == 1) {
+                $("#taskReminderModal").find("#reminder_last_reply").prop("checked",true);
+            }else{
+                $("#taskReminderModal").find("#reminder_last_reply_no").prop("checked",true);
+            }
+            TaskToRemind = taskId;
+        });
+
+        $(document).on('click', '.task-submit-reminder', function () {
+            var taskReminderModal = $("#taskReminderModal");
+            let frequency = $('#frequency').val();
+            let message = $('#reminder_message').val();
+            let task_reminder_from = taskReminderModal.find("#task_reminder_from").val();
+            let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
+
+            $.ajax({
+                url: "{{action('TaskModuleController@updateTaskReminder')}}",
+                type: 'POST',
+                success: function () {
+                    toastr['success']('Reminder updated successfully!');
+                    $(".set-reminder img").css("background-color", "");
+                    if(frequency > 0)
+                    {
+                        $(".task-set-reminder img").css("background-color", "red");
+                    }
+                },
+                data: {
+                    task_id: TaskToRemind,
+                    frequency: frequency,
+                    message: message,
+                    reminder_from: task_reminder_from,
+                    reminder_last_reply: reminder_last_reply,
+                    _token: "{{ csrf_token() }}"
+                }
+            });
         });
 
 
@@ -2539,6 +2730,43 @@
             // }
         });
 
+        $("#send_message_button").on("click", function() {
+            $("#send-message-text-box").modal("show");
+        });
+
+        $(".btn-send-brodcast-message").on("click",function () {
+            if (selected_tasks.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('tasks/send-brodcast') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks,
+                        message : $(".message-for-brodcast").val()
+                    },
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        toastr["success"](response.message);
+                        $("#send-message-text-box").modal("hide");
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log(response);
+                    toastr["error"]("Request has been failed due to the server , please contact administrator");
+                });
+            } else {
+                $("#loading-image").hide();
+                toastr["error"]("Please select atleast 1 task!");
+            }
+        });  
+
+
         $('#taskCreateButton').on('click', function (e) {
             e.preventDefault();
             var form  = $(this).closest('form');
@@ -2748,8 +2976,22 @@
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
+            var userId = $(this).data('user_id');
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
+
+            //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
+            const hasText = $(this).siblings('input').val();
+
+            if(!hasText || hasText == 0){
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            }else{
+                $('#time_history_modal .revise_btn').prop('disabled', false);
+                $('#time_history_modal .remind_btn').prop('disabled', true);
+            }
+            //END - DEVTASK-4354
+
             $.ajax({
                 url: "{{ route('task.time.history') }}",
                 data: {id: issueId},
@@ -2783,11 +3025,49 @@
                                 </tr>'
                             );
                         });
+
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
+                        ); 
                     }
                 }
             });
             $('#time_history_modal').modal('show');
         });
+
+        //START - Purpose : Remind , Revise button Events - DEVTASK-4354
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+
+        $(document).on('click', '.revise_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.history.approve.sendMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+        //END - DEVTASK-4354
 
         $(document).on("change",".select2-task-disscussion",function() {
             var $this = $(this);
@@ -2965,7 +3245,7 @@ $(document).on("click",".btn-save-documents",function(e){
 			}
 			else {
 				toastr["success"]("Document uploaded successfully");
-				location.reload();
+				//location.reload();
 			}
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 			toastr["error"](jqXHR.responseJSON.message);

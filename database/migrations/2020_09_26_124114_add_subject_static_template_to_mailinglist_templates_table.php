@@ -16,8 +16,9 @@ class AddSubjectStaticTemplateToMailinglistTemplatesTable extends Migration
         Schema::table('mailinglist_templates', function (Blueprint $table) {
             $table->String('subject',255)->nullable();
             $table->text('static_template')->nullable();
-			$table->string('mail_tpl')->nullable()->change();
         });
+        
+        \DB::statement("ALTER TABLE `mailinglist_templates` CHANGE `mail_tpl` `mail_tpl` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
     }
 
     /**

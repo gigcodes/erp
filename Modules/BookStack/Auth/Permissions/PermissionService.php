@@ -624,7 +624,7 @@ class PermissionService
                         $query->where('has_permission', '=', true)
                             ->orWhere(function ($query) {
                                 $query->where('has_permission_own', '=', true)
-                                    ->where('created_by', '=', $this->currentUser()->id);
+                                    ->orWhere('created_by', '=', $this->currentUser()->id);
                             });
                     });
             });

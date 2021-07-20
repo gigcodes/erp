@@ -41,8 +41,19 @@
   width:100%;
   padding: 0;
 }
-.table.table-bordered.order-table a{
-color:black!important;
+.table.table-bordered.order-table tr th a{
+  color:#000!important;
+}
+.table.table-bordered.order-table tr td a{
+  /* color:black!important; */
+  color:#757575!important;
+}
+.table.table-bordered.order-table tr td{
+  font-size:14px;
+  color:#757575;
+}
+.fa-user-plus{
+  cursor:pointer;
 }
 </style>
 @endsection
@@ -146,6 +157,11 @@ color:black!important;
               <a href="/purchase-product/get-suppliers" class="btn btn-xs btn-secondary">
                             Suppliers
               </a>
+              <!-- START - Purpose : Add Vutton - DEVTASK-19941 -->
+              <a href="#" class="btn btn-xs btn-secondary not_mapping_supplier_list">
+                            Not Mapping Suppliers
+              </a>
+              <!-- END - DEVTASK-19941 -->
             </div>
         </div>
 </div>
@@ -155,7 +171,7 @@ color:black!important;
       <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
         <thead>
         <tr>
-            <th width="5%">select</th>
+            <th width="2%">select</th>
             <th width="5%"><a href="">ID</a></th>
             <th width="6%"><a href="">Customer</a></th>
             <th width="10%"><a href="">Supplier</a></th>
@@ -163,7 +179,7 @@ color:black!important;
             <th width="10%">Buying Price</th>
             <th width="10%"><a href="">Selling price</a></th>
             <th width="8%"><a href="">Order Date</a></th>
-           <th style="width: 5%"><a href="">Del Date</a></th>
+           <th width="8%"><a href="">Del Date</a></th>
             <th style="width: 8%"><a href="">Inv Status</a></th>
             <th width="10%">Action</th>
          </tr>
@@ -203,7 +219,8 @@ color:black!important;
                   </span>
                 @endif
               </td>
-                <td class="view-supplier-details" data-id="{{$order->order_product_id}}">
+                <td>
+                    <p class="view-supplier-details" data-id="{{$order->order_product_id}}" >
                     @if(!$supplier->isEmpty())
                         @foreach($supplier as $s) 
                           @if(!empty($s->supplier_link))
@@ -213,6 +230,13 @@ color:black!important;
                           @endif
                         @endforeach
                     @endif
+                    </p>
+                    @php
+                    $order_product = \App\OrderProduct::find($order->order_product_id);
+                    @endphp
+
+                    
+
                 </td>
               <td class="expand-row table-hover-cell">
                 <div class="d-flex">
@@ -221,9 +245,11 @@ color:black!important;
                   $order_product = \App\OrderProduct::find($order->order_product_id);
                   @endphp
                       @if ($order_product && $order_product->product)
+                      {{$order_product->product->name}}
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))
                           <span class="td-mini-container">
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                              <br/>
+                              <a style="color:#000!important;" data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
                           </span>
                         @endif
                       @endif
@@ -231,6 +257,9 @@ color:black!important;
                 </div>
               </td>
               <td class="expand-row table-hover-cell">
+              @if ($order_product && $order_product->product)
+                {{$order_product->product->price}}
+              @endif
               </td>
               <td class="expand-row table-hover-cell">
               {{$order->product_price}}
@@ -246,7 +275,32 @@ color:black!important;
               </select>
 
               </td>
-              <td>{{ $order->balance_amount }}</td>
+              <td>{{-- $order->balance_amount --}}
+                @if ($order_product && $order_product->product)
+              <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+              @endif 
+              @if(count($order->orderProducts)) 
+              @php
+                $image_array = [];                    
+                foreach($order->orderProducts as $pid){
+                  $product = $pid->product;
+                  if($product){
+                    if ($product->hasMedia(config('constants.media_tags'))){
+                        $productImages = $product->getMedia(config('constants.media_tags'));
+                        foreach($productImages as $img){
+                            $image['product_id'] = $product->id;
+                            $image['image_url'] = $img->getUrl();
+                            $image_array[] = $image;
+                        }
+                    }
+                  }
+                }
+              @endphp
+              @endif
+              @if(count($image_array))
+              <button type="button" class="btn btn-xs image-button" style="cursor: pointer;" data-image-array="{{json_encode($image_array)}}" data-customer-id="{{$order->customer_id}}" data-order-id="{{$order->id}}" data-product-id="{{implode(',', $order->orderProducts->pluck('product_id')->toArray())}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt="" style="cursor: pointer; width: 16px;"></button>
+              @endif
+              </td>
 
             </tr>
           @endforeach
@@ -289,6 +343,40 @@ color:black!important;
 
 
 
+<!-- Add Supplier for Product -->
+<div class="modal fade" id="add_supplier_for_product" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="supplier_name"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="" id="add_supplier_for_product_form" method="POST">
+      @csrf
+          <div class="modal-body">
+              <input type="hidden" name="product_id" id="product_id" value="" />
+              <label>Select Supplier</label>
+              <select class="form-control select-multiple2" style="width:100%" name="filter_supplier_pro" data-placeholder="Search Supplier By Name.." multiple>
+                @foreach($product_suppliers_list as $supplier)
+                  <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>
+                @endforeach
+                
+              </select>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary insert_supplier_pro">Add</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
 
 <div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
     padding-right: 12px;
@@ -313,6 +401,25 @@ color:black!important;
     </div>
 </div>
 <div id="estdelhistoryresponse"></div>
+<div id="order-product-images" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Product Images</h4>
+          </div>
+          <div class="modal-body" style="background-color: #999999;">
+            <div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;">
+            <table class="table table-bordered">
+              <tbody style="background-color: #999999"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
 @endsection
 @include('common.commonEmailModal')
 @include("partials.modals.update-delivery-date-modal")
@@ -328,6 +435,64 @@ color:black!important;
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>
   <script type="text/javascript">
+
+
+
+$(document).on('click', '.image-button', function () {
+    var customer_id = $(this).attr('data-customer-id'); 
+
+    $("#order-product-images table tbody").html('');
+    $("#order-product-images").find(".modal-dialog").css({"width":"700","max-width":"700"});
+    $("#order-product-images").find(".modal-body").css({"background-color":"white"});
+    let images = JSON.parse($(this).attr('data-image-array'));
+    if(images.length){
+      for(let i=0; i< images.length; i++){
+        $("#order-product-images table tbody").append(`
+          <tr>
+            <td style="width:45%">
+              <div class="speech-wrapper full-match-img">
+                <div id="1786233" class="bubble alt">
+                  <div class="txt">
+                    <p class="name alt"></p>
+                    <p class="message" data-message=""></p>
+                    <div style="margin-bottom:10px;">
+                      <div class="row">
+                        <div class="col-md-4">
+                          <a href="${images[i].image_url}" class="show-product-info" target="_blank">
+                            <img src="${images[i].image_url}" style="max-width: 100%; cursor: default;">
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td style="width:30%">&nbsp; 
+              <button style="padding: 3px 6px !important;" title="Search Product Image" data-media-url="'${images[i].image_url}'" data-customer-id="${customer_id}" data-product-id="${images[i].product_id}" class="btn btn-xs btn-secondary search-product-image"><i class="fa fa-search" aria-hidden="true"></i></button>
+            </td>
+          </tr>
+        `); 
+      }
+    }
+    $("#order-product-images").modal("show"); 
+});
+
+$(document).on('click','.search-product-image',function(event){
+  $.ajax({
+      type: "GET", 
+      url: "/erp-customer/search-image/"+$(this).attr('data-product-id')+'/'+$(this).attr('data-media-url').replaceAll('/', '|')+'?customer_id='+$(this).attr('data-customer-id'), 
+      beforeSend : function() {
+          toastr['success']('Image find process is started, you will get whatsapp notification as this process will be completed.');
+      },
+      success: function(response) { 
+
+      },
+      error: function() {
+          toastr['error']('Error occured please try again later!');
+      }
+  });
+});
 
 $(document).on('click', '.view-details', function(e) {
       e.preventDefault();
@@ -884,5 +1049,106 @@ $(document).on('click', '.view-details', function(e) {
           $(".select-multiple").multiselect();
           $(".select-multiple2").select2();
       });
+
+
+      $(document).on('click', '.add_supplier', function(e) {
+        e.preventDefault();
+        var product_id = $(this).data('product_id');
+        var product_name = $(this).data('product_name');
+
+        $('#add_supplier_for_product_form #product_id').val(product_id);
+        $('#supplier_name').html('<h4>Add Supplier for '+product_name+' Product</h4>');
+        $('#add_supplier_for_product').modal('show');
+      });
+
+      $(document).on('click', '.insert_supplier_pro', function(e) {
+        e.preventDefault();
+        var product_id =  $('#add_supplier_for_product_form #product_id').val();
+        var supplier_id = $("select[name='filter_supplier_pro']").val();
+       
+        if(supplier_id.length < 1)
+        {
+            toastr['error']('Please Select Suppliers');
+            return;
+        }
+
+        var type = 'POST';
+          $.ajax({
+            url: "{{route('purchase-product.insert_suppliers_product')}}",
+            data: {
+              product_id:product_id,
+              supplier_id:supplier_id,
+              _token: "{{ csrf_token() }}",
+            },
+            type: type,
+            dataType: 'json',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done( function(response) {
+              $("#loading-image").hide();
+              
+              if(response.code == 200)
+              {
+                $('#add_supplier_for_product').modal('hide');
+                toastr["success"](response.message, "Message");
+              }
+              else if(response.code == 400)
+              {
+                toastr["error"](response.message, "Message");
+              }
+              
+            
+          }).fail(function(errObj) {
+              $("#loading-image").hide();
+          });
+      });
+
+    //START - Purpose : Get not mapping product with supplier list - DEVTASK-19941
+    $(document).on('click', '.not_mapping_supplier_list', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{{route('not_mapping_product_supplier_list')}}",
+            data: {
+              _token: "{{ csrf_token() }}",
+            },
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+        }).done( function(response) {
+              $("#loading-image").hide();
+              
+              if(response.downloadUrl){
+                var form = $("<form/>", 
+                        { action:"/chat-messages/downloadChatMessages",
+                            method:"POST",
+                            target:'_blank',
+                            id:"chatHiddenForm",
+                            }
+                    );
+                form.append( 
+                    $("<input>", 
+                        { type:'hidden',  
+                        name:'filename', 
+                        value:response.downloadUrl }
+                    )
+                );
+                form.append( 
+                    $("<input>", 
+                        { type:'hidden',  
+                        name:'_token', 
+                        value:$('meta[name="csrf-token"]').attr('content') }
+                    )
+                );
+                $("body").append(form);
+                $('#chatHiddenForm').submit();
+              }
+        }).fail(function(errObj) {
+              $("#loading-image").hide();
+        });
+    });
+    //END - DEVTASK-19941
   </script>
 @endsection

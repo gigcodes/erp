@@ -18,12 +18,24 @@ class ProjectFileManagerController extends Controller
 	
 	public function index(Request $request)
 	{
+
+		$totalSizeq = ProjectFileManager::whereNull("parent")->get();
+
+		$totalSize = 0;
+
+		if(!$totalSizeq->isEmpty()) {
+			foreach($totalSizeq as $tSq) {
+				$size = preg_replace('/[^0-9.]+/', '', $tSq->size);
+				$totalSize += $size;
+			}
+		}
+
 		$query = ProjectFileManager::query();
 		if($request->search){
 			$query = $query->where('name', 'LIKE','%'.$request->search.'%')->orWhere('parent', 'LIKE', '%'.$request->search.'%');
 		}
-		$projectDirectoryData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
-		return view('project_directory_manager.index', compact('projectDirectoryData'))
+		$projectDirectoryData = $query->orderByRaw('CAST(size AS DECIMAL(10,2)) DESC')->paginate(25)->appends(request()->except(['page']));
+		return view('project_directory_manager.index', compact('projectDirectoryData','totalSize'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 		
 	}
@@ -46,12 +58,12 @@ class ProjectFileManagerController extends Controller
 	public function listTree()
 	{
 		$directory = base_path();
-		
+		\Log::info("PROJECT_MANAGER => started to scan file directory");
 		$this->listFolderFiles($directory);
 		
 		ProjectFileManager::insert($this->dumpData);
 		
-		foreach($this->updateData as $key->$value)
+		foreach($this->updateData as $key => $value)
 		{
 			DB::table('project_file_managers')
                 ->where('id', $value['id'])
@@ -64,11 +76,23 @@ class ProjectFileManagerController extends Controller
 	{
 		//for replace base path
 		$basePath = base_path();
-		
 		foreach(new \DirectoryIterator($dir) as $fileInfo) {
 			if (!$fileInfo->isDot()) {
 				
 				if ($fileInfo->isDir()) {
+					 $exePath = [".git","vendor"];
+					 $yes = false;
+					 foreach($exePath as $exe) {
+						 if(stripos($fileInfo->getPathname(),$exe) !== false) {
+						 	$yes = true;
+						 }
+					 }
+
+					 if($yes) {
+					 	continue;
+					 }
+
+					//\Log::info("PROJECT_MANAGER => started to scan file directory ".$fileInfo->getPathname());
 					$batchPathReplace = str_replace($basePath,'',$fileInfo->getPathname());
 					$parentPath = str_replace($fileInfo->getFilename(),'',$batchPathReplace);
 					$parentPath = str_replace('\\','/',$parentPath);
@@ -115,6 +139,61 @@ class ProjectFileManagerController extends Controller
 		}
 
 		return $size;
+	}
+
+	public function getLatestSize(Request $request)
+	{
+		ini_set("memory_limt", -1);
+		$id = $request->get("id");
+		$fileManager = \App\ProjectFileManager::find($id);
+		if($fileManager) {
+			$path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $fileManager->name));
+			$file_size = 0;
+
+			if(is_dir($path)) {
+				$io = popen ( '/usr/bin/du -sk ' . $path, 'r' );
+			    $size = fgets ( $io, 4096);
+			    $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+			    pclose ( $io );
+			}else{
+				$size = filesize ($path) / 1024;
+			}
+
+			if(is_numeric($size)) {
+				$size =  number_format($size / 1024 ,2,".","");
+			}
+
+			$fileManager->size  = $size;
+			$fileManager->save();
+
+			return response()->json(["code" => 200 , "message" => "Current size is : ". $size,'size' => $size."(MB)"]);
+		}
+
+		return response()->json(["code" => 500 , "message" => "Current size is : ". $size]);
+	}
+
+
+	public function deleteFile(Request $request)
+	{
+		$id = $request->get("id");
+		$fileManager = \App\ProjectFileManager::find($id);
+		if($fileManager) {
+			$path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $fileManager->name));
+			if(!is_dir($path)) {
+				if(!is_writable($path)) {
+					return response()->json(["code" => 500 , "message" => "{$path} is not writeable"]);
+				}else{
+					unlink($path);
+					$fileManager->delete();
+					return response()->json(["code" => 200 , "message" => "{$path} has been deleted"]);
+				}
+			}else{
+				return response()->json(["code" => 500 , "message" => "can not delete {$path} is directory"]);
+			}
+
+		}
+
+		return response()->json(["code" => 500 , "message" => "{$path} has been not found in record"]);
 	}
 	
 }

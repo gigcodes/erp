@@ -26,9 +26,9 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 *Routes added by Hitesh Ends
 **/ 
 
+Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
-
-Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
+Route::post('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 Route::post('scrape/send-screenshot', 'ScrapController@sendScreenshot');
 Route::post('scrape/send-position', 'ScrapController@sendPosition');
@@ -96,6 +96,8 @@ Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetito
 //Scrapped facebook users
 Route::post('facebook/scrape-user','FacebookController@apiPost');
 
+Route::post('facebook/post', 'FacebookController@facebookPost');
+
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
 Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
@@ -140,6 +142,10 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
 
 Route::post('node/restart-script','ScrapController@restartNode');
+
+Route::post('node/update-script','ScrapController@updateNode');
+
+Route::post('node/kill-script','ScrapController@killNode');
 
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
@@ -213,6 +219,8 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
+// Scraper info
+Route::get('{supplierName}/supplier-list','SupplierController@supplierList');
 
 //Store data into the laravel_logs 
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');

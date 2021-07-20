@@ -100,8 +100,16 @@ class Order extends Model
 
     }
 
+    public function orderProducts(){
+        return $this->hasMany(OrderProduct::class, 'order_id', 'id')->where('product_id', '!=', 0);
+    }
+
     public function products(){
         return $this->belongsToMany(Product::class, OrderProduct::class, 'user_id', 'role_id');
+    }
+
+    public function latest_product(){
+        return $this->hasOne(OrderProduct::class, 'order_id', 'id')->latest();
     }
 
     public function customer()
@@ -124,6 +132,11 @@ class Order extends Model
     public function reports()
     {
         return $this->hasMany('App\OrderReport', 'order_id')->latest()->first();
+    }
+
+    public function latest_report()
+    {
+        return $this->hasOne('App\OrderReport', 'order_id')->latest();
     }
 
     public function status_changes()

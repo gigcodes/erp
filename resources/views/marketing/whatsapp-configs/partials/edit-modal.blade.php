@@ -20,14 +20,14 @@
                             @endif
                         </div>
                             <input type="hidden" name="id" value="{{ $whatsAppConfig->id }}"/>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <strong>Password:</strong>
-                            <input type="text" name="password" class="form-control" value="{{ Crypt::decrypt($whatsAppConfig->password) }}" required>
+                            <input type="text" name="password" class="form-control" value="" required>
 
                             @if ($errors->has('password'))
                                 <div class="alert alert-danger" >{{$errors->first('password')}}</div>
                             @endif
-                        </div>
+                        </div> -->
                         <div class="form-group">
                             <strong>Number:</strong>
                             <input type="text" name="number" class="form-control" value="{{ $whatsAppConfig->number }}">
@@ -74,7 +74,7 @@
 						@endphp
 						<div class="form-group">
     						<strong>Default For:</strong>
-    						<select class="form-control" name="default_for[]" multiple>
+    						<select class="form-control select-multiple-default_for" name="default_for[]" multiple>
 								
     							<option value="1" @if(in_array(1,$defaultForArr)) selected @endif>Customer</option>
     							<option value="2" @if(in_array(2,$defaultForArr)) selected @endif>Vendor</option>
@@ -258,10 +258,21 @@
                                 <option>Select Status</option>
                                 <option value="1" @if($whatsAppConfig->status == 1) selected @endif>Active</option>
                                 <option value="2" @if($whatsAppConfig->status == 2) selected @endif>Blocked</option>
-                                <option value="3" @if($whatsAppConfig->status == 0) selected @endif>Inactive</option>
+                                <option value="3" @if($whatsAppConfig->status == 3) selected @endif>Inactive</option>
                              </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Use own:</strong>
+                             <select class="form-control" name="is_use_own">
+                                <option value="0" @if($whatsAppConfig->is_use_own == 0) selected @endif>No</option>
+                                <option value="1" @if($whatsAppConfig->is_use_own == 1) selected @endif>Yes</option>
+                             </select>
+                            @if ($errors->has('is_use_own'))
+                            <div class="alert alert-danger">{{$errors->first('is_use_own')}}</div>
                             @endif
                         </div>
 

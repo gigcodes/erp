@@ -12,7 +12,7 @@ $metaData = '';
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?php 
+    <?php
         if(isset($metaData->page_title) && $metaData->page_title!='') {
             $title = $metaData->page_title;
         }else{
@@ -28,13 +28,13 @@ $metaData = '';
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     @if(isset($metaData->page_description) && $metaData->page_description!='')
         <meta name="description" content="{{ $metaData->page_description }}">
     @else
         <meta name="description" content="{{ config('app.name') }}">
     @endif
-    
+
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -177,7 +177,6 @@ $metaData = '';
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
     <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
-
     @yield("styles")
 
     <script>
@@ -220,7 +219,53 @@ $metaData = '';
             bottom: 25px;
             right: 25px;
             display: none;
+
         }
+        .dropdown.dots>a:after{
+            display: none;
+        }
+        .dropdown.dots>a{
+            line-height:30px;
+        }
+        #navbarSupportedContent{
+            display: flex !important;
+        }
+        .nav-item.dropdown.dots {
+            min-width: 35px;
+            padding-right: 15px;
+        }
+        @media(max-width:1350px) {
+
+
+            .navbar-nav > li {
+                min-width: 94px;
+                padding-right: 15px;
+            }
+        }
+        .navbar{
+            padding: 0.1rem 0.8rem;
+            border-bottom: 1px solid #ddd;
+            /*margin-bottom: 8px !important;*/
+            border-radius:0px;
+        }
+        .navbar-brand{
+            padding: 15px 4px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-right: 0;
+        }
+        @media(min-width:1700px){
+            #navs{
+                padding-left: 40px;
+            }
+        }
+            .navbar-nav>li {
+                min-width: 40px;
+                /*padding-right: 30px;*/
+            }
+            /*.navbar-brand{*/
+            /*    margin-right: 20px;*/
+            /*}*/
     </style>
 </head>
 
@@ -296,9 +341,9 @@ $metaData = '';
 
             <!--<div class="container container-wide">-->
 
-            <div class="container-fluid">
+            <div class="container-fluid pr-0">
 
-                <a class="navbar-brand" href="{{ url('/task') }}">
+                <a class="navbar-brand pl-0" href="{{ url('/task') }}">
 
                     {{ config('app.name', 'Laravel') }}
 
@@ -311,7 +356,7 @@ $metaData = '';
                 </button>
 
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse pr-0" id="navbarSupportedContent">
 
                     <!-- Left Side Of Navbar -->
 
@@ -323,7 +368,7 @@ $metaData = '';
 
                     <!-- Right Side Of Navbar -->
 
-                    <ul class="navbar-nav ml-auto " style="text-align: center;">
+                    <ul id="navs" class="navbar-nav ml-auto " style="display:flex;text-align: center;flex-grow: 1;justify-content: space-between">
 
                         <!-- Authentication Links -->
 
@@ -343,7 +388,7 @@ $metaData = '';
 
                         @else
 
-                        <?php 
+                        <?php
 
                         //getting count of unreach notification
                         $unread = 0;
@@ -357,7 +402,7 @@ $metaData = '';
 
                             }
                         }
-                        
+
 
 
                         /* ?>
@@ -462,7 +507,7 @@ $metaData = '';
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
-                                                
+
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -483,6 +528,8 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                                 <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
+                                                <a class="dropdown-item" href="{{ url('scrap/servers/statistics') }}">Scrap server statistics</a>
+
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -517,6 +564,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -531,9 +579,6 @@ $metaData = '';
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('supplier.discount.files') }}">Supplier Discount Files</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -554,9 +599,11 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
                                             <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                            <a class="dropdown-item" href="{{ action('GoogleSearchImageController@searchImageList') }}">Image Search By Google</a>
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -598,7 +645,7 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('api-log-list') }}">Laravel API Log</a>
                                         </li>
-                                       
+
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
                                         </li>
@@ -727,6 +774,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.status') }}">Return-Exchange Status</a>
+                                                <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -834,6 +882,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
+                                {{-- START - Purpose : Add new Menu Keyword Response Logs - DEVTASK-4233 --}}
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordreponse.logs') }}" role="button">Keyword Response Logs</a>
+                                </li>
+                                {{-- END - DEVTASK-4233 --}}
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}" role="button">Purchase</a>
                                 </li>
@@ -1260,11 +1313,11 @@ $metaData = '';
                                  <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google Web Master<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                  
+
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlewebmaster.index')}}">Sites</a>
                                         </li>
-                                      
+
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1303,7 +1356,7 @@ $metaData = '';
                                 @endif
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
+                        <li id="developments" class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
@@ -1352,9 +1405,18 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project Directory manager</a>
+                                </li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
+                        <li id="product-template" class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 <li class="nav-item">
@@ -1371,434 +1433,512 @@ $metaData = '';
                                 </li>
                             </ul>
                         </li>
-                        @if(auth()->user()->isAdmin())
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
-                                <ul class="dropdown-menu multi-level">
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endif
-                        @if(auth()->user()->isAdmin())
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>
-                                <ul class="dropdown-menu multi-level">
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
-                                        <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
-                                        <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('newsletters.index') }}">Newsletters</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country duty list</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.websites.index') }}">Website</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.website-stores.index') }}">Website Store</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.website-store-views.index') }}">Website Store View</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.page.index') }}">Website Page</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.page.histories') }}">Website Page History</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
-                                    </li>
-									<li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
-                                    </li>
-                                    <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
-                                    </li>
-                                    <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endif
-                        @if(auth()->user()->isAdmin())
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
-                                        </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
-                                        </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
+                            @if(auth()->user()->isAdmin())
+                                <li id="queues" class="nav-item dropdown">
+                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
+                                    <ul class="dropdown-menu multi-level">
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
                                         </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
                                         </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="/totem">Cron Package</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
                                         </li>
                                     </ul>
                                 </li>
+                            @endif
+
+
+
+
+
+
+
+                    </ul>
+                    <div>
+                        <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <svg width="16" height="18" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 2C4 0.9 3.1 -1.35505e-07 2 -8.74228e-08C0.9 -3.93402e-08 -1.35505e-07 0.9 -8.74228e-08 2C-3.93402e-08 3.1 0.9 4 2 4C3.1 4 4 3.1 4 2ZM6 2C6 3.1 6.9 4 8 4C9.1 4 10 3.1 10 2C10 0.9 9.1 -3.97774e-07 8 -3.49691e-07C6.9 -3.01609e-07 6 0.9 6 2ZM12 2C12 3.1 12.9 4 14 4C15.1 4 16 3.1 16 2C16 0.899999 15.1 -6.60042e-07 14 -6.11959e-07C12.9 -5.63877e-07 12 0.9 12 2Z" fill="#757575"></path></svg>
+                            </a>
+
+                            <ul id="nav_dots" class="dropdown-menu multi-level ">
+
+
                                 @if(auth()->user()->isAdmin())
-                                <li class="nav-item dropdown">
-                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
-                                </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>--}}
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Multi Site<span class="caret"></span></a>
 
-                                <li class="nav-item dropdown">
-                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
-                                </li>
-                                
-                                    <li class="nav-item dropdown">
-                                        <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                        <ul class="dropdown-menu multi-level">
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
+                                                <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
+                                                <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('newsletters.index') }}">Newsletters</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country duty list</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.websites.index') }}">Website</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.website-stores.index') }}">Website Store</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.website-store-views.index') }}">Website Store View</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.page.index') }}">Website Page</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.page.histories') }}">Website Page History</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
+                                            </li>
+                                        </ul>
                                     </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
-                                        </li>
-                                    </ul>
-                                </li>
                                 @endif
+                                @if(auth()->user()->isAdmin())
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>--}}
+
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">
+                                            
+                                            <li class="nav-item dropdown">
+                                                <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
+                                            </li>    
+
+                                            {{-- Sub Menu Product --}}
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="/totem">Cron Package</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            @if(auth()->user()->isAdmin())
+                                                <li class="nav-item dropdown">
+                                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                                </li>
+                                                <li class="nav-item dropdown dropdown-submenu">
+                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            @endif
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Duty<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('simplyduty.category.index') }}">SimplyDuty Categories</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('simplyduty.currency.index') }}">SimplyDuty Currency</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('simplyduty.country.index') }}">SimplyDuty Country</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('simplyduty.hscode.index') }}">HsCode</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ action('HsCodeController@mostCommon') }}">Most Common</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ action('HsCodeController@mostCommonByCategory') }}">Most Common Category</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('assets-manager.index') }}">Assets Manager</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
+                                            </li>
+
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('api-response-message') }}">Api Response Messages</a>
+                                            </li>
+
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('services') }}">Services</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('failedjobs.list')}}">Laravel Failed Queue</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+
+                                            <!-- Github -->
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="githubsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Github<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="githubsubmenu">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/github/repos') }}">Repositories</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+
+                                            <!-- hubstaff -->
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="hubstaffsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Hubstaff<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="hubstaffsubmenu">
+                                                    {{-- Sub Menu Product --}}
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
+                                                    </li>
+                                                <!-- <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff/payments') }}">Payments</a>
+                                        </li> -->
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('hubstaff-payment') }}">Payments Report</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activity Notofication</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('database.index') }}">Historical Data</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('database.states') }}">States</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('encryption.index')}}">Encryption Key</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Courier<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('store-website-country-shipping.index') }}">Store Website country shipping</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
-                                        </li>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Duty<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.category.index') }}">SimplyDuty Categories</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.currency.index') }}">SimplyDuty Currency</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.country.index') }}">SimplyDuty Country</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.hscode.index') }}">HsCode</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HsCodeController@mostCommon') }}">Most Common</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HsCodeController@mostCommonByCategory') }}">Most Common Category</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('assets-manager.index') }}">Assets Manager</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('api-response-message') }}">Api Response Messages</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('services') }}">Services</a>
-                                </li>
-
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('failedjobs.list')}}">Laravel Failed Queue</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <!-- Github -->
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="githubsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Github<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="githubsubmenu">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/github/repos') }}">Repositories</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <!-- hubstaff -->
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="hubstaffsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Hubstaff<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="hubstaffsubmenu">
+                                    <ul class="dropdown-menu multi-level">
                                         {{-- Sub Menu Product --}}
 
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
+                                            <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
+                                        </li>
+                                        @if(auth()->user()->isAdmin())
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
+                                            </li>
+                                        @endif
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
-                                        </li>
+                                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                                        Development<span class="caret"></span>
+                                                    </a>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
-                                        </li>
-                                        <!-- <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff/payments') }}">Payments</a>
-                                        </li> -->
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff-payment') }}">Payments Report</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activity Notofication</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('database.index') }}">Historical Data</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('database.states') }}">States</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('encryption.index')}}">Encryption Key</a>
-                                        </li>
-                                    </ul>
-                                </li>
+                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                                        <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
+                                                        <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                                        <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                                    </div>
+                                                </li>
 
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Courier<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
-                                </li>
-                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('store-website-country-shipping.index') }}">Store Website country shipping</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
-                                </li>
-                            </ul>
-                        </li>
-                        @endif
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('category-segment.index')}}">Category Segment</a>
+                                                </li>
 
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('category')}}">Category</a>
+                                                </li>
 
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
-                                </li>
-                                @if(auth()->user()->isAdmin())
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
-                                </li>
-                                @endif
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category Reference</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="/category/new-references">New Category Reference</a>
+                                                </li>
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('brand/size/chart')}}">Brand Size Chart</a>
+                                                </li>
+                                                @if(auth()->user()->checkPermission('category-edit'))
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
+                                                    </li>
+                                                @endif
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('compositions.index')}}">Composition</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="/descriptions">Description</a>
+                                                </li>
+                                            </ul>
                                         </li>
-                                        <li class="nav-item dropdown">
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                @if(auth()->user()->isAdmin())
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
+                                                    </li>
+                                                @endif
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
+                                                </li>
 
-                                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                                Development<span class="caret"></span>
-                                            </a>
-
-                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
-                                                <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
-                                                <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                                <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
-                                            </div>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Reples</a>
+                                                </li>
+                                            </ul>
                                         </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('category-segment.index')}}">Category Segment</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('category')}}">Category</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category Reference</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="/category/new-references">New Category Reference</a>
-                                        </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
@@ -1812,81 +1952,115 @@ $metaData = '';
                                         </li>
                                         @endif
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('compositions.index')}}">Composition</a>
+                                            <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge Base</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="/descriptions">Description</a>
+                                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                                {{ __('Logout') }}</a>
+                                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                @csrf
+                                            </form>
                                         </li>
                                     </ul>
                                 </li>
+
+                                <!------    System Menu     !-------->
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        @if(auth()->user()->isAdmin())
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
-                                        </li>
-                                        @endif
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
-                                        </li>
+                                    {{--                                        <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>--}}
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">System <span class="caret"></span></a>
+
+                                    <ul class="dropdown-menu multi-level">
+                                        {{-- Sub Menu Product --}}
 
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Reples</a>
+                                            <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
                                         </li>
                                     </ul>
                                 </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge Base</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}</a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
+
+                              
+                         <!------    System Menu     !-------->
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    {{--                                        <a href="#" class="nav-link dropdown-item dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>--}}
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin Menu <span class="caret"></span></a>
+
+                                    <ul class="dropdown-menu multi-level">
+                                        {{-- Sub Menu Admin Menu --}}
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database Menu<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('admin.databse.menu.direct.dbquery')}}">Direct DB Query</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
                                 </li>
                             </ul>
-                        </li>
-                        <li class="nav-item dropdown" id="search_li">
+                        </div>
+                    </div>
+                    @endif
+                    <div >
+                        <div class="nav-item dropdown" id="search_li">
                             <input type="text" class="form-control nav-link" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
                             <ul class="dropdown-menu multi-level" id="search_container">
                             </ul>
-                        </li>
-                        @endif
+                        </div>
+                    </div>
+                    @if(Auth::check())
+                    <nav id="quick-sidebars">
+                        <ul class="list-unstyled components mr-1">
+                            <li>
+                                <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
+                            </li>
+                            <li>
+                                <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
+                            </li>
+                            <li>
+                                <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
+                                    <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                     
 
-
-
-                        <!------    System Menu     !-------->
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
-
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
+                            <li>
+                                <a id="message-chat-data-box" class="quick-icon">
+                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
+                           </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
+                                    <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">
+                                    <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                                <li>
+                                    <a title="Manual Payment" class="manual-payment-btn quick-icon">
+                                        <span><i class="fa fa-money fa-2x" aria-hidden="true"></i></span>
+                                    </a>
                                 </li>
-                            </ul>
-                        </li>
-                        
-                        <!------    System Menu     !-------->
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Admin Menu --}} 
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database Menu<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('admin.databse.menu.direct.dbquery')}}">Direct DB Query</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-
-                    </ul>
-
+                            @endif
+                            <li>
+                                <a title="Manual Request" class="manual-request-btn quick-icon">
+                                    <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="Auto Refresh" class="auto-refresh-run-btn quick-icon">
+                                    <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    @endif
                 </div>
 
             </div>
@@ -1974,15 +2148,16 @@ $metaData = '';
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
         </div>
         @endif
-        @include('twilio.receive_call_popup');
+        @include('twilio.receive_call_popup')
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
-        @include('partials.modals.quick-chatbox-window')
+
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
+        @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
             $key = \App\LivechatincSetting::first();
@@ -1991,63 +2166,64 @@ $metaData = '';
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
+        @include('partials.modals.quick-chatbox-window')
         @endif
-        @if(Auth::check())
-            <!---start section for the sidebar toggle -->
-            <nav id="quick-sidebar">
-                <ul class="list-unstyled components">
-                    <li>
-                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
-                    </li>
-                    <li>
-                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
-                    </li>
-                    <li>
-                        <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
-                            <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a id="message-chat-data-box" class="quick-icon">
-                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
-                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
-                           </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
-                            <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">
-                            <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
-                        </a>
-                    </li>
-                    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                        <li>
-                            <a title="Manual Payment" class="manual-payment-btn quick-icon">
-                                <span><i class="fa fa-money fa-2x" aria-hidden="true"></i></span>
-                            </a>
-                        </li>
-                    @endif
-                    <li>
-                        <a title="Manual Request" class="manual-request-btn quick-icon">
-                            <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>
-                        </a>
-                    </li>
-                    <li>
-                        <a title="Auto Refresh" class="auto-refresh-run-btn quick-icon">
-                            <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <!-- end section for sidebar toggle -->
-        @endif
+{{--        @if(Auth::check())--}}
+{{--            <!---start section for the sidebar toggle -->--}}
+{{--            <nav id="quick-sidebar">--}}
+{{--                <ul class="list-unstyled components">--}}
+{{--                    <li>--}}
+{{--                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>--}}
+{{--                    </li>--}}
+{{--                    <li>--}}
+{{--                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>--}}
+{{--                    </li>--}}
+{{--                    <li>--}}
+{{--                        <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">--}}
+{{--                            <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    --}}
+{{--                    <li>--}}
+{{--                        <a id="message-chat-data-box" class="quick-icon">--}}
+{{--                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">--}}
+{{--                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>--}}
+{{--                           </span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li>--}}
+{{--                        <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">--}}
+{{--                            <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li>--}}
+{{--                        <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">--}}
+{{--                            <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))--}}
+{{--                        <li>--}}
+{{--                            <a title="Manual Payment" class="manual-payment-btn quick-icon">--}}
+{{--                                <span><i class="fa fa-money fa-2x" aria-hidden="true"></i></span>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                    @endif--}}
+{{--                    <li>--}}
+{{--                        <a title="Manual Request" class="manual-request-btn quick-icon">--}}
+{{--                            <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li>--}}
+{{--                        <a title="Auto Refresh" class="auto-refresh-run-btn quick-icon">--}}
+{{--                            <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                </ul>--}}
+{{--            </nav>--}}
+{{--            <!-- end section for sidebar toggle -->--}}
+{{--        @endif--}}
         @if (trim($__env->yieldContent('large_content')))
-            <div class="col-md-11">
+            <div class="col-md-12">
                 @yield('large_content')
             </div>
         @elseif (trim($__env->yieldContent('core_content')))
@@ -2072,20 +2248,20 @@ $metaData = '';
 
 
     <div class="chat-button-wrapper">
-        <div class="chat-button-float">
-            <button class="chat-button">
-                <img src="/images/chat.png" class="img-responsive"/>
-                <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
-            </button>
-        </div>
-        <div class="notification-badge">
-            <button class="chat-button">
-                <a href="{{route('notifications')}}">
-                <img src="/images/notification-icon.png" class="img-responsive"/>
-                <span id="notification_unread">@if(isset($unread)) {{ $unread }} @else 0 @endif</span>
-                </a>
-            </button>
-        </div>
+{{--        <div class="chat-button-float">--}}
+{{--            <button class="chat-button">--}}
+{{--                <img src="/images/chat.png" class="img-responsive"/>--}}
+{{--                <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>--}}
+{{--            </button>--}}
+{{--        </div>--}}
+{{--        <div class="notification-badge">--}}
+{{--            <button class="chat-button">--}}
+{{--                <a href="{{route('notifications')}}">--}}
+{{--                <img src="/images/notification-icon.png" class="img-responsive"/>--}}
+{{--                <span id="notification_unread">@if(isset($unread)) {{ $unread }} @else 0 @endif</span>--}}
+{{--                </a>--}}
+{{--            </button>--}}
+{{--        </div>--}}
         <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
                 <div class="row">
@@ -2101,20 +2277,17 @@ $metaData = '';
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-
                                 $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
                                 ->orderBy('status','desc')
                                 ->get();
-
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
-                                    @php
-                                    $customer = $chatId->customer;
-                                    $customerInital = substr($customer->name, 0, 1);
-                                    @endphp
+                                        @php
+                                        $customer = $chatId->customer;
+                                        $customerInital = substr($customer->name, 0, 1);
+                                        @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
@@ -2240,8 +2413,72 @@ $metaData = '';
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content" id="create-manual-payment-content">
-              
+
             </div>
+        </div>
+    </div>
+
+    <!--Sop Create Modal -->
+    <div id="Create-Sop-Shortcut" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Create Shortcut Model</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="createShortcutForm">
+                <td><input type="file" name="image" hidden></td>
+                <td><input type="text" name="tags[0][name]" hidden></td>
+                <td><input type="text" name="tags[0][value]" hidden></td>
+                <div class="modal-body add_sop_modal">
+                    <div>
+                        <select class="form-control sop_drop_down">
+                            <option value="sop">Sop</option>
+                            <option value="knowledge_base">Knowledge Base</option>
+                        </select>
+                    </div>
+                    <div class="add_sop_div">
+                        <tr>
+                            <select class="form-control knowledge_base mt-3" name="sop_knowledge_base" hidden>
+                                <option value="">Select</option>
+                                <option value="book">Book</option>
+                                <option value="chapter">Chapter</option>
+                                <option value="page">Page</option>
+                                <option value="shelf">Shelf</option>
+                            </select>
+                        </tr>
+                        <tr>
+                            <select class="form-control knowledge_base_book mt-3" name="knowledge_base_book" hidden>
+                                <option value="">Select Books</option>
+                                @php
+                                    $books = Modules\BookStack\Entities\Book::get();
+                                @endphp
+                                @foreach ($books as $book)
+                                    <option value="{{ $book->name }}">{{ $book->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="books_error" style="color:red;"></span>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td>Name:</td>
+                            <td><input type="text" name="name" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td>Description:</td>
+                            <td><textarea name="description" id="" cols="30" rows="10" class="form-control sop_description"></textarea></td>
+                        </tr>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default create_shortcut_submit">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    
         </div>
     </div>
 
@@ -2289,7 +2526,115 @@ $metaData = '';
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+
+    <script>
+        $(document).on('change','.sop_drop_down',function(){
+            var val = $(this).val();
+            if ($(this).val() == "knowledge_base") {
+                $(this).parents('.add_sop_modal').find('.knowledge_base').removeAttr('hidden');
+            }else{
+                $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden',true).val('');
+                $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
+            }
+        })
+        
+        $(document).on('change','.knowledge_base',function(){
+            var val = $(this).val();
+            if ($(this).val() == "chapter" || $(this).val() == "page") {
+                $(this).parents('.add_sop_modal').find('.knowledge_base_book').removeAttr('hidden');
+            }else{
+                $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
+            }
+        })
+        
+        $(document).on('change','.knowledge_base_book',function(){
+            var val = $(this).val();
+            if (val.length > 0) {
+                $(this).parents('#createShortcutForm').find('.books_error').text('');
+            }
+        })
+
+        $(document).on('click','.create_shortcut_submit',function(){
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            var formdata = $('#createShortcutForm').serialize();
+            var val = $(this).parents('#createShortcutForm').find('.knowledge_base').val();
+            var name = $(this).parents('#createShortcutForm').find('[name="name"]').val();
+            var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
+            if (val.length === 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('shortcut.sop.create') }}",
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Sop Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "book") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books`,
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Book Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "chapter") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books/${book_name}/create-chapter`,
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Chapter Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "page") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
+                }
+                $.ajax({
+                    type: "get",
+                    url: `kb/books/${book_name}/create-page`,
+                    data: formdata,
+                    success: function(response){
+                        console.log(response,'======')
+                        toastr.success('Page Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "shelf") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/shelves/${name}/add`,
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Bookshelf Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+        })
+
+    </script>
+
     <script>
         $(document).ready(function() {
             //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
@@ -2307,7 +2652,7 @@ $metaData = '';
             $(document).on("click",".auto-refresh-run-btn",function() {
                 let autoRefresh = $.cookie('auto_refresh');
                 if(autoRefresh == 0) {
-                   alert("Auto refresh has been enable for this page"); 
+                   alert("Auto refresh has been enable for this page");
                    $.cookie('auto_refresh', '1', { path: '/{{ Request::path() }}' });
                    $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
                 }else{
@@ -2319,10 +2664,12 @@ $metaData = '';
 
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
+
+            $('#editor-notes-content').richText();//Purpose : Add Text content - DEVTASK-4289
+
             $('#notification-date').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
-
 
             $('#notification-time').datetimepicker({
                 format: 'HH:mm'
@@ -2333,6 +2680,7 @@ $metaData = '';
             });
 
             $(".selectx-vendor").select2({tags :true});
+            $(".selectx-users").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
 
@@ -2364,6 +2712,46 @@ $metaData = '';
             //$('.help-button-wrapper').toggleClass('expanded');
             //$('.instruction-notes-list-rt').toggleClass('dis-none');
         });
+
+        //START - Purpose : Open Modal - DEVTASK-4289
+        $('.create_notes_btn').on('click', function() {
+            $("#quick_notes_modal").modal("show");
+        });
+
+        $('.btn_save_notes').on('click', function(e) {
+            e.preventDefault();
+            var data = $('#editor-notes-content').val();
+
+            if($(data).text() == ''){
+                toastr['error']('Note Is Required');
+                return false;
+            }
+
+
+            var url  = window.location.href;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('notesCreate') }}",
+                data: {
+                    data: data,
+                    url : url,
+                    _token: "{{ csrf_token() }}",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if(data.code == 200)
+                    {
+                        toastr['success'](data.message, 'success');
+                        $("#quick_notes_modal").modal("hide");
+                    }
+
+                },
+                error : function(xhr, status, error) {
+
+                }
+            });
+        });
+        //END - DEVTASK-4289
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");
@@ -2444,17 +2832,24 @@ $metaData = '';
            openChatBox(false);
         });
 
-        $('.chat-button').on('click', function () {
-            $('.chat-button-wrapper').toggleClass('expanded');
-            $('.page-chat-list-rt').toggleClass('dis-none');
-            if($('.chat-button-wrapper').hasClass('expanded')){
-                chatBoxOpen = true;
-                openChatBox(true);
-            }else{
-                chatBoxOpen = false;
-                openChatBox(false);
-            }
+        $('.chat_btn').on('click', function (e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
         });
+
+        // $('.chat-button').on('click', function () {
+        //     $('.chat-button-wrapper').toggleClass('expanded');
+        //     $('.page-chat-list-rt').toggleClass('dis-none');
+        //     if($('.chat-button-wrapper').hasClass('expanded')){
+        //         chatBoxOpen = true;
+        //         openChatBox(true);
+        //     }else{
+        //         chatBoxOpen = false;
+        //         openChatBox(false);
+        //     }
+        // });
 
         var notesBtn = $(".save-user-notes");
 
@@ -2824,10 +3219,10 @@ $metaData = '';
             }
             else {
                 // $('select.select2-discussion').select2({tags: true});
-                $("select.select2-discussion").empty().trigger('change'); 
+                $("select.select2-discussion").empty().trigger('change');
             }
-            
-            
+
+
         });
 
         $(document).on('change', '#keyword_category', function () {

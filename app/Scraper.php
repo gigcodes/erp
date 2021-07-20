@@ -148,4 +148,10 @@ class Scraper extends Model
         return  $this->hasMany(Scraper::class, 'parent_id', 'id');
     }
 
+
+    public function scraperDuration()
+    {
+        return  $this->hasMany(ScraperDuration::class, 'scraper_id', 'id');
+    }
+
 }

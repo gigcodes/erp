@@ -24,7 +24,8 @@ class Hubstaff
 
     public function __construct()
     {
-        $this->SEED_REFRESH_TOKEN = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+        // $this->SEED_REFRESH_TOKEN = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     public static function getInstance()

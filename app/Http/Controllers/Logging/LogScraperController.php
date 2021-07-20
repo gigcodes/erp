@@ -301,4 +301,30 @@ class LogScraperController extends Controller
         return view('logging.product-sku-errors', compact('logScrappers','category_selection','failed','existingIssues','lastCreatedIssue','pendingIssues','requestParam','pendingIssuesCount'));
     
     }
+
+    public function scraperApiLog(Request $request)
+    {
+        $apilogs = \App\ScrapApiLog::select('scrap_api_logs.*','scrap_api_logs.scraper_id')
+                                    ->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')
+                                    ->select('scrap_api_logs.*','scrapers.scraper_name');
+        if ($request->scraper_name) {
+            $apilogs = $apilogs->where('scrapers.scraper_name', 'LIKE', "%$request->scraper_name%");
+            
+        }
+        if ($request->start_date && $request->end_date) {
+            if($request->start_date != $request->end_date){
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
+                $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->end_date);
+                $apilogs = $apilogs->whereBetween('scrap_api_logs.created_at', [$startDate, $endDate]);
+            }
+
+            if ($request->start_date == $request->end_date) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
+                $date = $startDate->format('Y-m-d');
+                $apilogs = $apilogs->where('scrap_api_logs.created_at', 'LIKE', "%$date%");
+            }
+        }
+        $data['api_logs'] = $apilogs->latest()->paginate(30);
+        return view('scrap.scrap_api_log', $data);
+    }
 }
