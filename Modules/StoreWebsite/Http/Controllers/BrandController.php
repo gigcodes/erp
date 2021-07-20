@@ -324,11 +324,12 @@ class BrandController extends Controller
 
             if(!empty($brands)) {
                 foreach($brands as $brand) {
-                    $mangetoIds[] = $brand['brand_id'];
+                    $mangetoIds[] = $brand['attribute_id'];
                 }
             }
 
             $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+            ->where("store_website_id",$storeWebsite->id)
             ->whereIn("magento_value",$mangetoIds)
             ->groupBy("store_website_brands.magento_value")
             ->select(["b.*"])
@@ -355,11 +356,12 @@ class BrandController extends Controller
 
             if(!empty($brands)) {
                 foreach($brands as $brand) {
-                    $mangetoIds[] = $brand['brand_id'];
+                    $mangetoIds[] = $brand['attribute_id'];
                 }
             }
 
             $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+            ->where("store_website_id",$storeWebsite->id)
             ->whereNotIn("magento_value",$mangetoIds)
             ->groupBy("store_website_brands.magento_value")
             ->select(["b.*"])
