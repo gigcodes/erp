@@ -166,7 +166,7 @@ class ProjectFileManagerController extends Controller
 			$fileManager->size  = $size;
 			$fileManager->save();
 
-			return response()->json(["code" => 200 , "message" => "Current size is : ". $size]);
+			return response()->json(["code" => 200 , "message" => "Current size is : ". $size,'size' => $size."(MB)"]);
 		}
 
 		return response()->json(["code" => 500 , "message" => "Current size is : ". $size]);

@@ -52,7 +52,7 @@
 								<tr>
 									<td>{{$data->name}}</td>
 									<td>{{$data->parent}}</td>
-									<td>{{$data->size}}(MB)</td>
+									<td class="setup-size">{{$data->size}}(MB)</td>
 									<td>
 										<div class="col-md-12">
 											<div class="col-md-6">
@@ -113,6 +113,7 @@ $(document).on('click', '.send-message1', function () {
 
 $(document).on("click",".get-latest-size",function() {
     var id = $(this).data("id");
+    var $this = $(this);
     $.ajax({
         url: "/project-file-manager/get-latest-size",
         type: 'POST',
@@ -124,6 +125,7 @@ $(document).on("click",".get-latest-size",function() {
         success: function (response) {
             $("#loading-image").hide();
             if(response.code == 200) {
+                $this.closest("tr").find(".setup-size").html(response.size);
                 toastr['success'](response.message, 'success');
             }else{
                 toastr['error'](response.message, 'error');
