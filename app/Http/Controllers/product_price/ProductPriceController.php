@@ -39,7 +39,7 @@ class ProductPriceController extends Controller
         }
 
         if($products->isEmpty()){
-            return redirect()->back()->with('error','No product found');
+            //return redirect()->back()->with('error','No product found');
         }
 
         foreach ($storeWebsites as $key => $value) {
