@@ -115,7 +115,7 @@
                                </td>
                                <td>@if($cash_flow->amount > 0)$@endif{{ $cash_flow->amount }}</td>
                                <td>{{ $cash_flow->expected }}</td>
-                               <td>{{ $cash_flow->actual }}</td>
+                               <td>{{ number_format($cash_flow->actual, 2) }}</td>
                                <td>{{ ucwords($cash_flow->type) }}</td>
                                <td>
                                    {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}

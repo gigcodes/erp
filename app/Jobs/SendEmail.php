@@ -63,9 +63,8 @@ class SendEmail implements ShouldQueue
                 //     $multimail->attachFromStorageDisk('files', $file_path);
                 // }
             }
-            
             $multimail->send(new DefaultSendEmail($email, $attchments));
-
+           
             \App\CommunicationHistory::create([
                 'model_id'   => $email->model_id,
                 'model_type' => $email->model_type,

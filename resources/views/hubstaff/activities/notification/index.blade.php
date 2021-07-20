@@ -14,23 +14,33 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+        <h2 class="page-heading">{{$title}} <span class="count-text"><span class="total_working_hr"></span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-6">
+	    	<div class="col col-md-2">
 		    	<div class="row">
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
 		  		</div>
 		    </div>
-		    <div class="col-md-6">
+		    <div class="col-md-10">
 		    	<div class="h" style="margin-bottom:10px;">
 		    		<form class="form-inline message-search-handler" action="{{route('hubstaff-acitivties.notification.download')}}"  method="post">
+		    		@csrf	
 					  <div class="row">
 			  			<div class="form-group mr-2">
+						    <label for="keyword">Users:</label>
+						    <select class="form-control" name="user_id">
+						    	<option value="">Select user</option>
+						    	@foreach($users as $user)
+						    		<option value="{{ $user->id}}" {{ request()->get('user_id') == $user->id ? 'selected="selected"' : '' }} >{{ $user->name }}</option>
+						    	@endforeach
+						    </select>
+					  	</div>
+					  	<div class="form-group mr-2">
 						    <label for="keyword">Keyword:</label>
 						    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 					  	</div>
@@ -51,7 +61,7 @@
 					  	</div>	
 					  </div>
 					  <div class="form-group ml-5">
-                        <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i>Download report</button>
+                        <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i> Download report</button>
                       </div>	
 					</form>	
 		    	</div>
@@ -110,7 +120,7 @@
 		var data = new FormData();
 		var hubstuff_id = $(this).data('hubstuffid');
 
-		var message = $("#messageid_"+hubstuff_id).val();
+		var message = $(this).parents('.hubstaff_chat_message').find("#messageid_"+hubstuff_id).val();
 
 		data.append("hubstuff_id", hubstuff_id);
 		data.append("message", message);
@@ -134,12 +144,12 @@
 					if(message.length > 30)
 					{
 						var res_msg = message.substr(0, 27)+"..."; 
-						$("#message-chat-txt-"+hubstuff_id).html(res_msg);
+						$(thiss).parents('td').find("#message-chat-txt-"+hubstuff_id).text(res_msg);
 						$("#message-chat-fulltxt-"+hubstuff_id).html(message);    
 					}
 					else
 					{
-						$("#message-chat-txt-"+hubstuff_id).html(message); 
+						$(thiss).parents('td').find("#message-chat-txt-"+hubstuff_id).text(message);
 						$("#message-chat-fulltxt-"+hubstuff_id).html(message);      
 					}
 					

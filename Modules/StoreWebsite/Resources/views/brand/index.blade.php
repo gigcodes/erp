@@ -51,36 +51,49 @@
 						<div class="form-group">
 					  				<button class="btn btn-secondary" onclick="refresh()">Refresh</button>
 					  			</div>
-		    			<form class="form-inline message-search-handler" method="get">
-					  		<div class="col">
-					  			<div class="form-group">
-								    <label for="keyword">Keyword:</label>
-								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
-							  	</div>
-								
-								<div class="form-group">
-									<label for="no-inventory">No Inventory</label>
-									<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
-								</div>
-
-								<div class="form-group ">
-									<label for="category_id">Category</label>
-											
-									<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
-								</div>
-
-							  	<div class="form-group">
-							  		<label for="button">&nbsp;</label>
-							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-							  			<img src="/images/search.png" style="cursor: default;">
-							  		</button>
-							  	</div>		
-					  		</div>
-				  		</form>
+		    			
 					</div>
 		    	</div>
 		    </div>
-	    </div>	
+	    </div>
+
+	    <div class="row mb-3 ml-3">
+		    <form class="form-inline message-search-handler" method="get">
+		  		<div class="col">
+		  			<div class="form-group">
+					    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+				  	</div>
+					
+					<div class="form-group ml-2">
+						<label for="no-inventory">No Inventory</label>
+						<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
+					</div>
+	
+					
+					<div class="form-group ml-2">
+						<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
+					</div>
+
+					<div class="form-group ml-2">
+						<?php echo Form::select("brd_store_website_id",$storeWebsite,request("brd_store_website_id"),["class"=> "form-control select2","placeholder" => "Select Store Website"]) ?>
+					</div>
+
+					<div class="form-group ml-2">
+						<label for="no_brand">no Available brand</label>
+						<input type="checkbox" name="no_brand" value="1" {{ request()->has('no_brand') ? 'checked' : '' }} />
+					</div>	
+
+
+				  	<div class="form-group">
+				  		<label for="button">&nbsp;</label>
+				  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+				  			<img src="/images/search.png" style="cursor: default;">
+				  		</button>
+				  	</div>		
+		  		</div>
+	  		</form>
+	  	</div>	
+
 		<div class="col-md-12 margin-tb" id="page-view-result">
 			<div class="row">
 				<table class="table table-bordered">
@@ -90,28 +103,45 @@
 				        <th width="10%">Brand</th>
 				        <th width="10%">Min Price</th>
 				        <th width="10%">Max Price</th>
-				        <?php foreach($storeWebsite as $sw) { ?>
-				        	<th width="10%"><?php echo $sw->title; ?></th>
+				        <?php foreach($storeWebsite as $k => $title) { ?>
+				        	<th data-id="{{$k}}" width="10%"><?php echo $title; ?> 
+				        		<a class="brand-history"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+				        		<a class="missing-brand-history" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
+				        	</th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
 				    <tbody>
 				    	<?php foreach($brands as $brand) { ?>
+
+				    	  <?php
+				    	  	if(request()->get('brd_store_website_id')){
+				    	  		if(request()->get('no_brand')){
+					    	  		if(in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
+					    	  			continue;
+					    	  			}
+					    	  	}else{
+					    	  		if(!in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
+					    	  			continue;
+					    	  		}
+					    	  	}	
+				    	  	}
+				    	  ?>		
  					      <tr>
 					      	<td><?php echo $brand->id; ?></td>
 					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( {{ $brand->counts }} )</a></td>
 					      	<td><?php echo $brand->min_sale_price; ?></td>
 					      	<td><?php echo $brand->max_sale_price; ?></td>
-					      	<?php foreach($storeWebsite as $sw) { 
-					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($sw->id, $apppliedResult[$brand->id])) ? "checked" : ""; 
+					      	<?php foreach($storeWebsite as $swid => $sw) { 
+					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($swid, $apppliedResult[$brand->id])) ? "checked" : ""; 
 					      		?>
 					        	<td>
-					        		<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $sw->id; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
+					        		<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
 					        		<span>
-					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($sw->id); @endphp
+					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($swid); @endphp
 					        			{{ $magentoStoreBrandId ? $magentoStoreBrandId : '' }}
 					        		</span>
-					        		<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$sw->id]) !!}" class="log_history"><i class="fa fa-info-circle" aria-hidden="true"></i>
+					        		<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history"><i class="fa fa-info-circle" aria-hidden="true"></i>
 					        		</a>
 					        	</td>
 					        <?php } ?>
@@ -144,6 +174,33 @@
     	</div>
 	</div>
 </div>
+
+<div id="brand-live-data" class="modal fade" role="dialog">
+  	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	        <div class="modal-header">
+	        	<h4 class="modal-title">Brand Live</h4>
+	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        </div>
+	        <div class="modal-body"></div>
+    	</div>
+	</div>
+</div>
+
+<div id="missing-live-data" class="modal fade" role="dialog">
+  	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	        <div class="modal-header">
+	        	<h4 class="modal-title">Brand Missing</h4>
+	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        </div>
+	        <div class="modal-body"></div>
+    	</div>
+	</div>
+</div>
+
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
@@ -190,6 +247,57 @@
         	});
 		});
 	});
+
+	$(document).on("click",".brand-history",function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		$.ajax({
+            url: "/store-website/brand/live-brands",
+            type: 'GET',
+            data : {
+            	store_website_id: $this.data("id")
+            },
+            beforeSend : function() {
+            	$("#loading-image").show();
+            },
+            success: function(response) {
+            	$("#loading-image").hide();
+                $("#brand-live-data").find(".modal-body").html(response);
+                $("#brand-live-data").modal("show");
+            },
+            error: function(response) {
+                $("#loading-image").hide();
+            	alert(response.responseText);
+            }
+    	});
+	});
+
+	$(document).on("click",".missing-brand-history",function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		$.ajax({
+            url: "/store-website/brand/missing-brands",
+            type: 'GET',
+            data : {
+            	store_website_id: $this.data("id")
+            },
+            beforeSend: function() {
+              $("#loading-image").show();
+            },
+            success: function(response) {
+            	$("#loading-image").hide();
+                $("#missing-live-data").find(".modal-body").html(response);
+                $("#missing-live-data").modal("show");
+            },
+            error: function(response) {
+            	$("#loading-image").hide();
+                alert(response.responseText);
+            }
+    	});
+	});
+
+	
+
 </script>
 
 @endsection

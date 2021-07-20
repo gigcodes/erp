@@ -9,7 +9,7 @@
 	<?php $base_url = URL::to('/');?>
 	<div class = "row">
 		<div class="col-lg-12 margin-tb">
-			<h2 class="page-heading">Project Directory Manager</h2>
+			<h2 class="page-heading">Project Directory Manager (Total size Today : {{$totalSize}} MB)</h2>
         </div>
 	</div>
 	@if(Session::has('message'))
@@ -88,7 +88,7 @@ $(document).on('click', '.send-message1', function () {
 	
 	if (!$(thiss).is(':disabled')) {
 		$.ajax({
-			url: "/erp/project-file-manager/update",
+			url: "/project-file-manager/update",
 			type: 'POST',
 			data: {"_token": "{{ csrf_token() }}", id: id, size:size},
 			beforeSend: function () {
