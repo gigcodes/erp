@@ -441,6 +441,34 @@ class Product extends Model
                     return false;
                 }
 
+                if ($product) {
+                    if ($isExcel == 1) {
+                        // if (!$product->hasMedia(\Config('constants.excelimporter'))) {
+                        if (!$product->hasMedia(\Config('constants.media_tags'))) {
+                            foreach ($json->images as $image) {
+                                if($image != '')
+                                {
+                                    try {
+                                        $jpg = \Image::make($image)->encode('jpg');
+                                    } catch (\Exception $e) {
+                                        $array = explode('/', $image);
+                                        $filename_path = end($array);
+                                        $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
+                                    }
+                                    $filename = substr($image, strrpos($image, '/'));
+                                    // $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                                    $filename = uniqid();
+                                    // $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000))->useFilename($filename)->upload();
+                                    // $product->attachMedia($media, config('constants.excelimporter'));
+                                    $product->attachMedia($media, config('constants.media_tags'));
+                                    }
+                            }
+                        }
+                    }
+
+                }
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
