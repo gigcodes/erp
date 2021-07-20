@@ -124,6 +124,7 @@ class HubstuffActivityCommand extends Command
                             $path = $zz->getRealPath();
                     }
                 }
+                }
             }
 
             if($payment_frequency == "fornightly"){
@@ -139,6 +140,7 @@ class HubstuffActivityCommand extends Command
                         if($path == null){
 
                             $path = $zz->getRealPath();
+                        }
                     }
                 }
             }
@@ -156,6 +158,7 @@ class HubstuffActivityCommand extends Command
                         if($path == null){
 
                             $path = $zz->getRealPath();
+                        }
                     }
                 }
             }
