@@ -165,8 +165,11 @@ class scrapperPhyhon extends Controller
                 }
             }
 
+        $allWebsites=Website::orderBy('name', 'ASC')->get();
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id'));
+        $allLanguages=Website::orderBy('name', 'ASC')->get();
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites'));
 
     }
 
@@ -224,6 +227,24 @@ class scrapperPhyhon extends Controller
 
             $response=array('status'=>0,'message'=>$e->getMessage());
             
+        }
+
+        return $response;
+    }
+
+
+    public function storeLanguageList(int $store=0)
+    {
+        try {
+
+            if($store)
+            {
+                $language=\App\WebsiteStoreView::where('website_store_id',$store)->select('name','code','id')->get();
+
+                $response=array('status'=>1,'list'=>$language);
+            }
+        } catch (Exception $e) {
+            $response=array('status'=>0,'message'=>$e->getMessage());
         }
 
         return $response;
