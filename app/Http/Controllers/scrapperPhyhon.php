@@ -234,7 +234,7 @@ class scrapperPhyhon extends Controller
         // dd(123);
         $validator = Validator::make($request->all(), [
            'country_code'   => 'required',
-           'image'          => 'required',
+           'image'          => 'required|valid_base',
            'image_name'     => 'required',
            'store_website'  => 'required|exists:store_websites,magento_url',
         ]);

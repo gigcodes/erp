@@ -8,6 +8,7 @@ use Facebook\Facebook;
 use Blade;
 use Studio\Totem\Totem;
 use App\ScrapedProducts;
+use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,14 @@ class AppServiceProvider extends ServiceProvider
             config(['app.debug' => true]);
             config(['debugbar.enabled' => true]);
         }
+        
+        Validator::extend('valid_base', function ($attribute, $value, $parameters, $validator) { 
+            if (base64_decode($value, true) !== false){
+                return true;
+            } else {
+                return false;
+            }
+        }, 'image is not valid base64 encoded string.');
 
     }
 
