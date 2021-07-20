@@ -147,7 +147,7 @@ class ProjectFileManagerController extends Controller
 		$id = $request->get("id");
 		$fileManager = \App\ProjectFileManager::find($id);
 		if($fileManager) {
-			$path  = base_path().DIRECTORY_SEPARATOR.$fileManager->name;
+			$path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $fileManager->name));
 			$file_size = 0;
 
 			if(is_dir($path)) {
@@ -178,7 +178,7 @@ class ProjectFileManagerController extends Controller
 		$id = $request->get("id");
 		$fileManager = \App\ProjectFileManager::find($id);
 		if($fileManager) {
-			$path  = base_path().DIRECTORY_SEPARATOR.$fileManager->name;
+			$path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $fileManager->name));
 			if(!is_dir($path)) {
 				if(!is_writable($path)) {
 					return response()->json(["code" => 500 , "message" => "{$path} is not writeable"]);
