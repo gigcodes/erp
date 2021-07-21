@@ -89,6 +89,14 @@ class LogListMagentoController extends Controller
             }
         }
 
+        if($request->sync_status != null) {
+            $logListMagentos->where('log_list_magentos.sync_status', $request->sync_status);
+        }
+
+        if($request->user != null) {
+            $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+        }
+
         // Get paginated result
         $logListMagentos->select(
             'log_list_magentos.*',
@@ -106,20 +114,6 @@ class LogListMagentoController extends Controller
         $logListMagentos = $logListMagentos->paginate(25);
         //dd($logListMagentos);
         foreach ($logListMagentos as $key => $item) {
-            if ($request->sync_status) {
-                if ($item->sync_status != $request->sync_status) {
-                    unset($logListMagentos[$key]);
-                    continue;
-                }
-
-            }
-
-            if ($request->user) {
-                if ($item->log_user_id != $request->user) {
-                    unset($logListMagentos[$key]);
-                    continue;
-                }
-            }
             if ($item->hasMedia(config('constants.media_tags'))) {
                 $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
             } else {
