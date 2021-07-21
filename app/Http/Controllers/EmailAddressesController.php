@@ -279,7 +279,7 @@ class EmailAddressesController extends Controller
                 $query->where('is_success', 0);
             })
             ->with(['history_last_message' => function($q) {
-                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-10 day")));
+                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-1 day")));
             }])
             ->get();
 
