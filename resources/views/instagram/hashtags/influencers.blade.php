@@ -281,6 +281,7 @@ button[disabled]:hover {
                                 <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th>Platform</th>
                                     <th>Account</th>
                                     <th>Action</th>
                                 </tr>
@@ -291,13 +292,18 @@ button[disabled]:hover {
                                    <td>{{ $keyword->name }}</td>
                                    <td>
                                         <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::select('platform',["py_instagram" => "Py Instagram", "py_facebook" => "Py Facebook"],null, ["class" => "form-control select2 platform-request"]); ?>
+                                        </div>
+                                   </td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
                                              <?php echo Form::select('instagram_account_id',$accountsList,$keyword->instagram_account_id, ["class" => "form-control select2","id" => 'instagram_account_id_change']); ?>
                                         </div>
                                    </td>
                                    <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
                                    <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
-                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
-                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
+                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
+                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
                                    <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
                                    <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
                                    <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
@@ -687,7 +693,8 @@ button[disabled]:hover {
                    console.log("error");
                });
           }
-          function startScript(name) {
+          function startScript(name,ele) {
+            var platform = $(ele).closest("tr").find(".platform-request").val();
             var result = confirm("You Want to start this script "+name+"?");
             if(result){
                 $.ajax({
@@ -696,6 +703,7 @@ button[disabled]:hover {
                    dataType: 'json',
                    data: {
                         name: name,
+                        platform : platform,
                         "_token": "{{ csrf_token() }}",
                     },
                    })
@@ -755,7 +763,8 @@ button[disabled]:hover {
             }
              
           }
-          function stopScript(name) {
+          function stopScript(name,ele) {
+            var platform = $(ele).closest("tr").find(".platform-request").val();
             var result = confirm("You Want to stop this script "+name+"?");
             if(result){
                 $.ajax({
@@ -764,6 +773,7 @@ button[disabled]:hover {
                    dataType: 'json',
                    data: {
                         name: name,
+                        platform : platform,
                         "_token": "{{ csrf_token() }}",
                     },
                    })

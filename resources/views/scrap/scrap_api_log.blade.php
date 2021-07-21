@@ -28,34 +28,35 @@
     </div>
 
     <div class="mt-3 col-md-12">
-        <div class="row row-no-gutters">
-            <div class="col-sm-3"><input type="text" class="form-control" placeholder="Search By Name" name="scraper_name" id="scraper_name"></div>
-            <div><h5>From</h5></div>
-            <div class="form-group col-md-2 pd-3">
-                <div class='input-group date' id='order-start-datetime'>
-                    <input type='text' class="form-control" name="start_date" id="start_search_date" placeholder="Start Date"/>
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
+        <form action="{{ route('log-scraper.api') }}">
+            <div class="row row-no-gutters">
+                <div class="col-sm-3"><input type="text" class="form-control" placeholder="Search By Name" name="scraper_name"></div>
+                <div><h5>From</h5></div>
+                <div class="form-group col-md-2 pd-3">
+                    <div class='input-group date' id='order-start-datetime'>
+                        <input type='text' class="form-control" name="start_date" id="start_search_date" placeholder="Start Date"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div><h5>To</h5></div>
+                <div class="form-group col-md-2 pd-3">
+                    <div class='input-group date' id='order-end-datetime'>
+                        <input type='text' class="form-control" name="end_date" id="end_search_date" placeholder="End Date"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-image" type="submit">
+                        <img src="/images/filter.png" style="cursor: nwse-resize;">
+                    </button>
                 </div>
             </div>
-            <div><h5>To</h5></div>
-            <div class="form-group col-md-2 pd-3">
-                <div class='input-group date' id='order-end-datetime'>
-                    <input type='text' class="form-control" name="end_date" id="end_search_date" placeholder="End Date"/>
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
-            </div>
-            <div>
-                <button class="btn btn-image api-log-search-btn">
-                    <img src="http://erp.g64.gopanear.com/images/filter.png" style="cursor: nwse-resize;">
-                </button>
-            </div>
-
-            
-        </div><br>
+        </form>
+        <br>
         <table class="table table-bordered table-striped" id="log-table" style="width: 100%">
             <thead>
                 <tr>
@@ -83,7 +84,7 @@
                 @endforeach
             </tbody>
         </table>
-        <tr>{{ $api_logs->links() }}</tr>
+        <tr>{{ $api_logs->appends(Request::except('page'))->links() }}</tr>
     </div>
 
     <!--Log Messages Modal -->
@@ -114,14 +115,14 @@
 
     $(document).ready(function() {
         $('#order-start-datetime').datetimepicker({
-            format: 'DD/MM/YYYY',
+            format: 'DD-MM-YYYY',
         });
         $('#order-end-datetime').datetimepicker({
-            format: 'DD/MM/YYYY',
+            format: 'DD-MM-YYYY',
         });
         $('#newdeldate').datetimepicker({
             minDate:new Date(),
-            format: 'DD/MM/YYYY',
+            format: 'DD-MM-YYYY',
         });
     });
         $(document).on('click','.log-message-popup',function(){
@@ -129,45 +130,5 @@
             $('#logMessageModel p').text($(this).data('log_message'));
         });
 
-        $(document).on('keyup','#scraper_name',function(){
-            var search_name = $(this).val();
-
-            $.ajax({
-                url: '{{ route("api.log.scraper-search") }}',
-                Type: "get",
-                data: {
-                    search_name : search_name,
-                    name_length : search_name.length,
-                },
-                beforeSend: function(){
-                    $('#myDiv').show();
-                },
-                success: function(response) {
-                    $('#myDiv').hide();
-                    $(document).find('.apiLogSearch').html(response.html);
-                },
-            });
-        });
-        
-        $(document).on('click','.api-log-search-btn',function(){
-            var start_date = $("#start_search_date").val();
-            var end_date = $("#end_search_date").val();
-
-            $.ajax({
-                url: '{{ route("api.log.scraper-search") }}',
-                Type: "get",
-                data: {
-                    start_date : start_date,
-                    end_date : end_date,
-                },
-                beforeSend: function(){
-                    $('#myDiv').show();
-                },
-                success: function(response) {
-                    $('#myDiv').hide();
-                    $('.apiLogSearch').html(response.html)
-                },
-            });
-        });
     </script>
 @endsection

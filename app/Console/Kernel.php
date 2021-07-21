@@ -140,6 +140,7 @@ use App\Console\Commands\SendDailyLearningReports;
 use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
+use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -276,7 +277,8 @@ class Kernel extends ConsoleKernel
         SendDailyPlannerNotification::class,
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
-        RemoveScrapperImages::class
+        RemoveScrapperImages::class,
+        ChangeTesterBasedOnTeamLead::class
     ];
 
     /**

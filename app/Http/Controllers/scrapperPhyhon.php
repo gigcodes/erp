@@ -144,27 +144,38 @@ class scrapperPhyhon extends Controller
     public function listImages(Request $request){
 
         $store_id = $request->id;
-//        $list =  Website::where('id',$website_id)->first();
-//dd($list, $website_id);
+
         $oldDate = null;
         $count   = 0;
         $images = [];
-        // dd( $list->store_website_id );
+        
+        $webStore = \App\WebsiteStore::where('id',$store_id)->first();
+        $list =  Website::where('id',$webStore->website_id)->first();
+        $website_id = $list->id;
 
-            $webStore = \App\WebsiteStore::where('id',$store_id)->first();
-                $list =  Website::where('id',$webStore->website_id)->first();
-                $website_id = $list->id;
         if( $webStore ){
+
             $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
-//            dd($list->store_website_id);
-//            dd($list->store_website_id);
+
                 if( $website_store_views ){
-                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$request->code)->get()->toArray();
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)
+                    ->where('website_id',$request->code); // this is language code. dont be confused with column name
+
+                    if(isset($request->device) && $request->device != '')
+                    {
+                        $images = $images->where('device',$request->device);
+                    }
+                    
+                    $images = $images->get()
+                    ->toArray();
                 }
             }
 
+        $allWebsites=Website::orderBy('name', 'ASC')->get();
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id'));
+        $allLanguages=Website::orderBy('name', 'ASC')->get();
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites'));
 
     }
 
@@ -227,21 +238,44 @@ class scrapperPhyhon extends Controller
         return $response;
     }
 
+
+    public function storeLanguageList(int $store=0)
+    {
+        try {
+
+            if($store)
+            {
+                $language=\App\WebsiteStoreView::where('website_store_id',$store)->select('name','code','id')->get();
+
+                $response=array('status'=>1,'list'=>$language);
+            }
+        } catch (Exception $e) {
+            $response=array('status'=>0,'message'=>$e->getMessage());
+        }
+
+        return $response;
+    }
+
     public function imageSave(Request $request)
     {
-        // dd(123);
         $validator = Validator::make($request->all(), [
            'country_code'   => 'required',
-           'image'          => 'required',
+           'image'          => 'required|valid_base',
            'image_name'     => 'required',
-           'store_website'  => 'required',
+           'store_website'  => 'required|exists:store_websites,magento_url',
+           'device'         => 'required|in:desktop,mobile,tablet',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
+            return response()->json([
+                "code" => 422, 
+                "message" => 'Invalid request',
+                "error" => $validator->errors()
+            ]);
         }
 
-        $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
+        $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
+        
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 
             $newImage = array(
@@ -249,6 +283,7 @@ class scrapperPhyhon extends Controller
                 'store_website' => $StoreWebsite->id ?? 0,
                 'img_name'   => $request->image_name,
                 'img_url'    => $request->image_name,
+                'device'     => (isset($request->device) ? $request->device : 'desktop' ),
             );
 
             scraperImags::insert( $newImage );

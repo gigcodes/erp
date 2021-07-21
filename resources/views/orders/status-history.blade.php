@@ -68,6 +68,10 @@
           <td>{{ $order_n_refund->estimated_delivery_date }}</td>
           <td>
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order_n_refund->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+
+            <!-- START - Purpose : Go To Direct Mail -  DEVTASK-18283 -->
+            <a href='{{ url("email/order_data/{$order_n_refund->email}") }}' target="_blank" data-email="{{ $order_n_refund->email }}" style="color:#000;"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>
+            <!-- END -  DEVTASK-18283 -->
           </td>
         </tr>
       @endforeach

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inventory suppliers')
+@section('title', 'Totem Cron Module')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -65,6 +65,20 @@ table tr td {
 .red{
     color: red
 }
+#addEditTaskModal .modal-dialog{
+    max-width: 1050px;
+    width: 100%;
+}
+.uk-margin-remove th, .uk-margin-remove td{
+    padding: 4px 10px;
+}
+.btn-default:focus{
+    outline: none;
+    border:1px solid #ddd;
+    box-shadow: none !important;
+    background: #fff;
+    color: #757575;
+}
 </style>
 @endsection
 
@@ -80,21 +94,30 @@ table tr td {
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading text-center">Tasks</h2>
+            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks
+                <div class="margin-tb" style="flex-grow: 1;">
+                    <div class="pull-right ">
+                        <button type="button" class="btn btn-default btn-sm add-remark mr-1" data-toggle="modal" data-target="#addEditTaskModal">
+                            <span class="glyphicon glyphicon-th-plus"></span> Add Task
+                        </button>
+                    </div>
+                </div>
+            </h2>
+
+
+
         </div>
-         <div class="col-10" style="padding-left:0px;">
+         <div class="col-12 pl-2" style="padding-left:0px;">
             <div >
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
                         <input style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
                     </div> 
                     <div class="form-group col-md-1 pd-3">
-                        <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                        <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
-                    <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addEditTaskModal">
-                        <span class="glyphicon glyphicon-th-plus"></span> Add Task
-                    </button>
+
                 </form> 
             </div>
         </div>
@@ -103,10 +126,10 @@ table tr td {
 
 
     <div class="row">
-        <div class="infinite-scroll" style="width:100%;">
+        <div class="infinite-scroll" style="width:100%;padding: 0 8px">
             {!! $tasks->links() !!}
 	        <div class="table-responsive mt-2">
-                <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+                <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
                         <tr>
                             <th width="2%">#</th>
@@ -146,6 +169,8 @@ table tr td {
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+
+                                    <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                 </td>
                             </tr>
                             @endforeach
@@ -337,17 +362,19 @@ table tr td {
                         <div class="form-group frequencies">
                             <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add   to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
                             <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
-                            <table class="uk-table uk-table-divider uk-margin-remove">
+                            <div class="table-responsive mt-2" style="width: fit-content">
+                            <table class="uk-table table-bordered uk-table-divider uk-margin-remove">
                                 <thead>
                                     <tr>
                                         <th>Frequency</th> 
-                                        <th>Parameters</th>
+                                        <th colspan="2">Parameters</th>
                                     </tr>
                                 </thead>
                                 <tbody class="freq">
                                     <td class="default_td">No Frequencies Found</td>
                                 </tbody>
                             </table>
+                            </div>
                         </div> 
 
                         <hr> 
@@ -371,17 +398,17 @@ table tr td {
                             <label>Miscellaneous Options</label>
                             <br>
                             <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" checked>
-                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" >Don't Overlap
+                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" class="mr-2">Don't Overlap
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
                             
                             <input type="hidden" name="run_in_maintenance" id="run_in_maintenance" value="0" checked>
-                            <input type="checkbox" name="run_in_maintenance" id="run_in_maintenance" value="1" >Run in maintenance mode
+                            <input type="checkbox" name="run_in_maintenance" id="run_in_maintenance" value="1" class="mr-2">Run in maintenance mode
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
                             
                             <input type="hidden" name="run_on_one_server" id="run_on_one_server" value="0" checked>
-                            <input type="checkbox" name="run_on_one_server" id="run_on_one_server" value="1" >Run on a single server
+                            <input type="checkbox" name="run_on_one_server" id="run_on_one_server" value="1" class="mr-2">Run on a single server
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                              
                             <p class="d-none"></p>
@@ -425,6 +452,24 @@ table tr td {
             </div>
         </div>
     </div>  
+
+    <div id="show-development-history" class="modal fade" role="dialog" style="z-index: 999999999">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Development Task</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>  
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 @section('scripts')
 
@@ -725,6 +770,27 @@ table tr td {
             }
         });
 
+    });
+
+    $(document).on("click",".task-history",function() {
+        $.ajax({
+            type: "GET",
+            url: "/totem/tasks/"+$(this).data('id')+"/development-task",  
+            beforeSend : function() {
+                $(".ajax-loader").show();
+            },
+            success: function (response) {
+                $(".ajax-loader").hide();
+                $("#show-development-history").find(".modal-body").html(response);
+                $("#show-development-history").modal("show");
+            },
+            error: function (response) { 
+                $(".ajax-loader").hide();
+                if(response.status != 200){      
+                    toastr['error']('Something went wrong!');
+                }
+            }
+        });
     });
 
     $('.edit-task').click(function(){

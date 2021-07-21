@@ -21,6 +21,8 @@ use App\PaymentReceipt;
 use Carbon\Carbon;
 use App\Order;
 use App\Learning;
+use App\Sop;
+
 class ChatMessagesController extends Controller
 {
     /**
@@ -87,6 +89,10 @@ class ChatMessagesController extends Controller
                 $object = Learning::find($request->object_id);
             break;
             //END - DEVTASK-4020
+            case 'SOP':
+                $object = User::find($request->object_id);
+
+            break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -112,10 +118,22 @@ class ChatMessagesController extends Controller
            $onlyBroadcast   = true;
            $loadType        = "images";
         }
+       
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+
+        if ($request->object == "SOP") {
+            $chatMessages = ChatMessage::where('sop_user_id', $object->id);
+        } 
+      
         
         if ($request->object == "user-feedback") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
+            if ($request->feedback_status_id != null) {
+                $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id)->where('user_feedback_status',$request->feedback_status_id);
+            }
+        }
+        if ($request->object == "hubstuff") {
+            $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
         }
         if(!$onlyBroadcast){
            $chatMessages = $chatMessages->where('status', '!=', 10);
@@ -178,6 +196,34 @@ class ChatMessagesController extends Controller
                                             });
                     });
                 break;
+            case 'incoming_img':
+                    $chatMessages = $chatMessages->where(function($query) use ($object) {
+                    $query->whereRaw("(chat_messages.number = ".$object->phone." and ( media_url is not null 
+                                                or id in (
+                                                select
+                                                    mediable_id
+                                                from
+                                                    mediables
+                                                    join media on id = media_id and extension != 'pdf'
+                                                WHERE
+                                                    mediable_type LIKE 'App%ChatMessage'
+                                            )) )");
+                    });
+                break;
+            case 'outgoing_img':
+                $chatMessages = $chatMessages->where(function($query) use ($object) {
+                $query->whereRaw("((chat_messages.number != ".$object->phone."  or chat_messages.number is null) and ( media_url is not null 
+                                            or id in (
+                                            select
+                                                mediable_id
+                                            from
+                                                mediables
+                                                join media on id = media_id and extension != 'pdf'
+                                            WHERE
+                                                mediable_type LIKE 'App%ChatMessage'
+                                        )) )");
+                });
+            break;  
         }
 
         $chatMessages = $chatMessages->get();

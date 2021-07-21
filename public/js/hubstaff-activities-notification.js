@@ -146,6 +146,7 @@ var page = {
         var tplHtml       = addProductTpl.render(response);
 
         $(".count-text").html("("+response.total+")");
+        $(".total_working_hr").html("("+response.total+")");
 
         page.config.bodyView.find("#page-view-result").html(tplHtml);
 

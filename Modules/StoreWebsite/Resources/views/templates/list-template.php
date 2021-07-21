@@ -46,23 +46,35 @@
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category">
 			        		<i class="fa fa-paperclip" aria-hidden="true"></i>
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands">	
 			        		<img width="15px" title="Attach Brands" src="/images/purchase.png">
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn">
 			        		<a href="/site-development/{{>prop.id}}">
 			        			<img width="15px" title="Site Development" src="/images/project.png">
 			        		</a>
 						</button> 
+
 						<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
+
 						<button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
+
 						<button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
+
+						<button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty">
+							<a href="javascript:;"><i class="fa fa-info-circle"></i></a>
+						</button> 
+
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -452,6 +464,48 @@
 
 
 						        </td>
+						      </tr>
+						    {{/props}}  
+					    </tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>	
+</script>
+
+
+<script type="text/x-jsrender" id="template-history-store-magento-user">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Magento Store User History</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">		
+				<div class="col-lg-12">
+					<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					      	<th>Date</th>
+					      	<th>Website_mode</th>
+					        <th>Username</th>
+					        <th>First name</th>
+					        <th>Last name</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					    	{{props data}}
+						      <tr>
+						      	<td>{{if prop}}{{:prop.date}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.website_mode}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.username}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.first_name}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.last_name}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.action}}{{/if}}</td>
 						      </tr>
 						    {{/props}}  
 					    </tbody>

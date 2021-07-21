@@ -494,7 +494,7 @@ $metaData = '';
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
-                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list-new') }}">New Product Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
@@ -579,6 +579,9 @@ $metaData = '';
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.discount.files') }}">Supplier Discount Files</a></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1410,6 +1413,9 @@ $metaData = '';
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project Directory manager</a>
                                 </li>
                             </ul>
                         </li>
@@ -2415,6 +2421,70 @@ $metaData = '';
         </div>
     </div>
 
+    <!--Sop Create Modal -->
+    <div id="Create-Sop-Shortcut" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Create Shortcut Model</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="createShortcutForm">
+                <td><input type="file" name="image" hidden></td>
+                <td><input type="text" name="tags[0][name]" hidden></td>
+                <td><input type="text" name="tags[0][value]" hidden></td>
+                <div class="modal-body add_sop_modal">
+                    <div>
+                        <select class="form-control sop_drop_down">
+                            <option value="sop">Sop</option>
+                            <option value="knowledge_base">Knowledge Base</option>
+                        </select>
+                    </div>
+                    <div class="add_sop_div">
+                        <tr>
+                            <select class="form-control knowledge_base mt-3" name="sop_knowledge_base" hidden>
+                                <option value="">Select</option>
+                                <option value="book">Book</option>
+                                <option value="chapter">Chapter</option>
+                                <option value="page">Page</option>
+                                <option value="shelf">Shelf</option>
+                            </select>
+                        </tr>
+                        <tr>
+                            <select class="form-control knowledge_base_book mt-3" name="knowledge_base_book" hidden>
+                                <option value="">Select Books</option>
+                                @php
+                                    $books = Modules\BookStack\Entities\Book::get();
+                                @endphp
+                                @foreach ($books as $book)
+                                    <option value="{{ $book->name }}">{{ $book->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="books_error" style="color:red;"></span>
+                        </tr>
+                        <br>
+                        <tr>
+                            <td>Name:</td>
+                            <td><input type="text" name="name" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td>Description:</td>
+                            <td><textarea name="description" id="" cols="30" rows="10" class="form-control sop_description"></textarea></td>
+                        </tr>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default create_shortcut_submit">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    
+        </div>
+    </div>
+
     @endif
 
     @php
@@ -2462,6 +2532,111 @@ $metaData = '';
 
     <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+
+    <script>
+        $(document).on('change','.sop_drop_down',function(){
+            var val = $(this).val();
+            if ($(this).val() == "knowledge_base") {
+                $(this).parents('.add_sop_modal').find('.knowledge_base').removeAttr('hidden');
+            }else{
+                $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden',true).val('');
+                $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
+            }
+        })
+        
+        $(document).on('change','.knowledge_base',function(){
+            var val = $(this).val();
+            if ($(this).val() == "chapter" || $(this).val() == "page") {
+                $(this).parents('.add_sop_modal').find('.knowledge_base_book').removeAttr('hidden');
+            }else{
+                $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
+            }
+        })
+        
+        $(document).on('change','.knowledge_base_book',function(){
+            var val = $(this).val();
+            if (val.length > 0) {
+                $(this).parents('#createShortcutForm').find('.books_error').text('');
+            }
+        })
+
+        $(document).on('click','.create_shortcut_submit',function(){
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            var formdata = $('#createShortcutForm').serialize();
+            var val = $(this).parents('#createShortcutForm').find('.knowledge_base').val();
+            var name = $(this).parents('#createShortcutForm').find('[name="name"]').val();
+            var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
+            if (val.length === 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('shortcut.sop.create') }}",
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Sop Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "book") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books`,
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Book Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "chapter") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books/${book_name}/create-chapter`,
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Chapter Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "page") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
+                }
+                $.ajax({
+                    type: "get",
+                    url: `kb/books/${book_name}/create-page`,
+                    data: formdata,
+                    success: function(response){
+                        console.log(response,'======')
+                        toastr.success('Page Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "shelf") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/shelves/${name}/add`,
+                    data: formdata,
+                    success: function(response){
+                        toastr.success('Bookshelf Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+        })
+
+    </script>
 
     <script>
         $(document).ready(function() {

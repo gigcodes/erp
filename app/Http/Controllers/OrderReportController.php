@@ -109,11 +109,11 @@ class OrderReportController extends Controller
       //return 'asdfsfg';
       $orders = DB::table('orders')
       ->join('customers','orders.customer_id','customers.id')
-      ->select('orders.id', 'customer_id','orders.created_at as date', DB::raw("'order' as type"),'customers.phone', 'customers.name','order_status_id','estimated_delivery_date');
+      ->select('orders.id', 'customer_id','orders.created_at as date', DB::raw("'order' as type"),'customers.phone', 'customers.name', 'customers.email','order_status_id','estimated_delivery_date');
 
       $order_n_refunds = DB::table('return_exchanges')
       ->join('customers','return_exchanges.customer_id','customers.id')
-      ->select('return_exchanges.id', 'customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"))
+      ->select('return_exchanges.id', 'customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name','customers.email',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"))
       ->union($orders)
       ->orderBy('date',"DESC")
       ->get();
