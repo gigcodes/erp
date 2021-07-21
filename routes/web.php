@@ -3117,6 +3117,7 @@ Route::middleware('auth')->group(function()
 {
 Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
 Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
+Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
 
 Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
