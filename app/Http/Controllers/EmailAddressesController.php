@@ -235,6 +235,8 @@ class EmailAddressesController extends Controller
 
     public function getErrorEmailHistory(Request $request)
     {
+        ini_set("memory_limit", -1);
+        
         $histories = EmailAddress::whereHas('history_last_message',function($query){
                 $query->where('is_success', 0);
             })
