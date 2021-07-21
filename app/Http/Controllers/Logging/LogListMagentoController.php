@@ -7,7 +7,7 @@ use App\Loggers\LogListMagento;
 use DataTables;
 use Illuminate\Http\Request;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-
+use App\StoreMagentoApiSearchProduct;
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -206,7 +206,17 @@ class LogListMagentoController extends Controller
 
     public function showMagentoProductAPICall(Request $request)
     {
-        return view('logging.magento-api-call');
+        $data = StoreMagentoApiSearchProduct::orderBy('id','DESC');
+        if($request->website_name){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%");
+        }
+
+        if($request->limit){
+            $data = $data->limit($request->limit)->get();
+        }else{
+            $data = $data->paginate(10);
+        }
+        return view('logging.magento-api-call',compact('data'));
     }
     protected function processProductAPIResponce($products)
     {
@@ -459,6 +469,7 @@ class LogListMagentoController extends Controller
                             'chinese'     => !empty($value['chinese']) ? $value['chinese'] : "No",
                         ];
 
+                        $StoreMagentoApiSearchProduct = StoreMagentoApiSearchProduct::create($addItem);
                         if ($StoreWebsiteProductCheck == null) {
                             $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
                         } else {
@@ -545,5 +556,29 @@ class LogListMagentoController extends Controller
             return view("logging.partials.product-information",compact('data'));
 
         }
+    }
+    public function deleteMagentoApiData(Request $request)
+    {
+        if($request->days){
+            if($request->days == 1){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(1))->delete();
+            }
+            if($request->days == 2){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(2))->delete();
+            }
+            if($request->days == 7){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(7))->delete();
+            }
+            if($request->days == 30){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(30))->delete();
+            }
+            if($request->days == 100){
+                StoreMagentoApiSearchProduct::truncate();
+            }
+            return response()->json(['code' => 200]);
+        }
+        $data = StoreMagentoApiSearchProduct::find($request->id);
+        $data->delete();
+        return response()->json(['status' => true]);
     }
 }
