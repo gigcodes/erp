@@ -2157,6 +2157,9 @@ class ScrapController extends Controller
 
     public function sendScreenshot(Request $request)
     {
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Screenshot request has been disabled"]);
+
         if (empty($request->website)) {
             return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is required field"]);
         }
@@ -2165,7 +2168,7 @@ class ScrapController extends Controller
             return response()->json(["code" => 500, "data" => [], "message" => "Screenshot is required"]);
         }
 
-        $scraper = \App\Scraper::where("scraper_name", $request->website)->first();
+        /*$scraper = \App\Scraper::where("scraper_name", $request->website)->first();
 
         if (!$scraper) {
             return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is wrong"]);
@@ -2183,7 +2186,7 @@ class ScrapController extends Controller
         ]);
         $history->save();
 
-        $history->attachMedia($media, config('constants.media_screenshot_tag'));
+        $history->attachMedia($media, config('constants.media_screenshot_tag'));*/
 
         return response()->json(["code" => 200, "data" => [], "message" => "Screenshot saved successfully"]);
 
