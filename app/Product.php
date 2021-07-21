@@ -1152,8 +1152,7 @@ class Product extends Model
             }
             
             $this->save();
-        }else if (!($this->category > 0 && $this->categories && $this->categories->need_to_check_measurement)
-        ) {
+        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement)) && $this->categories->need_to_check_measurement) {
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->sub_status_id = null;
             $this->save();
@@ -1161,7 +1160,7 @@ class Product extends Model
 
             // check that product has how many description
             $descriptionCount = $this->suppliers_info->count();
-            if($descriptionCount <= 1) {
+            if($descriptionCount <= 1 && (empty($this->brands->next_step) ||  $this->brands->next_step == StatusHelper::$requestForExternalScraper)) {
                 $this->status_id = StatusHelper::$requestForExternalScraper;
                 $this->sub_status_id = StatusHelper::$unknownDescription;
                 $this->save();
@@ -1169,7 +1168,7 @@ class Product extends Model
 
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
-                if(!($this->category > 0 && $this->categories && $this->categories->need_to_check_size)) {
+                if(empty($this->size_eu) && $this->categories->need_to_check_size) {
                    $this->status_id =  StatusHelper::$unknownSize;
                    $this->sub_status_id = null;
                    $this->save();
