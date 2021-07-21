@@ -494,7 +494,7 @@ $metaData = '';
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
-                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list-new') }}">New Product Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
@@ -579,6 +579,9 @@ $metaData = '';
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.discount.files') }}">Supplier Discount Files</a></a>
                                         </li>
                                     </ul>
                                 </li>
