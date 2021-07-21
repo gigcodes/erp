@@ -198,6 +198,12 @@ var page = {
         var agents = response.responseData.agents;
         var agent_priorities = Object.keys(response.responseData.agent_priorities);
         var agent_priorities_value = Object.values(response.responseData.agent_priorities);
+        let html_groups = `<div class="form-group col-md-12 group"><select name="group" class="form-control select-2"><option value="">Choose Theme</option>`;
+		for(let i=0; i<groups.responseData.length; i++){
+			html_groups += `<option value="${groups.responseData[i].id}" ${groups.responseData[i].id == response.responseData.ref_theme_group_id ? 'selected' : ''} >${groups.responseData[i].name}</option>`;
+		}
+		html_groups += '</select></div>'; 
+        
         var html = '';
         for(let i=0; i<agent_priorities.length; i++){
             let options = `<select name="agents[]" class="form-control select-2"> `;
@@ -234,6 +240,7 @@ var page = {
         common.find(".modal-dialog").html(tplHtml); 
         common.modal("show");
         $('#form-create-group .modal-body').append(html);
+		$('.modal-body .name_div').after(html_groups); 
     },
 
     submitFormSite : function(ele) {

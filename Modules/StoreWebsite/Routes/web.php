@@ -173,6 +173,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('/group/save', 'WebsiteStoreViewController@storeGroup')->name("store-website.website-store-views.group.save");
         Route::get('/group/{id}/delete/{store_group_id}', 'WebsiteStoreViewController@deleteGroup')->name("store-website.website-store-views.group.delete");
         Route::get('/agents', 'WebsiteStoreViewController@agents')->name("store-website.website-store-views.group.agents");
+        Route::get('/groups', 'WebsiteStoreViewController@groups')->name("store-website.website-store-views.group.groups");
     });
     
     Route::prefix('page')->group(function () {
