@@ -168,6 +168,7 @@
                             <tr>
                                 <td>Index</td>
                                 <td>Keyword</td>
+                                <td>Action</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,6 +176,7 @@
                                 <tr>
                                     <td>{{ $logKeyword->id }}</td>
                                     <td>{{ $logKeyword->text }}</td>
+                                    <td><button type="button" class="btn btn-image delete_keyword" data-id="{{ $logKeyword->id }}"> <img src="/images/delete.png" style="cursor: pointer;"> </button></td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -198,15 +200,19 @@
                             <tr>
                                 <td>Index</td>
                                 <td>Message</td>
+                                <td>Developer task id</td>
+                                <td>Assigned to</td>
                                 <td>Sent On</td>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $count=0; @endphp
+                            @php $count=1; @endphp
                             @foreach($ChatMessages as $ChatMessage)
                                 <tr>
                                     <td>{{ $count++ }}</td>
                                     <td>{{ $ChatMessage->message }}</td>
+                                    <td>{{ $ChatMessage->dev_task_id ?? '-' }}</td>
+                                    <td>{{ $ChatMessage->name ?? '-' }}</td>
                                     <td>{{ $ChatMessage->created_at }}</td>
                                 </tr>
                             @endforeach
@@ -571,6 +577,33 @@
                 $("#loading-image").hide();
             });
         });
+
+
+        $(document).on('click','.delete_keyword',function(event){
+            var thiss = $(this);
+            if(confirm('Are you sure you want to delete this k?')){
+                $.ajax({
+                    url: '/logging/keyword-delete',
+                    dataType: "json",
+                    data: {
+                        _token: '{{csrf_token()}}',
+                        id: $(this).data('id')
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    thiss.closest('tr').remove();
+                    toastr['success']('Keyword Deleted Successfully.');
+                    $("#loading-image").hide();
+                    // window.location.reload();
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    toastr['error'](data.message, 'Error ocuured!');
+                    $("#loading-image").hide();
+                });
+            }
+        });
+
         $(document).on('click','.view_error',function(event){
             event.preventDefault();
             console.log($(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text());
