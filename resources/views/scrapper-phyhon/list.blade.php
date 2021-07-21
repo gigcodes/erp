@@ -68,6 +68,9 @@
         .mr-3 {
             margin:3px;
         }
+        td{
+            padding: 4px !important;
+        }
     </style>
 @endsection
 
@@ -157,8 +160,8 @@
                 <th style="width:20%">Id</th>
                 <th style="width:20%">Website</th>
                 <th style="width:45%">Name</th>
-                <th style="width:45%">Language</th>
-                <th style="width:20%">Action</th>
+                <th style="width:35%">Language</th>
+                <th style="width:30%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load')

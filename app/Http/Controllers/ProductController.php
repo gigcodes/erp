@@ -3155,11 +3155,11 @@ class ProductController extends Controller
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
         // Check if this product is being cropped
-        if ($product->status_id != StatusHelper::$isBeingCropped) {
+        /*if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
                 'status' => 'unknown product'
             ], 400);
-        }
+        }*/
 
         // Check if we have a file
         if ($request->hasFile('file')) {
@@ -5467,6 +5467,21 @@ class ProductController extends Controller
         $order_products = OrderProduct::create($orderproduct_data);
 
         return response()->json(['code' => 200, 'message' => 'Purchase Products Added successfully']);
+    }
+
+    public function sendLeadPrice(Request $request)
+    {
+        if(empty($request->customer_id) && empty($request->product_id)) {
+            return response()->json(["code" => 500 , "message" => "Please check product id and customer id exist"]);
+        }
+
+        $customer = \App\Customer::find($request->customer_id);
+
+        if($customer && !empty($request->product_id)) {
+            app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$request->product_id]),true);
+        }
+
+        return response()->json(["code" => 200 ,"data" => [], "message" => "Lead price created"]);
     }
 
 }
