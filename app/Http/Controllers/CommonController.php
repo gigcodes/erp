@@ -201,7 +201,11 @@ class CommonController extends Controller
 
         \App\Jobs\SendEmail::dispatch($email);
 
-        return redirect()->back()->withSuccess('You have successfully sent email!');
+        if(isset($request->from) && $request->from == 'sop')
+            return response()->json(['success' => 'You have send email successfully !']);
+        else
+            return redirect()->back()->withSuccess('You have successfully sent email!');
+        
 
     }
     public function getMailTemplate(request $request)
