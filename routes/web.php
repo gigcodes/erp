@@ -3152,6 +3152,7 @@ Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@his
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
+Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_segment')->name('product.pricing.update.segment');
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::group(['middleware' => 'auth', 'admin'], function () {

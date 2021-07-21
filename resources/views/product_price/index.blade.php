@@ -79,13 +79,31 @@
                                 <td>{{ $key['id'] }}</td>
                                 <td>{{ $key['country_name'] }}</td>
                                 <td>{{ $key['brand'] }}</td>
-                                <td>{{ $key['segment'] }}</td>
+                                <td>{{ $key['segment'] }}</td> 
                                 <td>{{ $key['website'] }}</td>
                                 <td>{{ $key['eur_price'] }}</td>
-                                <td>{{ $key['seg_discount'] }}</td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input style="min-width: 30px;" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['seg_discount'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                        </div> 
+                                    </div>
+                                </td> 
                                 <td>{{ $key['iva'] }}</td>
-                                <td>{{ $key['add_duty'] }}</td>
-                                <td>{{ $key['add_profit'] }}</td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input style="min-width: 30px;" placeholder="segment discount" data-ref="{{$key['country_name']}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{$key['country_name']}}" name="add_duty">
+                                        </div> 
+                                    </div>
+                                </td> 
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input style="min-width: 30px;" placeholder="segment discount" data-ref="{{$key['brand']}}" value="{{ $key['add_profit'] }}" type="text" class="form-control add_profit {{$key['brand']}}" name="add_profit">
+                                        </div> 
+                                    </div>
+                                </td>  
                                 <td>{{ $key['final_price'] }}</td>
                             </tr>
                         @empty
@@ -114,6 +132,27 @@
             "info":     false
         });
     } );
+
+    $(document).on('keyup', '.seg_discount', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let seg_discount = $(this).val();
+            let ref_name = $(this).data('ref');
+            alert(seg_discount + ' ' + ref_name);
+            $('.'+ref_name).val(seg_discount);
+            $.ajax({
+                url: "{{route('product.pricing.update.segment')}}",
+                data: {
+                    seg_discount: seg_discount,
+                    ref_name: ref_name
+                },
+                success: function () {
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message");
+                }
+            });
+
+        });
 </script>
 
 @endsection
