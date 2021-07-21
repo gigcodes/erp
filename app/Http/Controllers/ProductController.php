@@ -3155,11 +3155,11 @@ class ProductController extends Controller
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
         // Check if this product is being cropped
-        if ($product->status_id != StatusHelper::$isBeingCropped) {
+        /*if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
                 'status' => 'unknown product'
             ], 400);
-        }
+        }*/
 
         // Check if we have a file
         if ($request->hasFile('file')) {

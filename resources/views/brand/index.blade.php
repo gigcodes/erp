@@ -131,7 +131,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     <th width="3%">{{ $category_segment->name }}</th>
                 @endforeach
                 <th width="12%">Selling on</th>
-                <th width="12%">Priority</th>
+                <th width="5%">Priority</th>
+                <th width="10%">Next Step</th>
                 <th width="10%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
@@ -216,6 +217,11 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
                       {!!Form::select('priority',$priority_array,$brand->priority??'',array('class'=>'form-control input-sm mb-3 priority','data-id'=>$brand->id))!!}
                       
+                    </div>       
+                </td>
+                <td>
+                    <div class="form-group">
+                        {!!Form::select('next_step',[null => "--Select--"] + \App\Helpers\StatusHelper::getStatus(),$brand->next_step??'',array('class'=>'form-control input-sm mb-3 brand-next-step','data-id'=>$brand->id))!!}
                     </div>       
                 </td>
                 <td>
@@ -503,6 +509,29 @@ $('.select2-selection__clear').remove()
             console.log("Could not update successfully");
         });
     });
+
+    $(document).on("change", ".brand-next-step", function(e) {
+        e.preventDefault();
+        var brand_id = $(this).data("id"),
+            next_step = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: "/brand/next-step",
+            data: {
+                _token: "{{ csrf_token() }}",
+                next_step: next_step,
+                brand_id: brand_id
+            }
+        }).done(function(response) {
+            if (response.code == 200) {
+                toastr['success']('Next change successfully', 'success');
+            }
+        }).fail(function(response) {
+            console.log("Could not update successfully");
+        });
+    });
+
+    
 
 
 

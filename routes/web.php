@@ -125,6 +125,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('magento-product-api-call', 'Logging\LogListMagentoController@showMagentoProductAPICall')->name('logging.magento.product.api.call');
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
     Route::get('get-latest-product-for-push', 'Logging\LogListMagentoController@getLatestProductForPush')->name('logging.magento.get-latest-product-for-push');
+    Route::post('delete/magento-api-search-history', 'Logging\LogListMagentoController@deleteMagentoApiData')->name('delete.magento.api-search-history');
 });
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
@@ -407,6 +408,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/store-category-segment-discount', 'BrandController@storeCategorySegmentDiscount')->name('brand.store_category_segment_discount');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
+    Route::post('brand/next-step', 'BrandController@changeNextStep');
     Route::post('brand/update-reference', 'BrandController@updateReference');
     Route::post('brand/merge-brand', 'BrandController@mergeBrand');
     Route::post('brand/unmerge-brand', 'BrandController@unMergeBrand')->name('brand.unmerge-brand');
@@ -1162,6 +1164,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchase-product/saveFixedPrice', 'PurchaseProductController@saveFixedPrice');
     Route::post('purchase-product/saveDiscount', 'PurchaseProductController@saveDiscount');
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
+    Route::get('purchase-product/lead-supplier-details/{lead_id}', 'PurchaseProductController@leadSupplierDetails');
+
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
 
@@ -3117,6 +3121,7 @@ Route::middleware('auth')->group(function()
 {
 Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
 Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
+Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
 
 Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 

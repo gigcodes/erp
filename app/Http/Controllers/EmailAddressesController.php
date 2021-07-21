@@ -235,25 +235,31 @@ class EmailAddressesController extends Controller
 
     public function getErrorEmailHistory(Request $request)
     {
+        ini_set("memory_limit", -1);
+
         $histories = EmailAddress::whereHas('history_last_message',function($query){
                 $query->where('is_success', 0);
             })
-            ->with('history_last_message')
+            ->with(['history_last_message' => function($q) {
+                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-10 day")));
+            }])
             ->get();
-        
+
         $history = '';
         
         if($histories) {
             foreach ($histories as $row) {
-                $status  = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
-                $message = $row->history_last_message->message??'-';
-                $history .= '<tr>
-                <td>' . $row->history_last_message->id . '</td>
-                <td>' . $row->from_name . '</td>
-                <td>' . $status . '</td>
-                <td>' . $message . '</td>
-                <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
-                </tr>';
+                if($row->history_last_message) {
+                    $status  = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
+                    $message = $row->history_last_message->message??'-';
+                    $history .= '<tr>
+                    <td>' . $row->history_last_message->id . '</td>
+                    <td>' . $row->from_name . '</td>
+                    <td>' . $status . '</td>
+                    <td>' . $message . '</td>
+                    <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
+                    </tr>';
+                }
             }
         } else {
             $history .= '<tr>
@@ -272,18 +278,22 @@ class EmailAddressesController extends Controller
         $histories = EmailAddress::whereHas('history_last_message',function($query){
                 $query->where('is_success', 0);
             })
-            ->with('history_last_message')
+            ->with(['history_last_message' => function($q) {
+                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-1 day")));
+            }])
             ->get();
 
         $recordsArr = []; 
         foreach($histories as $row){
-            $recordsArr[] = [
-                'id'         => $row->history_last_message->id,
-                'from_name'  => $row->from_name,
-                'status'     => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
-                'message'    => $row->history_last_message->message??'-',
-                'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
-            ];
+            if($row->history_last_message) {
+                $recordsArr[] = [
+                    'id'         => $row->history_last_message->id,
+                    'from_name'  => $row->from_name,
+                    'status'     => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
+                    'message'    => $row->history_last_message->message??'-',
+                    'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
+                ];
+            }
         }
         $filename = 'Report-Email-failed'.'.csv';
         return Excel::download(new EmailFailedReport($recordsArr),$filename);

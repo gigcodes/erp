@@ -419,6 +419,21 @@ class BrandController extends Controller
         return response()->json(["code" => 500 , "data" => []]);
     }
 
+    public function changeNextStep(Request $request) 
+    {
+        $id = $request->get("brand_id",0);
+        $brand = \App\Brand::where("id",$id)->first();
+        $next_step = $request->get("next_step");
+
+        if($brand) {
+           $brand->next_step = $next_step;
+           $brand->save();
+           return response()->json(["code" => 200 , "data" => []]);
+        }
+
+        return response()->json(["code" => 500 , "data" => []]);
+    }
+
     public function mergeBrand(Request $request)
     {
         if($request->from_brand && $request->to_brand) {

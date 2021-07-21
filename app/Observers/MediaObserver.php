@@ -23,7 +23,14 @@ class MediaObserver
                 $file_info = pathinfo($m_url);
                 $file_path = $file_info['dirname'] . '/'.$file_info['basename'];
                 $thumb_file_name = $file_info['filename'] . '_thumb.' . $file_info['extension'];
-                $thumb_file_path  =$file_info['dirname'] .'/' . $thumb_file_name;
+
+                $thumb_folder=$file_info['dirname'] .'/thumbnail' ;
+
+                if (!is_dir($thumb_folder)) {
+                    mkdir($thumb_folder);
+                }
+
+                $thumb_file_path  =$thumb_folder . '/' . $thumb_file_name;
                 list($original_width,$original_height) =getimagesize($m_url);
                 $thumbnail_width = 150;
                 $thumbnail_height= ($original_height/$original_width) * $thumbnail_width;
