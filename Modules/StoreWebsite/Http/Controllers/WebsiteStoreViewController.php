@@ -160,12 +160,10 @@ class WebsiteStoreViewController extends Controller
 
     public function editGroup(Request $request, $id, $store_group_id)
     {
-        $id = (int) $request->store_group_id;
-
         $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/get_group';
 
         $postData = [
-            'id' => $id, 
+            'id' => (int) $request->store_group_id, 
             "fields" => ["agent_priorities", "routing_status"]
         ];
         $postData = json_encode($postData, true);
@@ -179,7 +177,9 @@ class WebsiteStoreViewController extends Controller
                 return response()->json(['status' => 'errors', $response], 403);
             } else {
                 $response->row_id = (int) $request->id;
+                $websiteStoreView = WebsiteStoreView::find($request->id);
                 $response->type = 'edit';
+                $response->ref_theme_group_id = $websiteStoreView->ref_theme_group_id;
                 $response->agents = ($this->agents($request))->original['responseData'];
                 return response()->json(['status' => 'success', 'responseData' => $response], 200);
             }
@@ -230,7 +230,7 @@ class WebsiteStoreViewController extends Controller
 
         $postData = json_encode($postData, true);
         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
-
+ 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
@@ -239,15 +239,23 @@ class WebsiteStoreViewController extends Controller
                 return response()->json(['status' => 'errors', $response], 403);
             } else {
                 $websiteStoreView = WebsiteStoreView::where("id", $row_id)->first();
-
-
                 if($id){
                     $store_group_id = $id;
                 }else{
                     $store_group_id = $response->id;
                 }
+                $group_id = $request->group;
+                if($group_id){
+                    $postURL1  = 'https://api.livechatinc.com/v2/properties/group/'.$group_id;
+                    $result1 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL1, [], 'application/json', true, 'GET');
+                    $postURL2  = 'https://api.livechatinc.com/v2/properties/group/'.$store_group_id;
+                    $result2 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
+                    $response->group_details1 = json_decode($result1['response']);
+                    $response->group_details2 = json_decode($result2['response']);
+                }
                 if ($websiteStoreView) {
                     $websiteStoreView->store_group_id = $store_group_id; 
+                    $websiteStoreView->ref_theme_group_id = $group_id; 
                     $websiteStoreView->save();
                 }
                 return response()->json(['status' => 'success', 'responseData' => $response, 'code' => 200], 200);
@@ -315,6 +323,37 @@ class WebsiteStoreViewController extends Controller
                 return response()->json(['status' => 'errors', $response], 403);
             } else {
                 return response()->json(['status' => 'success', 'responseData' => $response], 200);
+            }
+        } 
+    }
+
+
+    public function groups(Request $request)
+    {
+        $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
+
+        $postData = [
+            "fields" => ["agent_priorities", "routing_status"]
+        ];
+        $postData = json_encode($postData, true);
+        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+
+        if ($result['err']) {
+            return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+        } else {
+            $response = json_decode($result['response']);
+            $groups = [];
+            foreach($response as $res){
+                if(str_starts_with($res->name, 'theme')){
+                    $g['id'] = $res->id;
+                    $g['name'] = $res->name;
+                    $groups[] = $g;
+                } 
+            } 
+            if (isset($response->error)) {
+                return response()->json(['status' => 'errors', $response], 403);
+            } else {
+                return response()->json(['status' => 'success', 'responseData' => $groups], 200);
             }
         } 
     }
