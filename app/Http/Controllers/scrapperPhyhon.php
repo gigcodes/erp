@@ -161,8 +161,14 @@ class scrapperPhyhon extends Controller
 
                 if( $website_store_views ){
                     $images = \App\scraperImags::where('store_website',$list->store_website_id)
-                    ->where('website_id',$request->code) // this is language code. dont be confused with column name
-                    ->get()
+                    ->where('website_id',$request->code); // this is language code. dont be confused with column name
+
+                    if(isset($request->device) && $request->device != '')
+                    {
+                        $images = $images->where('device',$request->device);
+                    }
+                    
+                    $images = $images->get()
                     ->toArray();
                 }
             }
@@ -254,12 +260,12 @@ class scrapperPhyhon extends Controller
 
     public function imageSave(Request $request)
     {
-        // dd(123);
         $validator = Validator::make($request->all(), [
            'country_code'   => 'required',
            'image'          => 'required|valid_base',
            'image_name'     => 'required',
            'store_website'  => 'required|exists:store_websites,magento_url',
+           'device'         => 'required|in:desktop,mobile,tablet',
         ]);
 
         if ($validator->fails()) {
@@ -279,6 +285,7 @@ class scrapperPhyhon extends Controller
                 'store_website' => $StoreWebsite->id ?? 0,
                 'img_name'   => $request->image_name,
                 'img_url'    => $request->image_name,
+                'device'     => (isset($request->device) ? $request->device : 'desktop' ),
             );
 
             scraperImags::insert( $newImage );

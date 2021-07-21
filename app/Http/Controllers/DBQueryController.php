@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;  
 use DB; 
 use Auth;
-use Symfony\Component\Process\Process;
 use App\CommandExecutionHistory;
+use App\Jobs\CommandExecution;
 use App\Setting;
 
 class DBQueryController extends Controller
@@ -56,34 +56,15 @@ class DBQueryController extends Controller
                 'status' => 0,
             ];
 
-         $store=   CommandExecutionHistory::create($params);
+            $store=   CommandExecutionHistory::create($params);
 
-            
-            $compare = Process::fromShellCommandline('php artisan '.$command_name, base_path());
-            $compare->run();
-            $match = $compare->getOutput();
-           
-            if($match)
-            {
-                $store->command_answer	= $match ?? '-';
-                $store->status	= 1;
-                $store->save();
+            $store_user_id = $store->user_id;
+            $store_id = $store->id;
 
-                $user_id = $store->user_id;
-                $user = DB::table('users')->where('id', $user_id)->first();
-
-                if($user->phone != '' && $user->whatsapp_number != '')
-                {
-                    $message = "Command ".$store->command_answer." Excution Complete.";
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
-                }
-            }
+            CommandExecution::dispatch($command_name,$store_user_id,$store_id)->onQueue("command_execution");
 
             return response()->json([ 'code' => 200, 'data' => $match ]);
-
-            // $exitCode = \Artisan::call('product:supplier');
-
-            // dd("sdfsd",$exitCode);
+           
            
         }catch(\Exception $e){
            
