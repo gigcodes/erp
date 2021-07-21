@@ -184,7 +184,7 @@ class MagentoProductPushErrors extends Controller
             ->whereDate('created_at',Carbon::now()->format('Y-m-d'))
             ->latest('count')
             ->groupBy('message')
-            ->select(\DB::raw('*,COUNT(message) AS count'),)
+            ->select(\DB::raw('*,COUNT(message) AS count'))
             ->get();
 
         $recordsArr = []; 

@@ -78,12 +78,16 @@ class Product extends Model
         'category',
         'short_description',
         'price',
+        'price_eur_special',
+        'price_eur_discounted',
+        'price_inr',
+        'price_inr_special',
+        'price_inr_discounted',
+        'price_special_offer',
         'status_id',
         'id',
         'sku',
         'is_barcode_check',
-
-
         'has_mediables',
         'size_eu',
         'supplier',
@@ -435,6 +439,34 @@ class Product extends Model
                 } catch (\Exception $exception) {
                     $product->save();
                     return false;
+                }
+
+                if ($product) {
+                    if ($isExcel == 1) {
+                        // if (!$product->hasMedia(\Config('constants.excelimporter'))) {
+                        if (!$product->hasMedia(\Config('constants.media_tags'))) {
+                            foreach ($json->images as $image) {
+                                if($image != '')
+                                {
+                                    try {
+                                        $jpg = \Image::make($image)->encode('jpg');
+                                    } catch (\Exception $e) {
+                                        $array = explode('/', $image);
+                                        $filename_path = end($array);
+                                        $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
+                                    }
+                                    $filename = substr($image, strrpos($image, '/'));
+                                    // $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                                    $filename = uniqid();
+                                    // $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000))->useFilename($filename)->upload();
+                                    // $product->attachMedia($media, config('constants.excelimporter'));
+                                    $product->attachMedia($media, config('constants.media_tags'));
+                                    }
+                            }
+                        }
+                    }
+
                 }
 
                 // Update the product status
@@ -1120,8 +1152,7 @@ class Product extends Model
             }
             
             $this->save();
-        }else if (!($this->category > 0 && $this->categories && $this->categories->need_to_check_measurement)
-        ) {
+        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement)) && $this->categories->need_to_check_measurement) {
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->sub_status_id = null;
             $this->save();
@@ -1129,7 +1160,7 @@ class Product extends Model
 
             // check that product has how many description
             $descriptionCount = $this->suppliers_info->count();
-            if($descriptionCount <= 1) {
+            if($descriptionCount <= 1 && (empty($this->brands->next_step) ||  $this->brands->next_step == StatusHelper::$requestForExternalScraper)) {
                 $this->status_id = StatusHelper::$requestForExternalScraper;
                 $this->sub_status_id = StatusHelper::$unknownDescription;
                 $this->save();
@@ -1137,7 +1168,7 @@ class Product extends Model
 
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
-                if(!($this->category > 0 && $this->categories && $this->categories->need_to_check_size)) {
+                if(empty($this->size_eu) && $this->categories->need_to_check_size) {
                    $this->status_id =  StatusHelper::$unknownSize;
                    $this->sub_status_id = null;
                    $this->save();

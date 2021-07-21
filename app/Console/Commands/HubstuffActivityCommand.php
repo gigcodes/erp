@@ -50,12 +50,10 @@ class HubstuffActivityCommand extends Command
      */
     public function handle()
     {
-        Log::channel('hubstaff_activity_command')->info('HubstuffActivityCommand() command started');
         $tasks_controller = new HubstaffActivitiesController;
        
         $users = User::where('payment_frequency', '!=' ,'')->get();
         $today = Carbon::now()->toDateTimeString();
-        Log::channel('hubstaff_activity_command')->info('users => ' . \json_encode($users));
         
         foreach ($users as $key => $user) {
             
@@ -63,7 +61,6 @@ class HubstuffActivityCommand extends Command
             $last_mail_sent = $user->last_mail_sent_payment;
 
             $to = Carbon::now()->startOfMonth();
-            Log::channel('hubstaff_activity_command')->info('payment_frequency => ' . $payment_frequency . ' last_mail_sent => ' . $last_mail_sent);
 
             if ($last_mail_sent) {
                 $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_mail_sent);
@@ -83,11 +80,9 @@ class HubstuffActivityCommand extends Command
             $req->request->add(["status" => null]);
             $req->request->add(["submit" => "report_download"]);
 
-            Log::channel('hubstaff_activity_command')->info('before call get activity users ');
 
             $res = $tasks_controller->getActivityUsers($req, $req);
 
-            Log::channel('hubstaff_activity_command')->info('get activity users '.json_encode($res));
 
 
 
@@ -97,23 +92,17 @@ class HubstuffActivityCommand extends Command
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
-                Log::channel('hubstaff_activity_command')->info('check; payment frequecy is weekly');
 
                 if ($diff_in_days == 7 ) {
-                    Log::channel('hubstaff_activity_command')->info('check; difff in day is 7');
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
-                    Log::channel('hubstaff_activity_command')->info('get activit users' .json_encode($res));
 
                     $z = (array) $res;
 
                     foreach($z as $zz){
-                        Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is  null');
 
                             $path = $zz->getRealPath();
-                            Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));
 
                         }
                     }
@@ -121,91 +110,70 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "biweekkly"){
-                Log::channel('hubstaff_activity_command')->info('check; payment frequecy is biweekkly');
 
                 if ($diff_in_days == 14) {
-                    Log::channel('hubstaff_activity_command')->info('check; difff in day is 14');
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
-                    Log::channel('hubstaff_activity_command')->info('get activit users' .json_encode($res));
 
                     $z = (array) $res;
 
                     foreach($z as $zz){
-                        Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
 
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is  null' );
 
                             $path = $zz->getRealPath();
-                            Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));                        }
                     }
+                }
                 }
             }
 
             if($payment_frequency == "fornightly"){
-                Log::channel('hubstaff_activity_command')->info('check; payment frequecy is fornightly');
 
                 if ($diff_in_days == 15) {
-                    Log::channel('hubstaff_activity_command')->info('check; difff in day is 15');
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
-                    Log::channel('hubstaff_activity_command')->info('get activit users' .json_encode($res));
 
                     $z = (array) $res;
 
                     foreach($z as $zz){
-                        Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
 
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is null' );
 
                             $path = $zz->getRealPath();
-                            Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));                        }
+                        }
                     }
                 }
             }
 
             if($payment_frequency == "monthly"){
-                Log::channel('hubstaff_activity_command')->info('check; payment frequecy is monthly');
 
                 if ($diff_in_days == 30) {
-                    Log::channel('hubstaff_activity_command')->info('check; difff in day is 30');
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
-                    Log::channel('hubstaff_activity_command')->info('get activit users' .json_encode($res));
 
                     $z = (array) $res;
 
                     foreach($z as $zz){
-                        Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
 
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is  null' );
 
                             $path = $zz->getRealPath();
-                            Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));                        }
+                        }
                     }
                 }
             }
 
             if ($path) {
-                Log::channel('hubstaff_activity_command')->info('if path found than logout user');                        
 
                 Auth::logout($user);
-                Log::channel('hubstaff_activity_command')->info(' after logging out user');                        
-
-                Log::channel('hubstaff_activity_command')->info(' before send mail');                        
 
                 Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
                     $message->to($data["email"], $data["email"])
                             ->subject($data["title"])->attach($path);  
                 });
-                Log::channel('hubstaff_activity_command')->info(' after sending mail');                        
 
                 $user->last_mail_sent_payment = $today;
                 $user->save();
-                Log::channel('hubstaff_activity_command')->info(' user saved' .json_encode($user));                        
 
                 $storage_path = substr($path, strpos($path, 'framework'));
                     
@@ -213,10 +181,8 @@ class HubstuffActivityCommand extends Command
                 $hubstaff_activity->user_id = $user->id;
                 $hubstaff_activity->activity_excel_file = $storage_path;
                 $hubstaff_activity->save();
-                Log::channel('hubstaff_activity_command')->info('store in hubstaff activity' .json_encode($hubstaff_activity));                        
 
             }
-            Log::channel('hubstaff_activity_command')->info('end for each');                        
 
         }
     }
