@@ -143,6 +143,29 @@
               </table>
             </td>
           </tr>
+          <tr>
+            <td>Failed Jobs</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Name</th>
+                    <th>Queue</th>
+                    <th>Status</th>
+                    <th>Failed at</th>
+                  </tr>
+                  @foreach($failedJobs as $fj) 
+                    <tr>
+                        <td>{{ $fj->name }}</td>
+                        <td>{{ $fj->queue }}</td>
+                        <td>{{ $fj->status }}</td>
+                        <td>{{ date("Y-m-d H:i:s",$fj->failed_at) }}</td>
+                    </tr>
+                  @endforeach
+                  
+              </table>
+            </td>
+          </tr>
+
 			<tr>
 				<td>Project Directory Size Management</td>
 				<td colspan="6">

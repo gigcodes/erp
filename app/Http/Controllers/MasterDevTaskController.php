@@ -6,6 +6,7 @@ use App\Library\Github\GithubClient;
 use App\MemoryUsage;
 use Illuminate\Http\Request;
 use ProjectDirectory;
+use Laravel\Horizon\Contracts\JobRepository;
 
 class MasterDevTaskController extends Controller
 {
@@ -149,9 +150,12 @@ class MasterDevTaskController extends Controller
 
         $logRequest = \App\LogRequest::where('status_code',"!=",200)->whereDate("created_at",date("Y-m-d"))->groupBy('status_code')->select(["status_code",\DB::raw("count(*) as total_error")])->get();
 
+        $failedJobs = app(JobRepository::class)->getFailed();
+
+
 
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs'));
     }
 
 }
