@@ -1163,6 +1163,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchase-product/saveFixedPrice', 'PurchaseProductController@saveFixedPrice');
     Route::post('purchase-product/saveDiscount', 'PurchaseProductController@saveDiscount');
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
+    Route::get('purchase-product/lead-supplier-details/{lead_id}', 'PurchaseProductController@leadSupplierDetails');
+
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
 
