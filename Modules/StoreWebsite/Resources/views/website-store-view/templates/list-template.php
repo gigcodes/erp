@@ -18,8 +18,8 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.name}}</td>
-			        <td>{{:prop.code}}</td>
+			        <td class="name_div">{{:prop.name}}</td>
+			        <td class="code_div">{{:prop.code}}</td>
 			        {{if prop.status == 1}} 
 			        	<td>Active</td>
 			        {{else}}

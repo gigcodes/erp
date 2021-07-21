@@ -14,8 +14,10 @@ use App\ChatMessage;
 use Cache;
 use Auth;
 use App\Mail\viewdownload;
-use App\Mail\downloadData;
+// use App\Mail\downloadData;
 use App\AutoCompleteMessage;
+use Dompdf\Dompdf;
+
 
 
 class SopController extends Controller
@@ -127,32 +129,23 @@ class SopController extends Controller
             $data["name"]      = $usersop->name;
             $data["content"]       = $usersop->content;
            
+            $html = view('maileclipse::templates.Viewdownload', [
+                'name'   => $usersop->name,
+                'content'     => $usersop->content,
+                'usersop' =>        $usersop = Sop::where("id", $usersop->id)->first()
+    
+              
+            ]);
             
-                $DownloadData = new downloadData($id);
-                return $DownloadData->download();
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream(date('Y-m-d H:i:s') . 'SOPData.pdf');
            
         }
        
     }
 
-    // public function loadMoreMessages(Request $request)
-    // {
-    //     $limit = request()->get("limit", 3);
-
-    //     $customer = Sop::find($request->user_id);
-
-    //     $chat_messages = $customer->whatsapps_all()->where("message", "!=", "")->skip(1)->take($limit)->get();
-
-    //     $messages = [];
-
-    //     foreach ($chat_messages as $chat_message) {
-    //         $messages[] = $chat_message->message;
-    //     }
-
-    //     return response()->json([
-    //         'messages' => $messages
-    //     ]);
-    // }
-
+   
        
 }

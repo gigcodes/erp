@@ -205,10 +205,10 @@
                 <th width="5%">Brand</th>
                 <th width="5%">Brand Segment</th>
                 <th width="10%">Category</th> 
-               
                 <th width="5%">Color</th>
                 <th width="2%">Size</th>
                 <th width="20%">Communication</th>
+                <th width="5%">Action</th>
             </tr>
             </thead>
 
@@ -245,6 +245,7 @@
                       <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $source['customer_id'] }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
                     @endif
                   </td>
+                  <td class="tblcell"><a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details"><i class="fa fa-shopping-cart"></i></a></td>
                 </tr>
               @endforeach
 
@@ -373,6 +374,29 @@
       </form>
     </div>
   </div>
+</div>
+
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
+    padding-right: 12px;
+    padding-bottom: 0px !important;">
+    <div class="modal-dialog" style="width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;">
+      <div class="modal-content " style="
+    border: 0;
+    border-radius: 0;">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+          <div class="modal-body" id="common-contents">
+
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
 </div>
 
 @endsection
@@ -895,6 +919,83 @@
                     $(self).removeAttr('disabled', true);
                 }
             });
+        });
+
+      $(document).on('click', '.view-supplier-details', function(e) {
+        e.preventDefault();
+        var lead_id = $(this).data('id');
+        var type = 'GET';
+          $.ajax({
+            url: '/purchase-product/lead-supplier-details/'+lead_id,
+            type: type,
+            dataType: 'html',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done( function(response) {
+              $("#loading-image").hide();
+              $("#purchaseCommonModal").modal("show");
+              $("#common-contents").html(response);
+          }).fail(function(errObj) {
+              $("#loading-image").hide();
+          });
+      });
+
+      $(document).on('keyup', '.supplier-discount', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let product_id = $(this).data('product');
+            let discount = $("#supplier_discount-"+id).val();
+            let lead_id = $(this).data('lead-id');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                type: 'POST',
+                data: {
+                  discount: discount,
+                  supplier_id: id,
+                  product_id:product_id,
+                  lead_id:lead_id
+                },
+                success: function (data) {
+                    toastr["success"]("Discount updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
+
+
+        $(document).on('keyup', '.supplier-fixed-price', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let fixed_price = $("#supplier_fixed_price_"+id).val();
+            let product_id = $(this).data('product');
+            let lead_id = $(this).data('lead-id');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                type: 'POST',
+                data: {
+                  fixed_price: fixed_price,
+                  supplier_id: id,
+                  product_id:product_id,
+                  lead_id:lead_id
+                },
+                success: function (data) {
+                    toastr["success"]("Fixed price updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
         });
 
 

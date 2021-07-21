@@ -3,7 +3,7 @@
 		<?php echo csrf_field(); ?>
 		<div class="modal-content">
 		   <div class="modal-header">
-		      <h5 class="modal-title">{{if data.type = 'edit'}} Edit Website Group View {{else}}Create Website Group{{/if}}</h5>
+		      <h5 class="modal-title">{{if data.type == 'edit'}} Edit Website Group View {{else}}Create Website Group{{/if}}</h5>
 		      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		      	<span aria-hidden="true">&times;</span>
 		      </button>
@@ -18,7 +18,7 @@
 		         {{/if}}
 		         
 		      </div>
-		      <div class="form-group col-md-12">
+		      <div class="form-group col-md-12 name_div">
 	            <label for="name">Name</label>
 	            <input type="text" name="name" value="{{if data.type == 'edit'}}{{:data.name}}{{/if}}" class="form-control" id="name" placeholder="Enter Name"> 
 	         </div> 
