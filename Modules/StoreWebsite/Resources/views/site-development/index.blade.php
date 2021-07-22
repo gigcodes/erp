@@ -46,6 +46,12 @@
 		color: #757575;
 		background-color: #fff !important;
 	}
+	.modal {
+		overflow-y:auto;
+	}
+	body.overflow-hidden{
+		overflow: hidden;
+	}
 </style>
 @endsection
 
@@ -384,11 +390,13 @@
 					<table class="table table-bordered" style="table-layout:fixed;">
 						<thead>
 							<tr>
+                                <th style="width:3%;"></th>
 								<th style="width:4%;">S no</th>
 								<th style="width:13%;">Category</th>
 								<th style="width:13%;">By</th>
-								<th style="width:45%;">Remarks</th>
+								<th style="width:39%;">Remarks</th>
 								<th style="width:25%;">Communication</th>
+                                <th style="width:3%;"></th>
 							</tr>
 						</thead>
 						<tbody class="latest-remarks-list-view">
@@ -440,6 +448,17 @@
 	$('.assign-to.select2').select2({
 		width: "100%"
 	});
+
+	$('#latest-remarks-modal').on('shown.bs.modal', function (e) {
+		$("body").addClass("overflow-hidden");
+	});
+	$('#latest-remarks-modal').on('hidden.bs.modal', function (e) {
+		$("body").removeClass("overflow-hidden");
+	});
+	// $('#latest-remarks-modal').on('hidden.bs.modal', function () {
+	// 	document.body.classList.remove('thisClass');
+    //
+	// })
 
 	// $('.infinite-scroll').jscroll({
 	//         autoTrigger: true,
@@ -1105,7 +1124,7 @@
 					var storeWebsite = response.data[i - 1].sw_website;
 					var storeDev = response.data[i - 1].sd_title;
 					var user_id = response.data[i - 1].user_id;
-					tr = tr + '<tr><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+					tr = tr + '<tr><td><img height="14" src="/images/unflagged.png"></td><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td><img height="14" src="/images/unflagged.png"></td></tr>';
 				}
 				$("#latest-remarks-modal").modal("show");
 				$(".latest-remarks-list-view").html(tr);
