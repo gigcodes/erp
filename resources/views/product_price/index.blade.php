@@ -73,36 +73,31 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php $i=1; @endphp
                         @forelse ($product_list as $key)
-                            <tr>
+                            <tr data-storeWebsitesID="{{$key['storeWebsitesID']}}" data-id="{{$i}}" data-country_code="{{$key['country_code']}}" class="tr_{{$i++}}">
                                 <td>{{ $key['sku'] }}</td>
-                                <td>{{ $key['id'] }}</td>
+                                <td class="product_id">{{ $key['id'] }}</td>
                                 <td>{{ $key['country_name'] }}</td>
                                 <td>{{ $key['brand'] }}</td>
                                 <td>{{ $key['segment'] }}</td> 
                                 <td>{{ $key['website'] }}</td>
                                 <td>{{ $key['eur_price'] }}</td>
                                 <td>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <input style="min-width: 30px;" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['seg_discount'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
-                                        </div> 
-                                    </div>
+                                    <span style="width: 50%">{{ $key['seg_discount'] }}</span>
+                                    <input style="width: 50%;display : inline-block; float:right" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
                                 </td> 
                                 <td>{{ $key['iva'] }}</td>
                                 <td>
                                     <div class="form-group">
                                         <div class="input-group">
-                                            <input style="min-width: 30px;" placeholder="segment discount" data-ref="{{$key['country_name']}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{$key['country_name']}}" name="add_duty">
+                                            <input style="min-width: 30px;" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
                                         </div> 
                                     </div>
                                 </td> 
                                 <td>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <input style="min-width: 30px;" placeholder="segment discount" data-ref="{{$key['brand']}}" value="{{ $key['add_profit'] }}" type="text" class="form-control add_profit {{$key['brand']}}" name="add_profit">
-                                        </div> 
-                                    </div>
+                                    <span style="width: 50%">{{ $key['add_profit'] }}</span>
+                                    <input style="width: 50%;display : inline-block; float:right" placeholder="add profit" data-ref="{{str_replace(' ', '_', $key['brand'])}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit {{str_replace(' ', '_', $key['brand'])}}" name="add_profit">
                                 </td>  
                                 <td>{{ $key['final_price'] }}</td>
                             </tr>
@@ -134,25 +129,116 @@
     } );
 
     $(document).on('keyup', '.seg_discount', function () {
-            if (event.keyCode != 13) {
-                return;
+        if (event.keyCode != 13) {
+            return;
+        }
+        let seg_discount = $(this).val();
+        let ref_name = $(this).data('ref');
+        let rows = $('.'+ref_name).closest('tr');
+        let product_array = [];
+        for(let i=0; i< rows.length; i++){
+            product_array[i] = {
+                'row_id' : $(rows[i]).attr('data-id'),
+                'storewebsitesid' : $(rows[i]).attr('data-storewebsitesid'),
+                'product_id' : $(rows[i]).find('.product_id').text(),
+                'country_code' : $(rows[i]).attr('data-country_code'),
+                'add_duty' : $(rows[i]).find('.add_duty').val().replace('%', ''),
+            };
+        }
+        $.ajax({
+            url: "{{route('product.pricing.update.segment')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                product_array: JSON.stringify(product_array),
+                seg_discount: seg_discount,
+                row_id: $(this).closest('tr').attr('data-id'),
+            },
+            success: function (response) {
+                response.data.forEach(function(item, index) {
+                    let row = $(`.tr_${item.row_id}`);
+                    $(rows).find('td:nth-child(8) span').html(item.seg_discount);
+                    $(rows).find('.seg_discount').val(item.segment_discount_per + '%');
+                    $(rows).find('td:nth-child(12)').html(item.price);
+                }); 
+                toastr["success"]("segment discount updated successfully!", "Message");
             }
-            let seg_discount = $(this).val();
-            let ref_name = $(this).data('ref');
-            alert(seg_discount + ' ' + ref_name);
-            $('.'+ref_name).val(seg_discount);
-            $.ajax({
-                url: "{{route('product.pricing.update.segment')}}",
-                data: {
-                    seg_discount: seg_discount,
-                    ref_name: ref_name
-                },
-                success: function () {
-                    toastr["success"]("Estimate Minutes updated successfully!", "Message");
-                }
-            });
-
         });
+
+    });
+
+    $(document).on('keyup', '.add_duty', function () {
+        if (event.keyCode != 13) {
+            return;
+        }
+        let add_duty = $(this).val();
+        let ref_name = $(this).data('ref');
+        let rows = $('.'+ref_name).closest('tr');
+        let product_array = [];
+        for(let i=0; i< rows.length; i++){
+            product_array[i] = {
+                'row_id' : $(rows[i]).attr('data-id'),
+                'storewebsitesid' : $(rows[i]).attr('data-storewebsitesid'),
+                'add_duty' : $(this).closest('tr').find('.add_duty').val().replace('%', ''),
+                'product_id' : $(rows[i]).find('.product_id').text(),
+                'country_code' : $(rows[i]).attr('data-country_code'), 
+                'seg_discount' : $(rows[i]).find('.seg_discount').val().replace('%', ''),
+            };
+        }
+        $.ajax({
+            url: "{{route('product.pricing.update.add_duty')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                product_array: JSON.stringify(product_array),
+                add_duty: add_duty,
+                row_id: $(this).closest('tr').attr('data-id'),
+            },
+            success: function (response) {
+                response.data.forEach(function(item, index) {
+                    let row = $(`.tr_${item.row_id}`);
+                    $(row).find('.add_duty').val(add_duty);
+                    $(row).find('td:nth-child(12)').html(item.price);
+                }); 
+                toastr["success"]("duty updated successfully!", "Message");
+            }
+        });
+
+    }); 
+
+    $(document).on('keyup', '.add_profit', function () {
+        if (event.keyCode != 13) {
+            return;
+        }
+        let add_profit = $(this).val();
+        let thiss = $(this);
+        product_array = {
+                'row_id' : $(this).closest('tr').attr('data-id'),
+                'storewebsitesid' : $(this).closest('tr').attr('data-storewebsitesid'),
+                'product_id' : $(this).closest('tr').find('.product_id').text(),
+                'country_code' : $(this).closest('tr').attr('data-country_code'),
+                'add_duty' : $(this).closest('tr').find('.add_duty').val().replace('%', ''),
+                'add_profit' : $(this).closest('tr').find('.add_profit').val().replace('%', ''),
+            };
+        $.ajax({
+            url: "{{route('product.pricing.update.add_profit')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                product_array: product_array,
+                add_profit: add_profit,
+                row_id: $(this).closest('tr').attr('data-id'),
+            },
+            success: function (response) {
+                let row = $(`.tr_${response.row_id}`);
+                $(row).find('td:nth-child(11) span').html(response.data.add_profit);
+                $(row).find('.add_profit').val(response.data.add_profit_per);
+                $(row).find('td:nth-child(12)').html(response.data.price);
+                toastr["success"]("profit updated successfully!", "Message");
+            }
+        });
+
+    }); 
 </script>
 
 @endsection
