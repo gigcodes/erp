@@ -12,7 +12,33 @@
         </div>
 
         <div class="col-12">
-          <div class="pull-left"></div>
+          <div class="pull-left">
+            <div class="form-group" style="margin-bottom: 2px;">
+                <div class="row">
+                    <form method="get" action="{{ route('supplier.discount.files') }}">
+                        <div class="flex" style="margin-bottom:10px;">
+                            <div class="col-md-5">
+                               
+                                <input type="text" class="form-control" id="supplier" name="supplier" value="{{ old('supplier') }}" placeholder="Search Supplier...">
+                              </div>
+                              <div class="col-md-5">
+                              
+                                <input type="text" class="form-control" id="brands" name="brands" value="{{ old('brands')}}" placeholder="Search Brand ...">
+                              </div>
+
+                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image search-button">
+                                <img src="/images/search.png" style="cursor: default; margin-left:-30px;">
+                            </button>
+
+                            <a href="{{ route('supplier.discount.files') }}" type="button" class="btn btn-image" id=""><img
+                                    src="/images/resend2.png" style="margin-left: -30px;"></a>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+          </div>
 
           <div class="pull-right">
             <div class="form-group">
@@ -25,9 +51,11 @@
     @include('partials.flash_messages')
 
 <form method="post" action="{{route('supplier.discount.files.post')}}" enctype="multipart/form-data" class="excel_form">
-@csrf
+@csrf 
      <div class="form-group">
+       
         <div class="row"> 
+            
             <div class="col-md-3">
                 <select class="form-control select-multiple" id="supplier-select" tabindex="-1" aria-hidden="true" name="supplier" >
                     <option value="">Select Supplier</option>

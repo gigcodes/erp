@@ -1439,6 +1439,16 @@ class ProductInventoryController extends Controller
 	public function supplierDiscountFiles (Request $request) 
 	{
 		$suppliers = \App\Supplier::all();
+
+		if (!empty($request->supplier)) {
+            $suppliers->where('supplier', 'LIKE', '%' . $request->supplier . '%');
+        }
+
+        if (!empty($request->brand)) {
+            $suppliers->where('brand', 'LIKE', '%' . $request->brand . '%');
+        }
+
+		
 		$rows = \App\SupplierBrandDiscount::with('supplier', 'brand')->paginate(30);
 
 		return view('product-inventory.discount-files',compact('suppliers','rows'));
