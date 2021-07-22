@@ -153,8 +153,9 @@
                         <button type="button" class="btn btn-secondary remind_btn" disabled>Remind</button>
                         <button type="button" class="btn btn-secondary revise_btn">Revise</button>
                     @endif
+                    <button type="button" class="btn btn-secondary approved_history" title="Approve History"> History</button>
                     </div>
-                    <div class="a">
+                    <div class="a">                       
                         <button type="button" class="btn btn-default close_btn" data-dismiss="modal">Close</button>
                         @if(auth()->user()->isReviwerLikeAdmin())
                             <button type="submit" class="btn btn-secondary confirm_btn">Confirm</button>
@@ -165,3 +166,72 @@
         </div>
     </div>
 </div>
+<div id="ApprovedHistory" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Approved History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            
+                <div class="row">
+                    <div class="col-md-12" id="approve_history_form">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Old Status</th>
+                                    <th>New Status</th>
+                                    <th>Approve by</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+   $(document).on('click', '.approved_history', function() {
+    var data = $(this).data('history');
+   //var issueId = $(this).data('id');
+   var issueId = $('#developer_task_id').val();
+
+    $('#approve_history_form table tbody').html('');
+    $.ajax({
+        url: "{{ route('development/time/history/approved') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $('input[name="developer_task_id"]').val(issueId);
+                $.each(data, function(i, item) {
+                    if(item['is_approved'] == 1) {
+                        var checked = 'checked';
+                    }
+                    else {
+                        var checked = ''; 
+                    }
+                    $('#approve_history_form table tbody').append(
+                        '<tr>\
+                            <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                            <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                            <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                        </tr>'
+                    );
+                });
+            }
+        }
+    });
+
+       $('#ApprovedHistory').modal('show');
+   });
+</script>
