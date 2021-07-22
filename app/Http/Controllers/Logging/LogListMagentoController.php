@@ -4,10 +4,23 @@ namespace App\Http\Controllers\Logging;
 
 use App\Http\Controllers\Controller;
 use App\Loggers\LogListMagento;
+use App\ProductPushInformation;
 use DataTables;
 use Illuminate\Http\Request;
 use seo2websites\MagentoHelper\MagentoHelperv2;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Input;
+use App\User;
 use App\StoreMagentoApiSearchProduct;
+use App\Imports\PushProductCsvImport;
+use App\ProductPushInformationHistory;
+use Illuminate\Support\Facades\Storage;
+use App\Setting;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
+
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -551,6 +564,93 @@ class LogListMagentoController extends Controller
 
         }
     }
+
+    public function productPushInformation(Request $request)
+    {
+
+
+        // $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
+        //     ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
+        //     ->join('brands', 'products.brand', '=', 'brands.id')
+        //     ->join('categories', 'products.category', '=', 'categories.id')
+        //     ->join('product_push_informations', 'product_push_informations.product_id', '=', 'products.id')
+        //     ->orderBy('log_list_magentos.id', 'DESC');
+
+        $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
+        
+
+        if(!empty($request->filter_product_id)){
+            $logListMagentos->where('product_id',$request->filter_product_id);
+        }
+
+        if(!empty($request->filter_product_sku)){
+            $logListMagentos->where('sku','LIKE','%'.$request->filter_product_sku. '%');
+        }
+        
+        $logListMagentos  =  $logListMagentos->paginate(Setting::get('pagination'));
+
+        $total_count = ProductPushInformation::get()->count();
+
+       return view('logging.magento-push-information', compact('logListMagentos','total_count'));
+           
+
+    }
+
+
+
+
+    public function updateProductPushInformation(Request $request)
+    {
+        $row = 0;
+        $arr_id = [];
+        $is_file_exists = null;
+
+            // $file_url =public_path('60f89208edcc4_product.csv');
+        $file_url =  $request->website_url;
+        
+        $client   = new Client();
+
+        try {
+
+            // $response = $client->get($url);
+            $promise = $client->request('GET', $file_url);
+            $is_file_exists = true;
+        } catch (ClientException $e) {
+            return response()->json(['error'=>'file not exists']);
+        }
+
+
+        if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+          while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+          	$row++;
+          	if ($row > 1) {
+                // dd($data);
+              $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
+                    'product_id'=> $data[0],
+                    'sku'=>$data[1] ,
+                    'status'=> $data[2],
+                    'quantity'=>$data[3] ,
+                    'stock_status'=> $data[4],
+                ]);
+                $arr_id[] = $updated->product_id;
+          	}
+          }
+          fclose($handle);
+        }
+
+        ProductPushInformation::whereNotIn('product_id',$arr_id)->delete();
+
+    }
+
+
+    public function productPushHistories(Request $request,$product_id)
+    {
+        $history  =   ProductPushInformationHistory::where('product_id',$product_id)->latest()->get();
+        return response()->json($history);
+
+    }
+
+
     public function deleteMagentoApiData(Request $request)
     {
         if($request->days){
