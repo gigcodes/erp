@@ -2175,7 +2175,7 @@ class DevelopmentController extends Controller
                 'message'	=> 'DONE Status can not change further.'
             ],500);
         }
-        if (strtolower($request->get('is_resolved')) == "abc") {
+        if (strtolower($request->get('is_resolved')) == "done") {
             if(Auth::user()->isAdmin()) {
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
