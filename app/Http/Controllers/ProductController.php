@@ -5469,6 +5469,21 @@ class ProductController extends Controller
         return response()->json(['code' => 200, 'message' => 'Purchase Products Added successfully']);
     }
 
+    public function sendLeadPrice(Request $request)
+    {
+        if(empty($request->customer_id) && empty($request->product_id)) {
+            return response()->json(["code" => 500 , "message" => "Please check product id and customer id exist"]);
+        }
+
+        $customer = \App\Customer::find($request->customer_id);
+
+        if($customer && !empty($request->product_id)) {
+            app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$request->product_id]),true);
+        }
+
+        return response()->json(["code" => 200 ,"data" => [], "message" => "Lead price created"]);
+    }
+
 }
 
 

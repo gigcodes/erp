@@ -109,6 +109,7 @@
                     <button onclick="return confirm('Are you sure you want to delete ?')" type="submit" class="btn btn-image"><img width="3px" src="/images/delete.png" /></button>
                     @endif
                 </form>
+                <a href="" class="btn btn-image btn-send-lead-price" data-toggle="modal" data-product="{{ $product->id }}"><i class="fa fa-money"></i></a>
             </td>
         </tr>
         @endforeach
@@ -166,6 +167,37 @@
     </div>
 </div>
 
+<div class="modal" role="dialog" id="lead-send-price-model">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+          <h4 class="modal-title">Send Lead Price</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="lead-price-form" role="document">
+                <form class="send-lead-price-form">
+                    {{ csrf_field() }}
+                    <div class="row">
+                        <div class="col-xs-12 ml-3 mt-3">
+                            <div class="form-group">
+                                <strong>Customer:</strong>
+                                <input type="hidden" name="product_id" class="hidden-product-id">
+                                <select class="select-customer-field form-control" name="customer_id" data-placeholder="Search for Customer by id, Name, No" id="customer-search" tabindex="-1" aria-hidden="true">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 ml-3 mt-3">
+                            <div class="form-group">
+                                <button type="button" style="margin-top: 20px;padding: 5px;" id="btn-send-lead" class="btn btn-sm btn-secondary">Send Lead Price</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
 <script type="text/javascript">
     $(".select2").select2({});
     $.ajaxSetup({
@@ -289,6 +321,81 @@
             }
         });
     });
+
+    $('.select-customer-field').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].id ? data[i].id : data[i].text;
+                    }
+                    params.page = params.page || 1;
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+                console.log(customer);
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+        });
+
+    $(document).on("click",'.btn-send-lead-price',function() {
+        var product =  $(this).data("product");
+        $(".hidden-product-id").val(product);
+        $("#lead-send-price-model").modal("show");
+    });
+
+    $(document).on("click","#btn-send-lead",function() {
+        var form  = $(this).closest("form");
+        $.ajax({
+            url: "/drafted-products/send-lead-price",
+            type: 'post',
+            datatype: 'json',
+            data: form.serialize(),
+            beforeSend :  function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if(response.code == 200) {
+                    $("#lead-send-price-model").modal("hide");
+                    toastr["success"](response.message);
+                }else{
+                    toastr["error"](response.message);
+                }   
+            },
+            error: function() {
+                $("#loading-image").hide();
+                toastr["error"]("Something went wrong , Please check log file");
+            } 
+        });
+    }); 
+
 </script>
 
 @endsection

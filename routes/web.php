@@ -113,6 +113,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
 
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
+    Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
@@ -1751,6 +1752,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
+    Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
 
 });
 
