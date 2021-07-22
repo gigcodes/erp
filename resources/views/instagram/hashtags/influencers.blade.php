@@ -336,6 +336,7 @@ button[disabled]:hover {
                     <tr>
 
                         <th style="width:2.5%">#</th>
+                        <th style="width:6%">Platform</th>
                         <th style="width:6%">Date</th>
                         <th style="width: 10%">Username</th>
                         <th style="width:8%">Email</th>
