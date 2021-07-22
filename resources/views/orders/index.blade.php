@@ -273,7 +273,9 @@
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
                               <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
-                                <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
+                                <a data-fancybox="gallery" href="{{ $media->getUrl() }}">#{{$order_product->product->id}}<i class="fa fa-eye"></i></a>
+                                <a class="view-supplier-details" data-id="{{$order_product->id}}" href="javascript:;"><i class="fa fa-shopping-cart"></i></a>
+                                <br/>
                               <?php break; } ?>
                               @php ++$count; @endphp	                        
                             @endif	                     
@@ -615,6 +617,28 @@
                 <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
             </div>
         </form>
+      </div>
+    </div>
+</div>
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
+    padding-right: 12px;
+    padding-bottom: 0px !important;">
+    <div class="modal-dialog" style="width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;">
+      <div class="modal-content " style="
+    border: 0;
+    border-radius: 0;">
+      <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                    <div class="modal-body" id="common-contents">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
       </div>
     </div>
 </div>
@@ -1414,5 +1438,111 @@
         service_type.val(pre_from_service_type); */
     
     });
+
+    $(document).on('click', '.view-supplier-details', function(e) {
+      e.preventDefault();
+      var order_product_id = $(this).data('id');
+      var type = 'GET';
+        $.ajax({
+          url: '/purchase-product/supplier-details/'+order_product_id,
+          type: type,
+          dataType: 'html',
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+            $("#loading-image").hide();
+            $("#purchaseCommonModal").modal("show");
+            $("#common-contents").html(response);
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('keyup', '.supplier-discount', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let product_id = $(this).data('product');
+            let discount = $("#supplier_discount-"+id).val();
+            let orderProductId = $(this).data('order-product');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                type: 'POST',
+                data: {
+                  discount: discount,
+                  supplier_id: id,
+                  product_id:product_id,
+                  order_product_id:orderProductId
+                },
+                success: function (data) {
+                    toastr["success"]("Discount updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
+
+
+        $(document).on('keyup', '.supplier-fixed-price', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let fixed_price = $("#supplier_fixed_price_"+id).val();
+            let product_id = $(this).data('product');
+            let orderProductId = $(this).data('order-product');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                type: 'POST',
+                data: {
+                  fixed_price: fixed_price,
+                  supplier_id: id,
+                  product_id:product_id,
+                  order_product_id:orderProductId
+                },
+                success: function (data) {
+                    toastr["success"]("Fixed price updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
+
+        $(document).on('click', '.product_default_supplier', function () {
+            let supplier_id = $(this).data('id');
+            let order_product = $(this).data('order_product');
+            let product_id = $(this).data('product');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveDefaultSupplier')}}",
+                type: 'POST',
+                data: {
+                  supplier_id: supplier_id,
+                  order_product:order_product,
+                  product_id:product_id
+                },
+                success: function (res) {
+                  if(res.code == 200) {
+                    toastr["success"]("Supplier updated successfully!", "Message");
+                  }
+                  else {
+                    toastr["error"](res.message, "Message");
+                  }
+
+                }
+            });
+
+        });
+
   </script>
 @endsection

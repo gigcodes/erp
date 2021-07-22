@@ -6,6 +6,7 @@ use App\BrandFans;
 use App\GroupMembers;
 use App\HashtagPosts;
 use App\ScrappedFacebookUser;
+use App\ScrapInfluencer;
 use App\Services\Facebook\Facebook;
 use Illuminate\Http\Request;
 
@@ -60,7 +61,7 @@ class FacebookController extends Controller
     {
         $file = $request->file('file');
 
-        $f = File::get($file);
+        $f = \File::get($file);
 
         $payLoad = json_decode($f);
 
@@ -101,7 +102,7 @@ class FacebookController extends Controller
         // Get raw body
         $file = $request->file('file');
 
-        $f = File::get($file);
+        $f = \File::get($file);
 
         $payLoad = json_decode($f);
 
@@ -119,25 +120,24 @@ class FacebookController extends Controller
             // Loop over posts
             foreach ($payLoad as $postJson) {
 
-                if(isset($postJson['Followers'])){
+                if(!empty($postJson['name'])){
                     
-                    $inf = ScrapInfluencer::where('name',$postJson['Owner'])->first();
+                    $inf = ScrapInfluencer::where('name',$postJson['name'])->first();
                     if($inf == null){
                         $influencer              = new ScrapInfluencer;
-                        $influencer->name        = $postJson['Owner'];
-                        $influencer->url         = $postJson['URL'];
-                        $influencer->followers   = $postJson['Followers'];
-                        $influencer->following   = $postJson['Following'];
-                        $influencer->posts       = $postJson['Posts'];
-                        $influencer->description = $postJson['Bio'];
+                        $influencer->name        = $postJson['name'];
+                        //$influencer->url         = $postJson['URL'];
+                        $influencer->followers   = $postJson['followers'];
+                        $influencer->following   = $postJson['friends'];
+                        //$influencer->posts       = $postJson['Posts'];
+                        $influencer->description = $postJson['bio'];
                         
-                        $influencer->profile_pic = $postJson['profile_pic'];
+                        $influencer->profile_pic = $postJson['profile pic'];
                         $influencer->friends     = $postJson['friends'];
-                        $influencer->cover_photo = $postJson['cover_photo'];
-                        $influencer->interests   = $postJson['interests'];
-                        $influencer->work_at     = $postJson['work_at'];
-
-
+                        $influencer->cover_photo = $postJson['cover photo'];
+                        $influencer->interests   = implode(",",$postJson['interests']);
+                        $influencer->work_at     = $postJson['works at'];
+                        $influencer->platform    = "Facebook";
 
                         if(isset($postJson['keyword'])){
                             $influencer->keyword = $postJson['keyword'];

@@ -139,9 +139,9 @@
                                 <td class="sop_table_name">{{ $value->name }}</td>
 
                                 
-                                 <td class="expand-row" data-subject="{!! $value->content ? ($value->content) : '' !!}" data-details="{{$value->value}}" data-switch="0" style="word-break: break-all;">
+                                 <td class='{{ strlen($value->content) > 270 ? "expand-row" : "" }}' data-subject="{!! $value->content ? ($value->content) : '' !!}" data-details="{{$value->value}}" data-switch="0" style="word-break: break-all;">
                                     <span class="td-mini-container">
-                                    {{ $value->content ? substr(strip_tags($value->content), 0, 200) . (strlen(($value->content)) > 200 ? '......' : '') : '' }}
+                                    {{ $value->content ? substr(strip_tags($value->content), 0, 270) . (strlen(($value->content)) > 270 ? '......' : '') : '' }}
                                     </span>
                                     <span class="td-full-container hidden">{!! $value->content !!}</span>
                                  </td> 
@@ -255,7 +255,7 @@
 
     {{-- --------------------------------------------- Update Data start----------------------------------------- --}}
 
-    <div id="erp-notes" class="modal fade" role="dialog">
+    <div id="sopupdate" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -337,7 +337,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
 
-            <form action="" method="POST" enctype="multipart/form-data">
+            <form action="" method="POST" enctype="multipart/form-data" id="resetdata">
                 <input type="hidden" name="id" id="id">
                 <input type="hidden" name="object" id="object">
                 <input type="hidden" name="action" class="action" value="{{route('common.getmailtemplate')}}">
@@ -421,6 +421,7 @@
     $(document).on('click','.send-email-common-btn',function(e){
         e.preventDefault();
      
+        var ele = $(this).parentsUntil('form').parent();
         var mailtype = $(this).data('object');
         var id = $(this).data('id');
         var content =$(this).data('content');
@@ -441,8 +442,7 @@
             let subject = $("#subject").val();
             let message = $(".mail_message").val();
 
-                         
-       $.ajax({
+            $.ajax({
                 url: "{{ route('common.send.email') }}",
                 type: 'POST',
                 data: {
@@ -452,20 +452,21 @@
                     "object": object,
                     "subject": subject,
                     "message": message,
-                    
+                    "from": 'sop',
                     "_token": "{{csrf_token()}}",
                                    
                 },
-                
                 dataType: "json",
                 success: function (response) {
-                    alert('There was an error sending the message...');
-                            
-                },
-               
-                error: function (response) {
-                   $('#commonEmailModal').modal('hide');
+                    $("#resetdata")[0].reset();
+                    $('#commonEmailModal').modal('hide');
+                   
                    toastr["success"]("Your Mail sent successfully!", "Message");
+                 
+                                              
+                },
+                error: function (response) {
+                    toastr["error"]("There was an error sending the Mail...", "Message");
                    
                 }
             });
@@ -508,7 +509,7 @@ $(document).on('click', '.send-message-open', function (event) {
                 },
                
                 error: function (response) {
-                    alert('There was an error sending the message...');
+                    toastr["error"]("There was an error sending the message...", "Message");
                    
                 }
             });
@@ -591,15 +592,14 @@ $(document).on('click', '.send-message-open', function (event) {
                 
                     if (response) {
 
-                        $("#NameTable tbody").prepend('<tr class="parent_tr"><td>' + response.sop.id +
-                            '</td><td> ' + response.sop.name + ' </td><td> ' + response.sop
-                            .content + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
+                        var content_class = response.sop.content.length < 270 ? '' : 'expand-row';
+                        var content = response.sop.content.length < 270 ? response.sop.content : response.sop.content.substr(0, 270) + '.....';
+                        $("#NameTable tbody").prepend('<tr id="sid' + response.sop.id +'" data-id="' + response.sop.id +'" class="parent_tr"><td>' + response.sop.id +
+                            '</td><td> ' + response.sop.name + ' </td><td class="'+content_class+'" data-subject="'+response.sop.content+'"> ' + content  + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
                                         
 
                             ' <a href="javascript:;" data-id="' + response.sop.id +'" class="editor_edit btn-xs btn btn-image p-2"><i class="fa fa-edit"></i></a>' +
-
-                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px; data-id="' + response.sop.id +
-                            '" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
+                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px;" data-id="'+response.sop.id+'" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
 
                             ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-2px; color: #757575; " title="status-log" data-id="' +
                             response.sop.id +
@@ -676,8 +676,8 @@ $(document).on('click', '.send-message-open', function (event) {
 
                 CKEDITOR.instances['sop_edit_content'].setData(data.sopedit.content)
 
-                $("#erp-notes #sop_edit_form").attr('data-id', $($this).attr('data-id'));
-                $("#erp-notes").modal("show");
+                $("#sopupdate #sop_edit_form").attr('data-id', $($this).attr('data-id'));
+                $("#sopupdate").modal("show");
 
             }).fail(function(data) {
                 console.log(data);
@@ -698,15 +698,20 @@ $(document).on('click', '.send-message-open', function (event) {
                 datatype: "json"
             }).done(function(data) {
                           
-
+                
+                    var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
+    
                     let id = $($this).attr('data-id');
-
                    
                     $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
                     $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
-                    $('#sid' + id + ' td:nth-child(3)').html(data.sopedit.content);
-
-                    $("#erp-notes").modal("hide");
+                    $('#sid' + id + ' td:nth-child(3)').attr('data-subject',data.sopedit.content).html(content);
+                    if(data.sopedit.content.length < 270){
+                        $('#sid' + id + ' td:nth-child(3)').html(content).removeClass('expand-row');
+                    }else{
+                        $('#sid' + id + ' td:nth-child(3)').html(content).addClass('expand-row');
+                    }
+                    $("#sopupdate").modal("hide");
                     toastr["success"]("Data Updated Successfully!", "Message")
                 // }
             }).fail(function(data) {
