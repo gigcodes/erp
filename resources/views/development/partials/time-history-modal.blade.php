@@ -234,4 +234,6 @@
 
        $('#ApprovedHistory').modal('show');
    });
+
+  
 </script>
