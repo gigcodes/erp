@@ -76,19 +76,8 @@ class ProductPriceController extends Controller
     }
 
     public function update_product(Request $request){
-        if($request->route()->getName() == 'product.pricing.update.add_profit'){
-            $product_array = $request->product_array;
-            $ref_product = Product::find($product_array['product_id']);
-            $price = $ref_product->getPrice($product_array['storewebsitesid'], $product_array['country_code'],null, true,$product_array['add_duty'], null, $product_array['add_profit']);
-            $data['add_profit']           = number_format($price['promotion'],2,'.','');
-            $data['add_profit_per']       = number_format($price['promotion_per'],2,'.','');
-            $data['price']                = number_format($price['total'],2,'.','');
-            return response()->json(['data' => $data, 'row_id' => $request->row_id ]);
-        }else{
-            $product_array = json_decode($request->product_array);
-        }
 
-
+        $product_array = json_decode($request->product_array);
         $response_array = [];
         foreach($product_array as $key => $p){
             if($request->route()->getName() == 'product.pricing.update.add_duty'){
@@ -97,6 +86,11 @@ class ProductPriceController extends Controller
                     $duty->default_duty = str_replace('%', '', $request->add_duty);
                     $duty->save();
                     $add_duty = str_replace('%', '', $request->add_duty);
+                }
+            }else if($request->route()->getName() == 'product.pricing.update.add_profit'){
+                if($p->row_id == $request->row_id){
+                    $ref_product = Product::find($p->product_id);
+                    $ref_product->getPrice($p->storewebsitesid, $ref_product->country_code,null, true,$ref_product->add_duty, null, $ref_product->add_profit);
                 }
             }else {
                 if($p->row_id == $request->row_id){
@@ -111,6 +105,7 @@ class ProductPriceController extends Controller
             $arr['seg_discount']         = (float)$price['segment_discount'];
             $arr['segment_discount_per'] = (float)$price['segment_discount_per'];
             $arr['add_profit']           = number_format($price['promotion'],2,'.','');
+            $arr['add_profit_per']       = number_format($price['promotion_per'],2,'.','');
             $arr['price']                = number_format($price['total'],2,'.','');
             $arr['add_duty']             = empty($add_duty) ? $p->add_duty : $add_duty . '%';
             $response_array[] = $arr;

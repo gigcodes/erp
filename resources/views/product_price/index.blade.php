@@ -97,7 +97,7 @@
                                 </td> 
                                 <td>
                                     <span style="width: 50%">{{ $key['add_profit'] }}</span>
-                                    <input style="width: 50%;display : inline-block; float:right" placeholder="add profit" data-ref="{{str_replace(' ', '_', $key['brand'])}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit {{str_replace(' ', '_', $key['brand'])}}" name="add_profit">
+                                    <input style="width: 50%;display : inline-block; float:right" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
                                 </td>  
                                 <td>{{ $key['final_price'] }}</td>
                             </tr>
@@ -211,29 +211,37 @@
             return;
         }
         let add_profit = $(this).val();
-        let thiss = $(this);
-        product_array = {
-                'row_id' : $(this).closest('tr').attr('data-id'),
-                'storewebsitesid' : $(this).closest('tr').attr('data-storewebsitesid'),
-                'product_id' : $(this).closest('tr').find('.product_id').text(),
-                'country_code' : $(this).closest('tr').attr('data-country_code'),
-                'add_duty' : $(this).closest('tr').find('.add_duty').val().replace('%', ''),
-                'add_profit' : $(this).closest('tr').find('.add_profit').val().replace('%', ''),
+        let ref_name = $(this).data('ref');
+        let rows = $('.'+ref_name).closest('tr');
+        let product_array = [];
+        for(let i=0; i< rows.length; i++){
+            product_array[i] = {
+                'row_id' : $(rows[i]).attr('data-id'),
+                'storewebsitesid' : $(rows[i]).attr('data-storewebsitesid'),
+                'product_id' : $(rows[i]).closest('tr').find('.product_id').text(),
+                'add_duty' : $(rows[i]).closest('tr').find('.add_duty').val().replace('%', ''),
+                'product_id' : $(rows[i]).find('.product_id').text(),
+                'add_profit' : $(rows[i]).closest('tr').find('.add_profit').val().replace('%', ''),
+                'country_code' : $(rows[i]).attr('data-country_code'), 
             };
+        }
+
         $.ajax({
             url: "{{route('product.pricing.update.add_profit')}}",
             type: 'post',
             data: {
                 _token: '{{csrf_token()}}',
-                product_array: product_array,
+                product_array: JSON.stringify(product_array),
                 add_profit: add_profit,
                 row_id: $(this).closest('tr').attr('data-id'),
             },
             success: function (response) {
-                let row = $(`.tr_${response.row_id}`);
-                $(row).find('td:nth-child(11) span').html(response.data.add_profit);
-                $(row).find('.add_profit').val(response.data.add_profit_per);
-                $(row).find('td:nth-child(12)').html(response.data.price);
+                response.data.forEach(function(item, index) {
+                    let row = $(`.tr_${item.row_id}`); 
+                    $(row).find('td:nth-child(11) span').html(item.add_profit);
+                    $(row).find('.add_profit').val(item.add_profit_per);
+                    $(row).find('td:nth-child(12)').html(item.price);
+                }); 
                 toastr["success"]("profit updated successfully!", "Message");
             }
         });
