@@ -27,13 +27,13 @@ class ProductPriceController extends Controller
         $countryGroups = SimplyDutyCountry::getSelectList();
         $cCodes = $countryGroups;
         if(!empty($request->country_code)) {
-            $cCodes = SimplyDutyCountry::where("country_code",$request->country_code)->pluck("country_name","country_code")->limit(2)->toArray();//$request->country_code;
+            $cCodes = SimplyDutyCountry::where("country_code",$request->country_code)->pluck("country_name","country_code")->toArray();//$request->country_code;
         }
 
         $product_list = [];
-        $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1")->limit(1)->get()->toArray();
+        $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1")->get()->toArray();
         if(strtolower($request->random) == "yes" && empty($request->product)) {
-            $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(1)->latest()->get();
+            $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(50)->latest()->get();
         }else{
             $products = Product::where( 'id', $request->product )->orWhere( 'sku', $request->product )->get();
         }
