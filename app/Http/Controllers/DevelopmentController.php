@@ -2175,12 +2175,34 @@ class DevelopmentController extends Controller
                 'message'	=> 'DONE Status can not change further.'
             ],500);
         }
-        if (strtolower($request->get('is_resolved')) == "done") {
+        if (strtolower($request->get('is_resolved')) == "abc") {
             if(Auth::user()->isAdmin()) {
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
-                $dev_task_user = User::find($issue->team_lead_id !== null ? $issue->team_lead_id : $issue->assigned_to);
+                if(!$assigned_to){
+                    return response()->json([
+                        'message'	=> 'Please assign the task.'
+                    ],500);
+                }
+                $team_user = \DB::table('team_user')->where('user_id', $issue->assigned_to)->first();
+                if(!$team_user){
+                    return response()->json([
+                        'message'	=> 'User not exist in team.'
+                    ],500);
+                }
+                $team_lead = \DB::table('teams')->where('user_id', $team_user->user_id)->first();
+                if(!$team_lead){
+                    return response()->json([
+                        'message'	=> 'Team not exist.'
+                    ],500);
+                }
+                $dev_task_user = User::find($team_lead->user_id);
+                if(!$assigned_to){
+                    return response()->json([
+                        'message'	=> 'user not exist.'
+                    ],500);
+                }
                 if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) {
                     // Fixed price task.
                     if($issue->cost == null) {
