@@ -4,13 +4,9 @@ namespace App\Http\Controllers\Logging;
 
 use App\Http\Controllers\Controller;
 use App\Loggers\LogListMagento;
-use App\ProductPushInformation;
 use DataTables;
 use Illuminate\Http\Request;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Input;
-use App\User;
 use App\StoreMagentoApiSearchProduct;
 class LogListMagentoController extends Controller
 {
@@ -554,121 +550,6 @@ class LogListMagentoController extends Controller
             return view("logging.partials.product-information",compact('data'));
 
         }
-    }
-
-    public function productPushInformation(Request $request)
-    {
-        
-
-        $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
-            ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
-            ->join('brands', 'products.brand', '=', 'brands.id')
-            ->join('categories', 'products.category', '=', 'categories.id')
-            ->join('product_push_informations', 'product_push_informations.product_id', '=', 'products.id')
-            ->orderBy('log_list_magentos.id', 'DESC');
-
-        // Filters
-        if (!empty($request->product_id)) {
-            $logListMagentos->where('product_id', 'LIKE', '%' . $request->product_id . '%');
-        }
-
-        if (!empty($request->sku)) {
-            $logListMagentos->where('products.sku', 'LIKE', '%' . $request->sku . '%');
-        }
-
-        if (!empty($request->brand)) {
-            $logListMagentos->where('brands.name', 'LIKE', '%' . $request->brand . '%');
-        }
-
-        if (!empty($request->category)) {
-            $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
-        }
-        // if (!empty($request->select_date)) {
-        //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
-        // }
-
-        if (!empty($request->status)) {
-            if ($request->status == 'available') {
-                $logListMagentos->where('products.stock', '>', 0);
-            } else if ($request->status == 'out_of_stock') {
-                $logListMagentos->where('products.stock', '<=', 0);
-            }
-        }
-
-        // Get paginated result
-        $logListMagentos->select(
-            'log_list_magentos.*',
-            'products.*',
-            'brands.name as brand_name',
-            'categories.title as category_title',
-            'log_list_magentos.id as log_list_magento_id',
-            'log_list_magentos.created_at as log_created_at',
-            'sw.website as website',
-            'sw.title as website_title',
-            'sw.magento_url as website_url',
-            'log_list_magentos.user_id as log_user_id'
-        );
-        $total_count     = $logListMagentos->count();
-        $logListMagentos = $logListMagentos->paginate(25);
-        //dd($logListMagentos);
-        foreach ($logListMagentos as $key => $item) {
-            if ($request->sync_status) {
-                if ($item->sync_status != $request->sync_status) {
-                    unset($logListMagentos[$key]);
-                    continue;
-                }
-            }
-
-            if ($request->user) {
-                if ($item->log_user_id != $request->user) {
-                    unset($logListMagentos[$key]);
-                    continue;
-                }
-            }
-            if ($item->hasMedia(config('constants.media_tags'))) {
-                $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
-            } else {
-                $logListMagentos[$key]['image_url'] = '';
-            }
-            $logListMagentos[$key]['category_home'] = $item->expandCategory();
-            if ($item->log_list_magento_id) {
-                $logListMagentos[$key]['total_error']   = \App\ProductPushErrorLog::where('log_list_magento_id', $item->log_list_magento_id)->where('response_status', 'error')->count();
-                $logListMagentos[$key]['total_success'] = \App\ProductPushErrorLog::where('log_list_magento_id', $item->log_list_magento_id)->where('response_status', 'success')->count();
-            }
-            if ($item->log_user_id) {
-                $logListMagentos[$key]['log_user_name'] = \App\User::find($item->log_user_id)->name;
-            } else {
-                $logListMagentos[$key]['log_user_name'] = "";
-            }
-        }
-        $users = \App\User::all();
-        // dd($logListMagentos);
-        // For ajax
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos', 'total_count'))->render(),
-                'links' => (string) $logListMagentos->render(),
-            ], 200);
-        }
-        $filters = $request->all();
-        // Show results
-        return view('logging.magento-push-information', compact('logListMagentos', 'filters', 'users', 'total_count'))
-            ->with('success', \Request::Session()->get("success"))
-            ->with('brands', $this->get_brands())
-            ->with('categories', $this->get_categories());
-    }
-
-    public function updateProductPushInformation()
-    {
-
-     $excel =   Excel::import(public_path('60f693117a3fc_Sample.csv'), function ($reader) {
-
-            foreach ($reader->toArray() as $row) {
-                ProductPushInformation::firstOrCreate($row);
-            }
-        });
-
-
     }
 
 
