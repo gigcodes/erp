@@ -1062,6 +1062,8 @@ class Product extends Model
               $priceRecords = $priceModal->where("country_code",$country)->first();
            }
 
+           
+
            if($priceRecords) {
                if($updated_add_profit){
                     $updated_add_profit_row =  \DB::table("price_overrides")->where('id', $priceRecords->id)->update(['value' => $updated_add_profit]);
@@ -1085,6 +1087,19 @@ class Product extends Model
                     return ["original_price" => $this->price , "promotion_per" => - $priceRecords->value, "promotion" => - $priceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice - $priceRecords->value, 'segment_discount_per' => $catdiscount->amount];
                  }
               }
+           }else if($updated_add_profit){
+                if(!empty($brand) && !empty($category) && !empty($country))  {
+                    $newPriceRecords = PriceOverride::create([
+                        'store_website_id' => $website->id,
+                        'brand_segment' => $brand,
+                        'category_id' => $category,
+                        'type' => 'PERCENTAGE',
+                        'calculated' => '+',
+                        'value' => $updated_add_profit,
+                        'country_code' => $country
+                    ]);
+                    return ["original_price" => $this->price , "promotion_per" => $newPriceRecords->value, "promotion" => $newPriceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice - $newPriceRecords->value, 'segment_discount_per' => $catdiscount->amount];
+                }
            }
         } 
 
