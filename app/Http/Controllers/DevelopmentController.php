@@ -2195,6 +2195,11 @@ class DevelopmentController extends Controller
                 if(empty($dev_task_user)){
                     $dev_task_user = $assigned_to;
                 } 
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
                 if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) { 
                     // Fixed price task.
                     if($issue->cost == null) {
@@ -2214,10 +2219,17 @@ class DevelopmentController extends Controller
                         $payment_receipt->save();
                     }
                 }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
+                    if($dev_task_user->hourly_rate){
+                        $rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
+                    }else{
+                        return response()->json([
+                            'message'	=> 'Please provide hourly rate of user.'
+                        ],500);
+                    }
                     $payment_receipt = new PaymentReceipt;
                     $payment_receipt->date = date( 'Y-m-d' );
                     $payment_receipt->worked_minutes = $issue->estimate_minutes;
-                    $payment_receipt->rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
+                    $payment_receipt->rate_estimated = $rate_estimated;
                     $payment_receipt->status = 'Pending';
                     $payment_receipt->developer_task_id = $issue->id;
                     $payment_receipt->user_id = $dev_task_user->id;

@@ -2839,10 +2839,32 @@ class TaskModuleController extends Controller {
 				if(empty($task_user_for_payment)){
 					$task_user_for_payment = $task_user;
 				} 
+				// dd($task_user_for_payment);
+                if($task_user_for_payment->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
 				if(!empty($task_user_for_payment)){
+                    if($task_user_for_payment->fixed_price_user_or_job == 1){
+						if($task->cost == null) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+                        $rate_estimated = $task->cost ?? 0;
+                    }else if($task_user_for_payment->fixed_price_user_or_job == 2){
+						if($task_user_for_payment->hourly_rate){
+							$rate_estimated = $task->approximate * ($task_user_for_payment->hourly_rate ?? 0) / 60;
+						}else{
+							return response()->json([
+								'message'	=> 'Please provide hourly rate of user.'
+							],500);
+						}
+                    }
 					PaymentReceipt::create([
 						'status'            => 'Pending',
-						'rate_estimated'    => $task_user_for_payment->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user_for_payment->hourly_rate ?? 0) / 60,
+						'rate_estimated'    => $rate_estimated,
 						'date'              => date('Y-m-d'),
 						'currency'          => '',
 						'user_id'           => $task_user_for_payment->id,
