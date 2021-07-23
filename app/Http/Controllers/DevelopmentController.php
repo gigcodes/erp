@@ -2168,7 +2168,7 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
-        
+       
         $issue = DeveloperTask::find($request->get('issue_id'));
         if($issue->is_resolved == 1) {
             return response()->json([
@@ -2186,24 +2186,16 @@ class DevelopmentController extends Controller
                     ],500);
                 }
                 $team_user = \DB::table('team_user')->where('user_id', $issue->assigned_to)->first();
-                if(!$team_user){
-                    return response()->json([
-                        'message'	=> 'User not exist in team.'
-                    ],500);
-                }
-                $team_lead = \DB::table('teams')->where('user_id', $team_user->user_id)->first();
-                if(!$team_lead){
-                    return response()->json([
-                        'message'	=> 'Team not exist.'
-                    ],500);
-                }
-                $dev_task_user = User::find($team_lead->user_id);
-                if(!$assigned_to){
-                    return response()->json([
-                        'message'	=> 'user not exist.'
-                    ],500);
-                }
-                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) {
+                if($team_user){
+                    $team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
+                    if($team_lead){
+                        $dev_task_user = User::find($team_lead->user_id); 
+                    }
+                } 
+                if(empty($dev_task_user)){
+                    $dev_task_user = $assigned_to;
+                } 
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) { 
                     // Fixed price task.
                     if($issue->cost == null) {
                         return response()->json([
