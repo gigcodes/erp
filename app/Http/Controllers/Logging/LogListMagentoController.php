@@ -647,7 +647,7 @@ class LogListMagentoController extends Controller
 
     public function productPushHistories(Request $request,$product_id)
     {
-        $history  =   ProductPushInformationHistory::where('product_id',$product_id)->latest()->get();
+        $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->latest()->get();
         return response()->json($history);
 
     }

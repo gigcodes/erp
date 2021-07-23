@@ -12,6 +12,7 @@
     top: 50%;
     left: 50%;
     margin: -50px 0px 0px -50px;
+    z-index: 100000
   }
   input {
     width: 100px;
@@ -39,7 +40,7 @@
   </div>
   <div class="row">
         <div class="col-lg-12 margin-tb">
-             <h2 class="page-heading">Log List Magento ({{ $total_count }})
+             <h2 class="page-heading">Product information update ({{ $total_count }})
 						
 						  <div class="pull-right">
 								<button type="button" class="btn btn-xs btn-secondary read_csv_file" data-toggle="modal" data-target="#product-push-infomation-modal">
@@ -58,7 +59,7 @@
 
 
 				 <div class="col-10" style="padding-left:0px;padding-bottom:10px;">
-					<div>
+					<div class="pl-4">
 							<form class="form-inline" action="" method="GET">
 									<div class="form-group col-md-2 pd-3">
 											
@@ -67,7 +68,7 @@
 									<div class="form-group col-md-3 pd-3">
 											<input style="width:100%;" name="filter_product_sku" type="text" class="form-control" value="{{ isset($_REQUEST['filter_product_sku']) ? $_REQUEST['filter_product_sku'] : '' }}" placeholder="SKU">
 									</div>
-									<div class="form-group col-md-3 pd-3">
+									<div class="form-group col-md-3 pd-3">  
                       <select name="filter_product_status" class="form-control">
                           <option value="">Select status</option>
 
@@ -99,7 +100,7 @@
 				
 			</div> --}}
 
-  <div class="col-md-12">
+  <div class="col-md-12 px-5">
     <div class="panel panel-default">
 
       <div class="panel-body p-0">
@@ -210,6 +211,7 @@
 							<th>Status</th>
 							<th>Quantity</th>
 							<th>Stock Status</th>
+							<th>Updated by</th>
 							<th>Created At</th>
             </thead>
             <tbody class="show-histories-body">
@@ -283,7 +285,8 @@ $(document).on('click','.show-histories',function(){
 									<td style="word-break: break-word;">${element.status ?? element.old_status}</td>
 									<td style="word-break: break-word;">${element.quantity ?? element.old_quantity}</td>
 									<td style="word-break: break-word;">${element.stock_status ?? element.old_status	}</td>
-									<td style="word-break: break-word;">${element.created_at}</td>
+									<td style="word-break: break-word;">${element.user.name ?? ''}</td>
+									<td style="word-break: break-word;">${element.created_at ?? ''}</td>
 							</tr>
 							`
 					html+=final_html

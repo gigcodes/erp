@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class ProductPushInformation extends Model
 {
@@ -17,6 +18,7 @@ class ProductPushInformation extends Model
 
             $dirties = $p->getDirty();
             $old_contents = $p->getOriginal();
+            $user_id = Auth::id();
 
             $old_arr = [];
             $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id'];
@@ -33,6 +35,7 @@ class ProductPushInformation extends Model
             }
 
             $new_values =  array_merge($old_arr, $dirties);
+            $new_values['user_id'] =$user_id ;
             ProductPushInformationHistory::create($new_values);
         });
 
@@ -40,6 +43,7 @@ class ProductPushInformation extends Model
         static::creating(function (ProductPushInformation $p) {
 
             $old_arr = [];
+            $user_id = Auth::id();
             $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id'];
             foreach ($p->toArray() as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
@@ -51,6 +55,7 @@ class ProductPushInformation extends Model
                 }
 
                 $old_arr['old_' . $key] = $oldValue;
+                $old_arr['user_id'] = $user_id;
             }
             ProductPushInformationHistory::create($old_arr);
         });

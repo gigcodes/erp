@@ -14,7 +14,7 @@ class AddUserIdToProductPushInformationHistoriesTable extends Migration
     public function up()
     {
         Schema::table('product_push_information_histories', function (Blueprint $table) {
-            $table->integet('user_id')->index();
+            $table->integer('user_id')->nullable()->index();
         });
     }
 
