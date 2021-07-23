@@ -1710,7 +1710,7 @@ class ProductController extends Controller
                                 //currently we have 3 queues assigned for this task.
                                 $log->queue = \App\Helpers::createQueueName($website->title);
                                 $log->save();
-                                PushToMagento::dispatch($product,$website , $log)->onQueue($log->queue);
+                                PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
                                 $i++;
                             }
                         }
