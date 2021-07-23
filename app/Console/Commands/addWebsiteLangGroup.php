@@ -38,7 +38,7 @@ class addWebsiteLangGroup extends Command
      */
     public function handle()
     {
-        $websiteStoreViews = WebsiteStoreView::get();
+        $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
         foreach($websiteStoreViews as $v){
             dump($v->name . '_' . $v->code);
 
