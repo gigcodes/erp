@@ -104,6 +104,11 @@
                             Show Error Report
                         </button>
                     </div>
+                    <div class="col-md-2">
+                       <button class="btn btn-light" id="retry-failed-job">
+                            Retry failed job
+                        </button>
+                    </div>
                 </div>
             </form>
           </div>
@@ -387,14 +392,71 @@
     </div>
   </div>
 
+  <div id="retry-failed-job-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Retry failed job request</h4>
+            </div>
+            <form class="retry-failed-job-modal-form">
+              {!! csrf_field() !!}
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Start Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="start_date" value="" class="form-control start-date-picker">
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>End Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="end_date" value="" class="form-control end-date-picker">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Store website&nbsp;:&nbsp;</strong>
+                              <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>Product id&nbsp;:&nbsp;</strong>
+                              <input type="text" name="keyword" value="" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary pull-left retry-failed-job-modal-btn">Retry</button>
+              </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
 @endsection
 
 @section('scripts')
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $("#select_date").datepicker({
-	  	format: 'yyyy-mm-dd'
-	});
+      	  	format: 'yyyy-mm-dd'
+      	});
+
+        $(".start-date-picker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        $(".end-date-picker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        
     </script>
   <script type="text/javascript">
   var product = []
@@ -543,6 +605,34 @@
         $(".product-information-data").html(response);
         $("#show-product-information").modal("show");
     });
+  });
+
+  $(document).on("click","#retry-failed-job",function(e) {
+     e.preventDefault();
+     $("#retry-failed-job-modal").modal("show");
+  });
+
+  $(document).on("click",".retry-failed-job-modal-btn",function(e) {
+    e.preventDefault();
+      var form = $(this).closest('form');
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/retry-failed-job",
+        data : form.serialize(),
+        dataType:"json",
+        beforeSend : function( ) {
+           $("#loading-image").show();
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          if(response.code == 200) {
+            $("#retry-failed-job-modal").modal("hide");
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+      });
   });
 
 </script>

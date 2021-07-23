@@ -31,4 +31,14 @@ class LogListMagento extends Model
             'magento_status' => $status
         ]);
     }
+
+    public function product()
+    {
+        return $this->hasOne(\App\Product::class, 'id','product_id');
+    }
+
+    public function storeWebsite()
+    {
+        return $this->hasOne(\App\StoreWebsite::class,'id','store_website_id');
+    }
 }

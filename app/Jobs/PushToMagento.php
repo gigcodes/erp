@@ -48,13 +48,22 @@ class PushToMagento implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
+        if($this->log) {
+           $this->log->sync_status = "started_push"; 
+           $this->log->save();
+        }
+
         if (!$website->website_source || $website->website_source == '') {
             ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null , null, $this->log->id);
+            $this->log->sync_status = "error"; 
+            $this->log->save();
             return false;
         }
 
         if ($website->disable_push == 1) {
             ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null , null, $this->log->id);
+            $this->log->sync_status = "error"; 
+            $this->log->save();
             return false;
         }
 
