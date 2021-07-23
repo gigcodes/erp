@@ -16,12 +16,13 @@
         .pd-3 {
             padding: 0px;
         }
-        .btn-secondary {
+        .btn-secondary, .btn-secondary:hover {
             color: #757575 !important;
             border: 1px solid #ddd;
             background: #fff;
             padding: 6px 10px !important;
         }
+
         .btn-secondary a{
             color : #757575 !important;
         }
