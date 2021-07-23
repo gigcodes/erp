@@ -1708,6 +1708,7 @@ class ProductController extends Controller
                                 \Log::info("Product started website found For website".$website->website);
                                 $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                                 //currently we have 3 queues assigned for this task.
+                                $log->sync_status = "waiting";
                                 $log->queue = \App\Helpers::createQueueName($website->title);
                                 $log->save();
                                 PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
