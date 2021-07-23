@@ -1001,12 +1001,12 @@
                 </button>
             </div>
             <div class="modal-body" style="max-height: 610px;overflow: auto;">
-                <table class="table table-bordered table-striped scraper-process">
+                <table class="table table-bordered table-striped scraper-process" style="table-layout: fixed;">
                     <thead>
                         <tr>
-                            <th>No.</th>
-                            <th>Scraper Name</th>
-                            <th>Status</th>
+                            <th style="width:10%">No.</th>
+                            <th style="width:40%">Scraper Name</th>
+                            <th style="width:50%">Status</th>
                         </tr>
                     </thead>
                     <tbody class="ScraperProcess">

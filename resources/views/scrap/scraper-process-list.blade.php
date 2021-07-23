@@ -5,7 +5,7 @@
         <td>More Than 24 Hr</td>
     </tr>
 @endforeach
-@foreach ($scrapers as $scraper)
+@foreach ($scrapers as $key => $scraper)
     <tr>
         <td>{{ ++$key }}</td>
         <td>{{ $scraper->scraper_name }}</td>
