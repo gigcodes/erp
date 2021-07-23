@@ -273,16 +273,16 @@ class HubstaffActivitiesController extends Controller
                 return response()->json(["code" => 200, "data" => [], "message" => "changed succesfully"]);
             }
         }
-
+        
         return response()->json(["code" => 500, "data" => [], "message" => "Requested id is not in database"]);
     }
-
+    
     public function getActivityUsers(Request $request, $params = null)
     {   
-
+    
         if($params !== null){
             $params = $params->request->all();
-             
+            
             $request->activity_command = $params['activity_command']; 
             $request->user_id = $params['user_id']; 
             $request->user = $params['user']; 
@@ -295,42 +295,42 @@ class HubstaffActivitiesController extends Controller
             $request->submit = $params['submit']; 
             Auth::login($request->user);
         }
-
+        
         //START - Purpose : Comment code - DEVATSK-4300
         // if( request('submit') ==  'report_download'){
-        //    return $this->downloadExcelReport();
-
-        // }
-        //END - DEVATSK-4300
-
-        $title      = "Hubstaff Activities";
-        $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
-        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
-        $user_id    = $request->user_id ? $request->user_id : null;
-        $task_id    = $request->task_id ? $request->task_id : null;
-        $task_status    = $request->task_status ? $request->task_status : null;
-        $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
-
-        $taskIds = [];
-        if(!empty($developer_task_id)) {
+            //    return $this->downloadExcelReport();
             
-            $developer_tasks    = \App\DeveloperTask::find($developer_task_id);
-            if(!empty($developer_tasks)) {
-                if(!empty($developer_tasks->hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->hubstaff_task_id;
-                }
-                if(!empty($developer_tasks->lead_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->lead_hubstaff_task_id;
-                }
-                if(!empty($developer_tasks->team_lead_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->team_lead_hubstaff_task_id;
-                }
-                if(!empty($developer_tasks->tester_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->tester_hubstaff_task_id;
+            // }
+            //END - DEVATSK-4300
+            
+            $title      = "Hubstaff Activities";
+            $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
+            $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+            $user_id    = $request->user_id ? $request->user_id : null;
+            $task_id    = $request->task_id ? $request->task_id : null;
+            $task_status    = $request->task_status ? $request->task_status : null;
+            $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
+            
+            $taskIds = [];
+            if(!empty($developer_task_id)) {
+                
+                $developer_tasks    = \App\DeveloperTask::find($developer_task_id);
+                if(!empty($developer_tasks)) {
+                    if(!empty($developer_tasks->hubstaff_task_id)) {
+                        $taskIds[] = $developer_tasks->hubstaff_task_id;
+                    }
+                    if(!empty($developer_tasks->lead_hubstaff_task_id)) {
+                        $taskIds[] = $developer_tasks->lead_hubstaff_task_id;
+                    }
+                    if(!empty($developer_tasks->team_lead_hubstaff_task_id)) {
+                        $taskIds[] = $developer_tasks->team_lead_hubstaff_task_id;
+                    }
+                    if(!empty($developer_tasks->tester_hubstaff_task_id)) {
+                        $taskIds[] = $developer_tasks->tester_hubstaff_task_id;
+                    }
                 }
             }
-        }
-
+            
         if( !empty( $task_status ) ){
             $developer_tasks = \App\DeveloperTask::where('status',$task_status)->where('hubstaff_task_id','!=',0)->pluck('hubstaff_task_id');
             if(!empty($developer_tasks)) {
@@ -393,7 +393,6 @@ class HubstaffActivitiesController extends Controller
         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
         )->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
         $activityUsers = collect([]);
-
 
         foreach ($activities as $activity) {
             $a = [];
@@ -469,7 +468,7 @@ class HubstaffActivitiesController extends Controller
                             }
                         }
                     }
-                }
+                }   
                 $lsTask[] = $taskSubject;
             }
             Log::channel('hubstaff_activity_command')->info('ls task array'.json_encode($lsTask));
