@@ -17,9 +17,9 @@
     width: 100px;
   }
 
-	th{
-		word-wrap: word-break;
-	}
+	th,td{
+    word-break: break-word
+  	}
 	.btn-secondary{
 		border: 1px solid #ddd;
 		color: #757575;
@@ -155,7 +155,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="exampleModalLabel">Read Csv</h4>
+          <h4 class="modal-title" id="exampleModalLabel">Upload CSV History</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -176,7 +176,7 @@
 
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">File path</label>
-                        <input type="text" class="form-control" id="website-path" value="{{ 'https://www.sololuxury.com/var/exportcsv/product.csv'  }}" name="website_url">
+                        <input type="url" class="form-control" id="website-path" value="{{ 'https://www.sololuxury.com/var/exportcsv/product.csv'  }}" name="website_url" required>
                       </div>
                 </div>
                 <div class="modal-footer">
@@ -192,12 +192,12 @@
   </div>
 
   
-	{{-- show histoies  --}}
+	{{-- show histoies modal --}}
 	<div class="modal fade" id="show-histories-data-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="exampleModalLabel">Read Csv</h4>
+          <h4 class="modal-title" id="exampleModalLabel">Product History</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -210,6 +210,7 @@
 							<th>Status</th>
 							<th>Quantity</th>
 							<th>Stock Status</th>
+							<th>Created At</th>
             </thead>
             <tbody class="show-histories-body">
             
@@ -277,6 +278,7 @@ $(document).on('click','.show-histories',function(){
 									<td style="word-break: break-word;">${element.status ?? element.old_status}</td>
 									<td style="word-break: break-word;">${element.quantity ?? element.old_quantity}</td>
 									<td style="word-break: break-word;">${element.stock_status ?? element.old_status	}</td>
+									<td style="word-break: break-word;">${element.created_at}</td>
 							</tr>
 							`
 					html+=final_html
