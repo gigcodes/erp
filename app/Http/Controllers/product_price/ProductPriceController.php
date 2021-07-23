@@ -90,7 +90,10 @@ class ProductPriceController extends Controller
             }else if($request->route()->getName() == 'product.pricing.update.add_profit'){
                 if($p->row_id == $request->row_id){
                     $ref_product = Product::find($p->product_id);
-                    $ref_product->getPrice($p->storewebsitesid, $ref_product->country_code,null, true,$ref_product->add_duty, null, $ref_product->add_profit);
+                    $result = $ref_product->getPrice($p->storewebsitesid, $ref_product->country_code,null, true,$ref_product->add_duty, null, $request->add_profit);
+                    if($result['status'] == false){
+                        return response()->json(['status' => false, 'message' => $result['field'] ]);
+                    }
                 }
             }else {
                 if($p->row_id == $request->row_id){
@@ -100,7 +103,8 @@ class ProductPriceController extends Controller
             }
             
             $product = Product::find($p->product_id);
-            $price = $product->getPrice( $p->storewebsitesid, $p->country_code,null, true, empty($add_duty) ? $p->add_duty : $add_duty);
+            $price = $product->getPrice( $p->storewebsitesid, $p->country_code,null, true, empty($add_duty) ? $p->add_duty : $add_duty, null, null, 'checked_add_profit');
+            $arr['status']               = $price['status'];
             $arr['row_id']               = $p->row_id;
             $arr['seg_discount']         = (float)$price['segment_discount'];
             $arr['segment_discount_per'] = (float)$price['segment_discount_per'];
@@ -110,7 +114,7 @@ class ProductPriceController extends Controller
             $arr['add_duty']             = empty($add_duty) ? $p->add_duty : $add_duty . '%';
             $response_array[] = $arr;
         }
-        return response()->json(['data' => $response_array]);
+        return response()->json(['data' => $response_array, 'status' => true]);
     }
 
 }

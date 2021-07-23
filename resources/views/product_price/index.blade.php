@@ -157,9 +157,9 @@
             success: function (response) {
                 response.data.forEach(function(item, index) {
                     let row = $(`.tr_${item.row_id}`);
-                    $(rows).find('td:nth-child(8) span').html(item.seg_discount);
-                    $(rows).find('.seg_discount').val(item.segment_discount_per + '%');
-                    $(rows).find('td:nth-child(12)').html(item.price);
+                    $(row).find('td:nth-child(8) span').html(item.seg_discount);
+                    $(row).find('.seg_discount').val(seg_discount);
+                    $(row).find('td:nth-child(12)').html(item.price);
                 }); 
                 toastr["success"]("segment discount updated successfully!", "Message");
             }
@@ -236,13 +236,19 @@
                 row_id: $(this).closest('tr').attr('data-id'),
             },
             success: function (response) {
-                response.data.forEach(function(item, index) {
-                    let row = $(`.tr_${item.row_id}`); 
-                    $(row).find('td:nth-child(11) span').html(item.add_profit);
-                    $(row).find('.add_profit').val(item.add_profit_per);
-                    $(row).find('td:nth-child(12)').html(item.price);
-                }); 
-                toastr["success"]("profit updated successfully!", "Message");
+                if(response.status == false){
+                    toastr["error"](response.message + " is not exist!", "Message");
+                }else{
+                    response.data.forEach(function(item, index) {
+                        if(item.status){
+                            let row = $(`.tr_${item.row_id}`); 
+                            $(row).find('td:nth-child(11) span').html(item.add_profit);
+                            $(row).find('.add_profit').val(add_profit);
+                            $(row).find('td:nth-child(12)').html(item.price);
+                        }
+                    }); 
+                    toastr["success"]("profit updated successfully!", "Message");
+                }
             }
         });
 
