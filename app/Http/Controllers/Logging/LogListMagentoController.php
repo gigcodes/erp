@@ -644,8 +644,9 @@ class LogListMagentoController extends Controller
                 if($product->product && $product->storeWebsite)  {
                     if(empty($product->queue)) {
                         $product->queue = \App\Helpers::createQueueName($product->storeWebsite->title);
-                        $product->save();
                     }
+                    $product->tried = $product->tried+1;
+                    $product->save();
                     PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue($product->queue);
                 }
             }
