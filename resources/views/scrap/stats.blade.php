@@ -1004,9 +1004,9 @@
                 <table class="table table-bordered table-striped scraper-process" style="table-layout: fixed;">
                     <thead>
                         <tr>
-                            <th style="width:10%">No.</th>
+                            <th style="width:15%">No.</th>
                             <th style="width:40%">Scraper Name</th>
-                            <th style="width:50%">Status</th>
+                            <th style="width:45%">Status</th>
                         </tr>
                     </thead>
                     <tbody class="ScraperProcess">
