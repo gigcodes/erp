@@ -76,8 +76,11 @@ class LogListMagentoController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
+            $logListMagentos->whereIn('categories.id', $request->category);
         }
+
+
+
         // if (!empty($request->select_date)) {
         //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
         // }
