@@ -226,11 +226,7 @@
 
 @section('scripts')
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-    <script>
-        $("#select_date").datepicker({
-	  	format: 'yyyy-mm-dd'
-	});
-    </script>
+
   <script type="text/javascript">
 
 $(document).on('submit','#store-product-push-information',function(e){
@@ -238,19 +234,28 @@ e.preventDefault()
       $.ajax({
       method: "POST",
       url: "{{ route('update.magento.product-push-information') }}",
-      data: $(this).serialize()
+      data: $(this).serialize(),
+      beforeSend: function () {
+                    $("#loading-image").show();
+                },
     })
     .done(function(response) {
-      console.log("Data Saved: ", response);
+          console.log("Data Saved: ", response);
 
-if(response.error){
-	toastr['error'](response.error);
-}else{
-	location.reload()
-}
+            if(response.error){
+              toastr['error'](response.error);
+            }else{
+              location.reload()
+            }
+          $("#loading-image").hide();
 
 
-    });
+    }).fail(function(data) {
+				console.log(data)
+				$("#loading-image").hide();
+				console.log("error");
+			});
+    
 })
 
 

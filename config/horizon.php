@@ -103,28 +103,28 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution'],
+                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'],
                 'balance' => 'auto',
                 'processes' => 12,
                 'tries' => 1,
                 'minProcesses' => 1,
                 'maxProcesses' => 12,
                 'memory' => 2048,
-                'timeout' => 3600 * 3
+                'timeout' => 600
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution'],
+                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'],
                 'balance' => 'auto',
                 'processes' => 12,
                 'tries' => 1,
                 'minProcesses' => 1,
                 'maxProcesses' => 12,
                 'memory' => 2048,
-                'timeout' => 3600 * 3
+                'timeout' => 600
             ]
         ],
     ],

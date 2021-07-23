@@ -21,6 +21,7 @@ use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 
+use App\Jobs\PushToMagento;
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -676,4 +677,47 @@ class LogListMagentoController extends Controller
         $data->delete();
         return response()->json(['status' => true]);
     }
+
+
+    public function retryFailedJob(Request $request)
+    {
+        $logListMagento = \App\Loggers\LogListMagento::query();
+
+        if(empty($request->start_date) && empty($request->start_date)) {
+            return response()->json(["code" => 500, "message" => "Please select start date and end date for valid result"]);
+        }
+
+
+        if($request->start_date != null) {
+            $logListMagento->whereDate("created_at",">=",$request->start_date);
+        }
+
+        if($request->end_date != null) {
+            $logListMagento->whereDate("created_at","<=",$request->end_date);
+        }
+
+        if($request->store_website_id != null) {
+            $logListMagento->where("store_website_id",$request->store_website_id);
+        }
+
+        if($request->keyword != null) {
+            $logListMagento->where("product_id",$request->keyword);
+        }
+
+        $products = $logListMagento->where(function($q) {
+            $q->where("sync_status","error");
+        })->groupBy('store_website_id','product_id')->get();
+
+
+        if(!$products->isEmpty()) {
+            foreach($products as $product) {
+                if($product->product && $product->storeWebsite)  {
+                    PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue('failed_magento_job');
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Total Request found :" .$products->count()]);
+    }
 }
+

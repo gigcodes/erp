@@ -1702,7 +1702,7 @@ class ProductController extends Controller
                     if(count($websiteArrays) == 0){
                         \Log::info("Product started ".$product->id." No website found");
                         $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
-                        $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                        $logId = LogListMagento::log($product->id, "No website found " . $product->id, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                         $this->updateLogUserId($logId);
                     }else{
@@ -1711,19 +1711,13 @@ class ProductController extends Controller
                             $website = StoreWebsite::find($websiteArray);
                             if($website){
                                 \Log::info("Product started website found For website".$website->website);
-                                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                                $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                                 //currently we have 3 queues assigned for this task.
                                 if($i > 3) {
                                    $i = 1;
                                 }
-                                PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                                PushToMagento::dispatch($product,$website , $log)->onQueue($queueName[$i]);
                                 $i++;
-                            }else{
-                                $msg = 'Website not exist ';
-
-                                $logId = LogListMagento::log($product->id, $msg, 'info');
-                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                $this->updateLogUserId($logId);
                             }
                         }
                     }
@@ -4391,7 +4385,7 @@ class ProductController extends Controller
                     $website = StoreWebsite::find($websiteArray);
                     if($website){
                         \Log::info("Product started website found For website".$website->website);
-                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                         //currently we have 3 queues assigned for this task.
                         if($i > 3) {
                            $i = 1;

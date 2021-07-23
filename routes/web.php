@@ -105,6 +105,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', 'Logging\LogListMagentoController@productInformation')->name('list.magento.product-information');
+    Route::get('list-magento/retry-failed-job', 'Logging\LogListMagentoController@retryFailedJob')->name('list.magento.retry-failed-job');
+
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
