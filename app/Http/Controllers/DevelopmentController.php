@@ -45,6 +45,7 @@ use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
 use App\Helpers\MessageHelper;
+use App\HubstaffHistory;
 
 class DevelopmentController extends Controller
 {
@@ -2324,6 +2325,23 @@ class DevelopmentController extends Controller
             $history->is_approved = 1;
             $history->save();
 
+            if($history){
+                if($history->old_value == null)
+                    $old_val = '';
+                else
+                    $old_val = $history->old_value;
+
+                    
+                $param= [
+                    "developer_task_id" => $history->developer_task_id,
+                    "old_value" => $old_val,
+                    "new_value" => $history->new_value,
+                    "user_id" => \Auth::id(),
+                ];
+                $add_history = HubstaffHistory::create($param);
+                
+            }
+
 
             $task = DeveloperTask::find($request->developer_task_id);
             $time = $history->new_value !== null ? $history->new_value : $history->old_value;
@@ -2937,12 +2955,29 @@ class DevelopmentController extends Controller
     }
 
     public function getTimeHistory(Request $request)
-    {
+    {     
         $users = User::get();
         
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
         
+        if($task_module) {
+            return $task_module;
+        }
+        
+        return 'error';
+    }
+
+    public function getTimeHistoryApproved(Request $request)
+    {
+       
+        $users = User::get();
+        
+        $id = $request->id;
+
+        $task_module = HubstaffHistory::join('users','users.id','hubstaff_historys.user_id')->where('developer_task_id', $id)->select('hubstaff_historys.*','users.name')->get();
+
+            
         if($task_module) {
             return $task_module;
         }

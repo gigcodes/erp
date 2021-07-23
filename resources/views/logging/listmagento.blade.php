@@ -70,17 +70,19 @@
                 <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
                 <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
-
-                    </div>
-                    <div class="col-md-2">
-                        <label for="sku">Sync Status</label>
-                        <select class="form-control" name="sync_status">
-                            <option value=''>All</option>
-                            <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
-                            <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
-                        </select>
-
-                    </div>
+             </div>
+              <div class="col-md-2">
+                  <label for="sku">Sync Status</label>
+                  <select class="form-control" name="sync_status">
+                      <option value=''>All</option>
+                      <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
+                      <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
+                  </select>
+              </div>
+              <div class="col-md-2">
+                  <label for="queue">Queue List</label>
+                  <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
+              </div>
                 </div>
                 <div class="row p-3 ">
                   <div class="col-md-2">
@@ -102,6 +104,11 @@
                     <div class="col-md-2">
                        <button class="btn btn-light" id="submit-show-report">
                             Show Error Report
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                       <button class="btn btn-light" id="retry-failed-job">
+                            Retry failed job
                         </button>
                     </div>
                 </div>
@@ -127,6 +134,7 @@
               <th style="width:5%">Failure</th>
               <th style="width:6%">User</th>
               <th style="width:6%">Time</th>
+              <th style="width:6%">Queue</th>
               <th style="width:8%">Action</th>
             </thead>
             <tbody>
@@ -171,6 +179,7 @@
                   <td> {{$item->total_error}}</td>
                   <td>{{$item->log_user_name}}</td>
                   <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
+                  <td>@if($item->queue) #{{$item->queue_id}}({{$item->queue}}) @else - @endif</td>
                   <td style="display:flex;justify-content: space-between;align-items: center;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                     <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
@@ -387,14 +396,71 @@
     </div>
   </div>
 
+  <div id="retry-failed-job-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Retry failed job request</h4>
+            </div>
+            <form class="retry-failed-job-modal-form">
+              {!! csrf_field() !!}
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Start Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="start_date" value="" class="form-control start-date-picker">
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>End Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="end_date" value="" class="form-control end-date-picker">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Store website&nbsp;:&nbsp;</strong>
+                              <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>Product id&nbsp;:&nbsp;</strong>
+                              <input type="text" name="keyword" value="" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary pull-left retry-failed-job-modal-btn">Retry</button>
+              </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
 @endsection
 
 @section('scripts')
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $("#select_date").datepicker({
-	  	format: 'yyyy-mm-dd'
-	});
+      	  	format: 'yyyy-mm-dd'
+      	});
+
+        $(".start-date-picker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        $(".end-date-picker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        
     </script>
   <script type="text/javascript">
   var product = []
@@ -543,6 +609,34 @@
         $(".product-information-data").html(response);
         $("#show-product-information").modal("show");
     });
+  });
+
+  $(document).on("click","#retry-failed-job",function(e) {
+     e.preventDefault();
+     $("#retry-failed-job-modal").modal("show");
+  });
+
+  $(document).on("click",".retry-failed-job-modal-btn",function(e) {
+    e.preventDefault();
+      var form = $(this).closest('form');
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/retry-failed-job",
+        data : form.serialize(),
+        dataType:"json",
+        beforeSend : function( ) {
+           $("#loading-image").show();
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          if(response.code == 200) {
+            $("#retry-failed-job-modal").modal("hide");
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+      });
   });
 
 </script>
