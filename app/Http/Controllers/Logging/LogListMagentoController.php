@@ -111,6 +111,10 @@ class LogListMagentoController extends Controller
             $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
         }
 
+        if($request->queue != null) {
+            $logListMagentos->where('log_list_magentos.queue', $request->queue);
+        }
+
         // Get paginated result
         $logListMagentos->select(
             'log_list_magentos.*',
