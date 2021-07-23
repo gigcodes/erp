@@ -59,9 +59,13 @@
               <label for="sku">Brand</label>
               <input type="text" class="form-control" id="brand" name="brand" value="{{ old('brand')}}">
             </div>
+            @php
+              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
+            @endphp
             <div class="col-md-2">
-              <label for="sku">Category</label>
-              <input type="text" class="form-control" id="category" name="category" value="{{ old('category')}}">
+                <label for="sku">Category</label>
+                    {!! $category_suggestion !!}
+                </div>
             </div>
             <div class="col-md-2">
               <label for="sku">Status</label>
@@ -436,7 +440,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary pull-left retry-failed-job-modal-btn">Retry</button>
+                <button type="submit" class="btn btn-primary pull-left btn-secondary retry-failed-job-modal-btn">Retry</button>
               </div>
             </form>
         </div>
@@ -638,6 +642,8 @@
           }
       });
   });
+
+  $(".select-multiple").select2({tags:true});
 
 </script>
 @if (Session::has('errors'))

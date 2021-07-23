@@ -12,6 +12,7 @@ class LogListMagento extends Model
         'product_id',
         'queue',
         'queue_id',
+        'size_chart_url',
         'extra_attributes',
         'message',
         'created_at',
