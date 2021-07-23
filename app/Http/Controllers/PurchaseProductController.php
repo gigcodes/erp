@@ -234,6 +234,14 @@ class PurchaseProductController extends Controller
         return view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
     }
 
+    public function leadSupplierDetails(Request $request,$lead_id)
+    {
+        $erpLead = \App\ErpLeads::find($lead_id);
+
+        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$erpLead->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id','product_suppliers.supplier_link')->get();
+        return view('purchase-product.partials.lead_supplier_info',compact('suppliers','erpLead'));
+    }
+
     public function saveDiscount(Request $request)
     {
         $discount = SupplierDiscountInfo::where('product_id', $request->product_id)->where('supplier_id',$request->supplier_id)->first();
@@ -249,10 +257,20 @@ class PurchaseProductController extends Controller
             $discount->save();
         }
 
-        $order_product = OrderProduct::find($request->order_product_id);
-        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+        if($request->lead_id != null && $request->lead_id > 0) {
+            $erpLead = \App\ErpLeads::find($request->lead_id);
+            $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
 
-        $html  = (string)view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
+            $html  = (string)view('purchase-product.partials.lead_supplier_info',compact('suppliers','erpLead'));    
+
+        }else{
+            $order_product = OrderProduct::find($request->order_product_id);
+            $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+
+            $html  = (string)view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));    
+        }
+
+        
 
         return response()->json(['message' => 'Successfull','html' => $html,'code' => 200]);
     }
@@ -274,10 +292,18 @@ class PurchaseProductController extends Controller
             $fixed_price->save();
         }
 
-        $order_product = OrderProduct::find($request->order_product_id);
-        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+        if($request->lead_id != null && $request->lead_id > 0) {
+            $erpLead = \App\ErpLeads::find($request->lead_id);
+            $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
 
-        $html  = (string)view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
+            $html  = (string)view('purchase-product.partials.lead_supplier_info',compact('suppliers','erpLead'));
+
+        }else {
+            $order_product = OrderProduct::find($request->order_product_id);
+            $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+
+            $html  = (string)view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
+        }
 
         return response()->json(['message' => 'Successfull','html'=> $html,'code' => 200]);
     }

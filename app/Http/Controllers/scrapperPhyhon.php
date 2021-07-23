@@ -61,6 +61,8 @@ use App\WebsiteStore;
 use App\scraperImags;
 use Validator;
 use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
+
 
 
 class scrapperPhyhon extends Controller
@@ -316,6 +318,31 @@ class scrapperPhyhon extends Controller
             \Log::error('scrapper_images :: ' .$th->getMessage());
             return false;
         }
+    }
+
+    public function callScrapper(Request $request)
+    {
+
+    $client = new Client();
+    $res = null;
+    $err = null;
+    try{
+
+        $response = $client->post('http://167.86.88.58:5000/' . $request->data_name, [
+            'json' => [
+                'type' => $request->type,
+                'name' =>  $request->webName
+                    ]
+                ]);
+        $res =         $response->getBody()->getContents(); 
+
+
+    }catch(\GuzzleHttp\Exception\RequestException $e){
+        $err = $e->getResponse()->getBody()->getContents(); 
+    }
+
+    return response()->json(['message'=>$res,'err'=>$err]);
+   
     }
 }
 

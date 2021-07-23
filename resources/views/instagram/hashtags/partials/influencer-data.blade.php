@@ -7,6 +7,10 @@
                       name="selectedInfluencers" 
                       value="{{$influencer->id}}">
          </td>
+
+         <td style="white-space: nowrap;">
+          {{$influencer->platform}}
+        </td>
 	      
         <td style="white-space: nowrap;">
           {{date('d-m-y', strtotime($influencer->created_at))}}

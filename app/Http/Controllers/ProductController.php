@@ -1680,11 +1680,6 @@ class ProductController extends Controller
     {
         try {
             //code...
-            $queueName = [
-                "1" => "mageone",
-                "2" => "magetwo",
-                "3" => "magethree"
-            ];
             // Get product by ID
             $product = Product::find($id);
             //check for hscode
@@ -1702,7 +1697,7 @@ class ProductController extends Controller
                     if(count($websiteArrays) == 0){
                         \Log::info("Product started ".$product->id." No website found");
                         $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
-                        $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                        $logId = LogListMagento::log($product->id, "No website found " . $product->id, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                         $this->updateLogUserId($logId);
                     }else{
@@ -1711,19 +1706,13 @@ class ProductController extends Controller
                             $website = StoreWebsite::find($websiteArray);
                             if($website){
                                 \Log::info("Product started website found For website".$website->website);
-                                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                                $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                                 //currently we have 3 queues assigned for this task.
-                                if($i > 3) {
-                                   $i = 1;
-                                }
-                                PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                                $log->sync_status = "waiting";
+                                $log->queue = \App\Helpers::createQueueName($website->title);
+                                $log->save();
+                                PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
                                 $i++;
-                            }else{
-                                $msg = 'Website not exist ';
-
-                                $logId = LogListMagento::log($product->id, $msg, 'info');
-                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                $this->updateLogUserId($logId);
                             }
                         }
                     }
@@ -4376,13 +4365,6 @@ class ProductController extends Controller
         ->limit(100)
         ->get();
 
-        $queueName = [
-            "1" => "mageone",
-            "2" => "magetwo",
-            "3" => "magethree"
-        ];
-
-
         foreach ($products as $key => $product) {
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if(!empty($websiteArrays)) {
@@ -4391,12 +4373,11 @@ class ProductController extends Controller
                     $website = StoreWebsite::find($websiteArray);
                     if($website){
                         \Log::info("Product started website found For website".$website->website);
-                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                         //currently we have 3 queues assigned for this task.
-                        if($i > 3) {
-                           $i = 1;
-                        }
-                        PushToMagento::dispatch($product,$website, $log)->onQueue($queueName[$i]);
+                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->save();
+                        PushToMagento::dispatch($product,$website, $log)->onQueue($log->queue);
                         $i++;
                     }
                 }
@@ -5467,6 +5448,21 @@ class ProductController extends Controller
         $order_products = OrderProduct::create($orderproduct_data);
 
         return response()->json(['code' => 200, 'message' => 'Purchase Products Added successfully']);
+    }
+
+    public function sendLeadPrice(Request $request)
+    {
+        if(empty($request->customer_id) && empty($request->product_id)) {
+            return response()->json(["code" => 500 , "message" => "Please check product id and customer id exist"]);
+        }
+
+        $customer = \App\Customer::find($request->customer_id);
+
+        if($customer && !empty($request->product_id)) {
+            app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$request->product_id]),true);
+        }
+
+        return response()->json(["code" => 200 ,"data" => [], "message" => "Lead price created"]);
     }
 
 }
