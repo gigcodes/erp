@@ -580,24 +580,25 @@ class LogListMagentoController extends Controller
         
 
         if(!empty($request->filter_product_id)){
-            $logListMagentos->where('product_id',$request->filter_product_id);
+            $logListMagentos->where('product_id','LIKE','%'.$request->filter_product_id .  '%');
         }
 
         if(!empty($request->filter_product_sku)){
             $logListMagentos->where('sku','LIKE','%'.$request->filter_product_sku. '%');
         }
-        
-        $logListMagentos  =  $logListMagentos->paginate(Setting::get('pagination'));
 
+        if(isset($request->filter_product_status)){
+            $logListMagentos->where('status','LIKE','%'.$request->filter_product_status.'%');
+        }
+        //status list 
+        $logListMagentos  =  $logListMagentos->paginate(Setting::get('pagination'));
+        $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
         $total_count = ProductPushInformation::get()->count();
 
-       return view('logging.magento-push-information', compact('logListMagentos','total_count'));
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList'));
            
 
     }
-
-
-
 
     public function updateProductPushInformation(Request $request)
     {

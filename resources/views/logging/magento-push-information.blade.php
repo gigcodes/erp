@@ -67,6 +67,18 @@
 									<div class="form-group col-md-3 pd-3">
 											<input style="width:100%;" name="filter_product_sku" type="text" class="form-control" value="{{ isset($_REQUEST['filter_product_sku']) ? $_REQUEST['filter_product_sku'] : '' }}" placeholder="SKU">
 									</div>
+									<div class="form-group col-md-3 pd-3">
+                      <select name="filter_product_status" class="form-control">
+                          <option value="">Select status</option>
+
+                              @foreach ($dropdownList as $item)
+                                  
+                              <option value="{{ $item['status'] }}" {{ (isset($_REQUEST['filter_product_status']) &&( $_REQUEST['filter_product_status']==$item['status'] )) ? 'selected' : '' }}>{{ $item['status'] }}</option>
+                              @endforeach
+
+                      </select>
+                      
+									</div>
 									<div class="form-group col-md-1 pd-3">
 											<button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
 
