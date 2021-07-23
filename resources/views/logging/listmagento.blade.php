@@ -138,6 +138,7 @@
               <th style="width:5%">Failure</th>
               <th style="width:6%">User</th>
               <th style="width:6%">Time</th>
+              <th style="width:6%">Size</th>
               <th style="width:6%">Queue</th>
               <th style="width:8%">Action</th>
             </thead>
@@ -183,6 +184,7 @@
                   <td> {{$item->total_error}}</td>
                   <td>{{$item->log_user_name}}</td>
                   <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
+                  <td>@if(!empty($item->size_chart_url)) <a href="{{$item->size_chart_url}}" target="__blank">Yes</a> @else No @endif</td>
                   <td>@if($item->queue) #{{$item->queue_id}}({{$item->queue}}) @else - @endif</td>
                   <td style="display:flex;justify-content: space-between;align-items: center;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>

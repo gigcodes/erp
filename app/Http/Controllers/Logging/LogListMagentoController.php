@@ -76,7 +76,8 @@ class LogListMagentoController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logListMagentos->whereIn('categories.id', $request->category);
+            $categories = (new \App\Product)->matchedCategories($request->category);
+            $logListMagentos->whereIn('categories.id', $categories);
         }
 
 
