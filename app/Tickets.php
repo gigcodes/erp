@@ -6,8 +6,12 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+
 
 class Tickets extends Model {
+    use SoftDeletes;
 
          /**
      * @var string
