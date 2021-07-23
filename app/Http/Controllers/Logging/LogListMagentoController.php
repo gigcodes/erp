@@ -583,6 +583,8 @@ class LogListMagentoController extends Controller
 
         }
     }
+
+
     public function deleteMagentoApiData(Request $request)
     {
         if($request->days){
