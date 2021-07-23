@@ -51,7 +51,7 @@ class PushToMagento implements ShouldQueue
 
         try {
 
-            $jobId = app(JobRepository::class)->id;
+            //$jobId = app(JobRepository::class)->id;
 
             if ($this->log) {
                 $this->log->sync_status = "started_push";
