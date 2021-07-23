@@ -2450,7 +2450,7 @@ $metaData = '';
                     </div>
                     <div class="add_sop_div mt-3">
                         <tr>
-                            <select class="form-control knowledge_base " name="sop_knowledge_base" hidden>
+                            <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
                                 <option value="">Select</option>
                                 <option value="book">Book</option>
                                 <option value="chapter">Chapter</option>
