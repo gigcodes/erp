@@ -1508,4 +1508,35 @@ class Product extends Model
     {
         return str_replace(" ", ",", $this->title);
     }
+
+    public static function matchedCategories($categoies)
+    {
+        $category_children = [];
+
+        foreach ($categoies as $category) {
+            if($category == 1) {
+               continue;
+            }
+            $is_parent = Category::isParent($category);
+            if ($is_parent) {
+                $childs = Category::find($category)->childs()->get();
+                foreach ($childs as $child) {
+                    $is_parent = Category::isParent($child->id);
+                    if ($is_parent) {
+                        $children = Category::find($child->id)->childs()->get();
+                        foreach ($children as $chili) {
+                            array_push($category_children, $chili->id);
+                        }
+                    } else {
+                        array_push($category_children, $child->id);
+                    }
+                }
+            } else {
+                array_push($category_children, $category);
+            }
+        }
+
+        return $category_children;
+
+    }
 }

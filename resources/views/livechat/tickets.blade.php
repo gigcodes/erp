@@ -616,6 +616,34 @@
         });  
 
 </script>
-
+<script>
+    $(document).on("click","#softdeletedata",function() {
+        
+       var id = $(this).data("id"); 
+       
+       if(confirm('Do you really want to delete this record'))
+       {
+           $.ajax({
+               type: "POST",
+               url: "{{ url('tickets/delete_tickets/') }}",
+               data: {
+                   _token: "{{ csrf_token() }}",
+                   id:id,
+               },
+               beforeSend : function() {
+                   $("#loading-image").show();
+               }
+           }).done(function (response) {
+               toastr["success"](response.message);
+               $("#loading-image").hide();
+               location.reload();
+           
+           }).fail(function (response) {
+               $("#loading-image").hide();
+               
+           });
+       }
+   });
+</script>
 @endsection
 

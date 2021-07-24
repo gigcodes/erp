@@ -1680,11 +1680,6 @@ class ProductController extends Controller
     {
         try {
             //code...
-            $queueName = [
-                "1" => "mageone",
-                "2" => "magetwo",
-                "3" => "magethree"
-            ];
             // Get product by ID
             $product = Product::find($id);
             //check for hscode
@@ -1713,10 +1708,10 @@ class ProductController extends Controller
                                 \Log::info("Product started website found For website".$website->website);
                                 $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                                 //currently we have 3 queues assigned for this task.
-                                if($i > 3) {
-                                   $i = 1;
-                                }
-                                PushToMagento::dispatch($product,$website , $log)->onQueue($queueName[$i]);
+                                $log->sync_status = "waiting";
+                                $log->queue = \App\Helpers::createQueueName($website->title);
+                                $log->save();
+                                PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
                                 $i++;
                             }
                         }
@@ -4370,13 +4365,6 @@ class ProductController extends Controller
         ->limit(100)
         ->get();
 
-        $queueName = [
-            "1" => "mageone",
-            "2" => "magetwo",
-            "3" => "magethree"
-        ];
-
-
         foreach ($products as $key => $product) {
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if(!empty($websiteArrays)) {
@@ -4387,10 +4375,9 @@ class ProductController extends Controller
                         \Log::info("Product started website found For website".$website->website);
                         $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
                         //currently we have 3 queues assigned for this task.
-                        if($i > 3) {
-                           $i = 1;
-                        }
-                        PushToMagento::dispatch($product,$website, $log)->onQueue($queueName[$i]);
+                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->save();
+                        PushToMagento::dispatch($product,$website, $log)->onQueue($log->queue);
                         $i++;
                     }
                 }

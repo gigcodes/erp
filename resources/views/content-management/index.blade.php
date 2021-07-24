@@ -16,18 +16,36 @@
         .pd-3 {
             padding: 0px;
         }
+        .btn-secondary, .btn-secondary:hover {
+            color: #757575 !important;
+            border: 1px solid #ddd;
+            background: #fff;
+            padding: 6px 10px !important;
+        }
 
+        .btn-secondary a{
+            color : #757575 !important;
+        }
     </style>
 
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ $title }} <span class="count-text"></span></h2>
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
+            <h2 class="page-heading">{{ $title }} <span class="count-text"></span>
+            <div class="pull-right">
+                    <button style="display: inline-block;" class="btn btn-sm btn-image add-social-account btn-secondary">
+                        <img src="/images/add.png" style="cursor: default;">
+                    </button>
+                    <button class="btn btn-sm btn-secondary">
+                        <a href="/content-management/contents" style="color:white;">View Contents</a>
+                    </button>
+            </div>
+            </h2>
         </div>
         <br>
         @include("partials.flash_messages")
         <div class="col-lg-12 margin-tb">
-            <div class="row">
-                <div class="col col-md-10 d-flex">
+            <div class="row m-0">
+                <div class="col col-md-12 d-flex p-0">
                     <div class="h" style="margin-bottom:10px;">
                         <form class="form-inline message-search-handler" method="post">
                             <div class="row">
@@ -51,22 +69,11 @@
                             <span id="email_error" style="color:red;"></span>
                         </div>
                         <div>
-                            <button class="btn btn-secondary news_letter_email">Add Email</button>
+                            <button class="btn btn-secondary news_letter_email ml-3">Add Email</button>
                         </div>
                     </div>
                 </div>
-                <div class="col col-md-2">
-                    <div class="form-group col-md-2">
-                        <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image add-social-account">
-                            <img src="/images/add.png" style="cursor: default;">
-                        </button>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <button class="btn btn-sm btn-secondary">
-                            <a href="/content-management/contents" style="color:white;">View Contents</a>
-                        </button>
-                    </div>
-                </div>
+
             </div>
             <div>
                 <table class="table table-bordered" style="table-layout:fixed;">

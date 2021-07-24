@@ -402,6 +402,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/uploadlogo', 'BrandController@uploadlogo')->name('brand.uploadlogo');//Purpose : upload logo - DEVTASK-4278
     Route::post('brand/set_logo_with_brand', 'BrandController@set_logo_with_brand')->name('brand.set_logo_with_brand');//Purpose : upload logo with brand - DEVTASK-4278
     Route::post('brand/remove_logo', 'BrandController@remove_logo')->name('brand.remove_logo');//Purpose : remove logo - DEVTASK-4278
+    Route::post('brand/assign-default-value', 'BrandController@assignDefaultValue')->name('brand.assignDefaultValue');//Purpose : remove logo - DEVTASK-4278
 
     // For Brand size chart
     Route::get('brand/size/chart', 'BrandSizeChartController@index')->name('brand/size/chart');
@@ -1836,6 +1837,9 @@ Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('t
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
 Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
+Route::post('tickets/delete_tickets','LiveChatController@delete_tickets')->name('livetickets.delete');
+
+
 
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');

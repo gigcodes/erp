@@ -76,8 +76,12 @@ class LogListMagentoController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
+            $categories = (new \App\Product)->matchedCategories($request->category);
+            $logListMagentos->whereIn('categories.id', $categories);
         }
+
+
+
         // if (!empty($request->select_date)) {
         //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
         // }
@@ -96,6 +100,10 @@ class LogListMagentoController extends Controller
 
         if($request->user != null) {
             $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+        }
+
+        if($request->queue != null) {
+            $logListMagentos->where('log_list_magentos.queue', $request->queue);
         }
 
         // Get paginated result
@@ -548,11 +556,36 @@ class LogListMagentoController extends Controller
             $data['stock']                  = $product->stock;
             $data['estimated_minimum_days'] = $estimated_minimum_days;
             $data['estimated_maximum_days'] = $estimated_minimum_days + 7;
+
+            $category = [];
+            if($product->categories) {
+                $categories = $product->categories;
+                if($categories) {
+                    $category[] = $categories->title;
+                    $parent = $categories->parent;
+                    if($parent) {
+                        $category[] = $parent->title;
+                        $parent = $parent->parent;
+                        if($parent) {
+                            $category[] = $parent->title;
+                            $parent = $parent->parent; 
+                            if($parent) {
+                                $category[] = $parent->title;
+                            }
+                        }
+                    }
+                }
+
+            }    
+
+            $data['category']               = implode(" > ",$category);
             
             return view("logging.partials.product-information",compact('data'));
 
         }
     }
+
+
     public function deleteMagentoApiData(Request $request)
     {
         if($request->days){
@@ -605,14 +638,19 @@ class LogListMagentoController extends Controller
         }
 
         $products = $logListMagento->where(function($q) {
-            $q->where("sync_status","error");
+            $q->where("sync_status","error")->orWhereNull("queue_id");
         })->groupBy('store_website_id','product_id')->get();
 
 
         if(!$products->isEmpty()) {
             foreach($products as $product) {
                 if($product->product && $product->storeWebsite)  {
-                    PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue('failed_magento_job');
+                    if(empty($product->queue)) {
+                        $product->queue = \App\Helpers::createQueueName($product->storeWebsite->title);
+                    }
+                    $product->tried = $product->tried+1;
+                    $product->save();
+                    PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue($product->queue);
                 }
             }
         }

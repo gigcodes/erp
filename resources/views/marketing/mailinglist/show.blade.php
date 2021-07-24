@@ -171,6 +171,7 @@
                 </th>
                 <th style="">Manual Approval</th>
                 <th>Remarks</th>
+                <th>Created</th>
             </thead>
             <tbody>
             <tr>
@@ -181,6 +182,7 @@
                 <th></th>
                 <th>
                 </th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -232,6 +234,9 @@
                                 data-target="#makeRemarksModal" data-id="{{$value->id}}">
                             <img src="/images/remark.png" style="cursor: default; width: 16px;">
                         </button>
+                    </td>
+                    <td>
+                        {{$value["created_at"]}}
                     </td>
                 </tr>
             @endforeach

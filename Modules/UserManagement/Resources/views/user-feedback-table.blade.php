@@ -1,9 +1,11 @@
 @foreach ($category as $cat)
     @php
-        $latest_messages = App\ChatMessage::where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id',$cat->id)->orderBy('id','DESC')->first();
-        $latest_msg = $latest_messages->message;
-        if (strlen($latest_msg) > 20) {
-            $latest_msg = substr($latest_messages->message,0,20).'...';
+        $latest_messages = App\ChatMessage::where('user_feedback_id', $cat->user_id)->orderBy('id','DESC')->first();
+        if ($latest_messages) {
+            $latest_msg = $latest_messages->message;
+            if (strlen($latest_msg) > 20) {
+                $latest_msg = substr($latest_messages->message,0,20).'...';
+            }
         }
     @endphp
     <tr>
@@ -11,12 +13,20 @@
         <td class="communication-td">
             <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
             <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button></button>
-            <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>
+            @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
+                <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>
+            @else
+                <span class="latest_message"></span>
+            @endif
         </td>
         <td class="communication-td">
             <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
             <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button></button>
-            <span class="latest_message">@if (!$latest_messages->send_by) {{ $latest_msg }} @endif</span>
+            @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
+                <span class="latest_message">@if (!$latest_messages->send_by) {{ $latest_msg }} @endif</span>
+            @else
+                <span class="latest_message"></span>
+            @endif
         </td>
         <td>
             <select class="form-control user_feedback_status">

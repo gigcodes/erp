@@ -59,9 +59,13 @@
               <label for="sku">Brand</label>
               <input type="text" class="form-control" id="brand" name="brand" value="{{ old('brand')}}">
             </div>
+            @php
+              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
+            @endphp
             <div class="col-md-2">
-              <label for="sku">Category</label>
-              <input type="text" class="form-control" id="category" name="category" value="{{ old('category')}}">
+                <label for="sku">Category</label>
+                    {!! $category_suggestion !!}
+                </div>
             </div>
             <div class="col-md-2">
               <label for="sku">Status</label>
@@ -70,17 +74,19 @@
                 <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
                 <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
-
-                    </div>
-                    <div class="col-md-2">
-                        <label for="sku">Sync Status</label>
-                        <select class="form-control" name="sync_status">
-                            <option value=''>All</option>
-                            <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
-                            <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
-                        </select>
-
-                    </div>
+             </div>
+              <div class="col-md-2">
+                  <label for="sku">Sync Status</label>
+                  <select class="form-control" name="sync_status">
+                      <option value=''>All</option>
+                      <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
+                      <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
+                  </select>
+              </div>
+              <div class="col-md-2">
+                  <label for="queue">Queue List</label>
+                  <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
+              </div>
                 </div>
                 <div class="row p-3 ">
                   <div class="col-md-2">
@@ -132,6 +138,9 @@
               <th style="width:5%">Failure</th>
               <th style="width:6%">User</th>
               <th style="width:6%">Time</th>
+              <th style="width:6%">Size</th>
+              <th style="width:6%">Queue</th>
+              <th style="width:3%">Try</th>
               <th style="width:8%">Action</th>
             </thead>
             <tbody>
@@ -176,6 +185,9 @@
                   <td> {{$item->total_error}}</td>
                   <td>{{$item->log_user_name}}</td>
                   <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
+                  <td>@if(!empty($item->size_chart_url)) <a href="{{$item->size_chart_url}}" target="__blank">Yes</a> @else No @endif</td>
+                  <td>@if($item->queue) #{{$item->queue_id}}({{$item->queue}}) @else - @endif</td>
+                  <td>{{$item->tried}}</td>
                   <td style="display:flex;justify-content: space-between;align-items: center;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                     <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
@@ -432,7 +444,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary pull-left retry-failed-job-modal-btn">Retry</button>
+                <button type="submit" class="btn btn-primary pull-left btn-secondary retry-failed-job-modal-btn">Retry</button>
               </div>
             </form>
         </div>
@@ -634,6 +646,8 @@
           }
       });
   });
+
+  $(".select-multiple").select2({tags:true});
 
 </script>
 @if (Session::has('errors'))

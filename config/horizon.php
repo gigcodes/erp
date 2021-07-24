@@ -1,5 +1,29 @@
 <?php
 
+/*$webpushQueue = [
+    "sololuxury",
+    "lussolicious",
+    "suvnat",
+    "veralusso",
+    "avoirchic",
+    "farfetch",
+    "o_labels",
+    "brandslabels",
+    "luxuryspace",
+    "shadesshop",
+    "upeau",
+    "thefitedit",
+    "perfumeedit",
+    "luxuryunlimited",
+    "italybrandoutlets","demostore"
+];
+
+$mainQueue = [
+    'product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'
+];*/
+
+$allQueue = \App\Helpers::getQueueName();
+
 return [
 
     /*
@@ -103,12 +127,12 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'],
+                'queue' => $allQueue,
                 'balance' => 'auto',
-                'processes' => 12,
+                'processes' => count($allQueue),
                 'tries' => 1,
                 'minProcesses' => 1,
-                'maxProcesses' => 12,
+                'maxProcesses' => count($allQueue),
                 'memory' => 2048,
                 'timeout' => 600
             ],
@@ -117,12 +141,12 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'],
+                'queue' => $allQueue,
                 'balance' => 'auto',
-                'processes' => 12,
+                'processes' => count($allQueue),
                 'tries' => 1,
                 'minProcesses' => 1,
-                'maxProcesses' => 12,
+                'maxProcesses' => count($allQueue),
                 'memory' => 2048,
                 'timeout' => 600
             ]
