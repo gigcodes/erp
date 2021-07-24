@@ -784,6 +784,8 @@ $(document).on('click', '.send-message-open', function (event) {
         $(document).on('change', '.select2-for-user', function() {
             var user_id = $(this).val();
             var $this = $(this);
+            $('#sopDataPermissionForm')[0].reset();
+
             $(this).parents('.sop-data-permission-form').find('input[type="checkbox"]').removeAttr('checked');
             $(this).parents('.sop-data-permission-form').find('input[name="user_id"]').attr('value',user_id);
             if (!user_id) {
@@ -821,6 +823,7 @@ $(document).on('click', '.send-message-open', function (event) {
         $("#Sop-Permission-Modal").on("hidden.bs.modal", function (e) {
             $(".select2-selection__rendered").text('Select User');
             $('.sop-data-table').hide();
+            $('#sopDataPermissionForm')[0].reset();
         });
 
     </script>
