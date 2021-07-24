@@ -80,6 +80,12 @@ $metaData = '';
         .refresh-btn-start {
             color:  green
         }
+        .openmodel{
+            overflow: hidden;
+        }
+        .modal{
+            overflow-y: auto !important;
+        }
 
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -565,6 +571,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
+                                            <a class="dropdown-item" href="{{ route('list.magento.product-push-information') }}">Product information update </a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2436,15 +2443,15 @@ $metaData = '';
                 <td><input type="text" name="tags[0][name]" hidden></td>
                 <td><input type="text" name="tags[0][value]" hidden></td>
                 <div class="modal-body add_sop_modal">
-                    <div>
-                        <select class="form-control sop_drop_down">
+                    <div class="mb-3">
+                        <select class="form-control sop_drop_down ">
                             <option value="sop">Sop</option>
                             <option value="knowledge_base">Knowledge Base</option>
                         </select>
                     </div>
-                    <div class="add_sop_div">
+                    <div class="add_sop_div mt-3">
                         <tr>
-                            <select class="form-control knowledge_base mt-3" name="sop_knowledge_base" hidden>
+                            <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
                                 <option value="">Select</option>
                                 <option value="book">Book</option>
                                 <option value="chapter">Chapter</option>
@@ -2453,7 +2460,7 @@ $metaData = '';
                             </select>
                         </tr>
                         <tr>
-                            <select class="form-control knowledge_base_book mt-3" name="knowledge_base_book" hidden>
+                            <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>
                                 <option value="">Select Books</option>
                                 @php
                                     $books = Modules\BookStack\Entities\Book::get();
@@ -2464,10 +2471,9 @@ $metaData = '';
                             </select>
                             <span class="books_error" style="color:red;"></span>
                         </tr>
-                        <br>
                         <tr>
                             <td>Name:</td>
-                            <td><input type="text" name="name" class="form-control"></td>
+                            <td><input type="text" name="name" class="form-control mb-3"></td>
                         </tr>
                         <tr>
                             <td>Description:</td>
@@ -2534,6 +2540,16 @@ $metaData = '';
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
 
     <script>
+        // $('#chat-list-history').on('hidden.bs.modal', function (e) {
+        //     document.body.addClass('sasadasd')
+        // })
+        $(document).on('hidden.bs.modal', '#chat-list-history', function () {
+            $('body').removeClass('openmodel');
+        });
+        $(document).on('shown.bs.modal', '#chat-list-history', function () {
+            $('body').addClass('openmodel');
+        });
+
         $(document).on('change','.sop_drop_down',function(){
             var val = $(this).val();
             if ($(this).val() == "knowledge_base") {
