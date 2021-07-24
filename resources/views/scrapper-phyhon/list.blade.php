@@ -78,8 +78,8 @@
  <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
             <div class="">
 
                 <!--roletype-->
@@ -106,12 +106,12 @@
         <form method="get" action="{{route('scrapper.phyhon.index')}}">
 
      <div class="form-group">
-                        <div class="row">
+                        <div class="row m-0">
                             
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
                                 <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
                                <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
                                     <option value="">Select Website</option>
 
@@ -134,18 +134,19 @@
                                         </select>
                             </div>
 
-                             <div class="col-md-3">
+                             <div class="col-md-3 pr-0">
                                <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
                                     <option value="">Select Store</option>
 
                                    
                                         </select>
                             </div>
-                            <div class="col-md-1">
-                               <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+                            <div class="col-md-2">
+                               <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
+                                <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
+
                             </div>
                             <div class="col-md-1">
-                                <button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>    
                             </div>
                         </div>
 
@@ -154,20 +155,22 @@
 </form>
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
-            <table class="table table-bordered" style="table-layout:fixed;">
+            <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
                 <thead>
-                <th style="width:10%">Date</th>
-                <th style="width:20%">Id</th>
-                <th style="width:20%">Website</th>
-                <th style="width:45%">Name</th>
-                <th style="width:35%">Language</th>
-                <th style="width:30%">Action</th>
+                <th style="width:8%">Date</th>
+                <th style="width:5%">Id</th>
+                <th style="width:35%">Website</th>
+                <th style="width:20%">Name</th>
+                <th style="width:15%">Language</th>
+                <th style="width:17%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load')
                 </tbody>
             </table>
+
         </div>
+        {{ $websites->appends(request()->except('page'))->links() }}
     </div>
 
 

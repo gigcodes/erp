@@ -7,7 +7,22 @@ use App\Loggers\LogListMagento;
 use DataTables;
 use Illuminate\Http\Request;
 use seo2websites\MagentoHelper\MagentoHelperv2;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Input;
+use App\User;
 use App\StoreMagentoApiSearchProduct;
+use App\Imports\PushProductCsvImport;
+use App\ProductPushInformationHistory;
+use Illuminate\Support\Facades\Storage;
+use App\Setting;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
+use App\ProductPushInformation;
+
+
+use App\Jobs\PushToMagento;
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -75,8 +90,12 @@ class LogListMagentoController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
+            $categories = (new \App\Product)->matchedCategories($request->category);
+            $logListMagentos->whereIn('categories.id', $categories);
         }
+
+
+
         // if (!empty($request->select_date)) {
         //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
         // }
@@ -95,6 +114,10 @@ class LogListMagentoController extends Controller
 
         if($request->user != null) {
             $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+        }
+
+        if($request->queue != null) {
+            $logListMagentos->where('log_list_magentos.queue', $request->queue);
         }
 
         // Get paginated result
@@ -546,11 +569,122 @@ class LogListMagentoController extends Controller
             $data['stock']                  = $product->stock;
             $data['estimated_minimum_days'] = $estimated_minimum_days;
             $data['estimated_maximum_days'] = $estimated_minimum_days + 7;
+
+            $category = [];
+            if($product->categories) {
+                $categories = $product->categories;
+                if($categories) {
+                    $category[] = $categories->title;
+                    $parent = $categories->parent;
+                    if($parent) {
+                        $category[] = $parent->title;
+                        $parent = $parent->parent;
+                        if($parent) {
+                            $category[] = $parent->title;
+                            $parent = $parent->parent; 
+                            if($parent) {
+                                $category[] = $parent->title;
+                            }
+                        }
+                    }
+                }
+
+            }    
+
+            $data['category']               = implode(" > ",$category);
             
             return view("logging.partials.product-information",compact('data'));
 
         }
     }
+
+    public function productPushInformation(Request $request)
+    {
+
+
+        // $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
+        //     ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
+        //     ->join('brands', 'products.brand', '=', 'brands.id')
+        //     ->join('categories', 'products.category', '=', 'categories.id')
+        //     ->join('product_push_informations', 'product_push_informations.product_id', '=', 'products.id')
+        //     ->orderBy('log_list_magentos.id', 'DESC');
+
+        $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
+        
+
+        if(!empty($request->filter_product_id)){
+            $logListMagentos->where('product_id','LIKE','%'.$request->filter_product_id .  '%');
+        }
+
+        if(!empty($request->filter_product_sku)){
+            $logListMagentos->where('sku','LIKE','%'.$request->filter_product_sku. '%');
+        }
+
+        if(isset($request->filter_product_status)){
+            $logListMagentos->where('status','LIKE','%'.$request->filter_product_status.'%');
+        }
+        //status list 
+        $logListMagentos  =  $logListMagentos->paginate(Setting::get('pagination'));
+        $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
+        $total_count = ProductPushInformation::get()->count();
+
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList'));
+           
+
+    }
+
+    public function updateProductPushInformation(Request $request)
+    {
+        $row = 0;
+        $arr_id = [];
+        $is_file_exists = null;
+
+            // $file_url =public_path('60f89208edcc4_product.csv');
+        $file_url =  $request->website_url;
+        
+        $client   = new Client();
+
+        try {
+
+            // $response = $client->get($url);
+            $promise = $client->request('GET', $file_url);
+            $is_file_exists = true;
+        } catch (ClientException $e) {
+            return response()->json(['error'=>'file not exists']);
+        }
+
+
+        if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+          while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+          	$row++;
+          	if ($row > 1) {
+                // dd($data);
+              $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
+                    'product_id'=> $data[0],
+                    'sku'=>$data[1] ,
+                    'status'=> $data[2],
+                    'quantity'=>$data[3] ,
+                    'stock_status'=> $data[4],
+                ]);
+                $arr_id[] = $updated->product_id;
+          	}
+          }
+          fclose($handle);
+        }
+
+        ProductPushInformation::whereNotIn('product_id',$arr_id)->delete();
+
+    }
+
+
+    public function productPushHistories(Request $request,$product_id)
+    {
+        $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->latest()->get();
+        return response()->json($history);
+
+    }
+
+
     public function deleteMagentoApiData(Request $request)
     {
         if($request->days){
@@ -575,4 +709,52 @@ class LogListMagentoController extends Controller
         $data->delete();
         return response()->json(['status' => true]);
     }
+
+
+    public function retryFailedJob(Request $request)
+    {
+        $logListMagento = \App\Loggers\LogListMagento::query();
+
+        if(empty($request->start_date) && empty($request->start_date)) {
+            return response()->json(["code" => 500, "message" => "Please select start date and end date for valid result"]);
+        }
+
+
+        if($request->start_date != null) {
+            $logListMagento->whereDate("created_at",">=",$request->start_date);
+        }
+
+        if($request->end_date != null) {
+            $logListMagento->whereDate("created_at","<=",$request->end_date);
+        }
+
+        if($request->store_website_id != null) {
+            $logListMagento->where("store_website_id",$request->store_website_id);
+        }
+
+        if($request->keyword != null) {
+            $logListMagento->where("product_id",$request->keyword);
+        }
+
+        $products = $logListMagento->where(function($q) {
+            $q->where("sync_status","error")->orWhereNull("queue_id");
+        })->groupBy('store_website_id','product_id')->get();
+
+
+        if(!$products->isEmpty()) {
+            foreach($products as $product) {
+                if($product->product && $product->storeWebsite)  {
+                    if(empty($product->queue)) {
+                        $product->queue = \App\Helpers::createQueueName($product->storeWebsite->title);
+                    }
+                    $product->tried = $product->tried+1;
+                    $product->save();
+                    PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue($product->queue);
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Total Request found :" .$products->count()]);
+    }
 }
+
