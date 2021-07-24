@@ -38,7 +38,7 @@ class addWebsiteLangGroup extends Command
      */
     public function handle()
     {
-        $websiteStoreViews = WebsiteStoreView::get();
+        $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
         foreach($websiteStoreViews as $v){
             dump($v->name . '_' . $v->code);
 
@@ -70,6 +70,14 @@ class addWebsiteLangGroup extends Command
                 }
             } 
         }
-        
+
+        $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
+        foreach($websiteStoreViews as $key => $v){
+            $ref_websiteStoreView = WebsiteStoreView::where('name', $v->name)->where('code', $v->code)->first();
+            if($ref_websiteStoreView){
+                WebsiteStoreView::where('id', $v->id)->update(['store_group_id' => $ref_websiteStoreView->store_group_id]);
+                dump($v->id . ' is updated');
+            }
+        }
     }
 }
