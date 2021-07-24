@@ -1,4 +1,7 @@
-@foreach ($scraper_process as $key => $sp)
+@php
+    $key = 0;
+@endphp
+@foreach ($scraper_process as $sp)
     <tr>
         <td>{{ ++$key }}</td>
         <td>{{ $sp->scraper_name }}</td>
