@@ -46,6 +46,7 @@ use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
+use App\UserRate;
 
 class DevelopmentController extends Controller
 {
@@ -2220,8 +2221,9 @@ class DevelopmentController extends Controller
                         $payment_receipt->save();
                     }
                 }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
-                    if($dev_task_user->hourly_rate){
-                        $rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
+                    $userRate = UserRate::getRateForUser($dev_task_user->id);
+                    if($userRate && $userRate->hourly_rate !== null){
+                        $rate_estimated = ($issue->estimate_minutes ?? 0) * ($userRate->hourly_rate ?? 0) / 60;
                     }else{
                         return response()->json([
                             'message'	=> 'Please provide hourly rate of user.'
