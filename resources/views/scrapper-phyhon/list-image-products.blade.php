@@ -387,15 +387,15 @@
         var weblanguage = $('#web_language').find(":selected").val();
         var webdevice = $('#web_device').find(":selected").val();
 
-        if(website == '' && webstore != '' && weblanguage != ''){
+        if(website == '' ){
              toastr['error']('Please Select Website');
              return false;
         }
-        else if(webstore == '' && website != '' && weblanguage != ''){
+        else if(webstore == ''){
             toastr['error']('Please Select Store');
              return false;
         }
-        else if(weblanguage == '' && website != '' && webstore != ''){
+        else if(weblanguage == ''){
             toastr['error']('Please Select Language');
              return false;
         }
