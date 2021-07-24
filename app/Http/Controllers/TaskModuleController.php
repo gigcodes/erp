@@ -36,6 +36,7 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
+use App\UserRate;
 
 class TaskModuleController extends Controller {
 
@@ -2854,8 +2855,9 @@ class TaskModuleController extends Controller {
 						}
                         $rate_estimated = $task->cost ?? 0;
                     }else if($task_user_for_payment->fixed_price_user_or_job == 2){
-						if($task_user_for_payment->hourly_rate){
-							$rate_estimated = $task->approximate * ($task_user_for_payment->hourly_rate ?? 0) / 60;
+						$userRate = UserRate::getRateForUser($task_user_for_payment->id);
+						if($userRate && $userRate->hourly_rate !== null){
+							$rate_estimated = $task->approximate * ($userRate->hourly_rate ?? 0) / 60;
 						}else{
 							return response()->json([
 								'message'	=> 'Please provide hourly rate of user.'
