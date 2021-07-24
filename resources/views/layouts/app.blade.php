@@ -571,6 +571,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
+                                            <a class="dropdown-item" href="{{ route('list.magento.product-push-information') }}">Product information update </a>
                                         </li>
                                     </ul>
                                 </li>
