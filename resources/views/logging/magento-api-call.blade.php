@@ -43,7 +43,7 @@
   <div class="row m-0" style="margin-bottom: 10px; margin: 10px">
     <div class="col-lg-12 margin-tb">
        <input type="text" placeholder="Enter the limit of product" name="product_limit" class="form-control col-md-4 product-limit-text">
-       <input type="text" placeholder="Enter the limit of product" name="product_name" class="form-control col-md-4 product-name-text ml-3">
+       <input type="text" placeholder="Search Here" name="product_name" class="form-control col-md-4 product-name-text ml-3">
        <button class="btn btn-secondary check-latest-product ml-2">Check latest product</button>
        <div class="pull-right">
         <div class="dropdown">
