@@ -70,6 +70,8 @@
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#automationForm">Automation Form</a>
+
             </div>
             <div class="pull-right">
               <select class="form-control global" id="platform">
@@ -146,8 +148,8 @@
         </tbody>
       </table>
     </div>
-
 @include('marketing.accounts.partials.add-modal')
+@include('marketing.accounts.partials.automation-form')
 @include('marketing.accounts.partials.multiple-image')
 @include('marketing.accounts.partials.account-history')
 

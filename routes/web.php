@@ -2505,6 +2505,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-queue/{id}', 'InstagramConfigController@queue')->name('instagram.config.queue');
     Route::post('instagram-queue/delete', 'InstagramConfigController@destroyQueue')->name('instagram.config.delete_queue');
     Route::post('instagram-queue/delete_all/', 'InstagramConfigController@destroyQueueAll')->name('instagram.config.delete_all');
+    Route::post('instagram-automation', 'AccountController@automation')->name('automation.form.store');
 
     //Social Config
     Route::get('accounts/{type?}', 'AccountController@index')->name('accounts.index');
