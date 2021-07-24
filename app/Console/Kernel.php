@@ -627,6 +627,8 @@ class Kernel extends ConsoleKernel
         $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
+        //Instagram automation command
+        $schedule->command('InstaAutoFeedDaily')->daily();
     }
 
     /**
