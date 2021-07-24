@@ -46,6 +46,7 @@ use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
+use App\UserRate;
 
 class DevelopmentController extends Controller
 {
@@ -2169,7 +2170,7 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
-        
+       
         $issue = DeveloperTask::find($request->get('issue_id'));
         if($issue->is_resolved == 1) {
             return response()->json([
@@ -2181,8 +2182,27 @@ class DevelopmentController extends Controller
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
-                $dev_task_user = User::find($issue->team_lead_id !== null ? $issue->team_lead_id : $issue->assigned_to);
-                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) {
+                if(!$assigned_to){
+                    return response()->json([
+                        'message'	=> 'Please assign the task.'
+                    ],500);
+                }
+                $team_user = \DB::table('team_user')->where('user_id', $issue->assigned_to)->first();
+                if($team_user){
+                    $team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
+                    if($team_lead){
+                        $dev_task_user = User::find($team_lead->user_id); 
+                    }
+                } 
+                if(empty($dev_task_user)){
+                    $dev_task_user = $assigned_to;
+                } 
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) { 
                     // Fixed price task.
                     if($issue->cost == null) {
                         return response()->json([
@@ -2201,10 +2221,30 @@ class DevelopmentController extends Controller
                         $payment_receipt->save();
                     }
                 }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
+                    $userRate = UserRate::getRateForUser($dev_task_user->id);
+                    if($userRate && $userRate->hourly_rate !== null){
+                        if($issue->estimate_minutes){
+                            if($issue->ApprovedDeveloperTaskHistory){
+                                $rate_estimated = ($issue->estimate_minutes) * ($userRate->hourly_rate) / 60;
+                            }else{
+                                return response()->json([
+                                    'message'   => 'Estimated time is not approved.'
+                                ],500);
+                            }
+                        }else{
+                            return response()->json([
+                                'message'   => 'Estimated time is not exist.'
+                            ],500);
+                        }
+                    }else{
+                        return response()->json([
+                            'message'   => 'Please provide hourly rate of user.'
+                        ],500);
+                    }  
                     $payment_receipt = new PaymentReceipt;
                     $payment_receipt->date = date( 'Y-m-d' );
                     $payment_receipt->worked_minutes = $issue->estimate_minutes;
-                    $payment_receipt->rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
+                    $payment_receipt->rate_estimated = $rate_estimated;
                     $payment_receipt->status = 'Pending';
                     $payment_receipt->developer_task_id = $issue->id;
                     $payment_receipt->user_id = $dev_task_user->id;

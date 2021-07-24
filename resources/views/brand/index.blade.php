@@ -75,6 +75,15 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </form>
         </div>
 
+        <div class="form-inline ml-5 pl-5">
+            <form>
+                <div class="form-group">
+                    <input type="text" value="{{ request('default_value') }}" name="default_value" id="default_value_segment" class="form-control" placeholder="Setup Default value for segment">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-assign-default-val ml-3">Assign</button>
+            </form>
+        </div>
+
         <div id="result-container">
 
         </div>
@@ -266,6 +275,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             @endforeach
         </table>
     </div>
+</div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
 </div>
 
 <div id="ActivitiesModal" class="modal fade" role="dialog">
@@ -634,6 +645,32 @@ $('.select2-selection__clear').remove()
             placeholder: " abc xyz"
         });
     })
+
+    $(document).on("click",".btn-assign-default-val",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            method : "POST",
+            url: "/brand/assign-default-value",
+            data: {
+                _token: "{{ csrf_token() }}",
+                value: $("#default_value_segment").val()
+            },
+            dataType: "json",
+            beforeSend : function(){
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                if(response.code == 200) {
+                    toastr["success"]("Default value assigned!", "Message")
+                    location.reload();
+                }else{
+                    toastr["error"](response.message, "Message");
+                }
+            }
+        });
+    });
  
 </script>
 @endsection

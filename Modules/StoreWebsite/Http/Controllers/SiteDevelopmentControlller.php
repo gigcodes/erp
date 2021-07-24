@@ -476,4 +476,33 @@ class SiteDevelopmentController extends Controller
 		}
 
 	}
+    public function adminRemarkFlag(Request $request)
+    {
+        $remarks =  \App\StoreDevelopmentRemark::find($request->remark_id);
+
+        if ($remarks->admin_flagged == 0) {
+            $remarks->admin_flagged = 1;
+        } else {
+            $remarks->admin_flagged = 0;
+        }
+
+        $remarks->save();
+
+        return response()->json(['admin_flagged' => $remarks->admin_flagged]);
+    }
+
+    public function userRemarkFlag(Request $request)
+    {
+        $remarks_user =  \App\StoreDevelopmentRemark::find($request->remark_id);
+
+        if ($remarks_user->user_flagged == 0) {
+            $remarks_user->user_flagged = 1;
+        } else {
+            $remarks_user->user_flagged = 0;
+        }
+
+        $remarks_user->save();
+
+        return response()->json(['user_flagged' => $remarks_user->user_flagged]);
+    }
 }

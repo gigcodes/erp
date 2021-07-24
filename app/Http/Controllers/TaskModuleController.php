@@ -36,6 +36,7 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
+use App\UserRate;
 
 class TaskModuleController extends Controller {
 
@@ -2821,22 +2822,64 @@ class TaskModuleController extends Controller {
 
    	    	$task->save();
 
-			$task_user = User::find($task->assign_to);
-            if(!empty($task_user)){
-				PaymentReceipt::create([
-					'status'            => 'Pending',
-					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
-					'date'              => date('Y-m-d'),
-					'currency'          => '',
-					'user_id'           => $task_user->id,
-					'by_command'        => 4,
-					'task_id'           => $task->id,
-				]);
-            }
+			if($task->status == 1){
+				
+				$task_user = User::find($task->assign_to);
+				if(!$task_user){
+					return response()->json([
+						'message'	=> 'Please assign the task.'
+					],500);
+				}
+				$team_user = \DB::table('team_user')->where('user_id', $task->assign_to)->first();
+				if($team_user){
+					$team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
+					if($team_lead){
+						$task_user_for_payment = User::find($team_lead->user_id); 
+					}
+				} 
+				if(empty($task_user_for_payment)){
+					$task_user_for_payment = $task_user;
+				} 
+				// dd($task_user_for_payment);
+                if($task_user_for_payment->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
+				if(!empty($task_user_for_payment)){
+                    if($task_user_for_payment->fixed_price_user_or_job == 1){
+						if($task->cost == null) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+                        $rate_estimated = $task->cost ?? 0;
+                    }else if($task_user_for_payment->fixed_price_user_or_job == 2){
+						$userRate = UserRate::getRateForUser($task_user_for_payment->id);
+						if($userRate && $userRate->hourly_rate !== null){
+							$rate_estimated = $task->approximate * ($userRate->hourly_rate ?? 0) / 60;
+						}else{
+							return response()->json([
+								'message'	=> 'Please provide hourly rate of user.'
+							],500);
+						}
+                    }
+					PaymentReceipt::create([
+						'status'            => 'Pending',
+						'rate_estimated'    => $rate_estimated,
+						'date'              => date('Y-m-d'),
+						'currency'          => '',
+						'user_id'           => $task_user_for_payment->id,
+						'by_command'        => 4,
+						'task_id'           => $task->id,
+					]);
+				} 
+				
+			}
 
-   	    	return response()->json([
-                'status' => 'success', 'message' =>'The task status updated.'
-            ],200);
+			return response()->json([
+				'status' => 'success', 'message' =>'The task status updated.'
+			],200);
 
 
    	    	
