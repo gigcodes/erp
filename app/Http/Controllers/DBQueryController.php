@@ -119,7 +119,7 @@ class DBQueryController extends Controller
             if(strpos($key, 'where_') !== false && $val !== null){
                 $key = str_replace('where_', '', $key);
                 $sql_query .= $where_query_exist ? ' AND ' : '';
-                $sql_query .= $key . ' = ' . $request->criteriaColumnOperators["'".$key."'"] . ' "' . $val . '"';
+                $sql_query .= $key . ' ' . $request->criteriaColumnOperators["'".$key."'"] . ' "' . $val . '"';
                 $where_query_exist = 1;
             }
         }
