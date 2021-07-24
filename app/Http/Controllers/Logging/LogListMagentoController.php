@@ -76,7 +76,8 @@ class LogListMagentoController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logListMagentos->whereIn('categories.id', $request->category);
+            $categories = (new \App\Product)->matchedCategories($request->category);
+            $logListMagentos->whereIn('categories.id', $categories);
         }
 
 
@@ -582,6 +583,8 @@ class LogListMagentoController extends Controller
 
         }
     }
+
+
     public function deleteMagentoApiData(Request $request)
     {
         if($request->days){
@@ -643,8 +646,9 @@ class LogListMagentoController extends Controller
                 if($product->product && $product->storeWebsite)  {
                     if(empty($product->queue)) {
                         $product->queue = \App\Helpers::createQueueName($product->storeWebsite->title);
-                        $product->save();
                     }
+                    $product->tried = $product->tried+1;
+                    $product->save();
                     PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue($product->queue);
                 }
             }

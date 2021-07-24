@@ -141,6 +141,7 @@ use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
+use App\Console\Commands\AddGroupTheme;
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -278,7 +279,8 @@ class Kernel extends ConsoleKernel
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
         RemoveScrapperImages::class,
-        ChangeTesterBasedOnTeamLead::class
+        ChangeTesterBasedOnTeamLead::class,
+        AddGroupTheme::class
     ];
 
     /**

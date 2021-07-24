@@ -3,8 +3,8 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="2%"></th>
-		      	<th width="2%">User</th>
+			  <th width="2%"></th>
+		      	<th width=13%">User</th>
 		        <th width="10%">Start Date</th>
 		        <th width="5%">Daily Availble hr</th>
 		        <th width="5%">Total Working hr</th>
@@ -13,7 +13,7 @@
 		        <th width="2%">Actual Percentage</th>
 		        <th width="10%">Reason</th>
 		        <th width="10%">Status</th>
-		        <th width="20%">Communnication</th>
+		        <th width="21%">Communnication</th>
 		        <th width="10%">Action</th>
 		      </tr>
 		    </thead>
@@ -43,10 +43,10 @@
 						<span class="td-mini-container message-chat-txt" id="message-chat-txt-{{:prop.user_id}}">{{:prop.latest_message}}</span>
 					</td>
 			        <td>
-					<button type="button" data-id="{{>prop.user_id}}" class="btn btn-edit-reason">
+					<button type="button" data-id="{{>prop.user_id}}" class="btn btn-xs btn-edit-reason">
 			        	<i class="fa fa-comment"></i>
 			        </button>
-					<button type="button" data-id="{{>prop.user_id}}" class="btn btn-change-status">
+					<button type="button" data-id="{{>prop.user_id}}" class="btn btn-xs btn-change-status">
 			        	<i class="fa fa-edit"></i>
 			        </button>
 					</td>

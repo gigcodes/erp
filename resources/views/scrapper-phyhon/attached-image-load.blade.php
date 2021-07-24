@@ -98,11 +98,11 @@
     </tr>
 
 @endforeach
-<tr>
-    <td colspan="4">
-        {{ $websites->appends(request()->except('page'))->links() }}
-    </td>
-</tr>
+{{--<tr>--}}
+{{--    <td colspan="4">--}}
+{{--        {{ $websites->appends(request()->except('page'))->links() }}--}}
+{{--    </td>--}}
+{{--</tr>--}}
 
 <!-- Modal -->
 <div class="modal fade" id="scrapper-python-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

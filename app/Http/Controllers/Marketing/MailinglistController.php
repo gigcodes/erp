@@ -264,10 +264,10 @@ class MailinglistController extends Controller
             $customers = $customers->where( 'store_website_id', $request->store_id );
         }
 
-        $customers = $customers->select('email', 'id', 'name', 'do_not_disturb','source')->paginate(20);
+        $customers = $customers->select('email', 'id', 'name', 'do_not_disturb','source','created_at')->paginate(20);
         $list = Mailinglist::where('remote_id', $id)->with('listCustomers')->first();
 
-        $contacts = $list->listCustomers->pluck('id')->toArray();
+        $contacts = ($list) ? $list->listCustomers->pluck('id')->toArray() : [];
 
         $countDNDCustomers = Customer::where('do_not_disturb', '1')->count();
 
