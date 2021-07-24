@@ -229,7 +229,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {
-    
+
+    Route::post('remark/user_flag', 'SiteDevelopmentController@userRemarkFlag')->name('remark.flag.user');
+    Route::post('remark/admin_flag', 'SiteDevelopmentController@adminRemarkFlag')->name('remark.flag.admin');
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
