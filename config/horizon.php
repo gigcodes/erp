@@ -132,7 +132,7 @@ return [
                 'processes' => count($allQueue),
                 'tries' => 1,
                 'minProcesses' => 1,
-                'maxProcesses' => count($allQueue),
+                'maxProcesses' => count($allQueue) * 2,
                 'memory' => 2048,
                 'timeout' => 600
             ],
@@ -146,7 +146,7 @@ return [
                 'processes' => count($allQueue),
                 'tries' => 1,
                 'minProcesses' => 1,
-                'maxProcesses' => count($allQueue),
+                'maxProcesses' => count($allQueue) * 2,
                 'memory' => 2048,
                 'timeout' => 600
             ]

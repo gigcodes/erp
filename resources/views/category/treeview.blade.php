@@ -42,8 +42,6 @@
         </form>
 
 
-
-
         {{-- <!-- Add category modal --> --}}
         <div class="modal fade" id="category-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
@@ -129,7 +127,7 @@
         </div>
 
     
-        <div class="col-md-12 margin-tb">
+        <div class="col-md-12">
             @if ($message = Session::get('error-remove'))
                 <div class="alert alert-danger alert-block py-1">
                     <button type="button" class="close" data-dismiss="alert">×</button>

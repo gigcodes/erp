@@ -110,6 +110,9 @@
                   data-id="{{$ticket->id}}">
                 <i class="fa fa-comments-o"></i>
             </button>
+
+            <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
+                <img width="15px" ml="5" src="/images/delete.png" style="margin-left:-12px;"></button>
           
         </div>
     </td>

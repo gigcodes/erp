@@ -98,6 +98,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
     Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
+    Route::post('list-magento/product-push-update-infomation', 'Logging\LogListMagentoController@updateProductPushInformation')->name('update.magento.product-push-information');    
+
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
@@ -108,7 +110,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
-
+    Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');    
+    Route::get('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
+    
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
 
@@ -1837,6 +1841,9 @@ Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('t
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
 Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
+Route::post('tickets/delete_tickets','LiveChatController@delete_tickets')->name('livetickets.delete');
+
+
 
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
@@ -3163,6 +3170,9 @@ Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@his
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
+Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
+Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
+Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_duty');
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
