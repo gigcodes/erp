@@ -34,7 +34,7 @@
         .cropper{
             padding: 30px;
             border: 1px solid;
-            margin: 10px;
+            /*margin: 10px;*/
             background: #f1f1f1;
         }
         .btn-secondary{
@@ -60,9 +60,12 @@
         }
         #crop-image {
             top: 200px;
-            bottom: 0;
+            bottom: 50px;
             height: auto;
             overflow: auto;
+        }
+        #cropImageSend{
+            text-align: center;
         }
 
     </style>
@@ -79,7 +82,7 @@
 
                 {{ csrf_field() }}
                 <div class="col text-center">
-                    <select name="type" id="crop-type" class="form-control">
+                    <select name="type" id="crop-type" class="form-control mb-3 mt-2">
                         <option value="0">Select Crop Type</option>
                         <option value="8">8</option>
                     </select>
