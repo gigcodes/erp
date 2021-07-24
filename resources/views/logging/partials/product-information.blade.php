@@ -1,6 +1,6 @@
 <tr>
     <td>{{ $data['sku'] }}</td>
-    <td>{{ $data['description'] }}</td>
+    <td>{{ $data['description'] }}<br><b>Category:</b>{{ $data['category'] }}</td>
     <td>{{ $data['name'] }}</td>
     <td>{{ $data['price'] }}</td>
     <td>{{ $data['composition'] }}</td>

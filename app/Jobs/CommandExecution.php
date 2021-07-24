@@ -29,6 +29,7 @@ class CommandExecution implements ShouldQueue
 
     public function handle()
     {
+        dump($this->command_name . ' : command is started...');
         $compare = Process::fromShellCommandline('php artisan '.$this->command_name, base_path());
         $compare->run();
         $match = $compare->getOutput();
@@ -47,7 +48,7 @@ class CommandExecution implements ShouldQueue
             $message = "Command ".$this->command_name." Excution Complete.";
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
         }
-
+        dump($this->command_name . ' : job has been completed...');
         return true;
        
     }
