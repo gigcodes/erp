@@ -36,6 +36,11 @@
     }
     #quick-chatbox-window-modal .card-header {
         padding: 0.5rem 1.25rem;
+        border-bottom: 1px solid #ddd !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered
+    {
+        text-align: left;
     }
     .msg_time {
         font-size: 9px;
@@ -75,6 +80,7 @@
     }
     .selectedValue{
         flex-grow: 1;
+        text-align: right;
     }
     #autoTranslate{
         width: 220px !important;
@@ -100,12 +106,17 @@
     }
     .video_cam{
         margin-left: 0;
+        display: flex;
+        align-items: center;
     }
     .video_cam i{
         color: #757575;
     }
     .video_cam span{
         margin-right: 10px;
+    }
+    .selectedValue select.globalSelect2 + span.select2{
+         width: 200px !important;
     }
 </style>
 <div id="quick-chatbox-window-modal" class="modal fade" role="dialog">
@@ -180,7 +191,7 @@
                                         $language = json_decode($content, true);
                                     @endphp
                                     <div class="selectedValue">
-                                         <select id="autoTranslate" class="form-control auto-translate">
+                                         <select id="autoTranslate" class="form-control auto-translate globalSelect2">
                                             <option value="">Translation Language</option>
                                             @foreach ($language as $key => $value)
                                                 <option value="{{$value}}">{{$key}}</option>
@@ -276,7 +287,7 @@
                             @php
                             $all_categories = \App\ReplyCategory::all();
                             @endphp
-                            <select class="form-control" id="keyword_category">
+                            <select class="form-control globalSelect2" id="keyword_category">
                                 <option value="">Select Category</option>
                                 @if(isset($all_categories))
                                     @foreach ($all_categories as $category)
@@ -290,7 +301,7 @@
                             <button class="btn btn-secondary quick_comment_add_live">+</button>
                         </div>
                         <div class="chat-rightbox mt-4">
-                            <select class="form-control" id="live_quick_replies">
+                            <select class="form-control globalSelect2" id="live_quick_replies">
                                 <option value="">Quick Reply</option>
                             </select>
                         </div>
