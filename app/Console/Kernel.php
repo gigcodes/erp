@@ -587,6 +587,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ScrapApi:LogCommand')->hourly();
         $schedule->command('HubstuffActivity:Command')->daily();
+        $schedule->command('Magento-Product:Api')->cron('0 */3 * * *');
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
