@@ -311,6 +311,18 @@
 							<option value="4">Developer Task</option>
 						</select>
 					</div>
+
+					<div class="form-group">
+                        <label for="repository_id">Repository:</label>
+                        <br>
+                        <select style="width:100%" class="form-control 	" id="repository_id" name="repository_id">
+                        	<option value="">-- select repository --</option>
+                            @foreach (\App\Github\GithubRepository::all() as $repository)
+                                <option value="{{ $repository->id }}">{{ $repository->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
 					<div class="form-group">
 						<label for="">Details</label>
 						<input class="form-control text-task-development" type="text" name="task_detail" />
