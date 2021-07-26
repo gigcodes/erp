@@ -127,6 +127,15 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+		                    <strong>Date Range  </strong>
+		                    <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+		                    <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+		                    <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+		                        <i class="fa fa-calendar"></i>&nbsp;
+		                        <span></span> <i class="fa fa-caret-down"></i>
+		                    </div>
+		                </div>
                         <table id="" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%"
                             style="table-layout:fixed;">
                             <thead>
@@ -214,18 +223,83 @@
 
 
         @include("magento-product-error.templates.list-template")
-
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
         <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
         <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
         <script src="{{ asset('/js/jquery-ui.js') }}"></script>
         <script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
         <script type="text/javascript" src="{{ asset('/js/magento-product-error.js') }}"></script>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
         <script type="text/javascript">
             page.init({
                 bodyView: $("#common-page-layout"),
                 baseUrl: "<?php echo url('/'); ?>"
             });
+            
+                let r_s = "";
+                let r_e = "";
+        
+                let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+                let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+        
+                jQuery('input[name="range_start"]').val();
+                jQuery('input[name="range_end"]').val();
+        
+                function cb(start, end) {
+                    $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                }
+        
+                $('#filter_date_range_').daterangepicker({
+                    startDate: start,
+                    maxYear: 1,
+                    endDate: end,
+                    //parentEl: '#filter_date_range_',
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    }
+                }, cb);
+        
+                cb(start, end);
+        
+                $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+                    
+                let startDate=   jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+                let endDate =    jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+                    $.ajax({
+                    type: 'GET',
+                    url: "{{ route('magento_product_today_common_err_report') }}" + '?startDate=' + jQuery('input[name="range_start"]').val()+ '&&endDate='+ jQuery('input[name="range_end"]').val() ,
+                    dataType: "json",
+                    success: function(response) {
+
+                        if (response.code == 200) {
+                            var html_content = '';
+                            $.each(response.data, function(key, value) {
+
+                                html_content += '<tr>';
+                                html_content += '<td>' + value.count + '</td>';
+                                html_content += '<td>' + value.message + '</td>';
+                                html_content += '</tr>';
+                            });
+
+                            $('.table_data').html(html_content);
+
+                            $('#today_common_error_report_modal').modal('show');
+                        }
+
+                        },
+                        error: function() {
+                            toastr['error']('Could not change module!');
+                        }
+                  });
+
+                });
 
             //START - Purpose : Get data - DEVTASK-20123
             $(document).on('click', '.view_today_common_errors_report', function(e) {

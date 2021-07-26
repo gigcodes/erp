@@ -128,7 +128,7 @@
                 <div class="col-md-2">
                     <select class="form-control select-multiple" id="web_device" tabindex="-1" aria-hidden="true" name="device">
                         <option value="">Select Device</option>
-                        
+
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "desktop" ? 'selected' :'' ) }} value="desktop">Desktop</option>
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "mobile" ? 'selected' :'' ) }} value="mobile">Mobile</option>
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "tablet" ? 'selected' :'' ) }} value="tablet">Tablet</option>
@@ -229,14 +229,16 @@
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script>
+    var i=1;
     $(document).ready(function() { 
         $("#scrolltime").val('2');
+        setTimeout(() => {
         callinterval();
+        }, 0);
         showStores();
         showLanguages();
     });
 
-    var i=1;
     var scroll = true;
         var old_product;
         function start_scroll_down() { 
@@ -277,7 +279,7 @@
         if(i == 1)
         {
             $("html, body").animate({
-            scrollTop: $(".infinite-scroll-data div").eq(i).offset().top
+            scrollTop: $(".infinite-scroll-data div").eq(1).offset().top
             }, 300).delay(300); 
             i+=1;
         }else{
@@ -286,7 +288,7 @@
             }, 500).delay(500); 
             i+=1;
         }
-        
+
         stop = setInterval(function(){ console.log("Running");start_scroll_down() }, $("#scrolltime").val()*1000);
     }
 
@@ -366,7 +368,7 @@
                         selected='selected'
                     }
 
-                    $('[name="language"]').append('<option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+                    $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
 
                     })
                     
@@ -385,15 +387,15 @@
         var weblanguage = $('#web_language').find(":selected").val();
         var webdevice = $('#web_device').find(":selected").val();
 
-        if(website == '' && webstore != '' && weblanguage != ''){
+        if(website == '' ){
              toastr['error']('Please Select Website');
              return false;
         }
-        else if(webstore == '' && website != '' && weblanguage != ''){
+        else if(webstore == ''){
             toastr['error']('Please Select Store');
              return false;
         }
-        else if(weblanguage == '' && website != '' && webstore != ''){
+        else if(weblanguage == ''){
             toastr['error']('Please Select Language');
              return false;
         }
