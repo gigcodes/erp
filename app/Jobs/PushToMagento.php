@@ -45,6 +45,7 @@ class PushToMagento implements ShouldQueue
         // Set time limit
         set_time_limit(0);
 
+        $date_time = date("Y-m-d h:i:s");
         // Load product and website
         $product = $this->_product;
         $website = $this->_website;
@@ -56,12 +57,14 @@ class PushToMagento implements ShouldQueue
             if ($this->log) {
                 $this->log->sync_status = "started_push";
                 $this->log->queue_id    = $this->job->getJobId();
+                $this->log->job_start_time    = $date_time;
                 $this->log->save();
             }
 
             if (!$website->website_source || $website->website_source == '') {
                 ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null, null, $this->log->id);
                 $this->log->sync_status = "error";
+                $this->log->job_end_time    = $date_time;
                 $this->log->save();
                 return false;
             }
@@ -69,6 +72,7 @@ class PushToMagento implements ShouldQueue
             if ($website->disable_push == 1) {
                 ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null, null, $this->log->id);
                 $this->log->sync_status = "error";
+                $this->log->job_end_time    = $date_time;
                 $this->log->save();
                 return false;
             }
@@ -86,6 +90,7 @@ class PushToMagento implements ShouldQueue
                 ProductPushErrorLog::log('', $product->id, $e->getMessage(), 'error', $website->id, null, null, $this->log->id);
                 $this->log->sync_status = "error";
                 $this->log->queue_id    = $this->job->getJobId();
+                $this->log->job_end_time    = $date_time;
                 $this->log->save();
             }else{
                 \Log::error($e);

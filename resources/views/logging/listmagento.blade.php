@@ -87,6 +87,23 @@
                   <label for="queue">Queue List</label>
                   <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
               </div>
+
+          <div class="col-md-2">
+            <label for="size_info">Size info</label>
+            <select class="form-control" name="size_info">
+              <option value=''>All</option>
+              <option value="yes" {{ isset($filters['size_info']) && $filters['size_info'] == 'yes' ? 'selected' : '' }}>Yes</option>
+              <option value="no" {{ isset($filters['size_info']) && $filters['size_info'] == 'no' ? 'selected' : '' }}>No</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="select_date">Date</label>
+            <input type="text" name="job_start_date" class="form-control datepicker" id="job_start_date" placeholder="Enter Job Start Date" value="{{isset($request->job_start_date) ? $request->job_start_date : ''}}">
+
+          </div>
+
+
                 </div>
                 <div class="row p-3 ">
                   <div class="col-md-2">
@@ -134,6 +151,8 @@
               <th style="width:8%">Status</th>
               <th style="width:8%">Language Id</th>
               <th style="width:7%">Sync Status</th>
+              <th style="width:5%">Job Start</th>
+              <th style="width:5%">Job End</th>
               <th style="width:5%">Success</th>
               <th style="width:5%">Failure</th>
               <th style="width:6%">User</th>
@@ -181,6 +200,8 @@
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
                   <td> {{$item->sync_status}} </td>
+                    <td>{{$item->job_start_time}} </td>
+                    <td>{{$item->job_end_time}} </td>
                   <td>{{$item->total_success}} </td>
                   <td> {{$item->total_error}}</td>
                   <td>{{$item->log_user_name}}</td>
@@ -198,10 +219,11 @@
             </tbody>
           </table>
 
-          <div class="text-center">
-            {!! $logListMagentos->appends($filters)->links() !!}
-          </div>
+
         </div>
+    <div class="text-center">
+      {!! $logListMagentos->appends($filters)->links() !!}
+    </div>
       </div>
     </div>
   </div>
@@ -459,6 +481,10 @@
         $("#select_date").datepicker({
       	  	format: 'yyyy-mm-dd'
       	});
+
+        $("#job_start_date").datepicker({
+          format: 'yyyy-mm-dd'
+        });
 
         $(".start-date-picker").datepicker({
             format: 'yyyy-mm-dd'
