@@ -350,6 +350,12 @@ class ProductController extends Controller
             }
         }
 //here
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+
         if($request->ajax()) {
 
             // view path for images
@@ -375,7 +381,8 @@ class ProductController extends Controller
                 'category_array' => $category_array,
                 'selected_categories' => $selected_categories,
                 'store_websites' => StoreWebsite::all(),
-                'type' => $pageType
+                'type' => $pageType,
+                'auto_push_product' => $auto_push_product
             ]);
         }
 
@@ -638,6 +645,11 @@ class ProductController extends Controller
         }
         //echo'<pre>'.print_r($cropped,true).'</pre>'; exit;
 //here
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
         if($request->ajax()) {
             return view('products.final_listing_ajax', [
                 'products' => $newProducts,
@@ -660,6 +672,7 @@ class ProductController extends Controller
                 'category_array' => $category_array,
                 'selected_categories' => $selected_categories,
                 'store_websites' => StoreWebsite::all(),
+                'auto_push_product' => $auto_push_product
             ]);
         }
 
@@ -687,6 +700,7 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
+            'auto_push_product' => $auto_push_product
             //'store_website_count' => StoreWebsite::count(),
         ]);
 

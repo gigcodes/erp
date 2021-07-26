@@ -17,6 +17,17 @@
   input {
     width: 100px;
   }
+  .btn-primary, .btn-primary:hover{
+    background: #fff;
+    color:#757575;
+    border: 1px solid #ddd;
+  }
+  .select2-container{
+    width: 100% !important;
+  }
+  .select2-container--default .select2-selection--multiple{
+    border: 1px solid #ddd !important;
+  }
 
 </style>
 @endsection
@@ -25,57 +36,69 @@
   <div id="myDiv">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
   </div>
-  <div class="row">
-    <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Log List Magento ({{ $total_count }})</h2>
+  <div class="row m-0">
+    <div class="col-lg-12 margin-tb p-0">
+      <h2 class="page-heading">Log List Magento ({{ $total_count }})
       <div class="pull-right">
-        <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+        <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
         <a href="/logging/magento-product-api-call" target="__blank">
           <button type="button" class="btn btn-image"><img src="/images/details.png" /></button>
         </a>
+
+        <button class="btn btn-primary ml-3" id="submit-show-report">
+          Show Error Report
+        </button>
+
+        <button class="btn btn-primary" id="retry-failed-job">
+          Retry failed job
+        </button>
+
       </div>
+      </h2>
+  </div>
   </div>
 
-  <div class="col-md-12">
-    <div class="panel panel-default">
+  <div class="col-md-12 pl-3 pr-3">
+    <div class="mb-3">
 
       <div class="panel-body p-0">
         <form action="{{ route('list.magento.logging') }}" method="GET">
-          <div class="row p-3">
-          <div class="col-md-3">
+          <div class="row m-0">
+          <div class="col-md-2 pl-0">
                 <label for="select_date">Date</label>
                 <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
              
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
               <label for="product_id">Product ID</label>
               <input type="text" class="form-control" id="product_id" name="product_id" value="{{ old('queue') }}">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
               <label for="sku">SKU</label>
               <input type="text" class="form-control" id="sku" name="sku" value="{{ old('sku')}}">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
               <label for="sku">Brand</label>
               <input type="text" class="form-control" id="brand" name="brand" value="{{ old('brand')}}">
             </div>
             @php
               $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
             @endphp
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
                 <label for="sku">Category</label>
                     {!! $category_suggestion !!}
                 </div>
-            </div>
-            <div class="col-md-2">
+
+            <div class="col-md-2 pl-0 pr-0">
               <label for="sku">Status</label>
               <select class="form-control" name="status">
                 <option value=''>All</option>
                 <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
                 <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
-             </div>
-              <div class="col-md-2">
+            </div>
+
+              <div class="col-md-2 pl-0">
                   <label for="sku">Sync Status</label>
                   <select class="form-control" name="sync_status">
                       <option value=''>All</option>
@@ -83,65 +106,78 @@
                       <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
                   </select>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-2 pl-0">
                   <label for="queue">Queue List</label>
                   <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
               </div>
+
+          <div class="col-md-2 pl-0">
+            <label for="size_info">Size info</label>
+            <select class="form-control" name="size_info">
+              <option value=''>All</option>
+              <option value="yes" {{ isset($filters['size_info']) && $filters['size_info'] == 'yes' ? 'selected' : '' }}>Yes</option>
+              <option value="no" {{ isset($filters['size_info']) && $filters['size_info'] == 'no' ? 'selected' : '' }}>No</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 pl-0">
+            <label for="select_date">Date</label>
+            <input type="text" name="job_start_date" class="form-control datepicker" id="job_start_date" placeholder="Enter Job Start Date" value="{{isset($request->job_start_date) ? $request->job_start_date : ''}}">
+
+          </div>
+          <div class="col-md-2 pl-0">
+            <label for="sku">Users</label>
+            <select class="form-control" name="user">
+              <option value=''>All</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+              <option >
+            </select>
+          </div>
+
+          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">
+            <button class="btn btn-primary" id="submit">
+              <span class="fa fa-filter"></span> Filter Results
+            </button>
+
+          </div>
+
                 </div>
-                <div class="row p-3 ">
-                  <div class="col-md-2">
-                      <label for="sku">Users</label>
-                      <select class="form-control" name="user">
-                          <option value=''>All</option>
-                          @foreach($users as $user)
-                            <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
-                          @endforeach
-                          <option >
-                      </select>
-                    </div>
-                    <div class="col-md-2">
-                      <button class="btn btn-light" id="submit">
-                          <span class="fa fa-filter"></span> Filter Results
-                      </button>
-                      
-                    </div>
-                    <div class="col-md-2">
-                       <button class="btn btn-light" id="submit-show-report">
-                            Show Error Report
-                        </button>
-                    </div>
-                    <div class="col-md-2">
-                       <button class="btn btn-light" id="retry-failed-job">
-                            Retry failed job
-                        </button>
-                    </div>
-                </div>
+
             </form>
           </div>
         </form>
+  </div>
 
+
+
+
+     <div class="row m-0">
         <div class="table-responsive">
-          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed;">
+          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th style="width:7%">Product ID</th>
-              <th style="width:10%">SKU</th>
-              <th style="width:9%">Brand</th>
-              <th style="width:8%">Category</th>
+              <th style="width:5%">Product ID</th>
+              <th style="width:5%">SKU</th>
+              <th style="width:7%">Brand</th>
+              <th style="width:6%">Category</th>
               <th style="width:7%">Price</th>
-              <th style="width:11%">Message</th>
-              <th style="width:8%">Date/Time</th>
-              <th style="width:9%">Website</th>
-              <th style="width:8%">Status</th>
-              <th style="width:8%">Language Id</th>
-              <th style="width:7%">Sync Status</th>
-              <th style="width:5%">Success</th>
+              <th style="width:6%">Message</th>
+              <th style="width:4%">Date/  Time</th>
+              <th style="width:7%">Website</th>
+              <th style="width:5%">Status</th>
+              <th style="width:4%">Lang. Id</th>
+              <th style="width:4%">Sync Status</th>
+              <th style="width:4%">Job Start</th>
+              <th style="width:4%">Job End</th>
+              <th style="width:5%;padding-left: 0">Success</th>
               <th style="width:5%">Failure</th>
-              <th style="width:6%">User</th>
-              <th style="width:6%">Time</th>
-              <th style="width:6%">Size</th>
-              <th style="width:6%">Queue</th>
-              <th style="width:3%">Try</th>
-              <th style="width:8%">Action</th>
+              <th style="width:3%;padding-left: 0">User</th>
+              <th style="width:4%;padding-left: 2px">Time</th>
+              <th style="width:4%;padding-left: 5px">Size</th>
+              <th style="width:4%;padding-left: 2px">Queue</th>
+              <th style="width:4%">Try</th>
+              <th style="width:6%">Action</th>
             </thead>
             <tbody>
               @foreach($logListMagentos as $item)
@@ -176,11 +212,13 @@
                     <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
                   </td>
-                  <td>
+                  <td class="pl-1">
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
                   <td> {{$item->sync_status}} </td>
+                    <td>{{$item->job_start_time}} </td>
+                    <td>{{$item->job_end_time}} </td>
                   <td>{{$item->total_success}} </td>
                   <td> {{$item->total_error}}</td>
                   <td>{{$item->log_user_name}}</td>
@@ -188,23 +226,24 @@
                   <td>@if(!empty($item->size_chart_url)) <a href="{{$item->size_chart_url}}" target="__blank">Yes</a> @else No @endif</td>
                   <td>@if($item->queue) #{{$item->queue_id}}({{$item->queue}}) @else - @endif</td>
                   <td>{{$item->tried}}</td>
-                  <td style="display:flex;justify-content: space-between;align-items: center;">
-                    <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
-                    <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
+                  <td >
+                    <span style="display:flex;">
+                    <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
+                    <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
+                    <input style="width:14px;height:14px;margin-left:3px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
+                  </span>
                   </td>
                 </tr>
               @endforeach()
             </tbody>
           </table>
 
-          <div class="text-center">
-            {!! $logListMagentos->appends($filters)->links() !!}
-          </div>
+
         </div>
-      </div>
-    </div>
-  </div>
+        <div class="text-center">
+         {!! $logListMagentos->appends($filters)->links() !!}
+       </div>
+     </div>
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
@@ -459,6 +498,10 @@
         $("#select_date").datepicker({
       	  	format: 'yyyy-mm-dd'
       	});
+
+        $("#job_start_date").datepicker({
+          format: 'yyyy-mm-dd'
+        });
 
         $(".start-date-picker").datepicker({
             format: 'yyyy-mm-dd'
