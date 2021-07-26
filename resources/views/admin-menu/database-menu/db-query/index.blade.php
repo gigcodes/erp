@@ -329,6 +329,7 @@ $('.delete_btn').click(function(){
             },
             dataType: 'json',
             beforeSend: function() {
+                toastr["success"]('Command Execution Started');
                 // $("#loading-image").show();
                 // $('.execute_command').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
             },

@@ -186,7 +186,11 @@ class MagentoProductPushErrors extends Controller
             ->select(\DB::raw('*,COUNT(message) AS count'));
 
             if(isset($request->startDate) && isset($request->endDate)){
-                $records->whereBetween('created_at',[$request->startDate,$request->endDate]);
+
+                $records->whereDate('created_at','>=',date($request->startDate))
+                ->whereDate('created_at','<=',date($request->endDate));
+
+                // $records->whereBetween('created_at',[$request->startDate,$request->endDate]);
             }else{
                 $records->whereDate('created_at',Carbon::now()->format('Y-m-d'));
             }
