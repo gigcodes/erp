@@ -240,7 +240,7 @@
                 let r_s = "";
                 let r_e = "";
         
-                let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
+                let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
                 let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
         
                 jQuery('input[name="range_start"]').val();
@@ -251,7 +251,7 @@
                 }
         
                 $('#filter_date_range_').daterangepicker({
-
+                    startDate: start,
                     maxYear: 1,
                     endDate: end,
                     //parentEl: '#filter_date_range_',
