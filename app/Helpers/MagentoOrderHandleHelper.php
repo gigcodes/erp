@@ -2,41 +2,36 @@
 
 namespace App\Helpers;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use App\Jobs\ProductAi;
-
-use App\Http\Controllers\ProductInventoryController;
-use App\Helpers\OrderHelper;
-use App\StoreWebsiteOrder;
-use App\Customer;
-use App\Product;
-use App\Colors;
-use App\OrderProduct;
 use App\AutoReply;
-use Carbon\Carbon;
 use App\ChatMessage;
 use App\CommunicationHistory;
+use App\Customer;
+use App\Email;
+use App\Helpers\OrderHelper;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
+use App\Mails\Manual\OrderConfirmation;
 use App\Order;
 use App\OrderCustomerAddress;
+use App\OrderProduct;
+use App\Product;
 use App\ProductSizes;
-use App\Mails\Manual\OrderConfirmation;
-use App\Email;
-use Mail;
+use App\StoreWebsiteOrder;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
-use App\Jobs\CallHelperForZeroStockQtyUpdate;
 
 class MagentoOrderHandleHelper extends Model
 {
 
-    
     /**
-     * Create magento order 
+     * Create magento order
      * @param Order [ object ], Website [ object ]
      * @return response
      */
-    public static function createOrder( $orders , $website ){
-        
+    public static function createOrder($orders, $website)
+    {
+
         try {
             if (isset($orders->items)) {
 
@@ -107,23 +102,23 @@ class MagentoOrderHandleHelper extends Model
                     $magentoId = $order->increment_id;
                     $id        = \DB::table('orders')->insertGetId(
                         array(
-                            'customer_id'     => $customer_id,
-                            'order_id'        => $order->increment_id,
-                            'order_type'      => 'online',
-                            'order_status'    => isset($allStatus[$order_status]) ? $allStatus[$order_status] : $order_status,
-                            'order_status_id' => $order_status,
-                            'payment_mode'    => $payment_method,
-                            'order_date'      => $order->created_at,
-                            'client_name'     => $order->billing_address->firstname . ' ' . $order->billing_address->lastname,
-                            'city'            => $order->billing_address->city,
-                            'advance_detail'  => $order->base_grand_total,
-                            'contact_detail'  => $order->billing_address->telephone,
-                            'balance_amount'  => $balance_amount,
+                            'customer_id'         => $customer_id,
+                            'order_id'            => $order->increment_id,
+                            'order_type'          => 'online',
+                            'order_status'        => isset($allStatus[$order_status]) ? $allStatus[$order_status] : $order_status,
+                            'order_status_id'     => $order_status,
+                            'payment_mode'        => $payment_method,
+                            'order_date'          => $order->created_at,
+                            'client_name'         => $order->billing_address->firstname . ' ' . $order->billing_address->lastname,
+                            'city'                => $order->billing_address->city,
+                            'advance_detail'      => $order->base_grand_total,
+                            'contact_detail'      => $order->billing_address->telephone,
+                            'balance_amount'      => $balance_amount,
                             'store_currency_code' => $order->store_currency_code,
-                            'store_id'        => $order->store_id,
-                            'store_name'      => $order->store_name,
-                            'created_at'      => $order->created_at,
-                            'updated_at'      => $order->created_at,
+                            'store_id'            => $order->store_id,
+                            'store_name'          => $order->store_name,
+                            'created_at'          => $order->created_at,
+                            'updated_at'          => $order->created_at,
                         )
                     );
 
@@ -139,11 +134,11 @@ class MagentoOrderHandleHelper extends Model
                                 $size = '';
                             }
 
-                            if(!empty($item->product_size)) {
+                            if (!empty($item->product_size)) {
                                 $size = $item->product_size;
                             }
 
-                            $splitted_sku = explode( '-', $item->sku );
+                            $splitted_sku = explode('-', $item->sku);
 
                             $skuAndColor = MagentoHelper::getSkuAndColor($item->sku);
                             \Log::info("skuAndColor : " . json_encode($skuAndColor));
@@ -155,6 +150,8 @@ class MagentoOrderHandleHelper extends Model
                                     'product_id'    => !empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
                                     'sku'           => isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'],
                                     'product_price' => round($item->price),
+                                    'currency'      => $order->store_currency_code,
+                                    'eur_price'     => \App\Currency::convert(round($item->price), "EUR", $order->store_currency_code),
                                     'qty'           => round($item->qty_ordered),
                                     'size'          => $size,
                                     'color'         => isset($splitted_sku[1]) ? $splitted_sku[1] : $skuAndColor['sku'],
@@ -164,28 +161,28 @@ class MagentoOrderHandleHelper extends Model
                             );
 
                             // check the splitted sku here to remove the stock from the products
-                            $product = \App\Product::where("sku",$sku)->first();
+                            $product      = \App\Product::where("sku", $sku)->first();
                             $totalOrdered = round($item->qty_ordered);
-                            if($product) {
+                            if ($product) {
                                 $productSizesM = ProductSizes::where('product_id', $product->id);
-                                if(!empty($size)) {
+                                if (!empty($size)) {
                                     $productSizesM = $productSizesM->where('size', $size);
                                 }
-                                $mqty = 0;
+                                $mqty          = 0;
                                 $productSizesM = $productSizesM->get();
-                                if(!$productSizesM->isEmpty()) {
+                                if (!$productSizesM->isEmpty()) {
                                     //check if more then one the minus else delete
-                                    foreach($productSizesM as $psm){
+                                    foreach ($productSizesM as $psm) {
                                         $mqty += $psm->quantity;
-                                        if($totalOrdered > 0)  {
+                                        if ($totalOrdered > 0) {
                                             // update qty as based on the request
                                             $psmqty = $psm->quantity;
                                             $psmqty -= $totalOrdered;
-                                            if($psmqty > 0) {
+                                            if ($psmqty > 0) {
                                                 $totalOrdered -= $psm->quantity;
-                                                $psm->quantity = $psmqty;  
+                                                $psm->quantity = $psmqty;
                                                 $psm->save();
-                                            }else{
+                                            } else {
                                                 $totalOrdered -= $psm->quantity;
                                                 $psm->delete();
                                             }
@@ -193,10 +190,10 @@ class MagentoOrderHandleHelper extends Model
                                     }
                                 }
 
-                                if($mqty <= $totalOrdered || $mqty == 0) {
+                                if ($mqty <= $totalOrdered || $mqty == 0) {
                                     // start to delete from magento
-                                    $needToCheck    = [];
-                                    $needToCheck[]  = ["id" => $product->id, "sku" => $item->sku];
+                                    $needToCheck   = [];
+                                    $needToCheck[] = ["id" => $product->id, "sku" => $item->sku];
                                     CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
                                 }
 
@@ -204,9 +201,9 @@ class MagentoOrderHandleHelper extends Model
                         }
                     }
 
-                    if( !empty( $order->billing_address ) || !empty( $order->shipping_address ) ){
-                        $customerAddress = array (
-                            array (
+                    if (!empty($order->billing_address) || !empty($order->shipping_address)) {
+                        $customerAddress = array(
+                            array(
                                 'order_id'     => $id ?? null,
                                 'address_type' => $order->billing_address->address_type ?? null,
                                 'city'         => $order->billing_address->city ?? null,
@@ -218,10 +215,10 @@ class MagentoOrderHandleHelper extends Model
                                 'lastname'     => $order->billing_address->lastname ?? null,
                                 'parent_id'    => $order->billing_address->parent_id ?? null,
                                 'postcode'     => $order->billing_address->postcode ?? null,
-                                'street'       => $order->billing_address->street ? implode("\n",$order->billing_address->street) : null,
-                                'telephone'    => $order->billing_address->telephone ?? null
+                                'street'       => $order->billing_address->street ? implode("\n", $order->billing_address->street) : null,
+                                'telephone'    => $order->billing_address->telephone ?? null,
                             ),
-                            array (
+                            array(
                                 'order_id'     => $id ?? null,
                                 'address_type' => $order->shipping_address->address_type ?? null,
                                 'city'         => $order->shipping_address->city ?? null,
@@ -233,15 +230,15 @@ class MagentoOrderHandleHelper extends Model
                                 'lastname'     => $order->shipping_address->lastname ?? null,
                                 'parent_id'    => $order->shipping_address->parent_id ?? null,
                                 'postcode'     => $order->shipping_address->postcode ?? null,
-                                'street'       => $order->shipping_address->street ? implode("\n",$order->shipping_address->street) : null,
-                                'telephone'    => $order->shipping_address->telephone ?? null
-                            )
+                                'street'       => $order->shipping_address->street ? implode("\n", $order->shipping_address->street) : null,
+                                'telephone'    => $order->shipping_address->telephone ?? null,
+                            ),
                         );
                         try {
-                            OrderCustomerAddress::insert( $customerAddress );
+                            OrderCustomerAddress::insert($customerAddress);
                             \Log::info("Order customer address added" . json_encode($customerAddress));
                         } catch (\Throwable $th) {
-                            \Log::error("Order customer address " . $th->getMessage() );
+                            \Log::error("Order customer address " . $th->getMessage());
                         }
                     }
                     $orderSaved = Order::find($id);
@@ -346,38 +343,38 @@ class MagentoOrderHandleHelper extends Model
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email);
-        
+
                     \Log::info("Order is finished" . json_encode($websiteOrder));
                 }
                 /**Ajay singh */
                 /*$orders = OrderProduct::with('order')->whereHas('order',function($query){
-                    $query->whereIn('order_status_id',[1,13]);
+                $query->whereIn('order_status_id',[1,13]);
                 })->get();
                 foreach($orders as $order){
-                    // if order 1 and 13
-                    $size = $order->size;
-                    $total_size = $order->qty;
-                    $product_id = $order->product_id;
-                    $productSizes = ProductSizes::where('product_id', $product_id)->where('size', $size)->get();
-                    if($productSizes->count() > 0){
-                        $size = 0;
-                        foreach($productSizes as $product){
-                            $size = $size + $product->quantity;
-                        }
-                        if($total_size >= $size)
-                        {
-                            $product = Product::find($product_id);
-                            //make product outofstock
-                            $ProductInventoryController = ProductInventoryController::magentoSoapUpdateStock($product,0);
-                        }
-                    }
+                // if order 1 and 13
+                $size = $order->size;
+                $total_size = $order->qty;
+                $product_id = $order->product_id;
+                $productSizes = ProductSizes::where('product_id', $product_id)->where('size', $size)->get();
+                if($productSizes->count() > 0){
+                $size = 0;
+                foreach($productSizes as $product){
+                $size = $size + $product->quantity;
+                }
+                if($total_size >= $size)
+                {
+                $product = Product::find($product_id);
+                //make product outofstock
+                $ProductInventoryController = ProductInventoryController::magentoSoapUpdateStock($product,0);
+                }
+                }
                 }*/
                 /**Ajay singh */
                 return true;
             }
         } catch (\Throwable $th) {
             \Log::error($th);
-            \Log::error("Magento order failed : reason => ".$th->getMessage());
+            \Log::error("Magento order failed : reason => " . $th->getMessage());
             return false;
         }
         return false;

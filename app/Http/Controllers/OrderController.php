@@ -796,6 +796,8 @@ class OrderController extends Controller
         );
         OrderCustomerAddress::insert( $customerShippingAddress );
 
+        $currency = $request->get("currency","INR");
+
         if (!empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
                 $order_product = OrderProduct::findOrFail($key);
@@ -811,8 +813,16 @@ class OrderController extends Controller
                         $nw_order_product->{$k} = $v;
                     }
 
-                    $nw_order_product->order_id = $order->id;
+                    $nw_order_product->currency  = $currency;
+                    $nw_order_product->eur_price = \App\Currency::convert($order_product->product_price,"EUR",$currency);
+                    $nw_order_product->order_id  = $order->id;
                     $nw_order_product->save();
+                }else{
+                    if($order_product) {
+                       $order_product->currency  = $currency;
+                       $order_product->eur_price = \App\Currency::convert($order_product->product_price,"EUR",$currency);
+                       $order_product->save();
+                    }
                 }
             }
         }

@@ -297,6 +297,12 @@
                            value="{{ old('customer_credit') ? old('customer_credit') : $customer_credit }}"/>
                 </div>
             </div>
+            <div class="col">
+                 <div class="form-group">
+                    <strong>Currency:</strong>
+                    <?php echo Form::select("currency",\App\Currency::pluck('name','code')->toArray(),request("currency","INR"),["class" => "form-control"]); ?>
+                </div>
+            </div>
             <!-- end-DEVTASK-3291 -->
 
             <div class="col">
