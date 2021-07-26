@@ -7,10 +7,25 @@ use App\Loggers\LogListMagento;
 use DataTables;
 use Illuminate\Http\Request;
 use seo2websites\MagentoHelper\MagentoHelperv2;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Input;
+use App\User;
+use App\StoreMagentoApiSearchProduct;
+use App\Imports\PushProductCsvImport;
+use App\ProductPushInformationHistory;
+use Illuminate\Support\Facades\Storage;
+use App\Setting;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
+use App\ProductPushInformation;
 
+
+use App\Jobs\PushToMagento;
 class LogListMagentoController extends Controller
 {
-    const VALID_MAGENTO_STATUS = ['available','sold','out_of_stock',];
+    const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
 
     protected function get_brands()
     {
@@ -75,8 +90,12 @@ class LogListMagentoController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
+            $categories = (new \App\Product)->matchedCategories($request->category);
+            $logListMagentos->whereIn('categories.id', $categories);
         }
+
+
+
         // if (!empty($request->select_date)) {
         //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
         // }
@@ -87,6 +106,18 @@ class LogListMagentoController extends Controller
             } else if ($request->status == 'out_of_stock') {
                 $logListMagentos->where('products.stock', '<=', 0);
             }
+        }
+
+        if($request->sync_status != null) {
+            $logListMagentos->where('log_list_magentos.sync_status', $request->sync_status);
+        }
+
+        if($request->user != null) {
+            $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+        }
+
+        if($request->queue != null) {
+            $logListMagentos->where('log_list_magentos.queue', $request->queue);
         }
 
         // Get paginated result
@@ -106,20 +137,6 @@ class LogListMagentoController extends Controller
         $logListMagentos = $logListMagentos->paginate(25);
         //dd($logListMagentos);
         foreach ($logListMagentos as $key => $item) {
-            if ($request->sync_status) {
-                if ($item->sync_status != $request->sync_status) {
-                    unset($logListMagentos[$key]);
-                    continue;
-                }
-
-            }
-
-            if ($request->user) {
-                if ($item->log_user_id != $request->user) {
-                    unset($logListMagentos[$key]);
-                    continue;
-                }
-            }
             if ($item->hasMedia(config('constants.media_tags'))) {
                 $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
             } else {
@@ -206,7 +223,8 @@ class LogListMagentoController extends Controller
 
     public function showMagentoProductAPICall(Request $request)
     {
-        return view('logging.magento-api-call');
+        $data = StoreMagentoApiSearchProduct::orderBy('id','DESC')->paginate(10);
+        return view('logging.magento-api-call',compact('data'));
     }
     protected function processProductAPIResponce($products)
     {
@@ -216,54 +234,55 @@ class LogListMagentoController extends Controller
         $size                   = '';
         $brands                 = '';
         $composition            = '';
-        $brand = "";
-        $dimensions = "N/A";
-        $size = "N/A";
+        $brand                  = "";
+        $dimensions             = "N/A";
+        $size                   = "N/A";
         foreach ($products as $value) {
-            $websites[]   = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
+            $websites[] = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
             if (isset($value->extension_attributes)) {
                 foreach ($value->extension_attributes->website_ids as $vwi) {
                     $websites[] = \App\Website::where('platform_id', $vwi)->value('name');
                 }
             }
-            
+
             if (isset($value->custom_attributes)) {
                 foreach ($value->custom_attributes as $v) {
                     if ($v->attribute_code === "category_ids") {
                         foreach ($v->value as $key => $cat_id) {
-                            $category_names[] = \App\StoreWebsiteCategory::join("categories as c","c.id","store_website_categories.category_id")
-                            ->where('remote_id', $cat_id)
-                            ->value('title');
+                            $category_names[] = \App\StoreWebsiteCategory::join("categories as c", "c.id", "store_website_categories.category_id")
+                                ->where('remote_id', $cat_id)
+                                ->value('title');
                         }
                     }
                     if ($v->attribute_code === "size_v2" || $v->attribute_code === "size") {
-                        $sizeM = \App\StoreWebsiteSize::join("sizes as s","s.id","store_website_sizes.size_id")->where("platform_id",$v->value)->where("store_website_id",$value->store_website_id)->select("s.*")->first();
-                        if($sizeM) {    
+                        $sizeM = \App\StoreWebsiteSize::join("sizes as s", "s.id", "store_website_sizes.size_id")->where("platform_id", $v->value)->where("store_website_id", $value->store_website_id)->select("s.*")->first();
+                        if ($sizeM) {
                             $size = $sizeM->name;
                         }
 
                     }
 
                     if ($v->attribute_code === "brands") {
-                        $brandsModel = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
-                        ->where("magento_value",$v->value)
-                        ->where("store_website_id",$value->store_website_id)
-                        ->select("b.*")
-                        ->first();
-                        if($brandsModel) {
+                        $brandsModel = \App\StoreWebsiteBrand::join("brands as b", "b.id", "store_website_brands.brand_id")
+                            ->where("magento_value", $v->value)
+                            ->where("store_website_id", $value->store_website_id)
+                            ->select("b.*")
+                            ->first();
+                        if ($brandsModel) {
                             $brand = $brandsModel->name;
                         }
                     }
                     if ($v->attribute_code === "composition") {
                         $composition = $v->value;
                     }
-                    
+
                     if ($v->attribute_code === "dimensions") {
                         $dimensions = $v->value;
                     }
 
                 }
             }
+
             $prepared_products_data[$value->sku] = [
                 'store_website_id'      => $value->store_website_id,
                 'magento_id'            => $value->id,
@@ -348,7 +367,7 @@ class LogListMagentoController extends Controller
 
             $products = array();
             //$skudata  = json_decode('[{"sku":"RMTR00604468H20081Grey","websiteid":"1"}]'); //json_decode($request->productSkus);
-            $skudata  = json_decode($request->productSkus);
+            $skudata = json_decode($request->productSkus);
 
             $magentoHelper = new MagentoHelperv2;
 
@@ -367,21 +386,22 @@ class LogListMagentoController extends Controller
                     //   ]
                     // ]);
                     // $response = $req->getBody()->getContents();
+
                     if (isset($result->id)) {
-                        $result->success    = true;
-                        $result->size_chart_url    = "";
+                        $result->success        = true;
+                        $result->size_chart_url = "";
 
                         $englishDescription = "";
-                        if(!empty($result->custom_attributes)) {
-                          foreach($result->custom_attributes as $attributes) {
-                             if($attributes->attribute_code == "size_chart_url") {
-                                $result->size_chart_url    = $attributes->value;
-                             }
-                             if($attributes->attribute_code == "description") {
-                                $englishDescription = $attributes->value;
-                                $result->english = "Yes";
-                             }
-                          }
+                        if (!empty($result->custom_attributes)) {
+                            foreach ($result->custom_attributes as $attributes) {
+                                if ($attributes->attribute_code == "size_chart_url") {
+                                    $result->size_chart_url = $attributes->value;
+                                }
+                                if ($attributes->attribute_code == "description") {
+                                    $englishDescription = $attributes->value;
+                                    $result->english    = "Yes";
+                                }
+                            }
                         }
 
                         // check for all langauge request
@@ -400,15 +420,15 @@ class LogListMagentoController extends Controller
 
                                     $diffrentDescription = "";
 
-                                    if(!empty($exresult->custom_attributes)) {
-                                      foreach($exresult->custom_attributes as $attributes) {
-                                         if($attributes->attribute_code == "description") {
-                                            $diffrentDescription = $attributes->value;
-                                         }
-                                      }
+                                    if (!empty($exresult->custom_attributes)) {
+                                        foreach ($exresult->custom_attributes as $attributes) {
+                                            if ($attributes->attribute_code == "description") {
+                                                $diffrentDescription = $attributes->value;
+                                            }
+                                        }
                                     }
 
-                                    if (trim(strip_tags(strtolower($englishDescription))) != trim(strip_tags(strtolower($diffrentDescription))) && !empty($diffrentDescription) ) {
+                                    if (trim(strip_tags(strtolower($englishDescription))) != trim(strip_tags(strtolower($diffrentDescription))) && !empty($diffrentDescription)) {
                                         $result->{$language} = "Yes";
                                     } else {
                                         $result->{$language} = "No";
@@ -416,13 +436,12 @@ class LogListMagentoController extends Controller
                                 }
                             }
                         }
+                        $result->skuid            = $sku->sku;
+                        $result->store_website_id = $sku->websiteid;
+                        $products[]               = $result;
                     } else {
                         $result->success = false;
                     }
-
-                    $result->skuid            = $sku->sku;
-                    $result->store_website_id = $sku->websiteid;
-                    $products[]               = $result;
 
                 } catch (\Exception $e) {
                     \Log::info("Error from LogListMagentoController 448" . $e->getMessage());
@@ -481,16 +500,262 @@ class LogListMagentoController extends Controller
 
     public function errorReporting(Request $request)
     {
-        $log = \App\Loggers\LogListMagento::leftJoin("product_push_error_logs as ppel","ppel.log_list_magento_id","log_list_magentos.id")
-        ->leftJoin("store_websites as sw","sw.id","log_list_magentos.store_website_id")
-        ->groupBy("ppel.url")
-        ->where("ppel.response_status","error")
-        ->where("ppel.url","!=","")
-        ->where("ppel.created_at",">=",date("Y-m-d",strtotime('-7 days')))
-        ->select([\DB::raw("count(*) as total_error"),"ppel.url","sw.website"])
-        ->orderBy("total_error","desc")
-        ->get();
+        $log = \App\Loggers\LogListMagento::leftJoin("product_push_error_logs as ppel", "ppel.log_list_magento_id", "log_list_magentos.id")
+            ->leftJoin("store_websites as sw", "sw.id", "log_list_magentos.store_website_id")
+            ->groupBy("ppel.url")
+            ->where("ppel.response_status", "error")
+            ->where("ppel.url", "!=", "")
+            ->where("ppel.created_at", ">=", date("Y-m-d", strtotime('-7 days')))
+            ->select([\DB::raw("count(*) as total_error"), "ppel.url", "sw.website"])
+            ->orderBy("total_error", "desc")    
+            ->get();
 
-        return view("logging.partials.log-count-error",compact("log"));
+        return view("logging.partials.log-count-error", compact("log"));
+    }
+
+    public function getLatestProductForPush(Request $request)
+    {
+        $data = StoreMagentoApiSearchProduct::orderBy('id','DESC');
+        if($request->website_name){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%");
+        }
+
+        if($request->limit){
+            $data = $data->limit($request->limit)->get();
+        }
+
+        return view("logging.search-magento-api-call", compact("data"));
+
+        //
+        // $produts      = \App\Loggers\LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")->where("sync_status", "success")->groupBy("product_id", "store_website_id")->limit($request->limit)->orderBy("log_list_magentos.id", "desc")->get();
+        // $listToBeSend = [];
+        // if (!$produts->isEmpty()) {
+        //     foreach ($produts as $p) {
+        //         $listToBeSend[] = [
+        //             "sku"       => $p->sku . "-" . $p->color,
+        //             "websiteid" => $p->store_website_id,
+        //         ];
+        //     }
+        // }
+
+        // return response()->json(["code" => 200, "products" => $listToBeSend]);
+
+    }
+
+    public function productInformation(Request $request)
+    {
+        $product = \App\Product::find($request->product_id);
+        if ($product) {
+
+            $estimated_minimum_days = 0;
+            $supplier               = \App\Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
+                ->where('product_suppliers.product_id', $product->id)
+                ->select('suppliers.*')
+                ->first();
+            if ($supplier) {
+                $estimated_minimum_days = is_numeric($supplier->est_delivery_time) ? $supplier->est_delivery_time : 0;
+            }
+
+            $data                           = [];
+            $data['sku']                    = $product->sku . MagentoHelperv2::SKU_SEPERATOR . $product->color;
+            $data['description']            = $product->short_description;
+            $data['name']                   = html_entity_decode(strtoupper($product->name), ENT_QUOTES, 'UTF-8');
+            $data['price']                  = $product->price;
+            $data['composition']            = $product->composition;
+            $data['material']               = $product->color;
+            $data['country_of_manufacture'] = $product->made_in;
+            $data['brands']                 = ($product->brands) ? $product->brands->name : "-";
+            $data['sizes']                  = $product->size_eu;
+            $data['dimensions']             = 'L-' . $product->lmeasurement . ',H-' . $product->hmeasurement . ',D-' . $product->dmeasurement;
+            $data['stock']                  = $product->stock;
+            $data['estimated_minimum_days'] = $estimated_minimum_days;
+            $data['estimated_maximum_days'] = $estimated_minimum_days + 7;
+
+            $category = [];
+            if($product->categories) {
+                $categories = $product->categories;
+                if($categories) {
+                    $category[] = $categories->title;
+                    $parent = $categories->parent;
+                    if($parent) {
+                        $category[] = $parent->title;
+                        $parent = $parent->parent;
+                        if($parent) {
+                            $category[] = $parent->title;
+                            $parent = $parent->parent; 
+                            if($parent) {
+                                $category[] = $parent->title;
+                            }
+                        }
+                    }
+                }
+
+            }    
+
+            $data['category']               = implode(" > ",$category);
+            
+            return view("logging.partials.product-information",compact('data'));
+
+        }
+    }
+
+    public function productPushInformation(Request $request)
+    {
+
+
+        // $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
+        //     ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
+        //     ->join('brands', 'products.brand', '=', 'brands.id')
+        //     ->join('categories', 'products.category', '=', 'categories.id')
+        //     ->join('product_push_informations', 'product_push_informations.product_id', '=', 'products.id')
+        //     ->orderBy('log_list_magentos.id', 'DESC');
+
+        $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
+        
+
+        if(!empty($request->filter_product_id)){
+            $logListMagentos->where('product_id','LIKE','%'.$request->filter_product_id .  '%');
+        }
+
+        if(!empty($request->filter_product_sku)){
+            $logListMagentos->where('sku','LIKE','%'.$request->filter_product_sku. '%');
+        }
+
+        if(isset($request->filter_product_status)){
+            $logListMagentos->where('status','LIKE','%'.$request->filter_product_status.'%');
+        }
+        //status list 
+        $logListMagentos  =  $logListMagentos->paginate(Setting::get('pagination'));
+        $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
+        $total_count = ProductPushInformation::get()->count();
+
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList'));
+           
+
+    }
+
+    public function updateProductPushInformation(Request $request)
+    {
+        $row = 0;
+        $arr_id = [];
+        $is_file_exists = null;
+
+            // $file_url =public_path('60f89208edcc4_product.csv');
+        $file_url =  $request->website_url;
+        
+        $client   = new Client();
+
+        try {
+
+            // $response = $client->get($url);
+            $promise = $client->request('GET', $file_url);
+            $is_file_exists = true;
+        } catch (ClientException $e) {
+            return response()->json(['error'=>'file not exists']);
+        }
+
+
+        if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+          while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+          	$row++;
+          	if ($row > 1) {
+                // dd($data);
+              $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
+                    'product_id'=> $data[0],
+                    'sku'=>$data[1] ,
+                    'status'=> $data[2],
+                    'quantity'=>$data[3] ,
+                    'stock_status'=> $data[4],
+                ]);
+                $arr_id[] = $updated->product_id;
+          	}
+          }
+          fclose($handle);
+        }
+
+        ProductPushInformation::whereNotIn('product_id',$arr_id)->delete();
+
+    }
+
+
+    public function productPushHistories(Request $request,$product_id)
+    {
+        $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->latest()->get();
+        return response()->json($history);
+
+    }
+
+
+    public function deleteMagentoApiData(Request $request)
+    {
+        if($request->days){
+            if($request->days == 60){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subMinutes(60))->delete();
+            }
+            if($request->days == 1){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(1))->delete();
+            }
+            if($request->days == 7){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(7))->delete();
+            }
+            if($request->days == 30){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(30))->delete();
+            }
+            if($request->days == 100){
+                StoreMagentoApiSearchProduct::truncate();
+            }
+            return response()->json(['code' => 200]);
+        }
+        $data = StoreMagentoApiSearchProduct::find($request->id);
+        $data->delete();
+        return response()->json(['status' => true]);
+    }
+
+
+    public function retryFailedJob(Request $request)
+    {
+        $logListMagento = \App\Loggers\LogListMagento::query();
+
+        if(empty($request->start_date) && empty($request->start_date)) {
+            return response()->json(["code" => 500, "message" => "Please select start date and end date for valid result"]);
+        }
+
+
+        if($request->start_date != null) {
+            $logListMagento->whereDate("created_at",">=",$request->start_date);
+        }
+
+        if($request->end_date != null) {
+            $logListMagento->whereDate("created_at","<=",$request->end_date);
+        }
+
+        if($request->store_website_id != null) {
+            $logListMagento->where("store_website_id",$request->store_website_id);
+        }
+
+        if($request->keyword != null) {
+            $logListMagento->where("product_id",$request->keyword);
+        }
+
+        $products = $logListMagento->where(function($q) {
+            $q->where("sync_status","error")->orWhereNull("queue_id");
+        })->groupBy('store_website_id','product_id')->get();
+
+
+        if(!$products->isEmpty()) {
+            foreach($products as $product) {
+                if($product->product && $product->storeWebsite)  {
+                    if(empty($product->queue)) {
+                        $product->queue = \App\Helpers::createQueueName($product->storeWebsite->title);
+                    }
+                    $product->tried = $product->tried+1;
+                    $product->save();
+                    PushToMagento::dispatch($product->product,$product->storeWebsite, $product)->onQueue($product->queue);
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Total Request found :" .$products->count()]);
     }
 }
+

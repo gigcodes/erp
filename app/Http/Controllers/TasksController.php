@@ -21,6 +21,7 @@ class TasksController extends Controller
  
     public function index()
     {
+
         return view('totem.tasks.index_new', [
             'tasks' => Task::
                 orderBy('description')
@@ -32,7 +33,7 @@ class TasksController extends Controller
             'commands'      => Totem::getCommands(),
             'timezones'     => timezone_identifiers_list(),
             'frequencies'   => Totem::frequencies(),
-        ]);
+        ])->with('i', (request()->input('page', 1) - 1) * 10);
     } 
 
     public function create()
@@ -132,6 +133,13 @@ class TasksController extends Controller
         return response()
             ->download(storage_path('tasks.json'), 'tasks.json')
             ->deleteFileAfterSend(true);
+    }
+
+    public function developmentTask(Request $request, $task) 
+    {
+        $findTasks = \App\DeveloperTask::where("subject","like","%".strtoupper($task->command)."%")->latest()->get();
+
+        return view("totem.tasks.partials.development-task-list",compact('findTasks'));
     }
 
 

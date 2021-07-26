@@ -419,6 +419,21 @@ class BrandController extends Controller
         return response()->json(["code" => 500 , "data" => []]);
     }
 
+    public function changeNextStep(Request $request) 
+    {
+        $id = $request->get("brand_id",0);
+        $brand = \App\Brand::where("id",$id)->first();
+        $next_step = $request->get("next_step");
+
+        if($brand) {
+           $brand->next_step = $next_step;
+           $brand->save();
+           return response()->json(["code" => 200 , "data" => []]);
+        }
+
+        return response()->json(["code" => 500 , "data" => []]);
+    }
+
     public function mergeBrand(Request $request)
     {
         if($request->from_brand && $request->to_brand) {
@@ -668,5 +683,37 @@ class BrandController extends Controller
             
         }
     }
+
+
+    public function assignDefaultValue(Request $request)
+    {
+        $segments = CategorySegment::where('status', 1)->get();
+        $brands = \App\Brand::all();
+        if(!$brands->isEmpty()) {
+            foreach($brands as $b) {
+                if(!$segments->isEmpty()) {
+                    foreach($segments as $segment) {
+                        $catDiscount = \App\CategorySegmentDiscount::where("brand_id",$b->id)->where("category_segment_id",$segment->id)->first();
+                        if($catDiscount) {
+                            if($catDiscount->amount <= 0) {
+                               $catDiscount->amount = $request->value;
+                               $catDiscount->save();
+                            }
+                        }else{
+                            \App\CategorySegmentDiscount::create([
+                                "brand_id" => $b->id,
+                                "category_segment_id" => $segment->id,
+                                "amount" => $request->value,
+                                "amount_type" => "percentage",
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json(["code" => 200 , "message" => "Default segment discount assigned"]);
+    }
+
     //END - DEVTASK-4278
 }

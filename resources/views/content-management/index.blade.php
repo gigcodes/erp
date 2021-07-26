@@ -16,29 +16,44 @@
         .pd-3 {
             padding: 0px;
         }
+        .btn-secondary, .btn-secondary:hover {
+            color: #757575 !important;
+            border: 1px solid #ddd;
+            background: #fff;
+            padding: 6px 10px !important;
+        }
 
+        .btn-secondary a{
+            color : #757575 !important;
+        }
     </style>
 
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ $title }} <span class="count-text"></span></h2>
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
+            <h2 class="page-heading">{{ $title }} <span class="count-text"></span>
+            <div class="pull-right">
+                    <button style="display: inline-block;" class="btn btn-sm btn-image add-social-account btn-secondary">
+                        <img src="/images/add.png" style="cursor: default;">
+                    </button>
+                    <button class="btn btn-sm btn-secondary">
+                        <a href="/content-management/contents" style="color:white;">View Contents</a>
+                    </button>
+            </div>
+            </h2>
         </div>
         <br>
         @include("partials.flash_messages")
         <div class="col-lg-12 margin-tb">
-            <div class="row">
-                <div class="col col-md-10">
+            <div class="row m-0">
+                <div class="col col-md-12 d-flex p-0">
                     <div class="h" style="margin-bottom:10px;">
                         <form class="form-inline message-search-handler" method="post">
                             <div class="row">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="keyword">Keyword:</label>
-                                        <?php echo Form::text('keyword', request('keyword'), ['class' =>
-                                        'form-control', 'placeholder' => 'Enter keyword']); ?>
+                                        <?php echo Form::text('keyword', request('keyword'), ['class' => 'form-control', 'placeholder' => 'Enter keyword']); ?>
                                     </div>
                                     <div class="form-group">
-                                        <label for="button">&nbsp;</label>
                                         <button style="display: inline-block;width: 10%"
                                             class="btn btn-sm btn-image btn-search-action">
                                             <img src="/images/search.png" style="cursor: default;">
@@ -48,17 +63,17 @@
                             </div>
                         </form>
                     </div>
+                    <div class="d-flex">
+                        <div>
+                            <input type="text" name="email_address" placeholder="@if ($content_management_email) {{ $content_management_email->email }}@else {{ 'Enter Email' }} @endif" class="form-control" id="news_letter_email">
+                            <span id="email_error" style="color:red;"></span>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary news_letter_email ml-3">Add Email</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col col-md-1">
-                    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image add-social-account">
-                        <img src="/images/add.png" style="cursor: default;">
-                    </button>
-                </div>
-                <div class="col col-md-1">
-                    <button class="btn btn-sm btn-secondary">
-                        <a href="/content-management/contents" style="color:white;">View Contents</a>
-                    </button>
-                </div>
+
             </div>
             <div>
                 <table class="table table-bordered" style="table-layout:fixed;">
@@ -139,7 +154,8 @@
                                         <img width="15px" title="Manage Contents" src="/images/project.png">
                                         {{-- </a> --}}
                                     </button>
-                                    <button type="button" class="btn preview-img-btn pd-3" data-id="{{ $gmailData->id }}">
+                                    <button type="button" class="btn preview-img-btn pd-3"
+                                        data-id="{{ $gmailData->id }}">
                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                     </button>
 
@@ -157,7 +173,7 @@
         </div>
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
-              50% 50% no-repeat;display:none;">
+                  50% 50% no-repeat;display:none;">
     </div>
     <div class="common-modal modal" role="dialog">
         <div class="modal-dialog" role="document">
@@ -393,6 +409,25 @@
                 error: function() {}
             });
         });
+
+        $(document).on("click", '.news_letter_email', function() {
+            var email = $('#news_letter_email').val();
+            if (email.length === 0) {
+                $('#email_error').text('Please Enter Email');
+                return;
+            }
+            $.ajax({
+                type: "get",
+                url: "{{ route('content-management.emailStore') }}", // #DEVTASK-4012-Newsletter Images Extraction
+                data: {
+                    email: email
+                },
+                success: function(response) {
+                    $('#email_error').text('');
+                    toastr.success(response.message);
+                }
+            })
+        })
     </script>
 
 @endsection

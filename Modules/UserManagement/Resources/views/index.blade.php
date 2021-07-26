@@ -94,7 +94,25 @@
         .pd-5 {
             padding: 5px;
         }
-
+        .feedback_model .modal-dialog{
+           max-width:1024px;
+           width:100%;
+        }
+        .quick_feedback, #feedback-status{
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 35px;
+            outline: none;
+        }
+        .quick_feedback:focus, #feedback-status:focus{
+            outline: none;
+        }
+        .communication-td input{
+            width: calc(100% - 25px) !important;
+        }
+        .communication-td button{
+            width:20px;
+        }
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -145,7 +163,7 @@
 
                             <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
 
-                            <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal"
+                            <button class="btn btn-secondary btn-xs pull-right ml-2 mt-0 mr-2 system-request" data-toggle="modal"
                                 data-target="#system-request">System IPs</button>
 
                             <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
@@ -167,14 +185,9 @@
         </div>
     </div>
 
-    <div class="common-modal modal" role="adminj">
-        <div class="modal-dialog modal-lg" role="dialog" id="exampleModal">
-        </div>
-    </div>
-
     {{-- //feeback model --}}
 
-    <div id="exampleModal123" class="modal fade" role="dialog">
+    <div id="exampleModal123" class="modal fade feedback_model" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content" id="success">
@@ -183,24 +196,25 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12" id="permission-request">
+                    <div class="col-md-12 p-0" id="permission-request">
                         <table class="table table-bordered" id="feedback_tbl">
                             <thead>
                                 <tr>
-                                    <th width="45%">Category</th>
-                                    <th width="35%">Admin Response</th>
-                                    <th width="35%">User Response</th>
-                                    <th width="25%">Status</th>
-                                    <th width="15%">History</th>
+                                    <th width="20%">Category</th>
+                                    <th width="25%">Admin Response</th>
+                                    <th width="25%">User Response</th>
+                                    <th width="20%">Status</th>
+                                    <th width="10%">History</th>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <input type="text" style="width:85%" class="quick_feedback" id="addcategory" name="category">
-                                        <button type="button" class="btn btn-image add-feedback" id="btn-save"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button>
+                                        <input type="text" style="width:calc(100% - 25px)" class="quick_feedback" id="addcategory" name="category">
+                                        <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button>
                                     </td>
                                     <td></td>
                                     <td></td>
-                                    <td><input type="textbox" style="width:80%" id="feedback-status"><button type="button" class="btn btn-image user-feedback-status"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+                                    <td><input type="textbox" style="width:calc(100% - 25px)" id="feedback-status">
+                                        <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button></td>
                                     <td></td>
                                 </tr>
                             </thead>
@@ -221,7 +235,7 @@
 
 
 
-    <div id="permission-request" class="modal fade" role="dialog">
+    <div id="permission-request-model" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
@@ -757,8 +771,8 @@
                             t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
                         }
                     }
-                    $("#permission-request").find(".show-list-records").html(t);
-                    $("#permission-request").modal("show");
+                    $("#permission-request-model").find(".show-list-records").html(t);
+                    $("#permission-request-model").modal("show");
                 },
                 error: function() {
                     $("#loading-image").hide();
@@ -1239,7 +1253,28 @@
             }
         });
 
-
+$(document).on('click','.statusChange',function(event){
+        event.preventDefault();
+        $.ajax({
+           type: "post",
+           url: '{{ action("UserController@statusChange") }}',
+           data: {
+             _token: "{{ csrf_token() }}",
+             status: $(this).attr('data-status'),
+             id: $(this).attr('data-id')
+           },
+           beforeSend: function() {
+             $(this).attr('disabled', true);
+             // $(element).text('Approving...');
+           }
+        }).done(function( data ) {
+          toastr["success"]("Status updated!", "Message")
+          window.location.reload();
+        }).fail(function(response) {
+           alert(response.responseJSON.message);
+           toastr["error"](error.responseJSON.message);
+        });
+      });
 
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
@@ -1476,11 +1511,14 @@
                 url: '{{ route("user.feedback-status") }}',
                 data: {'status':status},
                 success:function(response){
-                    //
                     if (response.status == true) {
+                        $('#feedback-status').val('');
                         var all_status = response.feedback_status;
+                        var Select = '<option value="">Select</option>'
+                        $('.user_feedback_status').append(Select);
+
                         for (let i = 0; i < all_status.length; i++) {
-                            var html = '<option>'+all_status[i].status+'</option>';    
+                            var html = '<option value="' + all_status[i].id+'">'+all_status[i].status+'</option>'; 
                             $('.user_feedback_status').append(html);
                         }
                     }
@@ -1523,6 +1561,7 @@
                     },
                     cashe:false,
                     success:function(response){
+                        $('#addcategory').val('');
                         $(document).find('.user-feedback-data').append(response);
                     }
                 });
@@ -1532,10 +1571,12 @@
          });
 
          $(document).on('click', '.send-message-open', function (event) {
+            var feedback_status_id = $(this).parents('tr').find('.user_feedback_status').val();
             var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
             let user_id = textBox.attr('data-id');
             let message = textBox.val();
             var feedback_cat_id = $(this).data('feedback_cat_id');
+            var $this = $(this);
             if (message == '') {
                 return;
             }
@@ -1546,6 +1587,7 @@
                 url: "{{action('WhatsAppController@sendMessage', 'user-feedback')}}",
                 type: 'POST',
                 data: {
+                    "feedback_status_id": feedback_status_id,
                     "feedback_cat_id": feedback_cat_id,
                     "user_id": user_id,
                     "message": message,
@@ -1558,6 +1600,13 @@
                     $('#message_list_' + user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
+                    var msg = response.message.message;
+                    if (msg.length > 20) {
+                        var msg = msg.substring(1,20)+'...';
+                        $this.siblings('.latest_message').text(msg);
+                    }else{
+                        $this.siblings('.latest_message').text(msg);
+                    }
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);

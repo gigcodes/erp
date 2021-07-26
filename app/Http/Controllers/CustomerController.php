@@ -2737,6 +2737,7 @@ class CustomerController extends Controller
                         if($value['entity_id'] != "")
                             $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
 
+
                         if($check_record)
 
                         {
@@ -2788,7 +2789,6 @@ class CustomerController extends Controller
                                 'updated_at' => \Carbon\Carbon::now(),
 
                             ];
-                            $params->save();
 
                         }
                     }

@@ -83,7 +83,7 @@
             </div>
             
             <div class="col-md-12 margin-tb">
-                <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i>Download report</button>
+        
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tr>

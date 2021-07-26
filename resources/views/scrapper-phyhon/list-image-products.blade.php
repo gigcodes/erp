@@ -78,7 +78,10 @@
 <div style="position:fixed;z-index:1"><button class="btn btn-secondary hide start-again" onclick="callinterval();" disabled>Start Scroll</button>
 <button class="btn btn-secondary stopfunc hide pause" id="clearInt">Stop Scroll</button></div>
 <div class="row">
-    <div class="col-sm-4">  
+    <div class="col-sm-2">  
+       
+    </div>
+    <div class="col-sm-3">  
         <div class="form-group">
             <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
         </div>
@@ -88,6 +91,57 @@
         <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
         </div>
     </div>
+</div>
+
+
+
+<div>
+    <form method="get" >
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control select-multiple globalSelect2" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
+                        <option value="">Select Website</option>
+                        @foreach($allWebsites as $websiteRow)
+                            @if(isset($_REQUEST['web_id']) && $websiteRow->id==$_REQUEST['web_id'])
+                                <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
+                            @else
+                                <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-">
+                    <select class="form-control select-multiple globalSelect2" id="web_store" tabindex="-1" aria-hidden="true" name="store" onchange="showLanguages(this)">
+                        <option value="">Select Store</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control select-multiple globalSelect2" id="web_language" tabindex="-1" aria-hidden="true" name="language">
+                        <option value="">Select Language</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control select-multiple" id="web_device" tabindex="-1" aria-hidden="true" name="device">
+                        <option value="">Select Device</option>
+
+                        <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "desktop" ? 'selected' :'' ) }} value="desktop">Desktop</option>
+                        <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "mobile" ? 'selected' :'' ) }} value="mobile">Mobile</option>
+                        <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "tablet" ? 'selected' :'' ) }} value="tablet">Tablet</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-image filter_img" ><img src="/images/filter.png"></button>
+               
+                    <!-- <button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>     -->
+                 </div>
+            </div>
+        </div>
+    </form>
 </div>
 <!-- END - DEVTASK-4271 -->
 
@@ -175,12 +229,16 @@
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script>
-$(document).ready(function() { 
-    $("#scrolltime").val('2');
-    callinterval();
- });
-
     var i=1;
+    $(document).ready(function() { 
+        $("#scrolltime").val('2');
+        setTimeout(() => {
+        callinterval();
+        }, 0);
+        showStores();
+        showLanguages();
+    });
+
     var scroll = true;
         var old_product;
         function start_scroll_down() { 
@@ -221,7 +279,7 @@ $(document).ready(function() {
         if(i == 1)
         {
             $("html, body").animate({
-            scrollTop: $(".infinite-scroll-data div").eq(i).offset().top
+            scrollTop: $(".infinite-scroll-data div").eq(1).offset().top
             }, 300).delay(300); 
             i+=1;
         }else{
@@ -230,7 +288,7 @@ $(document).ready(function() {
             }, 500).delay(500); 
             i+=1;
         }
-        
+
         stop = setInterval(function(){ console.log("Running");start_scroll_down() }, $("#scrolltime").val()*1000);
     }
 
@@ -240,6 +298,131 @@ $(document).ready(function() {
         $(".pause").attr("disabled","disabled")
         clearInterval(stop);
         console.log("Stopped");
+    });
+
+    function showStores(selector)
+    {
+       
+        var website=$(selector).val();
+       
+        if(website == undefined)
+        {
+            var website="{{ (isset($_REQUEST['web_id']) ? ($_REQUEST['web_id']) : '' )}}";
+        }
+
+        $('[name="store"]').find('option').eq(1).not().remove();
+
+
+        if(website)
+        {
+            $.get('{{route("website.store.list")}}'+'/'+website,function(res)
+            {
+                if(res.status && res.list.length)
+                {
+                    $.each(res.list,function(k,v){
+
+                    //console.log(k,v);
+                    var selected='';
+
+                    if(v.id=="{{$_REQUEST['id']??0}}")
+                    {
+                        selected='selected'
+                    }
+
+                    $('[name="store"]').append('<option value="'+v.id+'" '+selected+'>'+v.name+'</option>');
+
+                    })
+                    
+                }
+                else
+                {
+                    $('[name="store"]').find('option').eq(1).not().remove();
+                }
+            })
+        }
+    }
+
+    function showLanguages(selector)
+    {
+        var store=$(selector).val();
+        $('[name="language"]').find('option').eq(1).not().remove();
+
+        if(store == undefined)
+        {
+            var store="{{ $_REQUEST['id'] }}";
+        }
+
+        if(store)
+        {
+            $.get('{{route("store.language.list")}}'+'/'+store,function(res)
+            {
+                if(res.status && res.list.length)
+                {
+                    $.each(res.list,function(k,v){
+
+                    //console.log(k,v);
+                    var selected='';
+
+                    if(v.code=="{{$_REQUEST['code']??''}}")
+                    {
+                        selected='selected'
+                    }
+
+                    $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+
+                    })
+                    
+                }
+                else
+                {
+                    $('[name="language"]').find('option').eq(1).not().remove();
+                }
+            })
+        }
+    }
+
+    $(document).on('click', '.filter_img', function (e) {     
+        var website = $('#web-select').find(":selected").val();
+        var webstore = $('#web_store').find(":selected").val();
+        var weblanguage = $('#web_language').find(":selected").val();
+        var webdevice = $('#web_device').find(":selected").val();
+
+        if(website == '' ){
+             toastr['error']('Please Select Website');
+             return false;
+        }
+        else if(webstore == ''){
+            toastr['error']('Please Select Store');
+             return false;
+        }
+        else if(weblanguage == ''){
+            toastr['error']('Please Select Language');
+             return false;
+        }
+
+        if(webdevice != '' && (website == '' || webstore == '' || weblanguage == ''))
+        {
+            var full_url   = window.location.href; 
+            const myArr = full_url.split("&");
+                
+            var url_path = myArr[0]+'&'+myArr[1];
+            var url = full_url+"&device="+webdevice;
+        }else{
+
+            if(website == '' || webstore == '' || weblanguage == '')
+            {
+                var full_url   = window.location.href; 
+                const myArr = full_url.split("&");
+                
+                var url_path = myArr[0]+'&'+myArr[1];
+                var url = url_path+"&device="+webdevice;
+            }else{
+                var origin   = window.location.origin;
+                var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice;
+            }
+        }
+       
+        window.location.href = url;
     });
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->

@@ -45,6 +45,8 @@ use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
 use App\Helpers\MessageHelper;
+use App\HubstaffHistory;
+use App\UserRate;
 
 class DevelopmentController extends Controller
 {
@@ -2168,7 +2170,7 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
-        
+       
         $issue = DeveloperTask::find($request->get('issue_id'));
         if($issue->is_resolved == 1) {
             return response()->json([
@@ -2180,7 +2182,27 @@ class DevelopmentController extends Controller
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
-                if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
+                if(!$assigned_to){
+                    return response()->json([
+                        'message'	=> 'Please assign the task.'
+                    ],500);
+                }
+                $team_user = \DB::table('team_user')->where('user_id', $issue->assigned_to)->first();
+                if($team_user){
+                    $team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
+                    if($team_lead){
+                        $dev_task_user = User::find($team_lead->user_id); 
+                    }
+                } 
+                if(empty($dev_task_user)){
+                    $dev_task_user = $assigned_to;
+                } 
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) { 
                     // Fixed price task.
                     if($issue->cost == null) {
                         return response()->json([
@@ -2194,9 +2216,40 @@ class DevelopmentController extends Controller
                         $payment_receipt->rate_estimated = $issue->cost;
                         $payment_receipt->status = 'Pending';
                         $payment_receipt->developer_task_id = $issue->id;
-                        $payment_receipt->user_id = $issue->assigned_to;
+                        $payment_receipt->user_id = $dev_task_user->id;
+                        $payment_receipt->by_command = 3;
                         $payment_receipt->save();
                     }
+                }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
+                    $userRate = UserRate::getRateForUser($dev_task_user->id);
+                    if($userRate && $userRate->hourly_rate !== null){
+                        if($issue->estimate_minutes){
+                            if($issue->ApprovedDeveloperTaskHistory){
+                                $rate_estimated = ($issue->estimate_minutes) * ($userRate->hourly_rate) / 60;
+                            }else{
+                                return response()->json([
+                                    'message'   => 'Estimated time is not approved.'
+                                ],500);
+                            }
+                        }else{
+                            return response()->json([
+                                'message'   => 'Estimated time is not exist.'
+                            ],500);
+                        }
+                    }else{
+                        return response()->json([
+                            'message'   => 'Please provide hourly rate of user.'
+                        ],500);
+                    }  
+                    $payment_receipt = new PaymentReceipt;
+                    $payment_receipt->date = date( 'Y-m-d' );
+                    $payment_receipt->worked_minutes = $issue->estimate_minutes;
+                    $payment_receipt->rate_estimated = $rate_estimated;
+                    $payment_receipt->status = 'Pending';
+                    $payment_receipt->developer_task_id = $issue->id;
+                    $payment_receipt->user_id = $dev_task_user->id;
+                    $payment_receipt->by_command = 2;
+                    $payment_receipt->save();
                 }
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;
@@ -2285,25 +2338,102 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
+
+            if($history){
+                if($history->old_value == null)
+                    $old_val = '';
+                else
+                    $old_val = $history->old_value;
+
+                    
+                $param= [
+                    "developer_task_id" => $history->developer_task_id,
+                    "old_value" => $old_val,
+                    "new_value" => $history->new_value,
+                    "user_id" => \Auth::id(),
+                ];
+                $add_history = HubstaffHistory::create($param);
+                
+            }
+
+
+            $task = DeveloperTask::find($request->developer_task_id);
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            
             $user = User::find($request->user_id);
-            $admin = Auth::user();
-            if($admin && $user){
-                $receiver_user_phone = $admin->phone;
-                if($receiver_user_phone){
-                    $task = DeveloperTask::find($request->developer_task_id);
-                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            $admin = Auth::user(); 
+            $master_user = User::find($task->master_user_id);
+            $team_lead = User::find($task->team_lead_id);
+            $tester = User::find($task->tester_id);
+
+            if($user){
+                if($admin->phone){
                     $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
+                        'number' => $admin->phone,
                         'user_id' => $user->id,
                         'customer_id' => $user->id,
                         'message' => $msg,
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                }else if($user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($master_user && $master_user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $master_user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($team_lead && $team_lead->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $team_lead->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($tester && $tester->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $tester->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
                 } 
-            } 
+                if($chat){ 
+                    if($admin->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($master_user && $master_user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($team_lead && $team_lead->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($team_lead->phone, $team_lead->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($tester && $tester->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($tester->phone, $tester->whatsapp_number, $msg, false, $chat->id);
+                    } 
+                }
+            }
+ 
+
     }else{
             return response()->json([
                 'message' => 'Only admin can approve'
@@ -2839,12 +2969,29 @@ class DevelopmentController extends Controller
     }
 
     public function getTimeHistory(Request $request)
-    {
+    {     
         $users = User::get();
         
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
         
+        if($task_module) {
+            return $task_module;
+        }
+        
+        return 'error';
+    }
+
+    public function getTimeHistoryApproved(Request $request)
+    {
+       
+        $users = User::get();
+        
+        $id = $request->id;
+
+        $task_module = HubstaffHistory::join('users','users.id','hubstaff_historys.user_id')->where('developer_task_id', $id)->select('hubstaff_historys.*','users.name')->get();
+
+            
         if($task_module) {
             return $task_module;
         }

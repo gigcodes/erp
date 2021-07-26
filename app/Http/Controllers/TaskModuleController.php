@@ -36,6 +36,7 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
+use App\UserRate;
 
 class TaskModuleController extends Controller {
 
@@ -2054,7 +2055,7 @@ class TaskModuleController extends Controller {
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts',
-			'cost'=>'sometimes|integer'
+			//'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
 		$data['status'] = 3;
@@ -2580,24 +2581,55 @@ class TaskModuleController extends Controller {
             $history->is_approved = 1;
             $history->save();
 
-			$user = User::find($request->user_id);
+			$task = Task::find($request->developer_task_id);
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            
+            $user = User::find($request->user_id);
+            $admin = Auth::user(); 
+            $master_user = User::find($task->master_user_id); 
+
             if($user){
-                $receiver_user_phone = $user->phone;
-                if($receiver_user_phone){
-                    $task = DeveloperTask::find($request->developer_task_id);
-                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+                if($admin->phone){
                     $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
+                        'number' => $admin->phone,
                         'user_id' => $user->id,
                         'customer_id' => $user->id,
                         'message' => $msg,
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                }else if($user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($master_user && $master_user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $master_user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
                 } 
-            } 
+                if($chat){ 
+                    if($admin->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($master_user && $master_user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    } 
+                }
+            }
 			
             return response()->json([
                 'message' => 'Success'
@@ -2790,9 +2822,64 @@ class TaskModuleController extends Controller {
 
    	    	$task->save();
 
-   	    	return response()->json([
-                'status' => 'success', 'message' =>'The task status updated.'
-            ],200);
+			if($task->status == 1){
+				
+				$task_user = User::find($task->assign_to);
+				if(!$task_user){
+					return response()->json([
+						'message'	=> 'Please assign the task.'
+					],500);
+				}
+				$team_user = \DB::table('team_user')->where('user_id', $task->assign_to)->first();
+				if($team_user){
+					$team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
+					if($team_lead){
+						$task_user_for_payment = User::find($team_lead->user_id); 
+					}
+				} 
+				if(empty($task_user_for_payment)){
+					$task_user_for_payment = $task_user;
+				} 
+				// dd($task_user_for_payment);
+                if($task_user_for_payment->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
+				if(!empty($task_user_for_payment)){
+                    if($task_user_for_payment->fixed_price_user_or_job == 1){
+						if($task->cost == null) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+                        $rate_estimated = $task->cost ?? 0;
+                    }else if($task_user_for_payment->fixed_price_user_or_job == 2){
+						$userRate = UserRate::getRateForUser($task_user_for_payment->id);
+						if($userRate && $userRate->hourly_rate !== null){
+							$rate_estimated = $task->approximate * ($userRate->hourly_rate ?? 0) / 60;
+						}else{
+							return response()->json([
+								'message'	=> 'Please provide hourly rate of user.'
+							],500);
+						}
+                    }
+					PaymentReceipt::create([
+						'status'            => 'Pending',
+						'rate_estimated'    => $rate_estimated,
+						'date'              => date('Y-m-d'),
+						'currency'          => '',
+						'user_id'           => $task_user_for_payment->id,
+						'by_command'        => 4,
+						'task_id'           => $task->id,
+					]);
+				} 
+				
+			}
+
+			return response()->json([
+				'status' => 'success', 'message' =>'The task status updated.'
+			],200);
 
 
    	    	
@@ -2848,6 +2935,25 @@ class TaskModuleController extends Controller {
     return response()->json([
       'success'
     ]);
+  }
+
+  public function sendBrodCast(Request $request)
+  {
+  		$taskIds = $request->selected_tasks;
+
+  		if(!empty($taskIds)) {
+  			foreach($taskIds as $tid){ 
+  				// started to send message
+  				$requestData = new Request();
+	            $requestData->setMethod('POST');
+	            $requestData->request->add(['task_id' => $tid, 'message' => $request->message, 'status' => 1]);
+	            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
+  			}
+
+  			return response()->json(["code" => 200 , "message" => "Message has been sent to all selected task"]);
+  		}
+
+  		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
 
    

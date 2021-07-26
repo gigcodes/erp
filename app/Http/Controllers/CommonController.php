@@ -99,7 +99,7 @@ class CommonController extends Controller
         $fromName  = "buying";
 
         if ($request->from_mail) {
-            $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
+            $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();
             if ($mail) {
                 $fromEmail = $mail->from_address;
                 $fromName  = $mail->from_name;
@@ -201,7 +201,11 @@ class CommonController extends Controller
 
         \App\Jobs\SendEmail::dispatch($email);
 
-        return redirect()->back()->withSuccess('You have successfully sent email!');
+        if(isset($request->from) && $request->from == 'sop')
+            return response()->json(['success' => 'You have send email successfully !']);
+        else
+            return redirect()->back()->withSuccess('You have successfully sent email!');
+        
 
     }
     public function getMailTemplate(request $request)

@@ -175,6 +175,9 @@
                     <div >
                         <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
                     </div>
+                    <div>
+                        <button type="button" class="btn btn-image" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
+                    </div>
 
                 </div>
 
@@ -215,8 +218,7 @@
         </thead>
 
         <tbody>
-        @include('livechat.partials.ticket-list')
-
+            @include('livechat.partials.ticket-list')
         </tbody>
       </table>
     </div>
@@ -272,7 +274,33 @@
             </div>
         </div>
     </div>
-    
+
+    <div id="send-message-text-box" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+               <form action="{{ route('task.send-brodcast') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Send Brodcast Message</h4>
+                    </div>
+                    <div class="modal-body" style="background-color: #999999;">
+                        @csrf
+                        <div class="form-group">
+                            <label for="document">Message</label>
+                            <textarea class="form-control message-for-brodcast" name="message" placeholder="Enter your message"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default btn-send-brodcast-message">Send</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+              50% 50% no-repeat;display:none;">
+    </div>
 
 @endsection
 
@@ -543,7 +571,79 @@
                 alert('Please enter a message first');
             }
         });
-</script>
 
+      $(document).on("click","#send-message",function() {
+         $("#send-message-text-box").modal("show");
+      });
+
+      $(".btn-send-brodcast-message").on("click",function () {
+
+            var selected_tasks = [];
+
+            $.each($(".selected-ticket-ids:checked"),function(k,v) {
+                selected_tasks.push($(v).val());
+            });
+
+            if (selected_tasks.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('tickets/send-brodcast') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks,
+                        message : $(".message-for-brodcast").val()
+                    },
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        toastr["success"](response.message);
+                        $("#send-message-text-box").modal("hide");
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log(response);
+                    toastr["error"]("Request has been failed due to the server , please contact administrator");
+                });
+            } else {
+                $("#loading-image").hide();
+                toastr["error"]("Please select atleast 1 task!");
+            }
+        });  
+
+</script>
+<script>
+    $(document).on("click","#softdeletedata",function() {
+        
+       var id = $(this).data("id"); 
+       
+       if(confirm('Do you really want to delete this record'))
+       {
+           $.ajax({
+               type: "POST",
+               url: "{{ url('tickets/delete_tickets/') }}",
+               data: {
+                   _token: "{{ csrf_token() }}",
+                   id:id,
+               },
+               beforeSend : function() {
+                   $("#loading-image").show();
+               }
+           }).done(function (response) {
+               toastr["success"](response.message);
+               $("#loading-image").hide();
+               location.reload();
+           
+           }).fail(function (response) {
+               $("#loading-image").hide();
+               
+           });
+       }
+   });
+</script>
 @endsection
 

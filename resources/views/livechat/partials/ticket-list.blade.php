@@ -7,7 +7,7 @@
 
 @foreach ($data as $key => $ticket)
 <tr>
-    <td>{{ ++$i }}</td>
+    <td><input type="checkbox" class="selected-ticket-ids" name="ticket_ids[]" value="{{ $ticket->id }}">&nbsp;{{ ++$i }}</td>
     <td>{{ substr($ticket->ticket_id, -5) }}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
@@ -65,6 +65,7 @@
                 <button type="button" 
                         style="margin-left:6px;"
                         class="btn btn-xs btn-image load-communication-modal" 
+                        data-object="ticket"
                         data-id="{{$ticket->id}}">
                         <i class="fa fa-comments-o"></i>
                 </button>
@@ -109,6 +110,9 @@
                   data-id="{{$ticket->id}}">
                 <i class="fa fa-comments-o"></i>
             </button>
+
+            <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
+                <img width="15px" ml="5" src="/images/delete.png" style="margin-left:-12px;"></button>
           
         </div>
     </td>

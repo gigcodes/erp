@@ -6,8 +6,12 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+
 
 class Tickets extends Model {
+    use SoftDeletes;
 
          /**
      * @var string
@@ -61,5 +65,15 @@ class Tickets extends Model {
         }else{
             return $this->hasMany('App\ChatMessage', 'ticket_id')->latest();
         }
+    }
+
+    public function customer()
+    {
+      return $this->hasOne(\App\Customer::class,'id','customer_id');
+    }
+
+    public function user()
+    {
+      return $this->hasOne(\App\User::class,'id', 'assigned_to');
     }
 }

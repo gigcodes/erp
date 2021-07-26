@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Laravel\Horizon\Contracts\JobRepository;
 use seo2websites\MagentoHelper\MagentoHelper;
 
 class PushToMagento implements ShouldQueue
@@ -48,19 +49,50 @@ class PushToMagento implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        if (!$website->website_source || $website->website_source == '') {
-            ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null , null, $this->log->id);
+        try {
+
+            //$jobId = app(JobRepository::class)->id;
+
+            if ($this->log) {
+                $this->log->sync_status = "started_push";
+                $this->log->queue_id    = $this->job->getJobId();
+                $this->log->save();
+            }
+
+            if (!$website->website_source || $website->website_source == '') {
+                ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null, null, $this->log->id);
+                $this->log->sync_status = "error";
+                $this->log->save();
+                return false;
+            }
+
+            if ($website->disable_push == 1) {
+                ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null, null, $this->log->id);
+                $this->log->sync_status = "error";
+                $this->log->save();
+                return false;
+            }
+
+            if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                MagentoHelper::callHelperForProductUpload($product, $website, $this->log);
+                return false;
+            } else {
+                ProductPushErrorLog::log('', $product->id, 'Magento helper class not found', 'error', $website->id, null, null, $this->log->id);
+                return false;
+            }
+
+        }catch(\Exception $e) {
+            if ($this->log) {
+                ProductPushErrorLog::log('', $product->id, $e->getMessage(), 'error', $website->id, null, null, $this->log->id);
+                $this->log->sync_status = "error";
+                $this->log->queue_id    = $this->job->getJobId();
+                $this->log->save();
+            }else{
+                \Log::error($e);
+            }
         }
 
-        if ($website->disable_push == 1) {
-            ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null , null, $this->log->id);
-        }
-
-        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-            MagentoHelper::callHelperForProductUpload($product, $website,$this->log);
-        } else {
-            ProductPushErrorLog::log('', $product->id, 'Magento helper class not found', 'error', $website->id, null , null, $this->log->id);
-        }
+        
         // Load Magento Soap Helper
         // $magentoSoapHelper = new MagentoSoapHelper();
 

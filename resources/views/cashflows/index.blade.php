@@ -62,23 +62,23 @@
     @endif
 
    <div >
-{{--       <div id="exTab2" class=" mt-3">--}}
-{{--           <ul class="nav nav-tabs">--}}
-{{--               <li class="active">--}}
-{{--                   <a href="#manual_tab" data-toggle="tab">Manual Entries</a>--}}
-{{--               </li>--}}
-{{--               <li>--}}
-{{--                   <a href="#order_tab" data-toggle="tab">Orders</a>--}}
-{{--               </li>--}}
-{{--               <li>--}}
-{{--                   <a href="#purchase_tab" data-toggle="tab">Purchases</a>--}}
-{{--               </li>--}}
-{{--               <li>--}}
-{{--                   <a href="#voucher_tab" data-toggle="tab">Convenience Vouchers</a>--}}
-{{--               </li>--}}
-{{--               </ul>--}}
-{{--       </div>--}}
-
+       <div id="exTab2">
+           <ul class="nav nav-tabs ml-3">
+               <li class="active">
+                   <a href="#manual_tab" data-toggle="tab">Manual Entries</a>
+               </li>
+               <li>
+                   <a href="#order_tab" data-toggle="tab">Orders</a>
+               </li>
+               <li>
+                   <a href="#purchase_tab" data-toggle="tab">Purchases</a>
+               </li>
+               <li>
+                   <a href="#voucher_tab" data-toggle="tab">Convenience Vouchers</a>
+               </li>
+               </ul>
+       </div>
+        <div class="tab-content">
            <div class="tab-pane active " id="manual_tab" style="margin: 0 10px">
                <div class="table-responsive ">
                    <table class="table table-bordered">
@@ -115,7 +115,7 @@
                                </td>
                                <td>@if($cash_flow->amount > 0)$@endif{{ $cash_flow->amount }}</td>
                                <td>{{ $cash_flow->expected }}</td>
-                               <td>{{ $cash_flow->actual }}</td>
+                               <td>{{ number_format($cash_flow->actual, 2) }}</td>
                                <td>{{ ucwords($cash_flow->type) }}</td>
                                <td>
                                    {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
@@ -131,147 +131,148 @@
                {!! $cash_flows->appends(Request::except('page'))->links() !!}
            </div>
 
-{{--           <div class="tab-pane mt-3" id="order_tab">--}}
-{{--               <div class="table-responsive mt-3">--}}
-{{--                   <table class="table table-bordered">--}}
-{{--                       <thead>--}}
-{{--                       <tr>--}}
-{{--                           <th>ID</th>--}}
-{{--                           <th>Date</th>--}}
-{{--                           <th>Order Products</th>--}}
-{{--                           <th>Order Balance</th>--}}
-{{--                           <th>Purchase</th>--}}
-{{--                           <th>Profit</th>--}}
-{{--                           <th>Actions</th>--}}
-{{--                       </tr>--}}
-{{--                       </thead>--}}
+           <div class="tab-pane" id="order_tab" style="margin: 0 10px">
+               <div class="table-responsive">
+                   <table class="table table-bordered">
+                       <thead>
+                       <tr>
+                           <th>ID</th>
+                           <th>Date</th>
+                           <th>Order Products</th>
+                           <th>Order Balance</th>
+                           <th>Purchase</th>
+                           <th>Profit</th>
+                           <th>Actions</th>
+                       </tr>
+                       </thead>
 
-{{--                       <tbody>--}}
-{{--                       @foreach ($orders as $order)--}}
-{{--                           <tr>--}}
-{{--                               <td><a href="{{ route('order.show', $order->id) }}" target="_blank">{{ $order->id }}</a></td>--}}
-{{--                               <td>{{ \Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>--}}
-{{--                               <td>--}}
-{{--                                   @if ($order->order_product)--}}
-{{--                                       <ul>--}}
-{{--                                           @foreach ($order->order_product as $order_product)--}}
-{{--                                               <li>{{ $order_product->sku }} - {{ $order_product->product_price }}</li>--}}
-{{--                                           @endforeach--}}
-{{--                                       </ul>--}}
-{{--                                   @endif--}}
-{{--                               </td>--}}
-{{--                               <td>@if($order->balance_amount > 0)$@endif{{ $order->balance_amount }}</td>--}}
-{{--                               <td>--}}
-{{--                                   @if ($order->order_product)--}}
-{{--                                       @php $purchase_price = 0; @endphp--}}
+                       <tbody>
+                       @foreach ($orders as $order)
+                           <tr>
+                               <td><a href="{{ route('order.show', $order->id) }}" target="_blank">{{ $order->id }}</a></td>
+                               <td>{{ \Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
+                               <td>
+                                   @if ($order->order_product)
+                                       <ul>
+                                           @foreach ($order->order_product as $order_product)
+                                               <li>{{ $order_product->sku }} - {{ $order_product->product_price }}</li>
+                                           @endforeach
+                                       </ul>
+                                   @endif
+                               </td>
+                               <td>@if($order->balance_amount > 0)$@endif{{ $order->balance_amount }}</td>
+                               <td>
+                                   @if ($order->order_product)
+                                       @php $purchase_price = 0; @endphp
 
-{{--                                       <ul>--}}
-{{--                                           @foreach ($order->order_product as $order_product)--}}
-{{--                                               @if ($order_product->product)--}}
-{{--                                                   @if ($order_product->product->purchases)--}}
-{{--                                                       @foreach ($order_product->product->purchases as $purchase)--}}
-{{--                                                           <li>{{ $order_product->product->price }}</li>--}}
+                                       <ul>
+                                           @foreach ($order->order_product as $order_product)
+                                               @if ($order_product->product)
+                                                   @if ($order_product->product->purchases)
+                                                       @foreach ($order_product->product->purchases as $purchase)
+                                                           <li>{{ $order_product->product->price }}</li>
 
-{{--                                                           @php $purchase_price += $order_product->product->price; @endphp--}}
-{{--                                                       @endforeach--}}
-{{--                                                   @endif--}}
-{{--                                               @endif--}}
-{{--                                           @endforeach--}}
-{{--                                       </ul>--}}
-{{--                                   @endif--}}
-{{--                               </td>--}}
-{{--                               <td>--}}
-{{--                                   @if( $order->balance_amount - $purchase_price  > 0)$@endif{{ $order->balance_amount - $purchase_price }}--}}
-{{--                               </td>--}}
-{{--                               <td>--}}
-{{--                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}--}}
-{{--                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>--}}
-{{--                                   {!! Form::close() !!}--}}
-{{--                               </td>--}}
-{{--                           </tr>--}}
-{{--                       @endforeach--}}
-{{--                       </tbody>--}}
-{{--                   </table>--}}
-{{--               </div>--}}
+                                                           @php $purchase_price += $order_product->product->price; @endphp
+                                                       @endforeach
+                                                   @endif
+                                               @endif
+                                           @endforeach
+                                       </ul>
+                                   @endif
+                               </td>
+                               <td>
+                                   @if( $order->balance_amount - $purchase_price  > 0)$@endif{{ $order->balance_amount - $purchase_price }}
+                               </td>
+                               <td>
+                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                                   {!! Form::close() !!}
+                               </td>
+                           </tr>
+                       @endforeach
+                       </tbody>
+                   </table>
+               </div>
 
-{{--               {!! $orders->appends(Request::except('order-page'))->links() !!}--}}
-{{--           </div>--}}
+               {!! $orders->appends(Request::except('order-page'))->links() !!}
+           </div>
 
-{{--           <div class="tab-pane mt-3" id="purchase_tab">--}}
-{{--               <div class="table-responsive mt-3">--}}
-{{--                   <table class="table table-bordered">--}}
-{{--                       <thead>--}}
-{{--                       <tr>--}}
-{{--                           <th>ID</th>--}}
-{{--                           <th>Date</th>--}}
-{{--                           <th>Amount</th>--}}
-{{--                           <th>Actions</th>--}}
-{{--                       </tr>--}}
-{{--                       </thead>--}}
+           <div class="tab-pane" id="purchase_tab" style="margin: 0 10px">
+               <div class="table-responsive">
+                   <table class="table table-bordered">
+                       <thead>
+                       <tr>
+                           <th>ID</th>
+                           <th>Date</th>
+                           <th>Amount</th>
+                           <th>Actions</th>
+                       </tr>
+                       </thead>
 
-{{--                       <tbody>--}}
-{{--                       @foreach ($purchases as $purchase)--}}
-{{--                           <tr>--}}
-{{--                               <td><a href="{{ route('purchase.show', $purchase->id) }}" target="_blank">{{ $purchase->id }}</a></td>--}}
-{{--                               <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d-m H:i') }}</td>--}}
-{{--                               <td>--}}
-{{--                                   <ul>--}}
-{{--                                       @foreach ($purchase->products as $product)--}}
-{{--                                           <li>{{ $product->price }}</li>--}}
-{{--                                       @endforeach--}}
-{{--                                   </ul>--}}
-{{--                               </td>--}}
-{{--                               <td>--}}
-{{--                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}--}}
-{{--                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>--}}
-{{--                                   {!! Form::close() !!}--}}
-{{--                               </td>--}}
-{{--                           </tr>--}}
-{{--                       @endforeach--}}
-{{--                       </tbody>--}}
-{{--                   </table>--}}
-{{--               </div>--}}
+                       <tbody>
+                       @foreach ($purchases as $purchase)
+                           <tr>
+                               <td><a href="{{ route('purchase.show', $purchase->id) }}" target="_blank">{{ $purchase->id }}</a></td>
+                               <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d-m H:i') }}</td>
+                               <td>
+                                   <ul>
+                                       @foreach ($purchase->products as $product)
+                                           <li>{{ $product->price }}</li>
+                                       @endforeach
+                                   </ul>
+                               </td>
+                               <td>
+                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                                   {!! Form::close() !!}
+                               </td>
+                           </tr>
+                       @endforeach
+                       </tbody>
+                   </table>
+               </div>
 
-{{--               {!! $purchases->appends(Request::except('purchase-page'))->links() !!}--}}
-{{--           </div>--}}
+               {!! $purchases->appends(Request::except('purchase-page'))->links() !!}
+           </div>
 
-{{--           <div class="tab-pane mt-3" id="voucher_tab">--}}
-{{--               <div class="table-responsive mt-3">--}}
-{{--                   <table class="table table-bordered">--}}
-{{--                       <thead>--}}
-{{--                       <tr>--}}
-{{--                           <th>User</th>--}}
-{{--                           <th>Date</th>--}}
-{{--                           <th>Description</th>--}}
-{{--                           <th>Amount</th>--}}
-{{--                           <th>Paid</th>--}}
-{{--                           <th>Credit</th>--}}
-{{--                           <th>Actions</th>--}}
-{{--                       </tr>--}}
-{{--                       </thead>--}}
+           <div class="tab-pane" id="voucher_tab" style="margin: 0 10px">
+               <div class="table-responsive">
+                   <table class="table table-bordered">
+                       <thead>
+                       <tr>
+                           <th>User</th>
+                           <th>Date</th>
+                           <th>Description</th>
+                           <th>Amount</th>
+                           <th>Paid</th>
+                           <th>Credit</th>
+                           <th>Actions</th>
+                       </tr>
+                       </thead>
 
-{{--                       <tbody>--}}
-{{--                       @foreach ($vouchers as $voucher)--}}
-{{--                           <tr>--}}
-{{--                               <td>{{ $voucher->user->name }}</td>--}}
-{{--                               <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>--}}
-{{--                               <td>{{ $voucher->description }}</td>--}}
-{{--                               <td>{{ $voucher->amount }}</td>--}}
-{{--                               <td>{{ $voucher->paid }}</td>--}}
-{{--                               <td>{{ ($voucher->amount - $voucher->paid) * -1 }}</td>--}}
-{{--                               <td>--}}
-{{--                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}--}}
-{{--                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>--}}
-{{--                                   {!! Form::close() !!}--}}
-{{--                               </td>--}}
-{{--                           </tr>--}}
-{{--                       @endforeach--}}
-{{--                       </tbody>--}}
-{{--                   </table>--}}
-{{--               </div>--}}
+                       <tbody>
+                       @foreach ($vouchers as $voucher)
+                           <tr>
+                               <td>{{ $voucher->user->name }}</td>
+                               <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
+                               <td>{{ $voucher->description }}</td>
+                               <td>{{ $voucher->amount }}</td>
+                               <td>{{ $voucher->paid }}</td>
+                               <td>{{ ($voucher->amount - $voucher->paid) * -1 }}</td>
+                               <td>
+                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                                   {!! Form::close() !!}
+                               </td>
+                           </tr>
+                       @endforeach
+                       </tbody>
+                   </table>
+               </div>
 
-{{--               {!! $vouchers->appends(Request::except('voucher-page'))->links() !!}--}}
-{{--           </div>--}}
+               {!! $vouchers->appends(Request::except('voucher-page'))->links() !!}
+           </div>
+        </div>
    </div>
 
     <div id="cashCreateModal" class="modal fade" role="dialog">

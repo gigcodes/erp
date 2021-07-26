@@ -414,7 +414,11 @@ class SiteDevelopmentController extends Controller
         left join store_websites as sw on sw.id = site_developments.website_id
         join users on users.id = store_development_remarks.user_id
         where site_developments.website_id = '.$id.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
-
+        $username = [];
+        foreach ($remarks as $remark) {
+            $user = \App\User::find($remark->user_id);
+            array_push($username, $user->name);
+        }
         // $remarks = \App\StoreDevelopmentRemark::join('site_developments','site_developments.id','store_development_remarks.store_development_id')
         // ->join('site_development_categories','site_development_categories.id','site_developments.site_development_category_id')
         // ->orderBy('store_development_remarks.created_at','DESC')
@@ -425,7 +429,7 @@ class SiteDevelopmentController extends Controller
         // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
         // ->orderBy("store_development_remarks.created_at","desc")
         // ->get();
-        return response()->json(["code" => 200 , "data" => $remarks]);
+        return response()->json(["code" => 200 , "data" => $remarks, "username" => $username]);
     }
 
     public function allartworkHistory($website_id) {
@@ -472,4 +476,33 @@ class SiteDevelopmentController extends Controller
 		}
 
 	}
+    public function adminRemarkFlag(Request $request)
+    {
+        $remarks =  \App\StoreDevelopmentRemark::find($request->remark_id);
+
+        if ($remarks->admin_flagged == 0) {
+            $remarks->admin_flagged = 1;
+        } else {
+            $remarks->admin_flagged = 0;
+        }
+
+        $remarks->save();
+
+        return response()->json(['admin_flagged' => $remarks->admin_flagged]);
+    }
+
+    public function userRemarkFlag(Request $request)
+    {
+        $remarks_user =  \App\StoreDevelopmentRemark::find($request->remark_id);
+
+        if ($remarks_user->user_flagged == 0) {
+            $remarks_user->user_flagged = 1;
+        } else {
+            $remarks_user->user_flagged = 0;
+        }
+
+        $remarks_user->save();
+
+        return response()->json(['user_flagged' => $remarks_user->user_flagged]);
+    }
 }

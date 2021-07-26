@@ -176,7 +176,10 @@ class TmpTaskController extends Controller
                         if ($i > 3) {
                             $i = 1;
                         }
-                        PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
+                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->save();
+                        PushToMagento::dispatch($product,$website , $log)->onQueue($log->queue);
+                        //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
                         $i++;
                     }
                 }
@@ -266,6 +269,11 @@ class TmpTaskController extends Controller
             }
         }
 
+    }
+
+    public function deleteQueue(Request $request)
+    {
+        \Redis::command('flushdb');
     }
 
 }

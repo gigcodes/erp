@@ -74,6 +74,7 @@
 
 @include("storewebsite::website-store-view.templates.list-template")
 @include("storewebsite::website-store-view.templates.create-website-template")
+@include("storewebsite::website-store-view.templates.create-group-template")
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
@@ -85,6 +86,96 @@
 	page.init({
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
+	});
+	var agents = [];
+	$.ajax({
+		type: "GET",
+		url: "/store-website/website-store-views/agents", 
+	}).done(function (response) {
+		agents = response;
+	}); 
+	var groups = [];
+	$.ajax({
+		type: "GET",
+		url: "/store-website/website-store-views/groups", 
+	}).done(function (response) {
+		groups = response;
+	}); 
+ 
+	$(document).on("click",".btn-create-group",function(e) {
+ 
+		$('.modal-body #name').val($(this).closest('tr').children('.name_div').text() + '_' + $(this).closest('tr').children('.code_div').text());
+		let html_groups = `<div class="form-group col-md-12 group"><select name="group" class="form-control select-2"><option value="">Choose Theme</option>`;
+		for(let i=0; i<groups.responseData.length; i++){
+			html_groups += `<option value="${groups.responseData[i].id}">${groups.responseData[i].name}</option>`;
+		}
+		html_groups += '</select></div>'; 
+
+		$('.modal-body .name_div').after(html_groups);
+		let options = `<select name="agents[]" class="form-control select-2"> `;
+			for(let i=0; i<agents.responseData.length; i++){
+				options += `<option value="${agents.responseData[i].id}">${agents.responseData[i].id}</option>`;
+			}
+			options += '</select>';
+			html_agents = `
+				<div class="abc">
+					<div class="form-group col-md-7 agents">
+						${options}
+					</div> 
+					<div class="form-group col-md-4 priorities">
+						<select name="priorites[]" class="form-control select-2"> 
+							<option value="first">first</option> 
+							<option value="normal" selected>normal</option> 
+							<option value="last">last</option> 
+							<option value="supervisor">supervisor</option> 
+						</select>
+					</div>
+					<div class="form-group col-md-1">
+						<button type="button" title="Remove" data-id="" class="btn btn-remove-priority">
+							<i class="fa fa-close" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			`;
+			$('.modal-body').append(html_agents);
+	});
+	$(document).on('click', '.btn-remove-priority', function(){
+		$(this).closest('.abc').remove();
+	}); 
+	$(document).on('click', '.btn-add-priority', function(){
+		$.ajax({
+			type: "GET",
+			url: "/store-website/website-store-views/agents", 
+		}).done(function (response) {
+			let options = `<select name="agents[]" class="form-control select-2"> `;
+			for(let i=0; i<response.responseData.length; i++){
+				options += `<option value="${response.responseData[i].id}">${response.responseData[i].id}</option>`;
+			}
+			options += '</select>';
+			var html = `
+				<div class="abc">
+					<div class="form-group col-md-7 agents">
+						${options}
+					</div> 
+					<div class="form-group col-md-4 priorities">
+						<select name="priorites[]" class="form-control select-2"> 
+							<option value="first">first</option> 
+							<option value="normal" selected>normal</option> 
+							<option value="last">last</option> 
+							<option value="supervisor">supervisor</option> 
+						</select>
+					</div>
+					<div class="form-group col-md-1">
+						<button type="button" title="Remove" data-id="" class="btn btn-remove-priority">
+							<i class="fa fa-close" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			`;
+			$('.modal-body').append(html);
+		}).fail(function (response) {
+			
+		});
 	});
 </script>
 @endsection

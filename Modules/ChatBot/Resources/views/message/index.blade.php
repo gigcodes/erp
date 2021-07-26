@@ -4,6 +4,7 @@
 @section('title', 'Message List | Chatbot')
 
 @section('content')
+
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
     <style type="text/css">
@@ -19,18 +20,21 @@
             width: 15px;
             height: 15px;
         }
+        form.chatbot .col{
+            flex-grow: unset !important;
+        }
     </style>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Message List | Chatbot</h2>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
             <div class="pull-left">
                 <div class="form-inline">
-                    <form method="get">
+                    <form method="get" class="chatbot">
                         <div class="row">
 
 
@@ -38,7 +42,18 @@
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
                             <div class="col">
-                                <select name="status" class="chatboat-message-status form-control">
+                                <select style="width: 130px !important" name="search_type" class="chatboat-message-status form-control">
+                                    <option value="">Select Search Type</option>
+                                    <option value="customer" {{request()->get('search_type') == 'customer' ? 'selected' : ''}}>Customer</option>
+                                    <option value="vendor" {{request()->get('search_type') == 'vendor' ? 'selected' : ''}}>Vendor</option>
+                                    <option value="supplier" {{request()->get('search_type') == 'supplier' ? 'selected' : ''}}>Supplier</option>
+                                    <option value="task" {{request()->get('search_type') == 'task' ? 'selected' : ''}}>Task</option>
+                                    <option value="dev_task" {{request()->get('search_type') == 'dev_task' ? 'selected' : ''}}>DEV Task</option>
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
                                         Approved
@@ -71,7 +86,7 @@
                             </div>
                             <!-- END - DEVATSK=4350 -->
 
-                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                            <button type="submit" style="display: inline-block;width: auto" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
                         </div>
@@ -95,8 +110,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row m-0">
+        <div class="col-md-12 pl-3 pr-3">
             <div class="table-responsive-lg" id="page-view-result">
                 @include("chatbot::message.partial.list")
             </div>
@@ -120,6 +135,7 @@
             </div>
         </div>
     </div>
+    @include("partials.customer-new-ticket")
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
     </div>
@@ -127,6 +143,76 @@
     <script type="text/javascript" src="/js/jsrender.min.js"></script>
     <script type="text/javascript" src="/js/common-helper.js"></script>
     <script type="text/javascript">
+
+        var callQuickCategory = function () {
+            $(".select-quick-category").select2({tags:true,"width" : 200}).on("change",function(e){
+                var $this = $(this);
+                var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
+                if(id == undefined) {
+                    //siteHelpers.quickCategoryAdd($this);
+                    var params = {
+                        method : 'post',
+                        data : {
+                            _token : $('meta[name="csrf-token"]').attr('content'),
+                            name : $this.val()
+                        },
+                        url: "/add-reply-category"
+                    };
+                    siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+                }else{
+                    var replies = JSON.parse($this.val());
+                        $this.closest(".communication").find('.quickComment').empty();
+                        $this.closest(".communication").find('.quickComment').append($('<option>', {
+                            value: '',
+                            text: 'Quick Reply'
+                        }));
+                        replies.forEach(function (reply) {
+                            $this.closest(".communication").find('.quickComment').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                }
+            });
+        }
+
+
+        var callCategoryComment = function () {
+            $(".select-quick-reply").select2({tags:true,"width" : 200}).on("change",function(e){
+                var $this = $(this);
+                var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
+                if(id == undefined) {
+                    var quickCategory = $this.closest(".communication").find(".quickCategory");
+                    
+                    if (quickCategory.val() == "") {
+                        alert("Please Select Category!!");
+                        return false;
+                    }
+                    var quickCategoryId = quickCategory.children("option:selected").data('id');
+                    var formData = new FormData();
+                    formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+                    formData.append("reply", $this.val());
+                    formData.append("category_id", quickCategoryId);
+                    formData.append("model", 'Approval Lead');
+                    var params = {
+                        method : 'post',
+                        data : formData,
+                        url: "/reply"
+                    };
+                    siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+                    $this.closest('.customer-raw-line').find('.quick-message-field').val($this.val());
+
+                }else{
+                    $this.closest('.customer-raw-line').find('.quick-message-field').val($this.val());
+                }
+            });
+        }
+
+        callQuickCategory();
+        callCategoryComment();
+
+
         $(document).on("click", ".approve-message", function () {
             var $this = $(this);
             $.ajax({
@@ -374,10 +460,12 @@
                     },
                 })
                 .done(function(data) {
-                    
+                    // thiss.closest(".cls_textarea_subbox").find("textarea").val("");
+                    // toastr['success']("Message sent successfully", 'success');
                 })
             }
             //END - DEVTASK-18280
+            
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);
@@ -428,8 +516,7 @@
                 siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
             },
             afterQuickCategoryAdd : function(response) {
-                $(".quick_category").val('');
-                $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+                callQuickCategory();
             },
             deleteQuickCategory : function(ele) {
                 var quickCategory = ele.closest(".communication").find(".quickCategory");
@@ -495,11 +582,12 @@
                 siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
             },
             afterQuickCommentAdd : function(reply) {
-                $(".quick_comment").val('');
+                /*$(".quick_comment").val('');
                 $('.quickComment').append($('<option>', {
                     value: reply,
                     text: reply
-                }));
+                }));*/
+                callCategoryComment();
             },
             changeQuickCategory : function (ele) {
                 if (ele.val() != "") {
@@ -520,7 +608,11 @@
             },
             changeQuickComment : function (ele) {
                 ele.closest('.customer-raw-line').find('.quick-message-field').val(ele.val());
+            },
+            pageReload : function() {
+                location.reload();
             }
+
         };
         $.extend(siteHelpers, common)
 
@@ -536,13 +628,16 @@
         $(document).on('click', '.quick_comment_add', function () {
             siteHelpers.quickCommentAdd($(this));
         });
-        $(document).on('change', '.quickCategory', function () {
+        /*$(document).on('change', '.quickCategory', function () {
             siteHelpers.changeQuickCategory($(this));
-        });
-        $(document).on('change', '.quickComment', function () {
+        });*/
+        /*$(document).on('change', '.quickComment', function () {
             siteHelpers.changeQuickComment($(this));
+        });*/
+
+        $('document').on('click', '.create-customer-ticket-modal', function () {
+            $('#ticket_customer_id').val($(this).attr('data-customer_id'));
         });
-    
 
     </script>
 @endsection

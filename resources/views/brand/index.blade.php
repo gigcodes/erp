@@ -75,6 +75,15 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </form>
         </div>
 
+        <div class="form-inline ml-5 pl-5">
+            <form>
+                <div class="form-group">
+                    <input type="text" value="{{ request('default_value') }}" name="default_value" id="default_value_segment" class="form-control" placeholder="Setup Default value for segment">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-assign-default-val ml-3">Assign</button>
+            </form>
+        </div>
+
         <div id="result-container">
 
         </div>
@@ -131,7 +140,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     <th width="3%">{{ $category_segment->name }}</th>
                 @endforeach
                 <th width="12%">Selling on</th>
-                <th width="12%">Priority</th>
+                <th width="5%">Priority</th>
+                <th width="10%">Next Step</th>
                 <th width="10%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
@@ -219,6 +229,11 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     </div>       
                 </td>
                 <td>
+                    <div class="form-group">
+                        {!!Form::select('next_step',[null => "--Select--"] + \App\Helpers\StatusHelper::getStatus(),$brand->next_step??'',array('class'=>'form-control input-sm mb-3 brand-next-step','data-id'=>$brand->id))!!}
+                    </div>       
+                </td>
+                <td>
                     <a style="padding:1px;" class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['brand.destroy',$brand->id],'style'=>'display:inline']) !!}
                     <button style="padding:  1px;" type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
@@ -260,6 +275,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             @endforeach
         </table>
     </div>
+</div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
 </div>
 
 <div id="ActivitiesModal" class="modal fade" role="dialog">
@@ -504,6 +521,29 @@ $('.select2-selection__clear').remove()
         });
     });
 
+    $(document).on("change", ".brand-next-step", function(e) {
+        e.preventDefault();
+        var brand_id = $(this).data("id"),
+            next_step = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: "/brand/next-step",
+            data: {
+                _token: "{{ csrf_token() }}",
+                next_step: next_step,
+                brand_id: brand_id
+            }
+        }).done(function(response) {
+            if (response.code == 200) {
+                toastr['success']('Next change successfully', 'success');
+            }
+        }).fail(function(response) {
+            console.log("Could not update successfully");
+        });
+    });
+
+    
+
 
 
     $(document).on("click", ".btn-create-remote", function(e) {
@@ -605,6 +645,32 @@ $('.select2-selection__clear').remove()
             placeholder: " abc xyz"
         });
     })
+
+    $(document).on("click",".btn-assign-default-val",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            method : "POST",
+            url: "/brand/assign-default-value",
+            data: {
+                _token: "{{ csrf_token() }}",
+                value: $("#default_value_segment").val()
+            },
+            dataType: "json",
+            beforeSend : function(){
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                if(response.code == 200) {
+                    toastr["success"]("Default value assigned!", "Message")
+                    location.reload();
+                }else{
+                    toastr["error"](response.message, "Message");
+                }
+            }
+        });
+    });
  
 </script>
 @endsection

@@ -239,10 +239,10 @@ class LaravelLogController extends Controller
 
         }
 
-        $other_channel_data = $this->getDirContents($path);
+        /*$other_channel_data = $this->getDirContents($path);
         foreach ($other_channel_data as $other) {
             array_push($errors, $other);
-        }
+        }*/
         $allErrorTypes = array_values(array_unique($errSelection));
 
         $users       = User::all();
@@ -308,8 +308,10 @@ class LaravelLogController extends Controller
             }
         }
         $logKeywords = LogKeyword::all();
-        $ChatMessages = ChatMessage::where('message_application_id',10001)->orderBy('created_at','DESC')->whereDate('created_at', '>', Carbon::now()->subDays(30))->get();
-
+        $ChatMessages = ChatMessage::leftJoin("developer_tasks","developer_tasks.id","chat_messages.developer_task_id")
+                                    ->leftJoin("users","users.id","developer_tasks.assigned_to")
+                                    ->select(\DB::raw("chat_messages.message, chat_messages.created_at , developer_tasks.id as dev_task_id, users.name"))
+                                    ->orderBy('chat_messages.created_at','DESC')->whereDate('chat_messages.created_at', '>', Carbon::now()->subDays(30))->get();
 
         return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords,'ChatMessages'=>$ChatMessages]);
 
@@ -323,6 +325,22 @@ class LaravelLogController extends Controller
                 'text'              => $request->title,
             ];
             $logKeyword = LogKeyword::create($params);
+            return response()->json([
+                'status' => 'success',
+            ]);
+        }
+        return response()->json([
+            'status' => 'errors',
+        ]);
+    }
+
+
+
+    public function LogKeywordDelete(Request $request)
+    {
+        if($request->id){
+            $keyword = LogKeyword::find($request->id);
+            $keyword->delete();
             return response()->json([
                 'status' => 'success',
             ]);

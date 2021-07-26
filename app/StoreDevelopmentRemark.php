@@ -15,7 +15,7 @@ class StoreDevelopmentRemark extends Model
      * @SWG\Property(property="store_development_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
      */
-    protected $fillable = ['remarks', 'store_development_id', 'user_id'];
+    protected $fillable = ['remarks', 'store_development_id', 'user_id', 'admin_flagged', 'user_flagged'];
     
     public function user()
     {

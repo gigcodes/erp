@@ -1602,6 +1602,27 @@ class LiveChatController extends Controller
         ]);
     }
 
+    public function sendBrodcast(Request $request) {
+        $ids = $request->selected_tasks;
+        if(!empty($ids)) {
+            foreach($ids as $id) {
+                // started to send message
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['ticket_id' => $id, 'message' => $request->message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'ticket');
+            }
 
+            return response()->json(["code" => 200 , "message" => "Message has been sent to all selected ticket"]);
+        }
+
+        return response()->json(["code" => 500 , "message" => "Please select atleast one ticket"]);
+    }
+    
+    public function delete_tickets(Request $request)
+    {
+        $softdelete = Tickets::find($request->id)->delete();
+        return response()->json(["code" => 200 , "message" => "Record Delete ticket"]);
+    }
     
 }

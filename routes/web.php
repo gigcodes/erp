@@ -29,6 +29,7 @@ Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/deleteChatMessages', 'TmpTaskController@deleteChatMessages');
 Route::get('/test/deleteProductImages', 'TmpTaskController@deleteProductImages');
+Route::get('/test/deleteQueue', 'TmpTaskController@deleteQueue');
 
 
 Route::get('/test/analytics', 'AnalyticsController@cronShowData');
@@ -48,7 +49,6 @@ Route::post('/products/published', 'ProductController@published');
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
 Route::get('/productsearcher/list', 'ProductSearcherController@sList')->name('productsearcher.list');
-
 Route::post('/productselection/email-set', 'ProductSelectionController@emailTplSet')->name('productselection.email.set');
 // adding chat contro
 
@@ -98,20 +98,28 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
     Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
+    Route::post('list-magento/product-push-update-infomation', 'Logging\LogListMagentoController@updateProductPushInformation')->name('update.magento.product-push-information');    
+
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
+    Route::get('list-magento/product-information', 'Logging\LogListMagentoController@productInformation')->name('list.magento.product-information');
+    Route::get('list-magento/retry-failed-job', 'Logging\LogListMagentoController@retryFailedJob')->name('list.magento.retry-failed-job');
+
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
-
+    Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');    
+    Route::get('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
+    
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
 
     Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
 
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
+    Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
@@ -123,6 +131,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     //TODO::Magento Product API call Route
     Route::get('magento-product-api-call', 'Logging\LogListMagentoController@showMagentoProductAPICall')->name('logging.magento.product.api.call');
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
+    Route::get('get-latest-product-for-push', 'Logging\LogListMagentoController@getLatestProductForPush')->name('logging.magento.get-latest-product-for-push');
+    Route::post('delete/magento-api-search-history', 'Logging\LogListMagentoController@deleteMagentoApiData')->name('delete.magento.api-search-history');
 });
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
@@ -143,6 +153,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
+    Route::get('crop-references-grid/manage-instances', 'CroppedImageReferenceController@manageInstance');
+    Route::post('crop-references-grid/add-instance', 'CroppedImageReferenceController@addInstance');
+    Route::get('crop-references-grid/delete-instance', 'CroppedImageReferenceController@deleteInstance');
+    Route::get('crop-references-grid/start-instance', 'CroppedImageReferenceController@startInstance');
+    Route::get('crop-references-grid/stop-instance', 'CroppedImageReferenceController@stopInstance');
     //Ajax request for select2
     Route::get('/crop-references-grid/getCategories', 'CroppedImageReferenceController@getCategories');
     Route::get('/crop-references-grid/getProductIds', 'CroppedImageReferenceController@getProductIds');
@@ -365,17 +380,22 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
   
   
-    Route::post('sop', 'ProductController@saveSOP')->name('sop.add');
-    Route::get('sop', 'ProductController@getdata')->name('sop.index');
-    Route::delete('sop/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
-    Route::get('sop/edit', 'ProductController@edit')->name('editName');
-    Route::post('update', 'ProductController@update')->name('updateName');
-    Route::get('sop/search', 'ProductController@searchsop');
-    Route::get('soplogs', 'ProductController@sopnamedata_logs')->name('sopname.logs');
+    Route::post('sop', 'SopController@store')->name('sop.store');
+    Route::get('sop', 'SopController@index')->name('sop.index');
+    Route::delete('sop/{id}', 'SopController@delete')->name('sop.delete');
+    Route::get('sop/edit', 'SopController@edit')->name('editName');
+    Route::post('update', 'SopController@update')->name('updateName');
+    Route::get('sop/search', 'SopController@search');
+    Route::get('soplogs', 'SopController@sopnamedata_logs')->name('sopname.logs');
+    Route::get('sop/DownloadData/{id}', 'SopController@downloaddata')->name('sop.download');
+   // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
+   Route::get('sop/permission-data', 'SopController@sopPermissionData')->name('sop.permission-data');
+   Route::get('sop/permission-list', 'SopController@sopPermissionList')->name('sop.permission-list');
 
-
-
+  
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
+
+    Route::post('create/shortcut-sop', 'SopShortcutCreateController@createShortcut')->name('shortcut.sop.create');
 
     // Delivery Approvals
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
@@ -388,6 +408,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/uploadlogo', 'BrandController@uploadlogo')->name('brand.uploadlogo');//Purpose : upload logo - DEVTASK-4278
     Route::post('brand/set_logo_with_brand', 'BrandController@set_logo_with_brand')->name('brand.set_logo_with_brand');//Purpose : upload logo with brand - DEVTASK-4278
     Route::post('brand/remove_logo', 'BrandController@remove_logo')->name('brand.remove_logo');//Purpose : remove logo - DEVTASK-4278
+    Route::post('brand/assign-default-value', 'BrandController@assignDefaultValue')->name('brand.assignDefaultValue');//Purpose : remove logo - DEVTASK-4278
 
     // For Brand size chart
     Route::get('brand/size/chart', 'BrandSizeChartController@index')->name('brand/size/chart');
@@ -397,6 +418,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/store-category-segment-discount', 'BrandController@storeCategorySegmentDiscount')->name('brand.store_category_segment_discount');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
+    Route::post('brand/next-step', 'BrandController@changeNextStep');
     Route::post('brand/update-reference', 'BrandController@updateReference');
     Route::post('brand/merge-brand', 'BrandController@mergeBrand');
     Route::post('brand/unmerge-brand', 'BrandController@unMergeBrand')->name('brand.unmerge-brand');
@@ -472,7 +494,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/fix-autosuggested', 'CategoryController@fixAutoSuggested')->name("category.fix-autosuggested");
     Route::get('category/fix-autosuggested-string', 'CategoryController@fixAutoSuggestedString')->name("category.fix-autosuggested-via-str");
     Route::get('category/{id}/history', 'CategoryController@history');
-
+    Route::post('category/change-push-type', 'CategoryController@changePushType');
     Route::get('sizes/references', 'SizeController@sizeReference');
     Route::get('sizes/{id}/used-products', 'SizeController@usedProducts');
 
@@ -583,6 +605,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
                 Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
             });
         });
+        Route::get('newsletter-email/store', 'ContentManagementController@emailStore')->name("content-management.emailStore");
 
 
         Route::prefix('contents')->group(function () {
@@ -715,6 +738,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/excel-import', 'EmailController@excelImporter');
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
+    Route::get('email/order_data/{email?}', 'EmailController@index');//Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', 'EmailController@platformUpdate');
 
     Route::post('email/category', 'EmailController@category');
@@ -775,6 +799,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
     Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
     Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
+    Route::post('tasks/send-brodcast', 'TaskModuleController@sendBrodCast')->name('task.send-brodcast');
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
     //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
@@ -836,6 +861,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::get('project-file-manager/list', 'ProjectFileManagerController@listTree')->name('project-file-manager.list');
+    Route::post('project-file-manager/get-latest-size', 'ProjectFileManagerController@getLatestSize')->name('project-file-manager.get-latest-size');
+    Route::post('project-file-manager/delete-file', 'ProjectFileManagerController@deleteFile')->name('project-file-manager.delete-file');
     Route::get('project-file-manager', 'ProjectFileManagerController@index')->name('project-file-manager.index');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
 
@@ -1136,7 +1163,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/get_excel_data_supplier_wise', 'PurchaseProductController@get_excel_data_supplier_wise')->name('purchase-product.get_excel_data_supplier_wise');
     Route::post('purchase-product/send_excel_file', 'PurchaseProductController@send_excel_file')->name('purchase-product.send_excel_file');
 
-
+    Route::get('purchase-product/not_mapping_product_supplier_list', 'PurchaseProductController@not_mapping_product_supplier_list')->name('not_mapping_product_supplier_list');//Purpose : Get not mapping supplier - DEVTASK-19941
+    
     Route::post('purchase-product/change-status/{id}', 'PurchaseProductController@changeStatus');
     Route::post('purchase-product/submit-status', 'PurchaseProductController@createStatus');
     Route::get('purchase-product/send-products/{type}/{supplier_id}', 'PurchaseProductController@sendProducts');
@@ -1146,11 +1174,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchase-product/saveFixedPrice', 'PurchaseProductController@saveFixedPrice');
     Route::post('purchase-product/saveDiscount', 'PurchaseProductController@saveDiscount');
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
+    Route::get('purchase-product/lead-supplier-details/{lead_id}', 'PurchaseProductController@leadSupplierDetails');
+
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
-    Route::get('purchase-product/order-product/images', 'PurchaseProductController@getOrderProductImages');
 
-    
 
     Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
 
@@ -1267,6 +1295,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::post('development/reminder', 'DevelopmentController@updateDevelopmentReminder');
+    Route::post('log_status/change/{id}', 'MagentoProductPushErrors@changeStatus');
+    Route::post('log_history/list/{id}', 'MagentoProductPushErrors@getHistory');
 
 
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
@@ -1346,6 +1376,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
     Route::get('development/time/history', 'DevelopmentController@getTimeHistory')->name('development/time/history');
+    Route::get('development/time/history/approved', 'DevelopmentController@getTimeHistoryApproved')->name('development/time/history/approved');
     Route::get('development/lead/time/history', 'DevelopmentController@getLeadTimeHistory')->name('development/lead/time/history');
     Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
@@ -1731,6 +1762,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
+    Route::post('/drafted-products/send-lead-price', 'ProductController@sendLeadPrice');
 
 });
 
@@ -1810,6 +1842,11 @@ Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
+Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
+Route::post('tickets/delete_tickets','LiveChatController@delete_tickets')->name('livetickets.delete');
+
+
+
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
@@ -2126,6 +2163,8 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/scrap/assignTask', 'ScrapController@assignScrapProductTask')->name('scrap.assignTask');
 
     Route::get('servers/statistics','ScrapController@getServerStatistics')->name('scrap.servers.statistics');
+
+    Route::get('logdata/view_scrappers_data','ScrapStatisticsController@view_scrappers_data')->name('scrap.logdata.view_scrappers_data');//Purpose : Add Route - DEVTASK-20102
  
 });
 
@@ -2412,6 +2451,7 @@ Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInf
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
+    Route::get('category/brand/min-max-pricing-update-default', 'CategoryController@updateMinMaxPriceDefault');
     Route::post('category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing');
 
     Route::post('task/change/status','TaskModuleController@updateStatus')->name('task.change.status');
@@ -3096,12 +3136,14 @@ Route::middleware('auth')->group(function()
 {
 Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
 Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
+Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
 
 Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
 
 
 Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
+Route::get('/get/stores/language/{website?}', 'scrapperPhyhon@storeLanguageList')->name('store.language.list');
 
 
 // DEV MANISH
@@ -3130,6 +3172,9 @@ Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@his
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
+Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
+Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
+Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_duty');
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
@@ -3156,6 +3201,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/delete/confirm', 'DBQueryController@deleteConfirm')->name('admin.databse.menu.direct.dbquery.delete.confirm');
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
     Route::post('/admin-menu/db-query/delete', 'DBQueryController@delete')->name('admin.databse.menu.direct.dbquery.delete');
+    Route::post('/admin-menu/db-query/command_execution', 'DBQueryController@command_execution')->name('admin.command_execution');//Purpose : Add Route for Command Exicute - DEVTASK-19941
+    Route::get('/admin-menu/db-query/command_execution_history', 'DBQueryController@command_execution_history')->name('admin.command_execution_history');//Purpose : Add Route for Command Exicution History data - DEVTASK-19941
 });
 
 Route::middleware('auth')->prefix('totem')->group(function() {
@@ -3164,12 +3211,10 @@ Route::middleware('auth')->prefix('totem')->group(function() {
 
     Route::group(['prefix' => 'tasks'], function () {
         Route::get('/', 'TasksController@index')->name('totem.tasks.all');
-
         Route::get('{task}', 'TasksController@view')->name('totem.task.view');
-
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
-
         Route::post('{task}/status', 'TasksController@status')->name('totem.task.status');
+        Route::get('{task}/development-task', 'TasksController@developmentTask')->name('totem.task.developmentTask');
     });
 
 });
@@ -3196,6 +3241,9 @@ Route::prefix('magento-product-error')->middleware('auth')->group(static functio
     Route::get('/records', 'MagentoProductPushErrors@records')->name("magento-productt-errors.records");
 
     Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue');
+
+    Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
+    Route::get('/magento_product_today_common_err_report', 'MagentoProductPushErrors@groupErrorMessageReport')->name('magento_product_today_common_err_report');//Purpose : Add Route for get Data - DEVTASK-20123
 });
 
 Route::prefix('message-queue-history')->middleware('auth')->group(static function () {
@@ -3208,3 +3256,4 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
     Route::get('/', 'ChatMessagesController@customChatListing')->name('custom-chat-message.index');
     Route::get('/records', 'ChatMessagesController@customChatRecords');
 });
+
