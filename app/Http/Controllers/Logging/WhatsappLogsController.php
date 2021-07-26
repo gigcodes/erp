@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Logging;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+
 use Storage;
 
 class WhatsappLogsController extends Controller
@@ -126,7 +128,8 @@ class WhatsappLogsController extends Controller
                     $data = [];
                     $date = substr($row, 1, 19);
                     $data['date'] = $date;
-                    $message = substr($row, 155, strlen($row));
+                    // $message = substr($row, 155, strlen($row));
+                    $message = substr($row, 35, strlen($row));
                     $data['error_message1'] = $message;
                     $data['error_message2'] = '';
                     array_push($array, $data);
@@ -168,8 +171,11 @@ class WhatsappLogsController extends Controller
                     $date = preg_match('#\[(.*?)\]#', $row, $match);
 //                  dd($match[1], $row);
                     $finaldata['date'] = isset($match[1]) ? $match[1] : '';;
-                    $message = preg_match('/{(.*?)}/', $row, $match);
-                    $finaldata['error_message1'] = isset($match[1]) ? $match[1] : '';
+
+                    // $message = preg_match('/{(.*?)}/', $row, $match);
+                    // $finaldata['error_message1'] = isset($match[1]) ? $match[1] : '';
+                    $message = substr($row, 35, strlen($row));
+                    $finaldata['error_message1'] = isset($message) ? $message : '';
                 }
 
                 if (substr($row, 0, 7) === 'Message') {
@@ -197,22 +203,25 @@ class WhatsappLogsController extends Controller
         });
 //        dd($farray);
         /* end chat api */
-
         $page = $request->page;
         if ($page == null) {
             $page = 1;
         }
-
+        
         $array = array_slice($farray, ($page * 10 - 10), 10);
+
+        $roles = Auth::user()->roles->pluck('name')->toArray();
+
+        $isAdmin = in_array('Admin', $roles);
 
         if ($request->ajax()) {
             $page = $request->page - 1;
             $sr = $page * 10 - 9;
 
-            return view('logging.whatsapp-grid', compact('array','sr'));
+            return view('logging.whatsapp-grid', compact('array','sr','isAdmin'));
         }
 
-        return view('logging.whatsapp-logs', compact('array'));
+        return view('logging.whatsapp-logs', compact('array','isAdmin'));
 
     }
 }

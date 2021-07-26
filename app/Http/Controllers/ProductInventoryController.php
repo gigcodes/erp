@@ -25,6 +25,7 @@ use \App\Jobs\UpdateFromSizeManager;
 use DB;
 use Illuminate\Support\Facades\Input;
 use App\Imports\DiscountFileImport;
+use App\ProductSupplier;
 use App\Supplier;
 use App\SupplierBrandDiscount;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
@@ -186,167 +187,117 @@ class ProductInventoryController extends Controller
 		$term     = $request->input( 'term' );
 		$data['term']     = $term;
 
-		$productQuery = ( new Product() )->newQuery()->latest()->with(['brands','product_category']);
-        if (isset($request->brand) && $request->brand[0] != null) {
-            $productQuery = ( new Product() )->newQuery()->latest()->whereIn('brand', $request->brand);
+		$productQuery = Product::latest()->with(['brands','product_category']);
 
+        if (isset($request->brand) && $request->brand[0] != null) {
+            $productQuery = $productQuery->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
         }
-        if (isset($request->color) && $request->color[0] != null) {
-            if (isset($request->brand) && $request->brand[0] != null) {
-                $productQuery = $productQuery->whereIn('color', $request->color);
-            } else {
-                $productQuery = (new Product())->newQuery()->latest()->whereIn('color', $request->color);
-            }
+        if (isset($request->color) && is_array($request->color) && $request->color[0] != null) {
 
-            $data['color'] = $request->color[0];
+                $productQuery = $productQuery->whereIn('color', $request->color);
+            $data['color'] = $request->color;
         }
 
-        if (isset($request->category) && $request->category[0] != 1) {
-			$is_parent = Category::isParent($request->category[0]);
+		if (!empty($request->category) && $request->category[0] != 1) {
+
+			$category   = Category::with('childs.childLevelSencond')->find($request->category[0]);
 			$category_children = [];
-
-			if ($is_parent) {
-				$childs = Category::find($request->category[0])->childs()->get();
-
+			if($category->childs->count()){
+				$childs  = $category->childs;
 				foreach ($childs as $child) {
-					$is_parent = Category::isParent($child->id);
-
-					if ($is_parent) {
-						$children = Category::find($child->id)->childs()->get();
-
-						foreach ($children as $chili) {
-							array_push($category_children, $chili->id);
+					// $category_children[] =  $child->id;
+					if ($child->childLevelSencond->count()) {
+					$grandChilds     = $child->childLevelSencond;
+						foreach ($grandChilds as $grandChild) {
+							$category_children[] =  $grandChild->id;
 						}
-					} else {
-						array_push($category_children, $child->id);
+					}else{
+						$category_children[] =  $child->id;
 					}
 				}
-			} else {
-				array_push($category_children, $request->category[0]);
-			}
-			if (($request->brand && is_array($request->brand) &&  $request->brand[0] != null) || ($request->color && is_array($request->color[0])&&  $request->color[0] != null)) {
-				$productQuery = $productQuery->whereIn('category', $category_children);
-			} else {
-				$productQuery = (new Product())->newQuery()
-				                                 ->latest()->whereIn('category', $category_children);
-			}
+			}else{
+				$category_children[] =  $category->id;
 
+			}
+				$productQuery->whereIn('category', $category_children);
 			$data['category'] = $request->category[0];
 		}
 
-
-		/*if (isset($request->price) && $request->price != null) {
-			$exploded = explode(',', $request->price);
-			$min = $exploded[0];
-			$max = $exploded[1];
-
-			if ($min != '0' || $max != '10000000') {
-				if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
-					$productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
-				} else {
-					$productQuery = ( new Product() )->newQuery()
-					                                 ->latest()->whereBetween('price_inr_special', [$min, $max]);
-				}
-			}
-
-			$data['price'][0] = $min;
-			$data['price'][1] = $max;
-		}*/
-
 		if (isset($request->location) && $request->location[0] != null) {
-			if (($request->brand && is_array($request->brand)  && $request->brand[0] != null )|| ($request->color && is_array($request->color[0]) && $request->color[0] != null) || ( $request->category && is_array($request->category[0]) &&  $request->category[0] != 1) || (  $request->price &&     $request->price != "0,10000000")) {
-				$productQuery = $productQuery->whereIn('location', $request->location);
+		
+				$productQuery->whereIn('location', $request->location);
 
-			} else {
-				$productQuery = ( new Product() )->newQuery()->latest()
-				                                 ->whereIn('location', $request->location);
-			}
 			$data['location'] = $request->location;
 		}
 
-		if ($request->no_locations) {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000" || $request->location[0] != null) {
-				$productQuery = $productQuery->whereNull('location');
+		if ( isset($request->no_locations) && $request->no_locations) {
 
-			} else {
-				$productQuery = ( new Product() )->newQuery()->latest()
-				                                 ->whereNull('location');
-			}
+				$productQuery->whereNull('location');
+
+		
 			$data['no_locations'] = true;
 		}
 
-		if (trim($term) != '') {
-				$productQuery->when(!empty($term),function($q)  use ($term){
-
-							$q->where('sku','LIKE',"%$term%")
-							   ->orWhereHas('brands',function	($q) use($term){
-								$q->where( 'name', 'LIKE', "%$term%");
-							})->orwhereHas('product_category',function	($q) use($term){
-								$q->where( 'title', 'LIKE', "%$term%");
-							})->orWhere(function($q) use ($term){
-								 $arr_id = Product::STOCK_STATUS;	
-								$key = array_search(ucwords($term), $arr_id);
-								 $q->where('stock_status',$key);
-							});
+				$productQuery->when(!empty($term),function($e)  use ($term){
+							$e->where(function($q) use ($term){
+								
+								$q->where('sku','LIKE',"%$term%")
+								   ->orWhereHas('brands',function	($a) use($term){
+									$a->where( 'name', 'LIKE', "%$term%");
+								})->orwhereHas('product_category',function	($q) use($term){
+									$q->where( 'title', 'LIKE', "%$term%");
+								})
+								->orWhere(function($q) use ($term){
+									 $arr_id = Product::STOCK_STATUS;	
+									$key = array_search(ucwords($term), $arr_id);
+									 $q->where('stock_status',$key);
+								});
+							})
+							;
 				});
-		} else {
-			if (isset($request->brand) && $request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
-				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest();
-
-			}
-		}
-
+	
 		$selected_brand = null;
 		if($request->brand){
 		$selected_brand = Brand::select('id','name')->whereIn('id',$request->brand)->get();
 		}
 		$data['selected_brand']= $selected_brand;
-		// $search_suggestions = [];
-		//
-		// $sku_suggestions = ( new Product() )->newQuery()->where('supplier', 'In-stock')
-		// 																	 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-		//
-		// $brand_suggestions = Brand::getAll();
-		//
-		// foreach ($sku_suggestions as $key => $suggestion) {
-		// 	array_push($search_suggestions, $suggestion['sku']);
-		// }
-		//
-		// foreach ($brand_suggestions as $key => $suggestion) {
-		// 	array_push($search_suggestions, $suggestion);
-		// }
-		//
-		// $data['search_suggestions'] = $search_suggestions;
-
+	
 		$selected_categories = $request->category ? $request->category : 1;
 
 		$data['category_selection'] = Category::attr(['name' => 'category[]','class' => 'form-control'])
 		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
-
-//		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+//	
+		$stockStatus = $request->get('stock_status', "");					
+		if (!empty($stockStatus)) {
+			$productQuery->where('stock_status',$stockStatus);
+		}
 
 		if ($request->get('shoe_size', false)) {
-            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+            $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
+
         $productQuery->where(function($query){
         	$query->where("purchase_status","!=","Delivered")->orWhereNull("purchase_status");
         });
-
-        $stockStatus = $request->get('stock_status', "");
-        if (!empty($stockStatus)) {
-            $productQuery = $productQuery->where('products.stock_status', $stockStatus);
-        }
-
+      
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
         } else {
-            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
+
+			// $sub_q = ProductSupplier::select('product_id')->where('supplier_id',11)->get()->pluck('product_id')->toArray();
+	            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
+
+					// $data[ 'products' ] = $productQuery->where(function($j) use($sub_q){
+					// 	$j->whereIn('products.id',$sub_q)->orWhere(function($q){
+					// 		$q->whereNotNull('location')->where('location','<>','');
+					// 	});
+					// })->paginate( Setting::get( 'pagination' ) );
+					
         }
-//        dd($productQuery->get());
+
         $data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
@@ -358,7 +309,7 @@ class ProductInventoryController extends Controller
 		$data['category_tree'] = [];
 		$data['categories_array'] = [];
 
-		foreach (Category::all() as $category) {
+		foreach (Category::with('parent')->get() as $category) {
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
 				if($parent) {
@@ -373,10 +324,6 @@ class ProductInventoryController extends Controller
 			$data['categories_array'][$category->id] = $category->parent_id;
 		}
 
-		/*if ($request->ajax()) {
-			$html = view('instock.product-items', $data)->render();
-			return response()->json(['html' => $html]);
-		}*/
 
         if ($request->get('in_pdf') === 'on') {
 		    set_time_limit(0);
@@ -388,7 +335,6 @@ class ProductInventoryController extends Controller
             $pdf->stream('instock.pdf');
             return;
         }
-
         return view( 'instock.index', $data );
 	}
 
@@ -701,7 +647,7 @@ class ProductInventoryController extends Controller
 
 		$reply_categories = \App\ReplyCategory::whereHas('product_dispatch')->get();
 
-		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers', 'reply_categories']));
+		return view("instock.instruction_create",compact(['productId','users','order','locations','couriers', 'reply_categories']));
 
 	}
 
@@ -833,13 +779,15 @@ class ProductInventoryController extends Controller
 		$instruction->assigned_from = \Auth::user()->id;
 		$instruction->assigned_to = $params["assign_to"];
 		$instruction->product_id = $params["product_id"];
-		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		// $instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : null;
 		$instruction->save();
 
 
 		$productHistory = new \App\ProductLocationHistory();
 		$productHistory->fill($params);
 		$productHistory->created_by = \Auth::user()->id;
+		$productHistory->instruction_message = $params["instruction_message"];
 		$productHistory->save();
 
 
@@ -971,7 +919,7 @@ class ProductInventoryController extends Controller
 
 		}
 
-		return response()->json(["code" => 1]);
+		return response()->json(["code" => 1, "productHistory" => $productHistory,"userName" => $productHistory->user->name]);
 
 	}
 

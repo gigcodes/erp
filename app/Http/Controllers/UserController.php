@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use App\UserSysyemIp;
 use App\UserLogin;
 use App\Setting;
 use App\Helpers;
@@ -32,6 +33,7 @@ use Carbon\Carbon;
 use DateTime;
 use App\UserLoginIp;
 use App\EmailNotificationEmailDetails;//Purpose : add MOdal - DEVTASK-4359
+use App\WebhookNotification;
 
 class UserController extends Controller
 {
@@ -205,7 +207,7 @@ class UserController extends Controller
 	 */
 	public function edit($id)
 	{
-		$user = User::find($id);
+		$user = User::with('webhookNotification')->find($id);
 		$roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
 		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
 
@@ -220,6 +222,7 @@ class UserController extends Controller
 		$userRate = UserRate::getRateForUser($user->id);
 		
 		$email_notification_data = EmailNotificationEmailDetails::where('user_id',$id)->first();//Purpose : get email details - DEVTASK-4359
+
 
 
 		return view(
@@ -309,7 +312,12 @@ class UserController extends Controller
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
 		$user->save();
-
+		
+		if($request->webhook && isset($request->webhook['url']) && isset($request->webhook['payload'])){
+			WebhookNotification::updateOrCreate([
+				'user_id' => $user->id
+			], $request->webhook);
+		}
 
 		$userRate = new UserRate();
 		$userRate->start_date = Carbon::now();
@@ -698,15 +706,31 @@ class UserController extends Controller
 
 	public function addSystemIp(Request $request){
 		if($request->ip){
-			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
+			
+			$shell_cmd = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
+
+			UserSysyemIp::create([
+				'index_txt'  => $shell_cmd['index']??'null',
+				'ip'         => $request->ip,
+				'user_id'    => $request->user_id??null,
+				'other_user_name' => $request->other_user_name??null,
+				'notes'      => $request->comment??null,
+			]);
+
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
 	}
 
 	public function deleteSystemIp(Request $request){
-		if($request->index){
-			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$request->index);
+		if($request->usersystemid){
+			
+			$row = UserSysyemIp::where('id',$request->usersystemid)->first();
+
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$row->index??'');
+	
+			$row->delete();			
+		
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );

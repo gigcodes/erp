@@ -58,7 +58,12 @@
             <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested-auto">
                 <button type="button" class="btn btn-secondary">Auto fix</button>
             </a>
+            <a href="{{ route('category.fix-autosuggested',['show_auto_fix'=>true]) }}" class="fix-autosuggested">
+                <button type="button" class="btn btn-secondary">Show auto fix</button>
+            </a>
         </div>
+        {{-- <div class="form-group col-md-4"> --}}
+        {{-- </div> --}}
     </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
@@ -74,13 +79,6 @@
             {{-- @dd($unKnownCategories->items()); --}}
             @foreach($scrapped_category_mapping as $key => $unKnownCategory)
 
-                @php
-                    // $websites_ = $unKnownCategory->scmSPCM->toArray();
-
-                    
-
-                    // $websites_ = array_unique($websites_);
-                @endphp
                 
                 @if($unKnownCategory->name != '')
                     <?php 
@@ -422,12 +420,12 @@
                     if (response.code == 200) {
                         if(response.html != "") {
                             toastr['success'](response.message, 'success');
-                            location.reload();
+                            // location.reload();
                         }else{
                             toastr['error']('Sorry, something went wrong', 'error');
                         }
                         $(".show-listing-exe-records").modal('hide');
-                        location.reload();
+                        // location.reload();
                     }
                 }).fail(function (response) {
                     $("#loading-image").hide();

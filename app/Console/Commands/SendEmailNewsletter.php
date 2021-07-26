@@ -69,7 +69,8 @@ class SendEmailNewsletter extends Command
                             $curl = curl_init();
 
                             curl_setopt_array($curl, array(
-                              CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                            //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                              CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                               CURLOPT_RETURNTRANSFER => true,
                               CURLOPT_ENCODING => "",
                               CURLOPT_MAXREDIRS => 10,

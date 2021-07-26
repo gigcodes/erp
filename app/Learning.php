@@ -107,6 +107,16 @@ class Learning extends Model {
 			return json_decode(json_encode($results),true);
 	}
 
+    public function learningUser()
+    {
+        return $this->hasOne(\App\User::class,'id','learning_user');
+    }
+
+    public function learningVendor()
+    {
+        return $this->hasOne(\App\User::class,'id','learning_vendor');
+    }
+
 	public function remarks()
 	{
 		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();

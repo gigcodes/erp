@@ -42,6 +42,8 @@ use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
 use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
@@ -134,8 +136,10 @@ use App\Console\Commands\productActivityStore;
 use App\Console\Commands\errorAlertMessage;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\SendDailyLearningReports;
 use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
+use DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -203,6 +207,8 @@ class Kernel extends ConsoleKernel
         SendReminderToCustomerIfTheyHaventReplied::class,
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
+        SendReminderToTaskIfTheyHaventReplied::class,
+        SendReminderToDevelopmentIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
         UpdateShoeAndClothingSizeFromChatMessages::class,
         UpdateCustomerSizeFromOrder::class,
@@ -265,6 +271,7 @@ class Kernel extends ConsoleKernel
         errorAlertMessage::class,
         InstagramHandler::class,
         SendDailyReports::class,
+        SendDailyLearningReports::class,
         SendDailyPlannerNotification::class,
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
@@ -278,6 +285,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
@@ -457,11 +466,41 @@ class Kernel extends ConsoleKernel
             if(!empty($queueTime)) {
                 foreach($queueTime as $no => $time) {
                     if($time > 0) {
+
+
+                        $allowCounter = true;
+                        $counterNo[] = $no;
                         $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
-                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);        
-                    } 
+                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+
+                    }
                 }
+
+
             }
+
+            /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
+            {
+                $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
+                $numbers = array_unique($counterNo);
+                foreach ($numbers as $number)
+                {
+
+                    $tempNo = $number;
+                    $settingData = $tempSettingData[0];
+                    $messagesRules = json_decode($settingData->val);
+                    $counter = ( !empty($messagesRules->$tempNo) ? $messagesRules->$tempNo : 0);
+                    $insert_data = null;
+
+                    $insert_data = array(
+                        'counter'=>$counter,
+                        'number'=>$number,
+                        'time'=>now()
+                    );
+                    DB::table('message_queue_history')->insert($insert_data);
+
+                }
+            }*/
         }
 
 
@@ -526,7 +565,7 @@ class Kernel extends ConsoleKernel
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
-		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+		//$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
 		$schedule->command('send:daily-reports')->dailyAt('23:00');
 
 		
@@ -542,6 +581,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('check:landing-page')->everyMinute();
 
         $schedule->command('ScrapApi:LogCommand')->hourly();
+        $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
@@ -578,6 +618,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("errorAlertMessage")->daily();
 
         $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
     }
 

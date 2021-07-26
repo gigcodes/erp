@@ -161,6 +161,7 @@
     @include("development.partials.add-status-modal")
     @include("development.partials.user_history_modal")
     @include("development.partials.lead_time-history-modal")
+    @include("development.partials.development-reminder-modal")
 @endsection
 @section('scripts')
     <script src="/js/bootstrap-datetimepicker.min.js"></script>
@@ -170,6 +171,60 @@
     <script src="/js/bootstrap-filestyle.min.js"></script>
     <script>
         $(document).ready(function () {
+
+            $('#development_reminder_from').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm'
+            });
+
+            var developmentToRemind = null
+            $(document).on('click', '.development-set-reminder', function () {
+                let developmentId = $(this).data('id');
+                let frequency = $(this).data('frequency');
+                let message = $(this).data('reminder_message');
+                let reminder_from = $(this).data('reminder_from');
+                let reminder_last_reply = $(this).data('reminder_last_reply');
+
+                $('#frequency').val(frequency);
+                $('#reminder_message').val(message);
+                $("#developmentReminderModal").find("#development_reminder_from").val(reminder_from);
+                if(reminder_last_reply == 1) {
+                    $("#developmentReminderModal").find("#reminder_last_reply").prop("checked",true);
+                }else{
+                    $("#developmentReminderModal").find("#reminder_last_reply_no").prop("checked",true);
+                }
+                developmentToRemind = developmentId;
+            });
+
+            $(document).on('click', '.development-submit-reminder', function () {
+                var developmentReminderModal = $("#developmentReminderModal");
+                let frequency = $('#frequency').val();
+                let message = $('#reminder_message').val();
+                let development_reminder_from = developmentReminderModal.find("#development_reminder_from").val();
+                let reminder_last_reply = (developmentReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
+
+                $.ajax({
+                    url: "{{action('DevelopmentController@updateDevelopmentReminder')}}",
+                    type: 'POST',
+                    success: function () {
+                        toastr['success']('Reminder updated successfully!');
+                        $(".set-reminder img").css("background-color", "");
+                        if(frequency > 0)
+                        {
+                            $(".development-set-reminder img").css("background-color", "red");
+                        }
+                    },
+                    data: {
+                        development_id: developmentToRemind,
+                        frequency: frequency,
+                        message: message,
+                        reminder_from: development_reminder_from,
+                        reminder_last_reply: reminder_last_reply,
+                        _token: "{{ csrf_token() }}"
+                    }
+                });
+            });
+
+
             var isLoadingProducts = false;
             $(document).on('click', '.assign-issue-button', function () {
                 var issue_id = $(this).data('id');
@@ -732,9 +787,6 @@
                         $('#time_history_div table tbody').append(
                             '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
                         );
-                        $('#time_history_div table tbody').append(
-                            '<input type="hidden" name="issueId" value="'+issueId+'" class=" "/>'
-                        );
                     }
                     $('#time_history_modal').modal('show');
                 }
@@ -836,6 +888,38 @@
             });
             $('#date_history_modal').modal('show');
         });
+
+        $(document).on('click', '.show-status-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#status_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/status/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#status_history_modal table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\
+                                    <td>'+item['name']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#status_history_modal').modal('show');
+        });
+
 
 
         $(document).on('submit', '#approve-time-btn', function(event) {
@@ -1081,7 +1165,7 @@
                 url: "{{action('DevelopmentController@resolveIssue')}}",
                 data: {
                     issue_id: id,
-                    is_resolved: status
+                    is_resolved: status,
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")

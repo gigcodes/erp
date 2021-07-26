@@ -1947,7 +1947,9 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+
             //dd($url);
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -1993,7 +1995,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -2030,7 +2033,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
  
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
@@ -2058,7 +2062,9 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -2245,7 +2251,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
 
             $curl = curl_init();
             
@@ -2254,23 +2261,13 @@ class ScrapController extends Controller
             
             $response = curl_exec($curl);
             
-            
             curl_close($curl);
             
             if (!empty($response)) {
                 
                 $response = json_decode($response);
                 
-                $log = \Log::info(print_r($response,true));
-                if (!empty($log)) {
-
-                    $api_log = new ScrapApiLog;
-                    $api_log->scraper_id = $scraper->id;
-                    $api_log->server_id = $request->server_id;
-                    $api_log->log_messages = $log;
-                    $api_log->save();
-                }
-                
+                \Log::info(print_r($response,true));
                 
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     echo "Sorry , no log was return from server";
@@ -2281,7 +2278,17 @@ class ScrapController extends Controller
                         header('Content-Description: File Transfer');
                         header("Content-type: application/octet-stream");
                         header("Content-disposition: attachment; filename= ".$file."");
-                        echo base64_decode($response->log);
+                        $log = base64_decode($response->log);
+
+                        if (!empty($log)) {
+
+                            $api_log = new ScrapApiLog;
+                            $api_log->scraper_id = $scraper->id;
+                            $api_log->server_id = $request->server_id;
+                            $api_log->log_messages = $log;
+                            $api_log->save();
+                        }
+
                     }
                 }
             } else {

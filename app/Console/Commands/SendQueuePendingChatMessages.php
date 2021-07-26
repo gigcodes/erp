@@ -7,11 +7,12 @@ use App\Services\Whatsapp\ChatApi\ChatApi;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use App\MessageQueueHistory;
 
 class SendQueuePendingChatMessages extends Command
 {
-    const BROADCAST_PRIORITY          = 8;
-    const MARKETING_MESSAGE_TYPE_ID   = 3;
+    const BROADCAST_PRIORITY        = 8;
+    const MARKETING_MESSAGE_TYPE_ID = 3;
 
     public $waitingMessages;
 
@@ -43,16 +44,17 @@ class SendQueuePendingChatMessages extends Command
     {
 
         $q = \DB::table("whatsapp_configs")->select([
-                "number", "instance_id", "token", "is_customer_support", "status", "is_default",
-            ])->where("instance_id", "!=", "")
-                ->where("token", "!=", "")
-                ->where("status", 1)
-                ->orderBy("is_default", "DESC")
-                ->get();
+            "number", "instance_id", "token", "is_customer_support", "status", "is_default",
+        ])->where("instance_id", "!=", "")
+            ->where("token", "!=", "")
+            ->where("status", 1)
+            ->orderBy("is_default", "DESC")
+            ->get();
 
         $noList = [];
-        foreach($q as $queue) {
+        foreach ($q as $queue) {
             $noList[] = $queue->number;
+
         }
 
         return $noList;
@@ -65,13 +67,14 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-        //try {
+
+        try {
 
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            
+
             $numberList = [$this->argument('number')];
 
             // get the status for approval
@@ -91,16 +94,17 @@ class SendQueuePendingChatMessages extends Command
                         $this->waitingMessages[$no] = $waitingMessage;
                     }
                 }
-                
+
                 if (!empty($numberList)) {
                     foreach ($numberList as $number) {
+
                         $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
 
                         $chatMessage = ChatMessage::where('is_queue', ">", 0)
                             ->join("customers as c", "c.id", "chat_messages.customer_id")
                             ->where("c.whatsapp_number", $number)
-                            ->where(function($q) {
-                                $q->orWhere("chat_messages.group_id","<=",0)->orWhereNull("chat_messages.group_id")->orWhere("chat_messages.group_id","");
+                            ->where(function ($q) {
+                                $q->orWhere("chat_messages.group_id", "<=", 0)->orWhereNull("chat_messages.group_id")->orWhere("chat_messages.group_id", "");
                             })
                             ->select("chat_messages.*")
                             ->limit($sendLimit)->get();
@@ -137,13 +141,22 @@ class SendQueuePendingChatMessages extends Command
                                     $value->is_queue = 0;
                                     $value->save();
 
+                                    $dataInsert = array(
+                                        'counter'  => $sendLimit,
+                                        'number'   => $number,
+                                        'type'     => 'individual',
+                                        'user_id'  => $value->customer_id,
+                                        'time'     => Carbon::now()->format('Y-m-d H:i:s')
+                                    );
+                                    MessageQueueHistory::insert($dataInsert);
+
                                 } else {
 
                                     // check message is full or not
                                     $isSendingLimitFull = isset($this->waitingMessages[$value->customer->whatsapp_number])
                                     ? $this->waitingMessages[$value->customer->whatsapp_number] : 0;
                                     // if message queue is full then go for the next;
-                                    if ($isSendingLimitFull >= config("apiwha.message_queue_limit",100)) {
+                                    if ($isSendingLimitFull >= config("apiwha.message_queue_limit", 100)) {
                                         continue;
                                     }
 
@@ -151,6 +164,17 @@ class SendQueuePendingChatMessages extends Command
                                     $myRequest->setMethod('POST');
                                     $myRequest->request->add(['messageId' => $value->id]);
                                     app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+
+
+                                    
+                                    $dataInsert = array(
+                                        'counter'  => $sendLimit,
+                                        'number'   => $number,
+                                        'type'     => 'individual',
+                                        'user_id'  => $value->customer_id,
+                                        'time'     => Carbon::now()->format('Y-m-d H:i:s')
+                                    );
+                                    MessageQueueHistory::insert($dataInsert);    
                                 }
                             }
                         }
@@ -162,6 +186,7 @@ class SendQueuePendingChatMessages extends Command
 
             //  For vendor
             $this->waitingMessages = [];
+
             if (!empty($numberList)) {
                 foreach ($numberList as $no) {
                     $chatApi                    = new ChatApi;
@@ -169,6 +194,7 @@ class SendQueuePendingChatMessages extends Command
                     $this->waitingMessages[$no] = $waitingMessage;
                 }
             }
+
             if (!empty($numberList)) {
                 foreach ($numberList as $number) {
                     $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
@@ -211,7 +237,22 @@ class SendQueuePendingChatMessages extends Command
                                 $value->is_queue = 0;
                                 $value->save();
 
+                            } else {
+
+                                // check message is full or not
+                                $isSendingLimitFull = isset($this->waitingMessages[$value->vendor->whatsapp_number])
+                                ? $this->waitingMessages[$value->vendor->whatsapp_number] : 0;
+                                // if message queue is full then go for the next;
+                                if ($isSendingLimitFull >= config("apiwha.message_queue_limit", 100)) {
+                                    continue;
+                                }
+
+                                $myRequest = new Request();
+                                $myRequest->setMethod('POST');
+                                $myRequest->request->add(['messageId' => $value->id]);
+                                app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $myRequest);
                             }
+
                         }
                     }
 
@@ -219,9 +260,9 @@ class SendQueuePendingChatMessages extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }*/
+        }
 
     }
 }

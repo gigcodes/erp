@@ -49,9 +49,9 @@
 					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{/if}}
                       {{if prop.has_flag == 1}}
-                          <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
+                          <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
                       {{else}}
-                            <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
+                            <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
                       {{/if}}
 					  </td>
                     <td>
@@ -64,12 +64,18 @@
                         </select>
 <!--                        {{:prop.status_falg}}-->
                     </td>
-					<td>
-					        {{:prop.details}}
-<!--						<div class="show_hide_description">Show Description</div>-->
-<!--						<div class="description_content" style="display:none">-->
-<!--							-->
-<!--						</div>-->
+					<td> 
+						{{if prop.details.length > 100}}
+							<div class="description">
+								{{:prop.details.substr(0, 100)}}...
+							</div>
+						{{else}}
+							{{:prop.details}}
+						{{/if}}
+						
+						<div class="full_description d-none">
+						{{:prop.details}}
+						</div> 
 					</td>
 			      	<td>
 					  <div class="form-group">
@@ -224,3 +230,9 @@ $(document).on('click','.load-time-modals',function(e){
 	$('.load-time-modal[data-id="'+id+'"]').trigger('click');
 })
 	</script>
+   <script>
+        $(document).on('click','.description',function(){
+            $('#logMessageModel').modal('show');
+            $('#logMessageModel p').text($(this).next().html());
+        })
+    </script>

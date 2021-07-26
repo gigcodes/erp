@@ -3,7 +3,8 @@
 namespace App\Observers;
 
 use App\Email;
-use App\GmailData;
+use App\GmailDataList;
+use App\GmailDataMedia;
 
 class EmailObserver
 {
@@ -68,19 +69,21 @@ class EmailObserver
         $img = preg_match_all('/<img[^>]+src=([\'"])(?<src>.+?)\1[^>]*>/i', $email->message, $imgTags);
 
         if ($a > 0) {
-            for ($i = 0; $i < count($imgTags[0]); $i++) {
-                $gmail = new GmailData;
-                $gmail->sender = $email->from;
-                $gmail->page_url = $aTags['href'][$i];
-                $gmail->images = $imgTags['src'][$i];
-                $gmail->received_at = $email->created_at->format('m/d/Y');
-                $gmail->save();
-            }
-        }else{
-            $gmail = new GmailData;
+            $gmail = new GmailDataList;
             $gmail->sender = $email->from;
+            $gmail->domain = substr($email->from, strpos($email->from, "@") + 1);
             $gmail->received_at = $email->created_at->format('m/d/Y');
             $gmail->save();
+
+            for ($i = 0; $i < count($imgTags[0]); $i++) {
+                if (file_get_contents($imgTags['src'][$i]) != '') {
+                    $gmail_media = new GmailDataMedia;
+                    $gmail_media->gmail_data_list_id = $gmail->id;
+                    $gmail_media->page_url = $aTags['href'][$i];
+                    $gmail_media->images = $imgTags['src'][$i];
+                    $gmail_media->save();
+                }
+            }
         }
     }
 }

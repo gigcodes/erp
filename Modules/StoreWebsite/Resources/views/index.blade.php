@@ -22,11 +22,9 @@
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
-                    @if(auth()->user()->isAdmin())
-                        <button style="display: inline-block;" class="btn btn-sm btn-secondary generate-pem-file">
-                            Generate PEM file
+                    <button style="display: inline-block;" class="btn btn-sm ml-5 btn-secondary open-store-magento-user-lising">
+                            User Listing
                         </button>
-                    @endif
 				 </div> 		
 		    </div>
 		    <div class="col">
@@ -59,7 +57,7 @@
           50% 50% no-repeat;display:none;">
 </div>
 <div class="common-modal modal" role="dialog">
-  	<div class="modal-dialog" role="document">
+  	<div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;">
   	</div>	
 </div>
 

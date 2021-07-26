@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Scraper;
 use App\ScrapApiLog;
+use App\Scraper;
+use Illuminate\Console\Command;
 
 class ScrapApiLogCommand extends Command
 {
@@ -39,6 +39,7 @@ class ScrapApiLogCommand extends Command
      */
     public function handle()
     {
+
         ScrapApiLog::where('created_at', '<', now()->subDays(7))->delete();
 
         $activeSuppliers = Scraper::with([
@@ -66,33 +67,44 @@ class ScrapApiLogCommand extends Command
             ->whereIn("scrapper", [1, 2])
             ->whereNull('parent_id')->get();
 
-            foreach ($activeSuppliers as $key => $supplier) {
-                $scraper = Scraper::find($supplier->id);
-                if (!$scraper->parent_id) {
-                    $name = $scraper->scraper_name;
-                } else {
-                    $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
-                }
-
-                $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
-
-                $curl = curl_init();
-                
-                curl_setopt($curl, CURLOPT_URL, $url);
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                
-                $response = curl_exec($curl);
-                
-                
-                curl_close($curl);
-                
-                if (!empty($response)) {
-                    $api_log = new ScrapApiLog;
-                    $api_log->scraper_id = $scraper->id;
-                    $api_log->server_id = $supplier->server_id;
-                    $api_log->log_messages = substr($response, 1, -1);
-                    $api_log->save();
-                }
+        foreach ($activeSuppliers as $key => $supplier) {
+            $scraper = Scraper::find($supplier->id);
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
+
+            // $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
+
+            $curl = curl_init();
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+            $response = curl_exec($curl);
+
+            if (!empty($response)) {
+
+                $response = json_decode($response);
+
+                if (!empty($response->log)) {
+                    $log = base64_decode($response->log);
+
+                    if (!empty($log)) {
+
+                        $api_log = new ScrapApiLog;
+                        $api_log->scraper_id = $scraper->id;
+                        $api_log->server_id = $scraper->server_id;
+                        $api_log->log_messages = $log;
+                        $api_log->save();
+                    }
+
+                }
+
+            }
+
+        }
     }
 }

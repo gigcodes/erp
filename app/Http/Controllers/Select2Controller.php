@@ -139,7 +139,7 @@ class Select2Controller extends Controller
             });
         }
 
-        $users = $users->paginate(30);
+        $users = $users->orderBy('name','asc')->paginate(30);
 
         $result['total_count'] = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;
@@ -173,7 +173,7 @@ class Select2Controller extends Controller
             });
         }
 
-        $users = $users->paginate(30);
+        $users = $users->orderBy('name','asc')->paginate(30);
 
         $result['total_count'] = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;
@@ -283,5 +283,28 @@ class Select2Controller extends Controller
         }
     
         return response()->json($result);
+    }  
+
+    public function customersByMultiple(Request $request){
+
+        $term = request()->get("q", null);
+        $customers = \App\Customer::select('id', 'name', 'phone')->where("name", "like", "%{$term}%")->orWhere("phone", "like", "%{$term}%")->orWhere("id", "like", "%{$term}%");
+ 
+        $customers = $customers->paginate(30);
+
+        $result['total_count'] = $customers->total();
+        $result['incomplete_results'] = $customers->nextPageUrl() !== null;
+
+        foreach ($customers as $customer) {
+
+            $result['items'][] = [
+                'id' => $customer->id,
+                'text' => '<strong>Name</strong>: ' . $customer->name . ' <strong>Phone</strong>: ' . $customer->phone
+            ];
+        }
+
+        return response()->json($result);
+
     }
+   
 }

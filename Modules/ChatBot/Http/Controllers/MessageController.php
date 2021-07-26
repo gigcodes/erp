@@ -20,6 +20,8 @@ class MessageController extends Controller
     {
         $search = request("search");
         $status = request("status");
+        $unreplied_msg = request("unreplied_msg");//Purpose : get unreplied message value - DEVATSK=4350
+
 
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
             ->leftjoin("customers as c", "c.id", "chat_messages.customer_id")
@@ -36,9 +38,21 @@ class MessageController extends Controller
             });
         }
 
+        //START - Purpose : get unreplied messages - DEVATSK=4350 
+        if (!empty($unreplied_msg)) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where('cm1.message',null);
+        }
+        //END - DEVATSK=4350 
+
         if (isset($status) && $status !== null) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
                 $q->where("chat_messages.approved", $status);
+            });
+        }
+
+        if(request("unread_message") == "true") {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
+                $q->where("cr.is_read", 0);
             });
         }
 
@@ -46,9 +60,9 @@ class MessageController extends Controller
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where("chat_messages.message", "!=", "");
-        })->select(['cr.id as chat_bot_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
+        })->select(['cr.id as chat_bot_id','cr.is_read as chat_read_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
             "cm1.message as answer",
-            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
+            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title","c.do_not_disturb as customer_do_not_disturb"])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
 
@@ -62,19 +76,23 @@ class MessageController extends Controller
             }
         }
         $page = $pendingApprovalMsg->currentPage();
+        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
+
+
         if ($request->ajax()) {
-            $tml = (string)view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
+            $tml = (string)view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page', 'allCategoryList','reply_categories'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
         
 //dd($pendingApprovalMsg);
-        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
+        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList','reply_categories'));
     }
 
     public function approve()
     {
         $id = request("id");
+
 
         if ($id > 0) {
 
@@ -82,7 +100,23 @@ class MessageController extends Controller
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $id]);
 
-            app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+            $chatMEssage = \app\ChatMessage::find($id);
+
+            $type = "customer";
+            if($chatMEssage->task_id > 0) {
+                $type = "task";
+            }elseif($chatMEssage->developer_tasK_id > 0) {
+                $type = "issue";
+            }elseif($chatMEssage->vendor_id > 0) {
+                $type = "vendor";
+            }elseif($chatMEssage->user_id > 0) {
+                $type = "user";
+            }elseif($chatMEssage->supplier_id > 0) {
+                $type = "supplier";
+            }
+
+
+            app('App\Http\Controllers\WhatsAppController')->approveMessage($type, $myRequest);
         }
 
         return response()->json(["code" => 200, "message" => "Messsage Send Successfully"]);
@@ -186,6 +220,46 @@ class MessageController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Message not exist in record"]);
+    }
+
+    public function updateReadStatus(Request $request)
+    {
+        $chatId = $request->get("chat_id");
+        $value  = $request->get("value");
+
+        $reply = \App\ChatbotReply::find($chatId);
+
+        if($reply) {
+            
+            $reply->is_read = $value;
+            $reply->save();
+            
+            $status = ($value == 1) ? "read" : "unread";
+
+            return response()->json(["code" => 200, "data" => [], "messages" => "Marked as ".$status]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "messages" => "Message not exist in record"]);
+    }
+
+    public function stopReminder(Request $request)
+    {
+        $id = $request->get("id");
+        $type = $request->get("type");
+
+        if($type == "developer_task") {
+           $task = \App\DeveloperTask::find($id);
+        }else{
+           $task = \App\Task::find($id);
+        }
+
+        if($task) {
+            $task->frequency = 0;
+            $task->save();
+            return response()->json(["code" => 200, "data" => [], "messages" => "Reminder turned off"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "messages" => "No task found"]);
     }
 
 }

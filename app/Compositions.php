@@ -81,4 +81,9 @@ class Compositions extends Model
     {
         return \App\ScrapedProducts::where('composition',"LIKE",$name)->count();
     }
+
+        public function productCounts()
+        {
+            return $this->hasMany(ScrapedProducts::class, 'composition', 'name');
+        }
 }

@@ -20,6 +20,7 @@ class Category extends Model
     use NestableTrait;
     
     protected $parent = 'parent_id';
+    protected static $categories_with_childs = null;
     /**
      * @var string
      * @SWG\Property(property="id",type="integer")
@@ -31,7 +32,7 @@ class Category extends Model
 
      */
   
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id' ];
+    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category'];
 
     /**
      * Get the index name for the model.
@@ -49,6 +50,11 @@ class Category extends Model
     }
 
     public function parent()
+    {
+        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+    }
+
+    public function parentC()
     {
         return $this->hasOne( 'App\Category', 'id', 'parent_id' );
     }
@@ -90,7 +96,13 @@ class Category extends Model
 
     }
 
-     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+
+        public function categorySegmentId()
+        {
+            return $this->hasOne(CategorySegment::class,'id','category_segment_id');
+        }
+
+        public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {
@@ -817,7 +829,12 @@ class Category extends Model
 
         $mainCategory = false;
 
+    // // dd($categoryy[0]);
+    // foreach($categoryy as $key=> $cat){
 
+    //     self::$categories_with_childs[$cat->title] = $cat;
+    // }
+// dd(self::$categories_with_childs);
         if(!empty($expression)) {
             foreach($expression as $exr) {
                 foreach($liForMen as $li){
@@ -838,21 +855,34 @@ class Category extends Model
                     }
                 }
 
-                $category = self::where("title","LIKE",$exr);
+                if(self::$categories_with_childs === null){
+                    
+                    self::$categories_with_childs = self::with('parentC.parentM')->get();
+                }
 
-                $category = $category->get();
+                $category = [];
 
-                 if(!$category->isEmpty()) {
+                foreach(self::$categories_with_childs as $index => $single_category){
+                    
+                    if(strtolower($single_category->title) == strtolower($exr)){
+                        $category[] = $single_category;
+                    }
+
+                }
+   
+                 if(!empty($category)) {
                     $matched = $category;
                  }
             }
         }
 
         // now check that last matched has more then three leavle
-        if($matched && !$matched->isEmpty()) { 
+        if($matched) { 
             foreach($matched as $match) {
-                $levelone = $match->parentM;
+                $levelone = $match->parentC;
+                
                 if($levelone) {
+                    
                     $leveltwo =  $levelone->parentM;
                     if($leveltwo) {
                         if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
