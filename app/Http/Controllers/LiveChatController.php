@@ -1619,4 +1619,10 @@ class LiveChatController extends Controller
         return response()->json(["code" => 500 , "message" => "Please select atleast one ticket"]);
     }
     
+    public function delete_tickets(Request $request)
+    {
+        $softdelete = Tickets::find($request->id)->delete();
+        return response()->json(["code" => 200 , "message" => "Record Delete ticket"]);
+    }
+    
 }

@@ -236,7 +236,7 @@ class WebsiteStoreViewController extends Controller
         } else {
             $response = json_decode($result['response']);
             if (isset($response->error)) {
-                return response()->json(['status' => 'errors', $response], 403);
+                return response()->json(['status' => 'errors', 'error' => $response->error->message, $response->error->message], 200);
             } else {
                 $websiteStoreView = WebsiteStoreView::where("id", $row_id)->first();
                 if($id){

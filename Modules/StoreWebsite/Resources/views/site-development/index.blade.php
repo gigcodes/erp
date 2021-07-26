@@ -46,6 +46,18 @@
 		color: #757575;
 		background-color: #fff !important;
 	}
+	.modal {
+		overflow-y:auto;
+	}
+	body.overflow-hidden{
+		overflow: hidden;
+	}
+
+	span.user_point_none button, span.admin_point_none button{
+		pointer-events: none;
+		cursor: not-allowed;
+	}
+
 </style>
 @endsection
 
@@ -299,6 +311,18 @@
 							<option value="4">Developer Task</option>
 						</select>
 					</div>
+
+					<div class="form-group">
+                        <label for="repository_id">Repository:</label>
+                        <br>
+                        <select style="width:100%" class="form-control 	" id="repository_id" name="repository_id">
+                        	<option value="">-- select repository --</option>
+                            @foreach (\App\Github\GithubRepository::all() as $repository)
+                                <option value="{{ $repository->id }}">{{ $repository->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
 					<div class="form-group">
 						<label for="">Details</label>
 						<input class="form-control text-task-development" type="text" name="task_detail" />
@@ -384,11 +408,13 @@
 					<table class="table table-bordered" style="table-layout:fixed;">
 						<thead>
 							<tr>
+                                <th style="width:3%;"></th>
 								<th style="width:4%;">S no</th>
 								<th style="width:13%;">Category</th>
 								<th style="width:13%;">By</th>
-								<th style="width:45%;">Remarks</th>
+								<th style="width:39%;">Remarks</th>
 								<th style="width:25%;">Communication</th>
+                                <th style="width:3%;"></th>
 							</tr>
 						</thead>
 						<tbody class="latest-remarks-list-view">
@@ -440,6 +466,17 @@
 	$('.assign-to.select2').select2({
 		width: "100%"
 	});
+
+	$('#latest-remarks-modal').on('shown.bs.modal', function (e) {
+		$("body").addClass("overflow-hidden");
+	});
+	$('#latest-remarks-modal').on('hidden.bs.modal', function (e) {
+		$("body").removeClass("overflow-hidden");
+	});
+	// $('#latest-remarks-modal').on('hidden.bs.modal', function () {
+	// 	document.body.classList.remove('thisClass');
+    //
+	// })
 
 	// $('.infinite-scroll').jscroll({
 	//         autoTrigger: true,
@@ -1105,7 +1142,34 @@
 					var storeWebsite = response.data[i - 1].sw_website;
 					var storeDev = response.data[i - 1].sd_title;
 					var user_id = response.data[i - 1].user_id;
-					tr = tr + '<tr><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+					var user_flag = response.data[i - 1].user_flagged;
+					var admin_flag = response.data[i - 1].admin_flagged;
+					var id = response.data[i - 1].id;
+
+					<?php if (Auth::user()->isAdmin()) { ?>
+						var admin_permission = 'admin_changable';
+						var user_permission = 'user_point_none';
+					<?php } else { ?>
+						var admin_permission = 'admin_point_none';
+						var user_permission = 'user_changable';
+					<?php } ?>
+
+
+					tr += '<tr><td>';
+					if(user_flag == 1){
+						tr += '<span title="user priority" class="' + user_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-user-flag pd-5"><img height="14" src="/images/flagged.png"></button></span>';
+					}else{
+						tr += '<span title="user priority" class="' + user_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-user-flag pd-5"><img height="14" src="/images/unflagged.png"></button></span>';
+					}
+
+					tr += '</td><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td>';
+					if(admin_flag == 1){
+						tr += '<span title="admin priority" class="' + admin_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-admin-flag pd-5"><img height="14" src="/images/flagged.png"></button></span>';
+					}else{
+						tr += '<span title="admin priority" class="' + admin_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-admin-flag pd-5"><img height="14" src="/images/unflagged.png"></button></span>';
+					}
+                    tr += '</td></tr>'
+					// tr = tr + '<tr><td>' + if(response.data[i - 1].admin_flagged === 1){ + '<button type="button" class="btn btn-image remark-task pd-5"><img height="14" src="/images/unflagged.png"></button>' + } + '</td><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td><img height="14" src="/images/unflagged.png"></td></tr>';
 				}
 				$("#latest-remarks-modal").modal("show");
 				$(".latest-remarks-list-view").html(tr);
@@ -1116,6 +1180,77 @@
 			}
 		});
 	});
+
+
+
+	$(document).on('click', '.remark-admin-flag', function () {
+		var remark_id = $(this).data('id');
+		var thiss = $(this);
+
+		$.ajax({
+			type: "POST",
+			url: "{{ route('remark.flag.admin') }}",
+			data: {
+				_token: "{{ csrf_token() }}",
+				remark_id: remark_id
+			},
+			beforeSend: function () {
+				$(thiss).text('Flagging...');
+			}
+		}).done(function (response) {
+			if (response.admin_flagged == 1) {
+				$(thiss).html('<img src="/images/flagged.png" />');
+			} else {
+				$(thiss).html('<img src="/images/unflagged.png" />');
+			}
+		}).fail(function (response) {
+			$(thiss).html('<img src="/images/unflagged.png" />');
+
+			alert('Could not flag task!');
+
+			console.log(response);
+		});
+	});
+
+
+	$(document).on('click', '.remark-user-flag', function () {
+		var remark_id = $(this).data('id');
+		var thiss = $(this);
+
+		$.ajax({
+			type: "POST",
+			url: "{{ route('remark.flag.user') }}",
+			data: {
+				_token: "{{ csrf_token() }}",
+				remark_id: remark_id
+			},
+			beforeSend: function () {
+				$(thiss).text('Flagging...');
+			}
+		}).done(function (response) {
+			if (response.user_flagged == 1) {
+				$(thiss).html('<img src="/images/flagged.png" />');
+			} else {
+				$(thiss).html('<img src="/images/unflagged.png" />');
+			}
+		}).fail(function (response) {
+			$(thiss).html('<img src="/images/unflagged.png" />');
+
+			alert('Could not flag task!');
+
+			console.log(response);
+		});
+	});
+
+
+
+
+
+
+
+
+
+
 
 	$(document).on('click', '.artwork-history-btn', function(e) {
 		id = $(this).data('id');
