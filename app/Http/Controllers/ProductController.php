@@ -263,9 +263,9 @@ class ProductController extends Controller
         if (trim($term) != '') {
 
             $newProducts->where(function ($query) use ($term) {
-                $query->where('short_description', 'LIKE', "%" . $term . "%")
-                    ->orWhere('color', 'LIKE', "%" . $term . "%")
-                    ->orWhere('name', 'LIKE', "%" . $term . "%")
+                $query->where('products.short_description', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.color', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.name', 'LIKE', "%" . $term . "%")
                     ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
                     ->orWhere('products.id', 'LIKE', "%" . $term . "%")
                     ->orWhereHas('brands', function($q) use($term){

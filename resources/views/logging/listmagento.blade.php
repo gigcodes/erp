@@ -104,6 +104,9 @@
                       <option value=''>All</option>
                       <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
                       <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
+                      <option value="waiting" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'waiting' ? 'selected' : '' }}>Waiting</option>
+                      <option value="started_push" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'started_push' ? 'selected' : '' }}>Sync Status</option>
+                      <option value="size_chart_needed" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'size_chart_needed' ? 'selected' : '' }}>Size chart needed</option>
                   </select>
               </div>
               <div class="col-md-2 pl-0">
@@ -167,7 +170,7 @@
               <th style="width:7%">Website</th>
               <th style="width:5%">Status</th>
               <th style="width:4%">Lang. Id</th>
-              <th style="width:4%">Sync Status</th>
+              <th style="width:8%">Sync Status</th>
               <th style="width:4%">Job Start</th>
               <th style="width:4%">Job End</th>
               <th style="width:5%;padding-left: 0">Success</th>
@@ -175,7 +178,7 @@
               <th style="width:3%;padding-left: 0">User</th>
               <th style="width:4%;padding-left: 2px">Time</th>
               <th style="width:4%;padding-left: 5px">Size</th>
-              <th style="width:4%;padding-left: 2px">Queue</th>
+              <th style="width:7%;padding-left: 2px">Queue</th>
               <th style="width:4%">Try</th>
               <th style="width:6%">Action</th>
             </thead>
