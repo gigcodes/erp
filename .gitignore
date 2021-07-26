@@ -86,7 +86,7 @@ app/Library/_MACOSX/*
 /public/wetransfer/*
 /resources/assets/analytics_files/*
 /.phpintel
-# public/scrappersImages/*
+public/scrappersImages/*
 public/product_discount_file/*
 storage/framework/laravel-excel/*
 storage/chatMessageFiles/*
