@@ -440,11 +440,13 @@
                     <div class="form-group">
                         <strong>Subject *</strong>
                         <input type="text" class="form-control subject" name="subject" id="subject" required>
+                        <span class="error" id="subject-error" for="subject" style="color:red;display:none;font-size: 10px;">This field is required</span>
                     </div>
 
                     <div class="form-group">
                         <strong>Message *</strong>
                         <textarea name="message" class="form-control mail_message" id="message" rows="8" cols="80" required></textarea>
+                        <span class="error" id="message-error" for="message" style="color:red;display:none;font-size: 10px;">This field is required</span>
                     </div>
 
                     <div class="form-group">
@@ -488,6 +490,16 @@
         $('#commonEmailModal').modal("show");
     });
 
+    $(document).on('keyup','#subject', function() {
+        if ($(this).val()) {
+            $('#subject-error').hide();
+        }
+    })
+    $(document).on('keyup','#message', function() {
+        if ($(this).val()) {
+            $('#message-error').hide();
+        }
+    })
     $(document).on('click','.sop-mail-send',function(e){
         e.preventDefault();
         
@@ -497,7 +509,15 @@
             let object = $("#object").val();
             let subject = $("#subject").val();
             let message = $(".mail_message").val();
-
+            if (!message || !subject) {
+                if (!message) {
+                    $('#message-error').show();
+                }
+                if (!subject) {
+                    $('#subject-error').show();
+                }
+                return;
+            }
             $.ajax({
                 url: "{{ route('common.send.email') }}",
                 type: 'POST',
