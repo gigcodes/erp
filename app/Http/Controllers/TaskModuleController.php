@@ -2090,9 +2090,29 @@ class TaskModuleController extends Controller {
 			$created = 1;
 			$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
 			$assignedUserId = $task->assigned_to;
+
+			$newBranchName = null;
+			if($request->get('repository_id') > 0) {
+				$newBranchName = (new \App\Http\Controllers\DevelopmentController)->createBranchOnGithub(
+			        $request->get('repository_id'),
+			        $task->id,
+			        $task->subject
+			    );
+			    if ($newBranchName) {
+			        $task->github_branch_name = $newBranchName;
+			        $task->save();
+			    }
+			}
+
+		    if (is_string($newBranchName) && !empty($newBranchName)) {
+		        $message = $request->get("task_detail") . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+		    } else {
+		        $message = $request->get("task_detail");
+		    }
+
 			$requestData = new Request();
 	        $requestData->setMethod('POST');
-	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
+	        $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 		}else {
 			if ($request->task_type == 'quick_task') {
