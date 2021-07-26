@@ -162,6 +162,7 @@
 
                             <th style="width:4%"> Check Measurement </th>
                             <th style="width:4%"> Check Size </th>
+                            <th style="width:4%"> Size Chart </th>
 
                             <th style="width:7%"> Push Type</th>
                             
@@ -399,9 +400,24 @@
                                                 Size</label> --}}
                                         </div>
                                     </form>
-
                                 </div>
+                            </td>
 
+                            <td class="pb-0">
+                                <div
+                                    class="d-flex justify-content-between form-group mb-0 {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                                    <form method="POST"
+                                        action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                        class="edit_category_data" data-id={{ $cat->id }}>
+                                        @csrf
+                                        <input type="text" name="checkSizeChart" value="true" hidden>
+                                        <div class="d-flex">
+                                            <input type="checkbox" id="edit_need_to_check_size_chart{{ $cat->id }}"
+                                                name="size_chart_needed" {{ $cat->size_chart_needed ? 'checked' : '' }}
+                                                class="submit_on_change">
+                                        </div>
+                                    </form>
+                                </div>
                             </td>
                             
 
