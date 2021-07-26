@@ -124,7 +124,7 @@ class LogListMagentoController extends Controller
         }
 
         if($request->user != null) {
-            $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+            $logListMagentos->where('log_list_magentos.user_id', $request->user);
         }
 
         if($request->queue != null) {
