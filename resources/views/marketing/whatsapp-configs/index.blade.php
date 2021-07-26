@@ -141,7 +141,7 @@
     <script>
 
         $(document).ready(function() {
-            $(".select-multiple-default_for").multiselect();
+            //$(".select-multiple-default_for").multiselect();
             
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
@@ -162,6 +162,7 @@
 
 
     function changewhatsAppConfig(config_id) {
+        $("#select-multiple-default_for_"+ config_id +"" ).select2({tags :  true , width : 250});
         $("#whatsAppConfigEditModal"+ config_id +"" ).modal('show');
     }
     
