@@ -10,7 +10,7 @@ use App\PurchaseProductOrderLog;
 class Sop extends Model
 {
     protected $table ="sops";
-     protected $fillable = ['name','content'];
+     protected $fillable = ['name','content','user_id'];
  
     public function purchaseProductOrderLogs(){
         return $this->hasOne(PurchaseProductOrderLog::class, 'purchase_product_order_id', 'id');

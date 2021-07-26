@@ -1188,7 +1188,7 @@ class Product extends Model
             }
             
             $this->save();
-        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement)) && $this->categories->need_to_check_measurement) {
+        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement)) && $this->categories && $this->categories->need_to_check_measurement) {
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->sub_status_id = null;
             $this->save();
