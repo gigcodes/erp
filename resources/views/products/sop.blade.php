@@ -6,6 +6,10 @@
     <!-- START - Purpose : Add CSS - DEVTASK-4416 -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style type="text/css">
+
+        .select2-selection__rendered{
+            width: 460px !important;
+        }
         table tr td {
             overflow-wrap: break-word;
         }
@@ -36,11 +40,14 @@
     <div class="row" style="margin:0%">
         <div class="col-md-12 margin-tb p-0">
             <h2 class="page-heading"> ListingApproved - SOP
-
+                
+                <div class="pull-right">
+                    <button class="btn btn-Secondary1" data-toggle="modal" data-target="#Sop-Permission-Modal">Sop Permissions</button>
+                </div>
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" data-target="#exampleModal">Add Notes</button>
                 </div>
-
+                
             </h2>
         </div>
 
@@ -65,7 +72,6 @@
 
                                 <a href="{{ route('sop.store') }}" type="button" class="btn btn-image" id=""><img
                                         src="/images/resend2.png"></a>
-
                             </div>
                         </form>
                     </div>
@@ -74,6 +80,56 @@
             </div>
 
             
+        </div>
+    </div>
+
+    <!-- Sop Perission Modal -->
+    <div id="Sop-Permission-Modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Sop Permissions</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form class="sop-data-permission-form" id="sopDataPermissionForm">
+                <input type="text" name="user_id" hidden>
+                <div class="modal-body">
+                    <select class="form-control select2-for-user">
+                        <option value="">Select User</option>
+                        @foreach ($users as $user)
+                            @if (!$user->isAdmin())
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    <div class="pt-3">
+                        <table class="table table-bordered sop-data-table" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th width="7%"></th>
+                                    <th width="93%">Sop</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($usersop as $sop)
+                                    <tr>
+                                        <td><input type="checkbox" name="sop[]" value="{{ $sop->id }}"></td>
+                                        <td>{{ $sop->name }}</td>
+                                    </tr>
+                                @endforeach        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default sop-data-save" style="display:none">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    
         </div>
     </div>
 
@@ -718,6 +774,58 @@ $(document).on('click', '.send-message-open', function (event) {
                 console.log(data);
             });
         });
+    </script>
+    
+    <script>
+        $(document).ready(function() {
+            $('.select2-for-user').select2();
+        });
+
+        $(document).on('change', '.select2-for-user', function() {
+            var user_id = $(this).val();
+            var $this = $(this);
+            $('#sopDataPermissionForm')[0].reset();
+
+            $(this).parents('.sop-data-permission-form').find('input[type="checkbox"]').removeAttr('checked');
+            $(this).parents('.sop-data-permission-form').find('input[name="user_id"]').attr('value',user_id);
+            if (!user_id) {
+                $('.sop-data-table').hide();
+                $('.sop-data-save').hide();
+                return;
+            }
+            $.ajax({
+                type: "GET",
+                url: "{{ route('sop.permission-data') }}",
+                data:{user_id:user_id},
+                success: function(response){
+                    $('.sop-data-table').show();
+                    $('.sop-data-save').show();
+                    var data = response.permissions;
+                    for (let i = 0; i < data.length; i++) {
+                        $this.parents('.modal-body').find('input[value="'+data[i].sop_id+'"]').attr('checked','checked');
+                    }
+                }
+            })
+        })
+
+        $(document).on('click','.sop-data-save', function(){
+            var formdata = $(this).parents('.sop-data-permission-form').serialize();
+            
+            $.ajax({
+                type: "GET",
+                url: "{{ route('sop.permission-list') }}",
+                data:formdata,
+                success: function(response){
+                   toastr.success(response.message);
+                }
+            })
+        })
+        $("#Sop-Permission-Modal").on("hidden.bs.modal", function (e) {
+            $(".select2-selection__rendered").text('Select User');
+            $('.sop-data-table').hide();
+            $('#sopDataPermissionForm')[0].reset();
+        });
+
     </script>
 
 @endsection
