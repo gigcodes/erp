@@ -34,7 +34,7 @@
         .cropper{
             padding: 30px;
             border: 1px solid;
-            margin: 10px;
+            /*margin: 10px;*/
             background: #f1f1f1;
         }
         .btn-secondary{
@@ -58,6 +58,15 @@
         .select2-container--default .select2-selection--multiple{
             border: 1px solid #ddd !important;
         }
+        #crop-image {
+            top: 200px;
+            bottom: 50px;
+            height: auto;
+            overflow: auto;
+        }
+        #cropImageSend{
+            text-align: center;
+        }
 
     </style>
 @endsection
@@ -70,9 +79,10 @@
         <div class="cropper">
             <form id="cropImageSend">
                 <img id="image_crop" width="100%">
+
                 {{ csrf_field() }}
                 <div class="col text-center">
-                    <select name="type" id="crop-type" class="form-control">
+                    <select name="type" id="crop-type" class="form-control mb-3 mt-2">
                         <option value="0">Select Crop Type</option>
                         <option value="8">8</option>
                     </select>
@@ -193,12 +203,12 @@
                     <div class="table-responsive">
                         <table class="table table-bordered" style="table-layout:fixed;">
                             <thead>
-                            <th style="width:13%">Id</th>
-                            <th style="width:10% ; height: 10%">Image</th>
-                            <th style="width:15%">Sku</th>
+                            <th style="width:8%">Id</th>
+                            <th style="width:15% ; height: 10%">Image</th>
+                            <th style="width:20%">Sku</th>
                             <th style="width:15%">Price</th>
-                            <th style="width:17%">Status</th>
-                            <th style="width:15%">Action</th>
+                            <th style="width:20%">Status</th>
+                            <th style="width:7%">Action</th>
                             </thead>
                             <tbody class="infinite-scroll-data">
 
@@ -209,8 +219,8 @@
 
                                     <td>{{ $product->id }}</td>
                                     <td>
-{{--                                        <img class="img-responsive grid-image" src="https://www.w3schools.com/html/img_chania.jpg">--}}
-                                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
+{{--                                        <img style="cursor: default;max-height: 120px;margin: 0;" class="img-responsive grid-image" src="https://www.w3schools.com/html/img_girl.jpg">--}}
+                                        <img style="cursor: default;max-height: 120px;margin: 0;" src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
                                     </td>
                                     <td>
                                         {{ $product->sku }}

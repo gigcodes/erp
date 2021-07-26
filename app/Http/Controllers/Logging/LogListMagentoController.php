@@ -94,11 +94,22 @@ class LogListMagentoController extends Controller
             $logListMagentos->whereIn('categories.id', $categories);
         }
 
+        if (!empty($request->size_info)) {
+            if($request->size_info == 'yes') {
+                $logListMagentos->where('log_list_magentos.size_chart_url', '!=', null);
+            }else if($request->size_info  == 'no') {
+                $logListMagentos->where('log_list_magentos.size_chart_url', NULL);
+            }
+        }
+
+        if (!empty($request->select_date)) {
+            $logListMagentos->whereDate('log_list_magentos.created_at', 'LIKE', '%' . $request->select_date . '%');
+        }
 
 
-        // if (!empty($request->select_date)) {
-        //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
-        // }
+         if (!empty($request->job_start_date)) {
+           $logListMagentos->whereDate('log_list_magentos.job_start_time', 'LIKE', '%' . $request->job_start_date . '%');
+         }
 
         if (!empty($request->status)) {
             if ($request->status == 'available') {
@@ -113,7 +124,7 @@ class LogListMagentoController extends Controller
         }
 
         if($request->user != null) {
-            $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+            $logListMagentos->where('log_list_magentos.user_id', $request->user);
         }
 
         if($request->queue != null) {
