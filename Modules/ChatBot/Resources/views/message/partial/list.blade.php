@@ -120,7 +120,7 @@ padding: 3px 2px;
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
         @if (strlen($pam->question) > 10)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,19) }}...
+            <td style="word-break: break-word;padding: 8px 5px;"  class="log-message-popup user-input">{{ substr($pam->question,0,19) }}...
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">
