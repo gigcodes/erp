@@ -50,4 +50,9 @@ class PaymentReceipt extends Model
             return $this->hasMany('App\ChatMessage', 'payment_receipt_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
     }
+
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
 }
