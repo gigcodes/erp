@@ -94,11 +94,22 @@ class LogListMagentoController extends Controller
             $logListMagentos->whereIn('categories.id', $categories);
         }
 
+        if (!empty($request->size_info)) {
+            if($request->size_info == 'yes') {
+                $logListMagentos->where('log_list_magentos.size_chart_url', '!=', null);
+            }else if($request->size_info  == 'no') {
+                $logListMagentos->where('log_list_magentos.size_chart_url', NULL);
+            }
+        }
+
+        if (!empty($request->select_date)) {
+            $logListMagentos->whereDate('log_list_magentos.created_at', 'LIKE', '%' . $request->select_date . '%');
+        }
 
 
-        // if (!empty($request->select_date)) {
-        //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
-        // }
+         if (!empty($request->job_start_date)) {
+           $logListMagentos->whereDate('log_list_magentos.job_start_time', 'LIKE', '%' . $request->job_start_date . '%');
+         }
 
         if (!empty($request->status)) {
             if ($request->status == 'available') {
@@ -113,7 +124,7 @@ class LogListMagentoController extends Controller
         }
 
         if($request->user != null) {
-            $logListMagentos->where('log_list_magentos.log_user_id', $request->user);
+            $logListMagentos->where('log_list_magentos.user_id', $request->user);
         }
 
         if($request->queue != null) {
@@ -223,16 +234,7 @@ class LogListMagentoController extends Controller
 
     public function showMagentoProductAPICall(Request $request)
     {
-        $data = StoreMagentoApiSearchProduct::orderBy('id','DESC');
-        if($request->website_name){
-            $data = $data->where('website', 'LIKE', "%$request->website_name%");
-        }
-
-        if($request->limit){
-            $data = $data->limit($request->limit)->get();
-        }else{
-            $data = $data->paginate(10);
-        }
+        $data = StoreMagentoApiSearchProduct::orderBy('id','DESC')->paginate(10);
         return view('logging.magento-api-call',compact('data'));
     }
     protected function processProductAPIResponce($products)
@@ -486,7 +488,6 @@ class LogListMagentoController extends Controller
                             'chinese'     => !empty($value['chinese']) ? $value['chinese'] : "No",
                         ];
 
-                        $StoreMagentoApiSearchProduct = StoreMagentoApiSearchProduct::create($addItem);
                         if ($StoreWebsiteProductCheck == null) {
                             $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
                         } else {
@@ -517,7 +518,7 @@ class LogListMagentoController extends Controller
             ->where("ppel.url", "!=", "")
             ->where("ppel.created_at", ">=", date("Y-m-d", strtotime('-7 days')))
             ->select([\DB::raw("count(*) as total_error"), "ppel.url", "sw.website"])
-            ->orderBy("total_error", "desc")
+            ->orderBy("total_error", "desc")    
             ->get();
 
         return view("logging.partials.log-count-error", compact("log"));
@@ -525,19 +526,30 @@ class LogListMagentoController extends Controller
 
     public function getLatestProductForPush(Request $request)
     {
-        //
-        $produts      = \App\Loggers\LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")->where("sync_status", "success")->groupBy("product_id", "store_website_id")->limit($request->limit)->orderBy("log_list_magentos.id", "desc")->get();
-        $listToBeSend = [];
-        if (!$produts->isEmpty()) {
-            foreach ($produts as $p) {
-                $listToBeSend[] = [
-                    "sku"       => $p->sku . "-" . $p->color,
-                    "websiteid" => $p->store_website_id,
-                ];
-            }
+        $data = StoreMagentoApiSearchProduct::orderBy('id','DESC');
+        if($request->website_name){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%");
         }
 
-        return response()->json(["code" => 200, "products" => $listToBeSend]);
+        if($request->limit){
+            $data = $data->limit($request->limit)->get();
+        }
+
+        return view("logging.search-magento-api-call", compact("data"));
+
+        //
+        // $produts      = \App\Loggers\LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")->where("sync_status", "success")->groupBy("product_id", "store_website_id")->limit($request->limit)->orderBy("log_list_magentos.id", "desc")->get();
+        // $listToBeSend = [];
+        // if (!$produts->isEmpty()) {
+        //     foreach ($produts as $p) {
+        //         $listToBeSend[] = [
+        //             "sku"       => $p->sku . "-" . $p->color,
+        //             "websiteid" => $p->store_website_id,
+        //         ];
+        //     }
+        // }
+
+        // return response()->json(["code" => 200, "products" => $listToBeSend]);
 
     }
 
@@ -688,11 +700,11 @@ class LogListMagentoController extends Controller
     public function deleteMagentoApiData(Request $request)
     {
         if($request->days){
+            if($request->days == 60){
+                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subMinutes(60))->delete();
+            }
             if($request->days == 1){
                 StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(1))->delete();
-            }
-            if($request->days == 2){
-                StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(2))->delete();
             }
             if($request->days == 7){
                 StoreMagentoApiSearchProduct::where('created_at', '>=', now()->subDays(7))->delete();

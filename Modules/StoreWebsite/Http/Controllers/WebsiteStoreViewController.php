@@ -22,18 +22,20 @@ class WebsiteStoreViewController extends Controller
         $title = "Website Store View | Store Website";
 
         $websiteStores = WebsiteStore::all()->pluck("name", "id")->all();
+        $websites = StoreWebsite::all()->pluck("title", "id")->all();
         $languages = \App\Language::all()->pluck("name", "name");
 
         return view('storewebsite::website-store-view.index', [
             'title'         => $title,
             'websiteStores' => $websiteStores,
+            'websites' => $websites,
             'languages' => $languages,
         ]);
     }
 
     public function records(Request $request)
     {
-        $websiteStoreViews = WebsiteStoreView::leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id');
+        $websiteStoreViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id');
 
         // Check for keyword search
         if ($request->keyword != null) {
@@ -47,6 +49,14 @@ class WebsiteStoreViewController extends Controller
             $websiteStoreViews = $websiteStoreViews->where('website_store_id',$request->website_store_id);
         }
 
+
+        if($request->website_store != null) {
+            $websiteStoreViews = $websiteStoreViews->whereHas('websiteStore', function($q) use ($request){
+                $q->whereHas('website', function($query) use ($request){
+                    $query->where('store_website_id', $request->website_store);
+                });
+            });
+        }
         $websiteStoreViews = $websiteStoreViews->select(["website_store_views.*", "ws.name as website_store_name"])->orderBy('website_store_views.id',"desc")->paginate();
 
         return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render()]);
@@ -236,7 +246,7 @@ class WebsiteStoreViewController extends Controller
         } else {
             $response = json_decode($result['response']);
             if (isset($response->error)) {
-                return response()->json(['status' => 'errors', $response], 403);
+                return response()->json(['status' => 'errors', 'error' => $response->error->message, $response->error->message], 200);
             } else {
                 $websiteStoreView = WebsiteStoreView::where("id", $row_id)->first();
                 if($id){
