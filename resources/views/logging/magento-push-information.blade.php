@@ -153,10 +153,10 @@
 
  {{-- product information  --}}
   <div class="modal fade" id="product-push-infomation-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="exampleModalLabel">Upload CSV History</h4>
+          <h4 class="modal-title" id="exampleModalLabel">Choose Product CSV</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -165,19 +165,20 @@
 
             <form action="{{ route('update.magento.product-push-website') }}" method="POST" id="store-product-push-website">
                 @csrf
-                <label for="cars">Choose a website:</label>
 
                 @foreach ($allWebsiteUrl as $website)
              
                   <div class="d-flex justify-content-between main-row">
-                        <div class="form-group">
+                        <div class="form-group mr-3" style="width: 20%">
                             <input type="text" class="form-control" name="{{ $website->name }}" value="{{ $website->name }}" readonly>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mr-2" style="width: 70%">
                             <input type="text" class="form-control website_url" name="{{ $website->name }}" value="{{ $website->path }}" >
                         </div>
-                        <div class="form-group">
-                          <button type="button" class="btn btn-dark store-product-push-website" >Click here</button>
+                        <div class="form-group" style="width: 10%">
+                          <button type="button" class="btn  store-product-push-website" ><img src="/images/filled-sent.png" width="16px" style="cursor: pointer;">
+
+                          </button>
                         </div>
                     </div>
              
