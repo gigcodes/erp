@@ -690,6 +690,7 @@ class LogListMagentoController extends Controller
         }
 
         ProductPushInformation::whereNotIn('product_id',$arr_id)->delete();
+        return response()->json(['message'=>'Data updated succesfully']);
 
     }
 

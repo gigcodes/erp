@@ -260,6 +260,7 @@ $(document).on('click','.store-product-push-website',function(e){
                     if(response.error){
                       toastr['error'](response.error);
                     }else{
+                      toastr['success'](response.message);
                       location.reload()
                     }
                   $("#loading-image").hide();
