@@ -170,10 +170,10 @@
              
                   <div class="d-flex justify-content-between main-row">
                         <div class="form-group mr-3" style="width: 20%">
-                            <input type="text" class="form-control" name="{{ $website->name }}" value="{{ $website->name }}" readonly>
+                            <input type="text" class="form-control"  value="{{ $website->title }}" readonly>
                         </div>
                         <div class="form-group mr-2" style="width: 70%">
-                            <input type="text" class="form-control website_url" name="{{ $website->name }}" value="{{ $website->path }}" >
+                            <input type="url" class="form-control website_url" name="{{ $website->id }}" value="{{ isset($website->productCsvPath) ? $website->productCsvPath->path : '' }}" >
                         </div>
                         <div class="form-group" style="width: 10%">
                           <button type="button" class="btn  store-product-push-website" ><img src="/images/filled-sent.png" width="16px" style="cursor: pointer;">

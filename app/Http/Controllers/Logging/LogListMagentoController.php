@@ -23,6 +23,7 @@ use App\ProductPushInformation;
 
 
 use App\Jobs\PushToMagento;
+use App\StoreWebsite;
 use App\WebsiteProductCsv;
 class LogListMagentoController extends Controller
 {
@@ -623,8 +624,8 @@ class LogListMagentoController extends Controller
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
         $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
-        $allWebsiteUrl = WebsiteProductCsv::get();
-
+        $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
+// dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
             $logListMagentos->where('product_id','LIKE','%'.$request->filter_product_id .  '%');
         }
@@ -697,10 +698,20 @@ class LogListMagentoController extends Controller
     public function updateProductPushWebsite(Request $request)
     {
         foreach($request->all() as $key=> $req){
+           
             if($key == '_token'){
                 continue;
             }
-            WebsiteProductCsv::where('name',$key)->update(['path'=>$req]);
+
+            if($req != null && ($req != ''))
+            {
+                $updated =   WebsiteProductCsv::updateOrCreate(['store_website_id'=>$key],[
+                    'path'=> $req,
+                    'store_website_id'=>$key
+                ]);
+            }
+
+            // WebsiteProductCsv::where('store_website_id',$key)->update(['path'=>$req]);
         }
         return response()->json(["code" => 200, "message" => "Paths update succesfully"]);
 

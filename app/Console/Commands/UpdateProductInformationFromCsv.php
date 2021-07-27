@@ -45,7 +45,7 @@ class UpdateProductInformationFromCsv extends Command
         $row = 0;
         $arr_id = [];
         $is_file_exists = null;
-        $prodcutInformation = WebsiteProductCsv::pluck('path', 'name');
+        $prodcutInformation = WebsiteProductCsv::pluck('path', 'store_website_id');
 
         foreach ($prodcutInformation as $file_url) {
 
