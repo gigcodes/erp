@@ -542,7 +542,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary pull-left btn-secondary send-live-product-check-btn">Retry</button>
+                <button type="submit" class="btn btn-primary pull-left btn-secondary send-live-product-check-btn">Send</button>
               </div>
             </form>
         </div>
@@ -780,12 +780,12 @@
 
   $(".select-multiple").select2({tags:true});
 
-  $(document).on("click",".send-product-for-live-checking",function(e) {
+  $(document).on("click","#send-product-for-live-checking",function(e) {
       e.preventDefault();
       $("#send-live-product-check-modal").modal("show");
   });
 
-  $(document).on("click",".send-live-product-check-btn",function() {
+  $(document).on("click",".send-live-product-check-btn",function(e) {
       e.preventDefault();
       var form = $(this).closest('form');
       $.ajax({
@@ -809,7 +809,7 @@
   });
 
 
-  $(document).on("click",".btn-product-screenshot",function() {
+  $(document).on("click",".btn-product-screenshot",function(e) {
       var $this = $(this);
       $.ajax({
         method: "GET",
