@@ -173,9 +173,9 @@
     </div>
 </div>
 
-
-
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+            50% 50% no-repeat;display:none;">
+</div>
 @endsection
     
 @section('scripts')
@@ -230,15 +230,18 @@
                 seg_discount: seg_discount,
                 row_id: $(this).closest('tr').attr('data-id'),
             },
-            success: function (response) {
-                response.data.forEach(function(item, index) {
-                    let row = $(`.tr_${item.row_id}`);
-                    $(row).find('td:nth-child(8) span').html(item.seg_discount);
-                    $(row).find('.seg_discount').val(seg_discount);
-                    $(row).find('td:nth-child(12)').html(item.price);
-                }); 
-                toastr["success"]("segment discount updated successfully!", "Message");
+            beforeSend: function () {
+                $("#loading-image").show();
             }
+        }).done(function(response) { 
+            $("#loading-image").hide();
+            response.data.forEach(function(item, index) {
+                let row = $(`.tr_${item.row_id}`);
+                $(row).find('td:nth-child(8) span').html(item.seg_discount);
+                $(row).find('.seg_discount').val(seg_discount);
+                $(row).find('td:nth-child(12)').html(item.price);
+            }); 
+            toastr["success"]("segment discount updated successfully!", "Message");
         });
 
     });
@@ -263,21 +266,24 @@
         }
         $.ajax({
             url: "{{route('product.pricing.update.add_duty')}}",
-            type: 'post',
+            type: 'post', 
             data: {
                 _token: '{{csrf_token()}}',
                 product_array: JSON.stringify(product_array),
                 add_duty: add_duty,
                 row_id: $(this).closest('tr').attr('data-id'),
             },
-            success: function (response) {
-                response.data.forEach(function(item, index) {
-                    let row = $(`.tr_${item.row_id}`);
-                    $(row).find('.add_duty').val(add_duty);
-                    $(row).find('td:nth-child(12)').html(item.price);
-                }); 
-                toastr["success"]("duty updated successfully!", "Message");
+            beforeSend: function () {
+                $("#loading-image").show();
             }
+        }).done(function(response) { 
+            $("#loading-image").hide();
+            response.data.forEach(function(item, index) {
+                let row = $(`.tr_${item.row_id}`);
+                $(row).find('.add_duty').val(add_duty);
+                $(row).find('td:nth-child(12)').html(item.price);
+            }); 
+            toastr["success"]("duty updated successfully!", "Message");
         });
 
     }); 
@@ -311,20 +317,23 @@
                 add_profit: add_profit,
                 row_id: $(this).closest('tr').attr('data-id'),
             },
-            success: function (response) {
-                if(response.status == false){
-                    toastr["error"](response.message + " is not exist!", "Message");
-                }else{
-                    response.data.forEach(function(item, index) {
-                        if(item.status){
-                            let row = $(`.tr_${item.row_id}`); 
-                            $(row).find('td:nth-child(11) span').html(item.add_profit);
-                            $(row).find('.add_profit').val(add_profit);
-                            $(row).find('td:nth-child(12)').html(item.price);
-                        }
-                    }); 
-                    toastr["success"]("profit updated successfully!", "Message");
-                }
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                toastr["error"](response.message + " is not exist!", "Message");
+            }else{
+                response.data.forEach(function(item, index) {
+                    if(item.status){
+                        let row = $(`.tr_${item.row_id}`); 
+                        $(row).find('td:nth-child(11) span').html(item.add_profit);
+                        $(row).find('.add_profit').val(add_profit);
+                        $(row).find('td:nth-child(12)').html(item.price);
+                    }
+                }); 
+                toastr["success"]("profit updated successfully!", "Message");
             }
         });
 

@@ -967,7 +967,7 @@ class Product extends Model
     * @return float
     **/
     public function getPrice($websiteId,$countryId = null, $countryGroup = null,$isOvveride = false, $dutyPrice = 0, $updated_seg_discount = null, $updated_add_profit = null, $checked_add_profit = null)
-    {
+    { 
         $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
@@ -1066,7 +1066,13 @@ class Product extends Model
 
            if($priceRecords) {
                if($updated_add_profit){
-                    $updated_add_profit_row =  \DB::table("price_overrides")->where('id', $priceRecords->id)->update(['value' => $updated_add_profit]);
+                   $updated_add_profit_row =  \DB::table("price_overrides")->where('id', $priceRecords->id)->update(
+                        [
+                            'type' => 'PERCENTAGE',
+                            'calculated' => $updated_add_profit >= 0 ? '+' : '-',
+                            'value' => $updated_add_profit >= 0 ? $updated_add_profit : $updated_add_profit * (-1),
+                        ]
+                    );
                     if($updated_add_profit_row){
                         $priceRecords->value = $updated_add_profit;
                     }
@@ -1076,7 +1082,7 @@ class Product extends Model
                        $price = ($productPrice * $priceRecords->value) / 100; 
                         return ["status" => true, "original_price" => $this->price , "promotion_per" => $priceRecords->value, "promotion" => $price,'segment_discount' => $segmentDiscount , "total" =>  $productPrice + $price, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];
                     }else{ 
-                    return ["status" => true, "original_price" => $this->price , "promotion_per" => $priceRecords->value, "promotion" => $priceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice + $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];
+                    return ["status" => true, "original_price" => $this->price , "promotion_per" => 0, "promotion" => 0,'segment_discount' => $segmentDiscount , "total" =>  $productPrice , 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];
                  }
               }
               if($priceRecords->calculated == "-") {
@@ -1084,7 +1090,7 @@ class Product extends Model
                     $price = ($productPrice * $priceRecords->value) / 100; 
                     return ["status" => true, "original_price" => $this->price , "promotion_per" => - $priceRecords->value, "promotion" => -$price ,'segment_discount' => $segmentDiscount, "total" =>  $productPrice - $price];
                  }else{ 
-                    return ["status" => true, "original_price" => $this->price , "promotion_per" => - $priceRecords->value, "promotion" => - $priceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice - $priceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];
+                    return ["status" => true, "original_price" => $this->price , "promotion_per" => 0, "promotion" => 0,'segment_discount' => $segmentDiscount , "total" =>  $productPrice, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];
                  }
               }
            }else if($updated_add_profit || !empty($checked_add_profit)){
@@ -1103,8 +1109,8 @@ class Product extends Model
                         'brand_segment' => $brand,
                         'category_id' => $category,
                         'type' => 'PERCENTAGE',
-                        'calculated' => '+',
-                        'value' => $updated_add_profit,
+                        'calculated' => $updated_add_profit >= 0 ? '+' : '-',
+                        'value' => $updated_add_profit >= 0 ? $updated_add_profit : $updated_add_profit * (-1),
                         'country_code' => $country
                     ]);
                     return ["status" => true, "original_price" => $this->price , "promotion_per" => $newPriceRecords->value, "promotion" => $newPriceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice - $newPriceRecords->value, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];

@@ -90,7 +90,7 @@ class ProductPriceController extends Controller
             }else if($request->route()->getName() == 'product.pricing.update.add_profit'){
                 if($p->row_id == $request->row_id){
                     $ref_product = Product::find($p->product_id);
-                    $result = $ref_product->getPrice($p->storewebsitesid, $ref_product->country_code,null, true,$ref_product->add_duty, null, $request->add_profit);
+                    $result = $ref_product->getPrice($p->storewebsitesid, $p->country_code,null, true,$p->add_duty, null, $request->add_profit);
                     if($result['status'] == false){
                         return response()->json(['status' => false, 'message' => $result['field'] ]);
                     }
@@ -98,7 +98,7 @@ class ProductPriceController extends Controller
             }else {
                 if($p->row_id == $request->row_id){
                     $ref_product = Product::find($p->product_id);
-                    $ref_product->getPrice($p->storewebsitesid, $ref_product->country_code,null, true,$ref_product->add_duty, (int) str_replace('%', '', $request->seg_discount));
+                    $ref_product->getPrice($p->storewebsitesid, $p->country_code,null, true,$p->add_duty, (int) str_replace('%', '', $request->seg_discount));
                 }
             }
             
