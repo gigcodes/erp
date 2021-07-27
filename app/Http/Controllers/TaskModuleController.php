@@ -36,13 +36,21 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
+use App\UserRate;
+use Exception;
+use Response;
 
 class TaskModuleController extends Controller {
 
 	use hubstaffTrait;
+	private $githubClient;
 
 	public function __construct() {
 		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->githubClient = new Client([
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
+        ]);
 		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
@@ -2089,9 +2097,29 @@ class TaskModuleController extends Controller {
 			$created = 1;
 			$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
 			$assignedUserId = $task->assigned_to;
+
+			$newBranchName = null;
+			if(!empty($request->get('repository_id')) && $request->get('repository_id') > 0) {
+				$newBranchName = $this->createBranchOnGithub(
+			        $request->get('repository_id'),
+			        $task->id,
+			        $task->subject
+			    );
+			    if ($newBranchName) {
+			        $task->github_branch_name = $newBranchName;
+			        $task->save();
+			    }
+			}
+
+		    if (is_string($newBranchName) && !empty($newBranchName)) {
+		        $message = $request->get("task_detail") . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+		    } else {
+		        $message = $request->get("task_detail");
+		    }
+
 			$requestData = new Request();
 	        $requestData->setMethod('POST');
-	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
+	        $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 		}else {
 			if ($request->task_type == 'quick_task') {
@@ -2821,22 +2849,64 @@ class TaskModuleController extends Controller {
 
    	    	$task->save();
 
-			$task_user = User::find($task->assign_to);
-            if(!empty($task_user)){
-				PaymentReceipt::create([
-					'status'            => 'Pending',
-					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
-					'date'              => date('Y-m-d'),
-					'currency'          => '',
-					'user_id'           => $task_user->id,
-					'by_command'        => 4,
-					'task_id'           => $task->id,
-				]);
-            }
+			if($task->status == 1){
+				
+				$task_user = User::find($task->assign_to);
+				if(!$task_user){
+					return response()->json([
+						'message'	=> 'Please assign the task.'
+					],500);
+				}
+				$team_user = \DB::table('team_user')->where('user_id', $task->assign_to)->first();
+				if($team_user){
+					$team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
+					if($team_lead){
+						$task_user_for_payment = User::find($team_lead->user_id); 
+					}
+				} 
+				if(empty($task_user_for_payment)){
+					$task_user_for_payment = $task_user;
+				} 
+				// dd($task_user_for_payment);
+                if($task_user_for_payment->fixed_price_user_or_job == 0) { 
+                    return response()->json([
+                        'message'	=> 'Please provide salary payment method for user.'
+                    ],500);
+                }
+				if(!empty($task_user_for_payment)){
+                    if($task_user_for_payment->fixed_price_user_or_job == 1){
+						if($task->cost == null) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+                        $rate_estimated = $task->cost ?? 0;
+                    }else if($task_user_for_payment->fixed_price_user_or_job == 2){
+						$userRate = UserRate::getRateForUser($task_user_for_payment->id);
+						if($userRate && $userRate->hourly_rate !== null){
+							$rate_estimated = $task->approximate * ($userRate->hourly_rate ?? 0) / 60;
+						}else{
+							return response()->json([
+								'message'	=> 'Please provide hourly rate of user.'
+							],500);
+						}
+                    }
+					PaymentReceipt::create([
+						'status'            => 'Pending',
+						'rate_estimated'    => $rate_estimated,
+						'date'              => date('Y-m-d'),
+						'currency'          => '',
+						'user_id'           => $task_user_for_payment->id,
+						'by_command'        => 4,
+						'task_id'           => $task->id,
+					]);
+				} 
+				
+			}
 
-   	    	return response()->json([
-                'status' => 'success', 'message' =>'The task status updated.'
-            ],200);
+			return response()->json([
+				'status' => 'success', 'message' =>'The task status updated.'
+			],200);
 
 
    	    	
@@ -2912,6 +2982,47 @@ class TaskModuleController extends Controller {
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+
+  /**
+     * return branch name or false
+     */
+    private function createBranchOnGithub($repositoryId, $taskId, $taskTitle,  $branchName = 'master')
+    {
+        $newBranchName = 'DEVTASK-' . $taskId;
+
+        // get the master branch SHA
+        // https://api.github.com/repositories/:repoId/branches/master
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
+        try {
+            $response = $this->githubClient->get($url);
+            $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
+        } catch (Exception $e) {
+            return false;
+        }
+
+        // create a branch
+        // https://api.github.com/repositories/:repo/git/refs
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
+        try {
+            $this->githubClient->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        "ref" => "refs/heads/" . $newBranchName,
+                        "sha" => $masterSha
+                    ])
+                ]
+            );
+            return $newBranchName;
+        } catch (Exception $e) {
+
+            if ($e instanceof ClientException && $e->getResponse()->getStatusCode() == 422) {
+                // branch already exists
+                return $newBranchName;
+            }
+            return false;
+        }
+    }
 
    
 }

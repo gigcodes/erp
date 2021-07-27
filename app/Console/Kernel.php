@@ -141,6 +141,7 @@ use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
+use App\Console\Commands\AddGroupTheme;
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -278,7 +279,8 @@ class Kernel extends ConsoleKernel
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
         RemoveScrapperImages::class,
-        ChangeTesterBasedOnTeamLead::class
+        ChangeTesterBasedOnTeamLead::class,
+        AddGroupTheme::class
     ];
 
     /**
@@ -587,6 +589,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ScrapApi:LogCommand')->hourly();
         $schedule->command('HubstuffActivity:Command')->daily();
+        $schedule->command('Magento-Product:Api')->cron('0 */3 * * *');
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages

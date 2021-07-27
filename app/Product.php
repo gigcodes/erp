@@ -1188,7 +1188,7 @@ class Product extends Model
             }
             
             $this->save();
-        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement)) && $this->categories->need_to_check_measurement) {
+        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement)) && $this->categories && $this->categories->need_to_check_measurement) {
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->sub_status_id = null;
             $this->save();
@@ -1543,5 +1543,36 @@ class Product extends Model
     public function useCommaKeywords()
     {
         return str_replace(" ", ",", $this->title);
+    }
+
+    public static function matchedCategories($categoies)
+    {
+        $category_children = [];
+
+        foreach ($categoies as $category) {
+            if($category == 1) {
+               continue;
+            }
+            $is_parent = Category::isParent($category);
+            if ($is_parent) {
+                $childs = Category::find($category)->childs()->get();
+                foreach ($childs as $child) {
+                    $is_parent = Category::isParent($child->id);
+                    if ($is_parent) {
+                        $children = Category::find($child->id)->childs()->get();
+                        foreach ($children as $chili) {
+                            array_push($category_children, $chili->id);
+                        }
+                    } else {
+                        array_push($category_children, $child->id);
+                    }
+                }
+            } else {
+                array_push($category_children, $category);
+            }
+        }
+
+        return $category_children;
+
     }
 }

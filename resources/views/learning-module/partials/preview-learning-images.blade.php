@@ -3,7 +3,7 @@
     <td>{{$key + 1}}</td>
     <td>
     @if($record['isImage'])
-    <img class="zoom-img" style="max-height:150px;" src="{{$record['url']}}" alt="">
+    <img class="zoom-img" style="max-height:150px;max-width:100%;" src="{{$record['url']}}" alt="">
     @else 
         <p>{{$record['url']}}</p>
      @endif   

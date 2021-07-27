@@ -17,6 +17,7 @@ use App\Mail\viewdownload;
 // use App\Mail\downloadData;
 use App\AutoCompleteMessage;
 use Dompdf\Dompdf;
+use App\SopPermission;
 
 
 
@@ -24,6 +25,7 @@ class SopController extends Controller
 {
     public function index(Request $request)
     {
+        $users = User::all();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
  
         if ($request->search) {
@@ -34,7 +36,7 @@ class SopController extends Controller
 
         $total_record = $usersop->total();
        
-        return view('products.sop', compact('usersop', 'total_record'));
+        return view('products.sop', compact('usersop', 'total_record','users'));
     }
 
     public function sopnamedata_logs(Request $request)
@@ -146,6 +148,29 @@ class SopController extends Controller
        
     }
 
-   
+   public function sopPermissionData(Request $request)
+   {
+       $user_id = $request->user_id;
+       $permission = SopPermission::where("user_id",$user_id)->get();
+       return response()->json(['status' => true, 'permissions' => $permission]);
+   }
+
+   public function sopPermissionList(Request $request)
+   {
+       $user_id = $request->user_id;
+       $sop = $request->sop;
+
+       $permission = SopPermission::where("user_id",$user_id);
+       if ($permission->count() > 0) {
+           $permission->delete();
+       }
+       foreach ($sop as $sp){
+            $sopPermission = new SopPermission;
+            $sopPermission->user_id = $user_id;
+            $sopPermission->sop_id = $sp;
+            $sopPermission->save();
+       }
+       return response()->json(['status' => true, 'message' => "Permission Saved successfully"]);
+   }
        
 }
