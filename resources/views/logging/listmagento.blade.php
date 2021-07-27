@@ -819,12 +819,13 @@
         },
         beforeSend : function(response) {
            $("#loading-image").show();
-           $(".screenshot-modal-information-data").html(response);
-           $("#print-live-product-screenshot-modal").modal("show");
+           
         }
       })
       .done(function(response) {
           $("#loading-image").hide();
+          $(".screenshot-modal-information-data").html(response);
+          $("#print-live-product-screenshot-modal").modal("show");
       });
   });
 

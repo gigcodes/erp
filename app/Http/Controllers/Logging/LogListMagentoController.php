@@ -860,7 +860,7 @@ class LogListMagentoController extends Controller
 
     public function getLiveScreenshot(Request $request)
     {
-        $logListMagento = \App\Loggers\LogListMagento::find($request->get("id",0))->first();
+        $logListMagento = \App\Loggers\LogListMagento::find($request->get("id",0));
         return view("logging.partials.get-screenshot",compact('logListMagento'));
     }
 }
