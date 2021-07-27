@@ -163,23 +163,26 @@
         </div>
         <div class="modal-body">
 
-            <form action="{{ route('update.magento.product-push-information') }}" method="POST" id="store-product-push-information">
+            <form action="{{ route('update.magento.product-push-website') }}" method="POST" id="store-product-push-website">
                 @csrf
                 <label for="cars">Choose a website:</label>
-                <div class="form-group">
-                    <select class="form-control" name="websites" id="websites">
-                    <option value="https://www.sololuxury.com/var/exportcsv/product.csv">sololuxury.com</option>
-                    <option value="https://www.suvandnat.com/var/exportcsv/product.csv">suvandnat.com</option>
-                    <option value="https://www.Avoir-chic.com/var/exportcsv/product.csv">Avoir-chic.com</option>
-                    <option value="https://www.veralusso.com/var/exportcsv/product.csv">veralusso.com</option>
-                    <option value="https://www.Brands-labels.com/var/exportcsv/product.csv">Brands-labels.com</option>
-                    </select>
 
-                    <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label">File path</label>
-                        <input type="url" class="form-control" id="website-path" value="{{ 'https://www.sololuxury.com/var/exportcsv/product.csv'  }}" name="website_url" required>
-                      </div>
-                </div>
+                @foreach ($allWebsiteUrl as $website)
+             
+                  <div class="d-flex justify-content-between main-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="{{ $website->name }}" value="{{ $website->name }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control website_url" name="{{ $website->name }}" value="{{ $website->path }}" >
+                        </div>
+                        <div class="form-group">
+                          <button type="button" class="btn btn-dark store-product-push-website" >Click here</button>
+                        </div>
+                    </div>
+             
+                @endforeach
+
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                   <button type="submit" class="btn  btn-secondary">Update data</button>
@@ -231,11 +234,56 @@
 
   <script type="text/javascript">
 
-$(document).on('submit','#store-product-push-information',function(e){
-e.preventDefault()
+$(document).on('click','.store-product-push-website',function(e){
+      e.preventDefault()
+
+      const website_url = $(this).closest('.main-row').find('.website_url').val()
+      
+      if(website_url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)){
+          const sendData = {}
+          sendData.website_url = website_url 
+          sendData._token = "{{ csrf_token() }}"
+
+
+              $.ajax({
+              method: "POST",
+              url: "{{ route('update.magento.product-push-information') }}",
+              data: sendData,
+              beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+            })
+            .done(function(response) {
+                  console.log("Data Saved: ", response);
+
+                    if(response.error){
+                      toastr['error'](response.error);
+                    }else{
+                      location.reload()
+                    }
+                  $("#loading-image").hide();
+
+
+            }).fail(function(data) {
+                console.log(data)
+                $("#loading-image").hide();
+                console.log("error");
+              });
+      }else{
+        toastr['error']('Plese enter url');
+
+      }
+
+    
+})
+
+
+$(document).on('submit','#store-product-push-website',function(e){
+
+      e.preventDefault()
       $.ajax({
       method: "POST",
-      url: "{{ route('update.magento.product-push-information') }}",
+      url: "{{ route('update.magento.product-push-website') }}",
       data: $(this).serialize(),
       beforeSend: function () {
                     $("#loading-image").show();
@@ -247,7 +295,9 @@ e.preventDefault()
             if(response.error){
               toastr['error'](response.error);
             }else{
-              location.reload()
+              toastr['success'](response.message);
+
+              // location.reload()
             }
           $("#loading-image").hide();
 
@@ -261,11 +311,11 @@ e.preventDefault()
 })
 
 
+
+
+
 $(document).on('change','#websites',function(){
-
-$('#website-path').val($(this).val())
-
-
+    $('#website-path').val($(this).val())
 })
 
 
