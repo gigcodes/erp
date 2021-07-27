@@ -37,13 +37,20 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
 use App\UserRate;
+use Exception;
+use Response;
 
 class TaskModuleController extends Controller {
 
 	use hubstaffTrait;
+	private $githubClient;
 
 	public function __construct() {
 		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->githubClient = new Client([
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
+        ]);
 		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
@@ -2092,8 +2099,8 @@ class TaskModuleController extends Controller {
 			$assignedUserId = $task->assigned_to;
 
 			$newBranchName = null;
-			if($request->get('repository_id') > 0) {
-				$newBranchName = (new \App\Http\Controllers\DevelopmentController)->createBranchOnGithub(
+			if(!empty($request->get('repository_id')) && $request->get('repository_id') > 0) {
+				$newBranchName = $this->createBranchOnGithub(
 			        $request->get('repository_id'),
 			        $task->id,
 			        $task->subject
@@ -2975,6 +2982,47 @@ class TaskModuleController extends Controller {
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+
+  /**
+     * return branch name or false
+     */
+    private function createBranchOnGithub($repositoryId, $taskId, $taskTitle,  $branchName = 'master')
+    {
+        $newBranchName = 'DEVTASK-' . $taskId;
+
+        // get the master branch SHA
+        // https://api.github.com/repositories/:repoId/branches/master
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
+        try {
+            $response = $this->githubClient->get($url);
+            $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
+        } catch (Exception $e) {
+            return false;
+        }
+
+        // create a branch
+        // https://api.github.com/repositories/:repo/git/refs
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
+        try {
+            $this->githubClient->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        "ref" => "refs/heads/" . $newBranchName,
+                        "sha" => $masterSha
+                    ])
+                ]
+            );
+            return $newBranchName;
+        } catch (Exception $e) {
+
+            if ($e instanceof ClientException && $e->getResponse()->getStatusCode() == 422) {
+                // branch already exists
+                return $newBranchName;
+            }
+            return false;
+        }
+    }
 
    
 }

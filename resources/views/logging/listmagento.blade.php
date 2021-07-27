@@ -28,7 +28,14 @@
   .select2-container--default .select2-selection--multiple{
     border: 1px solid #ddd !important;
   }
-
+  .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    padding: 5px;
+  }
+ label{
+   margin-top:5px;
+   margin-bottom:0;
+   margin-left:3px;
+ }
 </style>
 @endsection
 
@@ -164,11 +171,11 @@
               <th style="width:5%">SKU</th>
               <th style="width:7%">Brand</th>
               <th style="width:6%">Category</th>
-              <th style="width:7%">Price</th>
+              <th style="width:5%">Price</th>
               <th style="width:6%">Message</th>
-              <th style="width:4%">Date/  Time</th>
-              <th style="width:7%">Website</th>
-              <th style="width:5%">Status</th>
+              <th style="width:6%">Date/  Time</th>
+              <th style="width:5%">Website</th>
+              <th style="width:6%">Status</th>
               <th style="width:4%">Lang. Id</th>
               <th style="width:8%">Sync Status</th>
               <th style="width:4%">Job Start</th>
@@ -176,7 +183,7 @@
               <th style="width:5%;padding-left: 0">Success</th>
               <th style="width:5%">Failure</th>
               <th style="width:3%;padding-left: 0">User</th>
-              <th style="width:4%;padding-left: 2px">Time</th>
+              <th style="width:5%;">Time</th>
               <th style="width:4%;padding-left: 5px">Size</th>
               <th style="width:7%;padding-left: 2px">Queue</th>
               <th style="width:4%">Try</th>
@@ -203,7 +210,7 @@
                   </td>
                   <td> {{$item->price}} </td>
                   <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 20, '...')}}</span>
+                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 10, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
                   </td>
                   <td>
@@ -215,7 +222,7 @@
                     <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
                   </td>
-                  <td class="pl-1">
+                  <td class="">
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
