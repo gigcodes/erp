@@ -132,7 +132,11 @@
                        <td>{{$row->supplier->supplier}}</td>
                        <td>{{$row->gender}}</td> 
                        <td>{{$row->category}}</td> 
-                       <td>{{$row->generic_price ?? '-'}}</td> 
+                       <td>{{$row->generic_price ?? '-'}}
+                            @if($row->generic_price)
+                            <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="generic_price" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                            @endif
+                        </td> 
                        <td>{{$row->exceptions ?? '-'}}</td> 
                        <td>{{$row->condition_from_retail ?? '-'}} 
                             <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail" style="font-size:15px; margin-left:10px; color: #757575;"></a>
