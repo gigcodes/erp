@@ -967,7 +967,7 @@ class Product extends Model
     * @return float
     **/
     public function getPrice($websiteId,$countryId = null, $countryGroup = null,$isOvveride = false, $dutyPrice = 0, $updated_seg_discount = null, $updated_add_profit = null, $checked_add_profit = null)
-    {
+    { 
         $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
@@ -1066,7 +1066,13 @@ class Product extends Model
 
            if($priceRecords) {
                if($updated_add_profit){
-                   $updated_add_profit_row =  \DB::table("price_overrides")->where('id', $priceRecords->id)->update(['type' => 'PERCENTAGE', 'value' => (int) $updated_add_profit]);
+                   $updated_add_profit_row =  \DB::table("price_overrides")->where('id', $priceRecords->id)->update(
+                        [
+                            'type' => 'PERCENTAGE',
+                            'calculated' => $updated_add_profit >= 0 ? '+' : '-',
+                            'value' => $updated_add_profit >= 0 ? $updated_add_profit : $updated_add_profit * (-1),
+                        ]
+                    );
                     if($updated_add_profit_row){
                         $priceRecords->value = $updated_add_profit;
                     }
