@@ -31,7 +31,7 @@
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
-								    <label for="keyword">Store Website:</label>
+								    <label for="keyword">Website Name:</label>
 								    <?php echo Form::select("website_store",["" => "-- select website --"] + $websites,request('website_store'), ["class" => "form-control"]); ?>
 							  	</div>
 					  			<div class="form-group">
