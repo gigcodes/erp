@@ -31,7 +31,7 @@ class CreateWebsiteProductCsvsTable extends Migration
             'path'=>'https://www.suvandnat.com/var/exportcsv/product.csv'
             ],
             [
-            'name'=>'Avoir-chic.com',
+            'name'=>'Avoir-chic',
             'path'=>'https://www.Avoir-chic.com/var/exportcsv/product.csv'    
             ],
             [

@@ -261,7 +261,10 @@ $(document).on('click','.store-product-push-website',function(e){
                       toastr['error'](response.error);
                     }else{
                       toastr['success'](response.message);
-                      location.reload()
+                setTimeout(() => {
+                                      location.reload()
+                }, 2000);
+
                     }
                   $("#loading-image").hide();
 
