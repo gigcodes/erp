@@ -344,6 +344,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/history/by/supplier-brand','ProductInventoryController@supplierProductHistoryBrand')->name('supplier.product.history.brand');
     Route::get('product/discount/files','ProductInventoryController@supplierDiscountFiles')->name('supplier.discount.files');
     Route::post('product/discount/files','ProductInventoryController@exportExcel')->name('supplier.discount.files.post');
+    Route::get('product/discount/excel/files','ProductInventoryController@download_excel')->name('excel.files');
 
     Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
 
@@ -359,6 +360,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
     });
+
+    Route::get('log_history/discount/', 'ProductInventoryController@discountlogHistory')->name('log-history/discount/brand');
 
     Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
     Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
