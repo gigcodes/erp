@@ -4,8 +4,8 @@
 		    <thead>
 		      <tr>
 		      	<th>Id</th>
-				<th>Name</th>
 				<th>Website Name</th>
+				<th>Name</th>
 				<th>Code</th>
 				<th>Sort Order</th>
 				<th>Status</th>
@@ -19,8 +19,8 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td class="name_div">{{:prop.name}}</td>
 			        <td>{{:prop.website_store.website.store_website.title}}</td>
+			        <td class="name_div">{{:prop.name}}</td>
 			        <td class="code_div">{{:prop.code}}</td>
 			        {{if prop.status == 1}} 
 			        	<td>Active</td>
