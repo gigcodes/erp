@@ -185,7 +185,7 @@
                 <div class="row">
                     <input type="hidden" name="supplier_brand_discounts_id" id="supplier_brand_discounts_id">
                     <div class="col-md-12">
-                        <table class="table">
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
                                    
@@ -230,7 +230,7 @@
                 <div class="row">
                    
                     <div class="col-md-12" id="log-details">
-                        <table class="table">
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th>Excel Name</th>
@@ -320,7 +320,8 @@
 
         $('#log-history-model').modal('show');
     });
-                  
+   
+               
 </script>
 
 @endsection

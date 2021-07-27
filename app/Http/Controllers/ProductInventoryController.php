@@ -1515,11 +1515,10 @@ class ProductInventoryController extends Controller
 				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail'] = $val->condition_from_retail;
 				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
 			}
-			// dd($data_arr);
-
-				$fileName = time().'.'.$file->extension();
-				// $file->move(public_path('product_discount_file'), $fileName);
-
+				$ogfilename = $file->getClientOriginalName();
+				$filename_array = explode("." ,$ogfilename);
+				$fileName = ($filename_array[0]) . '_' . time().'.'.$file->extension();
+				
 				$params['excel_name'] = $fileName;
                 $params['user_id'] =\Auth::user()->id;
 				
