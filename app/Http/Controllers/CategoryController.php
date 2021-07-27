@@ -909,6 +909,7 @@ class CategoryController extends Controller
                 $category->save();
                 return response()->json(['success-remove'=> 'Check measurement of '.  $category->title . ' updated successfully']);
             }
+            
             if(isset($request->checkSize)){
                 if ($request->has('need_to_check_size')) {
                     $category->need_to_check_size =  1 ;
@@ -917,6 +918,17 @@ class CategoryController extends Controller
                 }
                 $category->save();
                 return response()->json(['success-remove'=> 'Check size of '.  $category->title . ' updated successfully']);
+
+            }
+
+            if(isset($request->checkSizeChart)){
+                if ($request->has('size_chart_needed')) {
+                    $category->size_chart_needed =  1 ;
+                }else{
+                    $category->size_chart_needed =  0 ;
+                }
+                $category->save();
+                return response()->json(['success-remove'=> 'Check size chart of '.  $category->title . ' updated successfully']);
 
             }
 

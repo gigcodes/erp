@@ -34,7 +34,7 @@ class CommandExecution implements ShouldQueue
         $compare->run();
         $match = $compare->getOutput();
         
-        $command_answer	= $match ?? "Command ".$this->command_name." Excution Complete.";
+        $command_answer	= $match ?? "Command ".$this->command_name." Execution Complete.";
         $status	= 1;
 
         CommandExecutionHistory::where("id", $this->store_id)->update(["command_answer" => $command_answer, "status" => $status]);
@@ -45,12 +45,25 @@ class CommandExecution implements ShouldQueue
 
         if($user->phone != '' && $user->whatsapp_number != '')
         {
-            $message = "Command ".$this->command_name." Excution Complete.";
+            $message = "Command ".$this->command_name." Execution Complete.";
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
         }
         dump($this->command_name . ' : job has been completed...');
         return true;
        
+    }
+
+    public function failed()
+    {
+        $user_id = $this->store_user_id;
+        $user = DB::table('users')->where('id', $user_id)->first();
+
+
+        if($user->phone != '' && $user->whatsapp_number != '')
+        {
+            $message = "Command ".$this->command_name." Execution Fail.";
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
+        }
     }
 
 }
