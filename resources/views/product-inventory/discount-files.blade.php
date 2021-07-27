@@ -212,7 +212,7 @@
   
   <!-- Modal -->
   <div class="modal fade" id="Log-details" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Log Details</h5>
@@ -233,10 +233,10 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Excel Name</th>
-                                    <th>Updated by</th>
-                                    <th>Created at</th>
-                                    <th>Action</th>
+                                    <th style="word-wrap: break-word; width=50%">Excel Name</th>
+                                    <th width=20%>Updated by</th>
+                                    <th width=20%>Created at</th>
+                                    <th width=10%>Action</th>
                                                         
                                 </tr>
                             </thead>

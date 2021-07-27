@@ -1516,8 +1516,10 @@ class ProductInventoryController extends Controller
 				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
 			}
 				$ogfilename = $file->getClientOriginalName();
-				$filename_array = explode("." ,$ogfilename);
-				$fileName = ($filename_array[0]) . '_' . time().'.'.$file->extension();
+					
+				$fileName_array = chop($ogfilename,".xlsx");
+				// $filename_array = explode("." ,$ogfilename);
+				$fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
 				
 				$params['excel_name'] = $fileName;
                 $params['user_id'] =\Auth::user()->id;
@@ -1607,18 +1609,23 @@ class ProductInventoryController extends Controller
                         $discount->save();
 
 
-							$params['supplier_brand_discounts_id'] = $discount->id;
-							$params['header_name']  = 'condition_from_retail';
-							$params['new_value']   = $row[4];
-							$params['user_id'] = \Auth::user()->id;
-							$log_history = \App\SupplierDiscountLogHistory::create($params);
+                            if ($row[4] != null) {
+                                $params['supplier_brand_discounts_id'] = $discount->id;
+                                $params['header_name']  = 'condition_from_retail';
+                                $params['old_value']   = '-';
+                                $params['new_value']   = $row[4];
+                                $params['user_id'] = \Auth::user()->id;
+                                $log_history = \App\SupplierDiscountLogHistory::create($params);
+                            }
 
-
-							$params['supplier_brand_discounts_id'] = $discount->id;
-							$params['header_name']  = 'condition_from_retail_exceptions';
-							$params['new_value']   = $row[5];
-							$params['user_id'] = \Auth::user()->id;
-							$log_history1 = \App\SupplierDiscountLogHistory::create($params);
+                            if ($row[5] != null) {
+                                $params['supplier_brand_discounts_id'] = $discount->id;
+                                $params['header_name']  = 'condition_from_retail_exceptions';
+                                $params['old_value']   = '-';
+                                $params['new_value']   = $row[5];
+                                $params['user_id'] = \Auth::user()->id;
+                                $log_history1 = \App\SupplierDiscountLogHistory::create($params);
+                            }
 					}
 
 				}  
