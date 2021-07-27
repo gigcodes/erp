@@ -1506,15 +1506,15 @@ class ProductInventoryController extends Controller
 
         try{
 // 20148 starting 
-			$get_data = SupplierBrandDiscount::limit(8)->get();
+			// $get_data = SupplierBrandDiscount::limit(8)->get();
 			
-			$data_arr = array();
+			// $data_arr = array();
 
-			foreach($get_data as $key => $val){
-				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['generic_price'] = $val->generic_price;
-				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail'] = $val->condition_from_retail;
-				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
-			}
+			// foreach($get_data as $key => $val){
+			// 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['generic_price'] = $val->generic_price;
+			// 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail'] = $val->condition_from_retail;
+			// 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
+			// }
 				$ogfilename = $file->getClientOriginalName();
 					
 				$fileName_array = chop($ogfilename,".xlsx");
@@ -1802,6 +1802,9 @@ class ProductInventoryController extends Controller
 						}
 					}
 				}
+
+				$file->move(public_path('product_discount_file'), $fileName);
+				
 			return redirect()->back()->with('success', 'Excel Imported Successfully!');
 
 			}
