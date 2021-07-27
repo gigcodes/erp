@@ -8,20 +8,54 @@
     .model-width{
         max-width: 1250px !important;
     }
+    .btn-secondary, .btn-secondary:hover, .btn-secondary:focus{
+        background: #fff;
+        color: #757575;
+        border: 1px solid #ddd;
+        outline: none;
+        box-shadow: none;
+    }
+    table.dataTable thead th, table.dataTable thead td{
+        border-bottom : 1px solid #ddd;
+    }
+    .table-bordered th, .table-bordered td {
+        border-right: 1px solid #dee2e6;
+        border-left: none !important;
+        border-top: none !important;
+    }
+    table.dataTable thead th, table.dataTable thead td {
+        padding: 3px 18px 3px 7px;
+    }
+    table.dataTable tbody th, table.dataTable tbody td {
+        padding: 5px 5px;
+    }
+    #product-price_filter{
+        /*position: absolute;*/
+        /*top: -10px;*/
+        /*right: 10px;*/
+    }
+    .form-group{
+        margin-bottom:0 !important;
+    }
 </style>
-<div class = "row">
-    <div class="col-lg-12 margin-tb">
+<div class = "row m-0">
+    <div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading">Product pricing</h2>
     </div>
 </div>
 
+{{--<div class="col-md-2 margin-tb">--}}
+{{--    <div class="pull-right mt-3">--}}
+{{--        --}}{{-- <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time</button> --}}
 
+{{--    </div>--}}
+{{--</div>--}}
 @include('partials.flash_messages')
-<div class = "row">
-    <div class="col-md-10 margin-tb">
+<div class = "row m-0">
+    <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="" method="GET">
-                <div class="form-group ml-3 cls_filter_inputbox">
+                <div class="form-group ml-0 cls_filter_inputbox">
                     <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU">
                 </div>
                 <div class="form-group ml-3 cls_filter_inputbox">
@@ -43,76 +77,104 @@
             </form> 
         </div>
     </div>  
-    <div class="col-md-2 margin-tb">
-        <div class="pull-right mt-3">
-            {{-- <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time</button> --}}
-           
-        </div>
-    </div>
+
 </div>
-<div class="row">
-    <div class="col-lg-12 margin-tb">
+<div class="row m-0">
+    <div class="col-lg-12 margin-tb pl-3 pr-3">
         {{-- {{ $list->links() }} --}}
         <div class="panel-group" style="margin-bottom: 5px;">
-            <div class="panel mt-3 panel-default">
-                <table class="table table-bordered table-striped" id="product-price">
-                    <thead>
-                        <tr>
-                            <th>SKU</th>
-                            <th>PRODUCT ID</th>
-                            <th>Country</th>
-                            <th>BRAND</th>
-                            <th>SEGMENT</th>
-                            <th>MAIN WEBSITE</th>
-                            <th>EURO PRICE</th>
-                            <th>SEG DISCOUNT</th>
-                            <th>LESS IVA</th>
-                            <th>ADD DUTY ( DEFAULT )</th>
-                            <th>ADD PROFIT</th>
-                            <th>FINAL PRICE</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $i=1; @endphp
-                        @forelse ($product_list as $key)
-                            <tr data-storeWebsitesID="{{$key['storeWebsitesID']}}" data-id="{{$i}}" data-country_code="{{$key['country_code']}}" class="tr_{{$i++}}">
-                                <td>{{ $key['sku'] }}</td>
-                                <td class="product_id">{{ $key['id'] }}</td>
-                                <td>{{ $key['country_name'] }}</td>
-                                <td>{{ $key['brand'] }}</td>
-                                <td>{{ $key['segment'] }}</td> 
-                                <td>{{ $key['website'] }}</td>
-                                <td>{{ $key['eur_price'] }}</td>
-                                <td>
-                                    <span style="width: 50%">{{ $key['seg_discount'] }}</span>
-                                    <input style="width: 50%;display : inline-block; float:right" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
-                                </td> 
-                                <td>{{ $key['iva'] }}</td>
-                                <td>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <input style="min-width: 30px;" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
-                                        </div> 
-                                    </div>
-                                </td> 
-                                <td>
-                                    <span style="width: 50%">{{ $key['add_profit'] }}</span>
-                                    <input style="width: 50%;display : inline-block; float:right" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
-                                </td>  
-                                <td>{{ $key['final_price'] }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                               <td colspan="11"> NO data found </td> 
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class=" mt-3">
+
+                   <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed;">
+                       <thead>
+                       <tr>
+                           <th style="width: 12%">SKU</th>
+                           <th style="width: 5%">Product ID</th>
+                           <th style="width: 6%">Country</th>
+                           <th style="width: 6%">Brand</th>
+                           <th style="width: 4%;word-break: break-all">Segment</th>
+                           <th style="width: 20%">Main Website</th>
+                           <th style="width: 5%">EURO Price</th>
+                           <th style="width: 10%">Seg Discount</th>
+                           <th style="width: 5%">Less IVA</th>
+                           <th style="width: 7%">Add Duty (Default)</th>
+                           <th style="width: 12%">Add Profit</th>
+                           <th style="width: 5%">Final Price</th>
+                       </tr>
+                       </thead>
+                       <tbody>
+                       @php $i=1; @endphp
+                       @forelse ($product_list as $key)
+                           <tr data-storeWebsitesID="{{$key['storeWebsitesID']}}" data-id="{{$i}}" data-country_code="{{$key['country_code']}}" class="tr_{{$i++}}">
+
+                               <td class="expand-row" style="word-break: break-all">
+{{--                                   {{ $key['sku'] }}--}}
+
+
+                                   <span class="td-mini-container">
+                                                {{ strlen( $key['sku']) > 15 ? substr( $key['sku'], 0, 15).'...' :  $key['sku'] }}
+                                            </span>
+
+                                   <span class="td-full-container hidden">
+                                                {{  $key['sku'] }}
+                                            </span>
+
+
+
+                               </td>
+                               <td class="product_id">{{ $key['id'] }}</td>
+                               <td>{{ $key['country_name'] }}</td>
+                               <td>{{ $key['brand'] }}</td>
+                               <td>{{ $key['segment'] }}</td>
+                               <td class="expand-row" style="word-break: break-all">
+
+                                   <span class="td-mini-container">
+                                                {{ strlen( $key['website']) > 30 ? substr( $key['website'], 0, 30).'...' :  $key['website'] }}
+                                            </span>
+
+                                   <span class="td-full-container hidden">
+                                                {{  $key['website'] }}
+                                            </span>
+                               </td>
+                               <td>{{ $key['eur_price'] }}</td>
+                               <td>
+                                   <div class="d-flex" style="align-items: center">
+                                       <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
+                                       <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                   </div>
+                               </td>
+                               <td>{{ $key['iva'] }}</td>
+                               <td>
+                                   <div class="form-group">
+                                       <div class="input-group">
+                                           <input style="min-width: 30px;" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
+                                       </div>
+                                   </div>
+                               </td>
+                               <td>
+                                  <div class="d-flex" style="align-items: center">
+                                      <span style="min-width:50px;">{{ $key['add_profit'] }}</span>
+                                      <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
+                                  </div>
+                               </td>
+                               <td>{{ $key['final_price'] }}</td>
+                           </tr>
+                       @empty
+                           <tr>
+                               <td colspan="11"> NO data found </td>
+                           </tr>
+                       @endforelse
+                       </tbody>
+                   </table>
+
             </div>
         </div>
         {{-- {{ $list->links() }} --}}
     </div>
 </div>
+
+
+
 
 @endsection
     
@@ -120,6 +182,20 @@
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script>
 
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            // if ($(this).data('switch') == 0) {
+            //   $(this).text($(this).data('details'));
+            //   $(this).data('switch', 1);
+            // } else {
+            //   $(this).text($(this).data('subject'));
+            //   $(this).data('switch', 0);
+            // }
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
     $(document).ready( function () {
         $('#product-price').DataTable({
             "paging":   false,
