@@ -49,7 +49,7 @@ class MagentoOrderHandleHelper extends Model
                     \Log::info($checkIfOrderExist . " Order not exist");
                     //Checkoing in Website Order Table
                     if ($checkIfOrderExist) {
-                        continue;
+                        //continue;
                     }
 
                     $balance_amount = 0;
@@ -105,7 +105,7 @@ class MagentoOrderHandleHelper extends Model
                     $allStatus = OrderHelper::getStatus();
 
                     $magentoId = $order->increment_id;
-                    $id        = \DB::table('orders')->insertGetId(
+                    $orderModel = \App\Order::create(
                         array(
                             'customer_id'     => $customer_id,
                             'order_id'        => $order->increment_id,
@@ -126,6 +126,8 @@ class MagentoOrderHandleHelper extends Model
                             'updated_at'      => $order->created_at,
                         )
                     );
+
+                    $id = $orderModel->id;
 
                     \Log::info("Order id : " . $id);
 
@@ -204,7 +206,7 @@ class MagentoOrderHandleHelper extends Model
                         }
                     }
 
-                    if( !empty( $order->billing_address ) || !empty( $order->shipping_address ) ){
+                    if( !empty( $order->billing_address )){
                         $customerAddress = array (
                             array (
                                 'order_id'     => $id ?? null,
@@ -220,7 +222,18 @@ class MagentoOrderHandleHelper extends Model
                                 'postcode'     => $order->billing_address->postcode ?? null,
                                 'street'       => $order->billing_address->street ? implode("\n",$order->billing_address->street) : null,
                                 'telephone'    => $order->billing_address->telephone ?? null
-                            ),
+                            )
+                        );
+                        try {
+                            OrderCustomerAddress::insert( $customerAddress );
+                            \Log::info("Order customer address added" . json_encode($customerAddress));
+                        } catch (\Throwable $th) {
+                            \Log::error("Order customer address " . $th->getMessage() );
+                        }
+                    }
+
+                    if(!empty( $order->shipping_address )){
+                        $customerAddress = array (
                             array (
                                 'order_id'     => $id ?? null,
                                 'address_type' => $order->shipping_address->address_type ?? null,
@@ -244,6 +257,7 @@ class MagentoOrderHandleHelper extends Model
                             \Log::error("Order customer address " . $th->getMessage() );
                         }
                     }
+
                     $orderSaved = Order::find($id);
                     if ($order->payment->method == 'cashondelivery') {
                         $product_names = '';
@@ -331,21 +345,26 @@ class MagentoOrderHandleHelper extends Model
                     $customer = $orderSaved->customer;
 
                     $emailClass = (new OrderConfirmation($orderSaved))->build();
+                    try {
 
-                    $email = \App\Email::create([
-                        'model_id'        => $orderSaved->id,
-                        'model_type'      => \App\Order::class,
-                        'from'            => $emailClass->fromMailer,
-                        'to'              => $orderSaved->customer->email,
-                        'subject'         => $emailClass->subject,
-                        'message'         => $emailClass->render(),
-                        'template'        => 'order-confirmation',
-                        'additional_data' => $orderSaved->id,
-                        'status'          => 'pre-send',
-                        'is_draft'        => 1,
-                    ]);
+                        $email = \App\Email::create([
+                            'model_id'        => $orderSaved->id,
+                            'model_type'      => \App\Order::class,
+                            'from'            => $emailClass->fromMailer,
+                            'to'              => $orderSaved->customer->email,
+                            'subject'         => $emailClass->subject,
+                            'message'         => $emailClass->render(),
+                            'template'        => 'order-confirmation',
+                            'additional_data' => $orderSaved->id,
+                            'status'          => 'pre-send',
+                            'is_draft'        => 1,
+                        ]);
 
-                    \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email);
+
+                    }catch(\Exception $e) {
+                        \Log::info("Order email was not send due to template not setup" . $orderSaved->id);
+                    }
         
                     \Log::info("Order is finished" . json_encode($websiteOrder));
                 }
