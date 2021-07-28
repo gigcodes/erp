@@ -404,17 +404,19 @@
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-body">
-				<div class="col-md-12">
-					<div class="col-md-4">
+				<div class="col-md-12 pl-0">
+					<div class="col-md-2">
 						<select name="SearchStatus" class="form-control SearchStatus">
 							<option value="">--Select--</option>
-							@foreach ($allStatus as $status)
-								<option value="{{ $status }}">{{ $status }}</option>
+							@foreach ($allStatus as $key => $status)
+								<option value="{{ $key }}">{{ $status }}</option>
 							@endforeach
 						</select>
 					</div>
-					<div class="col-md-2 pl-2">
-						<button class="btn btn-secondary latest-remarks-btn">Search</button>
+					<div class="col-md-2 pl-0">
+						<button class="btn btn-secondarys latest-remarks-btn">
+							<img src="/images/filter.png" style="cursor: nwse-resize;width:16px;">
+						</button>
 					</div>
 				</div>
 				<div class="col-md-12 pt-3">
@@ -424,7 +426,7 @@
                                 <th style="width:3%;"></th>
 								<th style="width:4%;">S no</th>
 								<th style="width:13%;">Category</th>
-								<th style="width:15%;">Status</th>
+								<th style="width:12%;">Status</th>
 								<th style="width:10%;">By</th>
 								<th style="width:30%;">Remarks</th>
 								<th style="width:25%;">Communication</th>
