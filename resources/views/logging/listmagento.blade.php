@@ -28,7 +28,14 @@
   .select2-container--default .select2-selection--multiple{
     border: 1px solid #ddd !important;
   }
-
+  .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    padding: 5px;
+  }
+ label{
+   margin-top:5px;
+   margin-bottom:0;
+   margin-left:3px;
+ }
 </style>
 @endsection
 
@@ -107,6 +114,7 @@
                       <option value="waiting" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'waiting' ? 'selected' : '' }}>Waiting</option>
                       <option value="started_push" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'started_push' ? 'selected' : '' }}>Sync Status</option>
                       <option value="size_chart_needed" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'size_chart_needed' ? 'selected' : '' }}>Size chart needed</option>
+                      <option value="image_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'image_not_found' ? 'selected' : '' }}>Image not found</option>
                   </select>
               </div>
               <div class="col-md-2 pl-0">
@@ -143,7 +151,7 @@
             <button class="btn btn-primary" id="submit">
               <span class="fa fa-filter"></span> Filter Results
             </button>
-
+            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
           </div>
 
                 </div>
@@ -164,11 +172,11 @@
               <th style="width:5%">SKU</th>
               <th style="width:7%">Brand</th>
               <th style="width:6%">Category</th>
-              <th style="width:7%">Price</th>
+              <th style="width:5%">Price</th>
               <th style="width:6%">Message</th>
-              <th style="width:4%">Date/  Time</th>
-              <th style="width:7%">Website</th>
-              <th style="width:5%">Status</th>
+              <th style="width:6%">Date/  Time</th>
+              <th style="width:5%">Website</th>
+              <th style="width:6%">Status</th>
               <th style="width:4%">Lang. Id</th>
               <th style="width:8%">Sync Status</th>
               <th style="width:4%">Job Start</th>
@@ -176,7 +184,7 @@
               <th style="width:5%;padding-left: 0">Success</th>
               <th style="width:5%">Failure</th>
               <th style="width:3%;padding-left: 0">User</th>
-              <th style="width:4%;padding-left: 2px">Time</th>
+              <th style="width:5%;">Time</th>
               <th style="width:4%;padding-left: 5px">Size</th>
               <th style="width:7%;padding-left: 2px">Queue</th>
               <th style="width:4%">Try</th>
@@ -203,7 +211,7 @@
                   </td>
                   <td> {{$item->price}} </td>
                   <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 20, '...')}}</span>
+                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 10, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
                   </td>
                   <td>
@@ -215,7 +223,7 @@
                     <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
                   </td>
-                  <td class="pl-1">
+                  <td class="">
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
@@ -233,6 +241,7 @@
                     <span style="display:flex;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                     <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
+                    <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-image"></i></button>
                     <input style="width:14px;height:14px;margin-left:3px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
                   </span>
                   </td>
@@ -493,6 +502,82 @@
     </div>
   </div>
 
+  <div id="send-live-product-check-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Send product to check website</h4>
+            </div>
+            <form class="retry-failed-job-modal-form">
+              {!! csrf_field() !!}
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Start Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="start_date" value="" class="form-control start-date-picker">
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>End Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="end_date" value="" class="form-control end-date-picker">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Store website&nbsp;:&nbsp;</strong>
+                              <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>Product id&nbsp;:&nbsp;</strong>
+                              <input type="text" name="keyword" value="" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary pull-left btn-secondary send-live-product-check-btn">Send</button>
+              </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
+  <div id="print-live-product-screenshot-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Live Screenshot</h4>
+            </div>
+           <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                  <th>SKU</th>
+                  <th>Website</th>
+                  <th>Status</th>
+                  <th>Image</th>
+                  <th>Created at</th>
+                </thead>
+                <tbody class="screenshot-modal-information-data">
+
+                </tbody>
+              </table>
+           </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+  </div>
+
+  
+
 @endsection
 
 @section('scripts')
@@ -694,6 +779,55 @@
   });
 
   $(".select-multiple").select2({tags:true});
+
+  $(document).on("click","#send-product-for-live-checking",function(e) {
+      e.preventDefault();
+      $("#send-live-product-check-modal").modal("show");
+  });
+
+  $(document).on("click",".send-live-product-check-btn",function(e) {
+      e.preventDefault();
+      var form = $(this).closest('form');
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/send-live-product-check",
+        data : form.serialize(),
+        dataType:"json",
+        beforeSend : function( ) {
+           $("#loading-image").show();
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          if(response.code == 200) {
+            $("#send-live-product-check-modal").modal("hide");
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+      });
+  });
+
+
+  $(document).on("click",".btn-product-screenshot",function(e) {
+      var $this = $(this);
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/get-live-product-screenshot",
+        data : {
+          id : $this.data("id") 
+        },
+        beforeSend : function(response) {
+           $("#loading-image").show();
+           
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          $(".screenshot-modal-information-data").html(response);
+          $("#print-live-product-screenshot-modal").modal("show");
+      });
+  });
 
 </script>
 @if (Session::has('errors'))

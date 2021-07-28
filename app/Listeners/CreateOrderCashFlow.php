@@ -40,6 +40,19 @@ class CreateOrderCashFlow
                 'updated_by' => $user_id,
                 'description' => 'Order Received with full pre payment',
             ]);
+        } else if ($order->order_status_id == \App\Helpers\OrderHelper::$followUpForAdvance) {
+            $order->cashFlows()->create([
+                'date' => $order->order_date,
+                'expected' => $order->advance_detail,
+                'actual' => $order->advance_detail,
+                'type' => 'pending',
+                'currency' => '',
+                'status' => 1,
+                'order_status' => 'pending',
+                'user_id' => $user_id,
+                'updated_by' => $user_id,
+                'description' => 'Order Received from website with follow up for Advance',
+            ]);
         } else if ($order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) {
             $order->cashFlows()->create([
                 'date' => $order->advance_date ?: $order->order_date,

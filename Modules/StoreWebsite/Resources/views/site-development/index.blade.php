@@ -455,6 +455,32 @@
 	</div>
 </div>
 
+<div id="status-history-modal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Sl no</th>
+								<th>Date</th>
+								<th>Status</th>
+								<th>Username</th>
+							</tr>
+						</thead>
+						<tbody class="status-history-list-view">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 @endsection
 
 
@@ -1242,16 +1268,6 @@
 		});
 	});
 
-
-
-
-
-
-
-
-
-
-
 	$(document).on('click', '.artwork-history-btn', function(e) {
 		id = $(this).data('id');
 		if (!id) return;
@@ -1269,6 +1285,33 @@
 				}
 				$("#artwork-history-modal").modal("show");
 				$(".artwork-history-list-view").html(tr);
+				$("#loading-image").hide();
+			},
+			error: function() {
+				$("#loading-image").hide();
+			}
+		});
+	});
+
+	$(document).on('click', '.btn-status-histories-get', function(e) {
+		e.preventDefault();
+		id = $(this).data('site-id');
+		if (!id) return;
+		$.ajax({
+			url: "/site-development/status-history/" + id,
+			type: 'GET',
+			beforeSend: function() {
+				$("#loading-image").show();
+			},
+			dataType:"json",
+			success: function(response) {
+				console.log(response);
+				var tr = '';
+				$.each(response.data,function(k,v) {
+					tr = tr + '<tr><td>' + v.id + '</td><td>' + v.created_at + '</td><td> ' + v.status_name + '</td><td>' + v.user_name + '</td></tr>';
+				});
+				$("#status-history-modal").modal("show");
+				$(".status-history-list-view").html(tr);
 				$("#loading-image").hide();
 			},
 			error: function() {
