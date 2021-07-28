@@ -530,12 +530,12 @@ class LogListMagentoController extends Controller
     public function getLatestProductForPush(Request $request)
     {
         $data = StoreMagentoApiSearchProduct::orderBy('id','DESC');
-        if($request->website_name){
-            $data = $data->where('website', 'LIKE', "%$request->website_name%");
-        }
-
-        if($request->limit){
+        if($request->website_name && $request->limit){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%")->limit($request->limit)->get();
+        }elseif($request->limit){
             $data = $data->limit($request->limit)->get();
+        }elseif($request->website_name){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%")->get();
         }
 
         return view("logging.search-magento-api-call", compact("data"));
