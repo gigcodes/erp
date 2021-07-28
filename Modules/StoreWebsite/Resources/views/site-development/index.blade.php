@@ -1198,13 +1198,13 @@
 			data: {status:status, site_id:site_id},
 			success: function (response){
 				toastr.success(response.message);
-
+				var site = response.site;
 				let option_data=`<option>--select--</option>`;
 					for(var j = 0; j < response.status.length;j++){
-						option_data+=`<option value="${response.status[j].id}" ${response.status[j].id == status ? 'selected' : ''}>${response.status[j].name}</option>`
+						option_data+=`<option value="${response.status[j].id}" ${response.status[j].id == site.status ? 'selected' : ''}>${response.status[j].name}</option>`
 					}
 					
-				$('.save-item-select').html(option_data);
+				$('.save-item-select[ data-site = '+site.id+']').html(option_data);
 
 			}
 		})

@@ -513,6 +513,6 @@ class SiteDevelopmentController extends Controller
         $site = SiteDevelopment::find($request->site_id);
         $site->status = $request->status;
         $site->save();
-        return response()->json(['message' => "Status updated successfully",'status' => $allStatus]);
+        return response()->json(['message' => "Status updated successfully",'status' => $allStatus,'site' => $site]);
     }
 }
