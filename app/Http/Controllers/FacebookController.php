@@ -126,7 +126,8 @@ class FacebookController extends Controller
                     if($inf == null){
                         $influencer              = new ScrapInfluencer;
                         $influencer->name        = $postJson['name'];
-                        //$influencer->url         = $postJson['URL'];
+                        $influencer->url         = isset($postJson['url']) ? $postJson['url'] : "";
+                        $influencer->country     = isset($postJson['country']) ? $postJson['country'] : "";
                         $influencer->followers   = $postJson['followers'];
                         $influencer->following   = $postJson['friends'];
                         //$influencer->posts       = $postJson['Posts'];
