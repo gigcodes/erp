@@ -275,9 +275,11 @@ class scrapperPhyhon extends Controller
                 "error" => $validator->errors()
             ]);
         }
-
-        $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
-        $coordinates = implode(',',$request->coordinates);
+        $coordinates = null;
+        if ($request->coordinates) {
+            $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
+            $coordinates = implode(',',$request->coordinates);
+        }
 
         // For Height Width Of Base64
             $binary = \base64_decode(\explode(',', $request->image)[0]);
