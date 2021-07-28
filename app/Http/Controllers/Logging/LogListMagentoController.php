@@ -829,16 +829,30 @@ class LogListMagentoController extends Controller
 
 
         if(!$products->isEmpty()) {
+
+            $requests = [];
+
             foreach($products as $product) {
                 if($product->product && $product->storeWebsite)  {
                     $productModel = $product->product;
+                    if(isset($requests[$product->store_website_id])) {
+                        $requests[$product->store_website_id]["sku"][] = $productModel->sku."-".$productModel->color;
+                    }else{
+                        $requests[$product->store_website_id] = [
+                            "website" => $product->storeWebsite->magento_url,
+                            "sku" => [$productModel->sku."-".$productModel->color]
+                        ];
+                    }
+                    
+                }
+            }
+
+            if(!empty($requests)) {
+                foreach($requests as $req) {
                     //PRODUCT_CHECK_PY
                     $client = new \GuzzleHttp\Client();
                     $response = $client->request('POST', config('constants.product_check_py')."/sku-scraper-start", [
-                        'form_params' => [
-                            'website' => $product->storeWebsite->magento_url,
-                            'sku' => [$productModel->sku."-".$productModel->color],
-                        ],
+                        'form_params' => $req,
                     ]);
                 }
             }
