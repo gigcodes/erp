@@ -132,7 +132,11 @@
                        <td>{{$row->supplier->supplier}}</td>
                        <td>{{$row->gender}}</td> 
                        <td>{{$row->category}}</td> 
-                       <td>{{$row->generic_price ?? '-'}}</td> 
+                       <td>{{$row->generic_price ?? '-'}}
+                            @if($row->generic_price)
+                            <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="generic_price" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                            @endif
+                        </td> 
                        <td>{{$row->exceptions ?? '-'}}</td> 
                        <td>{{$row->condition_from_retail ?? '-'}} 
                             <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail" style="font-size:15px; margin-left:10px; color: #757575;"></a>
@@ -185,7 +189,7 @@
                 <div class="row">
                     <input type="hidden" name="supplier_brand_discounts_id" id="supplier_brand_discounts_id">
                     <div class="col-md-12">
-                        <table class="table">
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
                                    
@@ -212,7 +216,7 @@
   
   <!-- Modal -->
   <div class="modal fade" id="Log-details" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Log Details</h5>
@@ -230,13 +234,13 @@
                 <div class="row">
                    
                     <div class="col-md-12" id="log-details">
-                        <table class="table">
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Excel Name</th>
-                                    <th>Updated by</th>
-                                    <th>Created at</th>
-                                    <th>Action</th>
+                                    <th style="word-wrap: break-word; width=50%">Excel Name</th>
+                                    <th width=20%>Updated by</th>
+                                    <th width=20%>Created at</th>
+                                    <th width=10%>Action</th>
                                                         
                                 </tr>
                             </thead>
@@ -320,7 +324,8 @@
 
         $('#log-history-model').modal('show');
     });
-                  
+   
+               
 </script>
 
 @endsection

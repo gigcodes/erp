@@ -1506,20 +1506,21 @@ class ProductInventoryController extends Controller
 
         try{
 // 20148 starting 
-			$get_data = SupplierBrandDiscount::limit(8)->get();
+			// $get_data = SupplierBrandDiscount::limit(8)->get();
 			
-			$data_arr = array();
+			// $data_arr = array();
 
-			foreach($get_data as $key => $val){
-				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['generic_price'] = $val->generic_price;
-				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail'] = $val->condition_from_retail;
-				$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
-			}
-			// dd($data_arr);
-
-				$fileName = time().'.'.$file->extension();
-				// $file->move(public_path('product_discount_file'), $fileName);
-
+			// foreach($get_data as $key => $val){
+			// 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['generic_price'] = $val->generic_price;
+			// 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail'] = $val->condition_from_retail;
+			// 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
+			// }
+				$ogfilename = $file->getClientOriginalName();
+					
+				$fileName_array = chop($ogfilename,".xlsx");
+				// $filename_array = explode("." ,$ogfilename);
+				$fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
+				
 				$params['excel_name'] = $fileName;
                 $params['user_id'] =\Auth::user()->id;
 				
@@ -1608,18 +1609,23 @@ class ProductInventoryController extends Controller
                         $discount->save();
 
 
-							$params['supplier_brand_discounts_id'] = $discount->id;
-							$params['header_name']  = 'condition_from_retail';
-							$params['new_value']   = $row[4];
-							$params['user_id'] = \Auth::user()->id;
-							$log_history = \App\SupplierDiscountLogHistory::create($params);
+                            if ($row[4] != null) {
+                                $params['supplier_brand_discounts_id'] = $discount->id;
+                                $params['header_name']  = 'condition_from_retail';
+                                $params['old_value']   = '-';
+                                $params['new_value']   = $row[4];
+                                $params['user_id'] = \Auth::user()->id;
+                                $log_history = \App\SupplierDiscountLogHistory::create($params);
+                            }
 
-
-							$params['supplier_brand_discounts_id'] = $discount->id;
-							$params['header_name']  = 'condition_from_retail_exceptions';
-							$params['new_value']   = $row[5];
-							$params['user_id'] = \Auth::user()->id;
-							$log_history1 = \App\SupplierDiscountLogHistory::create($params);
+                            if ($row[5] != null) {
+                                $params['supplier_brand_discounts_id'] = $discount->id;
+                                $params['header_name']  = 'condition_from_retail_exceptions';
+                                $params['old_value']   = '-';
+                                $params['new_value']   = $row[5];
+                                $params['user_id'] = \Auth::user()->id;
+                                $log_history1 = \App\SupplierDiscountLogHistory::create($params);
+                            }
 					}
 
 				}  
@@ -1631,6 +1637,7 @@ class ProductInventoryController extends Controller
 			}
 			
 			if($rows[0][1] == 'SS21'){
+			
 				$array1 = $array2 = []; $first_time1 = 1;
 				foreach($rows as $key => $row){
 					if($row[1] == 'SS21' || $row[1] == 'ST' || $key == 2 ) continue;
@@ -1717,18 +1724,87 @@ class ProductInventoryController extends Controller
 							}
 			
 							$discount = new SupplierBrandDiscount();
-							$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
-							if($exist_row) continue;
-							$discount->supplier_id = $request->supplier;
-							$discount->brand_id = $brand->id;
-							$discount->gender = $gender;
-							$discount->category = $category;
-							$discount->generic_price = $generic_price; 
-							$discount->condition_from_retail = $condition_from_retail; 
-							$discount->save();	
+							// $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
+
+							$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
+
+							if($exist_row)
+							{
+								
+								if($exist_row->condition_from_retail != $condition_from_retail){
+									$updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $condition_from_retail]);
+
+									$params['supplier_brand_discounts_id'] = $exist_row->id;
+									$params['header_name']  = 'condition_from_retail';
+									$params['old_value']   = $exist_row->condition_from_retail;
+									$params['new_value']   = $condition_from_retail;
+									$params['user_id'] = \Auth::user()->id;
+
+									$log_history = \App\SupplierDiscountLogHistory::create($params);
+								
+								}
+
+								if($exist_row->generic_price != $generic_price){
+									$updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price]);
+
+									$params['supplier_brand_discounts_id'] = $exist_row->id;
+									$params['header_name']  = 'generic_price';
+									$params['old_value']   = $exist_row->generic_price;
+									$params['new_value']   = $generic_price;
+									$params['user_id'] = \Auth::user()->id;
+
+									$log_history = \App\SupplierDiscountLogHistory::create($params);
+								
+								}
+
+								
+
+							}else{
+							
+								$discount->supplier_id = $request->supplier;
+								$discount->brand_id = $brand->id;
+								$discount->gender = $gender;
+								$discount->category = $category;
+								$discount->generic_price = $generic_price; 
+								$discount->condition_from_retail = $condition_from_retail; 
+								$discount->save();
+
+
+									if ($condition_from_retail != null) {
+										$params['supplier_brand_discounts_id'] = $discount->id;
+										$params['header_name']  = 'condition_from_retail';
+										$params['old_value']   = '-';
+										$params['new_value']   = $condition_from_retail;
+										$params['user_id'] = \Auth::user()->id;
+										$log_history = \App\SupplierDiscountLogHistory::create($params);
+									}
+
+
+									if ($generic_price != null) {
+										$params['supplier_brand_discounts_id'] = $discount->id;
+										$params['header_name']  = 'generic_price';
+										$params['old_value']   = '-';
+										$params['new_value']   = $generic_price;
+										$params['user_id'] = \Auth::user()->id;
+										$log_history = \App\SupplierDiscountLogHistory::create($params);
+									}
+
+								
+							}
+							// if($exist_row) continue;
+							// $discount->supplier_id = $request->supplier;
+							// $discount->brand_id = $brand->id;
+							// $discount->gender = $gender;
+							// $discount->category = $category;
+							// $discount->generic_price = $generic_price; 
+							// $discount->condition_from_retail = $condition_from_retail; 
+							// $discount->save();	
 						}
 					}
 				}
+
+				$file->move(public_path('product_discount_file'), $fileName);
+				
 			return redirect()->back()->with('success', 'Excel Imported Successfully!');
 
 			}
