@@ -1,5 +1,6 @@
 <?php
 
+use App\PaymentReceipt;
 use Illuminate\Database\Seeder;
 
 class PaymentReceiptSeeder extends Seeder
@@ -11,6 +12,6 @@ class PaymentReceiptSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\PaymentReceipt::class, 1)->create();
+        factory(PaymentReceipt::class, 10000)->create();
     }
 }

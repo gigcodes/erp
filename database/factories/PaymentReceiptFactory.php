@@ -19,6 +19,7 @@ $factory->define(App\PaymentReceipt::class, function (Faker $faker) {
 
             $created_at = $faker->dateTimeBetween('-10 years','now');
             $datee =Carbon::now()->createFromFormat('Y-m-d', $billing_start_date); 
+            // $datee =Carbon::now()->subDay(rand(-3,3))->format('Y-m-d'); 
 
             return [
                     

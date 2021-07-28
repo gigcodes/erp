@@ -19,6 +19,7 @@ $factory->define(App\Team::class, function (Faker $faker) {
         'user_id'=>$user_id,
         'team_id'=>$faker->randomElement($team_ids)
     ]);
+    
     return [
         'name'=>$faker->word(),
         'user_id'=>$user_id,

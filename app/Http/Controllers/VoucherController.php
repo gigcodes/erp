@@ -34,7 +34,8 @@ class VoucherController extends Controller
         $end           = $request->range_end ? $request->range_end : date("Y-m-d", strtotime('saturday this week'));
         $selectedUser  = $request->user_id ? $request->user_id : null;
         $status        = $request->status ? $request->status : 'Pending';
-        $tasks         = PaymentReceipt::where('status', $status);
+        $tasks         = PaymentReceipt::with('chat_messages','user')->where('status', $status);
+        // $tasks         = PaymentReceipt::where('status', $status);
         $teammembers   = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user', 'team_user.team_id', '=', 'teams.id')->select(['team_user.user_id'])->get()->toArray();
         $teammembers[] = Auth::user()->id;
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
@@ -68,10 +69,27 @@ class VoucherController extends Controller
         }
 
         $tasks = $tasks->orderBy('id', 'desc')->paginate($limit)->appends(request()->except('page'));
+
+        // $allPayments =  Payment::pluck('amount','payment_receipt_id');
+        // $allTask = Task::get();
+        // $developerTask = DeveloperTask::get();
+        
+        // $newAllTask =[];
+        //     foreach($allTask as $task){
+        //     $newAllTask[$task->id] = $task;
+        //     }
+
+        // $newAllDevTask =[];
+        //     foreach($developerTask as $task){
+        //     $newAllDevTask[$task->id] = $task;
+        //     }
+
+
         foreach ($tasks as $task) {
             $task->user;
 
             $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
+            // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
             if ($totalPaid) {
                 $task->paid_amount = number_format($totalPaid, 2);
                 $task->balance     = $task->rate_estimated - $totalPaid;
@@ -84,6 +102,7 @@ class VoucherController extends Controller
             // $task->assignedUser;
             if ($task->task_id) {
                 $task->taskdetails      = Task::find($task->task_id);
+                // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task_details;
@@ -95,6 +114,7 @@ class VoucherController extends Controller
                 }
             } else if ($task->developer_task_id) {
                 $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
+                // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task;
