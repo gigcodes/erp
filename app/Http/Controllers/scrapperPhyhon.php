@@ -277,7 +277,15 @@ class scrapperPhyhon extends Controller
         }
 
         $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
-        
+        $coordinates = implode(',',$request->coordinates);
+
+        // For Height Width Of Base64
+            $binary = \base64_decode(\explode(',', $request->image)[0]);
+            $data = \getimagesizefromstring($binary);
+            $width = $data[0];
+            $height = $data[1];
+
+
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 
             $newImage = array(
@@ -286,6 +294,9 @@ class scrapperPhyhon extends Controller
                 'img_name'   => $request->image_name,
                 'img_url'    => $request->image_name,
                 'device'     => (isset($request->device) ? $request->device : 'desktop' ),
+                'coordinates'=> $coordinates,
+                'height'=> $height,
+                'width'=> $width,
             );
 
             scraperImags::insert( $newImage );
