@@ -1166,6 +1166,10 @@
 		});
 	});
 
+	$('#latest-remarks-modal').on('shown.bs.modal', function() { 
+		$(this).find('.SearchStatus').val('');
+	});
+
 	$(document).on('click', '.latest-remarks-btn', function(e) {
 		websiteId = $('#website_id').val();
 		websiteId = $.trim(websiteId);
