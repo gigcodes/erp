@@ -781,6 +781,9 @@ class OrderController extends Controller
         if (isset($data['date_of_delivery'])) {
             $data['estimated_delivery_date'] = $data['date_of_delivery'];
         }
+        
+        $currency = $request->get("currency","INR");
+        $data['store_currency_code'] = $currency;
 
         $order = Order::create($data);
 
