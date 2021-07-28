@@ -745,7 +745,7 @@ class LogListMagentoController extends Controller
             if($request->days == 100){
                 StoreMagentoApiSearchProduct::truncate();
             }
-            return response()->json(['code' => 200]);
+            return response()->json(['code' => 200, 'message' =>'Record Deleted Successfull']);
         }
         $data = StoreMagentoApiSearchProduct::find($request->id);
         $data->delete();

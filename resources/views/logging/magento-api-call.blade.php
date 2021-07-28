@@ -161,9 +161,14 @@
           success: function(response){
             if (response.status == true) {
               $this.closest('tr').remove();
+              toastr.success('Data Deleted Successfully')
             }
             if (response.code == 200) {
-              location.reload();
+              toastr.success(response.message)
+              setTimeout(function(){
+                location.reload();
+              }, 1000);
+
             }
           }
         });
