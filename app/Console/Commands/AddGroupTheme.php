@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\WebsiteStoreView;
 use App\DatabaseTableHistoricalRecord; 
+use App\StoreWebsite;
 
 class AddGroupTheme extends Command
 { 
@@ -40,6 +41,7 @@ class AddGroupTheme extends Command
     public function handle()
     {
         $existing_themes_ids = [];
+        $all_themes_ids = [];
         
         // Part - 1
 
@@ -58,24 +60,24 @@ class AddGroupTheme extends Command
             $existing_themes = ['AvoirChic', 'Brands & Labels', 'Shades Shop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau']; 
             $changed_themes = [];
             foreach($response as $g){
-                if(in_array(str_replace('theme_', '', $g->name), $existing_themes)){
-                    $existing_themes_ids['theme_' . $g->name] = $g->id;
-                    $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/update_group';
-                    $postData = [
-                        'id' => $g->id,
-                        'name' => 'theme_' . $g->name,
-                        'name' => 'theme_' . $g->name,
-                        'language_code' => $g->language_code,
-                        'agent_priorities' => $g->agent_priorities,
-                        'routing_status' => $g->routing_status,
-                    ];
-                    $postData = json_encode($postData, true);
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
-                    if (!isset($response->error)) {
-                        $changed_themes[] = 'theme_' . $g->name;
-                        $existing_themes_ids[$g->name] = $g->id;
-                    } 
-                } 
+                $all_themes_ids[$g->name] = $g->id;
+                // if(in_array(str_replace('theme_', '', $g->name), $existing_themes)){
+                //     $existing_themes_ids['theme_' . $g->name] = $g->id;
+                //     $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/update_group';
+                //     $postData = [
+                //         'id' => $g->id,
+                //         'name' => 'theme_' . str_replace('theme_', '', $g->name),
+                //         'language_code' => $g->language_code,
+                //         'agent_priorities' => $g->agent_priorities,
+                //         'routing_status' => $g->routing_status,
+                //     ];
+                //     $postData = json_encode($postData, true);
+                //     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                //     if (!isset($response->error)) {
+                //         $changed_themes[] = 'theme_' . $g->name;
+                //         $existing_themes_ids[$g->name] = $g->id;
+                //     } 
+                // } 
             } 
             if (isset($response->error)) {
                 dump(['status' => 'errors', $response], 403);
@@ -83,28 +85,27 @@ class AddGroupTheme extends Command
                 dump(['status' => 'success', 'responseData' => $changed_themes], 200);
             }
         } 
+        dump($all_themes_ids);
 
         // Part - 2
 
         $website_store_views = WebsiteStoreView::whereNotNull('store_group_id')->whereNull('ref_theme_group_id')->get();
         foreach($website_store_views as $key => $v){
-            $web_title = $v->websiteStore->website->storeWebsite->title;
+            $store_web = StoreWebsite::withTrashed()->find($v->websiteStore->website->store_website_id);
+            $web_title = $store_web->title;
             if($web_title == 'Demo Store'){
                 continue;
             }else if($web_title == 'VERA LUSSO'){
-                $web_title = 'VeraLusso';
-            }else if($web_title == 'SOLO LUXURY'){
-                $web_title = 'Sololuxury';
+                $web_title = 'Vera Lusso';
             }
-            dump([$existing_themes_ids['theme_' . $web_title], $v->store_group_id]);
-
-            $postURL1  = 'https://api.livechatinc.com/v2/properties/group/' . $existing_themes_ids['theme_' . $web_title];
+            $code =  explode('-', $v->code)[1];
+            $web_name = $store_web->title . '_' . $code;
+            $postURL1  = 'https://api.livechatinc.com/v2/properties/group/' . $all_themes_ids[$web_name];
             $result1 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL1, [], 'application/json', true, 'GET');
             $postURL2  = 'https://api.livechatinc.com/v2/properties/group/' . $v->store_group_id;
             $result2 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
-            
-            WebsiteStoreView::where('id', $v->id)->update(['ref_theme_group_id' => $existing_themes_ids['theme_' . $web_title]]);
-            dump($v->id . ' is updated ' .  $existing_themes_ids['theme_' . $web_title]);
+            WebsiteStoreView::where('id', $v->id)->update(['ref_theme_group_id' => $all_themes_ids[$web_name]]);
+            dump($v->id . ' ' . $web_name . ' is updated ' .  $all_themes_ids[$web_name]);
         }
     }
 
