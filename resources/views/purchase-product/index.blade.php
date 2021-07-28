@@ -177,6 +177,7 @@
             <th width="10%"><a href="">Supplier</a></th>
             <th width="10%">Product</th>
             <th width="10%">Buying Price</th>
+            <th width="10%">Buying Price(EUR)</th>
             <th width="10%"><a href="">Selling price</a></th>
             <th width="8%"><a href="">Order Date</a></th>
            <th width="8%"><a href="">Del Date</a></th>
@@ -262,18 +263,20 @@
               @endif
               </td>
               <td class="expand-row table-hover-cell">
-              {{$order->product_price}}
+                  EUR {{$order->eur_price}}
+              </td>
+              <td class="expand-row table-hover-cell">
+              {{$order->currency}} {{$order->product_price}}
               </td>
               <td>{{ $order->order_date }}</td>
               <td>{{$order->date_of_delivery}}</td>
               <td>
-              <select name="inventory_status_id" id="" class="form-control change-inventory-status" data-id="{{$order->order_product_id}}">
-              <option value="">Select Inventory status</option>
-              @foreach($inventoryStatus as $id => $status)
-          <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
-              @endforeach
-              </select>
-
+                <select name="inventory_status_id" id="" class="form-control change-inventory-status" data-id="{{$order->order_product_id}}">
+                    <option value="">Select Inventory status</option>
+                    @foreach($inventoryStatus as $id => $status)
+                        <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
+                    @endforeach
+                </select>
               </td>
               <td>{{-- $order->balance_amount --}}
                 @if ($order_product && $order_product->product)
