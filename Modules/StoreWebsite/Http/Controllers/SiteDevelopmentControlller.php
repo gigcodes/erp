@@ -406,14 +406,24 @@ class SiteDevelopmentController extends Controller
         // return view('content-management.preview-website-images', compact('title','records'));
     }
 
-    public function latestRemarks($id) {
+    public function latestRemarks(Request $request,$id) {
 
-        $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
-        store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
-        FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
-        left join store_websites as sw on sw.id = site_developments.website_id
-        join users on users.id = store_development_remarks.user_id
-        where site_developments.website_id = '.$id.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
+        if($request->status != '')
+        {
+            $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
+            store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
+            FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
+            left join store_websites as sw on sw.id = site_developments.website_id
+            join users on users.id = store_development_remarks.user_id
+            where site_developments.website_id = '.$id.' and status ='.$request->status.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
+        }else{
+            $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
+            store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
+            FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
+            left join store_websites as sw on sw.id = site_developments.website_id
+            join users on users.id = store_development_remarks.user_id
+            where site_developments.website_id = '.$id.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
+        }
         $username = [];
         foreach ($remarks as $remark) {
             $user = \App\User::find($remark->user_id);

@@ -405,7 +405,20 @@
 		<div class="modal-content">
 			<div class="modal-body">
 				<div class="col-md-12">
-					<table class="table table-bordered" style="table-layout:fixed;">
+					<div class="col-md-4">
+						<select name="SearchStatus" class="form-control SearchStatus">
+							<option value="">--Select--</option>
+							@foreach ($allStatus as $status)
+								<option value="{{ $status }}">{{ $status }}</option>
+							@endforeach
+						</select>
+					</div>
+					<div class="col-md-2 pl-2">
+						<button class="btn btn-secondary latest-remarks-btn">Search</button>
+					</div>
+				</div>
+				<div class="col-md-12 pt-3">
+					<table class="table table-bordered pt-3" style="table-layout:fixed;">
 						<thead>
 							<tr>
                                 <th style="width:3%;"></th>
@@ -1128,9 +1141,11 @@
 	$(document).on('click', '.latest-remarks-btn', function(e) {
 		websiteId = $('#website_id').val();
 		websiteId = $.trim(websiteId);
+		var searchStatus = $(this).parents('.modal-body').find('.SearchStatus').val();
 		$.ajax({
 			url: "/site-development/latest-reamrks/" + websiteId,
 			type: 'GET',
+			data: {status: searchStatus},
 			beforeSend: function() {
 				$("#loading-image").show();
 			},
