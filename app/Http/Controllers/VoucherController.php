@@ -369,7 +369,7 @@ class VoucherController extends Controller
         $input['status']         = 'Pending';
         $input['rate_estimated'] = $input['amount'];
         PaymentReceipt::create($input);
-        //create entry in table cash_flows
+        /*//create entry in table cash_flows
         \DB::table('cash_flows')->insert(
             [
                 'user_id'             => $request->input('user_id'),
@@ -380,7 +380,7 @@ class VoucherController extends Controller
                 'cash_flow_able_type' => 'App\PaymentReceipt',
 
             ]
-        );
+        );*/
         return redirect()->back()->with('success', 'Successfully created');
     }
 
@@ -446,24 +446,25 @@ class VoucherController extends Controller
         $request1->replace($message);
 
         $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1, 'user');
-        $cashData    = [
+        /*$cashData    = [
             'user_id'             => $request->user_id,
             'description'         => 'Vendor paid',
             'date'                => $request->input('date'),
             'amount'              => $newTotal,
             'type'                => 'paid',
             'cash_flow_able_type' => 'App\PaymentReceipt',
+            'cash_flow_able_type' => 'App\PaymentReceipt',
             'created_at'          => date("Y-m-d H:i:s"),
             'updated_by'          => \Auth::user()->id,
 
-        ];
+        ];*/
         if ($newTotal >= $preceipt->rate_estimated) {
             $preceipt->update(['status' => 'Done']);
             $cashdata['order_status'] = 'Done';
             $cashdata['status']       = 1;
         }
         //create entry in table cash_flows
-        \DB::table('cash_flows')->insert($cashData);
+        //\DB::table('cash_flows')->insert($cashData);
         //created
         return redirect()->back()->with('success', 'Successfully submitted');
     }
@@ -591,7 +592,7 @@ class VoucherController extends Controller
         }
 
         Payment::create($input);
-        $cashData = [
+        /*$cashData = [
             'user_id'             => $request->user_id,
             'description'         => 'Vendor paid',
             'date'                => $request->date,
@@ -600,7 +601,7 @@ class VoucherController extends Controller
             'cash_flow_able_type' => 'App\PaymentReceipt',
         ];
         //create entry in table cash_flows
-        \DB::table('cash_flows')->insert($cashData);
+        \DB::table('cash_flows')->insert($cashData);*/
         return redirect()->back()->with('success', 'Successfully submitted');
     }
 
