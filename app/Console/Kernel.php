@@ -142,6 +142,7 @@ use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\UpdateProductInformationFromCsv;
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -280,7 +281,8 @@ class Kernel extends ConsoleKernel
         StoreChatMessagesToAutoCompleteMessages::class,
         RemoveScrapperImages::class,
         ChangeTesterBasedOnTeamLead::class,
-        AddGroupTheme::class
+        AddGroupTheme::class,
+        UpdateProductInformationFromCsv::class
     ];
 
     /**
@@ -627,6 +629,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
+
+        //cron for updating data from csv
+        $schedule->command('update-product:from-csv')->daily();	
 
     }
 
