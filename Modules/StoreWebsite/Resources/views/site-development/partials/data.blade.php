@@ -219,6 +219,9 @@
                 </span>
                 </button>
                 <?php /* <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png" /></button> */ ?>
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" class="btn btn-status-histories-get pd-5" title="Status History">
+                    <i class="fa fa-empire" aria-hidden="true"></i>
+                </button>
 
                 <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
                     "class" => "form-control save-item-select width-auto globalSelect2",
