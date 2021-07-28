@@ -20,9 +20,12 @@ use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use App\ProductPushInformation;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 
 use App\Jobs\PushToMagento;
+use App\StoreWebsite;
+use App\WebsiteProductCsv;
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -603,7 +606,7 @@ class LogListMagentoController extends Controller
 
             }    
 
-            $data['category']               = implode(" > ",$category);
+            $data['category'] = implode(" > ",$category);
             
             return view("logging.partials.product-information",compact('data'));
 
@@ -622,8 +625,8 @@ class LogListMagentoController extends Controller
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
         $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
-        
-
+        $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
+// dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
             $logListMagentos->where('product_id','LIKE','%'.$request->filter_product_id .  '%');
         }
@@ -640,7 +643,7 @@ class LogListMagentoController extends Controller
         $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
         $total_count = ProductPushInformation::get()->count();
 
-       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList'));
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl'));
            
 
     }
@@ -651,8 +654,12 @@ class LogListMagentoController extends Controller
         $arr_id = [];
         $is_file_exists = null;
 
-            // $file_url =public_path('60f89208edcc4_product.csv');
+        
+        // $file_url =public_path('60f89208edcc4_product.csv');
         $file_url =  $request->website_url;
+        if(!$file_url){
+            return response()->json(['error'=>'Please enter url']);
+        }
         
         $client   = new Client();
 
@@ -685,10 +692,33 @@ class LogListMagentoController extends Controller
         }
 
         ProductPushInformation::whereNotIn('product_id',$arr_id)->delete();
+        return response()->json(['message'=>'Data updated succesfully']);
 
     }
 
+    public function updateProductPushWebsite(Request $request)
+    {
+        foreach($request->all() as $key=> $req){
+           
+            if($key == '_token'){
+                continue;
+            }
 
+            if($req != null && ($req != ''))
+            {
+                $updated =   WebsiteProductCsv::updateOrCreate(['store_website_id'=>$key],[
+                    'path'=> $req,
+                    'store_website_id'=>$key
+                ]);
+            }
+
+            // WebsiteProductCsv::where('store_website_id',$key)->update(['path'=>$req]);
+        }
+        return response()->json(["code" => 200, "message" => "Paths update succesfully"]);
+
+    }
+
+    
     public function productPushHistories(Request $request,$product_id)
     {
         $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->latest()->get();
@@ -767,6 +797,101 @@ class LogListMagentoController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Total Request found :" .$products->count()]);
+    }
+
+    public function sendLiveProductCheck(Request $request)
+    {
+        $logListMagento = \App\Loggers\LogListMagento::query();
+
+        if(empty($request->start_date) && empty($request->start_date)) {
+            return response()->json(["code" => 500, "message" => "Please select start date and end date for valid result"]);
+        }
+
+        if($request->start_date != null) {
+            $logListMagento->whereDate("created_at",">=",$request->start_date);
+        }
+
+        if($request->end_date != null) {
+            $logListMagento->whereDate("created_at","<=",$request->end_date);
+        }
+
+        if($request->store_website_id != null) {
+            $logListMagento->where("store_website_id",$request->store_website_id);
+        }
+
+        if($request->keyword != null) {
+            $logListMagento->where("product_id",$request->keyword);
+        }
+
+        $products = $logListMagento->where(function($q) {
+            $q->where("sync_status","success");
+        })->groupBy('store_website_id','product_id')->get();
+
+
+        if(!$products->isEmpty()) {
+            foreach($products as $product) {
+                if($product->product && $product->storeWebsite)  {
+                    $productModel = $product->product;
+                    //PRODUCT_CHECK_PY
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->request('POST', config('constants.product_check_py')."/sku-scraper-start", [
+                        'form_params' => [
+                            'website' => $product->storeWebsite->magento_url,
+                            'sku' => [$productModel->sku."-".$productModel->color],
+                        ],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Total Request send :" .$products->count()]);
+    }
+
+    public function updateLiveProductCheck(Request $request)
+    {
+        $storeWebsite = \App\StoreWebsite::where("magento_url","like","%".$request->get("website")."%")->first();
+        $message = $request->get("message","Error");
+        if($storeWebsite) {
+            //get the product based on sku
+            $sku = explode("-",$request->get("sku"));
+            $product =  \App\Product::where("sku",$sku[0])->first();
+            if($product) {
+
+                $sws = \App\StoreWebsiteProductScreenshot::create([
+                    "product_id" => $product->id,
+                    "sku" => $request->get("sku"),
+                    "store_website_name" => $request->get("website"),
+                    "store_website_id" => $storeWebsite->id,
+                    "status" => $message,
+                ]);
+
+                if(strtolower($message) == "success") {
+                    $image = $request->get("image");
+                    if(!empty($image)) {
+                        $content = base64_decode($image);
+                        $media = MediaUploader::fromString($content)->toDirectory('/store-website-product-screeenshot')->useFilename(uniqid(true))->upload();
+                        $sws->attachMedia($media, config('constants.media_tags'));
+                        $sws->image_path = $media->getUrl();
+                        $sws->save();
+                    }
+                }
+
+                return response()->json(["code" => 200 , "data" => [] , "message" => "Request has been stored successfully"]);
+
+            }else{
+                return response()->json(["code" => 500 , "data" => [] , "message" => "Product not found in records"]);
+            }
+
+        }else{
+            return response()->json(["code" => 500 , "data" => [] , "message" => "Website not found in records"]);
+        }
+
+    }
+
+    public function getLiveScreenshot(Request $request)
+    {
+        $logListMagento = \App\Loggers\LogListMagento::find($request->get("id",0));
+        return view("logging.partials.get-screenshot",compact('logListMagento'));
     }
 }
 
