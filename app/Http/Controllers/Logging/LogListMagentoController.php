@@ -24,6 +24,8 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 
 use App\Jobs\PushToMagento;
+use App\StoreWebsite;
+use App\WebsiteProductCsv;
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -604,7 +606,7 @@ class LogListMagentoController extends Controller
 
             }    
 
-            $data['category']               = implode(" > ",$category);
+            $data['category'] = implode(" > ",$category);
             
             return view("logging.partials.product-information",compact('data'));
 
@@ -623,8 +625,8 @@ class LogListMagentoController extends Controller
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
         $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
-        
-
+        $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
+// dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
             $logListMagentos->where('product_id','LIKE','%'.$request->filter_product_id .  '%');
         }
@@ -641,7 +643,7 @@ class LogListMagentoController extends Controller
         $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
         $total_count = ProductPushInformation::get()->count();
 
-       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList'));
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl'));
            
 
     }
@@ -652,8 +654,12 @@ class LogListMagentoController extends Controller
         $arr_id = [];
         $is_file_exists = null;
 
-            // $file_url =public_path('60f89208edcc4_product.csv');
+        
+        // $file_url =public_path('60f89208edcc4_product.csv');
         $file_url =  $request->website_url;
+        if(!$file_url){
+            return response()->json(['error'=>'Please enter url']);
+        }
         
         $client   = new Client();
 
@@ -686,10 +692,33 @@ class LogListMagentoController extends Controller
         }
 
         ProductPushInformation::whereNotIn('product_id',$arr_id)->delete();
+        return response()->json(['message'=>'Data updated succesfully']);
 
     }
 
+    public function updateProductPushWebsite(Request $request)
+    {
+        foreach($request->all() as $key=> $req){
+           
+            if($key == '_token'){
+                continue;
+            }
 
+            if($req != null && ($req != ''))
+            {
+                $updated =   WebsiteProductCsv::updateOrCreate(['store_website_id'=>$key],[
+                    'path'=> $req,
+                    'store_website_id'=>$key
+                ]);
+            }
+
+            // WebsiteProductCsv::where('store_website_id',$key)->update(['path'=>$req]);
+        }
+        return response()->json(["code" => 200, "message" => "Paths update succesfully"]);
+
+    }
+
+    
     public function productPushHistories(Request $request,$product_id)
     {
         $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->latest()->get();

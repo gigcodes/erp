@@ -197,7 +197,7 @@
                         @endif --}}
                         {{-- END - DEVTASK-4271 --}}
 
-                        <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;">
+                        {{-- <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;">
                             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
                                 <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                     <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
@@ -210,7 +210,7 @@
 
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                     {{-- START - Purpose : Comment Code - DEVTASK-4271 --}}
                     {{-- @php
@@ -219,6 +219,23 @@
                     }
                     @endphp--}}
                     {{-- END - DEVTASK-4271 --}}
+                    @php 
+                        $x = 0;
+                        $coordinates = explode(',',$image['coordinates']);
+                        array_push($coordinates,$image['height']);
+                    @endphp
+                    
+                   <div style="text-align: center">
+                        @foreach ($coordinates as $z)
+                        <td>
+                            <img class="manage-product-image" src="{{ asset( 'scrappersImages/'.$image['img_name']) }}" style="object-position: 100% -{{ $x }}px;padding-bottom: 20px;border-bottom: 1px solid; margin-bottom: 20px;height:{{ $z - $x }}px;object-fit:cover;width:fit-content;">
+                            {{-- <div class="manage-product-image" data-coordinates="{{ $z }}" style="background: url({{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}) -10px -{{$x}}px; background-repeat: no-repeat;background-size:auto {{ $z }}px"> --}}
+                            {{-- </div> --}}
+                        </td>
+                        @php $x = $z; @endphp
+                    
+                    @endforeach
+                   </div>
 
                 @endif
             @php $count++;  @endphp
@@ -424,6 +441,16 @@
        
         window.location.href = url;
     });
+
+    // $(document).ready(function() {
+    //     var screenHeight = screen.height;
+        
+    //     $('.manage-product-image').css('height',  screenHeight );
+    //     $(window).resize(function(){
+    //         var screenHeight = screen.height;
+    //         $('.manage-product-image').css('height',  screenHeight );
+    //     });
+    // })
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection
