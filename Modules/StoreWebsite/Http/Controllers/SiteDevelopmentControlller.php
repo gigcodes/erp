@@ -159,6 +159,13 @@ class SiteDevelopmentController extends Controller
             $id = $site->id;
             $siteDev =  SiteDevelopment::where('id',$id)->first();
             $status = ($siteDev) ? $siteDev->status : 0; 
+            if($siteDev && $status > 0) {
+                \App\SiteDevelopmentStatusHistory::create([
+                    "site_development_id" => $id,
+                    "status_id" => $siteDev->status,
+                    "user_id" => auth()->user()->id,
+                ]);
+            }
             if($status==3){
                 $html .= "<i class='fa fa-ban save-status' data-text='4' data-site=".$siteDev->id." data-category=".$siteDev->site_development_category_id."  data-type='status' aria-hidden='true' style='color:red;'' title='Deactivate'></i>";
             }elseif($status==4 || $status==0 ){
@@ -184,6 +191,26 @@ class SiteDevelopmentController extends Controller
         $histories = [];
         if($site) {
             $histories = SiteDevelopmentArtowrkHistory::where('site_development_id',$site->id)->get();
+        }
+        return response()->json(["code" => 200, "data" => $histories]);
+    }
+
+    public function statusHistory($site_id) {
+        $site = SiteDevelopment::find($site_id);
+        $histories = [];
+        if($site) {
+            $hist = $site->statusHistories()->latest()->get();
+            if(!$hist->isEmpty()) {
+                foreach($hist as $h) {
+                    $histories[] = [
+                        "id" => $h->id,
+                        "status_name" => $h->status->name,
+                        "user_name" => $h->user->name,
+                        "created_at" => (string)$h->created_at,
+                    ];
+                }
+            }
+
         }
         return response()->json(["code" => 200, "data" => $histories]);
     }
