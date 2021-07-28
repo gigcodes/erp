@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\PaymentReceiptCreated;
 
-class CreatePaymentReceiptCashflow
+class UpdatePaymentReceiptCashflow
 {
     /**
      * Create the event listener.
@@ -26,7 +26,7 @@ class CreatePaymentReceiptCashflow
     {
         $receipt = $event->paymentReceipt;
         $user_id = !empty(auth()->id()) ? auth()->id() : 6;
-        $receipt->cashFlows()->create([
+        $receipt->cashFlows()->where("cash_flow_able_id",$receipt->id)->update([
             'date'                => $receipt->created_at,
             'amount'              => $receipt->rate_estimated,
             'type'                => 'pending',

@@ -95,7 +95,7 @@
                        @foreach ($cash_flows as $cash_flow)
                            <tr>
                                <td class="small">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
-                               <td><a href="{{ route('order.show',[$cash_flow->cash_flow_able_id]) }}" title="View {{ class_basename($cash_flow->cashFlowAble) }} Detail" target="_blank">{{ optional($cash_flow->cashFlowAble)->order_id }}</a></td>
+                               <td>{{ optional($cash_flow->cashFlowAble)->id }}</td>
                                <td>{{ class_basename($cash_flow->cashFlowAble) }}</td>
 
                                <td>
@@ -108,7 +108,7 @@
                                        </ul>
                                    @endif
                                </td>
-                               <td>@if($cash_flow->amount > 0)$@endif{{ $cash_flow->amount }}</td>
+                               <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
                                <td>{{ ucwords($cash_flow->type) }}</td>
                                <td>
                                    {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
