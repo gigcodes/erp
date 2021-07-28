@@ -2,10 +2,9 @@
 
 namespace App\Listeners;
 
-use App\CashFlow;
-use App\Events\OrderCreated;
+use App\Events\PaymentCreated;
 
-class CreateOrderCashFlow
+class CreatePaymentCashflow
 {
     /**
      * Create the event listener.
@@ -23,74 +22,26 @@ class CreateOrderCashFlow
      * @param object $event
      * @return void
      */
-    public function handle(OrderCreated $event)
+    public function handle(PaymentCreated $event)
     {
-        $order = $event->order;
-        $user_id = auth()->id();
-        if ($order->order_status_id == \App\Helpers\OrderHelper::$prepaid) {
-            $order->cashFlows()->create([
-                'date' => $order->order_date,
-                'expected' => $order->balance_amount,
-                'actual' => $order->balance_amount,
-                'type' => 'received',
-                'currency' => '',
-                'status' => 1,
-                'order_status' => 'prepaid',
-                'user_id' => $user_id,
-                'updated_by' => $user_id,
-                'description' => 'Order Received with full pre payment',
-            ]);
-        } else if ($order->order_status_id == \App\Helpers\OrderHelper::$followUpForAdvance) {
-            $order->cashFlows()->create([
-                'date' => $order->order_date,
-                'expected' => $order->advance_detail,
-                'actual' => $order->advance_detail,
-                'type' => 'pending',
-                'currency' => '',
-                'status' => 1,
-                'order_status' => 'pending',
-                'user_id' => $user_id,
-                'updated_by' => $user_id,
-                'description' => 'Order Received from website with follow up for Advance',
-            ]);
-        } else if ($order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) {
-            $order->cashFlows()->create([
-                'date' => $order->advance_date ?: $order->order_date,
-                'expected' => $order->advance_detail,
-                'actual' => $order->advance_detail,
-                'type' => 'received',
-                'currency' => '',
-                'status' => 1,
-                'order_status' => 'advance received',
-                'user_id' => $user_id,
-                'updated_by' => $user_id,
-                'description' => 'Advance Received',
-            ]);
-            $order->cashFlows()->create([
-                'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
-                'actual' => 0,
-                'type' => 'received',
-                'currency' => '',
-                'status' => 0,
-                'order_status' => 'pending',
-                'user_id' => $user_id,
-                'updated_by' => $user_id,
-                'description' => 'Pending balance amount',
-            ]);
-        } else {
-            $order->cashFlows()->create([
-                'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
-                'actual' => 0,
-                'type' => 'received',
-                'currency' => '',
-                'status' => 0,
-                'order_status' => 'pending',
-                'user_id' => $user_id,
-                'updated_by' => $user_id,
-                'description' => 'Pending balance amount',
+        $payment = $event->payment;
+        $user_id = !empty(auth()->id()) ? auth()->id() : 6;
+        $receipt = \App\PaymentReceipt::find($payment->payment_receipt_id);
+        if($receipt) {
+            $receipt->cashFlows()->create([
+                'date'                => $payment->created_at,
+                'amount'              => $payment->amount,
+                'type'                => 'paid',
+                'currency'            => $payment->currency,
+                'status'              => 1,
+                'order_status'        => 'pending',
+                'user_id'             => $user_id,
+                'updated_by'          => $user_id,
+                'cash_flow_able_id'   => $payment->payment_receipt_id,
+                'cash_flow_able_type' => \App\PaymentReceipt::class,
+                'description'         => 'Vendor paid',
             ]);
         }
+
     }
 }

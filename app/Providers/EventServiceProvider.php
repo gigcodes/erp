@@ -91,8 +91,16 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\CreatePaymentCashflow',
         ],
 
-        'App\Events\PaymentReceiptUpdated' => [
+        'App\Events\PaymentUpdated' => [
             'App\Listeners\UpdatePaymentCashflow',
+        ],
+
+        'App\Events\PurchaseCreated' => [
+            'App\Listeners\CreatePurchaseCashflow',
+        ],
+
+        'App\Events\PurchaseUpdated' => [
+            'App\Listeners\UpdatePurchaseCashflow',
         ],
 
     ];
