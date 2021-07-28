@@ -411,8 +411,9 @@
                                 <th style="width:3%;"></th>
 								<th style="width:4%;">S no</th>
 								<th style="width:13%;">Category</th>
-								<th style="width:13%;">By</th>
-								<th style="width:39%;">Remarks</th>
+								<th style="width:15%;">Status</th>
+								<th style="width:10%;">By</th>
+								<th style="width:30%;">Remarks</th>
 								<th style="width:25%;">Communication</th>
                                 <th style="width:3%;"></th>
 							</tr>
@@ -1135,7 +1136,9 @@
 			},
 			success: function(response) {
 				var tr = '';
+
 				for (var i = 1; i <= response.data.length; i++) {
+					var status = response.data[i - 1].status;
 					var siteId = response.data[i - 1].site_id;
 					var cateogryId = response.data[i - 1].category_id;
 					var user_id = response.data[i - 1].user_id;
@@ -1145,7 +1148,10 @@
 					var user_flag = response.data[i - 1].user_flagged;
 					var admin_flag = response.data[i - 1].admin_flagged;
 					var id = response.data[i - 1].id;
-
+					let option_data=`<option>--select--</option>`;
+					for(var j = 0; j < response.status.length;j++){
+						option_data+=`<option value="${response.status[j].id}" ${response.status[j].id == status ? 'selected' : ''}>${response.status[j].name}</option>`
+					}
 					<?php if (Auth::user()->isAdmin()) { ?>
 						var admin_permission = 'admin_changable';
 						var user_permission = 'user_point_none';
@@ -1157,12 +1163,14 @@
 
 					tr += '<tr><td>';
 					if(user_flag == 1){
-						tr += '<span title="user priority" class="' + user_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-user-flag pd-5"><img height="14" src="/images/flagged.png"></button></span>';
+						tr += '<span title="user priority" class="' + admin_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-user-flag pd-5"><img height="14" src="/images/flagged.png"></button></span>';
 					}else{
-						tr += '<span title="user priority" class="' + user_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-user-flag pd-5"><img height="14" src="/images/unflagged.png"></button></span>';
+						tr += '<span title="user priority" class="' + admin_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-user-flag pd-5"><img height="14" src="/images/unflagged.png"></button></span>';
 					}
 
-					tr += '</td><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td>';
+					tr += '</td><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>'+
+						'<select class="form-control select-site-status" name="status" data-site_id="' +siteId + '">'+option_data+'</select>'+
+						'</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td>';
 					if(admin_flag == 1){
 						tr += '<span title="admin priority" class="' + admin_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-admin-flag pd-5"><img height="14" src="/images/flagged.png"></button></span>';
 					}else{
@@ -1181,7 +1189,26 @@
 		});
 	});
 
+	$(document).on('change','.select-site-status',function() {
+		var status = $(this).val();
+		var site_id = $(this).data('site_id');
+		$.ajax({
+			type: "get",
+			url: "{{ route('site_devlopment.status.update') }}",
+			data: {status:status, site_id:site_id},
+			success: function (response){
+				toastr.success(response.message);
 
+				let option_data=`<option>--select--</option>`;
+					for(var j = 0; j < response.status.length;j++){
+						option_data+=`<option value="${response.status[j].id}" ${response.status[j].id == status ? 'selected' : ''}>${response.status[j].name}</option>`
+					}
+					
+				$('.save-item-select').html(option_data);
+
+			}
+		})
+	})
 
 	$(document).on('click', '.remark-admin-flag', function () {
 		var remark_id = $(this).data('id');
