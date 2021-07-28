@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Purchase;
+use App\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ProformaConfirmed
+class PaymentReceiptUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -20,11 +20,10 @@ class ProformaConfirmed
      *
      * @return void
      */
-    public $purchase;
-    public $purchase_amount;
-    public function __construct(Purchase $purchase, $purchase_amount)
+    public $paymentReceipt;
+    
+    public function __construct(PaymentReceipt $paymentReceipt)
     {
-        $this->purchase = $purchase;
-        $this->purchase_amount = $purchase_amount;
+        $this->paymentReceipt = $paymentReceipt;
     }
 }
