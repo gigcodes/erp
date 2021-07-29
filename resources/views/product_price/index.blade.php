@@ -97,6 +97,7 @@
                            <th style="width: 5%">EURO Price</th>
                            <th style="width: 10%">Seg Discount</th>
                            <th style="width: 5%">Less IVA</th>
+                           <th style="width: 5%">Net Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
                            <th style="width: 12%">Add Profit</th>
                            <th style="width: 5%">Final Price</th>
@@ -144,6 +145,7 @@
                                    </div>
                                </td>
                                <td>{{ $key['iva'] }}</td>
+                               <td>{{ $key['net_price'] }}</td>
                                <td>
                                    <div class="form-group">
                                        <div class="input-group">

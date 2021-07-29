@@ -61,6 +61,7 @@ class ProductPriceController extends Controller
                         'seg_discount'         => (float)$price['segment_discount'],
                         'segment_discount_per' => (float)$price['segment_discount_per'],
                         'iva'                  => \App\Product::IVA_PERCENTAGE."%",
+                        'net_price'            => $product->price - (float)$price['segment_discount'] - ($product->price) * (\App\Product::IVA_PERCENTAGE) / 100,
                         'add_duty'             => $product->getDuty( $ckey)."%",
                         'add_profit'           => number_format($price['promotion'],2,'.',''),
                         'add_profit_per'       => number_format($price['promotion_per'],2,'.',''),
