@@ -89,7 +89,7 @@ class GTMetrixTestCMD extends Command
                             ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
                             ->join("websites as w", "w.id", "ws.website_id")
                             ->join("store_websites as sw", "sw.id", "w.store_website_id")
-                            ->select("website_store_views.code","website_store_views.id", "sw.website")
+                            ->select("website_store_views.code","website_store_views.id", "sw.website","sw.magento_url")
                             ->get()->toArray();
             
             \Log::info('GTMetrix :: store website =>'.sizeof( $storeViewList ) );
