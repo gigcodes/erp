@@ -230,6 +230,7 @@ Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {
 
+    Route::get('status/update', 'SiteDevelopmentController@siteDevlopmentStatusUpdate')->name('site_devlopment.status.update');
     Route::post('remark/user_flag', 'SiteDevelopmentController@userRemarkFlag')->name('remark.flag.user');
     Route::post('remark/admin_flag', 'SiteDevelopmentController@adminRemarkFlag')->name('remark.flag.admin');
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');

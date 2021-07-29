@@ -221,16 +221,27 @@ class InfluencersController extends Controller
 
         $cURLConnection = curl_init();
 
+        $infKeyword = \App\InfluencerKeyword::where("name", $request->name)->first();
+        if($infKeyword) {
+            $infKeyword->wait_time = $request->get("wait_time",0);
+            $infKeyword->no_of_requets = $request->get("no_of_request",0);
+            $infKeyword->save();
+        }
+        
         if($request->platform == "py_facebook") {
             $extraVars = \App\Helpers::getFacebookVars($request->name);
             $url = config("constants.py_facebook_script").'/fb-keyword-start'.$extraVars;
             $params = [
-                "brand" => str_replace(" ","",$request->name)
+                "brand" => str_replace(" ","",$request->name),
+                "wait_time" => $request->get("wait_time",0),
+                "num_requests" => $request->get("no_of_request",0),
             ];
         }else{
             $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-start';
             $params = [
-                "name" => str_replace(" ","",$request->name)
+                "name" => str_replace(" ","",$request->name),
+                "wait_time" => $request->get("wait_time",0),
+                "num_requests" => $request->get("no_of_request",0),
             ];
         }
 

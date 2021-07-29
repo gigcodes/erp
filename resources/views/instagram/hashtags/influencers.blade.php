@@ -177,7 +177,6 @@ button[disabled]:hover {
 
    .form-control{
         height:35px !important;
-	    border: 1px !important;
 	    font-size:14px !important;
 	    border-radius: 4px !important;
     }
@@ -282,6 +281,8 @@ button[disabled]:hover {
                                 <tr>
                                     <th>Name</th>
                                     <th>Platform</th>
+                                    <th>Wait time</th>
+                                    <th>No of Request</th>
                                     <th>Account</th>
                                     <th>Action</th>
                                 </tr>
@@ -293,6 +294,16 @@ button[disabled]:hover {
                                    <td>
                                         <div class="form-group mr-3 mb-3">
                                              <?php echo Form::select('platform',["py_instagram" => "Py Instagram", "py_facebook" => "Py Facebook"],null, ["class" => "form-control select2 platform-request"]); ?>
+                                        </div>
+                                   </td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::text('wait_time',$keyword->wait_time, ["class" => "form-control wait-time"]); ?>
+                                        </div>
+                                   </td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::text('no_of_request',$keyword->no_of_requets, ["class" => "form-control no-of-request"]); ?>
                                         </div>
                                    </td>
                                    <td>
@@ -696,6 +707,9 @@ button[disabled]:hover {
           }
           function startScript(name,ele) {
             var platform = $(ele).closest("tr").find(".platform-request").val();
+            var wait_time = $(ele).closest("tr").find(".wait-time").val();
+            var no_of_request = $(ele).closest("tr").find(".no-of-request").val();
+
             var result = confirm("You Want to start this script "+name+"?");
             if(result){
                 $.ajax({
@@ -705,6 +719,8 @@ button[disabled]:hover {
                    data: {
                         name: name,
                         platform : platform,
+                        wait_time : wait_time,
+                        no_of_request : no_of_request,
                         "_token": "{{ csrf_token() }}",
                     },
                    })
