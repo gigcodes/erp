@@ -26,27 +26,37 @@ class CreateOrderCashFlow
     public function handle(OrderCreated $event)
     {
         $order = $event->order;
-        $user_id = auth()->id();
+        $user_id = !empty(auth()->id()) ? auth()->id() : 6;
         if ($order->order_status_id == \App\Helpers\OrderHelper::$prepaid) {
             $order->cashFlows()->create([
                 'date' => $order->order_date,
-                'expected' => $order->balance_amount,
-                'actual' => $order->balance_amount,
+                'amount' => $order->balance_amount,
                 'type' => 'received',
-                'currency' => '',
+                'currency' => $order->store_currency_code,
                 'status' => 1,
                 'order_status' => 'prepaid',
                 'user_id' => $user_id,
                 'updated_by' => $user_id,
                 'description' => 'Order Received with full pre payment',
             ]);
+        } else if ($order->order_status_id == \App\Helpers\OrderHelper::$followUpForAdvance) {
+            $order->cashFlows()->create([
+                'date' => $order->order_date,
+                'amount' => $order->advance_detail,
+                'type' => 'pending',
+                'currency' => $order->store_currency_code,
+                'status' => 1,
+                'order_status' => 'pending',
+                'user_id' => $user_id,
+                'updated_by' => $user_id,
+                'description' => 'Order Received from website with follow up for Advance',
+            ]);
         } else if ($order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) {
             $order->cashFlows()->create([
                 'date' => $order->advance_date ?: $order->order_date,
-                'expected' => $order->advance_detail,
-                'actual' => $order->advance_detail,
+                'amount' => $order->advance_detail,
                 'type' => 'received',
-                'currency' => '',
+                'currency' => $order->store_currency_code,
                 'status' => 1,
                 'order_status' => 'advance received',
                 'user_id' => $user_id,
@@ -55,10 +65,9 @@ class CreateOrderCashFlow
             ]);
             $order->cashFlows()->create([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
-                'actual' => 0,
+                'amount' => $order->balance_amount,
                 'type' => 'received',
-                'currency' => '',
+                'currency' => $order->store_currency_code,
                 'status' => 0,
                 'order_status' => 'pending',
                 'user_id' => $user_id,
@@ -68,10 +77,9 @@ class CreateOrderCashFlow
         } else {
             $order->cashFlows()->create([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
-                'actual' => 0,
+                'amount' => $order->balance_amount,
                 'type' => 'received',
-                'currency' => '',
+                'currency' => $order->store_currency_code,
                 'status' => 0,
                 'order_status' => 'pending',
                 'user_id' => $user_id,

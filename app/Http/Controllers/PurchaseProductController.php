@@ -174,7 +174,7 @@ class PurchaseProductController extends Controller
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 		$orders = $orders->groupBy("op.id");
-		$orders = $orders->select(["orders.*","op.id as order_product_id","op.product_price","op.product_id as product_id","op.supplier_discount_info_id","op.inventory_status_id"]);
+		$orders = $orders->select(["orders.*","op.id as order_product_id","op.product_price","op.product_id as product_id","op.supplier_discount_info_id","op.inventory_status_id","op.currency","op.eur_price"]);
         if($filter_selling_price!=''){
             $orders->where('op.product_price',$filter_selling_price);
         }
