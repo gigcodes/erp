@@ -406,26 +406,60 @@
         </div>  
     </div>
 
+    <div class="product-push-number modal " role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+               <form>
+                   <div class="modal-header">
+                      <h5 class="modal-title">How many products you want to push ?</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                   </div>
+                   <div class="modal-body edited-field-value">
+                        <div class="form-group row">
+                                <div class="col-md-6">
+                                    <span for="no-of-products">No. of proudct</span>
+                                    <input type="text" name="no_of_product" class="form-control push-to-no-of-product" placeholder="Enter no of product" required="">
+                                </div>
+                         </div>  
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="submit-push-product-btn" class="btn btn-secondary">Push</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>  
+    </div>
+
 @endsection
 
 @section('scripts')
     <script>
         function pushProduct() {
+            $(".product-push-number").modal("show");
+        }
+
+        $(document).on("click","#submit-push-product-btn",function(e) {
+            e.preventDefault();
+            let noofProduct = $(".push-to-no-of-product").val();
+            if(isNaN(parseInt(noofProduct))) {
+                alert("Please select no of product for push");
+                return false;
+            }
+            var form = $(this).closest("form");
             $.ajax({
                 type: "POST",
                 headers: {
                     "X-CSRF-TOKEN": "{{csrf_token()}}"
                 },
-                cache: false,
-                contentType: false,
-                processData: false,
                 url: "{{ url('products/listing/final/pushproduct') }}",
+                data : form.serialize(),
                 success: function (html) {
+                    $(".product-push-number").modal("hide");
                     swal(html.message);
                 }
-            })
-            return false;
-        }
+            });
+        });
     </script>
     <style>
         .same-color {
