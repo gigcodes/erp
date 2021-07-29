@@ -241,7 +241,7 @@ class InfluencersController extends Controller
             $params = [
                 "name" => str_replace(" ","",$request->name),
                 "wait_time" => $request->get("wait_time",0),
-                "num_requests" => $request->get("no_of_requets",0),
+                "num_requests" => $request->get("no_of_request",0),
             ];
         }
 
