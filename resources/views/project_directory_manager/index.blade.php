@@ -28,7 +28,18 @@
             </div>
 		</div>	
 	</div>
-   
+    <div class = "row" style="margin-top: -54px; margin-left:200px;">
+		<div class="col-lg-3 margin-tb" >
+          
+            <form class="form-inline" method="POST">
+            <div class="form-group ml-3 ">
+                <input type="text" name="limit_size" id="limit_size" class="form-control-sm form-control limit_size"  placeholder="Enter size here..." style="margin-top: 18px;" value="{{ $limit_rec }}">
+                <button type="button" class="btn btn-secondary submitsize" style="margin-top: 18px;">Update  </button>
+            </div>
+        </form>
+           
+        </div>
+    </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
 			<div class="panel-group" style="margin-bottom: 5px;">
@@ -52,7 +63,9 @@
 								<tr>
 									<td>{{$data->name}}</td>
 									<td>{{$data->parent}}</td>
-									<td class="setup-size">{{$data->size}}(MB)</td>
+									<td class="setup-size">{{$data->size}}(MB)
+                                        <a title="File Size Details" class="fa fa-info-circle Size_log" data-id="{{$data->id}}" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                                    </td>
 									<td>
 										<div class="col-md-12">
 											<div class="col-md-6">
@@ -77,6 +90,44 @@
             </div>
 		</div>
 	</div>
+
+    <div id="size_log-history-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">File Size History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+    
+                <form action="" id="approve-log-btn" method="GET">
+                    @csrf
+                    <div class="modal-body">
+                    <div class="row">
+                       
+                        <div class="col-md-12">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                       
+                                        <th>Old Size</th>
+                                        <th>New Size</th>
+                                        <th>Updated By</th>
+                                        <th>Updated At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>             
+            </div>
+        </div>
+      </div>
 @endsection
 
 @section('scripts')
@@ -86,7 +137,6 @@ $(document).on('click', '.send-message1', function () {
 	var thiss = $(this);
 	var id = $(this).data('id');
 	var size = $("#expected_"+id).val();
-	
 	
 	console.log(size);
 	
@@ -112,6 +162,7 @@ $(document).on('click', '.send-message1', function () {
 });
 
 $(document).on("click",".get-latest-size",function() {
+   
     var id = $(this).data("id");
     var $this = $(this);
     $.ajax({
@@ -125,7 +176,10 @@ $(document).on("click",".get-latest-size",function() {
         success: function (response) {
             $("#loading-image").hide();
             if(response.code == 200) {
-                $this.closest("tr").find(".setup-size").html(response.size);
+                var html = '';
+                html += response.size;
+                html += ' <a title="File Size Details" class="fa fa-info-circle Size_log" data-id="'+id+'" style="font-size:15px; margin-left:10px; color: #757575;"></a>';
+                $this.closest("tr").find(".setup-size").html();
                 toastr['success'](response.message, 'success');
             }else{
                 toastr['error'](response.message, 'error');
@@ -166,6 +220,63 @@ $(document).on("click",".delete-file",function() {
         });
     }
 });
+</script>
+<script>
+$(document).on("click", ".Size_log", function(e) {
+
+        var id = $(this).data('id');
+               
+        $('#size_log-history-model table tbody').html('');
+        $.ajax({
+        url: "{{ route('size/log-history/discount') }}",
+        data: {id: id},
+        success: function (data) {
+            if(data != 'error') {
+                           
+                $.each(data, function(i, item) {
+                    
+                    $('#size_log-history-model table tbody').append(
+                        '<tr>\
+                            <td>'+ ((item['old_size']) ? item['old_size'] : '-') +'</td>\
+                            <td>'+item['new_size']+'</td>\<td>'+((item['name']) ? item['name'] : '-')+'</td>\
+                            <td>'+ moment(item['updated_at']).format('DD/MM/YYYY') +'</td>\
+                        </tr>'
+                    );
+                });
+            }
+        }
+        });
+
+        $('#size_log-history-model').modal('show');
+});
+
+
+$(document).on("click", ".submitsize", function(e) {
+
+    let size = $("#limit_size").val();
+    
+    if ((size === "") || ($.isNumeric(size))) {
+   
+    
+    let _token = $("input[name=_token]").val();
+
+    $.ajax({
+        url: "{{ route('project-file-manager.insertsize') }}",
+        type: "POST",
+        data: {
+            size: size,
+            _token: _token
+        },
+        success: function(response) {
+            toastr["success"]("Data Updated Successfully!", "Message")
+            
+        }
+});
+    }else{
+        alert('Not Valid NUmber');
+        }
+});
+
 
 </script>
 @endsection

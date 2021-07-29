@@ -870,7 +870,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('project-file-manager/get-latest-size', 'ProjectFileManagerController@getLatestSize')->name('project-file-manager.get-latest-size');
     Route::post('project-file-manager/delete-file', 'ProjectFileManagerController@deleteFile')->name('project-file-manager.delete-file');
     Route::get('project-file-manager', 'ProjectFileManagerController@index')->name('project-file-manager.index');
+    Route::post('project-file-manager/insertsize', 'ProjectFileManagerController@insertsize')->name('project-file-manager.insertsize');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
+    Route::get('size/log_history/discount/', 'ProjectFileManagerController@sizelogHistory')->name('size/log-history/discount');
+     
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
