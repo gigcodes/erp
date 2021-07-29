@@ -62,6 +62,27 @@
     </div>
     
   </div>
+  <!--More Product Data Modal-->
+  <div id="more-website-data-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h4 class="modal-title">Product Name</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="word-wrap: break-word;"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+  
   <div class="row m-0 pt-3">
     <div class="col-md-12">
       {{-- <div class="panel panel-default"> --}}
@@ -99,7 +120,7 @@
                       <td>{{ ++$key }}</td>
                       <td>{{ $val->website_id }}</td>
                       <td>{{ $val->sku }}</td>
-                      <td>{{ $val->website }}</td>
+                      <td data-website="{{ $val->website}}" class="website-data-popup">{{ strlen($val->website) > 150 ? substr($val->website,0, 150)."..." : $val->website }}</td>
                       <td>{{ $val->category_names }}</td>
                       <td>{{ $val->size }}</td>
                       <td>{{ $val->brands }}</td>
@@ -161,9 +182,14 @@
           success: function(response){
             if (response.status == true) {
               $this.closest('tr').remove();
+              toastr.success('Data Deleted Successfully')
             }
             if (response.code == 200) {
-              location.reload();
+              toastr.success(response.message)
+              setTimeout(function(){
+                location.reload();
+              }, 1000);
+
             }
           }
         });
@@ -308,10 +334,6 @@
      $(document).on("click",".check-latest-product",function() {
         let limit = $(".product-limit-text").val();
         let website_name = $(".product-name-text").val();
-        if(limit == '') {
-           alert("Please select limit");
-           return false;
-        }
 
         $.ajax({
           method: "GET",
@@ -333,6 +355,14 @@
 
     });
 
+    $(document).on('click','.website-data-popup',function(){
+      var website_data = $(this).data('website');
+      if (website_data.length <= 150) {
+        return
+      }
+      $('#more-website-data-modal').modal('show');
+      $('#more-website-data-modal').find('p').text(website_data);
+    })
     </script>
     @if (Session::has('errors'))
       <script>

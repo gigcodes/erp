@@ -4362,7 +4362,7 @@ class ProductController extends Controller
         return response()->json(["code" => 200, "data" => $settings, "message" => "Status changed"]);
     }
 
-    public function pushProduct()
+    public function pushProduct(Request $request)
     {
 
         /*$webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
@@ -4373,10 +4373,12 @@ class ProductController extends Controller
 
         $brandIds = array_unique($webData->pluck('brandId')->toArray());
         $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
-        
+        $limit =  $request->get("no_of_product",100);
+
+
         $products = Product::select('*')->where("short_description", "!=", "")->where("name", "!=", "")->where("status_id", StatusHelper::$finalApproval)
         ->groupBy("brand", "category")
-        ->limit(100)
+        ->limit($limit)
         ->get();
 
         foreach ($products as $key => $product) {

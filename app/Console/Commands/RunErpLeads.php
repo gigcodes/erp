@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\ErpLeadSendingHistory;
+use Carbon\Carbon;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use App\ErpLeadSendingHistory;
-use Carbon\Carbon;
 
 class RunErpLeads extends Command
 {
@@ -42,11 +42,9 @@ class RunErpLeads extends Command
     public function handle()
     {
 
-        try {
-
+        //try {
 
             $lead_product_limit = \App\Setting::where("name", "send_leads_product")->value('val');
-
             if ($lead_product_limit == 0) {
                 return false;
             }
@@ -78,22 +76,26 @@ class RunErpLeads extends Command
                     $products = $products->where(function ($q) use ($lead) {
                         $q->orWhere("b.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
                     });
-                    $allProduts = $products->select(["products.*"])->limit($lead_product_limit)->get()->pluck("id")->toArray();
+
+
+
+                    $allProduts = $products->select(["products.*"])->orderBy("products.created_at","desc")->limit($lead_product_limit)->get()->pluck("id")->toArray();
+                    
                     if (!empty($products)) {
 
                         $allProdCounts = count($allProduts);
-                        $newProdArr = [];
+                        $newProdArr    = [];
                         for ($i = 0; $i < $allProdCounts; $i++) {
                             //add data to erp_lead_sending_histories tables
                             $ErpLeadSendingHistory = new ErpLeadSendingHistory;
-                            $checkCustomerExist = $ErpLeadSendingHistory::where('customer_id', '=', $lead->customer_id)
+                            $checkCustomerExist    = $ErpLeadSendingHistory::where('customer_id', '=', $lead->customer_id)
                                 ->where('product_id', '=', $allProduts[$i])
                                 ->where('lead_id', '=', $lead->id)
                                 ->count();
                             if ($checkCustomerExist == 0) {
-                                $ErpLeadSendingHistory->product_id = $allProduts[$i];
+                                $ErpLeadSendingHistory->product_id  = $allProduts[$i];
                                 $ErpLeadSendingHistory->customer_id = $lead->customer_id;
-                                $ErpLeadSendingHistory->lead_id = $lead->id;
+                                $ErpLeadSendingHistory->lead_id     = $lead->id;
                                 $ErpLeadSendingHistory->save();
                                 $newProdArr[$i] = $allProduts[$i];
                             }
@@ -101,14 +103,14 @@ class RunErpLeads extends Command
                         if (count($newProdArr) > 0) {
                             $requestData = new Request();
                             $requestData->setMethod('POST');
-                            $requestData->request->add(['lead_id'=>$lead->id,'customer_id' => $lead->customer_id, 'selected_product' =>   $newProdArr]);
+                            $requestData->request->add(['lead_id' => $lead->id, 'customer_id' => $lead->customer_id, 'selected_product' => $newProdArr, 'is_queue' => 1]);
                             $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                         }
                     }
                 }
             }
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+        }*/
     }
 }
