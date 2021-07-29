@@ -34,6 +34,7 @@ use App\UserProduct;
 use App\UserProductFeedback;
 use App\Helpers\QueryHelper;
 use App\Helpers\StatusHelper;
+use App\SiteDevelopment;
 use Cache;
 use Auth;
 use Carbon\Carbon;
@@ -150,7 +151,8 @@ class scrapperPhyhon extends Controller
         $oldDate = null;
         $count   = 0;
         $images = [];
-        
+
+        $categories = \App\SiteDevelopmentCategory::orderBy('title', 'asc')->get();
         $webStore = \App\WebsiteStore::where('id',$store_id)->first();
         $list =  Website::where('id',$webStore->website_id)->first();
         $website_id = $list->id;
@@ -177,7 +179,7 @@ class scrapperPhyhon extends Controller
 
         $allLanguages=Website::orderBy('name', 'ASC')->get();
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites'));
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories'));
 
     }
 
@@ -357,6 +359,43 @@ class scrapperPhyhon extends Controller
 
     return response()->json(['message'=>$res,'err'=>$err]);
    
+    }
+
+    public function imageRemarkStore(Request $request)
+    {
+        $store_website = \App\Website::find($request->website_id);
+        $cat_id =$request->cat_id;
+        $remark =$request->remark;
+        $site_development = SiteDevelopment::where('site_development_category_id',$cat_id)->where('website_id',$store_website->store_website_id)->orderBy('id','DESC');
+        $sd = $site_development->first();
+        if ($site_development->count() === 0) {
+            $sd = new SiteDevelopment;
+            $sd->site_development_category_id = $cat_id;
+            $sd->website_id = $store_website->store_website_id;
+            $sd->save();
+        }
+
+        $store_development_remarks = new \App\StoreDevelopmentRemark;
+        $store_development_remarks->remarks = $remark;
+        $store_development_remarks->store_development_id = $sd->id;
+        $store_development_remarks->user_id = \Auth::id();
+        $store_development_remarks->save();
+
+        return response()->json(['message' => 'Remark Saved Successfully','remark'=>$store_development_remarks,'username' => \Auth::user()->name]);
+    }
+
+    public function changeCatRemarkList(Request $request)
+    {
+        $store_website = \App\Website::find($request->website_id);
+        $site_development = SiteDevelopment::where('site_development_category_id',$request->remark)->where('website_id',$store_website->store_website_id)->orderBy('id','DESC')->first();
+        $remarks = [];
+        if($site_development && $request->remark){
+            $remarks = \App\StoreDevelopmentRemark::where('store_development_id',$site_development->id)
+                                        ->join('users as user','user.id','store_development_remarks.user_id')
+                                        ->select('user.name as username','store_development_remarks.*')
+                                        ->get();
+        }
+        return response()->json(['remarks' => $remarks]);
     }
 }
 

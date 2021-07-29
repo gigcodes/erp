@@ -70,6 +70,64 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <style>
+               .product-list-card::-webkit-scrollbar-track, .image-diamention-rasio::-webkit-scrollbar-track
+        {
+            border: 1px solid transparent;
+	background-color: #F5F5F5;
+        }
+
+        .product-list-card::-webkit-scrollbar, .image-diamention-rasio::-webkit-scrollbar
+        {
+            width: 5px;
+	background-color: #F5F5F5;
+        }
+
+        .image-diamention-rasio-desktop
+        {
+            text-align: center;
+            text-align: center;
+            width: fit-content;
+            /* display: flex; */
+            overflow: auto;
+            margin-bottom: 30px;
+        }
+        .image-diamention-rasio-mobile
+        {
+            text-align: left;
+            width:100%;
+            /* display: flex; */
+            overflow-y: auto;
+            overflow-x: hidden;
+            margin-bottom: 30px;
+        }
+
+        .manage-product-image
+        {
+            padding-bottom: 20px;
+            border-bottom: 1px solid;
+            margin-bottom: 20px;
+            object-fit:cover;
+        }
+        .product-list-card::-webkit-scrollbar-thumb, .image-diamention-rasio::-webkit-scrollbar-thumb
+        {
+            background-color: transparent;	
+        }
+        .infinite-scroll-images{
+            max-width:1150px;
+            margin:0 auto;
+        }
+
+        .infinite-scroll-images-mobile{
+            max-width:360px;
+            margin:0 auto;
+        }
+
+        .infinite-scroll-images-tablet{
+            max-width:767px;
+            margin:0 auto;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -164,8 +222,30 @@
             // dump($webStore);
             // dump($website_store_views);
             // dd($images);
+            $device = ((isset($_REQUEST['device'])) ? $_REQUEST['device'] : '' );
 
+            if($device == "desktop" || $device == ""){
+                 $imageHeight = 'fit-content';
+                 $imageWidth = 'infinite-scroll-images';
+                 $imageDimensioClass ='image-diamention-rasio-desktop';
+                 $width = 'fit-content';
+            }
+            else if($device == "tablet"){
+                 $imageHeight = '800px';
+                 $imageWidth = 'infinite-scroll-images-tablet';
+                 $imageDimensioClass ='image-diamention-rasio-desktop';
+                 $width = '100%';
+
+            }
+            else if($device == "mobile"){
+                 $imageHeight = '600px';
+                 $imageWidth = 'infinite-scroll-images-mobile';
+                 $imageDimensioClass ='image-diamention-rasio-mobile';
+                 $width = '100%';
+            }
+            
         @endphp
+
         @foreach($images as $image)
                 {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
 
@@ -190,43 +270,58 @@
                     if($count == 6){
                         $count = 0;
                     }
+                    
                     @endphp
                         {{-- START - Purpose : Comment Code - DEVTASK-4271 --}}
                         {{--  @if($count == 0)
                               <div class="row parent-row">
                         @endif --}}
                         {{-- END - DEVTASK-4271 --}}
+                        <div class="{{ $imageWidth }}" style="position: relative;">               
+                            @if ($image['coordinates'])
+                                @php 
+                                    $x = 0;
+                                    $coordinates = explode(',',$image['coordinates']);
+                                    array_push($coordinates,$image['height']);
+                                    $total_img_height = $image['height'];
+                                @endphp
+                        
 
-                    @if ($image['coordinates'])
-                        @php 
-                            $x = 0;
-                            $coordinates = explode(',',$image['coordinates']);
-                            array_push($coordinates,$image['height']);
-                        @endphp
-                        <div style="text-align: center">
-                             @foreach ($coordinates as $z)
-                                 <td>
-                                     <img class="manage-product-image" src="{{ asset( 'scrappersImages/'.$image['img_name']) }}" style="object-position: 100% -{{ $x }}px;padding-bottom: 20px;border-bottom: 1px solid; margin-bottom: 20px;height:{{ $z - $x }}px;object-fit:cover;width:fit-content;">
-                                 </td>
-                                 @php $x = $z; @endphp
-                             @endforeach
-                        </div>
-                    @else    
-                        <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;">
-                            <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
-                                <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
-                                    <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
-                                        <div class="carousel-inner maincarousel">
-                                            <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" style="height: 100%; width: 80%; max-width:1200px; display: block;margin-left: auto;margin-right: auto;"> </a> </div>
+                                <div class="image-diamention-rasio {{ $imageDimensioClass }}" style="max-height: {{ $imageHeight }};">
+                                    @foreach ($coordinates as $z)
+                                        @php
+                                            if($device == "mobile"){
+                                                $z = ceil((2372*$z)/$total_img_height);
+                                            }
+                                            if($device == "tablet"){
+                                                $z = ceil((5070*$z)/$total_img_height);
+                                            }
+                                        @endphp
+                                        <td>
+                                            <img data-coordinates="{{ $z}}" class="manage-product-image" src="{{ asset( 'scrappersImages/'.$image['img_name']) }}" style="object-position: 100% -{{ $x }}px;height:{{ $z - $x+20 }}px;width:{{ $width }}">
+                                        </td>
+                                        @php $x = $z; @endphp
+                                    @endforeach
+                                </div>
+                            @else    
+                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow:auto">
+                                    <div style="padding:0px 5px;">
+                                        <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
+                                            <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
+                                                <div class="carousel-inner maincarousel">
+                                                    <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" style="height: 100%; width: 100%; max-width:fit-content; display: block;margin-left: auto;margin-right: auto;"> </a> </div>
+                                                </div>
+                                            </a>
                                         </div>
-                                    </a>
-                                </div>
-                                <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
 
+                                        <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
+                        
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
+                            <button class="btn btn-secondarys" data-toggle="modal" data-target="#remark-area-list" style="position: absolute;top: 0;right : -43px;"><i class="fa fa-comments"></i></button>  
                         </div>
-                    @endif
                     
 
                     {{-- START - Purpose : Comment Code - DEVTASK-4271 --}}
@@ -243,6 +338,73 @@
         @endforeach
         <br>
 </div>
+<!--Remark Modal-->
+<div id="remark-area-list" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Remarks</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+			<div class="modal-body">
+				<div class="col-md-12">
+                    <select name="" id="" class="col-md-2 form-control site-development-category" data-website_id="{{ $website_id }}">
+                        <option value="">Select</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->title }}</option>
+                        @endforeach
+                    </select>
+					<div class="col-md-8 pr-0" style="padding-bottom: 10px;">
+						<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field" placeholder="Enter Remarks" style="height:34px"></textarea>
+					</div>
+					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field pl-0" data-website_id="{{ $website_id }}">
+						<img src="/images/send.png" style="cursor: default;">
+					</button>
+				</div>
+				<div class="col-md-12">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th width="5%">No</th>
+								<th width="45%">Remark</th>
+								<th width="25%">BY</th>
+								<th width="25%">Date</th>
+							</tr>
+						</thead>
+						<tbody class="remark-action-list-view">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Remark Load More Data Modal -->
+<div id="remark-load-more-data" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Remark</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script>
@@ -403,7 +565,6 @@
         var webstore = $('#web_store').find(":selected").val();
         var weblanguage = $('#web_language').find(":selected").val();
         var webdevice = $('#web_device').find(":selected").val();
-
         if(website == '' ){
              toastr['error']('Please Select Website');
              return false;
@@ -451,6 +612,74 @@
     //         $('.manage-product-image').css('height',  screenHeight );
     //     });
     // })
+
+
+    $(document).on("click", ".btn-remark-field", function() {
+        var cat_id = $(this).parents('.modal-body').find('.site-development-category').val();
+        var remark = $(this).parents('.modal-body').find('textarea').val();
+        var website_id = $(this).data('website_id');
+        if (!cat_id) {
+            alert('Please Select Categories')
+            return;
+        }
+        if (!remark) {
+            alert('Please Enter Remarks')
+            return;
+        }
+        $.ajax({
+            type: "get",
+            url: "{{ route('image-remark.store') }}",
+            data: {
+                remark: remark,
+                cat_id:cat_id,
+                website_id:website_id,
+            },
+            success: function(response){
+                toastr.success(response.message);
+                var html = '<tr><td>'+response.remark.id+'</td><td class="load-more-remarks" data-remark="'+response.remark.remarks+'">'+response.remark.remarks+'</td><td>'+response.username+'</td><td>'+response.remark.created_at+'</td></tr>';
+                $('.remark-action-list-view').append(html);
+            }
+        })
+    });
+    $(document).on('change','.site-development-category',function(){
+        $('.remark-action-list-view').show();
+        var remark = $(this).val();
+        var website_id = $(this).data('website_id');
+        $('.remark-action-list-view').html('');
+        $.ajax({
+            type: "get",
+            url: "{{ route('change-category.remarks-show') }}",
+            data: {
+                remark: remark,
+                website_id:website_id,
+            },
+            success: function(response){
+                for (let i = 0; i < response.remarks.length; i++) {
+                    var remark = response.remarks[i];
+                    if (remark.remarks.length > 80) {
+                        remark.remarks = remark.remarks.substring(0, 80)+'...';
+                    }
+                    var html = '<tr><td>'+remark.id+'</td><td class="load-more-remarks" data-remark="'+remark.remarks+'">'+remark.remarks+'</td><td>'+remark.username+'</td><td>'+remark.created_at+'</td></tr>';
+                    $('.remark-action-list-view').append(html);
+                }
+            }
+        })
+    });
+    $('#remark-area-list').on('hide.bs.modal', function (e) {
+        $('.site-development-category').val('');
+        $('#remark-field').val('');
+        $('.remark-action-list-view').hide();
+    });
+
+
+    $(document).on('click','.load-more-remarks', function (){
+        var remark = $(this).data('remark');
+        if (remark.length <= 80) {
+            return;
+        }
+        $('#remark-load-more-data').modal('show');
+        $('#remark-load-more-data').find('p').text(remark);
+    })
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection
