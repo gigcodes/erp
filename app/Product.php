@@ -1612,4 +1612,10 @@ class Product extends Model
         }
         return $media_gallery_entries;
     }
+
+
+    public function getWebsiteSku()
+    {
+        return $this->sku."-".$this->color;
+    }
 }
