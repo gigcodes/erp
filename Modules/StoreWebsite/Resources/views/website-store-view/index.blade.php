@@ -108,7 +108,7 @@
  
 	$(document).on("click",".btn-create-group",function(e) {
  
-		$('.modal-body #name').val($(this).closest('tr').children('.name_div').text() + '_' + $(this).closest('tr').children('.code_div').text());
+		$('.modal-body #name').val($(this).closest('tr').children('.name_div').text() + '_' + $(this).closest('tr').children('.code_div').text().split('-')[1]);
 		let html_groups = `<div class="form-group col-md-12 group"><select name="group" class="form-control select-2"><option value="">Choose Theme</option>`;
 		for(let i=0; i<groups.responseData.length; i++){
 			html_groups += `<option value="${groups.responseData[i].id}">${groups.responseData[i].name}</option>`;
