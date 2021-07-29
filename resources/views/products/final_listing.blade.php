@@ -452,9 +452,13 @@
                 headers: {
                     "X-CSRF-TOKEN": "{{csrf_token()}}"
                 },
+                beforeSend : function() {
+                    $("#loading-image-preview").show();
+                },
                 url: "{{ url('products/listing/final/pushproduct') }}",
                 data : form.serialize(),
                 success: function (html) {
+                    $("#loading-image-preview").hide();
                     $(".product-push-number").modal("hide");
                     swal(html.message);
                 }
