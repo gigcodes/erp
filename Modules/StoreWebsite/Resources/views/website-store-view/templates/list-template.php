@@ -19,8 +19,12 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.website_store.website.store_website.title}}</td>
-			        <td class="name_div">{{:prop.name}}</td>
+			        <td class="name_div">
+						{{if prop.website_store !== null && prop.website_store.website !== null && prop.website_store.website.store_website !== null}}
+							{{:prop.website_store.website.store_website.title}}	
+						{{/if}}	
+					</td>
+			        <td>{{:prop.name}}</td>
 			        <td class="code_div">{{:prop.code}}</td>
 			        {{if prop.status == 1}} 
 			        	<td>Active</td>
