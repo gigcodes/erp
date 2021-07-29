@@ -135,7 +135,7 @@ class AddGroupTheme extends Command
                 }else if($theme_name == 'Upeau'){
                     $theme_name = 'theme_Upeau';
                 }else{
-                    dd('theme not exist');
+                    dump($theme_name . ' theme not exist');
                 }
 
                 $ref_group_id = $ref_themes[$theme_name];
