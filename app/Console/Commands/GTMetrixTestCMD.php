@@ -97,7 +97,7 @@ class GTMetrixTestCMD extends Command
             $request_too_many_pending = false;
 
             foreach ($storeViewList as $value) {
-                $webite = $value['website'].'/'.$value['code'];
+                $webite = $value['magento_url'].'/'.$value['code'];
 
                 if ( $request_too_many_pending ) {
 
