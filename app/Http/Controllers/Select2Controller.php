@@ -8,6 +8,7 @@ use App\Customer;
 use App\Supplier;
 use App\User;
 use App\Vendor;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
 
 class Select2Controller extends Controller
@@ -300,6 +301,28 @@ class Select2Controller extends Controller
             $result['items'][] = [
                 'id' => $customer->id,
                 'text' => '<strong>Name</strong>: ' . $customer->name . ' <strong>Phone</strong>: ' . $customer->phone
+            ];
+        }
+
+        return response()->json($result);
+
+    }
+
+    public function allWebsites(Request $request){
+
+        $term = request()->get("q", null);
+        $websites = \App\StoreWebsite::select('id', 'title');
+ 
+        $websites = $websites->paginate(30);
+
+        $result['total_count'] = $websites->total();
+        $result['incomplete_results'] = $websites->nextPageUrl() !== null;
+
+        foreach ($websites as $website) {
+
+            $result['items'][] = [
+                'id' => $website->id,
+                'text' => $website->title
             ];
         }
 

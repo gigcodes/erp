@@ -5,8 +5,11 @@ namespace App\Http\Controllers\product_price;
 use App\Http\Controllers\Controller;
 use App\CountryGroup;
 use App\StoreWebsite;
+use App\WebsiteStore;
 use App\Product;
 use App\Setting;
+use App\Brand;
+use App\Supplier;
 use App\SimplyDutyCountry;
 use App\Helpers\StatusHelper;
 use Illuminate\Http\Request;
@@ -32,27 +35,57 @@ class ProductPriceController extends Controller
 
         $product_list = [];
         $suppliers = [];
-        $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1")->get()->toArray();
-        if(strtolower($request->random) == "yes" && empty($request->product)) {
-            $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(50)->latest()->get();
-        }else if($request->supplier){
-            $products = Product::whereHas('suppliers', function($query){
-                $query->where('id', $request->supplier);
-            });
-        }else{
-            $products = Product::where( 'id', $request->product )->orWhere( 'sku', $request->product )->get();
+        $brands = [];
+        $websites = StoreWebsite::where("is_published","1")->get()->pluck('title', 'id')->toArray();
+        $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1");
+        if($request->websites && !empty($request->websites)){
+            $storeWebsites = $storeWebsites->whereIn('id', $request->websites);
         }
+        $products = Product::getProducts($filter_data);
+        $storeWebsites = $storeWebsites->get()->toArray();
+        if(strtolower($request->random) == "yes" && empty($request->product)) {
+            $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(50)->latest();
+        }else{
+            $products = Product::where( 'id', $request->product )->orWhere( 'sku', $request->product );
+        }
+        if($request->suppliers && !empty($request->suppliers)){
+            $products = $products->whereHas('suppliers', function($query) use ($request){
+                $query->whereIn('supplier_id', $request->suppliers);
+            });
+        }
+        if($request->brands && !empty($request->brands)){
+            $products = $products->whereHas('brands', function($query) use ($request){
+                $query->whereIn('id', $request->brands);
+            });
+        }
+        if($request->brands && !empty($request->brands)){
+            $products = $products->whereHas('brands', function($query) use ($request){
+                $query->whereIn('id', $request->brands);
+            });
+        }
+        
+        $selected_brands = null;
+		if($request->brands){
+            $selected_brands = Brand::select('id','name')->whereIn('id',$request->brands)->get();
+		}
+        
+		$selected_suppliers = null;
+		if($request->suppliers){
+            $selected_suppliers = Supplier::select('id','supplier')->whereIn('id',$request->suppliers)->get();
+		}
+        
+		$selected_websites = null;
+		if($request->websites){
+            $selected_websites = StoreWebsite::select('id','title')->whereIn('id',$request->websites)->get();
+		}
 
-        if($products->isEmpty()){
-            //return redirect()->back()->with('error','No product found');
+        $products = $products->get();
+        if(!count($products)){
+            // return redirect()->back()->with('error','No product found');
         }
 
         foreach ($storeWebsites as $key => $value) {
-            foreach($products as $product) {
-                $product_suppliers = $product->suppliers;
-                foreach($product_suppliers as $ps){
-                    $suppliers[$ps->id] = $ps->supplier;
-                }
+            foreach($products as $product) { 
                 foreach($cCodes as $ckey => $cco) {
                     $dutyPrice = $product->getDuty( $ckey );
                     $price = $product->getPrice( $value['id'], $ckey,null, true,$dutyPrice);
@@ -81,8 +114,7 @@ class ProductPriceController extends Controller
                 }
             }
         }
-
-        return view('product_price.index',compact('countryGroups','product_list', 'suppliers'));
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites'));
     }
 
     public function update_product(Request $request){

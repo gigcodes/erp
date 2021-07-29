@@ -37,6 +37,9 @@
     .form-group{
         margin-bottom:0 !important;
     }
+    .suppliers input{
+        width:170px !important
+    }
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
@@ -55,11 +58,11 @@
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="" method="GET">
-                <div class="form-group ml-0 cls_filter_inputbox">
+                <div class="form-group mr-3">
                     <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU">
                 </div>
-                <div class="form-group ml-3 cls_filter_inputbox">
-                    <select name="country_code" class="form-control">
+                <div class="form-group mr-3">
+                    <select name="country_code" class="form-control globalSelect2">
                         @php $country = request('country_code','') @endphp
                         <option value="">Select country code</option>
                         @foreach ($countryGroups as $key => $item)
@@ -67,22 +70,54 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group ml-3 cls_filter_inputbox">
-                    <select name="supplier" class="form-control">
-                        @php $supplier = request('supplier','') @endphp
-                        <option value="">Select supplier</option>
-                        @foreach ($suppliers as $key => $item)
-                            <option value="{{ $key }}" {{ ( $supplier == $key ) ? 'selected' : '' }} >{{ $item }}</option>
-                        @endforeach
+
+                <div class="form-group mr-3 suppliers">
+                    {{-- {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!} --}}
+
+                    <select class="form-control globalSelect2" data-placeholder="Select Suppliers" data-ajax="{{ route('select2.suppliers',['sort'=>true]) }}"
+                        name="suppliers[]" multiple>
+                        {{-- <option value="">Select Suppliers</option> --}}
+                            @if ($selected_suppliers)        
+                                @foreach($selected_suppliers as $supplier )
+                                    <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                </div>
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+                    name="brands[]" multiple>
+                    <option value="">Select Brands</option>
+                        @if ($selected_brands)        
+                            @foreach($selected_brands as $brand)
+                                <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                            @endforeach
+                        @endif
                     </select>
+                </div> 
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Websites" data-ajax="{{ route('select2.websites',['sort'=>true]) }}"
+                    name="websites[]" multiple>
+                    <option value="">Select Websites</option>
+                        @if ($selected_websites)        
+                            @foreach($selected_websites as $website)
+                                <option value="{{ $website->id }}" selected>{{ $website->title }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>  
+                <div class="form-group mr-3">
+                    <?php echo Form::select("random",["" => "No","Yes" => "Yes"],request('random'),["class"=> "form-control globalSelect2"]); ?>
                 </div>
-                <div class="form-group ml-3 cls_filter_inputbox">
-                    <?php echo Form::select("random",["" => "No","Yes" => "Yes"],request('random'),["class"=> "form-control"]); ?>
-                </div>
-                {{-- <div class="form-group ml-3 cls_filter_inputbox">
+                {{-- <div class="form-group mr-3">
                     <input type="text" name="keyword" class="form-control" value="{{ request('keyword') }}" placeholder="keyword">
                 </div> --}}
-                <button type="submit" class="btn btn-secondary ml-3">Get record</button>
+                <div class="form-group mr-3">
+                    <button type="submit" class="btn btn-secondary form-control">Get record</button>
+                </div>
+                <div class="form-group mr-3">
+                    <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
+                </div>
             </form> 
         </div>
     </div>  
@@ -106,7 +141,7 @@
                            <th style="width: 5%">EURO Price</th>
                            <th style="width: 10%">Seg Discount</th>
                            <th style="width: 5%">Less IVA</th>
-                           <th style="width: 5%">Net Price</th>
+                           <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
                            <th style="width: 12%">Add Profit</th>
                            <th style="width: 5%">Final Price</th>
@@ -193,6 +228,9 @@
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script>
 
+    $(".select-multiple").multiselect();
+    $(".select-multiple2").select2();
+    
     $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {
