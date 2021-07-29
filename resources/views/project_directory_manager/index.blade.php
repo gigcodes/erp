@@ -179,7 +179,7 @@ $(document).on("click",".get-latest-size",function() {
                 var html = '';
                 html += response.size;
                 html += ' <a title="File Size Details" class="fa fa-info-circle Size_log" data-id="'+id+'" style="font-size:15px; margin-left:10px; color: #757575;"></a>';
-                $this.closest("tr").find(".setup-size").html();
+                $this.closest("tr").find(".setup-size").html(html);
                 toastr['success'](response.message, 'success');
             }else{
                 toastr['error'](response.message, 'error');
