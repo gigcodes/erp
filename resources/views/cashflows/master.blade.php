@@ -219,7 +219,7 @@
 
                             <td>
                                 @if($type == 'paid')
-                                    {{ $paid_expected = $module_wise_transactions->sum('expected') }}
+                                    {{ $paid_expected = $module_wise_transactions->sum('amount_eur') }}
                                     <?php
                                     $closing_balance['total'] -= $paid_expected;
                                     ?>
@@ -229,7 +229,7 @@
                             </td>
                             <td>
                                 @if($type == 'received')
-                                    {{ $received_expected = $module_wise_transactions->sum('expected') }}
+                                    {{ $received_expected = $module_wise_transactions->sum('amount_eur') }}
                                     <?php
                                     $closing_balance['total'] += $received_expected;
                                     ?>
@@ -242,7 +242,7 @@
                             <td></td>
                             @foreach($currencies as $currency_index => $currency)
                                 <td>
-                                    <?php $amount = $module_wise_transactions->where('currency', $currency_index)->sum('expected')?>
+                                    <?php $amount = $module_wise_transactions->where('currency', $currency_index)->sum('amount_eur')?>
                                     @if($type == 'paid' && $amount)
                                         {{--                                        bracket sign for negative or balance that is being deducted--}}
                                         ({{ $amount }})
@@ -264,7 +264,7 @@
 
                             <td>
                                 @if($type == 'paid')
-                                    {{ $paid_actual = $module_wise_transactions->sum('actual') }}
+                                    {{ $paid_actual = $module_wise_transactions->sum('amount_eur') }}
                                     <?php
                                     $closing_actual['total'] -= $paid_actual;
                                     ?>
@@ -274,7 +274,7 @@
                             </td>
                             <td>
                                 @if($type == 'received')
-                                    {{ $received_actual = $module_wise_transactions->sum('actual') }}
+                                    {{ $received_actual = $module_wise_transactions->sum('amount_eur') }}
                                     <?php
                                     $closing_actual['total'] += $received_actual;
                                     ?>
@@ -286,7 +286,7 @@
                             <td></td>
                             @foreach($currencies as $currency_index => $currency)
                                 <td>
-                                    <?php $amount = $module_wise_transactions->where('currency', $currency_index)->sum('actual')?>
+                                    <?php $amount = $module_wise_transactions->where('currency', $currency_index)->sum('amount_eur')?>
                                     @if($type == 'paid' && $amount)
                                         {{--                                        bracket sign for negative or balance that is being deducted--}}
                                         ({{ $amount }})
