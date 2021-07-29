@@ -68,6 +68,15 @@
                     </select>
                 </div>
                 <div class="form-group ml-3 cls_filter_inputbox">
+                    <select name="supplier" class="form-control">
+                        @php $supplier = request('supplier','') @endphp
+                        <option value="">Select supplier</option>
+                        @foreach ($suppliers as $key => $item)
+                            <option value="{{ $key }}" {{ ( $supplier == $key ) ? 'selected' : '' }} >{{ $item }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group ml-3 cls_filter_inputbox">
                     <?php echo Form::select("random",["" => "No","Yes" => "Yes"],request('random'),["class"=> "form-control"]); ?>
                 </div>
                 {{-- <div class="form-group ml-3 cls_filter_inputbox">

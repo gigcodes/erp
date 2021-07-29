@@ -31,9 +31,14 @@ class ProductPriceController extends Controller
         }
 
         $product_list = [];
+        $suppliers = [];
         $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1")->get()->toArray();
         if(strtolower($request->random) == "yes" && empty($request->product)) {
             $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(50)->latest()->get();
+        }else if($request->supplier){
+            $products = Product::whereHas('suppliers', function($query){
+                $query->where('id', $request->supplier);
+            });
         }else{
             $products = Product::where( 'id', $request->product )->orWhere( 'sku', $request->product )->get();
         }
@@ -44,11 +49,15 @@ class ProductPriceController extends Controller
 
         foreach ($storeWebsites as $key => $value) {
             foreach($products as $product) {
+                $product_suppliers = $product->suppliers;
+                foreach($product_suppliers as $ps){
+                    $suppliers[$ps->id] = $ps->supplier;
+                }
                 foreach($cCodes as $ckey => $cco) {
                     $dutyPrice = $product->getDuty( $ckey );
                     $price = $product->getPrice( $value['id'], $ckey,null, true,$dutyPrice);
                     $ivaPercentage = \App\Product::IVA_PERCENTAGE;
-
+                    
                     $product_list[] = [
                         'storeWebsitesID'      => $value['id'],
                         'getPrice'             => $price,
@@ -73,7 +82,7 @@ class ProductPriceController extends Controller
             }
         }
 
-        return view('product_price.index',compact('countryGroups','product_list'));
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers'));
     }
 
     public function update_product(Request $request){
