@@ -55,6 +55,8 @@ class CashflowOverdueStatus extends Command
                 $amountPending = $ca->amount_eur  - $totalSum;
                 if($amountPending <= 5) {
                     $ca->type = "settled";
+                }else{
+                    $ca->type = "overdue";
                 }
 
                 $ca->due_amount_eur = $amountPending;
