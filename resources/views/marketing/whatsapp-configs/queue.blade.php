@@ -24,7 +24,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">WhatsApp Queue <?php echo $provider === 'py-whatsapp' ? "(".count($data).")" : "(".count($data["first100"]).")" ?></h2>
+                    <h2 class="page-heading">WhatsApp Queue <?php echo $provider === 'py-whatsapp' ? "(".count($data).")" : "(".count(isset($data["first100"]) ? $data["first100"] : []).")" ?></h2>
                     <div class="pull-left">
                         <form action="{{ route('whatsapp.config.queue', $id) }}" method="GET"
                               class="form-inline align-items-start">
@@ -112,19 +112,21 @@
                     </tr>
                 @endforeach
             @else
-                @foreach($data["first100"] as $value)
-                    <tr>
-                        <td>{{ get_field_by_number($value["chatId"],'name') }}</td>
-                        <td>{{$value["chatId"]}}</td>
-                        <td>{{$number}}</td>
-                        <td>{{$value["body"]}}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                @endforeach
+                @if(isset($data["first100"]))
+                    @foreach($data["first100"] as $value)
+                        <tr>
+                            <td>{{ get_field_by_number($value["chatId"],'name') }}</td>
+                            <td>{{$value["chatId"]}}</td>
+                            <td>{{$number}}</td>
+                            <td>{{$value["body"]}}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    @endforeach
+                @endif
             @endif
         </table>
     </div>

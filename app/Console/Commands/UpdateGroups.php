@@ -64,6 +64,7 @@ class UpdateGroups extends Command
 
         //Delete Old Groups
         $existing_themes_ids = [];
+        $websiteStoreView = WebsiteStoreView::whereNotNull("store_group_id")->update(['store_group_id' => null]);
         $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
         $postData = [
             "fields" => ["agent_priorities", "routing_status"]
@@ -94,7 +95,6 @@ class UpdateGroups extends Command
                         if (isset($response->error)) {
                             return response()->json(['status' => 'errors', $response], 403);
                         } else {
-                            $websiteStoreView = WebsiteStoreView::where("store_group_id", $g->id)->update(['store_group_id' => null]);
                             dump($g->name . ' ' . $g->id .  ' deleted');
                         }
                     } 
@@ -106,11 +106,11 @@ class UpdateGroups extends Command
                 dump(['status' => 'success', 'responseData' => []], 200);
             }
         } 
-        // dd('end old');
+        dump('gropud deete part -- ended');
 
         // Create New Groups
         $group_array = [];
-        $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
+        $websiteStoreViews = WebsiteStoreView::get();
         foreach($websiteStoreViews as $w){
             if($w->websiteStore == null){
                 continue;

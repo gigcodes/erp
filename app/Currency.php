@@ -29,4 +29,33 @@ class Currency extends Model
         'name',
         'rate'
     ];
+
+    public static function convert($price , $to , $from = "EUR")
+    {
+        // 1000 / 73.14
+        if($to == $from) {
+            return $price;
+        }
+
+        $euroPrice = 0;
+        if($from != "EUR") {
+            $rate = self::where("code" , $from)->first();
+            if($rate) {
+                $euroPrice = number_format(($price / $rate->rate) , 2, ".", "");
+            }
+        }else {
+            $euroPrice = $price;
+        }
+
+        if($to == "EUR") {
+            return $euroPrice;
+        }else{
+            $rate = self::where("code" , $to)->first();
+            if($rate) {
+                return number_format(($price * $rate->rate) , 2, ".", "");
+            }
+        }
+
+        return 0.00;
+    }
 }

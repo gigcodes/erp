@@ -158,4 +158,9 @@ class StoreWebsite extends Model
     {
         return $this->hasMany('App\Website', 'store_website_id', 'id');
     }
+
+     function productCsvPath()
+    {
+        return $this->hasOne('App\WebsiteProductCsv','store_website_id','id');
+    }
 }

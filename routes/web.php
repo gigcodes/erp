@@ -99,6 +99,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
     Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', 'Logging\LogListMagentoController@updateProductPushInformation')->name('update.magento.product-push-information');    
+    Route::post('list-magento/product-push-update-website', 'Logging\LogListMagentoController@updateProductPushWebsite')->name('update.magento.product-push-website');    
 
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
@@ -106,6 +107,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', 'Logging\LogListMagentoController@productInformation')->name('list.magento.product-information');
     Route::get('list-magento/retry-failed-job', 'Logging\LogListMagentoController@retryFailedJob')->name('list.magento.retry-failed-job');
+    Route::get('list-magento/send-live-product-check', 'Logging\LogListMagentoController@sendLiveProductCheck')->name('list.magento.send-live-product-check');
+    Route::get('list-magento/get-live-product-screenshot', 'Logging\LogListMagentoController@getLiveScreenshot')->name('list.magento.get-live-screenshot');
 
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
