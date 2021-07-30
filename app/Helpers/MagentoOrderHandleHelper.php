@@ -47,7 +47,7 @@ class MagentoOrderHandleHelper extends Model
                         //continue;
                     }
 
-                    $balance_amount = 0;
+                    $balance_amount = $order->base_grand_total;
                     $firstName      = isset($order->customer_firstname) ? $order->customer_firstname : "N/A";
                     $lastName       = isset($order->customer_lastname) ? $order->customer_lastname : "N/A";
 
@@ -75,6 +75,7 @@ class MagentoOrderHandleHelper extends Model
 
                     if ($order->payment->method == 'paypal') {
                         if ($order->state == 'processing') {
+                            $balance_amount = 0;
                             $order_status = OrderHelper::$prepaid;
                         } else {
                             $order_status = OrderHelper::$followUpForAdvance;
@@ -83,6 +84,7 @@ class MagentoOrderHandleHelper extends Model
                         $payment_method = 'paypal';
                     } elseif ($order->payment->method == 'banktransfer') {
                         if ($order->state == 'processing') {
+                            $balance_amount = 0;
                             $order_status = OrderHelper::$prepaid;
                         } else {
                             $order_status = OrderHelper::$followUpForAdvance;
@@ -90,6 +92,7 @@ class MagentoOrderHandleHelper extends Model
                         $payment_method = 'banktransfer';
                     } elseif ($order->payment->method == 'cashondelivery') {
                         if ($order->state == 'processing') {
+                            $balance_amount = 0;
                             $order_status = OrderHelper::$prepaid;
                         } else {
                             $order_status = OrderHelper::$followUpForAdvance;
