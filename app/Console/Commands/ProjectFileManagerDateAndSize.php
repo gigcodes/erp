@@ -105,7 +105,7 @@ class ProjectFileManagerDateAndSize extends Command
                         if($new_size >= $both_size)
                         {
                             
-                            $message =  'Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
+                            $message =  'Project Directory Size increase in Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
                             
                             $users = User::get();
                             foreach($users as $user){
@@ -159,7 +159,7 @@ class ProjectFileManagerDateAndSize extends Command
                         
                         if ($new_size > $both_size) {
                             
-                            $message =  'Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
+                            $message =  'Project Directory Size increase in Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
                             
                             $users = User::get();
                             foreach ($users as $user) {

@@ -218,13 +218,13 @@ class ProjectFileManagerController extends Controller
                       
                 ProjectFileManagerHistory::create($param);
             }
-
+			
 			$both_size = ($old_size + $increase_size);
 			
 			if($new_size >= $both_size)
 			{
                                    
-				$message =  'Path = ' . $fileManager->name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
+				$message =  'Project Directory Size increase in Path = ' . $fileManager->name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
 				
 				$users = User::get();
 				foreach($users as $user){
@@ -251,14 +251,11 @@ class ProjectFileManagerController extends Controller
 	   
 	   $past_date = date('Y-m-d', strtotime('-7 days'));
 
-	//    dd($past_date);
-
-        $size_log = ProjectFileManagerHistory::Leftjoin('users','users.id','project_file_managers_history.user_id')
+	    $size_log = ProjectFileManagerHistory::Leftjoin('users','users.id','project_file_managers_history.user_id')
 		->where('project_id', $id)
-		// ->whereBetween('created_at', [Carbon::now()->subDays(7), Carbon::now()])
 		->whereDate('project_file_managers_history.created_at', '>=', $past_date)
 		->select('project_file_managers_history.*','users.name')->get();
-// dd($size_log);
+
         if($size_log) {
             return $size_log;
         }
