@@ -21,6 +21,6 @@ class MonetaryAccount extends Model
      * @SWG\Property(property="description",type="string")
      * @SWG\Property(property="other",type="string")
      */
-        protected $fillable = ['date','currency','amount','type','created_by','updated_by','short_note','description','other'];
+        protected $fillable = ['name','date','currency','amount','type','created_by','updated_by','short_note','description','other'];
 
 }

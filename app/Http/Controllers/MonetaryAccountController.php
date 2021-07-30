@@ -56,11 +56,13 @@ class MonetaryAccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
+           'name' => 'required',
            'currency' => 'required',
            'date' => 'required|date',
            'amount' => 'required|numeric',
         ]);
         $account = MonetaryAccount::create([
+            'name' => $request->get('name'),
             'date' => $request->get('date'),
             'currency' => $request->get('currency'),
             'amount' => $request->get('amount'),
@@ -105,11 +107,13 @@ class MonetaryAccountController extends Controller
     public function update(Request $request, MonetaryAccount $monetary_account)
     {
         $this->validate($request,[
+            'name' => 'required',
             'currency' => 'required',
             'date' => 'required|date',
             'amount' => 'required|numeric',
         ]);
         $monetary_account->fill([
+            'name' => $request->get('name'),
             'date' => $request->get('date'),
             'currency' => $request->get('currency'),
             'amount' => $request->get('amount'),
