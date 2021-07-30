@@ -3140,6 +3140,8 @@ Route::prefix('system')->middleware('auth')->group(static function () {
 
 Route::middleware('auth')->group(function()
 {
+Route::get('/image-remark/sotre', 'scrapperPhyhon@imageRemarkStore')->name('image-remark.store');
+Route::get('/change-category/remarks-show', 'scrapperPhyhon@changeCatRemarkList')->name('change-category.remarks-show');
 Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
 Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
 Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
