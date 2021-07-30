@@ -6,6 +6,7 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\PurchaseCreated;
 
 class Purchase extends Model
 {
@@ -20,6 +21,11 @@ class Purchase extends Model
   // protected $appends = ['communication'];
 	protected $communication = '';
   protected $fillable = ['whatsapp_number'];
+
+   protected $dispatchesEvents = [
+      //'created' => PurchaseCreated::class,
+      //'updated' => PaymentUpdated::class,
+    ];
 
 	public function messages()
 	{

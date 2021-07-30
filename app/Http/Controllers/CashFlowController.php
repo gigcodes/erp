@@ -25,20 +25,18 @@ class CashFlowController extends Controller
      */
     public function index()
     {
-        $cash_flows = CashFlow::with(['user', 'files'])->latest()->paginate(Setting::get('pagination'));
+        $cash_flows = CashFlow::with(['user', 'files'])->orderBy('date','desc')->orderBy('id','desc')->paginate(Setting::get('pagination'));
         $users = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
-        $orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
+        //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
-        $vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
+        //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
 
         return view('cashflows.index', [
             'cash_flows' => $cash_flows,
             'users' => $users,
             'categories' => $categories,
-            'orders' => $orders,
             'purchases' => $purchases,
-            'vouchers' => $vouchers
         ]);
     }
 
