@@ -103,6 +103,9 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\UpdatePurchaseCashflow',
         ],
 
+        'App\Events\CashFlowCreated' => [
+            'App\Listeners\UpdateCurrencyCashFlow',
+        ],
     ];
 
     /**
