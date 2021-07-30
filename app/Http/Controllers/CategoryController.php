@@ -34,7 +34,10 @@ class CategoryController extends Controller
     {
 
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
+        // $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
+        $categories        = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id',0)->orderBy('title');
+
+
         $allCategories     = Category::all();
 
         $selected_value  = $request->filter;
@@ -42,7 +45,7 @@ class CategoryController extends Controller
         if(isset($request->filter)){
             $categories=  $categories->where('title','like','%'.$request->filter.'%');
         }
-        $categories= $categories->paginate(20);
+        $categories= $categories->get();
     
 
         $old = $request->old('parent_id');

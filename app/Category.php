@@ -47,6 +47,10 @@ class Category extends Model
     {
         return $this->hasMany( __CLASS__, 'parent_id', 'id' );
     }
+    public function childsOrderByTitle()
+    {
+        return $this->hasMany( __CLASS__, 'parent_id', 'id' )->orderBy('title');
+    }
 
     public function childLevelSencond()
     {
