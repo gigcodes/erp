@@ -41,11 +41,11 @@ class InstaAutoFeedDaily extends Command
      */
     public function handle()
     { 
-        $posts = Setting::where('name','posts_per_day')->first()->val;
-        $likes = Setting::where('name','likes_per_day')->first()->val;
-        $send_requests = Setting::where('name','send_requests_per_day')->first()->val;
-        $accept_requests = Setting::where('name','accept_requests_per_day')->first()->val;
-        $image_requests = Setting::where('name','image_per_post')->first()->val;
+        $posts = Setting::get('posts_per_day');        
+        $likes = Setting::get('likes_per_day');
+        $send_requests = Setting::get('send_requests_per_day');
+        $accept_requests = Setting::get('accept_requests_per_day');
+        $image_requests = Setting::get('image_per_post');
 
 		// $automation_form = InstaAccAutomationForm::latest()->first();
         // $posts = $automation_form->posts_per_day;
