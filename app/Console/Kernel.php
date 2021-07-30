@@ -142,6 +142,7 @@ use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\AddRoutesToGroups;
 use App\Console\Commands\UpdateProductInformationFromCsv;
 use DB;
 
@@ -282,6 +283,7 @@ class Kernel extends ConsoleKernel
         RemoveScrapperImages::class,
         ChangeTesterBasedOnTeamLead::class,
         AddGroupTheme::class,
+        AddRoutesToGroups::class,
         UpdateProductInformationFromCsv::class
     ];
 
