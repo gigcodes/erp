@@ -2325,6 +2325,7 @@ Route::middleware('auth')->group(function () {
 
 //Monetary Account Module
 Route::middleware('auth')->group(function () {
+    Route::get('monetary-account/{id}/history', 'MonetaryAccountController@history')->name("monetary-account.history");
     Route::resource('monetary-account', 'MonetaryAccountController');
 });
 

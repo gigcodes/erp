@@ -141,4 +141,16 @@ class MonetaryAccountController extends Controller
         }
         return redirect()->back()->withSuccess('You have successfully deleted account detail');
     }
+
+    public function history(Request $request, $id)
+    {
+        $account = \App\MonetaryAccount::find($id);
+        if($account) {
+            $history = \App\MonetaryAccountHistory::where("monetary_account_id",$id)->latest()->paginate();
+
+            return view("monetary-account.history",compact('history','account'));
+        }else{
+            return abort(404);
+        }
+    }
 }
