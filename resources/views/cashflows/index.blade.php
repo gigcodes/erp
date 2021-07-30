@@ -95,7 +95,7 @@
                            @endif
                        </td>
                        <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
-                       <td>{{ $cash_flow->amount_eur }}</td>
+                     <td>{{ $cash_flow->amount_eur }}</td>
                        <td>{{ ucwords($cash_flow->type) }}</td>
                        <td>
                            {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
