@@ -27,5 +27,8 @@ class AlterTabelMonetaryAccountsExtraFields extends Migration
     public function down()
     {
         //
+        Schema::table("monetary_accounts",function(Blueprint $table) {
+            $table->dropField("name");
+        });
     }
 }
