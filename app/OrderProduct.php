@@ -27,6 +27,8 @@ class OrderProduct extends Model
 	    'sku',
 	    'product_id',
 	    'product_price',
+        'currency',
+        'eur_price',
 	    'size',
 	    'color',
       	'qty',

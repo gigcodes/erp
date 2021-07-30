@@ -188,7 +188,7 @@
               <th style="width:4%;padding-left: 5px">Size</th>
               <th style="width:7%;padding-left: 2px">Queue</th>
               <th style="width:4%">Try</th>
-              <th style="width:6%">Action</th>
+              <th style="width:8%">Action</th>
             </thead>
             <tbody>
               @foreach($logListMagentos as $item)
@@ -239,11 +239,12 @@
                   <td>{{$item->tried}}</td>
                   <td >
                     <span style="display:flex;">
-                    <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
-                    <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                    <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-image"></i></button>
-                    <input style="width:14px;height:14px;margin-left:3px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
-                  </span>
+                      <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
+                      <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
+                      <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-image"></i></button>
+                      <a target="__blank" href="{{$item->website_url}}/admin/?sku={{$item->getWebsiteSku()}}"><button class="btn btn-xs"><i class="fa fa-globe"></i></button></a>
+                      <input style="width:14px;height:14px;margin-left:3px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
+                    </span>
                   </td>
                 </tr>
               @endforeach()

@@ -40,6 +40,8 @@ class MagentoProductApiCallCommand extends Command
      */
     public function handle()
     {
+        \Log::channel('magentoProductApi')->info('Magento Product API Call Successfully');
+
         $produts = LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")
                                 ->where("sync_status", "success")
                                 ->groupBy("product_id", "store_website_id")
@@ -311,5 +313,10 @@ class MagentoProductApiCallCommand extends Command
             $composition    = '';
         }
         return $prepared_products_data;
+    }
+
+    public function failed()
+    {
+        \Log::channel('magentoProductApi')->info('Magento Product API Call Failed');
     }
 }

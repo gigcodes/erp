@@ -32,8 +32,7 @@ class UpdateOrderCashFlow
             $cash_flow = $order->cashFlows()->whereIn('order_status', ['pending', 'prepaid'])->first();
             if ($cash_flow) {
                 $cash_flow->fill([
-                    'expected' => $order->balance_amount,
-                    'actual' => $order->balance_amount,
+                    'amount' => $order->balance_amount,
                     'status' => 1,
                     'order_status' => 'prepaid',
                     'updated_by' => $user_id,
@@ -42,10 +41,9 @@ class UpdateOrderCashFlow
             } else {
                 $order->cashFlows()->create([
                     'date' => date('Y-m-d H:i:s'),
-                    'expected' => $order->balance_amount,//amount may be entry in any columns by the operator
-                    'actual' => $order->balance_amount,//amount may be entry in any columns by the operator
+                    'amount' => $order->balance_amount,//amount may be entry in any columns by the operator
                     'type' => 'received',
-                    'currency' => '',
+                    'currency' => $order->store_currency_code,
                     'status' => 1,
                     'order_status' => 'prepaid',
                     'updated_by' => $user_id,
@@ -58,16 +56,14 @@ class UpdateOrderCashFlow
             if ($cash_flow) {
                 $cash_flow->fill([
                     'date' => $order->advance_date ?: $cash_flow->date,
-                    'expected' => $order->advance_detail,
-                    'actual' => $order->advance_detail,
+                    'amount' => $order->advance_detail,
                 ])->save();
             } else {
                 $order->cashFlows()->create([
                     'date' => $order->advance_date ?: date('Y-m-d H:i:s'),
-                    'expected' => $order->advance_detail,
-                    'actual' => $order->advance_detail,
+                    'amount' => $order->advance_detail,
                     'type' => 'received',
-                    'currency' => '',
+                    'currency' => $order->store_currency_code,
                     'status' => 1,
                     'order_status' => 'advance received',
                     'updated_by' => $user_id,
@@ -80,7 +76,7 @@ class UpdateOrderCashFlow
             ]);
             $pending_cash_flow->fill([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
+                'amount' => $order->balance_amount,
                 'actual' => 0,
                 'type' => 'received',
                 'currency' => '',
@@ -94,10 +90,9 @@ class UpdateOrderCashFlow
             ]);
             $pending_cash_flow->fill([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
-                'actual' => $order->balance_amount,
+                'amount' => $order->balance_amount,
                 'type' => 'received',
-                'currency' => '',
+                'currency' => $order->store_currency_code,
                 'status' => 1,
                 'updated_by' => $user_id,
                 'user_id' => $user_id,
@@ -113,10 +108,9 @@ class UpdateOrderCashFlow
             ]);
             $pending_cash_flow->fill([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'expected' => $order->balance_amount,
-                'actual' => 0,
+                'amount' => $order->balance_amount,
                 'type' => 'received',
-                'currency' => '',
+                'currency' => $order->store_currency_code,
                 'status' => 0,
                 'user_id' => $user_id,
                 'updated_by' => $user_id,

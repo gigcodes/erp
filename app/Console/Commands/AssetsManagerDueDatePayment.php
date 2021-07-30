@@ -51,12 +51,13 @@ class AssetsManagerDueDatePayment extends Command
             //create entry in table cash_flows
             CashFlow::create(
                 [
-                    'description'           => 'Asset Manager Payment for id ' . $result->id,
+                    'description'           => 'Asset Manager Payment for id ' . $result->name,
                     'date'                  => date('Y-m-d'),
                     'amount'                => $result->amount,
                     'expected'              => $result->amount,
                     'actual'                => $result->amount,
-                    'type'                  => 'paid',
+                    'currency'              => $result->currency,
+                    'type'                  => 'pending',
                     'cash_flow_able_id'     => $result->id,
                     'cash_flow_category_id' => $result->category_id,
                     'cash_flow_able_type'   => 'App\AssetsManager',
