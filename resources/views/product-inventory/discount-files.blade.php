@@ -47,7 +47,7 @@
                                 <select class="form-control select-multiple globalSelect2" id="brand-selects" tabindex="-1" aria-hidden="true" name="brands" >
                                     <option value="">Search Brands...</option>
                                     @foreach ($brand_data as $key=> $row ) 
-                                        @if(isset($row->brand->id))
+                                        @if(isset($row->brand->id) && isset($row->brand->name))
                                             @if(isset($request->brands) && $row->brand->id==$request->brands)
                                                 <option value="{{$row->brand->id}}" selected="selected">{{$row->brand->name}}</option>
                                             @else
@@ -132,21 +132,23 @@
                 <tbody>
                     @foreach ($rows as $key=> $row ) 
                     <tr>
-                       <td>{{$row->brand->name}}</td> 
+                       <td>{{ (isset($row->brand->name)) ? $row->brand->name : ''}}</td> 
                        <td>{{$row->supplier->supplier}}</td>
                        <td>{{$row->gender}}</td> 
                        <td>{{$row->category}}</td> 
                        <td>{{$row->generic_price ?? '-'}}
-                            @if($row->generic_price)
+                            @if($row->generic_price && $row->generic_price != '-')
                             <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="generic_price" style="font-size:15px; margin-left:10px; color: #757575;"></a>
                             @endif
                         </td> 
                        <td>{{$row->exceptions ?? '-'}}</td> 
                        <td>{{$row->condition_from_retail ?? '-'}} 
+                            @if($row->condition_from_retail && $row->condition_from_retail != '-')
                             <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                            @endif
                         </td> 
                         <td>{{$row->condition_from_retail_exceptions ?? '-'}}
-                            @if($row->condition_from_retail_exceptions)
+                            @if($row->condition_from_retail_exceptions && $row->condition_from_retail_exceptions != '-')
                             <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail_exceptions" style="font-size:15px; margin-left:10px; color: #757575;"></a>
                             @endif
                         </td> 
@@ -252,7 +254,7 @@
                                 @foreach ($excel_data as $key => $value)
                                 <tr>
                                      <td> {{$value->excel_name}} </td>
-                                     <td> {{$value->users->name}} </td>
+                                     <td> {{ (isset($value->users->name)) ? $value->users->name : ''}} </td>
                                      <td> {{$value->created_at}} </td>
                                     <td>
                                         {{-- <a title="Download Invoice" class="btn btn-image" href="">

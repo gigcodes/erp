@@ -1636,14 +1636,23 @@ class ProductInventoryController extends Controller
 
 			}
 			
-			if($rows[0][1] == 'SS21'){
+			if($rows[0][1] == 'SS21' || $rows[0][1] == 'FW21' || $rows[0][1] == 'FW20'){
 			
 				$array1 = $array2 = []; $first_time1 = 1;
 				foreach($rows as $key => $row){
-					if($row[1] == 'SS21' || $row[1] == 'ST' || $key == 2 ) continue;
 
-					$array1[] = [$row[1], $row[2]];
-					$array2[] = [$row[4], $row[5]];
+					if($row[1] == 'SS21' || $row[1] == 'FW21' || $row[1] == 'FW20' || $row[1] == 'ST' || $key == 2 ) continue;
+
+					$row_1 = (isset($row[1]) &&  $row[1] != null ? $row[1] : '-');
+					$row_2 = (isset($row[1]) &&  $row[2] != null ? $row[1] : '-');
+
+					$row_4 = (isset($row[1]) &&  $row[4] != null ? $row[1] : '-');
+					$row_5 = (isset($row[1]) &&  $row[5] != null ? $row[1] : '-');
+
+					$array1[] = [$row_1, $row_2];
+					$array2[] = [$row_4, $row_5];
+					// $array1[] = [$row[1], $row[2]];
+					// $array2[] = [$row[4], $row[5]];
 					
 				}
 				$categories = [];
@@ -1805,7 +1814,7 @@ class ProductInventoryController extends Controller
 
 				$file->move(public_path('product_discount_file'), $fileName);
 				
-			return redirect()->back()->with('success', 'Excel Imported Successfully!');
+				return redirect()->back()->with('success', 'Excel Imported Successfully!');
 
 			}
 
