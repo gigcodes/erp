@@ -26,17 +26,23 @@ class LiveChatController extends Controller
     //Webhook
     public function incoming(Request $request)
     {
-        \Log::channel('chatapi')->info('-- incoming >>');
+        // \Log::channel('chatapi')->info('-- incoming >>');
+
+        \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- incoming >>');
 
         \Log::channel('chatapi')->info($request->getContent());
+        // \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".$request->getContent());
+
         $receivedJson = json_decode($request->getContent());
 
         if (isset($receivedJson->event_type)) {
-            \Log::channel('chatapi')->info('--1111 >>');
+            // \Log::channel('chatapi')->info('--1111 >>');
+            \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'--event_type >>');
             //When customer Starts chat
             if ($receivedJson->event_type == 'chat_started') {
 
-                \Log::channel('chatapi')->info('-- chat_started >>');
+                // \Log::channel('chatapi')->info('-- chat_started >>');
+                \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'--chat_started >>');
                 ///Getting the chat
                 $chat = $receivedJson->chat;
 
@@ -73,6 +79,9 @@ class LiveChatController extends Controller
 
                 //Save Customer
                 if ($customer == null && $customer == '') {
+
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- save customer >>'.$name);
+
                     $customer        = new Customer;
                     $customer->name  = $name;
                     $customer->email = $email;
@@ -85,11 +94,13 @@ class LiveChatController extends Controller
         }
 
         if (isset($receivedJson->action)) {
-            \Log::channel('chatapi')->info('--2222 >>');
+            // \Log::channel('chatapi')->info('--2222 >>');
+            \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- action >>');
             //Incomg Event
             if ($receivedJson->action == 'incoming_event') {
 
-                \Log::channel('chatapi')->info('-- incoming_event >>');
+                // \Log::channel('chatapi')->info('-- incoming_event >>');
+                \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- incoming_event >>');
 
                 //Chat Details
                 $chatDetails = $receivedJson->payload;
@@ -107,7 +118,8 @@ class LiveChatController extends Controller
                 }
                 if ($chatDetails->event->type == 'message') {
 
-                    \Log::channel('chatapi')->info('-- message >>');
+                    // \Log::channel('chatapi')->info('-- message >>');
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- message >>');
 
                     $message   = $chatDetails->event->text;
                     $author_id = $chatDetails->event->author_id;
@@ -184,7 +196,8 @@ class LiveChatController extends Controller
 
                 if ($chatDetails->event->type == 'file') {
 
-                    \Log::channel('chatapi')->info('-- file >>');
+                    // \Log::channel('chatapi')->info('-- file >>');
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- file >>');
 
                     $author_id = $chatDetails->event->author_id;
 
@@ -251,7 +264,9 @@ class LiveChatController extends Controller
 
             if ($receivedJson->action == 'incoming_chat') {
 
-                \Log::channel('chatapi')->info('-- incoming_chat >>');
+                // \Log::channel('chatapi')->info('-- incoming_chat >>');
+
+                \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- incoming_chat >>');
 
                 $chat   = $receivedJson->payload->chat;
                 $chatId = $chat->id;
@@ -283,9 +298,14 @@ class LiveChatController extends Controller
                 $customer = $customer->first();
 
                 if ($customer != null) {
+                    
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Null');
+
                     //Find if its has ID
                     $chatID = CustomerLiveChat::where('customer_id', $customer->id)->where('thread', $chatId)->first();
                     if ($chatID == null) {
+
+                        \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- chatID Null');
 
                         //check if only thread exist and make it null
                         $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
@@ -295,6 +315,7 @@ class LiveChatController extends Controller
                             $onlyThreadCheck->save();
                         }
 
+                        \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Add CustomerLiveChat  111 ::::'.$chatId);
                         $customerChatId              = new CustomerLiveChat;
                         $customerChatId->customer_id = $customer->id;
                         $customerChatId->thread      = $chatId;
@@ -303,6 +324,9 @@ class LiveChatController extends Controller
                         $customerChatId->website     = $websiteURL;
                         $customerChatId->save();
                     } else {
+
+                        \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- chatID Not Null');
+                        \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Add CustomerLiveChat 222 ::::'.$chatId);
                         $chatID->customer_id = $customer->id;
                         $chatID->thread      = $chatId;
                         $chatID->status      = 1;
@@ -311,6 +335,8 @@ class LiveChatController extends Controller
                         $chatID->update();
                     }
                 } else {
+                    
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Not Null');
 
                     //check if only thread exist and make it null
                     $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
@@ -320,6 +346,7 @@ class LiveChatController extends Controller
                         $onlyThreadCheck->save();
                     }
 
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Add Customer ::::'.$userName);
                     $customer        = new Customer;
                     $customer->name  = $userName;
                     $customer->email = $userEmail;
@@ -330,6 +357,7 @@ class LiveChatController extends Controller
                     $customer->save();
 
                     //Save Customer with Chat ID
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Add CustomerLiveChat 3333::::'.$chatId);
                     $customerChatId              = new CustomerLiveChat;
                     $customerChatId->customer_id = $customer->id;
                     $customerChatId->thread      = $chatId;
