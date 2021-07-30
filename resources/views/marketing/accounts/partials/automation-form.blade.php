@@ -71,6 +71,21 @@
                                 <option value="10" {{ $automation_form->accept_requests_per_day == 10 ? 'selected' : '' }}>10</option>
                              </select> 
                         </div>
+                        <div class="form-group">
+                            <strong>Image Per Post</strong>
+                             <select class="form-control" name="image_per_post">
+                                <option value="1" {{ $automation_form->image_per_post == 1 ? 'selected' : '' }}>1</option>
+                                <option value="2" {{ $automation_form->image_per_post == 2 ? 'selected' : '' }}>2</option>
+                                <option value="3" {{ $automation_form->image_per_post == 3 ? 'selected' : '' }}>3</option>
+                                <option value="4" {{ $automation_form->image_per_post == 4 ? 'selected' : '' }}>4</option>
+                                <option value="5" {{ $automation_form->image_per_post == 5 ? 'selected' : '' }}>5</option>
+                                <option value="6" {{ $automation_form->image_per_post == 6 ? 'selected' : '' }}>6</option>
+                                <option value="7" {{ $automation_form->image_per_post == 7 ? 'selected' : '' }}>7</option>
+                                <option value="8" {{ $automation_form->image_per_post == 8 ? 'selected' : '' }}>8</option>
+                                <option value="9" {{ $automation_form->image_per_post == 9 ? 'selected' : '' }}>9</option>
+                                <option value="10" {{ $automation_form->image_per_post == 10 ? 'selected' : '' }}>10</option>
+                             </select> 
+                        </div>
     				</div>
     				<div class="modal-footer">
     					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

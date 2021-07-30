@@ -144,7 +144,11 @@ class AccountController extends Controller
 
 	public function automation(Request $request){
 
-		$automation_form = InstaAccAutomationForm::create($request->all());
+		foreach($request->except('_token') as $key=>$val){
+			$setting1 = Setting::where('name',$key)->update(['val'=>$val]);
+		}
+
+		// $automation_form = InstaAccAutomationForm::create($request->all());
 		return redirect()->back()->with('message', 'Automation form Updated');
 	}
 }
