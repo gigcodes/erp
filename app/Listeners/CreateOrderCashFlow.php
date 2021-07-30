@@ -66,29 +66,27 @@ class CreateOrderCashFlow
                 'description'         => 'Advance Received',
             ]);
             $order->cashFlows()->create([
-                'date'                => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'amount'              => $order->balance_amount,
-                'type'                => 'pending',
-                'currency'            => $order->store_currency_code,
-                'status'              => 0,
-                'order_status'        => 'pending',
-                'user_id'             => $user_id,
-                'updated_by'          => $user_id,
-                'monetary_account_id' => $order->monetary_account_id,
-                'description'         => 'Pending balance amount',
+                'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
+                'amount' => $order->balance_amount,
+                'type' => 'pending',
+                'currency' => $order->store_currency_code,
+                'status' => 0,
+                'order_status' => 'pending',
+                'user_id' => $user_id,
+                'updated_by' => $user_id,
+                'description' => 'Pending balance amount',
             ]);
         } else {
             $order->cashFlows()->create([
-                'date'                => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
-                'amount'              => !empty($order->balance_amount) ? $order->balance_amount : 0.00,
-                'type'                => 'received',
-                'currency'            => $order->store_currency_code,
-                'status'              => 0,
-                'order_status'        => 'pending',
-                'user_id'             => $user_id,
-                'updated_by'          => $user_id,
-                'monetary_account_id' => $order->monetary_account_id,
-                'description'         => 'Pending balance amount',
+                'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
+                'amount' => !empty($order->balance_amount) ? $order->balance_amount : 0.00,
+                'type' => 'pending',
+                'currency' => $order->store_currency_code,
+                'status' => 0,
+                'order_status' => 'pending',
+                'user_id' => $user_id,
+                'updated_by' => $user_id,
+                'description' => 'Pending balance amount',
             ]);
         }
     }
