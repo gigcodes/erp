@@ -2515,6 +2515,9 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
     // Whats App Config
     Route::get('instagram-config', 'InstagramConfigController@index')->name('instagram.config.index');
+    Route::get('instagram-keyword/create', 'InstagramConfigController@keywordStore')->name('instagram.keyword.create');
+    Route::get('instagram-keyword/list', 'InstagramConfigController@keywordList')->name('instagram.keyword.list');
+    Route::get('instagram-keyword/delete', 'InstagramConfigController@keyworddelete')->name('instagram.keyword.delete');
     Route::get('instagram-history/{id}', 'InstagramConfigController@history')->name('instagram.config.history');
     Route::post('instagram-config/store', 'InstagramConfigController@store')->name('instagram.config.store');
     Route::post('instagram-config/edit', 'InstagramConfigController@edit')->name('instagram.config.edit');
@@ -2522,6 +2525,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-queue/{id}', 'InstagramConfigController@queue')->name('instagram.config.queue');
     Route::post('instagram-queue/delete', 'InstagramConfigController@destroyQueue')->name('instagram.config.delete_queue');
     Route::post('instagram-queue/delete_all/', 'InstagramConfigController@destroyQueueAll')->name('instagram.config.delete_all');
+    Route::post('instagram-automation', 'AccountController@automation')->name('automation.form.store');
 
     //Social Config
     Route::get('accounts/{type?}', 'AccountController@index')->name('accounts.index');
