@@ -66,7 +66,7 @@ class CreateOrderCashFlow
             $order->cashFlows()->create([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
                 'amount' => $order->balance_amount,
-                'type' => 'received',
+                'type' => 'pending',
                 'currency' => $order->store_currency_code,
                 'status' => 0,
                 'order_status' => 'pending',
@@ -78,7 +78,7 @@ class CreateOrderCashFlow
             $order->cashFlows()->create([
                 'date' => $order->date_of_delivery ?: ($order->estimated_delivery_date ?: $order->order_date),
                 'amount' => !empty($order->balance_amount) ? $order->balance_amount : 0.00,
-                'type' => 'received',
+                'type' => 'pending',
                 'currency' => $order->store_currency_code,
                 'status' => 0,
                 'order_status' => 'pending',
