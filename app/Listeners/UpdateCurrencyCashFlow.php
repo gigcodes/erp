@@ -26,9 +26,11 @@ class UpdateCurrencyCashFlow
      */
     public function handle(CashFlowCreated $event)
     {
+        \Log::info("this event has been called");
         $cashflow = $event->cashflow;
         if($cashflow->amount_eur <= 0) {
            $cashflow->amount_eur = \App\Currency::convert($cashflow->amount,'EUR',$cashflow->currency);
+           \Log::info("amount is not euro so called coveter with amount #".$cashflow->amount_eur."#".$cashflow->currency);
            $cashflow->save();
         }
         

@@ -78,15 +78,17 @@ class AssetsManagerPaymentCron extends Command
         foreach($results as $result){
             
             //create entry in table cash_flows
-            /* CashFlow::create(
+            CashFlow::create(
                 [
-                    'description'=>'Asset Manager Payment for id '.$result->id,
+                    'description'=>'Asset Manager Payment for name '.$result->name,
                     'date'=>date('Y-m-d'),
                     'amount'=>$result->amount,
-                    'type'=>'paid',
+                    'currency'=>$result->currency,
+                    'type'=>'pending',
                     'cash_flow_able_type'=>'App\AssetsManager',
+                    'cash_flow_able_id'=>$result->id,
                 ]
-            ); */
+            ); 
 
             if($result->payment_cycle =='Weekly')
             {
