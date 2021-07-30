@@ -37,6 +37,9 @@
     .form-group{
         margin-bottom:0 !important;
     }
+    .suppliers input{
+        width:170px !important
+    }
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
@@ -54,12 +57,12 @@
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
-            <form class="form-inline" action="" method="GET">
-                <div class="form-group ml-0 cls_filter_inputbox">
-                    <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU">
+            <form class="form-inline filter_form" action="" method="GET">
+                <div class="form-group mr-3">
+                    <input type="text" name="term" value="{{ request('term') }}" class="form-control" placeholder="Enter Product Or SKU">
                 </div>
-                <div class="form-group ml-3 cls_filter_inputbox">
-                    <select name="country_code" class="form-control">
+                <div class="form-group mr-3">
+                    <select name="country_code" class="form-control globalSelect2">
                         @php $country = request('country_code','') @endphp
                         <option value="">Select country code</option>
                         @foreach ($countryGroups as $key => $item)
@@ -67,23 +70,64 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group ml-3 cls_filter_inputbox">
-                    <?php echo Form::select("random",["" => "No","Yes" => "Yes"],request('random'),["class"=> "form-control"]); ?>
+
+                <div class="form-group mr-3 suppliers">
+                    {{-- {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!} --}}
+
+                    <select class="form-control globalSelect2" data-placeholder="Select Suppliers" data-ajax="{{ route('select2.suppliers',['sort'=>true]) }}"
+                        name="supplier[]" multiple>
+                        {{-- <option value="">Select Suppliers</option> --}}
+                            @if ($selected_suppliers)        
+                                @foreach($selected_suppliers as $supplier )
+                                    <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                                @endforeach
+                            @endif
+                        </select>
                 </div>
-                {{-- <div class="form-group ml-3 cls_filter_inputbox">
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+                    name="brand_names[]" multiple>
+                    <option value="">Select Brands</option>
+                        @if ($selected_brands)        
+                            @foreach($selected_brands as $brand)
+                                <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div> 
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Websites" data-ajax="{{ route('select2.websites',['sort'=>true]) }}"
+                    name="websites[]" multiple>
+                    <option value="">Select Websites</option>
+                        @if ($selected_websites)        
+                            @foreach($selected_websites as $website)
+                                <option value="{{ $website->id }}" selected>{{ $website->title }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>  
+                <div class="form-group mr-3">
+                    <?php echo Form::select("random",["" => "No","Yes" => "Yes"],request('random'),["class"=> "form-control globalSelect2"]); ?>
+                </div>
+                {{-- <div class="form-group mr-3">
                     <input type="text" name="keyword" class="form-control" value="{{ request('keyword') }}" placeholder="keyword">
                 </div> --}}
-                <button type="submit" class="btn btn-secondary ml-3">Get record</button>
+                <div class="form-group mr-3">
+                    <button type="submit" class="btn btn-secondary form-control">Get record</button>
+                </div>
+                <div class="form-group mr-3">
+                    <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
+                </div>
             </form> 
         </div>
     </div>  
 
 </div>
 <div class="row m-0">
-    <div class="col-lg-12 margin-tb pl-3 pr-3">
-        {{-- {{ $list->links() }} --}}
+    <div class="col-lg-12 margin-tb pl-3 pr-3"> 
         <div class="panel-group" style="margin-bottom: 5px;">
-            <div class=" mt-3">
+
+            <div class="table-responsive mt-3">
 
                    <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed;">
                        <thead>
@@ -97,6 +141,7 @@
                            <th style="width: 5%">EURO Price</th>
                            <th style="width: 10%">Seg Discount</th>
                            <th style="width: 5%">Less IVA</th>
+                           <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
                            <th style="width: 12%">Add Profit</th>
                            <th style="width: 5%">Final Price</th>
@@ -144,6 +189,7 @@
                                    </div>
                                </td>
                                <td>{{ $key['iva'] }}</td>
+                               <td>{{ $key['net_price'] }}</td>
                                <td>
                                    <div class="form-group">
                                        <div class="input-group">
@@ -167,9 +213,8 @@
                        </tbody>
                    </table>
 
-            </div>
+              </div>
         </div>
-        {{-- {{ $list->links() }} --}}
     </div>
 </div>
 
@@ -181,7 +226,45 @@
 @section('scripts')
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script>
+ 
+    var page = 1;
+	$(window).scroll(function() {
+	    if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+	        page++;
+	        loadMoreData(page);
+	    }
+	});
 
+    let data = $('.filter_form').serialize();
+	function loadMoreData(page){
+	  $.ajax(
+	        {
+	            url: '?page=' + page + '&count=' + {{$i}} + '&' + data,
+	            type: "get",
+	            beforeSend: function()
+	            {
+	                $('#loading-image').show();
+	            }
+	        })
+	        .done(function(data)
+	        {
+                $('#loading-image').hide();
+	            if(data.html == " "){
+	                $('.ajax-load').html("No more records found");
+	                return;
+	            }
+	            $('.ajax-load').hide();
+	            $("tbody").append(data.html);
+	        })
+	        .fail(function(jqXHR, ajaxOptions, thrownError)
+	        {
+	              alert('server not responding...');
+	        });
+	}
+
+    // $(".select-multiple").multiselect();
+    $(".select-multiple2").select2();
+    
     $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {

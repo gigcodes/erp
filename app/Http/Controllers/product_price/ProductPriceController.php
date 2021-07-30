@@ -5,8 +5,11 @@ namespace App\Http\Controllers\product_price;
 use App\Http\Controllers\Controller;
 use App\CountryGroup;
 use App\StoreWebsite;
+use App\WebsiteStore;
 use App\Product;
 use App\Setting;
+use App\Brand;
+use App\Supplier;
 use App\SimplyDutyCountry;
 use App\Helpers\StatusHelper;
 use Illuminate\Http\Request;
@@ -31,24 +34,60 @@ class ProductPriceController extends Controller
         }
 
         $product_list = [];
-        $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1")->get()->toArray();
-        if(strtolower($request->random) == "yes" && empty($request->product)) {
-            $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(50)->latest()->get();
-        }else{
-            $products = Product::where( 'id', $request->product )->orWhere( 'sku', $request->product )->get();
+        $suppliers = [];
+        $brands = [];
+        $websites = StoreWebsite::where("is_published","1")->get()->pluck('title', 'id')->toArray();
+        $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1");
+        if($request->websites && !empty($request->websites)){
+            $storeWebsites = $storeWebsites->whereIn('id', $request->websites);
+        } 
+        $storeWebsites = $storeWebsites->get()->toArray();
+        // if(strtolower($request->random) == "yes" && empty($request->product)) {
+        //     $products = Product::where('status_id', StatusHelper::$finalApproval)->groupBy('category'); 
+        // }else{
+        //     $products = Product::where('id', $request->product )->orWhere( 'sku', $request->product);
+        // }
+        // if($request->suppliers && !empty($request->suppliers)){
+        //     $products = $products->whereHas('suppliers', function($query) use ($request){
+        //         $query->whereIn('supplier_id', $request->suppliers);
+        //     });
+        // }
+        // if($request->brands && !empty($request->brands)){
+        //     $products = $products->whereHas('brands', function($query) use ($request){
+        //         $query->whereIn('id', $request->brands);
+        //     });
+        // } 
+    	$filter_data = $request->input();
+		$products = \App\Product::getProducts($filter_data, 0);
+        if($request->ajax()){
+    		$products = \App\Product::getProducts($filter_data, $request->page - 1);
         }
+        $selected_brands = null;
+		if($request->brand_names){
+            $selected_brands = Brand::select('id','name')->whereIn('id',$request->brand_names)->get();
+		}
+        
+		$selected_suppliers = null;
+		if($request->supplier){
+            $selected_suppliers = Supplier::select('id','supplier')->whereIn('id',$request->supplier)->get();
+		}
+        
+		$selected_websites = null;
+		if($request->websites){
+            $selected_websites = StoreWebsite::select('id','title')->whereIn('id',$request->websites)->get();
+		}
 
-        if($products->isEmpty()){
-            //return redirect()->back()->with('error','No product found');
+        if(!count($products)){
+            // return redirect()->back()->with('error','No product found');
         }
 
         foreach ($storeWebsites as $key => $value) {
-            foreach($products as $product) {
+            foreach($products as $product) { 
                 foreach($cCodes as $ckey => $cco) {
                     $dutyPrice = $product->getDuty( $ckey );
                     $price = $product->getPrice( $value['id'], $ckey,null, true,$dutyPrice);
                     $ivaPercentage = \App\Product::IVA_PERCENTAGE;
-
+                    
                     $product_list[] = [
                         'storeWebsitesID'      => $value['id'],
                         'getPrice'             => $price,
@@ -61,6 +100,7 @@ class ProductPriceController extends Controller
                         'seg_discount'         => (float)$price['segment_discount'],
                         'segment_discount_per' => (float)$price['segment_discount_per'],
                         'iva'                  => \App\Product::IVA_PERCENTAGE."%",
+                        'net_price'            => $product->price - (float)$price['segment_discount'] - ($product->price) * (\App\Product::IVA_PERCENTAGE) / 100,
                         'add_duty'             => $product->getDuty( $ckey)."%",
                         'add_profit'           => number_format($price['promotion'],2,'.',''),
                         'add_profit_per'       => number_format($price['promotion_per'],2,'.',''),
@@ -71,8 +111,12 @@ class ProductPriceController extends Controller
                 }
             }
         }
-
-        return view('product_price.index',compact('countryGroups','product_list'));
+        if ($request->ajax()) {
+            $count = $request->count;
+    		$view = view('product_price.index_ajax',compact('product_list', 'count'))->render();
+            return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
+        }
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites'))->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     public function update_product(Request $request){
