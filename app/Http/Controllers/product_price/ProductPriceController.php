@@ -40,38 +40,36 @@ class ProductPriceController extends Controller
         $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1");
         if($request->websites && !empty($request->websites)){
             $storeWebsites = $storeWebsites->whereIn('id', $request->websites);
-        }
-        $products = Product::getProducts($filter_data);
+        } 
         $storeWebsites = $storeWebsites->get()->toArray();
-        if(strtolower($request->random) == "yes" && empty($request->product)) {
-            $products = Product::where( 'status_id', StatusHelper::$finalApproval)->groupBy('category')->limit(50)->latest();
-        }else{
-            $products = Product::where( 'id', $request->product )->orWhere( 'sku', $request->product );
+        // if(strtolower($request->random) == "yes" && empty($request->product)) {
+        //     $products = Product::where('status_id', StatusHelper::$finalApproval)->groupBy('category'); 
+        // }else{
+        //     $products = Product::where('id', $request->product )->orWhere( 'sku', $request->product);
+        // }
+        // if($request->suppliers && !empty($request->suppliers)){
+        //     $products = $products->whereHas('suppliers', function($query) use ($request){
+        //         $query->whereIn('supplier_id', $request->suppliers);
+        //     });
+        // }
+        // if($request->brands && !empty($request->brands)){
+        //     $products = $products->whereHas('brands', function($query) use ($request){
+        //         $query->whereIn('id', $request->brands);
+        //     });
+        // } 
+    	$filter_data = $request->input();
+		$products = \App\Product::getProducts($filter_data, 0);
+        if($request->ajax()){
+    		$products = \App\Product::getProducts($filter_data, $request->page - 1);
         }
-        if($request->suppliers && !empty($request->suppliers)){
-            $products = $products->whereHas('suppliers', function($query) use ($request){
-                $query->whereIn('supplier_id', $request->suppliers);
-            });
-        }
-        if($request->brands && !empty($request->brands)){
-            $products = $products->whereHas('brands', function($query) use ($request){
-                $query->whereIn('id', $request->brands);
-            });
-        }
-        if($request->brands && !empty($request->brands)){
-            $products = $products->whereHas('brands', function($query) use ($request){
-                $query->whereIn('id', $request->brands);
-            });
-        }
-        
         $selected_brands = null;
-		if($request->brands){
-            $selected_brands = Brand::select('id','name')->whereIn('id',$request->brands)->get();
+		if($request->brand_names){
+            $selected_brands = Brand::select('id','name')->whereIn('id',$request->brand_names)->get();
 		}
         
 		$selected_suppliers = null;
-		if($request->suppliers){
-            $selected_suppliers = Supplier::select('id','supplier')->whereIn('id',$request->suppliers)->get();
+		if($request->supplier){
+            $selected_suppliers = Supplier::select('id','supplier')->whereIn('id',$request->supplier)->get();
 		}
         
 		$selected_websites = null;
@@ -79,7 +77,6 @@ class ProductPriceController extends Controller
             $selected_websites = StoreWebsite::select('id','title')->whereIn('id',$request->websites)->get();
 		}
 
-        $products = $products->get();
         if(!count($products)){
             // return redirect()->back()->with('error','No product found');
         }
@@ -114,7 +111,12 @@ class ProductPriceController extends Controller
                 }
             }
         }
-        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites'));
+        if ($request->ajax()) {
+            $count = $request->count;
+    		$view = view('product_price.index_ajax',compact('product_list', 'count'))->render();
+            return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
+        }
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites'))->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     public function update_product(Request $request){

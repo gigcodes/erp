@@ -1249,7 +1249,7 @@ class Product extends Model
         return $platformId;
     }
 
-    public static function getProducts($filter_data = array())
+    public static function getProducts($filter_data = array(), $skip = null)
     {
         $columns = array(
             'products.id',
@@ -1363,6 +1363,10 @@ class Product extends Model
 
         if (isset($filter_data['supplier_count'])) {
             $query = $query->havingRaw('count(products.id) = ' . $filter_data['supplier_count']);
+        }
+
+        if($skip !== null){
+            return $query->groupBy("products.id")->with('suppliers_info', 'productstatushistory')->orderBy('products.created_at', 'DESC')->skip($skip)->paginate(1, $columns);
         }
 
         return $query->groupBy("products.id")->with('suppliers_info', 'productstatushistory')->orderBy('products.created_at', 'DESC')->paginate(Setting::get('pagination'), $columns);

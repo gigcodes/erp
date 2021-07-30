@@ -57,9 +57,9 @@
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
-            <form class="form-inline" action="" method="GET">
+            <form class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
-                    <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU">
+                    <input type="text" name="term" value="{{ request('term') }}" class="form-control" placeholder="Enter Product Or SKU">
                 </div>
                 <div class="form-group mr-3">
                     <select name="country_code" class="form-control globalSelect2">
@@ -75,7 +75,7 @@
                     {{-- {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!} --}}
 
                     <select class="form-control globalSelect2" data-placeholder="Select Suppliers" data-ajax="{{ route('select2.suppliers',['sort'=>true]) }}"
-                        name="suppliers[]" multiple>
+                        name="supplier[]" multiple>
                         {{-- <option value="">Select Suppliers</option> --}}
                             @if ($selected_suppliers)        
                                 @foreach($selected_suppliers as $supplier )
@@ -86,7 +86,7 @@
                 </div>
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
-                    name="brands[]" multiple>
+                    name="brand_names[]" multiple>
                     <option value="">Select Brands</option>
                         @if ($selected_brands)        
                             @foreach($selected_brands as $brand)
@@ -124,10 +124,10 @@
 
 </div>
 <div class="row m-0">
-    <div class="col-lg-12 margin-tb pl-3 pr-3">
-        {{-- {{ $list->links() }} --}}
+    <div class="col-lg-12 margin-tb pl-3 pr-3"> 
         <div class="panel-group" style="margin-bottom: 5px;">
-            <div class=" mt-3">
+
+            <div class="table-responsive mt-3">
 
                    <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed;">
                        <thead>
@@ -213,9 +213,8 @@
                        </tbody>
                    </table>
 
-            </div>
+              </div>
         </div>
-        {{-- {{ $list->links() }} --}}
     </div>
 </div>
 
@@ -227,8 +226,43 @@
 @section('scripts')
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script>
+ 
+    var page = 1;
+	$(window).scroll(function() {
+	    if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+	        page++;
+	        loadMoreData(page);
+	    }
+	});
 
-    $(".select-multiple").multiselect();
+    let data = $('.filter_form').serialize();
+	function loadMoreData(page){
+	  $.ajax(
+	        {
+	            url: '?page=' + page + '&count=' + {{$i}} + '&' + data,
+	            type: "get",
+	            beforeSend: function()
+	            {
+	                $('#loading-image').show();
+	            }
+	        })
+	        .done(function(data)
+	        {
+                $('#loading-image').hide();
+	            if(data.html == " "){
+	                $('.ajax-load').html("No more records found");
+	                return;
+	            }
+	            $('.ajax-load').hide();
+	            $("tbody").append(data.html);
+	        })
+	        .fail(function(jqXHR, ajaxOptions, thrownError)
+	        {
+	              alert('server not responding...');
+	        });
+	}
+
+    // $(".select-multiple").multiselect();
     $(".select-multiple2").select2();
     
     $(document).on('click', '.expand-row', function () {
