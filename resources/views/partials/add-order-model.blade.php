@@ -77,6 +77,17 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
+                                    <strong> Monetary Account :</strong>
+                                    <?php
+                                        $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+                                        echo Form::select('monetary_account_id',$monetaryAccount, null, ['placeholder' => 'Select a Monetary Account','class' => 'form-control']);
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
                                     <strong>Note if any:</strong>
                                     <input type="text" class="form-control" name="note_if_any" placeholder="Note if any" /> 
                                 </div>
