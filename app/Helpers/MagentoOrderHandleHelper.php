@@ -47,7 +47,7 @@ class MagentoOrderHandleHelper extends Model
                         //continue;
                     }
 
-                    $balance_amount = 0;
+                    $balance_amount = $order->base_grand_total;
                     $firstName      = isset($order->customer_firstname) ? $order->customer_firstname : "N/A";
                     $lastName       = isset($order->customer_lastname) ? $order->customer_lastname : "N/A";
 
@@ -75,6 +75,7 @@ class MagentoOrderHandleHelper extends Model
 
                     if ($order->payment->method == 'paypal') {
                         if ($order->state == 'processing') {
+                            $balance_amount = 0;
                             $order_status = OrderHelper::$prepaid;
                         } else {
                             $order_status = OrderHelper::$followUpForAdvance;
@@ -83,6 +84,7 @@ class MagentoOrderHandleHelper extends Model
                         $payment_method = 'paypal';
                     } elseif ($order->payment->method == 'banktransfer') {
                         if ($order->state == 'processing') {
+                            $balance_amount = 0;
                             $order_status = OrderHelper::$prepaid;
                         } else {
                             $order_status = OrderHelper::$followUpForAdvance;
@@ -90,6 +92,7 @@ class MagentoOrderHandleHelper extends Model
                         $payment_method = 'banktransfer';
                     } elseif ($order->payment->method == 'cashondelivery') {
                         if ($order->state == 'processing') {
+                            $balance_amount = 0;
                             $order_status = OrderHelper::$prepaid;
                         } else {
                             $order_status = OrderHelper::$followUpForAdvance;
@@ -114,7 +117,7 @@ class MagentoOrderHandleHelper extends Model
                             'advance_detail'      => $order->base_grand_total,
                             'contact_detail'      => $order->billing_address->telephone,
                             'balance_amount'      => $balance_amount,
-                            'store_currency_code' => $order->store_currency_code,
+                            'store_currency_code' => $order->order_currency_code,
                             'store_id'            => $order->store_id,
                             'store_name'          => $order->store_name,
                             'created_at'          => $order->created_at,
@@ -152,8 +155,8 @@ class MagentoOrderHandleHelper extends Model
                                     'product_id'    => !empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
                                     'sku'           => isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'],
                                     'product_price' => round($item->price),
-                                    'currency'      => $order->store_currency_code,
-                                    'eur_price'     => \App\Currency::convert(round($item->price), "EUR", $order->store_currency_code),
+                                    'currency'      => $order->order_currency_code,
+                                    'eur_price'     => \App\Currency::convert(round($item->price), "EUR", $order->order_currency_code),
                                     'qty'           => round($item->qty_ordered),
                                     'size'          => $size,
                                     'color'         => isset($splitted_sku[1]) ? $splitted_sku[1] : $skuAndColor['sku'],
