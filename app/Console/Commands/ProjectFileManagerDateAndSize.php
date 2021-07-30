@@ -89,15 +89,7 @@ class ProjectFileManagerDateAndSize extends Command
                             //     'new_size' => $new_size]
                             //  ]);
 
-                           
-                        }
-                        
-                        $both_size = ($old_size + $increase_size);
-
-                        if($new_size >= $both_size)
-                        {
-                            if ($old_size != $new_size) {
-                                $param = [
+                                    $param = [
                                     'project_id' => $id,
                                     'name' => $name,
                                     'old_size' => $old_size . 'MB',
@@ -105,13 +97,21 @@ class ProjectFileManagerDateAndSize extends Command
                                 ];
 
                                 ProjectFileManagerHistory::create($param);
-                            }
+                            
+                        }
+                        
+                        $both_size = ($old_size + $increase_size);
+
+                        if($new_size >= $both_size)
+                        {
+                            
                             $message =  'Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
                             
                             $users = User::get();
                             foreach($users as $user){
                                 if($user->isAdmin()){
                                     app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number,$message );
+                                    $this->info('message successfully send');
                                 }
                             }
 
@@ -121,7 +121,6 @@ class ProjectFileManagerDateAndSize extends Command
                                                    
                         }
                     }
-                     $this->info('message successfully send');
                 }else{
                     if (file_exists($path)) {
                         $old_size = $val->size;
@@ -143,12 +142,7 @@ class ProjectFileManagerDateAndSize extends Command
                         if ($old_size != $new_size) {
                             $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
                             // dd($updatesize,22);
-                        }
-
-                        $both_size = ($old_size + $increase_size);
-
-                        if ($new_size > $both_size) {
-                            if ($old_size != $new_size) {
+                          
                                 $param = [
                                     'project_id' => $id,
                                     'name' => $name,
@@ -157,13 +151,21 @@ class ProjectFileManagerDateAndSize extends Command
                                  ];
                             
                                 ProjectFileManagerHistory::create($param);
-                            }
+                            
+                        }
+
+                        $both_size = ($old_size + $increase_size);
+
+                        
+                        if ($new_size > $both_size) {
+                            
                             $message =  'Path = ' . $name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
                             
                             $users = User::get();
                             foreach ($users as $user) {
                                 if ($user->isAdmin()) {
                                     app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number, $message);
+                                    $this->info('message successfully send');
                                 }
                             }
                             $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);
@@ -171,7 +173,7 @@ class ProjectFileManagerDateAndSize extends Command
                             $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
                         }
                     
-                        $this->info('message successfully send');
+                        
                         
                         
                         if(is_numeric($new_size)) {

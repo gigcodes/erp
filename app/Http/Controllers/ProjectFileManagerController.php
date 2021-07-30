@@ -8,6 +8,7 @@ use DB;
 use App\User;
 use App\ProjectFileManagerHistory;
 use App\Setting;
+use Carbon\Carbon;
 
 class ProjectFileManagerController extends Controller
 {
@@ -205,22 +206,24 @@ class ProjectFileManagerController extends Controller
 
 			$fileManager->size  = $new_size;
 			$fileManager->save();
-			
+
+            if ($old_size != $new_size) {
+                $param = [
+                'project_id' => $id,
+                'name' => $fileManager->name,
+                'old_size' => $old_size . 'MB',
+                'new_size' => $new_size . 'MB',
+                'user_id' => \Auth::user()->id
+            ];
+                      
+                ProjectFileManagerHistory::create($param);
+            }
+
 			$both_size = ($old_size + $increase_size);
 			
 			if($new_size >= $both_size)
 			{
-                    $param = [
-                    'project_id' => $id,
-                    'name' => $fileManager->name,
-                    'old_size' => $old_size . 'MB',
-                    'new_size' => $new_size . 'MB',
-                    'user_id' => \Auth::user()->id
-                ];
-				
-                
-                    ProjectFileManagerHistory::create($param);
-                
+                                   
 				$message =  'Path = ' . $fileManager->name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
 				
 				$users = User::get();
@@ -246,14 +249,22 @@ class ProjectFileManagerController extends Controller
 		$users = User::get();
        $id = $request->id;
 	   
-        $size_log = ProjectFileManagerHistory::Leftjoin('users','users.id','project_file_managers_history.user_id')->where('project_id', $id)->select('project_file_managers_history.*','users.name')->get();
+	   $past_date = date('Y-m-d', strtotime('-7 days'));
 
+	//    dd($past_date);
+
+        $size_log = ProjectFileManagerHistory::Leftjoin('users','users.id','project_file_managers_history.user_id')
+		->where('project_id', $id)
+		// ->whereBetween('created_at', [Carbon::now()->subDays(7), Carbon::now()])
+		->whereDate('project_file_managers_history.created_at', '>=', $past_date)
+		->select('project_file_managers_history.*','users.name')->get();
+// dd($size_log);
         if($size_log) {
             return $size_log;
         }
         return 'error';
     }
-
+	
 
 	public function deleteFile(Request $request)
 	{

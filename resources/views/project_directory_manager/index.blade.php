@@ -239,7 +239,7 @@ $(document).on("click", ".Size_log", function(e) {
                         '<tr>\
                             <td>'+ ((item['old_size']) ? item['old_size'] : '-') +'</td>\
                             <td>'+item['new_size']+'</td>\<td>'+((item['name']) ? item['name'] : '-')+'</td>\
-                            <td>'+ moment(item['updated_at']).format('DD/MM/YYYY') +'</td>\
+                            <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                         </tr>'
                     );
                 });
