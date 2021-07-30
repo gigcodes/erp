@@ -1521,10 +1521,12 @@ class ProductInventoryController extends Controller
 				// $filename_array = explode("." ,$ogfilename);
 				$fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
 				
-				$params['excel_name'] = $fileName;
-                $params['user_id'] =\Auth::user()->id;
+				    $params_file['excel_name'] = $fileName;
+                    $params_file['user_id'] =\Auth::user()->id;
+                
+                  
+               
 				
-                $excel_log = product_discount_excel_file::create($params);	
 // 20148 ending
 		 		$spreadsheet = $reader->load($file->getPathname()); 
 
@@ -1584,7 +1586,6 @@ class ProductInventoryController extends Controller
 
 						if($exist_row->condition_from_retail_exceptions != $row[5]){
 							$updaterow5 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->where('condition_from_retail', $row[4])->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $row[5]]);
-
 							
 							$params['supplier_brand_discounts_id'] = $exist_row->id;
 							$params['header_name']  = 'condition_from_retail_exceptions';
@@ -1631,7 +1632,7 @@ class ProductInventoryController extends Controller
 				}  
 
 			$file->move(public_path('product_discount_file'), $fileName);
-				
+			$excel_log = product_discount_excel_file::create($params_file);
 			return redirect()->back()->with('success', 'Excel Imported Successfully!');
 
 			}
@@ -1639,15 +1640,17 @@ class ProductInventoryController extends Controller
 			if($rows[0][1] == 'SS21' || $rows[0][1] == 'FW21' || $rows[0][1] == 'FW20'){
 			
 				$array1 = $array2 = []; $first_time1 = 1;
+				$first_row = $rows[0][1];
 				foreach($rows as $key => $row){
+				
 
 					if($row[1] == 'SS21' || $row[1] == 'FW21' || $row[1] == 'FW20' || $row[1] == 'ST' || $key == 2 ) continue;
 
 					$row_1 = (isset($row[1]) &&  $row[1] != null ? $row[1] : '-');
-					$row_2 = (isset($row[1]) &&  $row[2] != null ? $row[1] : '-');
+					$row_2 = (isset($row[2]) &&  $row[2] != null ? $row[2] : '-');
 
-					$row_4 = (isset($row[1]) &&  $row[4] != null ? $row[1] : '-');
-					$row_5 = (isset($row[1]) &&  $row[5] != null ? $row[1] : '-');
+					$row_4 = (isset($row[4]) &&  $row[4] != null ? $row[4] : '-');
+					$row_5 = (isset($row[5]) &&  $row[5] != null ? $row[5] : '-');
 
 					$array1[] = [$row_1, $row_2];
 					$array2[] = [$row_4, $row_5];
@@ -1655,6 +1658,7 @@ class ProductInventoryController extends Controller
 					// $array2[] = [$row[4], $row[5]];
 					
 				}
+				// dd($array1,$array2);
 				$categories = [];
 				$cat = [];
 				foreach($array1 as $key => $row){
@@ -1699,8 +1703,15 @@ class ProductInventoryController extends Controller
 							continue;
 						}else if($key == 2) {
 							$gen_price = $cat[0];
-							$generic_price = trim(str_replace('GENERIC PRICE: COST +', '', $gen_price));
-							$generic_price = trim(str_replace('GENERIC PRICE: COST+', '', $generic_price));
+							if($first_row == 'SS21')
+							{
+								$generic_price = trim(str_replace('GENERIC PRICE: COST', '', $gen_price));
+								$generic_price = str_replace('+', '', $generic_price);
+							}else{
+								$generic_price = trim(str_replace('GENERIC PRICE: COST +', '', $gen_price));
+								$generic_price = trim(str_replace('GENERIC PRICE: COST+', '', $generic_price));
+							}
+														
 							continue;
 						}else if($key == 3 || $key == 0){
 							continue;
@@ -1813,7 +1824,7 @@ class ProductInventoryController extends Controller
 				}
 
 				$file->move(public_path('product_discount_file'), $fileName);
-				
+				$excel_log = product_discount_excel_file::create($params_file);
 				return redirect()->back()->with('success', 'Excel Imported Successfully!');
 
 			}
