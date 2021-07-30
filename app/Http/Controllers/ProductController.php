@@ -263,9 +263,9 @@ class ProductController extends Controller
         if (trim($term) != '') {
 
             $newProducts->where(function ($query) use ($term) {
-                $query->where('short_description', 'LIKE', "%" . $term . "%")
-                    ->orWhere('color', 'LIKE', "%" . $term . "%")
-                    ->orWhere('name', 'LIKE', "%" . $term . "%")
+                $query->where('products.short_description', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.color', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.name', 'LIKE', "%" . $term . "%")
                     ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
                     ->orWhere('products.id', 'LIKE', "%" . $term . "%")
                     ->orWhereHas('brands', function($q) use($term){
@@ -350,6 +350,12 @@ class ProductController extends Controller
             }
         }
 //here
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+
         if($request->ajax()) {
 
             // view path for images
@@ -375,7 +381,8 @@ class ProductController extends Controller
                 'category_array' => $category_array,
                 'selected_categories' => $selected_categories,
                 'store_websites' => StoreWebsite::all(),
-                'type' => $pageType
+                'type' => $pageType,
+                'auto_push_product' => $auto_push_product
             ]);
         }
 
@@ -638,6 +645,11 @@ class ProductController extends Controller
         }
         //echo'<pre>'.print_r($cropped,true).'</pre>'; exit;
 //here
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
         if($request->ajax()) {
             return view('products.final_listing_ajax', [
                 'products' => $newProducts,
@@ -660,6 +672,7 @@ class ProductController extends Controller
                 'category_array' => $category_array,
                 'selected_categories' => $selected_categories,
                 'store_websites' => StoreWebsite::all(),
+                'auto_push_product' => $auto_push_product
             ]);
         }
 
@@ -687,6 +700,7 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
+            'auto_push_product' => $auto_push_product
             //'store_website_count' => StoreWebsite::count(),
         ]);
 
@@ -4348,7 +4362,7 @@ class ProductController extends Controller
         return response()->json(["code" => 200, "data" => $settings, "message" => "Status changed"]);
     }
 
-    public function pushProduct()
+    public function pushProduct(Request $request)
     {
 
         /*$webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
@@ -4359,10 +4373,12 @@ class ProductController extends Controller
 
         $brandIds = array_unique($webData->pluck('brandId')->toArray());
         $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
-        
+        $limit =  $request->get("no_of_product",100);
+
+
         $products = Product::select('*')->where("short_description", "!=", "")->where("name", "!=", "")->where("status_id", StatusHelper::$finalApproval)
         ->groupBy("brand", "category")
-        ->limit(100)
+        ->limit($limit)
         ->get();
 
         foreach ($products as $key => $product) {

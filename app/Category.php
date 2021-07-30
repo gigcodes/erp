@@ -1000,5 +1000,104 @@ class Category extends Model
         return false;
     }
 
+
+    public function getSizeChart($websiteId = 0)
+    {
+        $sizeCharts = null;
+        return null;
+        if($this->id == 5) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-men-shoes-size-chart.jpg"; 
+           }
+        }
+
+        if($this->id == 41) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-women-shoes-size-chart.jpg"; 
+           }
+        }
+
+        if($this->id == 40) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-womenswear-size-chart.jpg"; 
+           }
+        }
+
+        if($this->id == 12) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-menswear-size-chart.jpg"; 
+           }
+
+        }
+
+        if($this->id == 180) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-kids-size-chart.jpg"; 
+           }
+        }
+
+        return $sizeCharts;
+    }
+
 }
  

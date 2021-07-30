@@ -31,6 +31,10 @@
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
+								    <label for="keyword">Website Name:</label>
+								    <?php echo Form::select("website_store",["" => "-- select website --"] + $websites,request('website_store'), ["class" => "form-control"]); ?>
+							  	</div>
+					  			<div class="form-group">
 								    <label for="keyword">Website Store:</label>
 								    <?php echo Form::select("website_store_id",["" => "-- select website --"] + $websiteStores,request('website_store_id'), ["class" => "form-control"]); ?>
 							  	</div>
@@ -104,7 +108,8 @@
  
 	$(document).on("click",".btn-create-group",function(e) {
  
-		$('.modal-body #name').val($(this).closest('tr').children('.name_div').text() + '_' + $(this).closest('tr').children('.code_div').text());
+		let code = $(this).closest('tr').children('.code_div').text() == '1' ? '1' : $(this).closest('tr').children('.code_div').text().split('-')[1];
+		$('.modal-body #name').val($(this).closest('tr').children('.name_div').text().trim() + '_' + code);
 		let html_groups = `<div class="form-group col-md-12 group"><select name="group" class="form-control select-2"><option value="">Choose Theme</option>`;
 		for(let i=0; i<groups.responseData.length; i++){
 			html_groups += `<option value="${groups.responseData[i].id}">${groups.responseData[i].name}</option>`;

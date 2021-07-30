@@ -1373,3 +1373,35 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=w
     "code": 404
 }
 ```
+
+
+## Store screenshot
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/product-live-status
+{
+    "website" : "https://sololuxury.com",
+    "sku" : "2EG286W08F0C6D",
+    "message" : "Success",
+    "image" : ""
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "Request has been stored successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

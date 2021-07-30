@@ -12,9 +12,12 @@ class StoreMagentoApiSearchProduct extends Model
         'website' ,
         'sku' ,
         'size' ,
+        'category_names' ,
         'brands' ,
         'dimensions' ,
         'composition' ,
+        'size_chart_url' ,
+        'images' ,
         'english',
         'arabic',
         'german',
@@ -25,5 +28,6 @@ class StoreMagentoApiSearchProduct extends Model
         'korean',
         'russian',
         'chinese',
+        'status',
     ];
 }

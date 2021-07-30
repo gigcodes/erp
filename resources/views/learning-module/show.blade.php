@@ -87,7 +87,7 @@
                         <div class="form-group cls_learning_user">
                                 <!-- <strong>User :</strong> -->
                                 <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_user" data-placeholder="Choose a User" id="learning_user" required>
-                                   <option id="{{ $last_record_learning->learningUser->id }}" selected="selected">{{ $last_record_learning->learningUser->name }}</option>
+                                   <option id="{{ ($last_record_learning->learningUser) ? $last_record_learning->learningUser->id : '' }}" selected="selected">{{ ($last_record_learning->learningUser) ? $last_record_learning->learningUser->name : '' }}</option>
 
                                 {{-- @foreach ($quick_users_array as $index => $user)
                                 <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
@@ -101,7 +101,7 @@
                                 <!-- <strong>Provider :</strong> -->
                                 <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_vendor" data-placeholder="Choose a Provider" id="learning_vendor" required>
                                 
-                                <option id="{{ $last_record_learning->learningVendor->id }}" selected="selected">{{ $last_record_learning->learningVendor->name }}</option>
+                                <option id="{{ ($last_record_learning->learningVendor) ? $last_record_learning->learningVendor->id : '' }}" selected="selected">{{ ($last_record_learning->learningVendor) ? $last_record_learning->learningVendor->name : '' }}</option>
 
 
                                 {{-- @foreach ($quick_users_array as $index => $user)

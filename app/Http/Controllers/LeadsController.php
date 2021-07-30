@@ -586,6 +586,12 @@ class LeadsController extends Controller
         if($request->lead_id){
             $params['lead_id']= $request->lead_id;
         }
+        $isQueue = false;
+        if($request->is_queue > 0) {
+          $isQueue = true;
+          $params['is_queue']= 1;
+        }
+
         $customer = Customer::find($request->customer_id);
         //$lead = Customer::find($request->lead_id);
         $product_names = '';
@@ -647,25 +653,31 @@ class LeadsController extends Controller
                     }
                     // send message now
                     // uncomment this one to send message immidiatly
-                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
+                    if(!$isQueue) {
+                        app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
+                    }
                 }
             }
 
-            $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-            \Log::channel('customer')->info("Send price started : " . $chat_message->id);
+            if(!$isQueue) {
+                $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+                \Log::channel('customer')->info("Send price started : " . $chat_message->id);
 
-            if ($autoApprove && !empty($chat_message->id)) {
-                // send request if auto approve
-                $approveRequest = new Request();
-                $approveRequest->setMethod('GET');
-                $approveRequest->request->add(['messageId' => $chat_message->id]);
+                if ($autoApprove && !empty($chat_message->id)) {
+                    // send request if auto approve
+                    $approveRequest = new Request();
+                    $approveRequest->setMethod('GET');
+                    $approveRequest->request->add(['messageId' => $chat_message->id]);
 
-                app(WhatsAppController::class)->approveMessage("customer", $approveRequest);
+                    app(WhatsAppController::class)->approveMessage("customer", $approveRequest);
+                }
             }
         }
 
         if ($request->has('dimension') || $request->has('detailed')) {
-            app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+            if(!$isQueue) {
+                app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+            }
         }
 
 

@@ -567,6 +567,26 @@
 
         </div>
     </div>
+
+
+    <div id="logMessageModelTask" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Task Heading</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="task-head" style="word-break: break-word;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
     @include('common.commonEmailModal')
     @include("usermanagement::templates.list-template")
     @include("usermanagement::templates.create-solution-template")

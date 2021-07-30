@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use \Plank\Mediable\Media;
 use App\Helpers\CompareImagesHelper;
+use Illuminate\Support\Facades\DB;
+
 
 class MediaObserver
 {
@@ -11,7 +13,9 @@ class MediaObserver
     { 
         $this->updateBits($media);
 
-        if($media->aggregate_type == "image"){
+
+        $mediable = DB::table('mediables')->where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+        if($media->aggregate_type == "image" && $mediable){
             $m_url = $media->getAbsolutePath();
             $file=@file_get_contents($m_url);
 
@@ -36,7 +40,6 @@ class MediaObserver
                 $thumbnail_height= ($original_height/$original_width) * $thumbnail_width;
                 $is_thumbnail_made = resizeCropImage($thumbnail_width,$thumbnail_height,$m_url,$thumb_file_path,80);
 
-                \Log::channel('product-thumbnail')->info("['media_id'=>{$media->id},'thumbnail_path'=>${thumb_file_path}]");
 
                 if($is_thumbnail_made){
                     $media->is_processed =1;

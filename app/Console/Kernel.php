@@ -142,6 +142,7 @@ use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\UpdateProductInformationFromCsv;
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -280,7 +281,8 @@ class Kernel extends ConsoleKernel
         StoreChatMessagesToAutoCompleteMessages::class,
         RemoveScrapperImages::class,
         ChangeTesterBasedOnTeamLead::class,
-        AddGroupTheme::class
+        AddGroupTheme::class,
+        UpdateProductInformationFromCsv::class
     ];
 
     /**
@@ -589,6 +591,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ScrapApi:LogCommand')->hourly();
         $schedule->command('HubstuffActivity:Command')->daily();
+        $schedule->command('Magento-Product:Api')->cron('0 */3 * * *');
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
@@ -629,6 +632,9 @@ class Kernel extends ConsoleKernel
 
         //Instagram automation command
         $schedule->command('InstaAutoFeedDaily')->daily();
+        //cron for updating data from csv
+        $schedule->command('update-product:from-csv')->daily();	
+
     }
 
     /**

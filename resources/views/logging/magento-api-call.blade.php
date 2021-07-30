@@ -43,25 +43,46 @@
   <div class="row m-0" style="margin-bottom: 10px; margin: 10px">
     <div class="col-lg-12 margin-tb">
        <input type="text" placeholder="Enter the limit of product" name="product_limit" class="form-control col-md-4 product-limit-text">
-       <input type="text" placeholder="Enter the limit of product" name="product_name" class="form-control col-md-4 product-name-text ml-3">
+       <input type="text" placeholder="Search Here" name="product_name" class="form-control col-md-4 product-name-text ml-3">
        <button class="btn btn-secondary check-latest-product ml-2">Check latest product</button>
        <div class="pull-right">
         <div class="dropdown">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Delete
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <li class="dropdown-item delete_api_search_history" value="1">Last Day</li>
-            <li class="dropdown-item delete_api_search_history" value="2">Last 2 Day</li>
-            <li class="dropdown-item delete_api_search_history" value="7">Last Week</li>
-            <li class="dropdown-item delete_api_search_history" value="30">Last Month</li>
-            <li class="dropdown-item delete_api_search_history" value="100">All</li>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="left: auto !important;right: 0 !important;">
+            <li class="dropdown-item delete_api_search_history" value="60">Last Hours</li>
+            <li class="dropdown-item delete_api_search_history" value="1">Last 24 Hours</li>
+            <li class="dropdown-item delete_api_search_history" value="7">Last 7 Days</li>
+            <li class="dropdown-item delete_api_search_history" value="30">Last 4 Weeks</li>
+            <li class="dropdown-item delete_api_search_history" value="100">All Time</li>
           </div>
         </div>
        </div>
     </div>
     
   </div>
+  <!--More Product Data Modal-->
+  <div id="more-website-data-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h4 class="modal-title">Product Name</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="word-wrap: break-word;"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+  
   <div class="row m-0 pt-3">
     <div class="col-md-12">
       {{-- <div class="panel panel-default"> --}}
@@ -73,13 +94,13 @@
                 <th>Website</th>
                 <th>Product SKU</th>
                 <th>Product Name</th>
-                {{-- <th>Category assigned</th> --}}
+                <th>Category assigned</th>
                 <th>Size Pushed</th>
                 <th>Brand Pushed</th>
-                {{-- <th>Size Chart Pushed</th> --}}
+                <th>Size Chart Pushed</th>
                 <th>Dimensions Pushed</th>
                 <th>Composition Pushed</th>
-                {{-- <th>Images Pushed</th> --}}
+                <th>Images Pushed</th>
                 <th>English</th>
                 <th>Arabic</ th>
                 <th>German</th>
@@ -90,20 +111,27 @@
                 <th>Korean</th>
                 <th>Russian</th>
                 <th>Chinese</th>
-                {{-- <th>Status</th> --}}
+                <th>Status</th>
                 <th>Action</th>
               </thead>
-              <tbody class="magento_api_search_data" style="@if( !request()->get('limit') ) {{ "display:none" }} @endif">
+              <tbody class="magento_api_search_data">
                 @foreach ($data as $key => $val)
                     <tr data-id="{{ $val->id }}">
                       <td>{{ ++$key }}</td>
                       <td>{{ $val->website_id }}</td>
                       <td>{{ $val->sku }}</td>
-                      <td>{{ $val->website }}</td>
+                      <td data-website="{{ $val->website}}" class="website-data-popup">{{ strlen($val->website) > 150 ? substr($val->website,0, 150)."..." : $val->website }}</td>
+                      <td>{{ $val->category_names }}</td>
                       <td>{{ $val->size }}</td>
                       <td>{{ $val->brands }}</td>
+                      <td>{{ $val->size_chart_url }}</td>
                       <td>{{ $val->dimensions }}</td>
                       <td>{{ $val->composition }}</td>
+                      <td>
+                        @if ($val->images)
+                          <img src="{{ $val->images}}" style="height:100px;">
+                        @endif
+                      </td>
                       <td>{{ $val->english }}</td>
                       <td>{{ $val->arabic }}</td>
                       <td>{{ $val->german }}</td>
@@ -114,21 +142,21 @@
                       <td>{{ $val->korean }}</td>
                       <td>{{ $val->russian }}</td>
                       <td>{{ $val->chinese }}</td>
+                      <td>{{ $val->status }}</td>
                       <td><button class="btn btn-image delete_api_search_history" data-id="{{ $val->id }}"><i class="fa fa-trash"></i></button></td>
                     </tr>
                 @endforeach
               </tbody>
             </table>
-            <div class="magento_api_search_data" style="display:none">
-              @if( !request()->get('limit') )
-                  <tr>{{ $data->links() }}</tr>
-              @endif
-            </div>
             {{-- <div class="text-center">
             </div> --}}
           </div>
+          <tr>{{ $data->links() }}</tr>
         {{-- </div> --}}
       {{-- </div> --}}
+      @if ($data->count() === 0)
+        <div class="text-center"><span class=""><h2 style="color:gray;">No Data Found </h2></span></div>
+      @endif
     </div>
   </div>
   <div class="ajax-loader" style="display:none;margin-left:50%;">
@@ -154,51 +182,18 @@
           success: function(response){
             if (response.status == true) {
               $this.closest('tr').remove();
+              toastr.success('Data Deleted Successfully')
             }
             if (response.code == 200) {
-              location.reload();
+              toastr.success(response.message)
+              setTimeout(function(){
+                location.reload();
+              }, 1000);
+
             }
           }
         });
       });
-      $(document).ready(function() {
-        // window.location.href = window.location.href.split('?')[0];
-        var data = JSON.parse(localStorage.getItem('luxury-product-data-asin'));
-        $.ajax({
-          method: "POST",
-          url: "/logging/magento-product-skus-ajax/",
-          data: {
-            "_token": "{{ csrf_token() }}",
-            productSkus:JSON.stringify(data)
-          },
-          beforeSend: function(){
-            $('.ajax-loader').show();
-          },
-          success: function(response){
-            $('.ajax-loader').hide();
-            $('.magento_api_search_data').show();
-            
-          }
-        })
-      });
-      // $(document).on('click','.filter-product',function(){
-      //   let limit = $(".product-limit-text").val();
-      //   let website_name = $(".product-limit-text").val();
-      //   $.ajax({
-      //     method: "POST",
-      //     url: "/logging/magento-product-skus-ajax/",
-      //     data: {
-      //       "_token": "{{ csrf_token() }}",
-      //       limit:limit,
-      //       website_name:website_name,
-      //     },
-      //     success: function(response){
-      //       if (response.status == true) {
-      //         //
-      //       }
-      //     }
-      //   });
-      // })
     // if (localStorage.getItem("luxury-product-data-asin") !== null) {
     //   var data = JSON.parse(localStorage.getItem('luxury-product-data-asin'));
     //   var example = $("#magento_list_tbl_895").DataTable({
@@ -339,28 +334,35 @@
      $(document).on("click",".check-latest-product",function() {
         let limit = $(".product-limit-text").val();
         let website_name = $(".product-name-text").val();
-        if(limit == '') {
-           alert("Please select limit");
-           return false;
-        }
 
         $.ajax({
           method: "GET",
           url: "/logging/get-latest-product-for-push",
           data: {
-            "limit": limit
+            "limit": limit,
+            "website_name": website_name
           },
-          dataType: 'json'
+          // dataType: 'json'
         })
         .done(function(result) {
-          if(result.code == 200){ 
-            localStorage.setItem('luxury-product-data-asin', JSON.stringify(result.products));
-          }
-          window.location.href = `?limit=${limit}&website_name=${website_name}`;
+          $('.pagination').hide();
+          $('.magento_api_search_data').html(result);
+          // if(result.code == 200){ 
+          //   localStorage.setItem('luxury-product-data-asin', JSON.stringify(result.products));
+          // }
+          // window.location.href = `?limit=${limit}&website_name=${website_name}`;
         });
 
     });
 
+    $(document).on('click','.website-data-popup',function(){
+      var website_data = $(this).data('website');
+      if (website_data.length <= 150) {
+        return
+      }
+      $('#more-website-data-modal').modal('show');
+      $('#more-website-data-modal').find('p').text(website_data);
+    })
     </script>
     @if (Session::has('errors'))
       <script>

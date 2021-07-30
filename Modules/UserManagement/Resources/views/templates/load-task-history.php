@@ -1,3 +1,8 @@
+<style>
+    table{
+        font-size: 14px;
+    }
+</style>
 <script type="text/x-jsrender" id="template-task-history">
 <form name="template-create-goal1" method="post"> 
 		<div class="modal-content tasks_list_tbl" style=" width: 150%; margin-left: -23%; ">
@@ -42,18 +47,55 @@
 		    <tbody>
 				{{props taskList}}
 			      <tr>
-			      	<td>
-					  {{if prop.type == 'TASK'}}
-					  #TASK-{{:prop.task_id}} => {{:prop.subject}}
-					  {{else}}
-					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
-					  {{/if}}
-                      {{if prop.has_flag == 1}}
-                          <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
-                      {{else}}
-                            <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
-                      {{/if}}
-					  </td>
+			      	{{if prop.subject.length > 20}}
+                         {{if prop.type == 'TASK'}}
+                                <td class="taskk" data-log_message=" #TASK-{{:prop.task_id}} => {{:prop.subject}}">
+                                   #TASK-{{:prop.task_id}} => {{:prop.subject.substr(0, 20)}} ...
+                                   {{if prop.has_flag == 1}}
+                                      <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
+                                  {{else}}
+                                        <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
+                                  {{/if}}
+                              </td>
+
+                         {{else}}
+
+                             <td class="taskk" data-log_message=" #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}">
+                               #DEVTASK-{{:prop.task_id}} => {{:prop.subject.substr(0, 20)}}...
+                                  {{if prop.has_flag == 1}}
+                                      <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
+                                  {{else}}
+                                        <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
+                                  {{/if}}
+                            </td>
+                         {{/if}}
+
+					{{else}}
+					       <td>
+							    {{if prop.type == 'TASK'}}
+                                   #TASK-{{:prop.task_id}} => {{:prop.subject}}
+                                {{else}}
+                                   #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
+                                {{/if}}
+                                  {{if prop.has_flag == 1}}
+                                      <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
+                                  {{else}}
+                                        <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
+                                  {{/if}}
+                              </td>
+						{{/if}}
+
+
+
+
+
+<!--					  {{if prop.type == 'TASK'}}-->
+<!--					  #TASK-{{:prop.task_id}} => {{:prop.subject}}-->
+<!--					  {{else}}-->
+<!--					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}-->
+<!--					  {{/if}}-->
+
+
                     <td>
                         <select class="form-control data-status" data-type="{{:prop.type}}" data-status="{{:prop.status_falg}}" 
                         onchange="resolveIssue(this,{{:prop.task_id}})">
@@ -65,9 +107,9 @@
 <!--                        {{:prop.status_falg}}-->
                     </td>
 					<td> 
-						{{if prop.details.length > 100}}
+						{{if prop.details.length > 50}}
 							<div class="description">
-								{{:prop.details.substr(0, 100)}}...
+								{{:prop.details.substr(0, 50)}}...
 							</div>
 						{{else}}
 							{{:prop.details}}
@@ -82,13 +124,13 @@
 
 							<div class='input-group estimate_minutes'>
 
-<!--                                <input style="min-width: 30px;margin-right: 3px;" type="text" data-id="{{:prop.task_id}}" data-type="{{:prop.type}}" class="form-control priority-no-field-change input-sm" name="priority_no" placeholder="Priority no" value="{{:prop.priority_no}}">-->
+<!--                                <input style="min-width: 30px;margin-right: 3px;border-radius:4px" type="text" data-id="{{:prop.task_id}}" data-type="{{:prop.type}}" class="form-control priority-no-field-change input-sm" name="priority_no" placeholder="Priority no" value="{{:prop.priority_no}}">-->
 
-								<input style="min-width: 30px;padding: 5px 10px;font-size: 12px;height: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
+								<input style="min-width: 30px;border-radius:4px;padding: 5px 10px;font-size: 12px;height: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
 
-								<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{:prop.task_id}}" data-type={{:prop.type}}><i class="fa fa-info-circle"></i></button>
+								<button style="float:right;padding-right:0px;margin-left:5px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{:prop.task_id}}" data-type={{:prop.type}}><i class="fa fa-info-circle"></i></button>
 							
-									<input style="width: 135px;margin-left: 10px;" type="text" class="form-control input-sm due_date_cls" name="due_date" data-type={{:prop.type}} value="{{:prop.due_date}}"/>
+									<input style="width: 120px;margin-left: 5px;border-radius:4px" type="text" class="form-control input-sm due_date_cls" name="due_date" data-type={{:prop.type}} value="{{:prop.due_date}}"/>
 								
                             <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{:prop.task_id}}" style="padding:0px;"><img style="padding: 0;margin-left: 5px;" src="/images/filled-sent.png"/></button>
                             </div>
@@ -99,7 +141,7 @@
 					  <div class="row">
 					    <div class="col-md-9 pr-0">
 					    	<!-- input style="width: 105px;float: left;" type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" -->
-                        <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{:prop.task_id}}" name="message" placeholder="Message" value="">
+                        <input type="text" style="width: 100%;border-radius:4px" class="form-control quick-message-field input-sm" id="getMsg{{:prop.task_id}}" name="message" placeholder="Message" value="">
                           <!-- <div class="d-flex" style="float:right;"> -->
 					    </div>
 					    <div class="col-md-3 pl-1">
@@ -234,5 +276,12 @@ $(document).on('click','.load-time-modals',function(e){
         $(document).on('click','.description',function(){
             $('#logMessageModel').modal('show');
             $('#logMessageModel p').text($(this).next().html());
+        })
+
+
+
+        $(document).on('click','.taskk',function(){
+            $('#logMessageModelTask').modal('show');
+            $('#logMessageModelTask p').text($(this).data('log_message'));
         })
     </script>

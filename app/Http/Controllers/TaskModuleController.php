@@ -36,13 +36,21 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
+use App\UserRate;
+use Exception;
+use Response;
 
 class TaskModuleController extends Controller {
 
 	use hubstaffTrait;
+	private $githubClient;
 
 	public function __construct() {
 		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->githubClient = new Client([
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
+        ]);
 		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
@@ -2089,9 +2097,29 @@ class TaskModuleController extends Controller {
 			$created = 1;
 			$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
 			$assignedUserId = $task->assigned_to;
+
+			$newBranchName = null;
+			if(!empty($request->get('repository_id')) && $request->get('repository_id') > 0) {
+				$newBranchName = $this->createBranchOnGithub(
+			        $request->get('repository_id'),
+			        $task->id,
+			        $task->subject
+			    );
+			    if ($newBranchName) {
+			        $task->github_branch_name = $newBranchName;
+			        $task->save();
+			    }
+			}
+
+		    if (is_string($newBranchName) && !empty($newBranchName)) {
+		        $message = $request->get("task_detail") . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+		    } else {
+		        $message = $request->get("task_detail");
+		    }
+
 			$requestData = new Request();
 	        $requestData->setMethod('POST');
-	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
+	        $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 		}else {
 			if ($request->task_type == 'quick_task') {
@@ -2854,8 +2882,9 @@ class TaskModuleController extends Controller {
 						}
                         $rate_estimated = $task->cost ?? 0;
                     }else if($task_user_for_payment->fixed_price_user_or_job == 2){
-						if($task_user_for_payment->hourly_rate){
-							$rate_estimated = $task->approximate * ($task_user_for_payment->hourly_rate ?? 0) / 60;
+						$userRate = UserRate::getRateForUser($task_user_for_payment->id);
+						if($userRate && $userRate->hourly_rate !== null){
+							$rate_estimated = $task->approximate * ($userRate->hourly_rate ?? 0) / 60;
 						}else{
 							return response()->json([
 								'message'	=> 'Please provide hourly rate of user.'
@@ -2953,6 +2982,47 @@ class TaskModuleController extends Controller {
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+
+  /**
+     * return branch name or false
+     */
+    private function createBranchOnGithub($repositoryId, $taskId, $taskTitle,  $branchName = 'master')
+    {
+        $newBranchName = 'DEVTASK-' . $taskId;
+
+        // get the master branch SHA
+        // https://api.github.com/repositories/:repoId/branches/master
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
+        try {
+            $response = $this->githubClient->get($url);
+            $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
+        } catch (Exception $e) {
+            return false;
+        }
+
+        // create a branch
+        // https://api.github.com/repositories/:repo/git/refs
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
+        try {
+            $this->githubClient->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        "ref" => "refs/heads/" . $newBranchName,
+                        "sha" => $masterSha
+                    ])
+                ]
+            );
+            return $newBranchName;
+        } catch (Exception $e) {
+
+            if ($e instanceof ClientException && $e->getResponse()->getStatusCode() == 422) {
+                // branch already exists
+                return $newBranchName;
+            }
+            return false;
+        }
+    }
 
    
 }

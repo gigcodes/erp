@@ -140,6 +140,7 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
+Route::post('product-live-status','Logging\LogListMagentoController@updateLiveProductCheck');
 
 Route::post('node/restart-script','ScrapController@restartNode');
 

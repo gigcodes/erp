@@ -181,11 +181,21 @@ class MagentoProductPushErrors extends Controller
     public function groupErrorMessageReport(Request $request)
     {
         $records = ProductPushErrorLog::where('response_status','error')
-            ->whereDate('created_at',Carbon::now()->format('Y-m-d'))
             ->latest('count')
             ->groupBy('message')
-            ->select(\DB::raw('*,COUNT(message) AS count'))
-            ->get();
+            ->select(\DB::raw('*,COUNT(message) AS count'));
+
+            if(isset($request->startDate) && isset($request->endDate)){
+
+                $records->whereDate('created_at','>=',date($request->startDate))
+                ->whereDate('created_at','<=',date($request->endDate));
+
+                // $records->whereBetween('created_at',[$request->startDate,$request->endDate]);
+            }else{
+                $records->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+            }
+
+            $records = $records->get();
 
         $recordsArr = []; 
         foreach($records as $row){

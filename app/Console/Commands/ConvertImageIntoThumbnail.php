@@ -45,7 +45,12 @@ class ConvertImageIntoThumbnail extends Command
     public function handle()
     {
 
-      Media::where('is_processed',0)->where('aggregate_type','image')->orderBy('id')->chunk(1000, function ($medias) {
+
+      Media::where('is_processed',0)
+      ->join('mediables','mediables.media_id','media.id')
+      ->where('mediable_type','App\Product')
+      ->where('aggregate_type','image')->orderBy('id')->chunk(1000, function ($medias) {
+
             foreach ($medias as $key => $media) {
                 try{
                     $m_url = $media->getAbsolutePath();

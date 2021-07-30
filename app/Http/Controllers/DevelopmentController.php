@@ -46,6 +46,7 @@ use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
+use App\UserRate;
 
 class DevelopmentController extends Controller
 {
@@ -2220,13 +2221,26 @@ class DevelopmentController extends Controller
                         $payment_receipt->save();
                     }
                 }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
-                    if($dev_task_user->hourly_rate){
-                        $rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
+                    $userRate = UserRate::getRateForUser($dev_task_user->id);
+                    if($userRate && $userRate->hourly_rate !== null){
+                        if($issue->estimate_minutes){
+                            if($issue->ApprovedDeveloperTaskHistory){
+                                $rate_estimated = ($issue->estimate_minutes) * ($userRate->hourly_rate) / 60;
+                            }else{
+                                return response()->json([
+                                    'message'   => 'Estimated time is not approved.'
+                                ],500);
+                            }
+                        }else{
+                            return response()->json([
+                                'message'   => 'Estimated time is not exist.'
+                            ],500);
+                        }
                     }else{
                         return response()->json([
-                            'message'	=> 'Please provide hourly rate of user.'
+                            'message'   => 'Please provide hourly rate of user.'
                         ],500);
-                    }
+                    }  
                     $payment_receipt = new PaymentReceipt;
                     $payment_receipt->date = date( 'Y-m-d' );
                     $payment_receipt->worked_minutes = $issue->estimate_minutes;

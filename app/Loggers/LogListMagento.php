@@ -59,4 +59,9 @@ class LogListMagento extends Model
     {
         return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
+
+    public function screenshot()
+    {
+        return \App\StoreWebsiteProductScreenshot::where("product_id",$this->product_id)->where("store_website_id",$this->store_website_id)->get();
+    }
 }
