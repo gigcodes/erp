@@ -32,10 +32,12 @@
                                 <select class="form-control select-multiple globalSelect2" id="supplier-selects" tabindex="-1" aria-hidden="true" name="supplier">
                                     <option value="">Search Supplier...</option>
                                     @foreach($suppliers as $supplier)
-                                        @if(isset($request->supplier) && $supplier->id==$request->supplier)
-                                            <option value="{{$supplier->id}}" selected="selected">{{$supplier->supplier}}</option>
-                                        @else
-                                            <option value="{{$supplier->id}}">{{$supplier->supplier}}</option>
+                                        @if(isset($supplier->id))
+                                            @if(isset($request->supplier) && $supplier->id==$request->supplier)
+                                                <option value="{{$supplier->id}}" selected="selected">{{$supplier->supplier}}</option>
+                                            @else
+                                                <option value="{{$supplier->id}}">{{$supplier->supplier}}</option>
+                                            @endif
                                         @endif
                                     @endforeach
                                 </select>
@@ -45,10 +47,12 @@
                                 <select class="form-control select-multiple globalSelect2" id="brand-selects" tabindex="-1" aria-hidden="true" name="brands" >
                                     <option value="">Search Brands...</option>
                                     @foreach ($brand_data as $key=> $row ) 
-                                        @if(isset($request->brands) && $row->brand->id==$request->brands)
-                                            <option value="{{$row->brand->id}}" selected="selected">{{$row->brand->name}}</option>
-                                        @else
-                                            <option value="{{$row->brand->id}}">{{$row->brand->name}}</option>
+                                        @if(isset($row->brand->id))
+                                            @if(isset($request->brands) && $row->brand->id==$request->brands)
+                                                <option value="{{$row->brand->id}}" selected="selected">{{$row->brand->name}}</option>
+                                            @else
+                                                <option value="{{$row->brand->id}}">{{$row->brand->name}}</option>
+                                            @endif
                                         @endif
                                     @endforeach
                                 </select>
@@ -89,9 +93,9 @@
                 <select class="form-control select-multiple" id="supplier-select" tabindex="-1" aria-hidden="true" name="supplier" >
                     <option value="">Select Supplier</option>
                     @foreach($suppliers as $supplier)
-                       
+                        @if(isset($supplier->id))
                             <option value="{{$supplier->id}}">{{$supplier->supplier}}</option>
-                       
+                        @endif
                     @endforeach
                 </select>
             </div>

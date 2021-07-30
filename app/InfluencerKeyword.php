@@ -13,6 +13,8 @@ class InfluencerKeyword extends Model
     protected $fillable = [
         'name',
         'instagram_account_id',
+        'wait_time',
+        'no_of_requets'
     ];
 
     public function next()
