@@ -143,6 +143,7 @@ use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\SendInstagramMessageInQueue;
+use App\Console\Commands\AddRoutesToGroups;
 use App\Console\Commands\UpdateProductInformationFromCsv;
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
@@ -288,9 +289,8 @@ class Kernel extends ConsoleKernel
         AddGroupTheme::class,
         UpdateProductInformationFromCsv::class,
         SendInstagramMessageInQueue::class,
-        ProjectFileManagerDateAndSize::class
-        
-        
+        ProjectFileManagerDateAndSize::class,
+        AddRoutesToGroups::class,
     ];
 
     /**
