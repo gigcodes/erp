@@ -9,6 +9,7 @@ use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class WebsiteStoreViewController extends Controller
 {
@@ -268,6 +269,48 @@ class WebsiteStoreViewController extends Controller
                     $websiteStoreView->ref_theme_group_id = $group_id; 
                     $websiteStoreView->save();
                 }
+                //Create route fo group
+                
+                if(!empty($request->route_url) && !empty($request->route_domain)){
+                    $group_route = DB::table('group_routes')->where('group_id', $store_group_id)->latest()->first();
+                    if($group_route){
+                        $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/update_auto_access';
+                    }else{
+                        $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
+                    }
+                    $domain_values["value"] = $request->route_domain;
+                    $url_values["value"] = $request->route_url;
+                    $postData = [
+                        'id' => $group_route == null ? null : $group_route->route_id,
+                        'description' => $request->name,
+                        'access' => [
+                            'groups' => [$store_group_id]
+                        ],
+                        'conditions' => [
+                            'domain' => [
+                                'values' => [$domain_values]
+                            ],
+                            'url' => [
+                                'values' => [$url_values]
+                            ]
+                        ]
+                    ]; 
+                    $postData = json_encode($postData, true);
+                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $response = json_decode($result['response']);
+                    if(!$group_route){
+                        if (!isset($response->error)) {
+                            DB::table('group_routes')->updateOrInsert([
+                                'group_id' => $store_group_id,
+                            ],[
+                                'group_id' => $store_group_id,
+                                'route_id' => $response->id
+                            ]);
+                        }
+                    }
+                   
+                } 
+
                 return response()->json(['status' => 'success', 'responseData' => $response, 'code' => 200], 200);
             }
         } 
