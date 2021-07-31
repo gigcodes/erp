@@ -142,6 +142,7 @@ use App\Console\Commands\SendDailyPlannerNotification;
 use App\Console\Commands\RemoveScrapperImages;
 use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\SendInstagramMessageInQueue;
 use App\Console\Commands\UpdateProductInformationFromCsv;
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
@@ -286,6 +287,7 @@ class Kernel extends ConsoleKernel
         ChangeTesterBasedOnTeamLead::class,
         AddGroupTheme::class,
         UpdateProductInformationFromCsv::class,
+        SendInstagramMessageInQueue::class,
         ProjectFileManagerDateAndSize::class
         
         
@@ -642,6 +644,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('InstaAutoFeedDaily')->daily();
         //cron for updating data from csv
         $schedule->command('update-product:from-csv')->daily();	
+        $schedule->command('send-instagram-message:in-queue')->everyMinute();	
 
     }
 
