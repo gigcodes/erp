@@ -144,6 +144,9 @@ use App\Console\Commands\ChangeTesterBasedOnTeamLead;
 use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\SendInstagramMessageInQueue;
 use App\Console\Commands\UpdateProductInformationFromCsv;
+
+use App\Console\Commands\ProjectFileManagerDateAndSize;
+
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -284,7 +287,10 @@ class Kernel extends ConsoleKernel
         ChangeTesterBasedOnTeamLead::class,
         AddGroupTheme::class,
         UpdateProductInformationFromCsv::class,
-        SendInstagramMessageInQueue::class
+        SendInstagramMessageInQueue::class,
+        ProjectFileManagerDateAndSize::class
+        
+        
     ];
 
     /**
@@ -295,6 +301,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->command('project:filemanagementdate')->daily();
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
@@ -632,6 +640,8 @@ class Kernel extends ConsoleKernel
         $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
+        //Instagram automation command
+        $schedule->command('InstaAutoFeedDaily')->daily();
         //cron for updating data from csv
         $schedule->command('update-product:from-csv')->daily();	
         $schedule->command('send-instagram-message:in-queue')->everyMinute();	

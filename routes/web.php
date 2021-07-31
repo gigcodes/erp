@@ -870,7 +870,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('project-file-manager/get-latest-size', 'ProjectFileManagerController@getLatestSize')->name('project-file-manager.get-latest-size');
     Route::post('project-file-manager/delete-file', 'ProjectFileManagerController@deleteFile')->name('project-file-manager.delete-file');
     Route::get('project-file-manager', 'ProjectFileManagerController@index')->name('project-file-manager.index');
+    Route::post('project-file-manager/insertsize', 'ProjectFileManagerController@insertsize')->name('project-file-manager.insertsize');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
+    Route::get('size/log_history/discount/', 'ProjectFileManagerController@sizelogHistory')->name('size/log-history/discount');
+     
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
@@ -1477,6 +1480,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Cash Flow Module
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
+    Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
 
@@ -2328,6 +2332,7 @@ Route::middleware('auth')->group(function () {
 
 //Monetary Account Module
 Route::middleware('auth')->group(function () {
+    Route::get('monetary-account/{id}/history', 'MonetaryAccountController@history')->name("monetary-account.history");
     Route::resource('monetary-account', 'MonetaryAccountController');
 });
 
@@ -2514,6 +2519,9 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
     // Whats App Config
     Route::get('instagram-config', 'InstagramConfigController@index')->name('instagram.config.index');
+    Route::get('instagram-keyword/create', 'InstagramConfigController@keywordStore')->name('instagram.keyword.create');
+    Route::get('instagram-keyword/list', 'InstagramConfigController@keywordList')->name('instagram.keyword.list');
+    Route::get('instagram-keyword/delete', 'InstagramConfigController@keyworddelete')->name('instagram.keyword.delete');
     Route::get('instagram-history/{id}', 'InstagramConfigController@history')->name('instagram.config.history');
     Route::post('instagram-config/store', 'InstagramConfigController@store')->name('instagram.config.store');
     Route::post('instagram-config/edit', 'InstagramConfigController@edit')->name('instagram.config.edit');
@@ -2521,6 +2529,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-queue/{id}', 'InstagramConfigController@queue')->name('instagram.config.queue');
     Route::post('instagram-queue/delete', 'InstagramConfigController@destroyQueue')->name('instagram.config.delete_queue');
     Route::post('instagram-queue/delete_all/', 'InstagramConfigController@destroyQueueAll')->name('instagram.config.delete_all');
+    Route::post('instagram-automation', 'AccountController@automation')->name('automation.form.store');
 
     //Social Config
     Route::get('accounts/{type?}', 'AccountController@index')->name('accounts.index');

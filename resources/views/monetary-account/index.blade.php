@@ -27,6 +27,7 @@
                             <thead>
                             <tr>
                                 <th>Sr. no</th>
+                                <th>Name</th>
                                 <th>Currency</th>
                                 <th>Date</th>
                                 <th>Amount</th>
@@ -39,6 +40,7 @@
                             @forelse ($accounts as $account)
                                 <tr>
                                     <td>{{ $account->id }}</td>
+                                    <td>{{ $account->name }}</td>
                                     <td>
                                         {{ $currencies[$account->currency]??'N/A' }}
                                         <br>
@@ -73,6 +75,11 @@
                                             <button type="submit" class="btn btn-image"><img
                                                         src="/images/delete.png"/></button>
                                             {!! Form::close() !!}
+                                            <a href="/monetary-account/{{$account->id}}/history">
+                                                <button class="btn btn-image">
+                                                    <i class="fa fa-globe"></i>
+                                                </button>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -107,7 +114,16 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <!-- currency -->
+                            <!-- name -->
+                            <div class="col-md-12 col-lg-12 @if($errors->has('name')) has-danger @elseif(count($errors->all())>0) has-success @endif">
+                                <div class="form-group">
+                                    {!! Form::label('name', 'Name', ['class' => 'form-control-label']) !!}
+                                    {!! Form::text('name', null, ['class'=>'form-control  '.($errors->has('name')?'form-control-danger':(count($errors->all())>0?'form-control-success':''))]) !!}
+                                    @if($errors->has('name'))
+                                        <div class="form-control-feedback">{{$errors->first('name')}}</div>
+                                    @endif
+                                </div>
+                            </div>
                             <div class="col-md-12 col-lg-12 @if($errors->has('currency')) has-danger @elseif(count($errors->all())>0) has-success @endif">
                                 <div class="form-group">
                                     {!! Form::label('currency', 'Currency', ['class' => 'form-control-label']) !!}
@@ -208,6 +224,7 @@
             var account = button.data('account')
             var currency = button.data('currency');
             var html = '<div class="row">' +
+                '<div class="col-6">Name : ' + account.name + '</div>' +
                 '<div class="col-6">Currency : ' + currency + '</div>' +
                 '<div class="col-6">Type: ' + account.type + '</div>' +
                 '<div class="col-6">Date : ' + account.date + '</div>' +
@@ -228,6 +245,7 @@
                 var method = '<input type="hidden" name="_method" value="PUT">'
                 modal.find('form').append(method)
                 modal.find('input[name="_method"]').val('PUT');
+                modal.find('#name').val(account.name)
                 modal.find('#date').val(account.date)
                 modal.find('#amount').val(account.amount)
                 modal.find('#short_note').val(account.short_note)
