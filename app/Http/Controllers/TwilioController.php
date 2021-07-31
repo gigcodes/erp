@@ -1219,7 +1219,7 @@ class TwilioController extends FindByNumberController
 
     public function manageTwilioAccounts()
     {
-        $all_accounts = TwilioCredential::where(['status' => 1])->get();
+        $all_accounts = TwilioCredential::where(['status' => 1])->where('twiml_app_sid','!=',null)->get();
         return view('twilio.manage-accounts', compact('all_accounts'));
     }
 
