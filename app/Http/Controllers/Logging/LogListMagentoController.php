@@ -624,7 +624,7 @@ class LogListMagentoController extends Controller
         //     ->join('product_push_informations', 'product_push_informations.product_id', '=', 'products.id')
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
-        $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
+        $logListMagentos = ProductPushInformation::with('storeWebsite')->orderBy('product_id','DESC');
         $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
 // dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
@@ -677,13 +677,14 @@ class LogListMagentoController extends Controller
           while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
           	$row++;
           	if ($row > 1) {
-                // dd($data);
+                
               $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
                     'product_id'=> $data[0],
                     'sku'=>$data[1] ,
                     'status'=> $data[2],
                     'quantity'=>$data[3] ,
                     'stock_status'=> $data[4],
+                    'store_website_id' => $request->store_website_id
                 ]);
                 $arr_id[] = $updated->product_id;
           	}

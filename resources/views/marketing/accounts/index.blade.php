@@ -44,13 +44,47 @@
 
 
 @section('content')
+
+
+    <!--Instagram Keyword Modal-->
+    <div id="InstagramKeywordPopup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Instagram Keyword Modal</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="4%">No.</th>
+                        <th width="92%">Keyword</th>
+                        <th width="4%">Delete</th>
+                    </tr>
+                </thead>
+                <tbody class="keyword-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+
+    </div>
+    </div>
+
+
     <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading" style="">@if($type) {{ ucfirst($type) }} @endif Accounts (<span id="count">{{ $accounts->total() }}</span>)</h2>
-            <div class="pull-left">
+            <div class="pull-left col-lg-4">
                 <form action="{{ route('accounts.index') }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control global" id="term"
@@ -70,8 +104,21 @@
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#automationForm">Automation Form</a>
+
             </div>
-            <div class="pull-right">
+            <div class="pull-center col-lg-4 flex  keyword-class">
+                <div class="col-sm-4 pr-2">
+                    <input type="text" class="form-control" placeholder="Enter KeyWord">
+                </div>
+                <div class="pl-0">
+                    <button type="button" class="btn btn-secondary add-keyword">Add Keyword</button>
+                </div>
+                <div class="pl-2">
+                    <button type="button" class="btn btn-secondary InstagramKeywordPopup">KeyWord</button>
+                </div>
+            </div>
+            <div class="pull-right col-lg-1">
               <select class="form-control global" id="platform">
                   <option val="">Select Platform</option>  
                   @foreach($platforms as $platform) 
@@ -146,8 +193,8 @@
         </tbody>
       </table>
     </div>
-
 @include('marketing.accounts.partials.add-modal')
+@include('marketing.accounts.partials.automation-form')
 @include('marketing.accounts.partials.multiple-image')
 @include('marketing.accounts.partials.account-history')
 
@@ -526,5 +573,52 @@
         });
     }         
 
+</script>
+
+<script>
+    $(document).on('click','.add-keyword', function (){
+        var keyword = $(this).parents('.keyword-class').find('input').val();
+        if (!keyword) {
+            alert('Please Enter Keyword');
+            return;
+        }
+        $.ajax({
+            type: "get",
+            url: "{{ route('instagram.keyword.create') }}",
+            data: { keyword: keyword },
+            success: function(response){
+                toastr.success(response.message);
+            }
+        })
+    })
+
+    $(document).on('click', '.InstagramKeywordPopup',function(){
+        $('.keyword-body').html('');
+        $.ajax({
+            type: "get",
+            url: "{{ route('instagram.keyword.list') }}",
+            success: function(response){
+                $('#InstagramKeywordPopup').modal('show');
+                for (let i = 0; i < response.data.length; i++) {
+                    var html = '<tr data-id="'+response.data[i].id+'"><td>'+response.data[i].id+'</td><td>'+response.data[i].keyword+'</td><td><button class="btn btn-secondarys delete-keyword" data-id="'+response.data[i].id+'"><i class="fa fa-trash"></i></button></td></tr>'
+                    $('.keyword-body').append(html);
+                }
+            }
+        })
+    })
+
+    $(document).on('click', '.delete-keyword',function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: "get",
+            url: "{{ route('instagram.keyword.delete') }}",
+            data: { id: id },
+            success: function(response){
+                toastr.success(response.message);
+
+                $('.keyword-body').find('tr[data-id= '+response.id+']').remove();
+            }
+        })
+    })
 </script>
 @endsection

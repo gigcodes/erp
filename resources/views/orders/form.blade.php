@@ -389,6 +389,27 @@
                     @endif
                 </div>
             </div>
+
+            <div class="col">
+                <div class="form-group">
+                    <strong> Monetary Account :</strong>
+                    <?php
+                        if(isset($defaultSelected["monetary_account_id"])) {
+                            $monetary_account_id = $defaultSelected["monetary_account_id"];
+                        }
+                    ?>
+                    <?php
+                    $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+
+                    echo Form::select('monetary_account_id',$monetaryAccount, ( old('monetary_account_id') ? old('monetary_account_id') : $monetary_account_id ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+
+                    @if ($errors->has('monetary_account_id'))
+                        <div class="alert alert-danger">{{$errors->first('monetary_account_id')}}</div>
+                    @endif
+                </div>
+            </div>
+
+
             <div class="col"> 
                 <div class="form-group">
                     <strong>Note if any:</strong>

@@ -61,4 +61,8 @@ class ProductPushInformation extends Model
         });
 
     }
+
+    public function storeWebsite(){
+        return $this->hasOne(StoreWebsite::class, 'id', 'store_website_id');
+    }
 }

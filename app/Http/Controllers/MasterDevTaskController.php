@@ -137,7 +137,8 @@ class MasterDevTaskController extends Controller
         $scrapeData = \DB::select($sql);
 		
 		//DB Image size management#3118
-		$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
+		//$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
+        $projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at or display_dev_master = 1";
 
         $memory_use = MemoryUsage::
                 whereDate('created_at', now()->format('Y-m-d'))

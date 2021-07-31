@@ -47,7 +47,7 @@ class UpdateProductInformationFromCsv extends Command
         $is_file_exists = null;
         $prodcutInformation = WebsiteProductCsv::pluck('path', 'store_website_id');
 
-        foreach ($prodcutInformation as $file_url) {
+        foreach ($prodcutInformation as $store_website_id => $file_url) {
 
             $client   = new Client();
             if (!$file_url) {
@@ -62,8 +62,7 @@ class UpdateProductInformationFromCsv extends Command
                 } catch (ClientException $e) {
                     $this->error('file not exists');
                 }
-    
-    
+        
                 if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                         $row++;
@@ -75,6 +74,7 @@ class UpdateProductInformationFromCsv extends Command
                                 'status' => $data[2],
                                 'quantity' => $data[3],
                                 'stock_status' => $data[4],
+                                'store_website_id' => $store_website_id
                             ]);
                             $arr_id[] = $updated->product_id;
                         }
