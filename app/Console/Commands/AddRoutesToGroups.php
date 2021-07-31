@@ -40,6 +40,20 @@ class AddRoutesToGroups extends Command
     public function handle()
     {
 
+        // Part-1
+        // $existing_routes = DB::table('group_routes')->get();
+        // foreach($existing_routes as $r){
+        //     dump($r->route_id);
+        //     $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/delete_auto_access';
+        
+        //     $postData = [
+        //         "id" => $r->route_id
+        //     ];
+        //     $postData = json_encode($postData, true);
+        //     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        //     dump($result);
+        // }
+        // dd('routes deleted');
         // Part-2 Create routes and update langauages to group
         $existing_themes_ids = [];
         $all_themes_ids = [];
