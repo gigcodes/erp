@@ -84,6 +84,13 @@ class AddRoutesToGroups extends Command
                         continue;
                     }
                     $lang_code = $data[1]; 
+                    if($lang_code == 'kr'){
+                        $lang_code = 'ko';
+                    }else if($lang_code == 'jp'){
+                        $lang_code = 'ja';
+                    }else if($lang_code == 'ge'){
+                        $lang_code = 'ka';
+                    } 
                     $web_name = $data[0];
                     if($web_name == 'Vera Lusso'){
                         $web_name = 'veralusso';

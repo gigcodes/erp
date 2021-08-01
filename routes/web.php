@@ -79,6 +79,11 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
 
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
+    Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
+    Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
+    Route::get('/accounts/status/{id}', 'GoogleWebMasterController@statusAccount')->name('googlewebmaster.account.status');
+    Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
+    Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
 });
 
@@ -105,7 +110,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
-    Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
+    Route::get('list-magento/export', 'Logging\LogListMagentoController@export')->name('list.magento.logging.export');
+    
+	Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', 'Logging\LogListMagentoController@productInformation')->name('list.magento.product-information');
     Route::get('list-magento/retry-failed-job', 'Logging\LogListMagentoController@retryFailedJob')->name('list.magento.retry-failed-job');
