@@ -116,18 +116,15 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $client->getLocations();
                 $client->getBrowsers();
 
-                $storeViewListNotQueued = StoreViewsGTMetrix::whereNotNull('website_url')
-                    ->where('status', 'not_queued')
-                    ->get()->toArray();
-
                 $test   = $client->startTest($gtmatrix->website_url);
                 $update = [
                     'test_id' => $test->getId(),
                     'status'  => 'queued',
                 ];
-                StoreViewsGTMetrix::where('id', $value['id'])->update($update);
+                $gtmatrix->update($update);
 
                 $test = $client->getTestStatus($test->getId());
+                
                 StoreViewsGTMetrix::where('test_id', $test->getId())->where('store_view_id', $gtmatrix->store_view_id)->update([
                     'status'          => $test->getState(),
                     'error'           => $test->getError(),
