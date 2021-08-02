@@ -104,6 +104,10 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         'App\Events\CashFlowCreated'        => [
+            'App\Listeners\CreateCurrencyCashFlow',
+        ],
+
+        'App\Events\CashFlowUpdated'        => [
             'App\Listeners\UpdateCurrencyCashFlow',
         ],
         'App\Events\MonetaryAccountCreated' => [
