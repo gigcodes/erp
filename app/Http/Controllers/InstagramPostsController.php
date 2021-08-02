@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 
 use App\Account;
+use App\ChatMessage;
 use App\HashTag;
 use App\InstagramPosts;
 use App\Post;
@@ -1333,6 +1334,75 @@ class InstagramPostsController extends Controller
         
     	$productCategory = InstagramLog::where("account_id", $request->account_id)->orderBy("created_at","desc")->get();
         return response()->json(["code" => 200 , "data" => $productCategory]);
+    }
+
+    public function messageQueue()
+    {
+        $queueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
+        ->where("is_queue", ">", 0)
+        ->where("instagram_user_id", ">", 0)
+        ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
+        // ->groupBy("c.whatsapp_number")
+        // ->select(\DB::raw("count(*) as total_message"))
+        ->paginate(Setting::get('pagination'))
+        ;
+
+        $accountSettingInfo = Setting::select('val')->where('name','instagram_message_queue_rate_setting')->first();
+        $accountSettingInformation = json_decode($accountSettingInfo->val,true);
+
+        // $instaAccounts = Account::where('platform','instagram')->whereNotNull('email')->get();
+        $instaAccounts    = Account::where('status', 1)->where('platform', 'instagram')->get();
+
+        return view('social-media.instagram-posts.message-queue',compact('instaAccounts','accountSettingInformation','queueList'));
+    }
+
+    public function messageQueueSetting(Request $request)
+    {
+
+        $updatedData =  Setting::updateOrCreate(
+            [
+                'name' => 'instagram_message_queue_rate_setting'
+            ],
+
+            [
+                'val' => json_encode(
+                    $request->except('_token')
+
+                ),
+                'type' => 'str'
+            ]
+        );
+        return response()->json(['code' => 200, 'message' => 'Data updated succesfully']);
+    }
+
+    public function messageQueueApprove()
+    {
+        $approveQueueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
+        ->where("is_queue", 0)
+        ->where("instagram_user_id", ">", 0)
+        ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
+        ->paginate(Setting::get('pagination'))
+
+
+        // ->groupBy("c.whatsapp_number")
+        // ->select(\DB::raw("count(*) as total_message"))
+        ;
+
+        return view('social-media.instagram-posts.message-queue-approve' ,compact('approveQueueList'));
+    }
+
+    public function messageQueueApproved(Request $request)
+    {
+        $chatMessage = ChatMessage::find($request->chat_id);
+        $chatMessage->is_queue = 1;
+        $result = $chatMessage->save();
+
+            if($result){
+                return response()->json(['message'=>'Approved Successfully']);
+            }
+
+
+        return response()->json(['error'=>'Failed to change status']);
     }
 
 }

@@ -36,7 +36,7 @@ class Category extends Model
 
      */
   
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type'];
+    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type','category_segment_id'];
 
     /**
      * Get the index name for the model.
@@ -46,6 +46,10 @@ class Category extends Model
     public function childs()
     {
         return $this->hasMany( __CLASS__, 'parent_id', 'id' );
+    }
+    public function childsOrderByTitle()
+    {
+        return $this->hasMany( __CLASS__, 'parent_id', 'id' )->orderBy('title');
     }
 
     public function childLevelSencond()

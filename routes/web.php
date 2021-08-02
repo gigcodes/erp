@@ -870,7 +870,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('project-file-manager/get-latest-size', 'ProjectFileManagerController@getLatestSize')->name('project-file-manager.get-latest-size');
     Route::post('project-file-manager/delete-file', 'ProjectFileManagerController@deleteFile')->name('project-file-manager.delete-file');
     Route::get('project-file-manager', 'ProjectFileManagerController@index')->name('project-file-manager.index');
+    Route::post('project-file-manager/insertsize', 'ProjectFileManagerController@insertsize')->name('project-file-manager.insertsize');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
+    Route::get('size/log_history/discount/', 'ProjectFileManagerController@sizelogHistory')->name('size/log-history/discount');
+     
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
@@ -1477,6 +1480,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Cash Flow Module
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
+    Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
 
@@ -2085,6 +2089,10 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 Route::prefix('social-media')->middleware('auth')->group(function () {
     Route::get('/instagram-posts/grid','InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
+    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue');
+    Route::get('/instagram/message-queue/approve', 'InstagramPostsController@messageQueueApprove')->name('instagram.message-queue.approve');
+    Route::post('/instagram/message-queue/settings', 'InstagramPostsController@messageQueueSetting')->name('instagram.message-queue.settings');
+    Route::post('/instagram/message-queue/approve/approved', 'InstagramPostsController@messageQueueApproved')->name('instagram.message-queue.approved');
 });
 
 /*
@@ -2324,6 +2332,7 @@ Route::middleware('auth')->group(function () {
 
 //Monetary Account Module
 Route::middleware('auth')->group(function () {
+    Route::get('monetary-account/{id}/history', 'MonetaryAccountController@history')->name("monetary-account.history");
     Route::resource('monetary-account', 'MonetaryAccountController');
 });
 
@@ -3241,6 +3250,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
     Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
     Route::get('categories', 'Select2Controller@allCategory')->name('select2.categories');
+    Route::get('websites', 'Select2Controller@allWebsites')->name('select2.websites');
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');

@@ -145,6 +145,11 @@ return [
             'path'   => storage_path('logs/hubstaff-activity-command/hubstaff-activity-command.log'),
             'days'   => 7,
         ],
+        'insta_message_queue_by_rate_limit' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/insta-message-queue-by-rate-limit/insta-message-queue-by-rate-limit.log'),
+            'days'   => 7,
+        ],
 
         'product-thumbnail' => [
             'driver' => 'daily',
