@@ -26,7 +26,7 @@
     table.dataTable thead th, table.dataTable thead td {
         padding: 3px 18px 3px 7px;
     }
-    table.dataTable tbody th, table.dataTable tbody td {
+    .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
         padding: 5px 5px;
     }
     #product-price_filter{
@@ -39,6 +39,16 @@
     }
     .suppliers input{
         width:170px !important
+    }
+    .border-none{
+        border: none !important;
+    }
+    table input{
+        padding: 2px 6px !important;
+        height: 26px !important;
+    }
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ddd !important;
     }
 </style>
 <div class = "row m-0">
@@ -129,22 +139,22 @@
 
             <div class="table-responsive mt-3">
 
-                   <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed;">
+                   <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed">
                        <thead>
                        <tr>
-                           <th style="width: 12%">SKU</th>
+                           <th style="width: 9%">SKU</th>
                            <th style="width: 5%">Product ID</th>
-                           <th style="width: 6%">Country</th>
-                           <th style="width: 6%">Brand</th>
+                           <th style="width: 7%">Country</th>
+                           <th style="width: 9%">Brand</th>
                            <th style="width: 4%;word-break: break-all">Segment</th>
-                           <th style="width: 20%">Main Website</th>
-                           <th style="width: 5%">EURO Price</th>
+                           <th style="width: 15%">Main Website</th>
+                           <th style="width: 7%">EURO Price</th>
                            <th style="width: 10%">Seg Discount</th>
                            <th style="width: 5%">Less IVA</th>
                            <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
-                           <th style="width: 12%">Add Profit</th>
-                           <th style="width: 5%">Final Price</th>
+                           <th style="width: 13%">Add Profit</th>
+                           <th style="width: 7%">Final Price</th>
                        </tr>
                        </thead>
                        <tbody>
@@ -157,7 +167,7 @@
 
 
                                    <span class="td-mini-container">
-                                                {{ strlen( $key['sku']) > 15 ? substr( $key['sku'], 0, 15).'...' :  $key['sku'] }}
+                                                {{ strlen( $key['sku']) > 9 ? substr( $key['sku'], 0, 9).'...' :  $key['sku'] }}
                                             </span>
 
                                    <span class="td-full-container hidden">
@@ -168,13 +178,29 @@
 
                                </td>
                                <td class="product_id">{{ $key['id'] }}</td>
-                               <td>{{ $key['country_name'] }}</td>
-                               <td>{{ $key['brand'] }}</td>
+                               <td class="expand-row" style="word-break: break-all">
+                                      <span class="td-mini-container">
+                                                {{ strlen( $key['country_name']) > 9 ? substr( $key['country_name'], 0, 8).'...' :  $key['country_name'] }}
+                                            </span>
+
+                                   <span class="td-full-container hidden">
+                                               {{ $key['country_name'] }}
+                                            </span>
+                                   </td>
+                               <td class="expand-row" style="word-break: break-all">
+                                    <span class="td-mini-container">
+                                                {{ strlen( $key['brand']) > 15 ? substr( $key['brand'], 0, 15).'...' :  $key['brand'] }}
+                                            </span>
+
+                                   <span class="td-full-container hidden">
+                                               {{ $key['brand'] }}
+                                            </span>
+                                   </td>
                                <td>{{ $key['segment'] }}</td>
                                <td class="expand-row" style="word-break: break-all">
 
                                    <span class="td-mini-container">
-                                                {{ strlen( $key['website']) > 30 ? substr( $key['website'], 0, 30).'...' :  $key['website'] }}
+                                                {{ strlen( $key['website']) > 22 ? substr( $key['website'], 0, 22).'...' :  $key['website'] }}
                                             </span>
 
                                    <span class="td-full-container hidden">
@@ -195,7 +221,7 @@
                                <td>
                                    <div class="form-group">
                                        <div class="input-group">
-                                           <input style="min-width: 30px;" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
+                                           <input style="min-width: 30px;border-radius: 4px" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
                                        </div>
                                    </div>
                                </td>
@@ -283,13 +309,13 @@
             $(this).find('.td-full-container').toggleClass('hidden');
         }
     });
-    $(document).ready( function () {
-        $('#product-price').DataTable({
-            "paging":   false,
-            "ordering": true,
-            "info":     false
-        });
-    } );
+    // $(document).ready( function () {
+    //     $('#product-price').DataTable({
+    //         "paging":   false,
+    //         "ordering": true,
+    //         "info":     false
+    //     });
+    // } );
 
     $(document).on('keyup', '.seg_discount', function () {
         if (event.keyCode != 13) {
@@ -416,7 +442,7 @@
                     if(item.status){
                         let row = $(`.tr_${item.row_id}`); 
                         $(row).find('td:nth-child(12) span').html(item.add_profit);
-                        $(row).find('.add_profit').val(add_profit);
+                        $(row).find('.add_profit').val(add_profit+'%');
                         $(row).find('td:nth-child(13)').html(item.price);
                     }
                 }); 
