@@ -178,10 +178,13 @@
 						</tr>
 						<tr>
 							@foreach($projectDirectoryData as $val)
+                <tr>
 								<td>{{ isset($val->name) ? $val->name : "" }}</td>
 								<td>{{ isset($val->parent) ? $val->parent : "" }}</td>
-								<td>{{ isset($val->size) ? number_format($val->size/1048576,0) : "" }}</td>
+                <td>{{ $val->size }}</td>
+								{{-- <td>{{ isset($val->size) ? number_format($val->size/1048576,0) : "" }}</td> --}}
 								<td>{{ isset($val->notification_at) ? number_format($val->notification_at/1048576,0) : "" }}</td>
+              </tr>
 							@endforeach
 						</tr>
 					</table>

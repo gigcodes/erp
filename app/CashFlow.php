@@ -27,7 +27,7 @@ class CashFlow extends Model
      * @SWG\Property(property="cash_flow_able_type",type="sting")
      */
     protected $fillable = [
-        'user_id', 'cash_flow_category_id', 'description', 'date', 'amount',  'amount_eur', 'type', 'expected', 'actual', 'currency', 'status', 'order_status', 'updated_by', 'cash_flow_able_id', 'cash_flow_able_type',
+        'user_id', 'cash_flow_category_id', 'description', 'date', 'amount',  'amount_eur', 'type', 'expected', 'actual', 'currency', 'status', 'order_status', 'updated_by', 'cash_flow_able_id', 'cash_flow_able_type','monetary_account_id'
     ];
 
     protected $dispatchesEvents = [

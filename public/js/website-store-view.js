@@ -256,6 +256,16 @@ var page = {
     },
 
     submitFormGroup : function(ele) {
+
+        if($('input[name="route_domain"]').val() == ''){
+            toastr['error']('Route domain is required', 'error');
+            return false;
+        }
+        if($('input[name="route_url"]').val() == ''){
+            toastr['error']('Route url is required', 'error');
+            return false;
+        }
+        
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/group/save",
             method: "post",

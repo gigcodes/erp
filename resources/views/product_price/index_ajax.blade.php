@@ -33,9 +33,11 @@
                                </td>
                                <td>{{ $key['eur_price'] }}</td>
                                <td>
-                                   <div class="d-flex" style="align-items: center">
+                                   <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
-                                       <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                       <div style="float: right;width:50%;">
+                                            <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                       </div>
                                    </div>
                                </td>
                                <td>{{ $key['iva'] }}</td>
@@ -48,9 +50,11 @@
                                    </div>
                                </td>
                                <td>
-                                  <div class="d-flex" style="align-items: center">
+                                  <div style="align-items: center">
                                       <span style="min-width:50px;">{{ $key['add_profit'] }}</span>
-                                      <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
+                                      <div style="float: right;width:50%;">
+                                          <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}%" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
+                                      </div>
                                   </div>
                                </td>
                                <td>{{ $key['final_price'] }}</td>

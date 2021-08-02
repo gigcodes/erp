@@ -183,9 +183,11 @@
                                </td>
                                <td>{{ $key['eur_price'] }}</td>
                                <td>
-                                   <div class="d-flex" style="align-items: center">
+                                   <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
-                                       <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                       <div style="float: right;width:50%;">
+                                            <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                       </div>
                                    </div>
                                </td>
                                <td>{{ $key['iva'] }}</td>
@@ -198,9 +200,11 @@
                                    </div>
                                </td>
                                <td>
-                                  <div class="d-flex" style="align-items: center">
+                                  <div style="align-items: center">
                                       <span style="min-width:50px;">{{ $key['add_profit'] }}</span>
-                                      <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
+                                      <div style="float: right;width:50%;">
+                                          <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}%" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
+                                      </div>
                                   </div>
                                </td>
                                <td>{{ $key['final_price'] }}</td>
@@ -322,7 +326,7 @@
                 let row = $(`.tr_${item.row_id}`);
                 $(row).find('td:nth-child(8) span').html(item.seg_discount);
                 $(row).find('.seg_discount').val(seg_discount);
-                $(row).find('td:nth-child(12)').html(item.price);
+                $(row).find('td:nth-child(13)').html(item.price);
             }); 
             toastr["success"]("segment discount updated successfully!", "Message");
         });
@@ -364,7 +368,7 @@
             response.data.forEach(function(item, index) {
                 let row = $(`.tr_${item.row_id}`);
                 $(row).find('.add_duty').val(add_duty);
-                $(row).find('td:nth-child(12)').html(item.price);
+                $(row).find('td:nth-child(13)').html(item.price);
             }); 
             toastr["success"]("duty updated successfully!", "Message");
         });
@@ -375,7 +379,7 @@
         if (event.keyCode != 13) {
             return;
         }
-        let add_profit = $(this).val();
+        let add_profit = $(this).val().replace('%', '');
         let ref_name = $(this).data('ref');
         let rows = $('.'+ref_name).closest('tr');
         let product_array = [];
@@ -411,9 +415,9 @@
                 response.data.forEach(function(item, index) {
                     if(item.status){
                         let row = $(`.tr_${item.row_id}`); 
-                        $(row).find('td:nth-child(11) span').html(item.add_profit);
+                        $(row).find('td:nth-child(12) span').html(item.add_profit);
                         $(row).find('.add_profit').val(add_profit);
-                        $(row).find('td:nth-child(12)').html(item.price);
+                        $(row).find('td:nth-child(13)').html(item.price);
                     }
                 }); 
                 toastr["success"]("profit updated successfully!", "Message");

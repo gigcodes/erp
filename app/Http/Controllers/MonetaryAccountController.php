@@ -56,11 +56,13 @@ class MonetaryAccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
+           'name' => 'required',
            'currency' => 'required',
            'date' => 'required|date',
            'amount' => 'required|numeric',
         ]);
         $account = MonetaryAccount::create([
+            'name' => $request->get('name'),
             'date' => $request->get('date'),
             'currency' => $request->get('currency'),
             'amount' => $request->get('amount'),
@@ -105,11 +107,13 @@ class MonetaryAccountController extends Controller
     public function update(Request $request, MonetaryAccount $monetary_account)
     {
         $this->validate($request,[
+            'name' => 'required',
             'currency' => 'required',
             'date' => 'required|date',
             'amount' => 'required|numeric',
         ]);
         $monetary_account->fill([
+            'name' => $request->get('name'),
             'date' => $request->get('date'),
             'currency' => $request->get('currency'),
             'amount' => $request->get('amount'),
@@ -136,5 +140,17 @@ class MonetaryAccountController extends Controller
             return redirect()->back()->withErrors('Couldn\'t delete data');
         }
         return redirect()->back()->withSuccess('You have successfully deleted account detail');
+    }
+
+    public function history(Request $request, $id)
+    {
+        $account = \App\MonetaryAccount::find($id);
+        if($account) {
+            $history = \App\MonetaryAccountHistory::where("monetary_account_id",$id)->latest()->paginate();
+
+            return view("monetary-account.history",compact('history','account'));
+        }else{
+            return abort(404);
+        }
     }
 }
