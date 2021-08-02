@@ -85,8 +85,8 @@ class ProductPriceController extends Controller
             foreach($products as $product) { 
                 foreach($cCodes as $ckey => $cco) {
                     $dutyPrice = $product->getDuty( $ckey );
-                    
-                    $price = $product->getPrice( $value['id'], $ckey,null, true,$dutyPrice, null, null, null, isset($product->suppliers_info) ?  $product->suppliers_info[0]->price : 0, $product->category_segment);
+                    $category_segment = $product->category_segment != null ? $product->category_segment : $product->brand_segment;
+                    $price = $product->getPrice( $value['id'], $ckey,null, true,$dutyPrice, null, null, null, isset($product->suppliers_info) ?  $product->suppliers_info[0]->price : 0, $category_segment);
                     $ivaPercentage = \App\Product::IVA_PERCENTAGE;
                     $productPrice = number_format($price['original_price'],2,'.','');
                     $product_list[] = [
@@ -97,7 +97,7 @@ class ProductPriceController extends Controller
                         // 'brand'                => ($product->brands) ? $product->brands->name : "-",
                         'brand'                => isset($product->brand_name) ? $product->brand_name : "-" ,
                         // 'segment'              => ($product->brands) ? $product->brands->brand_segment : "-",
-                        'segment'              => $product->category_segment != null ? $product->category_segment : "-",
+                        'segment'              => $category_segment,
                         'website'              => $value['website'],
                         'eur_price'            => $productPrice,
                         'seg_discount'         => (float)$price['segment_discount'],
@@ -137,7 +137,8 @@ class ProductPriceController extends Controller
             }else if($request->route()->getName() == 'product.pricing.update.add_profit'){
                 if($p->row_id == $request->row_id){
                     $ref_product = Product::find($p->product_id);
-                    $result = $ref_product->getPrice($p->storewebsitesid, $p->country_code,null, true,$p->add_duty, null, $request->add_profit, null, isset($ref_product->suppliers_info) ?  $ref_product->suppliers_info[0]->price : 0, $ref_product->category_segment);
+                    $category_segment = @$ref_product->categories->categorySegmentId->name == null ? (@$ref_product->brands->brand_segment != null ? $ref_product->brands->brand_segment : null) : $ref_product->categories->categorySegmentId->name;
+                    $result = $ref_product->getPrice($p->storewebsitesid, $p->country_code,null, true,$p->add_duty, null, $request->add_profit, null, isset($ref_product->suppliers_info) ?  $ref_product->suppliers_info[0]->price : 0, $category_segment);
                     if($result['status'] == false){
                         return response()->json(['status' => false, 'message' => $result['field'] ]);
                     }
@@ -145,12 +146,14 @@ class ProductPriceController extends Controller
             }else {
                 if($p->row_id == $request->row_id){
                     $ref_product = Product::find($p->product_id);
-                    $ref_product->getPrice($p->storewebsitesid, $p->country_code,null, true,$p->add_duty, (int) str_replace('%', '', $request->seg_discount), null, null, isset($ref_product->suppliers_info) ?  $ref_product->suppliers_info[0]->price : 0, $ref_product->category_segment);
+                    $category_segment = @$ref_product->categories->categorySegmentId->name == null ? (@$ref_product->brands->brand_segment != null ? $ref_product->brands->brand_segment : null) : $ref_product->categories->categorySegmentId->name;
+                    $ref_product->getPrice($p->storewebsitesid, $p->country_code,null, true,$p->add_duty, (int) str_replace('%', '', $request->seg_discount), null, null, isset($ref_product->suppliers_info) ?  $ref_product->suppliers_info[0]->price : 0, $category_segment);
                 }
             }
             
             $product = Product::find($p->product_id);
-            $price = $product->getPrice( $p->storewebsitesid, $p->country_code,null, true, empty($add_duty) ? $p->add_duty : $add_duty, null, null, 'checked_add_profit', isset($product->suppliers_info) ?  $product->suppliers_info[0]->price : 0, $product->category_segment);
+            $category_segment = @$product->categories->categorySegmentId->name == null ? (@$product->brands->brand_segment != null ? $product->brands->brand_segment : null) : $product->categories->categorySegmentId->name;
+            $price = $product->getPrice( $p->storewebsitesid, $p->country_code,null, true, empty($add_duty) ? $p->add_duty : $add_duty, null, null, 'checked_add_profit', isset($product->suppliers_info) ?  $product->suppliers_info[0]->price : 0, $category_segment);
             $arr['status']               = $price['status'];
             $arr['row_id']               = $p->row_id;
             $arr['seg_discount']         = (float)$price['segment_discount'];
