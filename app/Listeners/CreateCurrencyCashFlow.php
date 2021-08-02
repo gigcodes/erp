@@ -2,9 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Events\CashFlowUpdated;
+use App\Events\CashFlowCreated;
 
-class UpdateCurrencyCashFlow
+class CreateCurrencyCashFlow
 {
     /**
      * Create the event listener.
@@ -22,7 +22,7 @@ class UpdateCurrencyCashFlow
      * @param  object  $event
      * @return void
      */
-    public function handle(CashFlowUpdated $event)
+    public function handle(CashFlowCreated $event)
     {
         \Log::info("this action has been called");
 
@@ -34,9 +34,9 @@ class UpdateCurrencyCashFlow
 
         if ($cashflow->monetary_account_id > 0 && ($cashflow->type == "received" || $cashflow->type == "paid")) {
             $user_id = !empty(auth()->id)  ? auth()->id : 6;
-            $amount = $cashflow->erp_amount;
+            $amount = $cashflow->amount;
             if ($cashflow->type == "paid") {
-                $amount = 0 - $cashflow->erp_amount;
+                $amount = 0 - $cashflow->amount;
             }
 
             $monetaryHistory = \App\MonetaryAccountHistory::where("model_id",$cashflow->id)->where("model_type",\App\CashFlow::class)->first();
@@ -58,6 +58,13 @@ class UpdateCurrencyCashFlow
                     "monetary_account_id" => $cashflow->monetary_account_id,
                     "user_id"             => $user_id,
                 ]);
+            }
+
+            $totalSum = \App\MonetaryAccountHistory::where("monetary_account_id",$cashflow->monetary_account_id)->sum('amount');
+            $ma = \App\MonetaryAccount::find($cashflow->monetary_account_id);
+            if($ma) {
+                $ma->amount += $totalSum;
+                $ma->save();
             }
         }
 
