@@ -1080,7 +1080,7 @@ class Product extends Model
                   }
                }
             }else if($updated_add_profit || !empty($checked_add_profit)){
-                 if(empty($brand)){
+                if(empty($brand)){
                      return ["status" => false, "field" => 'brand', "original_price" => $default_price , "promotion_per" => 0, "promotion" => 0,'segment_discount' => $segmentDiscount , "total" =>  $productPrice - 0, 'segment_discount_per' => isset($catdiscount) ? $catdiscount->amount : 0];
                  }
                  if(empty($category)){
@@ -1258,6 +1258,7 @@ class Product extends Model
             'b.name as brand_name',
             'b.id as brand_id',
             'cs.name as category_segment',
+            'b.brand_segment as brand_segment',
             'c.title as category_name',
             'products.category',
             'products.supplier',

@@ -416,7 +416,7 @@
                     if(item.status){
                         let row = $(`.tr_${item.row_id}`); 
                         $(row).find('td:nth-child(12) span').html(item.add_profit);
-                        $(row).find('.add_profit').val(add_profit);
+                        $(row).find('.add_profit').val(add_profit+'%');
                         $(row).find('td:nth-child(13)').html(item.price);
                     }
                 }); 
