@@ -83,6 +83,7 @@
                             <th>Yslow score</th>
                             <th style="width: 12%;">Resources</th>
                             <th style="width: 7.5%;">Date</th>
+                            <th>PDF</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -113,11 +114,12 @@
                                     @endif
                                     
                                 <td>{{ $key->created_at }}</td>
+                                <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
                                 <td>  
                                     <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-id="{{ $key->store_view_id }}">
                                         <i class="fa fa-history"></i>
                                     </button>
-                                    <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->store_view_id }}">
+                                    <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
                                         <i class="fa fa-play"></i>
                                     </button>
                                 </td>

@@ -123,23 +123,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 ];
                 $gtmatrix->update($update);
 
-                $test = $client->getTestStatus($test->getId());
-                
-                StoreViewsGTMetrix::where('test_id', $test->getId())->where('store_view_id', $gtmatrix->store_view_id)->update([
-                    'status'          => $test->getState(),
-                    'error'           => $test->getError(),
-                    'report_url'      => $test->getReportUrl(),
-                    'html_load_time'  => $test->getHtmlLoadTime(),
-                    'html_bytes'      => $test->getHtmlBytes(),
-                    'page_load_time'  => $test->getPageLoadTime(),
-                    'page_bytes'      => $test->getPageBytes(),
-                    'page_elements'   => $test->getPageElements(),
-                    'pagespeed_score' => $test->getPagespeedScore(),
-                    'yslow_score'     => $test->getYslowScore(),
-                    'resources'       => json_encode($test->getResources()),
-                ]);
-
-                return response()->json(["code" => 200, "message" => "Request has been updated successfully"]);
+                return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
 
             } catch (\Exception $e) {
                 return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
