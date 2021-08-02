@@ -53,7 +53,12 @@ class AccountController extends Controller
 		$accounts = $query->orderBy('id','desc')->paginate(25);
 		
 		$platforms = MarketingPlatform::all();
-		$automation_form = InstaAccAutomationForm::latest()->first();
+		$automation_form = [];
+		$automation_form['posts_per_day'] = Setting::get('posts_per_day');        
+        $automation_form['likes_per_day'] = Setting::get('likes_per_day');
+        $automation_form['send_requests_per_day'] = Setting::get('send_requests_per_day');
+        $automation_form['accept_requests_per_day'] = Setting::get('accept_requests_per_day');
+        $automation_form['image_per_post'] = Setting::get('image_per_post');
 
 		$websites = \App\StoreWebsite::select('id','title')->get();
 		
