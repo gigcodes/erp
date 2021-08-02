@@ -203,7 +203,7 @@ class TwilioController extends FindByNumberController
         
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
 
-        $store_website_id = $object->store_website_id;
+        $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 1 );
 
         Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
 
