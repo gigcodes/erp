@@ -10,7 +10,7 @@ use Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
-trait hubstaffTrait
+trait HubstaffTrait
 {
     private $HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
     private $SEED_REFRESH_TOKEN;

@@ -98,7 +98,7 @@
         "psr-4": {
             "App\\": "app/",
             "Modules\\": "Modules/",
-            "InstagramAPI\\": "app/Library/mgp25/src",
+            "InstagramAPI\\": "vendors/mgp25/instagram-php/src",
             "seo2websites\\ErpCustomer\\": "vendor/seo2websites/erp-customer/src",
             "seo2websites\\ErpExcelImporter\\": "vendor/seo2websites/erp-excel-importer/src",
             "seo2websites\\GoogleVision\\": "vendor/seo2websites/google-vision/src",

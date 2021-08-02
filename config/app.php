@@ -194,6 +194,7 @@ return [
         App\Providers\WhatsappConfigProvider::class,
         Webklex\IMAP\Providers\LaravelServiceProvider::class,
         Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
+        seo2websites\ErpCustomer\ErpCustomerServiceProvider::class,
         //LaravelFCM\FCMServiceProvider::class,
     ],
 
