@@ -233,11 +233,11 @@ class TwilioController extends FindByNumberController
         $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
         $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
 
-        if ($context) {
+        if ($context && $object) {
             $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
         }
         // $response = new Twiml();
-        Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
+        //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
         $response = new VoiceResponse();
 
@@ -247,7 +247,7 @@ class TwilioController extends FindByNumberController
         $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if (($context == "customers" && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
+        if (($context == "customers" && $object && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
             $response = $response->reject();
         } else {
             // if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
