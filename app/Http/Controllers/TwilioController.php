@@ -203,7 +203,7 @@ class TwilioController extends FindByNumberController
         
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
 
-        $store_website_id = $object->store_website_id;
+        $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 1 );
 
         Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
 
@@ -331,7 +331,7 @@ class TwilioController extends FindByNumberController
                         // Add Agent Entry - END
                         
                         
-                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->first();
+                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
 
                         if ($check_agent_available != null) {
                             if($check_agent_available->status == 0)
