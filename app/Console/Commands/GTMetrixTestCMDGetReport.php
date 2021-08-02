@@ -2,14 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\CronJobReport;
-use App\WebsiteStoreView;
 use App\StoreViewsGTMetrix;
 use Carbon\Carbon;
-
 use Entrecore\GTMetrixClient\GTMetrixClient;
-use Entrecore\GTMetrixClient\GTMetrixTest;
+use Illuminate\Console\Command;
 
 class GTMetrixTestCMDGetReport extends Command
 {
@@ -43,67 +40,77 @@ class GTMetrixTestCMDGetReport extends Command
      * @return mixed
      */
     public function handle()
-    {   
-        
-        try {
-            \Log::info('GTMetrix :: Report cron start ' );
-            $report = CronJobReport::create([
-                'signature'  => $this->signature,
-                'start_time' => Carbon::now(),
+    {
+
+        //try {
+        \Log::info('GTMetrix :: Report cron start ');
+        $report = CronJobReport::create([
+            'signature'  => $this->signature,
+            'start_time' => Carbon::now(),
+        ]);
+
+        // Get site report
+        $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
+            ->whereNotIn('status', ['completed', 'error', 'not_queued'])
+            ->get();
+
+        $client = new GTMetrixClient();
+        $client->setUsername(env('GTMETRIX_USERNAME'));
+        $client->setAPIKey(env('GTMETRIX_API_KEY'));
+        $client->getLocations();
+        $client->getBrowsers();
+
+        foreach ($storeViewList as $value) {
+
+            $test   = $client->getTestStatus($value->test_id);
+            $model = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->update([
+                'status'          => $test->getState(),
+                'error'           => $test->getError(),
+                'report_url'      => $test->getReportUrl(),
+                'html_load_time'  => $test->getHtmlLoadTime(),
+                'html_bytes'      => $test->getHtmlBytes(),
+                'page_load_time'  => $test->getPageLoadTime(),
+                'page_bytes'      => $test->getPageBytes(),
+                'page_elements'   => $test->getPageElements(),
+                'pagespeed_score' => $test->getPagespeedScore(),
+                'yslow_score'     => $test->getYslowScore(),
+                'resources'       => json_encode($test->getResources()),
+                //'pdf_file'        => $fileName,
             ]);
 
-            $client = new GTMetrixClient();
-            $client->setUsername(env('GTMETRIX_USERNAME'));
-            $client->setAPIKey(env('GTMETRIX_API_KEY'));
-            $client->getLocations();
-            $client->getBrowsers();
+            $resources = $test->getResources();
 
-            $storeViewListNotQueued = StoreViewsGTMetrix::whereNotNull('website_url')
-                                        ->where('status','not_queued')
-                                        ->get()->toArray();
+            if (!empty($resources['report_pdf'])) {
+                $ch = curl_init($resources['report_pdf']);
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                curl_setopt($ch, CURLOPT_USERPWD, env('GTMETRIX_USERNAME') . ':' . env('GTMETRIX_API_KEY'));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 0);
+                //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
+                $result     = curl_exec($ch);
+                $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlErrNo  = curl_errno($ch);
+                $curlError  = curl_error($ch);
+                curl_close($ch);
 
-            
-            foreach ($storeViewListNotQueued as $value) {
-                try {
-                    $test  = $client->startTest( $value['website_url'] );
-                    $update = [
-                        'test_id' => $test->getId(),
-                        'status'  => 'queued',
-                    ];
-                    StoreViewsGTMetrix::where('id',$value['id'])->update( $update );
-                } catch (\Exception $e) {
-                    \Log::error($this->signature.' :: '.$e->getMessage() );
-                    break;
+                $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
+                $file     = public_path() . $fileName;
+                file_put_contents($file, $result);
+                $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+                if ($storeview) {
+                    $storeview->pdf_file = $fileName;
+                    $storeview->save();
                 }
             }
-            
-            // Get site report
-            $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
-                            ->whereNotIn('status',['completed','error'])
-                            ->get()->toArray();
-            foreach ($storeViewList as $value) {
-                $test = $client->getTestStatus( $value['test_id'] );
-                StoreViewsGTMetrix::where('test_id',$value['test_id'])->where('store_view_id',$value['store_view_id'])->update( [
-                    'status'          => $test->getState(),
-                    'error'           => $test->getError(),
-                    'report_url'      => $test->getReportUrl(),
-                    'html_load_time'  => $test->getHtmlLoadTime(),
-                    'html_bytes'      => $test->getHtmlBytes(),
-                    'page_load_time'  => $test->getPageLoadTime(),
-                    'page_bytes'      => $test->getPageBytes(),
-                    'page_elements'   => $test->getPageElements(),
-                    'pagespeed_score' => $test->getPagespeedScore(),
-                    'yslow_score'     => $test->getYslowScore(),
-                    'resources'       => json_encode($test->getResources()),
-                ]);
-            }
 
-            \Log::info('GTMetrix :: Report cron complete ' );
-            $report->update(['end_time' => Carbon::now()]);
-
-        } catch (\Exception $e) {
-            \Log::error($this->signature.' :: '.$e->getMessage() );
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
+
+        \Log::info('GTMetrix :: Report cron complete ');
+        $report->update(['end_time' => Carbon::now()]);
+
+        /*} catch (\Exception $e) {
+    \Log::error($this->signature.' :: '.$e->getMessage() );
+    \App\CronJob::insertLastError($this->signature, $e->getMessage());
+    }*/
     }
 }

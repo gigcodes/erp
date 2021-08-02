@@ -18,6 +18,6 @@ class SimplyDutyCountry extends Model
 
     public static function getSelectList()
     {
-        return self::limit(10)->pluck("country_name","country_code")->toArray();
+        return self::pluck("country_name","country_code")->toArray();
     }
 }
