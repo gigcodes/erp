@@ -203,6 +203,8 @@ class TwilioController extends FindByNumberController
         
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
 
+        Log::channel('customerDnd')->info('object:: '.$object);
+        
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 1 );
 
         Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
@@ -230,11 +232,14 @@ class TwilioController extends FindByNumberController
             
         // $get_twilio_phoneno = 
 
-        $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
-        $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
+        $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback";
+        // $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        $actionurl = 'https://'.$request->getHost(). "/twilio/handleDialCallStatus";
 
         if ($context && $object) {
-            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+            // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+            $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
         }
         // $response = new Twiml();
         //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
