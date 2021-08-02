@@ -331,7 +331,7 @@ class TwilioController extends FindByNumberController
                         // Add Agent Entry - END
                         
                         
-                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->first();
+                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
 
                         if ($check_agent_available != null) {
                             if($check_agent_available->status == 0)
