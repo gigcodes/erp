@@ -51,7 +51,7 @@ class GTMetrixTestCMDGetReport extends Command
 
         // Get site report
         $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
-            ->whereNotIn('status', ['completed', 'error', 'not_queued'])
+            ->whereNotIn('status', ['error', 'not_queued'])
             ->get();
 
         $client = new GTMetrixClient();
