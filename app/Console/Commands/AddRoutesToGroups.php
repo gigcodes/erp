@@ -97,8 +97,8 @@ class AddRoutesToGroups extends Command
                     }
                     //Create route fo group
                     $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
-                    $domain_values["value"] =  '-' . $data[1];
-                    $url_values["value"] = $data[0];
+                    $domain_values["value"] =  '-' . $data[0];
+                    $url_values["value"] = $data[1];
                     $postData = [
                         'description' => $g->name,
                         'access' => [
