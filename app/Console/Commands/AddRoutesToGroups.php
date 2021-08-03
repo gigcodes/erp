@@ -78,12 +78,10 @@ class AddRoutesToGroups extends Command
                 $all_themes_ids[$g->name] = $g->id;
                 if(!in_array(str_replace('theme_', '', $g->name), $existing_themes)){
                     $data = explode('_', $g->name);
-                    $lang_code = $data[1];
-                    // if($lang_code == 'ge'){
-                    //     $lang_code = 'de';
-                    // }else if($lang_code == 'jp'){
-                    //     $lang_code = 'ja';
-                    // }
+                    if(count($data) !=2){
+                        continue;
+                    }
+                    $lang_code = $data[1]; 
                     // Update language to group
                     $postURL  = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
@@ -118,6 +116,7 @@ class AddRoutesToGroups extends Command
                     $postData = json_encode($postData, true);
                     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
+                    dump($response);
                     if (!isset($response->error)) {
                         dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' route updated.');
                         DB::table('group_routes')->updateOrInsert([
