@@ -70,7 +70,7 @@ class CashFlow extends Model
     public function get_bname()
     {
        if ($this->cash_flow_able_type == \App\Order::class) {
-           $order = \App\Order::where("id",$this->cash_flow_able_id)->first();
+           $order = \App\Order::with('customer')->where("id",$this->cash_flow_able_id)->first();
            if ($order)
               return $order->customer->name ;
            else
