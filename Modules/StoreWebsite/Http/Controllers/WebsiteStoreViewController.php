@@ -192,6 +192,8 @@ class WebsiteStoreViewController extends Controller
                 $response->type = 'edit';
                 $response->ref_theme_group_id = $websiteStoreView->ref_theme_group_id;
                 $response->agents = ($this->agents($request))->original['responseData'];
+                $response->group_route = DB::table('group_routes')->where('group_id', $websiteStoreView->store_group_id)->latest()->first();
+
                 return response()->json(['status' => 'success', 'responseData' => $response], 200);
             }
         } 
@@ -282,7 +284,7 @@ class WebsiteStoreViewController extends Controller
                     $url_values["value"] = $request->route_url;
                     $postData = [
                         'id' => $group_route == null ? null : $group_route->route_id,
-                        'description' => $request->name,
+                        'description' => $request->route_name,
                         'access' => [
                             'groups' => [$store_group_id]
                         ],
@@ -298,15 +300,16 @@ class WebsiteStoreViewController extends Controller
                     $postData = json_encode($postData, true);
                     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
-                    if(!$group_route){
-                        if (!isset($response->error)) {
-                            DB::table('group_routes')->updateOrInsert([
-                                'group_id' => $store_group_id,
-                            ],[
-                                'group_id' => $store_group_id,
-                                'route_id' => $response->id
-                            ]);
-                        }
+                    if (!isset($response->error)) {
+                        DB::table('group_routes')->updateOrInsert([
+                            'group_id' => $store_group_id,
+                        ],[
+                            'group_id' => $store_group_id,
+                            'route_id' => $group_route != null ? $group_route->route_id : $response->id,
+                            'route_name' => $request->route_name,
+                            'domain' => $request->route_domain,
+                            'url' => $request->route_url,
+                        ]);
                     }
                    
                 } 
