@@ -104,7 +104,7 @@ class TwilioController extends FindByNumberController
             $agent = 'customer_call_agent_'.$user_id;
             // $agent = 'customer_call_agent_6';
             
-            $devices = TwilioCredential::where('status',1)->get();
+            $devices = TwilioCredential::where('status',1)->where('twiml_app_sid','!=',null)->get();
             if ($devices->count()){
                 $tokens=[];
                 foreach ($devices as $device){
@@ -203,7 +203,9 @@ class TwilioController extends FindByNumberController
         
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
 
-        $store_website_id = $object->store_website_id;
+        Log::channel('customerDnd')->info('object:: '.$object);
+        
+        $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 1 );
 
         Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
 
@@ -230,14 +232,17 @@ class TwilioController extends FindByNumberController
             
         // $get_twilio_phoneno = 
 
-        $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
-        $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
+        $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback";
+        // $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        $actionurl = 'https://'.$request->getHost(). "/twilio/handleDialCallStatus";
 
-        if ($context) {
-            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+        if ($context && $object) {
+            // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+            $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
         }
         // $response = new Twiml();
-        Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
+        //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
         $response = new VoiceResponse();
 
@@ -247,7 +252,7 @@ class TwilioController extends FindByNumberController
         $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if (($context == "customers" && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
+        if (($context == "customers" && $object && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
             $response = $response->reject();
         } else {
             // if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
@@ -257,7 +262,7 @@ class TwilioController extends FindByNumberController
             // } else {
 
                 if($count < 1)
-                    $response->play(\Config::get("app.url") . "intro_ring.mp3");
+                    $response->play(\Config::get("app.url") . "/intro_ring.mp3");
 
                 if($count == 2)
                 {
@@ -331,7 +336,7 @@ class TwilioController extends FindByNumberController
                         // Add Agent Entry - END
                         
                         
-                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->first();
+                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
 
                         if ($check_agent_available != null) {
                             if($check_agent_available->status == 0)
@@ -1035,7 +1040,7 @@ class TwilioController extends FindByNumberController
         $gather = $response->gather([
             'action' => url("/twilio/gatherAction")
         ]);
-        $gather->play(\Config::get("app.url") . "busy_ring.mp3");
+        $gather->play(\Config::get("app.url") . "/busy_ring.mp3");
     }
 
     /**
@@ -1219,7 +1224,7 @@ class TwilioController extends FindByNumberController
 
     public function manageTwilioAccounts()
     {
-        $all_accounts = TwilioCredential::where(['status' => 1])->get();
+        $all_accounts = TwilioCredential::where(['status' => 1])->where('twiml_app_sid','!=',null)->get();
         return view('twilio.manage-accounts', compact('all_accounts'));
     }
 
@@ -1317,7 +1322,7 @@ class TwilioController extends FindByNumberController
         try {
             $account_id = $id;
             //get account details
-            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+            $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
             $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
             $store_websites = StoreWebsite::all();
             $customer_role_users = RoleUser::where(['role_id' => 27])->with('user')->get();
@@ -1332,7 +1337,7 @@ class TwilioController extends FindByNumberController
     {
         try {
             //get account details
-            $check_account = TwilioCredential::where(['id' => $account_id])->firstOrFail();
+            $check_account = TwilioCredential::where(['id' => $account_id])->where('twiml_app_sid','!=',null)->firstOrFail();
             $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $check_account->account_id . '/IncomingPhoneNumbers.json?Beta=false&PageSize=50&Page=0';
             $result = TwilioHelper::curlGetRequest($url, $check_account->account_id, $check_account->auth_token);
             $result = json_decode($result);
@@ -1426,7 +1431,7 @@ class TwilioController extends FindByNumberController
     public function twilioCallForward(Request $request)
     {
         $number_details = TwilioActiveNumber::where('id',$request->twilio_number_id)->first();
-        $account_details = TwilioCredential::where('id',$request->twilio_account_id)->first();
+        $account_details = TwilioCredential::where('id',$request->twilio_account_id)->where('twiml_app_sid','!=',null)->first();
         try {
             TwilioCallForwarding::where(['forwarding_on' => $request->agent_id])->firstOrFail();
             return new JsonResponse(['status' => 0, 'message' => 'Agent already assigned for other no.']);
@@ -1480,7 +1485,7 @@ class TwilioController extends FindByNumberController
 
     public function callManagement(Request $request)
     {
-        $twilio_accounts = TwilioCredential::where('status',true)->get();
+        $twilio_accounts = TwilioCredential::where('status',true)->where('twiml_app_sid','!=',null)->get();
         $id = $request->get('id');
         if($id != null) {
             $twilio_account_details = TwilioCredential::where(['id' => 1])->with('numbers.assigned_stores','numbers.forwarded.forwarded_number_details.user_availabilities')->first();
@@ -1494,7 +1499,7 @@ class TwilioController extends FindByNumberController
     {
         try {
             $id = $request->get('id');
-            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+            $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
             $sid = $check_account->account_id;
             $token = $check_account->auth_token;
             $url = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Calls.json?To='.$phone_number;
@@ -1509,7 +1514,7 @@ class TwilioController extends FindByNumberController
     public function incomingCallRecording(Request $request,$call_sid)
     {
         $id = $request->get('id');
-        $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+        $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
         $sid = $check_account->account_id;
         $token = $check_account->auth_token;
         $url = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Calls/'.$call_sid.'/Recordings.json';
@@ -1530,7 +1535,7 @@ class TwilioController extends FindByNumberController
     public function CallRecordings($id)
     {
         try {
-            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+            $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
             $sid = $check_account->account_id;
             $token = $check_account->auth_token;
             $twilio = new Client($sid, $token);
@@ -1547,7 +1552,7 @@ class TwilioController extends FindByNumberController
     public function downloadRecording(Request $request, $recording_id)
     {
         $id = $request->get('id');
-        $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+        $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
         $sid = $check_account->account_id;
         $file = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Recordings/'.$recording_id.'.mp3';
         header("Content-type: application/x-file-to-save");
@@ -1578,7 +1583,7 @@ class TwilioController extends FindByNumberController
     }
 
     public function setStorePhoneNumberAndGetWebsite($sid,$phone){
-        $twilio = TwilioCredential::where('account_id',$sid)->first();
+        $twilio = TwilioCredential::where('account_id',$sid)->where('twiml_app_sid','!=',null)->first();
         if ($twilio){
             $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/IncomingPhoneNumbers.json';
             $result = TwilioHelper::curlPostRequest($url, 'PhoneNumber='.$phone,$sid.':'.$twilio->auth_token);

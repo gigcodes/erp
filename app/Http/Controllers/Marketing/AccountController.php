@@ -21,6 +21,7 @@ use App\CompetitorPage;
 
 use App\Account; 
 use App\Marketing\MarketingPlatform;
+use App\Marketing\InstaAccAutomationForm;
 
 class AccountController extends Controller
 {
@@ -52,17 +53,23 @@ class AccountController extends Controller
 		$accounts = $query->orderBy('id','desc')->paginate(25);
 		
 		$platforms = MarketingPlatform::all();
+		$automation_form = [];
+		$automation_form['posts_per_day'] = Setting::get('posts_per_day');        
+        $automation_form['likes_per_day'] = Setting::get('likes_per_day');
+        $automation_form['send_requests_per_day'] = Setting::get('send_requests_per_day');
+        $automation_form['accept_requests_per_day'] = Setting::get('accept_requests_per_day');
+        $automation_form['image_per_post'] = Setting::get('image_per_post');
 
 		$websites = \App\StoreWebsite::select('id','title')->get();
 		
 		if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.accounts.partials.data', compact('accounts','type','platforms','websites'))->render(),
+                'tbody' => view('marketing.accounts.partials.data', compact('accounts','type','platforms','websites', 'automation_form'))->render(),
                 'links' => (string)$accounts->render(),
                 'count' => $accounts->total(),
             ], 200);
         }
-		return view('marketing.accounts.index',compact('accounts','type','platforms','websites'));	
+		return view('marketing.accounts.index',compact('accounts','type','platforms','websites', 'automation_form'));	
 	}
 
 
@@ -138,5 +145,15 @@ class AccountController extends Controller
 		$account->save();
 
 		return redirect()->back()->with('message', 'Account Updated');
+	}
+
+	public function automation(Request $request){
+
+		foreach($request->except('_token') as $key=>$val){
+			$setting1 = Setting::where('name',$key)->update(['val'=>$val]);
+		}
+
+		// $automation_form = InstaAccAutomationForm::create($request->all());
+		return redirect()->back()->with('message', 'Automation form Updated');
 	}
 }

@@ -50,6 +50,13 @@
             </select>
          </div>
          <div class="form-group">
+            <strong>Monetary Account:</strong>
+            <?php
+                    $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+                    echo Form::select('monetary_account_id',$monetaryAccount, null, ['placeholder' => 'Select a Account','class' => 'form-control', "id" => "monetary-account-id-txt"]);
+                ?>
+          </div>
+         <div class="form-group">
             <strong>Note:</strong>
             <textarea name="note" rows="4" cols="50" class="form-control">{{ old('note') }}</textarea>
             @if ($errors->has('note'))
