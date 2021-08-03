@@ -1531,6 +1531,8 @@ class ProductInventoryController extends Controller
             $spreadsheet = $reader->load($file->getPathname());
 
             $rows = $spreadsheet->getActiveSheet()->toArray();
+			
+// -----------------------------------------------------------------------------Brand-----------------------------------------------------------------------
 
             if ($rows[1][0] == 'Brand') {
                 foreach ($rows as $key => $row) {
@@ -1634,16 +1636,17 @@ class ProductInventoryController extends Controller
                 $excel_log = product_discount_excel_file::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
-            
-            if ($rows[0][1] == 'SS21' || $rows[0][1] == 'FW21') {
+            // ------------------------------------------------------------------ SS21---------------------------------------------------------------------------
+            if ($rows[0][1] == 'SS21') {
                 $array1 = $array2 = [];
                 $first_time1 = 1;
                 $first_row = $rows[0][1];
                 foreach ($rows as $key => $row) {
-                    if ($row[1] == 'SS21' || $row[1] == 'FW21' || $row[1] == 'ST' || $key == 2) {
+					
+                    if ($row[1] == 'SS21' || $row[1] == 'ST' || $key == 2) {
                         continue;
                     }
-
+					
                
                     // $row_1 = (isset($row[1]) &&  $row[1] != null ? $row[1] : '-');
                     // $row_2 = (isset($row[2]) &&  $row[2] != null ? $row[2] : '-');
@@ -1661,6 +1664,7 @@ class ProductInventoryController extends Controller
                 $categories = [];
                 $cat = [];
                 foreach ($array1 as $key => $row) {
+					
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
@@ -1676,6 +1680,7 @@ class ProductInventoryController extends Controller
                 $categories[] = $cat;
                 $cat = [];
                 foreach ($array2 as $key => $row) {
+					
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
@@ -1691,14 +1696,18 @@ class ProductInventoryController extends Controller
                 $categories[] = $cat;
                 $total = 1;
                 foreach ($categories as $key_ => $cats) {
+					
                     if (isset($cats[0])) {
                         array_unshift($cats, []);
                     }
+					$condition_from_retail = NULL;
                     foreach ($cats as $key => $cat) {
+					
                         if ($key == 1) {
                             $category = trim($cat[0]);
                             $gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : 'MAN';
                             $category = str_replace(' + ACC', '', $category);
+							
                             continue;
                         } elseif ($key == 2) {
                             $gen_price = $cat[0];
@@ -1706,8 +1715,8 @@ class ProductInventoryController extends Controller
                                 $generic_price = trim(str_replace('GENERIC PRICE: COST', '', $gen_price));
                                 $generic_price = str_replace('+', '', $generic_price);
                             } else {
-                                $generic_price = trim(str_replace('GENERIC PRICE: COST +', '', $gen_price));
-                                $generic_price = trim(str_replace('GENERIC PRICE: COST+', '', $generic_price));
+                                $generic_price = trim(str_replace('GENERIC PRICE: COST+', '', $gen_price));
+                                $generic_price = trim(str_replace('GENERIC PRICE: COST +', '', $generic_price));
                             }
                                                         
                             continue;
@@ -1720,8 +1729,12 @@ class ProductInventoryController extends Controller
                         } elseif ($key == 0) {
                             continue;
                         } else {
-                            $brand_name = trim($cat[0]);
-                            $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
+						
+                            $brand_name = $cat[0];
+
+							$condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
+							// $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : (isset($condition_from_retail) && $cat[1] !== null  ? $condition_from_retail : '' );
+							//$condition_from_retail = str_replace('C+', '', $cat[1]);
                             // if ($brand == "TOD'S") {
                             //     $brand = 'TODS';
                             // } elseif ($brand == 'VALENTINO') {
@@ -1767,7 +1780,7 @@ class ProductInventoryController extends Controller
                                 }
 
 							
-								$generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : $brand->deduction_percentage.'%');
+								$generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
 								
 
                                 if ($exist_row->generic_price != $generic_price_data) {
@@ -1795,7 +1808,223 @@ class ProductInventoryController extends Controller
                                 }
 								
                             } else {
-								$generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : $brand->deduction_percentage.'%');
+								// $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : $brand->deduction_percentage.'%');
+
+								$generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
+							
+
+                                $discount->supplier_id = $request->supplier;
+                                $discount->brand_id = $brand->id;
+                                $discount->gender = $gender;
+                                $discount->category = $category;
+                                $discount->generic_price = $generic_price_data;
+                                $discount->condition_from_retail = $condition_from_retail;
+								$discount->condition_from_retail_exceptions = $condition_from_retail_exceptions;
+                                $discount->save();
+
+
+                                if ($condition_from_retail != null) {
+                                    $params['supplier_brand_discounts_id'] = $discount->id;
+                                    $params['header_name']  = 'condition_from_retail';
+                                    $params['old_value']   = '-';
+                                    $params['new_value']   = $condition_from_retail;
+                                    $params['user_id'] = \Auth::user()->id;
+                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                }
+
+
+                                if ($generic_price != null) {
+                                    $params['supplier_brand_discounts_id'] = $discount->id;
+                                    $params['header_name']  = 'generic_price';
+                                    $params['old_value']   = '-';
+                                    $params['new_value']   = $generic_price_data;
+                                    $params['user_id'] = \Auth::user()->id;
+                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                }
+
+								if ($condition_from_retail_exceptions != null) {
+                                    $params['supplier_brand_discounts_id'] = $discount->id;
+                                    $params['header_name']  = 'condition_from_retail_exceptions';
+                                    $params['old_value']   = '-';
+                                    $params['new_value']   = $condition_from_retail_exceptions;
+                                    $params['user_id'] = \Auth::user()->id;
+                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                }
+
+                            }
+                           
+                        }
+						
+                    }
+					
+                }
+
+                $file->move(public_path('product_discount_file'), $fileName);
+                $excel_log = product_discount_excel_file::create($params_file);
+			
+                return redirect()->back()->with('success', 'Excel Imported Successfully!');
+            }
+// -------------------------------------------------------------------------FW21-----------------------------------------------------------------------
+            if ($rows[0][1] == 'FW21') {
+                $array1 = $array2 = [];
+                $first_time1 = 1;
+                $first_row = $rows[0][1];
+                foreach ($rows as $key => $row) {
+					
+					
+                    if ($row[1] == 'FW21' || $row[1] == 'ST' || $key == 2) {
+                        continue;
+                    }
+					
+                    $array1[] = [$row[1], $row[2]];
+                    $array2[] = [$row[4], $row[5]];
+                }
+               
+                $categories = [];
+                $cat = [];
+                foreach ($array1 as $key => $row) {
+					
+                    if ($row[0] == null && $row[1] == null) {
+                        if ($cat[0][0] == null && $cat[0][1] == null) {
+                            unset($cat[0]);
+                        }
+                        $categories[] = $cat;
+                        $cat = [];
+                    }
+                    $cat[] = $row;
+                }
+                if ($cat[0][0] == null && $cat[0][1] == null) {
+                    unset($cat[0]);
+                }
+                $categories[] = $cat;
+                $cat = [];
+                foreach ($array2 as $key => $row) {
+					
+                    if ($row[0] == null && $row[1] == null) {
+                        if ($cat[0][0] == null && $cat[0][1] == null) {
+                            unset($cat[0]);
+                        }
+                        $categories[] = $cat;
+                        $cat = [];
+                    }
+                    $cat[] = $row;
+                }
+                if ($cat[0][0] == null && $cat[0][1] == null) {
+                    unset($cat[0]);
+                }
+                $categories[] = $cat;
+                $total = 1;
+                foreach ($categories as $key_ => $cats) {
+					
+                    if (isset($cats[0])) {
+                        array_unshift($cats, []);
+                    }
+                    foreach ($cats as $key => $cat) {
+					
+                        if ($key == 1) {
+                            $category = trim($cat[0]);
+                            $gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : 'MAN';
+                            $category = str_replace(' + ACC', '', $category);
+                            continue;
+                        } elseif ($key == 2) {
+                            $gen_price = $cat[0];
+                            if ($first_row == 'FW21') {
+                                $generic_price = trim(str_replace('GENERIC PRICE: COST', '', $gen_price));
+                                $generic_price = str_replace('+', '', $generic_price);
+                            } else {
+                                $generic_price = trim(str_replace('GENERIC PRICE: COST+', '', $gen_price));
+                                $generic_price = trim(str_replace('GENERIC PRICE: COST +', '', $generic_price));
+                            }
+                                                        
+                            continue;
+                        } elseif ($key == 3 ) {
+							$exceptions = $cat[0];
+							$condition_from_retail_exceptions = trim(str_replace('EXCEPTIONS', '', $exceptions));
+							$condition_from_retail_exceptions = str_replace('+', '', $condition_from_retail_exceptions);
+							
+                            continue;
+                        } elseif ($key == 0) {
+                            continue;
+                        } else {
+						
+                            $brand_name = $cat[0];
+						
+                            $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
+							
+                            // if ($brand == "TOD'S") {
+                            //     $brand = 'TODS';
+                            // } elseif ($brand == 'VALENTINO') {
+                            //     $brand = 'VALENTINO GARAVANI';
+                            // } elseif ($brand == 'SAINT LAURENT') {
+                            //     $brand = 'YVES SAINT LAURENT';
+                            // } elseif ($brand == 'MOSCHINO LOVE') {
+                            //     $brand = 'MOSCHINO';
+                            // } elseif ($brand == 'DIOR') {
+                            //     $brand = 'CHRISTIAN DIOR';
+                            // } elseif ($brand == "CHLOE'") {
+                            //     $brand = 'CHLOE';
+                            // }
+            
+                            // $brand = Brand::where('name', $brand)->first();
+							$brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
+         
+                            if (!$brand) {
+								$params_brand = [
+									"name" => $brand_name,
+								];
+								$brand = Brand::create($params_brand);
+                                // continue;
+                            }
+            
+                            $discount = new SupplierBrandDiscount();
+                            // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
+
+                            $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
+
+						
+                            if ($exist_row) {
+                                if ($exist_row->condition_from_retail != $condition_from_retail) {
+                                    $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $condition_from_retail]);
+
+                                    $params['supplier_brand_discounts_id'] = $exist_row->id;
+                                    $params['header_name']  = 'condition_from_retail';
+                                    $params['old_value']   = $exist_row->condition_from_retail;
+                                    $params['new_value']   = $condition_from_retail;
+                                    $params['user_id'] = \Auth::user()->id;
+
+                                   $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                }
+
+							
+								$generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
+								
+
+                                if ($exist_row->generic_price != $generic_price_data) {
+                                    $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price_data]);
+
+                                    $params['supplier_brand_discounts_id'] = $exist_row->id;
+                                    $params['header_name']  = 'generic_price';
+                                    $params['old_value']   = $exist_row->generic_price;
+                                    $params['new_value']   = $generic_price_data;
+                                    $params['user_id'] = \Auth::user()->id;
+
+                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                }
+
+								if ($exist_row->condition_from_retail_exceptions != $condition_from_retail_exceptions) {
+                                    $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $condition_from_retail_exceptions]);
+
+                                    $params['supplier_brand_discounts_id'] = $exist_row->id;
+                                    $params['header_name']  = 'condition_from_retail_exceptions';
+                                    $params['old_value']   = $exist_row->condition_from_retail_exceptions;
+                                    $params['new_value']   = $condition_from_retail_exceptions;
+                                    $params['user_id'] = \Auth::user()->id;
+
+                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                }
+								
+                            } else {
+								$generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : (isset($brand->deduction_percentage) ? $brand->deduction_percentage.'%' : ''));
 							
 
                                 $discount->supplier_id = $request->supplier;
@@ -1855,6 +2084,7 @@ class ProductInventoryController extends Controller
                 $excel_log = product_discount_excel_file::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
+
 
 			
             if ($rows[0][1] == 'FW20') {
@@ -2018,14 +2248,7 @@ class ProductInventoryController extends Controller
                                         $log_history = \App\SupplierDiscountLogHistory::create($params);
                                     }
                                 }
-                                // if($exist_row) continue;
-                                    // $discount->supplier_id = $request->supplier;
-                                    // $discount->brand_id = $brand->id;
-                                    // $discount->gender = $gender;
-                                    // $discount->category = $category;
-                                    // $discount->generic_price = $generic_price;
-                                    // $discount->condition_from_retail = $condition_from_retail;
-                                    // $discount->save();
+                                
                             }
                         }
                     }

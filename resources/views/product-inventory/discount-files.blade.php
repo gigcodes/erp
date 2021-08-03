@@ -266,7 +266,7 @@
                                      <td> {{ (isset($value->users->name)) ? $value->users->name : ''}} </td>
                                      <td> {{$value->created_at}} </td>
                                     <td>
-                                         <a href='/product/discount/excel/files/?filename={{$value->excel_name}}' title='Download Excel' class='btn btn-image ml-1 download_excel' ><i class='fa fa-download' aria-hidden='true'></i></a>
+                                        <a href='/product/discount/excel/files/?filename={{$value->excel_name}}' title='Download Excel' class='btn btn-image ml-1 download_excel' ><i class='fa fa-download' aria-hidden='true'></i></a>
                                     </td>
                                 </tr>
                                 @endforeach
