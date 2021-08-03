@@ -1093,7 +1093,7 @@ class TwilioController extends FindByNumberController
             Log::channel('customerDnd')->info(' Missed Call saved');
             Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
 
-            $this->createIncomingGather($response, "Please dial 0 for leave message");
+            $this->createIncomingGather(new Request(),$response, "Please dial 0 for leave message");
         }
 
         if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->input('Caller')))->first()) {
