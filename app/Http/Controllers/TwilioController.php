@@ -203,6 +203,8 @@ class TwilioController extends FindByNumberController
         
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
 
+        Log::channel('customerDnd')->info('object:: '.$object);
+        
         $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 1 );
 
         Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
@@ -230,14 +232,17 @@ class TwilioController extends FindByNumberController
             
         // $get_twilio_phoneno = 
 
-        $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
-        $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
+        $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback";
+        // $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        $actionurl = 'https://'.$request->getHost(). "/twilio/handleDialCallStatus";
 
-        if ($context) {
-            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+        if ($context && $object) {
+            // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+            $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
         }
         // $response = new Twiml();
-        Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
+        //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
         $response = new VoiceResponse();
 
@@ -247,7 +252,7 @@ class TwilioController extends FindByNumberController
         $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
         $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-        if (($context == "customers" && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
+        if (($context == "customers" && $object && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
             $response = $response->reject();
         } else {
             // if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
@@ -257,7 +262,7 @@ class TwilioController extends FindByNumberController
             // } else {
 
                 if($count < 1)
-                    $response->play(\Config::get("app.url") . "intro_ring.mp3");
+                    $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
 
                 if($count == 2)
                 {
@@ -280,7 +285,8 @@ class TwilioController extends FindByNumberController
                 {
                     $response->say('Thanks for your patience, Our All Lines are bussy. Please leave a message');
 
-                    $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+                    // $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+                    $recordurl = 'https://'.$request->getHost() . "/twilio/storerecording";
 
                     $response->say('Please leave a message at the beep. Press the star key when finished.');
 
@@ -397,7 +403,8 @@ class TwilioController extends FindByNumberController
         if($selectedOption == 1)
         {
 
-            $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+            // $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+            $recordurl = 'https://'.$request->getHost() . "/twilio/storerecording";
 
             $response->say('Please leave a message at the beep.\nPress the star key when finished.');
 
@@ -478,7 +485,8 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info(' TIME CHECKING : 4');
 
         // list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
-        $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+        // $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+        $recordurl = 'https://'.$request->getHost() . "/twilio/storerecording";
         // Log::channel('customerDnd')->info('Context: '.$context);
         Log::channel('customerDnd')->info(' TIME CHECKING : 5');
 
@@ -531,14 +539,17 @@ class TwilioController extends FindByNumberController
             $callFrom = \Config::get("twilio.default_caller_id");
         }
 
-        $actionurl = \Config::get("app.url") . "/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
+        // $actionurl = \Config::get("app.url") . "/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
+        $actionurl = 'https://'.$request->getHost() . "/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
+
         Log::channel('customerDnd')->info('Outgoing call function Enter ' . $id);
         // $response = new Twiml();
         $response = new VoiceResponse();
         $response->dial($number, [
             'callerId' => $callFrom,
             'record' => 'true',
-            'recordingStatusCallback' => \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $id . "&Mobile=" . $number,
+            // 'recordingStatusCallback' => \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $id . "&Mobile=" . $number,
+            'recordingStatusCallback' => 'https://'.$request->getHost() . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $id . "&Mobile=" . $number,
             'action' => $actionurl
         ]);
 
@@ -575,7 +586,8 @@ class TwilioController extends FindByNumberController
         }
         //Change Agent Call Status - END
 
-        $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
+        // $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
+        $recordurl = 'https://'.$request->getHost() . "/twilio/storetranscript";
         Log::channel('customerDnd')->info('Trasncript Call back url ' . $recordurl);
         $response->record(['transcribeCallback' => $recordurl]);
 
@@ -993,12 +1005,15 @@ class TwilioController extends FindByNumberController
      * @uses Log
      * @todo not in use currently
      */
-    private function dialAllClients($response, $role = "sales", $context = NULL, $object = NULL, $number = "")
+    private function dialAllClients(Request $request,$response, $role = "sales", $context = NULL, $object = NULL, $number = "")
     {
-        $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
-        $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
+        $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback";
+        // $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+        $actionurl = 'https://'.$request->getHost() . "/twilio/handleDialCallStatus";
         if ($context) {
-            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" . $object->phone;
+            // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" . $object->phone;
+            $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" . $object->phone;
         }
 
 
@@ -1027,7 +1042,7 @@ class TwilioController extends FindByNumberController
      *
      * @return void
      */
-    private function createIncomingGather($response, $speech)
+    private function createIncomingGather(Request $request,$response, $speech)
     {
 
         Log::channel('customerDnd')->info('Gathering action...');
@@ -1035,7 +1050,8 @@ class TwilioController extends FindByNumberController
         $gather = $response->gather([
             'action' => url("/twilio/gatherAction")
         ]);
-        $gather->play(\Config::get("app.url") . "busy_ring.mp3");
+        // $gather->play(\Config::get("app.url") . "/busy_ring.mp3");
+        $gather->play('https://'.$request->getHost() . "/busy_ring.mp3");
     }
 
     /**
@@ -1057,11 +1073,13 @@ class TwilioController extends FindByNumberController
         // $response = new Twiml();
         $response = new VoiceResponse();
         $callStatus = $request->input('DialCallStatus');
-        $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+        // $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+        $recordurl = 'https://'.$request->getHost() . "/twilio/storerecording";
         Log::channel('customerDnd')->info('Current Call Status ' . $callStatus);
 
         if ($callStatus === 'completed') {
-            $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
+            // $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
+            $recordurl = 'https://'.$request->getHost() . "/twilio/storetranscript";
             Log::channel('customerDnd')->info('Trasncript Call back url ' . $recordurl);
             $response->record(['transcribeCallback' => $recordurl]);
         } else {
@@ -1248,7 +1266,8 @@ class TwilioController extends FindByNumberController
                 $sid = $request->account_id;
                 $token = $request->auth_token;
                 $twilio = new Client($sid, $token);
-                $voice_request_url = \Config::get("app.url") . "/twilio/outgoing";
+                // $voice_request_url = \Config::get("app.url") . "/twilio/outgoing";
+                $voice_request_url = 'https://'.$request->getHost() . "/twilio/outgoing";
 
                 $application = $twilio->applications
                 ->create([
@@ -1280,8 +1299,10 @@ class TwilioController extends FindByNumberController
 
                 $phone_number = $local[0]->phoneNumber;
 
-                $voice_call_comes_url = \Config::get("app.url") . "/twilio/ivr";
-                $call_status_changes_url = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+                // $voice_call_comes_url = \Config::get("app.url") . "/twilio/ivr";
+                // $call_status_changes_url = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+                $voice_call_comes_url = 'https://'.$request->getHost() . "/twilio/ivr";
+                $call_status_changes_url = 'https://'.$request->getHost() . "/twilio/handleDialCallStatus";
 
                 $incoming_phone_number = $twilio->incomingPhoneNumbers
                 ->create(["phoneNumber" => $phone_number]);
