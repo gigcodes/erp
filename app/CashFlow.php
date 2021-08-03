@@ -67,4 +67,28 @@ class CashFlow extends Model
         }
     }
 
+    public function get_bname()
+    {
+       if ($this->cash_flow_able_type == \App\Order::class) {
+           $order = \App\Order::where("id",$this->cash_flow_able_id)->first();
+           if ($order)
+              return $order->customer->name ;
+           else
+               return "";
+       }
+       else if ($this->cash_flow_able_type == \App\AssetsManager::class) {
+           $AssetsManager = \App\AssetsManager::where("id",$this->cash_flow_able_id)->first();
+           if ($AssetsManager)
+              return $AssetsManager->name;
+           else
+              return ""; 
+       }
+       else
+       {
+           return "Cash";
+       } 
+ 
+    }
+
+
 }
