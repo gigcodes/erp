@@ -239,6 +239,10 @@ var page = {
         var common =  $(".common-modal");
         common.find(".modal-dialog").html(tplHtml); 
         common.modal("show");
+        if(response.responseData.group_route != null){
+            $('#form-create-group input[name="route_domain"]').val(response.responseData.group_route.domain);
+            $('#form-create-group input[name="route_url"]').val(response.responseData.group_route.url);
+        }
         $('#form-create-group .modal-body').append(html);
 		$('.modal-body .name_div').after(html_groups); 
     },
@@ -257,11 +261,11 @@ var page = {
 
     submitFormGroup : function(ele) {
 
-        if($('input[name="route_domain"]').val() == ''){
+        if($('input[name="route_domain"]').val() == '' && $('input[name="route_url"]').val() != ''){
             toastr['error']('Route domain is required', 'error');
             return false;
         }
-        if($('input[name="route_url"]').val() == ''){
+        if($('input[name="route_url"]').val() == '' && $('input[name="route_domain"]').val() != ''){
             toastr['error']('Route url is required', 'error');
             return false;
         }

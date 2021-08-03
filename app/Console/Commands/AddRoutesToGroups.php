@@ -41,20 +41,20 @@ class AddRoutesToGroups extends Command
     {
 
         // Part-1
-        // $existing_routes = DB::table('group_routes')->get();
-        // foreach($existing_routes as $r){
-        //     dump($r->route_id);
-        //     $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/delete_auto_access';
+        $existing_routes = DB::table('group_routes')->get();
+        foreach($existing_routes as $r){
+            dump($r->route_id);
+            $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/delete_auto_access';
         
-        //     $postData = [
-        //         "id" => $r->route_id
-        //     ];
-        //     $postData = json_encode($postData, true);
-        //     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
-        //     $existing_route = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
-        //     dump([$result, $existing_route]);
-        // }
-        // dd('routes deleted');
+            $postData = [
+                "id" => $r->route_id
+            ];
+            $postData = json_encode($postData, true);
+            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $existing_route = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
+            dump([$result, $existing_route]);
+        }
+        dump('routes deleted');
         // Part-2 Create routes and update langauages to group
         $existing_themes_ids = [];
         $all_themes_ids = [];
@@ -125,7 +125,10 @@ class AddRoutesToGroups extends Command
                             'group_id' => $g->id,
                         ],[
                             'group_id' => $g->id,
-                            'route_id' => $response->id
+                            'route_id' => $response->id,
+                            'route_name' => $g->name,
+                            'domain' => $domain_values["value"],
+                            'url' => $url_values["value"],
                         ]);
                     }   
                 }else{
