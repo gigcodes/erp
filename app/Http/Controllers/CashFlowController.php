@@ -12,8 +12,8 @@ use App\Setting;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
-use Storage;
 use Illuminate\Support\Facades\Validator;
+use Storage;
 
 class CashFlowController extends Controller
 {
@@ -203,11 +203,11 @@ class CashFlowController extends Controller
         $id = $request->get("cash_flow_id", 0);
 
         $validator = Validator::make($request->all(), [
-            'cash_flow_id'          => 'required',
-            'description' => 'required',
-            'date'        => 'required',
-            'amount'      => 'required',
-            'type'        => 'required',
+            'cash_flow_id' => 'required',
+            'description'  => 'required',
+            'date'         => 'required',
+            'amount'       => 'required',
+            'type'         => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -216,19 +216,18 @@ class CashFlowController extends Controller
 
         if ($id > 0) {
             $cashflow = \App\CashFlow::find($id);
-            \App\CashFlow::create([
-                "date"                => $request->date,
-                "amount"              => $request->amount,
-                "description"         => $request->description,
-                "type"                => $request->type,
-                "cash_flow_able_id"   => $cashflow->cash_flow_able_id,
-                "cash_flow_able_type" => $cashflow->cash_flow_able_type,
-                "monetary_account_id" => $request->monetary_account_id,
-                "status"              => 1,
-                "order_status"        => $request->type,
-                "updated_by"          => auth()->user()->id,
-                "currency"            => $cashflow->currency,
-            ]);
+            if ($cashflow) {
+                $cashflow->erp_amount          = $request->amount;
+                $cashflow->type                = $request->type;
+                $cashflow->monetary_account_id = $request->monetary_account_id;
+                $cashflow->updated_by          = auth()->user()->id;
+                $cashflow->status              = 1;
+                if ($cashflow->erp_amount > 0) {
+                    $cashflow->erp_eur_amount = \App\Currency::convert($cashflow->erp_amount, 'EUR', $cashflow->currency);
+                }
+                
+                $cashflow->save();
+            }
 
             return response()->json(["code" => 200, "data" => [], "message" => "Receipt Created successfully"]);
         }
@@ -236,3 +235,4 @@ class CashFlowController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
     }
 }
+    

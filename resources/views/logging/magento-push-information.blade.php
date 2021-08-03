@@ -110,6 +110,7 @@
             <thead>
              
 							<th>Product Id</th>
+              <th>Website</th>
 							<th>Sku</th>
 							<th>Status</th>
 							<th>Quantity</th>
@@ -123,6 +124,7 @@
 							<tr>
 
 								<td>{{$item ? $item->product_id : '' }}</td>
+                <td>{{$item && $item->website ? $item->website->website : '' }}</td>
 								<td>{{$item ? $item->sku : '' }}</td>
 								<td>{{$item ? $item->status : '' }}</td>
 								<td>{{$item ? $item->quantity : '' }}</td>
@@ -176,7 +178,7 @@
                             <input type="url" class="form-control website_url" name="{{ $website->id }}" value="{{ isset($website->productCsvPath) ? $website->productCsvPath->path : '' }}" >
                         </div>
                         <div class="form-group" style="width: 10%">
-                          <button type="button" class="btn  store-product-push-website" ><img src="/images/filled-sent.png" width="16px" style="cursor: pointer;">
+                          <button type="button" data-store_website_id="{{ $website->id }}" class="btn  store-product-push-website" ><img src="/images/filled-sent.png" width="16px" style="cursor: pointer;">
 
                           </button>
                         </div>
@@ -244,7 +246,7 @@ $(document).on('click','.store-product-push-website',function(e){
           const sendData = {}
           sendData.website_url = website_url 
           sendData._token = "{{ csrf_token() }}"
-
+          sendData.store_website_id = $(this).data('store_website_id');
 
               $.ajax({
               method: "POST",
