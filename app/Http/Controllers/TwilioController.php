@@ -262,7 +262,7 @@ class TwilioController extends FindByNumberController
             // } else {
 
                 if($count < 1)
-                    $response->play(\Config::get("app.url") . "intro_ring.mp3");
+                    $response->play(\Config::get("app.url") . "/intro_ring.mp3");
 
                 if($count == 2)
                 {
@@ -1040,7 +1040,7 @@ class TwilioController extends FindByNumberController
         $gather = $response->gather([
             'action' => url("/twilio/gatherAction")
         ]);
-        $gather->play(\Config::get("app.url") . "busy_ring.mp3");
+        $gather->play(\Config::get("app.url") . "/busy_ring.mp3");
     }
 
     /**
