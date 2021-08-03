@@ -61,8 +61,8 @@ class GTMetrixTestCMD extends Command
             $cronType    = Setting::where('name',"gtmetrixCronType")->get()->first();
             $cronRunTime = Setting::where('name',"gtmetrixCronRunDate")->get()->first();
             
-            if( !empty( $cronRunTime ) ){
-                if( $cronRunTime->val != now()->format('Y-m-d') && $cronRunTime->val != 'daily' ){
+            if( !empty( $cronRunTime ) && !empty($cronType) ){
+                if( $cronRunTime->val != now()->format('Y-m-d') && $cronType->val != 'daily' ){
                     \Log::info('GTMetrix :: cron run time false' );
                     return false;
                 }
