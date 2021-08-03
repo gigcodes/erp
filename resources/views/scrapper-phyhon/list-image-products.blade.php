@@ -545,19 +545,31 @@
             {
                 if(res.status && res.list.length)
                 {
-                    $.each(res.list,function(k,v){
+                    var html = '<option value="">Select Language</option>';
+                    for (let i = 0; i < res.list.length; i++) {
+                        selected='';
 
-                    //console.log(k,v);
-                    var selected='';
-
-                    if(v.code=="{{$_REQUEST['code']??''}}")
-                    {
-                        selected='selected'
+                        if(res.list[i].code=="{{$_REQUEST['code']??''}}")
+                        {
+                            selected='selected'
+                        }
+                        html += '<option value="'+res.list[i].code+'" '+selected+'>'+res.list[i].name+' ('+res.list[i].code+') '+'</option>';
                     }
+                    $('[name="language"]').html(html);
 
-                    $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+                    // $.each(res.list,function(k,v){
 
-                    })
+                    // //console.log(k,v);
+                    // var selected='';
+
+                    // if(v.code=="{{$_REQUEST['code']??''}}")
+                    // {
+                    //     selected='selected'
+                    // }
+
+                    // $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+
+                    // })
                     
                 }
                 else

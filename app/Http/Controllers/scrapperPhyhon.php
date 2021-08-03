@@ -164,10 +164,12 @@ class scrapperPhyhon extends Controller
                 if( $website_store_views ){
                     $images = \App\scraperImags::where('store_website',$list->store_website_id)
                     ->where('website_id',$request->code); // this is language code. dont be confused with column name
-
-                    if(isset($request->device) && $request->device != '')
+                    if(isset($request->device) && ($request->device == 'mobile' || $request->device == 'tablet'))
                     {
                         $images = $images->where('device',$request->device);
+                    }
+                    elseif($request->device == 'desktop'){                        
+                        $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
                     }
                     
                     $images = $images->get()
