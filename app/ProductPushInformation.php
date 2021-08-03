@@ -21,7 +21,7 @@ class ProductPushInformation extends Model
             $user_id = Auth::id();
 
             $old_arr = [];
-            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id'];
+            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id', 'store_website_id'];
             foreach ($old_contents as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
                     continue;
@@ -44,7 +44,7 @@ class ProductPushInformation extends Model
 
             $old_arr = [];
             $user_id = Auth::id();
-            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id'];
+            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id', 'store_website_id'];
             foreach ($p->toArray() as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
                     continue;
