@@ -33,17 +33,50 @@ class CategoryController extends Controller
     public function manageCategory(Request $request)
     {
 
+   
+
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
+
         $allCategories     = Category::all();
 
         $selected_value  = $request->filter;
 
         if(isset($request->filter)){
-            $categories=  $categories->where('title','like','%'.$request->filter.'%');
-        }
-        $categories= $categories->paginate(20);
+
+            $categories=  Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('title','like','%'.$request->filter.'%')->get();  
+            $final_cat = [];
+            
+            foreach($categories as $key=> $cat){
     
+                    if($cat->parentM){
+    
+                            if($cat->parentM->parentM){
+    
+                                if($cat->parentM->parentM->parentM){
+    
+                                    $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
+    
+                                }else{
+                                    $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
+    
+                                }
+                            }else{
+    
+                                $final_cat[$cat->parentM->id] = $cat->parentM;
+                            }
+                    }else{
+    
+                        $final_cat[$cat->id] = $cat;
+                    }
+            }
+                $categories = $final_cat;
+        }else{
+
+            // $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
+            $categories        = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id',0)->orderBy('title');
+            $categories= $categories->get();
+
+        }
 
         $old = $request->old('parent_id');
 
@@ -88,7 +121,8 @@ class CategoryController extends Controller
             'magento_id'  => 'required|numeric',
             'show_all_id' => 'numeric|nullable',
         ]);
-        $input              = $request->all();
+        $input    = $request->all();
+        // dd($input);
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
 
         Category::create($input);

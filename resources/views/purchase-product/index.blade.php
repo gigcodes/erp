@@ -177,7 +177,7 @@
             <th width="10%"><a href="">Supplier</a></th>
             <th width="10%">Product</th>
             <th width="10%">Buying Price</th>
-            <th width="10%">Buying Price(EUR)</th>
+            <th width="10%">Selling Price(EUR)</th>
             <th width="10%"><a href="">Selling price</a></th>
             <th width="8%"><a href="">Order Date</a></th>
            <th width="8%"><a href="">Del Date</a></th>

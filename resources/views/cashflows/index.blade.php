@@ -72,6 +72,9 @@
                    <th>Type</th>
                    <th>Description</th>
                    <th>Amount</th>
+                   <th>Amount(EUR)</th>
+                   <th>Erp Amount</th>
+                   <th>Erp Amount(EUR)</th>
                    <th>Type</th>
                    <th>Actions</th>
                </tr>
@@ -94,8 +97,12 @@
                            @endif
                        </td>
                        <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
+                       <td>{{ $cash_flow->amount_eur }}</td>
+                       <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
+                       <td>{{ $cash_flow->erp_eur_amount }}</td>
                        <td>{{ ucwords($cash_flow->type) }}</td>
                        <td>
+                           <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
                            {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                            <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                            {!! Form::close() !!}
@@ -212,6 +219,59 @@
       </div>
     </div>
 
+
+<div id="do-payment-model" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ route('cashflow.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="modal-header">
+          <h4 class="modal-title">Create a receipt for <span class="text-cashflow-id"></span></h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+              <input type="hidden" name="cash_flow_id" id="cashflow-id-txt">
+              <strong>Amount:</strong>
+              <?php
+                  echo Form::text('amount',null, ['placeholder' => 'Insert Amount','class' => 'form-control', 'id' => 'cashflow-amount']);
+              ?>
+            </div>  
+            <div class="form-group">
+              <strong>Type:</strong>
+              <?php
+                  echo Form::select('type',["received" => "Received" , "paid" => "Paid"], null, ['placeholder' => 'Select a type','class' => 'form-control']);
+              ?>
+            </div>
+            <div class="form-group">
+              <strong>Date:</strong>
+              <?php
+                  echo Form::text('date', null, ['placeholder' => 'Enter date','class' => 'form-control enter-date']);
+              ?>
+            </div>
+            <div class="form-group">
+              <strong>Monetary Account:</strong>
+              <?php
+                  $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+                  echo Form::select('monetary_account_id',$monetaryAccount, null, ['placeholder' => 'Select a Account','class' => 'form-control', "id" => "monetary-account-id-txt"]);
+              ?>
+            </div>
+            <div class="form-group">
+              <strong>Note:</strong>
+              <?php
+                  echo Form::textarea('description',null, ['placeholder' => 'Insert note','class' => 'form-control']);
+              ?>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary submit-cashflow">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -222,6 +282,10 @@
     $(document).ready(function() {
       $('#date-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
+      });
+
+      $('.enter-date').datetimepicker({
+        format: 'YYYY-MM-DD'
       });
     });
 
@@ -243,5 +307,51 @@
         }));
       });
     });
+
+
+    $(document).on("click",".do-payment-btn",function() {
+      var $this = $(this);
+      var id  = $this.data("id");
+      var mnt = $this.data("mnt-account");
+      var amount = $this.data("mnt-amount");
+      $("#do-payment-model").find(".text-cashflow-id").html("#"+id);
+      $("#do-payment-model").find("#cashflow-id-txt").val(id);
+      $("#do-payment-model").find("#monetary-account-id-txt").val(mnt);
+      $("#do-payment-model").find("#cashflow-amount").val(amount);
+      $("#do-payment-model").modal("show");
+    });
+
+    $(document).on("click",".submit-cashflow",function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: '/cashflow/do-payment',
+            type: 'POST',
+            data : form.serialize(),
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                  $("#do-payment-model").modal("hide");
+                  toastr["success"](result.message);
+                }else if(result.code == 401) {
+                   var html = result.message+"</br>";
+                    $.each(result.data,function(i,k) {
+                        $.each(k,function(p,m) {
+                            html += m+"</br>";
+                        });
+                    });
+                    toastr["error"](html);
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
   </script>
 @endsection
