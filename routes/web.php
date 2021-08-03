@@ -21,9 +21,8 @@ Route::post('customer/add_customer_address', 'CustomerController@add_customer_ad
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 
 Route::get('/test/test', 'OrderController@testEmail');
-Route::get('/memory', function () {
-    return view('memory');
-})->name('memory');
+Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
+Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
