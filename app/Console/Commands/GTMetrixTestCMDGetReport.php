@@ -80,7 +80,7 @@ class GTMetrixTestCMDGetReport extends Command
 
             $resources = $test->getResources();
 
-            \Log::info(print_r(["Resource started",$resources]));
+            \Log::info(print_r(["Resource started",$resources],true));
 
             if (!empty($resources['report_pdf'])) {
                 $ch = curl_init($resources['report_pdf']);
@@ -95,14 +95,14 @@ class GTMetrixTestCMDGetReport extends Command
                 $curlError  = curl_error($ch);
                 curl_close($ch);
 
-                \Log::info(print_r(["Resource started",$resources]));
+                \Log::info(print_r(["Result started to fetch"],true));
 
                 $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
                 $file     = public_path() . $fileName;
                 file_put_contents($file, $result);
                 $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
-                \Log::info(print_r(["Store view found",$storeview]));
+                \Log::info(print_r(["Store view found",$storeview],true));
 
                 if ($storeview) {
                     $storeview->pdf_file = $fileName;
