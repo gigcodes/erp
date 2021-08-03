@@ -51,8 +51,8 @@ class AddRoutesToGroups extends Command
         //     ];
         //     $postData = json_encode($postData, true);
         //     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
-        //     $existing_routes = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
-        //     dump([$result, $existing_routes]);
+        //     $existing_route = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
+        //     dump([$result, $existing_route]);
         // }
         // dd('routes deleted');
         // Part-2 Create routes and update langauages to group
