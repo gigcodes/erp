@@ -1005,7 +1005,7 @@ class TwilioController extends FindByNumberController
      * @uses Log
      * @todo not in use currently
      */
-    private function dialAllClients($response, $role = "sales", $context = NULL, $object = NULL, $number = "")
+    private function dialAllClients(Request $request,$response, $role = "sales", $context = NULL, $object = NULL, $number = "")
     {
         // $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
         $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback";
