@@ -100,6 +100,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('history','BrandController@history')->name("store-website.brand.history");
         Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
         Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
+        Route::post('reconsile-brand','BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
     });
 
     Route::prefix('price-override')->group(function () {

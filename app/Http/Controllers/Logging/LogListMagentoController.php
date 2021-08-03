@@ -21,6 +21,8 @@ use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use App\ProductPushInformation;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Category;
+use App\Brand;
 
 
 use App\Jobs\PushToMagento;
@@ -625,6 +627,28 @@ class LogListMagentoController extends Controller
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
         $logListMagentos = ProductPushInformation::with('storeWebsite')->orderBy('product_id','DESC');
+        $selected_brands = $request->brand_names;
+        $selected_categories = $request->category_names;
+        $selected_website = $request->website_name; 
+        if(($selected_brands && count($selected_brands)) || ($selected_categories && count($selected_categories)) ){
+            $skus = ProductPushInformation::filterProductSku($selected_categories, $selected_brands);
+            foreach($skus as $sku){
+                $logListMagentos = $logListMagentos->orWhere('sku', 'like', '%' . $sku . '%');
+            }
+        }
+        if($selected_brands && count($selected_brands)){
+            $selected_brands = Brand::whereIn('id', $selected_brands)->get();
+        }
+
+        if($selected_categories && count($selected_categories)){
+            $selected_categories = Category::whereIn('id', $selected_categories)->get();
+        }
+        if($selected_website){
+            $selected_website = StoreWebsite::where('id', $selected_website)->first();
+            $logListMagentos = $logListMagentos->whereHas('storeWebsite', function($q) use ($selected_website){
+                $q->where('id', $selected_website->id);
+            });
+        }
         $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
 // dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
@@ -643,7 +667,7 @@ class LogListMagentoController extends Controller
         $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
         $total_count = ProductPushInformation::get()->count();
 
-       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl'));
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl', 'selected_categories', 'selected_brands', 'selected_website'));
            
 
     }
