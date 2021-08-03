@@ -1042,7 +1042,7 @@ class TwilioController extends FindByNumberController
      *
      * @return void
      */
-    private function createIncomingGather($response, $speech)
+    private function createIncomingGather(Request $request,$response, $speech)
     {
 
         Log::channel('customerDnd')->info('Gathering action...');
