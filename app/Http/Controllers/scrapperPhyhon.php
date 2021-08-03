@@ -387,13 +387,17 @@ class scrapperPhyhon extends Controller
     public function changeCatRemarkList(Request $request)
     {
         $store_website = \App\Website::find($request->website_id);
-        $site_development = SiteDevelopment::where('site_development_category_id',$request->remark)->where('website_id',$store_website->store_website_id)->orderBy('id','DESC')->first();
+        $site_development = SiteDevelopment::where('site_development_category_id',$request->remark)->where('website_id',$store_website->store_website_id)->get();
         $remarks = [];
-        if($site_development && $request->remark){
-            $remarks = \App\StoreDevelopmentRemark::where('store_development_id',$site_development->id)
-                                        ->join('users as user','user.id','store_development_remarks.user_id')
-                                        ->select('user.name as username','store_development_remarks.*')
-                                        ->get();
+        if(count($site_development) > 0)
+        {
+            foreach ($site_development as $val) {
+                $sd_remarks = \App\StoreDevelopmentRemark::join('users as usr','usr.id','store_development_remarks.user_id')
+                                            ->where('store_development_remarks.store_development_id',$val->id)
+                                            ->select('store_development_remarks.*','usr.name as username')
+                                            ->get()->toArray();
+                array_push($remarks,$sd_remarks);
+            }
         }
         return response()->json(['remarks' => $remarks]);
     }

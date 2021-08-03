@@ -662,8 +662,10 @@
                 website_id:website_id,
             },
             success: function(response){
-                for (let i = 0; i < response.remarks.length; i++) {
-                    var remark = response.remarks[i];
+                const shorter = (a,b)=>  a.id>b.id ? -1: 1;
+			    response.remarks.flat().sort(shorter);
+                for (let i = 0; i < response.remarks.flat().sort(shorter).length; i++) {
+                    var remark = response.remarks.flat().sort(shorter)[i];
                     if (remark.remarks.length > 80) {
                         remark.remarks = remark.remarks.substring(0, 80)+'...';
                     }
