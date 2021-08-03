@@ -911,6 +911,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
     Route::get('productinventory/in/stock/location/change', 'ProductInventoryController@locationChange')->name('productinventory.location.change');
 
+    Route::post('discount/file/update', 'ProductInventoryController@updategenericprice')->name('discount.file.update');
+    Route::post('retailfromdisc/file/update', 'ProductInventoryController@conditionprice')->name('condition.file.update');
+    Route::post('retailfromexceptionsdisc/file/update', 'ProductInventoryController@exceptionsprice')->name('condition-exceptions.file.update');
+    
+    
+
+
 
     Route::prefix('google-search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
