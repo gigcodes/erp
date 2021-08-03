@@ -1103,5 +1103,10 @@ class Category extends Model
         return $sizeCharts;
     }
 
+    public function products()
+    {
+        return $this->hasMany( Product::class, 'category', 'id' );
+    }
+
 }
  
