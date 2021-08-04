@@ -2922,8 +2922,7 @@ class ProductController extends Controller
         $productId = request("product_id", null);
         $supplierId = request("supplier_id", null);
         if ($productId != null) {
-            $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
-                ->where('category', '>', 3)->first();
+            $product = Product::where('id', $productId)->where('category', '>', 3)->first();
         }elseif($supplierId != null) {
             $product = Product::join("product_suppliers as ps","ps.product_id", "products.id")
             ->where('ps.supplier_id', $supplierId)
@@ -2963,6 +2962,13 @@ class ProductController extends Controller
                 'status' => 'no_product'
             ]);
         }
+
+        $debug = request("debug",false);
+        if(empty($debug)) {
+            $product->status_id = StatusHelper::$isBeingCropped;
+            $product->save();
+        }
+        
 
 
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
