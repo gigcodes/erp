@@ -1077,9 +1077,12 @@
 
 	$(document).on("click", ".btn-store-development-remark", function(e) {
 		var id = $(this).data("site-id");
+		var cat_id = $(this).data("site-category-id");
+		var website_id = $(this).data("store-website-id");
 		$.ajax({
 			url: '/site-development/' + id + '/remarks',
 			type: 'GET',
+			data:{cat_id: cat_id, website_id: website_id},
 			headers: {
 				'X-CSRF-TOKEN': "{{ csrf_token() }}"
 			},
@@ -1090,9 +1093,11 @@
 			$("#loading-image").hide();
 			toastr["success"]("Remarks fetched successfully");
 
-			var html = "";
-
-			$.each(response.data, function(k, v) {
+			var html = "";			
+			const shorter = (a,b)=>  a.id>b.id ? -1: 1;
+			response.data.flat().sort(shorter)
+			
+			$.each(response.data.flat().sort(shorter), function(k, v) {
 				html += "<tr>";
 				html += "<td>" + v.id + "</td>";
 				html += "<td>" + v.remarks + "</td>";

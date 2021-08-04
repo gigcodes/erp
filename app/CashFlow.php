@@ -2,8 +2,9 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Events\CashFlowCreated;
+use App\Events\CashFlowUpdated;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -27,11 +28,12 @@ class CashFlow extends Model
      * @SWG\Property(property="cash_flow_able_type",type="sting")
      */
     protected $fillable = [
-        'user_id', 'cash_flow_category_id', 'description', 'date', 'amount',  'amount_eur', 'type', 'expected', 'actual', 'currency', 'status', 'order_status', 'updated_by', 'cash_flow_able_id', 'cash_flow_able_type','monetary_account_id'
+        'user_id', 'cash_flow_category_id', 'description', 'date', 'amount', 'erp_amount', 'erp_eur_amount', 'amount_eur', 'type', 'expected', 'actual', 'currency', 'status', 'order_status', 'updated_by', 'cash_flow_able_id', 'cash_flow_able_type', 'monetary_account_id',
     ];
 
     protected $dispatchesEvents = [
         'created' => CashFlowCreated::class,
+        'updated' => CashFlowUpdated::class,
     ];
 
     public function user()
@@ -53,16 +55,45 @@ class CashFlow extends Model
     {
 
     }
-    
+
+    public function order()
+    {
+        return $this->hasOne(\App\Order::class, 'id', 'cash_flow_able_id');
+    }
+
+    public function assetsManager()
+    {
+        return $this->hasOne(\App\AssetsManager::class, 'id', 'cash_flow_able_id');
+    }
+
+    public function paymentReceipt()
+    {
+        return $this->hasOne(\App\PaymentReceipt::class, 'id', 'cash_flow_able_id');
+    }
+
     public function getLink()
     {
-       if($this->cash_flow_able_type == \App\Order::class) {
-          return '<a href="'.route('order.show', $this->cash_flow_able_id).'" class="btn-link">'.$this->cash_flow_able_id.'</a>';
-       }else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
-          return '<a href="/voucher" class="btn-link">'.$this->cash_flow_able_id.'</a>';
-       }else{
-          return '<a href="javascript:;" class="btn-link">'.$this->cash_flow_able_id.'</a>';
-       }
+        if ($this->cash_flow_able_type == \App\Order::class) {
+            return '<a href="' . route('order.show', $this->cash_flow_able_id) . '" class="btn-link">' . $this->cash_flow_able_id . '</a>';
+        } else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
+            return '<a href="/voucher" class="btn-link">' . $this->cash_flow_able_id . '</a>';
+        } else {
+            return '<a href="javascript:;" class="btn-link">' . $this->cash_flow_able_id . '</a>';
+        }
+    }
+
+    public function get_bname()
+    {
+        if ($this->cash_flow_able_type == \App\Order::class) {
+            return ($this->order) ? $this->order->customer->name : "N/A";
+        } else if ($this->cash_flow_able_type == \App\AssetsManager::class) {
+            return ($this->assetsManager) ? $this->assetsManager->name : "N/A";
+        } else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
+            return ($this->paymentReceipt) ? $this->paymentReceipt->remarks : "N/A";
+        } else {
+            return "Cash";
+        }
+
     }
 
 }

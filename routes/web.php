@@ -21,9 +21,8 @@ Route::post('customer/add_customer_address', 'CustomerController@add_customer_ad
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 
 Route::get('/test/test', 'OrderController@testEmail');
-Route::get('/memory', function () {
-    return view('memory');
-})->name('memory');
+Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
+Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -911,6 +910,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
     Route::get('productinventory/in/stock/location/change', 'ProductInventoryController@locationChange')->name('productinventory.location.change');
+
+    Route::post('discount/file/update', 'ProductInventoryController@updategenericprice')->name('discount.file.update');
+    Route::post('retailfromdisc/file/update', 'ProductInventoryController@conditionprice')->name('condition.file.update');
+    Route::post('retailfromexceptionsdisc/file/update', 'ProductInventoryController@exceptionsprice')->name('condition-exceptions.file.update');
+    
+    
+
 
 
     Route::prefix('google-search-image')->group(function () {
@@ -3189,6 +3195,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
+Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 

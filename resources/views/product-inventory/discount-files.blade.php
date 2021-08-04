@@ -119,38 +119,47 @@
             <table id="table" class="table table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>Brand</th>
-                        <th>Supplier Name</th> 
-                        <th>Gender </th>
-                        <th>Category</th>
-                        <th>Generice price</th>
-                        <th>Exceptions</th>
-                        <th>Condition from retail</th>
-                        <th>Retail condition for exceptions</th>
+                        <th width="16%">Brand</th>
+                        <th width="10%">Supplier Name</th> 
+                        <th width="6%">Gender </th>
+                        <th width="10%">Category</th>
+                        <th width="12%">Generice price</th>
+                        <th width="10%">Exceptions</th>
+                        <th width="16%">Condition from retail</th>
+                        <th width="20%">Retail condition for exceptions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($rows as $key=> $row ) 
-                    <tr>
+                    <tr data-id="{{ $row->id }}">
                        <td>{{ (isset($row->brand->name)) ? $row->brand->name : ''}}</td> 
                        <td>{{$row->supplier->supplier}}</td>
                        <td>{{$row->gender}}</td> 
                        <td>{{$row->category}}</td> 
-                       <td>{{$row->generic_price ?? '-'}}
-                            @if($row->generic_price && $row->generic_price != '-')
-                            <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="generic_price" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                       <td>
+                        <div class="price" style="display: flex;">
+                            <input type="text" name="generic_price_data" id="generic_price_data" class="form-control generic-price-input"  value="{{ $row->generic_price }}" style="width: calc(100% - 30px);">  
+                            @if($row->generic_price && $row->generic_price != '-') 
+                                 <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="generic_price" style="font-size:15px;color: #757575;width: 25px;display: flex;align-items: center;padding-left: 10px;"></a>
                             @endif
+                        </div>
                         </td> 
                        <td>{{$row->exceptions ?? '-'}}</td> 
-                       <td>{{$row->condition_from_retail ?? '-'}} 
+                       <td>
+                       <div class="condition" style="display: flex;">
+                            <input type="text" name="condition_from_retail" id="condition_from_retail" class="form-control condition-from-retail-input" value="{{$row->condition_from_retail}}" style="width: calc(100% - 30px);" />
                             @if($row->condition_from_retail && $row->condition_from_retail != '-')
-                            <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                                 <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail" style="font-size:15px; display: flex;align-items: center;padding-left: 10px; color: #757575;"></a>
                             @endif
+                        </div>
                         </td> 
-                        <td>{{$row->condition_from_retail_exceptions ?? '-'}}
+                        <td>
+                        <div class="condition_exception" style="display: flex;">
+                            <input type="text" name="condition_from_retail_exceptions" id="condition_from_retail_exceptions" class="form-control condition-from-retail-exceptions-input" data-id="{{ $row->id }}" value="{{$row->condition_from_retail_exceptions}}" style="width: calc(100% - 30px);" />
                             @if($row->condition_from_retail_exceptions && $row->condition_from_retail_exceptions != '-')
-                            <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail_exceptions" style="font-size:15px; margin-left:10px; color: #757575;"></a>
+                                  <a title="Log Details" class="fa fa-info-circle discount_log" data-id="{{ $row->id }}" data-header="condition_from_retail_exceptions" style="font-size:15px;  display: flex;align-items: center;padding-left: 10px; color: #757575;"></a>
                             @endif
+                        </div>
                         </td> 
                     </tr>
                     @endforeach
@@ -257,9 +266,6 @@
                                      <td> {{ (isset($value->users->name)) ? $value->users->name : ''}} </td>
                                      <td> {{$value->created_at}} </td>
                                     <td>
-                                        {{-- <a title="Download Invoice" class="btn btn-image" href="">
-                                            <i class="fa fa-download downloadpdf"></i>
-                                        </a> --}}
                                         <a href='/product/discount/excel/files/?filename={{$value->excel_name}}' title='Download Excel' class='btn btn-image ml-1 download_excel' ><i class='fa fa-download' aria-hidden='true'></i></a>
                                     </td>
                                 </tr>
@@ -331,7 +337,96 @@
         $('#log-history-model').modal('show');
     });
    
+    $(document).on('keyup', '.generic-price-input', function () {
+        let generic_price_data = $(this).val();
+        let thiss = $(this);
+        if (event.keyCode != 13) {
+            return;
+        }
+
+        $.ajax({
+            url: "{{route('discount.file.update')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                generic_price_data: generic_price_data,
+                generic_id: $(this).closest('tr').attr('data-id'),
+            },
+            success: function(response){
+                var length_info  = thiss.siblings('a').length;
+                              
+                if(response && length_info == 0){   
+                                
+                     $(thiss).after('<a title="Log Details" class="fa fa-info-circle discount_log" data-id="'+ response.brand_disc.id +'" data-header="condition_from_retail_exceptions" style="font-size:15px;  display: flex;align-items: center;padding-left: 10px; color: #757575;"></a>');
+                }
+                toastr.success('Generic Price Data Updated ');
+                
+            }
+            
+        });        
+
+    }); 
+
+     $(document).on('keyup', '.condition-from-retail-input', function () {
+        let condition_from_retail_data = $(this).val();
+        let thiss = $(this);
+        if (event.keyCode != 13) {
+            return;
+        }
+
+        $.ajax({
+            url: "{{route('condition.file.update')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+              
+                condition_from_retail_data: condition_from_retail_data,
+                condition_id: $(this).closest('tr').attr('data-id'),
+            },
+            success: function(response){
                
+                var length_info  = thiss.siblings('a').length;
+                              
+                if(response && length_info == 0){                  
+                     $(thiss).after('<a title="Log Details" class="fa fa-info-circle discount_log" data-id="'+ response.condition_disc.id +'" data-header="condition_from_retail_exceptions" style="font-size:15px;  display: flex;align-items: center;padding-left: 10px; color: #757575;"></a>');
+                }
+                
+                toastr.success('Condition from Retail Data Updated ')
+            }
+        });       
+
+    });        
+
+    $(document).on('keyup', '.condition-from-retail-exceptions-input', function () {
+        let condition_from_retail_exceptions_data = $(this).val();
+        let thiss = $(this);
+        if (event.keyCode != 13) {
+            return;
+        }
+       
+        $.ajax({
+            url: "{{route('condition-exceptions.file.update')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+              
+                condition_from_retail_exceptions_data: condition_from_retail_exceptions_data,
+                condition_exceptions_id: $(this).closest('tr').attr('data-id'),
+            },
+            success: function(response){
+
+                var length_info  = thiss.siblings('a').length;
+                              
+                if(response && length_info == 0){                    
+                     $(thiss).after('<a title="Log Details" class="fa fa-info-circle discount_log" data-id="'+ response.exceptions_discount.id +'" data-header="condition_from_retail_exceptions" style="font-size:15px;  display: flex;align-items: center;padding-left: 10px; color: #757575;"></a>');
+                   
+                }
+
+                toastr.success('Condition from Retail Exceptions Data Updated ');
+            }
+        })
+
+    });  
 </script>
 
 @endsection
