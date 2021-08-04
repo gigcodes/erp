@@ -61,218 +61,61 @@
         </div>
     @endif
 
-   <div >
-       <div id="exTab2">
-           <ul class="nav nav-tabs ml-3">
-               <li class="active">
-                   <a href="#manual_tab" data-toggle="tab">Manual Entries</a>
-               </li>
-               <li>
-                   <a href="#order_tab" data-toggle="tab">Orders</a>
-               </li>
-               <li>
-                   <a href="#purchase_tab" data-toggle="tab">Purchases</a>
-               </li>
-               <li>
-                   <a href="#voucher_tab" data-toggle="tab">Convenience Vouchers</a>
-               </li>
-               </ul>
+   <div class="row" >
+        <div class="col-md-12">
+        <div class="table-responsive ">
+           <table class="table table-bordered">
+               <thead>
+               <tr>
+                   <th>Date</th>
+                   <th>Module</th>
+                   <td>Beneficiary Name</td>
+                   <th>Type</th>
+                   <th>Description</th>
+                   <th>Amount</th>
+                   <th>Amount(EUR)</th>
+                   <th>Erp Amount</th>
+                   <th>Erp Amount(EUR)</th>
+                   <th>Type</th>
+                   <th>Actions</th>
+               </tr>
+               </thead>
+
+               <tbody>
+               @foreach ($cash_flows as $cash_flow)
+                   <tr>
+                       <td class="small">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
+                       <td>{!! $cash_flow->getLink() !!}</td>
+                       <td>{!! $cash_flow->get_bname()!!} </td>
+                       <td>{{ class_basename($cash_flow->cashFlowAble) }}</td>
+                       <td>
+                           {{ $cash_flow->description }}
+                           @if ($cash_flow->files)
+                               <ul>
+                                   @foreach ($cash_flow->files as $file)
+                                       <li><a href="{{ route('cashflow.download', $file->id) }}" class="btn-link">{{ $file->filename }}</a></li>
+                                   @endforeach
+                               </ul>
+                           @endif
+                       </td>
+                       <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
+                       <td>{{ $cash_flow->amount_eur }}</td>
+                       <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
+                       <td>{{ $cash_flow->erp_eur_amount }}</td>
+                       <td>{{ ucwords($cash_flow->type) }}</td>
+                       <td>
+                           <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
+                           {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                           <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                           {!! Form::close() !!}
+                       </td>
+                   </tr>
+               @endforeach
+               </tbody>
+           </table>
        </div>
-        <div class="tab-content">
-           <div class="tab-pane active " id="manual_tab" style="margin: 0 10px">
-               <div class="table-responsive ">
-                   <table class="table table-bordered">
-                       <thead>
-                       <tr>
-                           <th>Module</th>
-                           <th>Type</th>
-                           <th>Date</th>
-                           <th>Description</th>
-                           <th>Amount</th>
-                           <th>Expected</th>
-                           <th>Actual</th>
-                           <th>Type</th>
-                           <th>Actions</th>
-                       </tr>
-                       </thead>
 
-                       <tbody>
-                       @foreach ($cash_flows as $cash_flow)
-                           <tr>
-                               <td><a href="{{ route('order.show',[$cash_flow->cash_flow_able_id]) }}" title="View {{ class_basename($cash_flow->cashFlowAble) }} Detail" target="_blank">{{ optional($cash_flow->cashFlowAble)->order_id }}</a><br>{{ class_basename($cash_flow->cashFlowAble) }}</td>
-                               <td></td>
-                               <td class="small">{{ date('Y-d-m', strtotime($cash_flow->date)) }}</td>
-
-                               <td>
-                                   {{ $cash_flow->description }}
-                                   @if ($cash_flow->files)
-                                       <ul>
-                                           @foreach ($cash_flow->files as $file)
-                                               <li><a href="{{ route('cashflow.download', $file->id) }}" class="btn-link">{{ $file->filename }}</a></li>
-                                           @endforeach
-                                       </ul>
-                                   @endif
-                               </td>
-                               <td>@if($cash_flow->amount > 0)$@endif{{ $cash_flow->amount }}</td>
-                               <td>{{ $cash_flow->expected }}</td>
-                               <td>{{ number_format($cash_flow->actual, 2) }}</td>
-                               <td>{{ ucwords($cash_flow->type) }}</td>
-                               <td>
-                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
-                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                                   {!! Form::close() !!}
-                               </td>
-                           </tr>
-                       @endforeach
-                       </tbody>
-                   </table>
-               </div>
-
-               {!! $cash_flows->appends(Request::except('page'))->links() !!}
-           </div>
-
-           <div class="tab-pane" id="order_tab" style="margin: 0 10px">
-               <div class="table-responsive">
-                   <table class="table table-bordered">
-                       <thead>
-                       <tr>
-                           <th>ID</th>
-                           <th>Date</th>
-                           <th>Order Products</th>
-                           <th>Order Balance</th>
-                           <th>Purchase</th>
-                           <th>Profit</th>
-                           <th>Actions</th>
-                       </tr>
-                       </thead>
-
-                       <tbody>
-                       @foreach ($orders as $order)
-                           <tr>
-                               <td><a href="{{ route('order.show', $order->id) }}" target="_blank">{{ $order->id }}</a></td>
-                               <td>{{ \Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
-                               <td>
-                                   @if ($order->order_product)
-                                       <ul>
-                                           @foreach ($order->order_product as $order_product)
-                                               <li>{{ $order_product->sku }} - {{ $order_product->product_price }}</li>
-                                           @endforeach
-                                       </ul>
-                                   @endif
-                               </td>
-                               <td>@if($order->balance_amount > 0)$@endif{{ $order->balance_amount }}</td>
-                               <td>
-                                   @if ($order->order_product)
-                                       @php $purchase_price = 0; @endphp
-
-                                       <ul>
-                                           @foreach ($order->order_product as $order_product)
-                                               @if ($order_product->product)
-                                                   @if ($order_product->product->purchases)
-                                                       @foreach ($order_product->product->purchases as $purchase)
-                                                           <li>{{ $order_product->product->price }}</li>
-
-                                                           @php $purchase_price += $order_product->product->price; @endphp
-                                                       @endforeach
-                                                   @endif
-                                               @endif
-                                           @endforeach
-                                       </ul>
-                                   @endif
-                               </td>
-                               <td>
-                                   @if( $order->balance_amount - $purchase_price  > 0)$@endif{{ $order->balance_amount - $purchase_price }}
-                               </td>
-                               <td>
-                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
-                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                                   {!! Form::close() !!}
-                               </td>
-                           </tr>
-                       @endforeach
-                       </tbody>
-                   </table>
-               </div>
-
-               {!! $orders->appends(Request::except('order-page'))->links() !!}
-           </div>
-
-           <div class="tab-pane" id="purchase_tab" style="margin: 0 10px">
-               <div class="table-responsive">
-                   <table class="table table-bordered">
-                       <thead>
-                       <tr>
-                           <th>ID</th>
-                           <th>Date</th>
-                           <th>Amount</th>
-                           <th>Actions</th>
-                       </tr>
-                       </thead>
-
-                       <tbody>
-                       @foreach ($purchases as $purchase)
-                           <tr>
-                               <td><a href="{{ route('purchase.show', $purchase->id) }}" target="_blank">{{ $purchase->id }}</a></td>
-                               <td>{{ \Carbon\Carbon::parse($purchase->created_at)->format('d-m H:i') }}</td>
-                               <td>
-                                   <ul>
-                                       @foreach ($purchase->products as $product)
-                                           <li>{{ $product->price }}</li>
-                                       @endforeach
-                                   </ul>
-                               </td>
-                               <td>
-                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
-                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                                   {!! Form::close() !!}
-                               </td>
-                           </tr>
-                       @endforeach
-                       </tbody>
-                   </table>
-               </div>
-
-               {!! $purchases->appends(Request::except('purchase-page'))->links() !!}
-           </div>
-
-           <div class="tab-pane" id="voucher_tab" style="margin: 0 10px">
-               <div class="table-responsive">
-                   <table class="table table-bordered">
-                       <thead>
-                       <tr>
-                           <th>User</th>
-                           <th>Date</th>
-                           <th>Description</th>
-                           <th>Amount</th>
-                           <th>Paid</th>
-                           <th>Credit</th>
-                           <th>Actions</th>
-                       </tr>
-                       </thead>
-
-                       <tbody>
-                       @foreach ($vouchers as $voucher)
-                           <tr>
-                               <td>{{ $voucher->user->name }}</td>
-                               <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
-                               <td>{{ $voucher->description }}</td>
-                               <td>{{ $voucher->amount }}</td>
-                               <td>{{ $voucher->paid }}</td>
-                               <td>{{ ($voucher->amount - $voucher->paid) * -1 }}</td>
-                               <td>
-                                   {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
-                                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                                   {!! Form::close() !!}
-                               </td>
-                           </tr>
-                       @endforeach
-                       </tbody>
-                   </table>
-               </div>
-
-               {!! $vouchers->appends(Request::except('voucher-page'))->links() !!}
-           </div>
-        </div>
+       {!! $cash_flows->appends(Request::except('page'))->links() !!}
    </div>
 
     <div id="cashCreateModal" class="modal fade" role="dialog">
@@ -378,6 +221,59 @@
       </div>
     </div>
 
+
+<div id="do-payment-model" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ route('cashflow.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="modal-header">
+          <h4 class="modal-title">Create a receipt for <span class="text-cashflow-id"></span></h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+              <input type="hidden" name="cash_flow_id" id="cashflow-id-txt">
+              <strong>Amount:</strong>
+              <?php
+                  echo Form::text('amount',null, ['placeholder' => 'Insert Amount','class' => 'form-control', 'id' => 'cashflow-amount']);
+              ?>
+            </div>  
+            <div class="form-group">
+              <strong>Type:</strong>
+              <?php
+                  echo Form::select('type',["received" => "Received" , "paid" => "Paid"], null, ['placeholder' => 'Select a type','class' => 'form-control']);
+              ?>
+            </div>
+            <div class="form-group">
+              <strong>Date:</strong>
+              <?php
+                  echo Form::text('date', null, ['placeholder' => 'Enter date','class' => 'form-control enter-date']);
+              ?>
+            </div>
+            <div class="form-group">
+              <strong>Monetary Account:</strong>
+              <?php
+                  $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+                  echo Form::select('monetary_account_id',$monetaryAccount, null, ['placeholder' => 'Select a Account','class' => 'form-control', "id" => "monetary-account-id-txt"]);
+              ?>
+            </div>
+            <div class="form-group">
+              <strong>Note:</strong>
+              <?php
+                  echo Form::textarea('description',null, ['placeholder' => 'Insert note','class' => 'form-control']);
+              ?>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary submit-cashflow">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -388,6 +284,10 @@
     $(document).ready(function() {
       $('#date-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
+      });
+
+      $('.enter-date').datetimepicker({
+        format: 'YYYY-MM-DD'
       });
     });
 
@@ -409,5 +309,51 @@
         }));
       });
     });
+
+
+    $(document).on("click",".do-payment-btn",function() {
+      var $this = $(this);
+      var id  = $this.data("id");
+      var mnt = $this.data("mnt-account");
+      var amount = $this.data("mnt-amount");
+      $("#do-payment-model").find(".text-cashflow-id").html("#"+id);
+      $("#do-payment-model").find("#cashflow-id-txt").val(id);
+      $("#do-payment-model").find("#monetary-account-id-txt").val(mnt);
+      $("#do-payment-model").find("#cashflow-amount").val(amount);
+      $("#do-payment-model").modal("show");
+    });
+
+    $(document).on("click",".submit-cashflow",function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: '/cashflow/do-payment',
+            type: 'POST',
+            data : form.serialize(),
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                  $("#do-payment-model").modal("hide");
+                  toastr["success"](result.message);
+                }else if(result.code == 401) {
+                   var html = result.message+"</br>";
+                    $.each(result.data,function(i,k) {
+                        $.each(k,function(p,m) {
+                            html += m+"</br>";
+                        });
+                    });
+                    toastr["error"](html);
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
   </script>
 @endsection

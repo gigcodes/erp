@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\CashFlow;
+use App\File;
 use App\Helpers;
 use App\MonetaryAccount;
-use Illuminate\Http\Request;
-use App\CashFlow;
+use App\Purchase;
+use App\ReadOnly\CashFlowCategories;
 use App\Setting;
 use App\User;
-use App\File;
-use App\Order;
-use App\Purchase;
-use App\Voucher;
-use App\ReadOnly\CashFlowCategories;
 use Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Storage;
 
 class CashFlowController extends Controller
@@ -25,20 +24,18 @@ class CashFlowController extends Controller
      */
     public function index()
     {
-        $cash_flows = CashFlow::with(['user', 'files'])->latest()->paginate(Setting::get('pagination'));
-        $users = User::select(['id', 'name', 'email'])->get();
+        $cash_flows = CashFlow::with(['user', 'files'])->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+        $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
-        $orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
+        //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
-        $vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
+        //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
 
         return view('cashflows.index', [
             'cash_flows' => $cash_flows,
-            'users' => $users,
+            'users'      => $users,
             'categories' => $categories,
-            'orders' => $orders,
-            'purchases' => $purchases,
-            'vouchers' => $vouchers
+            'purchases'  => $purchases,
         ]);
     }
 
@@ -63,13 +60,13 @@ class CashFlowController extends Controller
         $this->validate($request, [
             // 'user_id'               => 'required|integer',
             'cash_flow_category_id' => 'sometimes|nullable|integer',
-            'description' => 'sometimes|nullable|string',
-            'date' => 'required',
-            'amount' => 'required|integer',
-            'type' => 'required|string'
+            'description'           => 'sometimes|nullable|string',
+            'date'                  => 'required',
+            'amount'                => 'required|integer',
+            'type'                  => 'required|string',
         ]);
 
-        $data = $request->except(['_token', 'file']);
+        $data            = $request->except(['_token', 'file']);
         $data['user_id'] = Auth::id();
 
         $cash_flow = CashFlow::create($data);
@@ -80,9 +77,9 @@ class CashFlowController extends Controller
 
                 $file->storeAs("files", $filename, 'uploads');
 
-                $new_file = new File;
-                $new_file->filename = $filename;
-                $new_file->model_id = $cash_flow->id;
+                $new_file             = new File;
+                $new_file->filename   = $filename;
+                $new_file->model_id   = $cash_flow->id;
                 $new_file->model_type = CashFlow::class;
                 $new_file->save();
             }
@@ -156,27 +153,27 @@ class CashFlowController extends Controller
 
     public function masterCashFlow(CashFlow $cashFlow, MonetaryAccount $account, Request $request)
     {
-        $cash_flows = $cashFlow;
-        $capitals = $account;
+        $cash_flows         = $cashFlow;
+        $capitals           = $account;
         $data['start_date'] = date('Y-m-d');
-        $data['end_date'] = date('Y-m-d');
-        $range_start = $request->get('range_start');
-        $range_end = $request->get('range_end');
+        $data['end_date']   = date('Y-m-d');
+        $range_start        = $request->get('range_start');
+        $range_end          = $request->get('range_end');
 
         $dates = [date('Y-m-d')];
         if ($range_start != '' && $range_end != '') {
-            $cash_flows = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $cash_flows                = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $added_capitals_in_between = MonetaryAccount::whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
-            $data['start_date'] = $range_start;
-            $data['end_date'] = $range_end;
+            $data['start_date']        = $range_start;
+            $data['end_date']          = $range_end;
         }
 
         if (!$range_start || !$range_end) {
-            $cash_flows = $cash_flows->where('date', date('Y-m-d'));
+            $cash_flows                = $cash_flows->where('date', date('Y-m-d'));
             $added_capitals_in_between = MonetaryAccount::where('date', date('Y-m-d'))->get();
         }
-        $capitals = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
-        $currencies = Helpers::currencies();
+        $capitals        = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
+        $currencies      = Helpers::currencies();
         $opening_balance = [
             'total' => 0,
         ];
@@ -186,16 +183,56 @@ class CashFlowController extends Controller
         foreach ($capitals as $capital) {
             $opening_balance['total'] += $capital->amount;
             foreach ($currencies as $currency_id => $currency) {
-                if (array_key_exists($currency, $opening_balance))
+                if (array_key_exists($currency, $opening_balance)) {
                     $opening_balance[$currency] += $capital->currency == $currency_id ? $capital->amount : 0;
-                else
+                } else {
                     $opening_balance[$currency] = $capital->currency == $currency_id ? $capital->amount : 0;
+                }
+
             }
         }
-        $data['currencies'] = $currencies;
-        $data['opening_balance'] = $opening_balance;
+        $data['currencies']                = $currencies;
+        $data['opening_balance']           = $opening_balance;
         $data['added_capitals_in_between'] = $added_capitals_in_between;
-        $data['transactions'] = collect($cash_flows->orderBy('date')->orderBy('type','desc')->orderBy('cash_flow_able_type')->get()->toArray());
+        $data['transactions']              = collect($cash_flows->orderBy('date')->orderBy('type', 'desc')->orderBy('cash_flow_able_type')->get()->toArray());
         return view('cashflows.master', $data);
     }
+
+    public function doPayment(Request $request)
+    {
+        $id = $request->get("cash_flow_id", 0);
+
+        $validator = Validator::make($request->all(), [
+            'cash_flow_id' => 'required',
+            'description'  => 'required',
+            'date'         => 'required',
+            'amount'       => 'required',
+            'type'         => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 401, "data" => $validator->errors(), "message" => "Please fix validation errors"]);
+        }
+
+        if ($id > 0) {
+            $cashflow = \App\CashFlow::find($id);
+            if ($cashflow) {
+                $cashflow->erp_amount          = $request->amount;
+                $cashflow->type                = $request->type;
+                $cashflow->monetary_account_id = $request->monetary_account_id;
+                $cashflow->updated_by          = auth()->user()->id;
+                $cashflow->status              = 1;
+                if ($cashflow->erp_amount > 0) {
+                    $cashflow->erp_eur_amount = \App\Currency::convert($cashflow->erp_amount, 'EUR', $cashflow->currency);
+                }
+                
+                $cashflow->save();
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Receipt Created successfully"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
+    }
 }
+    

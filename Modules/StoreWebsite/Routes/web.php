@@ -100,6 +100,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('history','BrandController@history')->name("store-website.brand.history");
         Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
         Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
+        Route::post('reconsile-brand','BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
     });
 
     Route::prefix('price-override')->group(function () {
@@ -230,6 +231,7 @@ Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {
 
+    Route::get('status/update', 'SiteDevelopmentController@siteDevlopmentStatusUpdate')->name('site_devlopment.status.update');
     Route::post('remark/user_flag', 'SiteDevelopmentController@userRemarkFlag')->name('remark.flag.user');
     Route::post('remark/admin_flag', 'SiteDevelopmentController@adminRemarkFlag')->name('remark.flag.admin');
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');
@@ -245,6 +247,9 @@ Route::middleware('auth')->group(function()
     Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     Route::get('/preview-img/{site_id}', 'SiteDevelopmentController@previewImage')->name("site-development.preview-image");
     Route::get('/artwork-history/{site_id}', 'SiteDevelopmentController@getArtworkHistory')->name("site-development.artwork-history");
+    Route::get('/status-history/{site_id}', 'SiteDevelopmentController@statusHistory')->name("site-development.status-history");
+
+
     Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
     Route::get('/artwork-history/all-histories/{website_id}', 'SiteDevelopmentController@allartworkHistory')->name("site-development.artwork-history.all-histories");
     Route::prefix('{id}')->group(function () {

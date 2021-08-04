@@ -335,7 +335,6 @@ $('.delete_btn').click(function(){
             },
             success: function (response) {
                 // console.log(response);
-
                 // if(response.code == 200) {
                 //     $(".commnd_reponse_div").css("display", "block");
                 //     $('.commnd_reponse').html(response.data);
@@ -344,7 +343,12 @@ $('.delete_btn').click(function(){
                 // $("#loading-image").hide();
                 // $('.execute_command').prop('disabled', false).html('Execute Command');
             },
-            error: function () {
+            error: function (response) {
+                if(response.status == 200){
+                    toastr["success"]('Command Execution Completed');
+                }else{
+                    toastr["success"]('Command Execution Failed');
+                }
                 // $("#loading-image").hide();
                 // $('.execute_command').prop('disabled', false).html('Execute Command');
             }

@@ -781,6 +781,9 @@ class OrderController extends Controller
         if (isset($data['date_of_delivery'])) {
             $data['estimated_delivery_date'] = $data['date_of_delivery'];
         }
+        
+        $currency = $request->get("currency","INR");
+        $data['store_currency_code'] = $currency;
 
         $order = Order::create($data);
 
@@ -795,6 +798,8 @@ class OrderController extends Controller
             'order_id' => $order->id,
         );
         OrderCustomerAddress::insert( $customerShippingAddress );
+
+        $currency = $request->get("currency","INR");
 
         if (!empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
@@ -811,8 +816,16 @@ class OrderController extends Controller
                         $nw_order_product->{$k} = $v;
                     }
 
-                    $nw_order_product->order_id = $order->id;
+                    $nw_order_product->currency  = $currency;
+                    $nw_order_product->eur_price = \App\Currency::convert($order_product->product_price,"EUR",$currency);
+                    $nw_order_product->order_id  = $order->id;
                     $nw_order_product->save();
+                }else{
+                    if($order_product) {
+                       $order_product->currency  = $currency;
+                       $order_product->eur_price = \App\Currency::convert($order_product->product_price,"EUR",$currency);
+                       $order_product->save();
+                    }
                 }
             }
         }

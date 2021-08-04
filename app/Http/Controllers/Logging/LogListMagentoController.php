@@ -21,6 +21,8 @@ use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use App\ProductPushInformation;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Category;
+use App\Brand;
 
 
 use App\Jobs\PushToMagento;
@@ -530,12 +532,12 @@ class LogListMagentoController extends Controller
     public function getLatestProductForPush(Request $request)
     {
         $data = StoreMagentoApiSearchProduct::orderBy('id','DESC');
-        if($request->website_name){
-            $data = $data->where('website', 'LIKE', "%$request->website_name%");
-        }
-
-        if($request->limit){
+        if($request->website_name && $request->limit){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%")->limit($request->limit)->get();
+        }elseif($request->limit){
             $data = $data->limit($request->limit)->get();
+        }elseif($request->website_name){
+            $data = $data->where('website', 'LIKE', "%$request->website_name%")->get();
         }
 
         return view("logging.search-magento-api-call", compact("data"));
@@ -624,7 +626,29 @@ class LogListMagentoController extends Controller
         //     ->join('product_push_informations', 'product_push_informations.product_id', '=', 'products.id')
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
-        $logListMagentos = ProductPushInformation::orderBy('product_id','DESC');
+        $logListMagentos = ProductPushInformation::with('storeWebsite')->orderBy('product_id','DESC');
+        $selected_brands = $request->brand_names;
+        $selected_categories = $request->category_names;
+        $selected_website = $request->website_name; 
+        if(($selected_brands && count($selected_brands)) || ($selected_categories && count($selected_categories)) ){
+            $skus = ProductPushInformation::filterProductSku($selected_categories, $selected_brands);
+            foreach($skus as $sku){
+                $logListMagentos = $logListMagentos->orWhere('sku', 'like', '%' . $sku . '%');
+            }
+        }
+        if($selected_brands && count($selected_brands)){
+            $selected_brands = Brand::whereIn('id', $selected_brands)->get();
+        }
+
+        if($selected_categories && count($selected_categories)){
+            $selected_categories = Category::whereIn('id', $selected_categories)->get();
+        }
+        if($selected_website){
+            $selected_website = StoreWebsite::where('id', $selected_website)->first();
+            $logListMagentos = $logListMagentos->whereHas('storeWebsite', function($q) use ($selected_website){
+                $q->where('id', $selected_website->id);
+            });
+        }
         $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
 // dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
@@ -643,7 +667,7 @@ class LogListMagentoController extends Controller
         $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
         $total_count = ProductPushInformation::get()->count();
 
-       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl'));
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl', 'selected_categories', 'selected_brands', 'selected_website'));
            
 
     }
@@ -677,13 +701,14 @@ class LogListMagentoController extends Controller
           while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
           	$row++;
           	if ($row > 1) {
-                // dd($data);
+                
               $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
                     'product_id'=> $data[0],
                     'sku'=>$data[1] ,
                     'status'=> $data[2],
                     'quantity'=>$data[3] ,
                     'stock_status'=> $data[4],
+                    'store_website_id' => $request->store_website_id
                 ]);
                 $arr_id[] = $updated->product_id;
           	}
@@ -745,7 +770,7 @@ class LogListMagentoController extends Controller
             if($request->days == 100){
                 StoreMagentoApiSearchProduct::truncate();
             }
-            return response()->json(['code' => 200]);
+            return response()->json(['code' => 200, 'message' =>'Record Deleted Successfull']);
         }
         $data = StoreMagentoApiSearchProduct::find($request->id);
         $data->delete();
@@ -829,15 +854,30 @@ class LogListMagentoController extends Controller
 
 
         if(!$products->isEmpty()) {
+
+            $requests = [];
+
             foreach($products as $product) {
                 if($product->product && $product->storeWebsite)  {
+                    $productModel = $product->product;
+                    if(isset($requests[$product->store_website_id])) {
+                        $requests[$product->store_website_id]["sku"][] = $productModel->sku."-".$productModel->color;
+                    }else{
+                        $requests[$product->store_website_id] = [
+                            "website" => $product->storeWebsite->magento_url,
+                            "sku" => [$productModel->sku."-".$productModel->color]
+                        ];
+                    }
+                    
+                }
+            }
+
+            if(!empty($requests)) {
+                foreach($requests as $req) {
                     //PRODUCT_CHECK_PY
                     $client = new \GuzzleHttp\Client();
                     $response = $client->request('POST', config('constants.product_check_py')."/sku-scraper-start", [
-                        'form_params' => [
-                            'website' => $product->storeWebsite->magento_url,
-                            'sku' => $product->sku."-".$product->color,
-                        ],
+                        'form_params' => $req,
                     ]);
                 }
             }

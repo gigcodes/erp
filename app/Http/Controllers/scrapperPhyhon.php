@@ -34,6 +34,7 @@ use App\UserProduct;
 use App\UserProductFeedback;
 use App\Helpers\QueryHelper;
 use App\Helpers\StatusHelper;
+use App\SiteDevelopment;
 use Cache;
 use Auth;
 use Carbon\Carbon;
@@ -150,7 +151,8 @@ class scrapperPhyhon extends Controller
         $oldDate = null;
         $count   = 0;
         $images = [];
-        
+
+        $categories = \App\SiteDevelopmentCategory::orderBy('title', 'asc')->get();
         $webStore = \App\WebsiteStore::where('id',$store_id)->first();
         $list =  Website::where('id',$webStore->website_id)->first();
         $website_id = $list->id;
@@ -162,10 +164,12 @@ class scrapperPhyhon extends Controller
                 if( $website_store_views ){
                     $images = \App\scraperImags::where('store_website',$list->store_website_id)
                     ->where('website_id',$request->code); // this is language code. dont be confused with column name
-
-                    if(isset($request->device) && $request->device != '')
+                    if(isset($request->device) && ($request->device == 'mobile' || $request->device == 'tablet'))
                     {
                         $images = $images->where('device',$request->device);
+                    }
+                    elseif($request->device == 'desktop'){                        
+                        $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
                     }
                     
                     $images = $images->get()
@@ -177,7 +181,7 @@ class scrapperPhyhon extends Controller
 
         $allLanguages=Website::orderBy('name', 'ASC')->get();
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites'));
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories'));
 
     }
 
@@ -275,9 +279,20 @@ class scrapperPhyhon extends Controller
                 "error" => $validator->errors()
             ]);
         }
-
         $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
         
+        $coordinates = $request->coordinates;
+        if (is_array($coordinates)) {
+            $coordinates = implode(',',$request->coordinates);
+        }
+
+        // For Height Width Of Base64
+            $binary = \base64_decode(\explode(',', $request->image)[0]);
+            $data = \getimagesizefromstring($binary);
+            $width = $data[0];
+            $height = $data[1];
+
+
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 
             $newImage = array(
@@ -286,6 +301,9 @@ class scrapperPhyhon extends Controller
                 'img_name'   => $request->image_name,
                 'img_url'    => $request->image_name,
                 'device'     => (isset($request->device) ? $request->device : 'desktop' ),
+                'coordinates'=> $coordinates,
+                'height'=> $height,
+                'width'=> $width,
             );
 
             scraperImags::insert( $newImage );
@@ -343,6 +361,47 @@ class scrapperPhyhon extends Controller
 
     return response()->json(['message'=>$res,'err'=>$err]);
    
+    }
+
+    public function imageRemarkStore(Request $request)
+    {
+        $store_website = \App\Website::find($request->website_id);
+        $cat_id =$request->cat_id;
+        $remark =$request->remark;
+        $site_development = SiteDevelopment::where('site_development_category_id',$cat_id)->where('website_id',$store_website->store_website_id)->orderBy('id','DESC');
+        $sd = $site_development->first();
+        if ($site_development->count() === 0) {
+            $sd = new SiteDevelopment;
+            $sd->site_development_category_id = $cat_id;
+            $sd->website_id = $store_website->store_website_id;
+            $sd->save();
+        }
+
+        $store_development_remarks = new \App\StoreDevelopmentRemark;
+        $store_development_remarks->remarks = $remark;
+        $store_development_remarks->store_development_id = $sd->id;
+        $store_development_remarks->user_id = \Auth::id();
+        $store_development_remarks->save();
+
+        return response()->json(['message' => 'Remark Saved Successfully','remark'=>$store_development_remarks,'username' => \Auth::user()->name]);
+    }
+
+    public function changeCatRemarkList(Request $request)
+    {
+        $store_website = \App\Website::find($request->website_id);
+        $site_development = SiteDevelopment::where('site_development_category_id',$request->remark)->where('website_id',$store_website->store_website_id)->get();
+        $remarks = [];
+        if(count($site_development) > 0)
+        {
+            foreach ($site_development as $val) {
+                $sd_remarks = \App\StoreDevelopmentRemark::join('users as usr','usr.id','store_development_remarks.user_id')
+                                            ->where('store_development_remarks.store_development_id',$val->id)
+                                            ->select('store_development_remarks.*','usr.name as username')
+                                            ->get()->toArray();
+                array_push($remarks,$sd_remarks);
+            }
+        }
+        return response()->json(['remarks' => $remarks]);
     }
 }
 

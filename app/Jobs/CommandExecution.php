@@ -53,17 +53,21 @@ class CommandExecution implements ShouldQueue
        
     }
 
+
     public function failed()
-    {
+    { 
         $user_id = $this->store_user_id;
         $user = DB::table('users')->where('id', $user_id)->first();
 
 
         if($user->phone != '' && $user->whatsapp_number != '')
         {
-            $message = "Command ".$this->command_name." Execution Fail.";
+            $message = "Command ".$this->command_name." Execution Failed.";
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
         }
+        dump($this->command_name . ' : job has been failed...');
+        return true;
+       
     }
 
 }

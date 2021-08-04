@@ -17,35 +17,58 @@
     margin: -50px 0px 0px -50px;
   }
   input {
-    width: 130px;
+    /* width: 130px; */
   }
   thead tr th{
-    width: 220px !important;
+    /* width: 220px !important; */
   }
   thead tr th:nth-child(5),thead tr th:nth-child(6),thead tr th:nth-child(7),thead tr th:nth-child(8),thead tr th:nth-child(9),thead tr th:nth-child(11),thead tr th:nth-child(12),thead tr th:nth-child(13),thead tr th:nth-child(14)
    ,thead tr th:nth-child(15),thead tr th:nth-child(16),thead tr th:nth-child(17),thead tr th:nth-child(18),thead tr th:nth-child(19),thead tr th:nth-child(20){
-    width: 80px !important;
+    /* width: 80px !important; */
   }
-
+  .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    padding: 6px 5px;
+  }
+  input{
+    width:auto !important;
+  }
+  .flex-grow-1{
+    flex-grow:1
+  }
+  .btn-secondary, .btn-secondary:hover, .btn-secondary:focus{
+    background:#fff;
+    color:#757575;
+    border:1px solid #ddd;
+  }
+  @media (min-width: 576px){
+    .modal-dialog {
+        max-width: 700px;
+        margin: 1.75rem auto;
+    }
+      .modal-dialog {
+      width: 700px;
+      margin: 30px auto;
+  }
+  }
   #magento_list_tbl_895_wrapper{
     padding : 10px;
   }
+ 
 </style>
 @endsection
 
 @section('content')
 
   <div class="row m-0">
-    <div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb p-0">
       <h2 class="page-heading">Magento Product API Call</h2>
     </div>
   </div>
-  <div class="row m-0" style="margin-bottom: 10px; margin: 10px">
-    <div class="col-lg-12 margin-tb">
-       <input type="text" placeholder="Enter the limit of product" name="product_limit" class="form-control col-md-4 product-limit-text">
-       <input type="text" placeholder="Search Here" name="product_name" class="form-control col-md-4 product-name-text ml-3">
+  <div class="row m-0 pl-3 pr-3" style="margin-bottom: 10px; margin: 10px">
+       <input type="text" placeholder="Enter the limit of product" name="product_limit" class="form-control  product-limit-text">
+       <input type="text" placeholder="Search Here" name="product_name" class="form-control  product-name-text ml-3">
        <button class="btn btn-secondary check-latest-product ml-2">Check latest product</button>
-       <div class="pull-right">
+       <div class="pull-right flex-grow-1" style="display:flex;justify-content:flex-end;">
         <div class="dropdown">
           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Delete
@@ -59,53 +82,85 @@
           </div>
         </div>
        </div>
-    </div>
+    
     
   </div>
+  <!--More Product Data Modal-->
+  <div id="more-website-data-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h4 class="modal-title">Product Name</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="word-wrap: break-word;"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+  
   <div class="row m-0 pt-3">
-    <div class="col-md-12">
+    <div class="col-md-12 pl-3 pr-3">
       {{-- <div class="panel panel-default"> --}}
         {{-- <div class="panel-body p-0"> --}}
-          <div class="table-responsive">
-            <table id="magento_list_tbl_895" class="table table-bordered table-hover">
+          <div class="table-responsive" styale="overflow:hidden">
+            <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed">
               <thead>
-                <th>No</th>
-                <th>Website</th>
-                <th>Product SKU</th>
-                <th>Product Name</th>
-                <th>Category assigned</th>
-                <th>Size Pushed</th>
-                <th>Brand Pushed</th>
-                <th>Size Chart Pushed</th>
-                <th>Dimensions Pushed</th>
-                <th>Composition Pushed</th>
-                <th>Images Pushed</th>
-                <th>English</th>
-                <th>Arabic</ th>
-                <th>German</th>
-                <th>Spanish</th>
-                <th>French</th>
-                <th>Italian</th>
-                <th>Japanese</th>
-                <th>Korean</th>
-                <th>Russian</th>
-                <th>Chinese</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th style="width:2%;">No</th>
+                <th style="width:3%;word-break:break-all">Website</th>
+                <th style="width:5%;">Product SKU</th>
+                <th style="width:9%;">Product Name</th>
+                <th style="width:7%;">Category assigned</th>
+                <th style="width:5%;">Size Pushed</th>
+                <th style="width:5%;">Brand Pushed</th>
+                <th style="width:5%;">Size Chart Pushed</th>
+                <th style="width:8%;">Dimensions Pushed</th>
+                <th style="width:7%;">Composition Pushed</th>
+                <th style="width:5%;">Images Pushed</th>
+                <th style="width:3%;word-break:break-all">English</th>
+                <th style="width:3%;word-break:break-all">Arabic</th>
+                <th style="width:3%;word-break:break-all">German</th>
+                <th style="width:3%;word-break:break-all">Spanish</th>
+                <th style="width:3%;word-break:break-all">French</th>
+                <th style="width:3%;word-break:break-all">Italian</th>
+                <th style="width:3%;word-break:break-all">Japanese</th>
+                <th style="width:3%;word-break:break-all">Korean</th>
+                <th style="width:3%;word-break:break-all">Russian</th>
+                <th style="width:3%;word-break:break-all">Chinese</th>
+                <th style="width:5%;word-break:break-all">Status</th>
+                <th style="width:3%;word-break:break-all">Action</th>
               </thead>
               <tbody class="magento_api_search_data">
                 @foreach ($data as $key => $val)
                     <tr data-id="{{ $val->id }}">
                       <td>{{ ++$key }}</td>
                       <td>{{ $val->website_id }}</td>
-                      <td>{{ $val->sku }}</td>
-                      <td>{{ $val->website }}</td>
-                      <td>{{ $val->category_names }}</td>
+                      <td style="word-break:break-all" class="expand-row">
+                      
+                      <span class="td-mini-container">
+                                                {{ strlen( $val->sku) > 10 ? substr( $val->sku , 0, 10).'...' :  $val->sku }}
+                                            </span>
+
+                                   <span class="td-full-container hidden">
+                                   {{ $val->sku }}
+                                            </span>
+
+
+</td>
+                      <td style="word-break:break-all" data-website="{{ $val->website}}" class="website-data-popup">{{ strlen($val->website) > 26 ? substr($val->website,0, 26)."..." : $val->website }}</td>
+                      <td style="word-break:break-all"  >{{ $val->category_names }}</td>
                       <td>{{ $val->size }}</td>
                       <td>{{ $val->brands }}</td>
                       <td>{{ $val->size_chart_url }}</td>
                       <td>{{ $val->dimensions }}</td>
-                      <td>{{ $val->composition }}</td>
+                      <td  style="word-break:break-all">{{ $val->composition }}</td>
                       <td>
                         @if ($val->images)
                           <img src="{{ $val->images}}" style="height:100px;">
@@ -122,7 +177,7 @@
                       <td>{{ $val->russian }}</td>
                       <td>{{ $val->chinese }}</td>
                       <td>{{ $val->status }}</td>
-                      <td><button class="btn btn-image delete_api_search_history" data-id="{{ $val->id }}"><i class="fa fa-trash"></i></button></td>
+                      <td><button class="btn btn-image delete_api_search_history p-0" data-id="{{ $val->id }}"><i class="fa fa-trash"></i></button></td>
                     </tr>
                 @endforeach
               </tbody>
@@ -146,6 +201,23 @@
     @endsection
   @section('scripts')
     <script type="text/javascript">
+
+$(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            // if ($(this).data('switch') == 0) {
+            //   $(this).text($(this).data('details'));
+            //   $(this).data('switch', 1);
+            // } else {
+            //   $(this).text($(this).data('subject'));
+            //   $(this).data('switch', 0);
+            // }
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
+
       $(document).on('click','.delete_api_search_history',function(){
         var days = $(this).val();
         var id = $(this).data('id');
@@ -161,9 +233,14 @@
           success: function(response){
             if (response.status == true) {
               $this.closest('tr').remove();
+              toastr.success('Data Deleted Successfully')
             }
             if (response.code == 200) {
-              location.reload();
+              toastr.success(response.message)
+              setTimeout(function(){
+                location.reload();
+              }, 1000);
+
             }
           }
         });
@@ -308,10 +385,6 @@
      $(document).on("click",".check-latest-product",function() {
         let limit = $(".product-limit-text").val();
         let website_name = $(".product-name-text").val();
-        if(limit == '') {
-           alert("Please select limit");
-           return false;
-        }
 
         $.ajax({
           method: "GET",
@@ -333,6 +406,14 @@
 
     });
 
+    $(document).on('click','.website-data-popup',function(){
+      var website_data = $(this).data('website');
+      if (website_data.length <= 150) {
+        return
+      }
+      $('#more-website-data-modal').modal('show');
+      $('#more-website-data-modal').find('p').text(website_data);
+    })
     </script>
     @if (Session::has('errors'))
       <script>

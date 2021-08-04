@@ -74,6 +74,9 @@ class SiteDevelopment extends Model
         return $this->hasOne('App\User','id','designer_id');
     }
 
-    
+    public function statusHistories()
+    {
+        return $this->hasMany(\App\SiteDevelopmentStatusHistory::class,'site_development_id','id');
+    }
 
 }

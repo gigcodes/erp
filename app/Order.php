@@ -86,7 +86,9 @@ class Order extends Model
         'user_id',
         'is_priority',
         'currency',
-        'invoice_id'
+        'invoice_id',
+        'store_currency_code',
+        'monetary_account_id'
     ];
 
     protected $appends = ['action'];
