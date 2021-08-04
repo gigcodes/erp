@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\ProductPushInformation;
-
+use Log;
 
 class UpdateProductInformationFromCsv extends Command
 {
@@ -60,10 +60,14 @@ class UpdateProductInformationFromCsv extends Command
                     $promise = $client->request('GET', $file_url);
                     $is_file_exists = true;
                 } catch (ClientException $e) {
+                    $is_file_exists = false;
+
+                    Log::channel('product_push_information_csv')->info('file-url:' . $file_url . '  and error: ' . $e->getMessage());
                     $this->error('file not exists');
                 }
         
-                if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+                if ($is_file_exists) {
+                    if( ($handle = fopen($file_url, "r")) !== FALSE){
                     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                         $row++;
                         if ($row > 1) {
@@ -79,6 +83,7 @@ class UpdateProductInformationFromCsv extends Command
                             $arr_id[] = $updated->product_id;
                         }
                     }
+                }
                     fclose($handle);
                     $this->info('product updaetd successfully');
                 }

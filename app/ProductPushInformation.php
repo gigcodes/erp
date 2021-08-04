@@ -36,6 +36,8 @@ class ProductPushInformation extends Model
 
             $new_values =  array_merge($old_arr, $dirties);
             $new_values['user_id'] =$user_id ;
+            unset($new_values['store_website_id']);
+
             ProductPushInformationHistory::create($new_values);
         });
 
@@ -57,6 +59,8 @@ class ProductPushInformation extends Model
                 $old_arr['old_' . $key] = $oldValue;
                 $old_arr['user_id'] = $user_id;
             }
+             unset($old_arr['store_website_id']);
+
             ProductPushInformationHistory::create($old_arr);
         });
 

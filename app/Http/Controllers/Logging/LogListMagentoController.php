@@ -28,6 +28,8 @@ use App\Brand;
 use App\Jobs\PushToMagento;
 use App\StoreWebsite;
 use App\WebsiteProductCsv;
+use Log;
+
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -693,26 +695,34 @@ class LogListMagentoController extends Controller
             $promise = $client->request('GET', $file_url);
             $is_file_exists = true;
         } catch (ClientException $e) {
+            $is_file_exists = false;
+
+            Log::channel('product_push_information_csv')->info('file-url:' . $file_url . '  and error: ' . $e->getMessage());
             return response()->json(['error'=>'file not exists']);
         }
 
 
-        if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+        if ($is_file_exists ) {
+            if(($handle = fopen($file_url, "r")) !== FALSE){
+
           while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
           	$row++;
           	if ($row > 1) {
                 
-              $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
+              $updated =   ProductPushInformation::updateOrCreate(
+                  ['product_id'=>$data[0],
+                  'store_website_id' => $request->store_website_id
+                ],[
                     'product_id'=> $data[0],
                     'sku'=>$data[1] ,
                     'status'=> $data[2],
-                    'quantity'=>$data[3] ,
+                    'quantity'=>$data[3] > 0 ? $data[3] : 0 ,
                     'stock_status'=> $data[4],
-                    'store_website_id' => $request->store_website_id
                 ]);
                 $arr_id[] = $updated->product_id;
           	}
           }
+        }
           fclose($handle);
         }
 
