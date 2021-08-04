@@ -872,6 +872,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('project-file-manager/insertsize', 'ProjectFileManagerController@insertsize')->name('project-file-manager.insertsize');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
     Route::get('size/log_history/discount/', 'ProjectFileManagerController@sizelogHistory')->name('size/log-history/discount');
+    Route::get('file-name/file-size', 'ProjectFileManagerController@getfilenameandsize')->name('file-name/file-size.get');
      
 
     // Daily Planner

@@ -58,6 +58,7 @@
 								<th>Expected Size</th>
 								<th>Created</th>
                                 <th>Updated</th>
+                                <th>Action</th>
 							</tr>
 							@foreach ($projectDirectoryData as $data )
 								<tr>
@@ -80,6 +81,11 @@
 									</td>
 									<td>{{$data->created_at}}</td>
                                     <td>{{$data->updated_at}}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary getnameandsize" data-name="{{ $data->name }}" data-toggle="modal" data-target="#GetFileSizeAndName">
+                                            View
+                                           </button>
+                                    </td>
 								</tr>
 							@endforeach
 						</table>
@@ -128,6 +134,47 @@
             </div>
         </div>
       </div>
+
+      {{---- Modal For get files list ------------------------------------------------------------------------------- --}}
+
+      <div class="modal fade" id="GetFileSizeAndName" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">File Name And Size Details</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form action="" id="FileSizeAndName" method="GET">
+                @csrf
+                <div class="modal-body">
+                <div class="row">
+                   
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                   
+                                    <th style="word-wrap: break-word; width=50%">File Name</th>
+                                    <th>FIle Size</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>             
+          </div>
+        </div>
+      </div>
+
 @endsection
 
 @section('scripts')
@@ -277,6 +324,38 @@ $(document).on("click", ".submitsize", function(e) {
         }
 });
 
+    $(document).on("click", ".getnameandsize", function(){
+
+    var name = $(this).data('name');
+    // $('#GetFileSizeAndName table tbody').append('');  
+
+    $.ajax({
+        url: "{{ route('file-name/file-size.get') }}",
+        type: "GET",
+        data: {
+            name:name,
+            _token: "{{ csrf_token() }}"
+
+            },
+            success: function (response) {
+                
+                var  html_data = ''
+                $.each(response.file_size_arr, function(i, item) {
+                    
+                    html_data += '<tr>\
+                            <td>'+item['file_name']+'</td>\
+                            <td>'+item['file_size']+'</td>\
+                        </tr>';
+                   
+                });
+
+                $('#GetFileSizeAndName table tbody').html(html_data);  
+                   
+                $('#GetFileSizeAndName').modal('show');
+            }
+        });
+
+    });
 
 </script>
 @endsection
