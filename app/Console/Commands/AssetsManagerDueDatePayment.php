@@ -48,7 +48,11 @@ class AssetsManagerDueDatePayment extends Command
         $i       = 0;
         $success = false;
         foreach ($results as $result) {
-            //create entry in table cash_flows
+            // check already entry in cash flows
+            $cashflow=CashFlow::where('date',date('Y-m-d'))->where('cash_flow_able_id',$result->id)->where('cash_flow_able_type','App\AssetsManager')->where('type','pending')->first();
+           if (!cashflow)
+           {
+            //create entry in table cash_flows   
             CashFlow::create(
                 [
                     'description'           => 'Asset Manager Payment for id ' . $result->name,
@@ -67,6 +71,7 @@ class AssetsManagerDueDatePayment extends Command
             if ($i == $count) {
                 $success = true;
             }
+          } 
         }
         if ($success == true) {
             return $this->info("payment added to cashflow successfully");

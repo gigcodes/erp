@@ -336,7 +336,9 @@ class BrandController extends Controller
             ->get();
             //$missingBrands   = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")->whereNotIn("magento_value",$mangetoIds)->get();
 
-            return view("storewebsite::brand.live-compare",compact('availableBrands'));
+            $total = $availableBrands->count();
+
+            return view("storewebsite::brand.live-compare",compact('availableBrands','total'));
         }
     }
 
@@ -366,6 +368,8 @@ class BrandController extends Controller
             ->groupBy("store_website_brands.magento_value")
             ->select(["b.*"])
             ->get();
+
+            $total = $availableBrands->count();
 
             return view("storewebsite::brand.live-compare",compact('availableBrands'));
         }
