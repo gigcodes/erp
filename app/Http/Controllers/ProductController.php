@@ -2922,8 +2922,7 @@ class ProductController extends Controller
         $productId = request("product_id", null);
         $supplierId = request("supplier_id", null);
         if ($productId != null) {
-            $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
-                ->where('category', '>', 3)->first();
+            $product = Product::where('id', $productId)->where('category', '>', 3)->first();
         }elseif($supplierId != null) {
             $product = Product::join("product_suppliers as ps","ps.product_id", "products.id")
             ->where('ps.supplier_id', $supplierId)
