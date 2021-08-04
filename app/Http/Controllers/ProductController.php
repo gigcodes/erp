@@ -3071,8 +3071,10 @@ class ProductController extends Controller
                     ->where('product_id', $product->id)->exists();
                     if(!$isCropped) {
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
-                        $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name,'size' => $website->cropping_size);
+                        if(!empty($r) && !empty($g) && !empty($b)) {
+                            $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
+                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name,'size' => $website->cropping_size);
+                        }
                     }
                 }
             }
