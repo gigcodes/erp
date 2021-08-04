@@ -219,6 +219,7 @@
 					$accordionTables.html(accordion_data)
 
 				} else {
+					let number = data.number;
 					$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
 					$('.call__to').html(conn.customParameters.get('phone'))
 				}
