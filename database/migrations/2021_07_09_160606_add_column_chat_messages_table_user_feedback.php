@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnChatMessagesTable extends Migration
+class AddColumnChatMessagesTableUserFeedback extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,12 @@ class AddColumnChatMessagesTable extends Migration
     public function up()
     {
         Schema::table('chat_messages', function($table) {
-            $table->integer('user_feedback_id')->nullable();
-            $table->integer('user_feedback_category_id')->nullable();
+            if(!Schema::hasColumn('chat_messages','user_feedback_id')) {
+                $table->integer('user_feedback_id')->nullable();
+            }
+            if(!Schema::hasColumn('chat_messages','user_feedback_category_id')) {
+                $table->integer('user_feedback_category_id')->nullable();
+            }
         });
     }
 
