@@ -31,4 +31,9 @@ class MonetaryAccount extends Model
         'updated' => MonetaryAccountUpdated::class,
     ];
 
+    public function MonetaryAccountHistory()
+    {
+        return $this->morphMany(\App\MonetaryAccountHistory::class, 'model');
+    }
+
 }
