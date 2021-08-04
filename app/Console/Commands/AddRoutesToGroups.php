@@ -41,19 +41,20 @@ class AddRoutesToGroups extends Command
     {
 
         // Part-1
-        // $existing_routes = DB::table('group_routes')->get();
-        // foreach($existing_routes as $r){
-        //     dump($r->route_id);
-        //     $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/delete_auto_access';
+        $existing_routes = DB::table('group_routes')->get();
+        foreach($existing_routes as $r){
+            dump($r->route_id);
+            $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/delete_auto_access';
         
-        //     $postData = [
-        //         "id" => $r->route_id
-        //     ];
-        //     $postData = json_encode($postData, true);
-        //     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
-        //     dump($result);
-        // }
-        // dd('routes deleted');
+            $postData = [
+                "id" => $r->route_id
+            ];
+            $postData = json_encode($postData, true);
+            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $existing_route = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
+            dump([$result, $existing_route]);
+        }
+        dump('routes deleted');
         // Part-2 Create routes and update langauages to group
         $existing_themes_ids = [];
         $all_themes_ids = [];
@@ -78,12 +79,11 @@ class AddRoutesToGroups extends Command
                 $all_themes_ids[$g->name] = $g->id;
                 if(!in_array(str_replace('theme_', '', $g->name), $existing_themes)){
                     $data = explode('_', $g->name);
-                    $lang_code = $data[1];
-                    // if($lang_code == 'ge'){
-                    //     $lang_code = 'de';
-                    // }else if($lang_code == 'jp'){
-                    //     $lang_code = 'ja';
-                    // }
+                    if(count($data) !=2){
+                        dump($g->name . ' skipped');
+                        continue;
+                    }
+                    $lang_code = $data[1]; 
                     // Update language to group
                     $postURL  = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
@@ -99,8 +99,8 @@ class AddRoutesToGroups extends Command
                     }
                     //Create route fo group
                     $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
-                    $domain_values["value"] =  '-' . $data[1];
-                    $url_values["value"] = $data[0];
+                    $domain_values["value"] = $data[0];
+                    $url_values["value"] = '-' . $data[1];
                     $postData = [
                         'description' => $g->name,
                         'access' => [
@@ -118,13 +118,17 @@ class AddRoutesToGroups extends Command
                     $postData = json_encode($postData, true);
                     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
+                    dump($response);
                     if (!isset($response->error)) {
                         dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' route updated.');
                         DB::table('group_routes')->updateOrInsert([
                             'group_id' => $g->id,
                         ],[
                             'group_id' => $g->id,
-                            'route_id' => $response->id
+                            'route_id' => $response->id,
+                            'route_name' => $g->name,
+                            'domain' => $domain_values["value"],
+                            'url' => $url_values["value"],
                         ]);
                     }   
                 }else{

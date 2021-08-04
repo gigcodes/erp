@@ -69,6 +69,7 @@
                <tr>
                    <th>Date</th>
                    <th>Module</th>
+                   <td>Beneficiary Name</td>
                    <th>Type</th>
                    <th>Description</th>
                    <th>Amount</th>
@@ -85,6 +86,7 @@
                    <tr>
                        <td class="small">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
                        <td>{!! $cash_flow->getLink() !!}</td>
+                       <td>{!! $cash_flow->get_bname()!!} </td>
                        <td>{{ class_basename($cash_flow->cashFlowAble) }}</td>
                        <td>
                            {{ $cash_flow->description }}

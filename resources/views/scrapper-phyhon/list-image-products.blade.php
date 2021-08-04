@@ -82,15 +82,21 @@
             width: 5px;
 	background-color: #F5F5F5;
         }
-
+        .add-remark-button
+        {
+            position: absolute;
+            top: 0;
+            right : -6px;
+            background: transparent;
+        }
         .image-diamention-rasio-desktop
         {
-            text-align: center;
             text-align: center;
             width: fit-content;
             /* display: flex; */
             overflow: auto;
             margin-bottom: 30px;
+            padding: 0 20px;
         }
         .image-diamention-rasio-mobile
         {
@@ -100,6 +106,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             margin-bottom: 30px;
+            padding: 0 20px;
         }
 
         .manage-product-image
@@ -277,7 +284,7 @@
                               <div class="row parent-row">
                         @endif --}}
                         {{-- END - DEVTASK-4271 --}}
-                        <div class="{{ $imageWidth }}" style="position: relative;">               
+                        <div class="{{ $imageWidth }}">               
                             @if ($image['coordinates'])
                                 @php 
                                     $x = 0;
@@ -287,7 +294,7 @@
                                 @endphp
                         
 
-                                <div class="image-diamention-rasio {{ $imageDimensioClass }}" style="max-height: {{ $imageHeight }};">
+                                <div class="image-diamention-rasio {{ $imageDimensioClass }}" style="max-height: {{ $imageHeight }};position: relative;">
                                     @foreach ($coordinates as $z)
                                         @php
                                             if($device == "mobile"){
@@ -302,9 +309,10 @@
                                         </td>
                                         @php $x = $z; @endphp
                                     @endforeach
+                                    <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
                                 </div>
                             @else    
-                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow:auto">
+                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="position: relative;padding:0px 5px;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow:auto">
                                     <div style="padding:0px 5px;">
                                         <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                             <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
@@ -318,9 +326,9 @@
                         
                                         </div>
                                     </div>
+                                    <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
                                 </div>
                             @endif
-                            <button class="btn btn-secondarys" data-toggle="modal" data-target="#remark-area-list" style="position: absolute;top: 0;right : -43px;"><i class="fa fa-comments"></i></button>  
                         </div>
                     
 
@@ -537,19 +545,31 @@
             {
                 if(res.status && res.list.length)
                 {
-                    $.each(res.list,function(k,v){
+                    var html = '<option value="">Select Language</option>';
+                    for (let i = 0; i < res.list.length; i++) {
+                        selected='';
 
-                    //console.log(k,v);
-                    var selected='';
-
-                    if(v.code=="{{$_REQUEST['code']??''}}")
-                    {
-                        selected='selected'
+                        if(res.list[i].code=="{{$_REQUEST['code']??''}}")
+                        {
+                            selected='selected'
+                        }
+                        html += '<option value="'+res.list[i].code+'" '+selected+'>'+res.list[i].name+' ('+res.list[i].code+') '+'</option>';
                     }
+                    $('[name="language"]').html(html);
 
-                    $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+                    // $.each(res.list,function(k,v){
 
-                    })
+                    // //console.log(k,v);
+                    // var selected='';
+
+                    // if(v.code=="{{$_REQUEST['code']??''}}")
+                    // {
+                    //     selected='selected'
+                    // }
+
+                    // $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+
+                    // })
                     
                 }
                 else
@@ -654,8 +674,10 @@
                 website_id:website_id,
             },
             success: function(response){
-                for (let i = 0; i < response.remarks.length; i++) {
-                    var remark = response.remarks[i];
+                const shorter = (a,b)=>  a.id>b.id ? -1: 1;
+			    response.remarks.flat().sort(shorter);
+                for (let i = 0; i < response.remarks.flat().sort(shorter).length; i++) {
+                    var remark = response.remarks.flat().sort(shorter)[i];
                     if (remark.remarks.length > 80) {
                         remark.remarks = remark.remarks.substring(0, 80)+'...';
                     }

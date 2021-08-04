@@ -23,12 +23,14 @@
                 <input type="text" name="name" value="{{if data.type == 'edit'}}{{:data.name}}{{/if}}" class="form-control" id="name" placeholder="Enter Name"> 
              </div> 
               <div class="form-group col-md-12">
-                <label for="route_domain">Route domain</label>
-                <input type="text" name="route_domain" value="" class="form-control" id="route_domain" placeholder="Enter route domain"> 
+                <label for="route_domain">Route Details</label>
+                <input type="text" name="route_name" value="{{if data.type == 'edit'}}{{:data.name}}{{/if}}" class="form-control" id="route_name" placeholder="Enter route name (eg. VeraLusso_es)"> 
              </div> 
               <div class="form-group col-md-12">
-                <label for="route_url">Route url</label>
-                <input type="text" name="route_url" value="" class="form-control" id="route_url" placeholder="Enter route url"> 
+                <input type="text" name="route_domain" value="" class="form-control" id="route_domain" placeholder="Enter route domain (eg. -es, -cn)"> 
+             </div> 
+              <div class="form-group col-md-12">
+                <input type="text" name="route_url" value="" class="form-control" id="route_url" placeholder="Enter route url (eg. veralusso, upeau)"> 
              </div> 
 
              <div class="form-group col-md-12">
