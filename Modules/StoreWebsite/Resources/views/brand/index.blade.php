@@ -188,7 +188,7 @@
 	    <!-- Modal content-->
 	    <div class="modal-content">
 	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Live</h4>
+	        	<h4 class="modal-title">Brand Live<span class="brand-live-data-count"></span></h4>
 	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
 	        </div>
 	        <div class="modal-body"></div>
@@ -199,13 +199,7 @@
 <div id="missing-live-data" class="modal fade" role="dialog">
   	<div class="modal-dialog">
 	    <!-- Modal content-->
-	    <div class="modal-content">
-	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Missing</h4>
-	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        </div>
-	        <div class="modal-body"></div>
-    	</div>
+	    
 	</div>
 </div>
 
@@ -270,7 +264,7 @@
             },
             success: function(response) {
             	$("#loading-image").hide();
-                $("#brand-live-data").find(".modal-body").html(response);
+                $("#brand-live-data").find(".modal-dialog").html(response);
                 $("#brand-live-data").modal("show");
             },
             error: function(response) {
@@ -294,7 +288,7 @@
             },
             success: function(response) {
             	$("#loading-image").hide();
-                $("#missing-live-data").find(".modal-body").html(response);
+                $("#missing-live-data").find(".modal-dialog").html(response);
                 $("#missing-live-data").modal("show");
             },
             error: function(response) {
