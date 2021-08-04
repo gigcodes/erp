@@ -114,7 +114,7 @@
                        <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
                        <td>{{ $cash_flow->erp_eur_amount }}</td>
                        <td>
-                        {{($cash_flow->monetaryAccount)?$cash_flow->monetaryAccount->name: N/A}}
+                        {{($cash_flow->monetaryAccount)?$cash_flow->monetaryAccount->name: "N/A"}}
                        </td>
                        <td>{{ ucwords($cash_flow->type) }}</td>
                        <td>
