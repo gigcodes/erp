@@ -2964,6 +2964,13 @@ class ProductController extends Controller
             ]);
         }
 
+        $debug = request("debug",false);
+        if(empty($debug)) {
+            $product->status_id = StatusHelper::$isBeingCropped;
+            $product->save();
+        }
+        
+
 
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
 
