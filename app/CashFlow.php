@@ -71,6 +71,12 @@ class CashFlow extends Model
         return $this->hasOne(\App\PaymentReceipt::class, 'id', 'cash_flow_able_id');
     }
 
+    public function monetaryAccount()
+    {
+        return $this->hasOne(\App\MonetaryAccount::class,'id', 'monetary_account_id');
+    }
+    
+
     public function getLink()
     {
         if ($this->cash_flow_able_type == \App\Order::class) {
