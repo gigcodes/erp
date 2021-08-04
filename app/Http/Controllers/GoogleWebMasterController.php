@@ -11,6 +11,7 @@ use App\WebsiteStoreViewsWebmasterHistory;
 use App\WebsiteStoreView;
 use App\Setting;
 use Spatie\Activitylog\Models\Activity;
+use App\GoogleClientAccount;
 
 
 
@@ -601,6 +602,63 @@ class GoogleWebMasterController extends Controller
 			}
 			return response()->json( ["code" => 400 , "message" => 'No record found'] );
 		}
+	}
+
+	
+	public function getAccounts(){
+		$GoogleClientAccounts = GoogleClientAccount::orderBy("created_at","desc")->get();
+		return response()->json( ["code" => 200 , "data" => $GoogleClientAccounts] );
+	}
+
+	
+	public function addAccount(Request $request){
+		$GoogleClientAccount = GoogleClientAccount::create($request->all());
+		return redirect()->route('googlewebmaster.index')->with('success', 'google client account added successfully!');          
+	}
+
+	
+	public function statusAccount(Request $request, $id){
+		// $GoogleClientAccount = GoogleClientAccount::find($id);
+        // $google_redirect_url = route('googlewebmaster.get-access-token');
+        
+		
+		// $gClient = new \Google_Client();
+
+		// $gClient->setApplicationName($GoogleClientAccount->GOOGLE_CLIENT_APPLICATION_NAME);
+
+		// $gClient->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+
+		// $gClient->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+
+		// $gClient->setDeveloperKey($GoogleClientAccount->GOOGLE_CLIENT_KEY);
+
+		// $gClient->setRedirectUri($google_redirect_url);
+
+		// $gClient->setScopes(array(
+		// 	'https://www.googleapis.com/auth/webmasters',
+		// ));  
+		// // dump($gClient);
+		// $google_oauthV2 = new \Google_Service_Oauth2($gClient);
+		// // dump($google_oauthV2);
+		// // $gClient->authenticate($request->get('code'));
+		// if($gClient->getAccessToken()){
+		// 	dump($gClient->getAccessToken());
+		// }
+		// else
+		// {
+		// 	$authUrl = $gClient->createAuthUrl();
+		// 	dump($authUrl, 12);
+		// }
+
+		$GoogleClientAccount = GoogleClientAccount::find($id);
+		$GoogleClientAccount->is_active = ! $GoogleClientAccount->is_active;
+		$GoogleClientAccount->save();
+		if($GoogleClientAccount->is_active){
+			$msg = 'Account connected successfully!';
+		} else{
+			$msg = 'Account disconnected successfully!';
+		}
+		return response()->json(['status' => true, 'data' => $GoogleClientAccount, 'msg' => $msg]);          
 	}
 
 }

@@ -3,6 +3,60 @@
 @section('title', 'Google Web Master')
 
 @section('large_content')
+
+
+<div id="accounts" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Google Client Accounts</span></h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="table fixed_header" id="latest-remark-records">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">GOOGLE CLIENT ID</th> 
+                <th scope="col">GOOGLE CLIENT APPLICATION NAME</th>  
+                <th scope="col">Action</th> 
+              </tr>
+            </thead>
+            <tbody class="show-list-records">
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+<div id="new_account" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Google Client Account</span></h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+			<form class="addAccount" method="post" action="{{route('googlewebmaster.account.add')}}">
+				@csrf
+				<input name="GOOGLE_CLIENT_ID" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT ID"> 
+				<input name="GOOGLE_CLIENT_SECRET" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT SECRET"> 
+				<input name="GOOGLE_CLIENT_KEY" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT KEY"> 
+				<input name="GOOGLE_CLIENT_APPLICATION_NAME" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT APPLICATION_NAME"> 
+				<input name="GOOGLE_CLIENT_ACCESS_TOKEN" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT ACCESS TOKEN"> 
+				<input name="GOOGLE_CLIENT_MULTIPLE_KEYS" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT MULTIPLE KEYS">  
+				<button type="submit" class="btn btn-secondary m-3 float-right">Submit</button>  
+			</form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">Google Web Master</h2>
@@ -25,9 +79,10 @@
 		<div id="exTab2" >
 		<ul class="nav nav-tabs">
 			<li class="{{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
-			<li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#sites_logs" data-toggle="tab">Sites Logs</a>
-			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a>
-			</li>
+			<li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#sites_logs" data-toggle="tab">Sites Logs</a></li>
+			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a></li>
+			<li><a class="accounts" href="#accounts" data-toggle="tab">Show Accounts</a></li>
+			<li><a class="new_account" href="#new_account" data-toggle="tab">Add Account</a></li>
 		</ul>
 		</div>
 	</div>
@@ -379,6 +434,101 @@
 
            $(selector).closest('form').submit();
         }
+		
+	
+		$(document).on("click",".new_account",function(e) {
+			$("#new_account").modal("show");
+		});
+		
+		$(document).on("submit",".addAccount",function(e) {
+			if($('input[name="GOOGLE_CLIENT_ID"]').val() == ''){
+				toastr['error']('GOOGLE CLIENT ID is required', 'Error');
+				return false;
+			}
+			if($('input[name="GOOGLE_CLIENT_SECRET"]').val() == ''){
+				toastr['error']('GOOGLE CLIENT SECRET is required', 'Error');
+				return false;
+			}
+			if($('input[name="GOOGLE_CLIENT_KEY"]').val() == ''){
+				toastr['error']('GOOGLE CLIENT KEY is required', 'Error');
+				return false;
+			}
+			if($('input[name="GOOGLE_CLIENT_APPLICATION_NAME"]').val() == ''){
+				toastr['error']('GOOGLE CLIENT APPLICATION NAME is required', 'Error');
+				return false;
+			}
+			if($('input[name="GOOGLE_CLIENT_ACCESS_TOKEN"]').val() == ''){
+				toastr['error']('GOOGLE CLIENT ACCESS TOKEN is required', 'Error');
+				return false;
+			}
+			if($('input[name="GOOGLE_CLIENT_MULTIPLE_KEYS"]').val() == ''){
+				toastr['error']('GOOGLE CLIENT MULTIPLE KEYS is required', 'Error');
+				return false;
+			}
+
+		});
+	
+	$(document).on("click",".accounts",function(e) {
+		var btn = $(this);
+		$.ajax({
+			url: '/googlewebmaster/get-accounts',
+			type: 'GET',
+			dataType: 'json',
+			beforeSend: function () {
+				btn.prop('disabled',true);
+			},
+			success: function(result){
+				if(result.code == 200) {
+					var t = '';
+					$.each(result.data,function(k,v) {
+						t += `<tr><td>`+v.id+`</td>`;
+						t += `<td>`+v.GOOGLE_CLIENT_ID+`</td>`;
+						t += `<td>`+v.GOOGLE_CLIENT_APPLICATION_NAME+`</td>`;
+						t += `<td>
+								<button class="btn btn-secondary btn-xs status_btn" data-id=${v.id} data-value="${v.is_active}" title="Refresh token">${v.is_active ? 'Disconnect' : 'Connect'}</button> 
+							</td>`;
+					});
+					if( t == '' ){
+						t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+					}
+				}
+				$("#accounts").find(".show-list-records").html(t);
+				$("#accounts").modal("show");
+				btn.prop('disabled',false);
+			},
+			error: function (){
+				btn.prop('disabled',false);
+				toastr['error']('Something went wrong', 'Error');
+			}
+		});
+	});
+	
+	$(document).on("click",".status_btn",function(e) {
+		var btn = $(this);
+		$.ajax({
+			url: '/googlewebmaster/accounts/status/'+$(this).attr('data-id'),
+			type: 'GET',
+			dataType: 'json',
+			beforeSend: function () {
+				btn.prop('disabled',true);
+			},
+			success: function(result){
+				if(result.data.is_active){
+					$(btn).html('Disconnect');
+				}else{
+					$(btn).html('Connect');
+				}
+				toastr['success'](result.msg, 'Error');
+				if(result.code == 200) { 
+				} 
+				btn.prop('disabled',false);
+			},
+			error: function (){
+				btn.prop('disabled',false);
+				toastr['error']('Something went wrong', 'Error');
+			}
+		});
+	});
 	
 	$(document).on("click",".site-history",function(e) {
         e.preventDefault();
