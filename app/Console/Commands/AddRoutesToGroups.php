@@ -84,6 +84,29 @@ class AddRoutesToGroups extends Command
                         continue;
                     }
                     $lang_code = $data[1]; 
+                    $web_name = $data[0];
+                    if($web_name == 'Vera Lusso'){
+                        $web_name = 'veralusso';
+                    }else if($web_name == 'Brands & Labels'){
+                        $web_name = 'brands-labels';
+                    }else if($web_name == 'AvoirChic'){
+                        $web_name = 'avoir-chic';
+                    }else if($web_name == 'SOLO LUXURY'){
+                        $web_name = 'sololuxury';
+                    }else if($web_name == 'Suv&Nat'){
+                        $web_name = 'suvandnat';
+                    }else if($web_name == 'o-labels'){
+                        $web_name = 'o-labels';
+                    }else if($web_name == 'Italy brand outlets'){
+                        $web_name = 'italybrandoutlets.myshopify.com';
+                    }else if($web_name == 'Shades Shop'){
+                        $web_name = 'the-shades-shop-com.myshopify.com';
+                    }else if($web_name == 'TheFitEdit'){
+                        $web_name = 'thefitedit';
+                    }else if($web_name == 'Upeau'){
+                        $web_name = 'upeau';
+                    } 
+                    dump($web_name);
                     // Update language to group
                     $postURL  = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
@@ -99,7 +122,7 @@ class AddRoutesToGroups extends Command
                     }
                     //Create route fo group
                     $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
-                    $domain_values["value"] = $data[0];
+                    $domain_values["value"] = $web_name;
                     $url_values["value"] = '-' . $data[1];
                     $postData = [
                         'description' => $g->name,
@@ -113,7 +136,8 @@ class AddRoutesToGroups extends Command
                             'url' => [
                                 'values' => [$url_values]
                             ]
-                        ]
+                        ],
+                        'next_id' => '310b71d0e6c6dd5809f8535a6f055b17'
                     ]; 
                     $postData = json_encode($postData, true);
                     $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
