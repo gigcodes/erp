@@ -90,7 +90,7 @@
                        <td>{!! $cash_flow->getLink() !!}</td>
                        <td>@switch($cash_flow->cash_flow_able_type)
                              @case('\App\Order')
-                                  <a href="{{ @$cash_flow->cashFlowAble->customer->storeWebsite->website_url }}" target="_blank">{{$cash_flow->cashFlowAble->customer->storeWebsite->website ?? ''}}</a></p>        
+                                  <a href="{{ @$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website_url }}" target="_blank">{{$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website ?? ''}}</a></p>        
                                   @break
                            @default
                              
