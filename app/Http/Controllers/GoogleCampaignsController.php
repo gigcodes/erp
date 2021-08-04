@@ -124,8 +124,10 @@ class GoogleCampaignsController extends Controller
         }
 
         $totalEntries=$campInfo->count();
-        
-        return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries]);
+
+        $biddingStrategyTypes=$this->getBiddingStrategyTypeArray();
+
+        return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries, 'biddingStrategyTypes' => $biddingStrategyTypes]);
         /*$adWordsServices = new AdWordsServices();
          $campInfo = $this->getCampaigns($adWordsServices, $session);
         return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]); */
