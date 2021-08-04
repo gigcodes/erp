@@ -72,13 +72,15 @@ class UpdateProductInformationFromCsv extends Command
                         $row++;
                         if ($row > 1) {
                             // dd($data);
-                            $updated =   ProductPushInformation::updateOrCreate(['product_id' => $data[0]], [
+                            $updated =   ProductPushInformation::updateOrCreate(
+                                ['product_id' => $data[0],'store_website_id' => $store_website_id]
+                                , [
                                 'product_id' => $data[0],
                                 'sku' => $data[1],
                                 'status' => $data[2],
                                 'quantity' => $data[3],
                                 'stock_status' => $data[4],
-                                'store_website_id' => $store_website_id
+                                
                             ]);
                             $arr_id[] = $updated->product_id;
                         }

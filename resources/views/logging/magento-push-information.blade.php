@@ -154,7 +154,7 @@
             <tbody>
               @foreach($logListMagentos as $item)
               
-							<tr>
+							<tr data-id="{{ $item->store_website_id }}">
 
 								<td>{{$item ? $item->product_id : '' }}</td>
                 <td>{{$item && $item->storeWebsite ? $item->storeWebsite->title : '' }}</td>
@@ -362,8 +362,17 @@ $(document).on('change','#websites',function(){
 
 
 $(document).on('click','.show-histories',function(){
+
+const website_id = $(this).closest('tr').data('id')
+console.log(website_id)
+
 	$.ajax({
+    headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+      method:'POST',
       url: "/logging/list-magento/product-push-histories/"+ $(this).data('product-id') ,
+      data:{website_id}
     })
     .done(function(response) {
 				let html = null
@@ -377,7 +386,7 @@ $(document).on('click','.show-histories',function(){
 									<td style="word-break: break-word;">${element.status ?? element.old_status}</td>
 									<td style="word-break: break-word;">${element.quantity ?? element.old_quantity}</td>
 									<td style="word-break: break-word;">${element.stock_status ?? element.old_status	}</td>
-									<td style="word-break: break-word;">${element.user.name ?? ''}</td>
+									<td style="word-break: break-word;">${element.user?.name ?? 'command'}</td>
 									<td style="word-break: break-word;">${element.created_at ?? ''}</td>
 							</tr>
 							`
