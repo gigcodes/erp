@@ -260,6 +260,8 @@
 				<div class="col-md-12">
 					<div class="col-md-8" style="padding-bottom: 10px;">
 						<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field"></textarea>
+						<input type="hidden" name="remark_cat_id" data-cat_id="" id="remark_cat_id" />
+						<input type="hidden" name="remark_website_id" data-website_id="" id="remark_website_id" />
 					</div>
 					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field">
 						<img src="/images/send.png" style="cursor: default;">
@@ -695,6 +697,9 @@
 
 		$(document).on("click", ".btn-remark-field", function() {
 			var id = $("#remark-field").data("id");
+			var cat_id = $("#remark_cat_id").val();
+			var website_id = $("#remark_website_id").val();
+			
 			var val = $("#remark-field").val();
 			$.ajax({
 				url: '/site-development/' + id + '/remarks',
@@ -703,7 +708,9 @@
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
 				},
 				data: {
-					remark: val
+					remark: val,
+					cat_id: cat_id, 
+					website_id : website_id
 				},
 				beforeSend: function() {
 					$("#loading-image").show();
@@ -1107,6 +1114,8 @@
 			});
 
 			$("#remark-area-list").find("#remark-field").data("id", id);
+			$("#remark-area-list").find("#remark_cat_id").val(cat_id);
+			$("#remark-area-list").find("#remark_website_id").val(website_id);
 			$("#remark-area-list").find(".remark-action-list-view").html(html);
 			$("#remark-area-list").modal("show").css('z-index',1051);
 			//$this.closest("tr").remove();
