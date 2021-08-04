@@ -30,7 +30,9 @@ class CommandExecution implements ShouldQueue
     public function handle()
     {
         dump($this->command_name . ' : command is started...');
-        $compare = Process::fromShellCommandline('php artisan '.$this->command_name, base_path())->setTimeout(300);
+        $compare = Process::fromShellCommandline('php artisan '.$this->command_name, base_path());
+        $compare->setTimeout(7200);
+        $compare->setIdleTimeout(60);
         $compare->run();
         $match = $compare->getOutput();
         
