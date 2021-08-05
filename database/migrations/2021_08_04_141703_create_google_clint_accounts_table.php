@@ -18,12 +18,11 @@ class CreateGoogleClintAccountsTable extends Migration
             $table->string('GOOGLE_CLIENT_ID')->nullable();
             $table->string('GOOGLE_CLIENT_SECRET')->nullable();
             $table->string('GOOGLE_CLIENT_KEY')->nullable();
-            $table->string('GOOGLE_CLIENT_APPLICATION_NAME')->nullable();
+            $table->string('GOOGLE_CLIENT_REFRESH_TOKEN')->nullable();
             $table->string('GOOGLE_CLIENT_ACCESS_TOKEN')->nullable();
+            $table->string('GOOGLE_CLIENT_APPLICATION_NAME')->nullable();
             $table->string('GOOGLE_CLIENT_MULTIPLE_KEYS')->nullable();
-            $table->string('py_facebook_script')->nullable();
-            $table->string('py_crop_script')->nullable();
-            $table->string('product_check_py')->nullable();
+            $table->integer('expires_in')->nullable();
             $table->boolean('is_active')->default(0);
             $table->timestamps();
         });

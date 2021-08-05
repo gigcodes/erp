@@ -12,6 +12,7 @@ use App\WebsiteStoreView;
 use App\Setting;
 use Spatie\Activitylog\Models\Activity;
 use App\GoogleClientAccount;
+use App\GoogleClientNotification;
 
 
 
@@ -25,6 +26,7 @@ class GoogleWebMasterController extends Controller
 	public $apiKey='';
 	public $googleToken='';
 	public $curl_errors_array=array();
+    protected $client;
 
 	public function index(Request $request) {
 
@@ -119,153 +121,44 @@ class GoogleWebMasterController extends Controller
 
      public function googleLogin(Request $request)  {
 
-            $google_redirect_url = route('googlewebmaster.get-access-token');
+		$google_redirect_url = route('googlewebmaster.get-access-token');
+
+		$id = \Cache::get('google_client_account_id');
+		$GoogleClientAccount = GoogleClientAccount::find($id);
+		$this->client = new \Google_Client();
+		$this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+		$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+		$this->client->setRedirectUri($google_redirect_url);
+		$this->client->setScopes(array(
+			'https://www.googleapis.com/auth/webmasters',
+		));  
+		$this->client->setAccessType('offline');
+		$access_token = $this->client->authenticate($request->code);
+		if($GoogleClientAccount->is_active){ 
+			$d = $this->client->revokeToken($access_token['access_token']);
+			if($d){
+				$GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = null;
+				$GoogleClientAccount->is_active = 0;
+				$GoogleClientAccount->save(); 
+				return redirect()->route('googlewebmaster.index')->with('success', 'Account disconnected successfully!');          
+			}else{
+				return redirect()->route('googlewebmaster.index')->with('error', 'Something went wrong!');          
+			}
+		}
+		if(!empty($access_token['refresh_token'])){
+			$GoogleClientAccount->GOOGLE_CLIENT_ACCESS_TOKEN = $access_token['access_token'];
+			$GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $access_token['refresh_token'];
+			$GoogleClientAccount->expires_in = $access_token['expires_in'];
+			$GoogleClientAccount->is_active = 1;
+			$GoogleClientAccount->save(); 
+		}else{
+			$GoogleClientAccount->GOOGLE_CLIENT_ACCESS_TOKEN = $access_token['access_token'];
+			$GoogleClientAccount->expires_in = $access_token['expires_in'];
+			$GoogleClientAccount->is_active = 1;
+			$GoogleClientAccount->save(); 
+		}
+		return redirect()->route('googlewebmaster.index')->with('success', 'Account connected successfully!');          
 			
-
-           // echo config('constants.GOOGLE_CLIENT_APPLICATION_NAME');die;
-
-            $gClient = new \Google_Client();
-
-            $gClient->setApplicationName(config('constants.GOOGLE_CLIENT_APPLICATION_NAME'));
-
-            $gClient->setClientId(config('constants.GOOGLE_CLIENT_ID'));
-
-            $gClient->setClientSecret(config('constants.GOOGLE_CLIENT_SECRET'));
-
-            $gClient->setDeveloperKey(config('constants.GOOGLE_CLIENT_KEY'));
-
-            $gClient->setRedirectUri($google_redirect_url);
-
-            $gClient->setScopes(array(
-                'https://www.googleapis.com/auth/webmasters',
-                // 'https://www.googleapis.com/auth/webmasters.readonly',
-            ));          
-
-            $google_oauthV2 = new \Google_Service_Oauth2($gClient);
-            if ($request->get('code')){
-				$gClient->authenticate($request->get('code'));
-				try {
-					$path = base_path('.env');
-					if (file_exists($path)) {
-						file_put_contents($path, str_replace(
-							'GOOGLE_CLIENT_ACCESS_TOKEN='.env('GOOGLE_CLIENT_ACCESS_TOKEN'), 'GOOGLE_CLIENT_ACCESS_TOKEN='.$gClient->getAccessToken()['access_token'].'', file_get_contents($path)
-						));
-					}
-					\Artisan::call('cache:clear');
-					\Artisan::call('config:clear');
-					\Log::info('env update succes');
-				} catch (\Throwable $th) {
-					\Log::error($th->getMessage());
-				}
-
-				$request->session()->put('token', $gClient->getAccessToken());
-            }
-            if ($request->session()->get('token'))
-            {
-                $gClient->setAccessToken($request->session()->get('token'));
-            }
-			
-            if ($gClient->getAccessToken())
-            {
-               
-                $details=$this->updateSitesData($request);
-              
-
-            	$curl = curl_init();
-				curl_setopt_array($curl, array(
-				CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "GET",
-				CURLOPT_HTTPHEADER => array(
-				    "authorization: Bearer ".$gClient->getAccessToken()['access_token']
-				  ),
-				));
-				$response = curl_exec($curl);
-				$err = curl_error($curl);
-
-                if (curl_errno($curl)) {
-
-                  $error_msg = curl_error($curl);
-
-                           }
-              //echo '<pre>';print_r($response);die;
-
-            if (isset($error_msg)) {
-               $this->curl_errors_array[]=array('key'=>'sites','error'=>$error_msg,'type'=>'sites');
-
-               activity('v3_sites')->log($error_msg);
-             }
-
-                 $check_error_response=json_decode($response);
-
-               
-                            
-
-				curl_close($curl);
-
-				if(isset($check_error_response->error->message) || $err)
-                            {
-
-
-                                $this->curl_errors_array[]=array('key'=>'sites','error'=>$check_error_response->error->message,'type'=>'sites');
-                                activity('v3_sites')->log($check_error_response->error->message);
-
-                                echo $this->curl_errors_array[0]['error'];
-                            }else {
-					if(is_array( json_decode( $response)->siteEntry ) ){
-						foreach(json_decode( $response)->siteEntry as $key=> $site) {
-							// Create ot update site url
-							GoogleWebMasters::updateOrCreate(['sites'=>$site->siteUrl]);
-
-                            echo "https://www.googleapis.com/webmasters/v3/sites/".urlencode($site->siteUrl)."/sitemaps";
-							$curl1 = curl_init();
-							//replace website name with code coming form site list
-							curl_setopt_array($curl1, array(
-							    CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites/".urlencode($site->siteUrl)."/sitemaps",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 30,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "GET",
-							  CURLOPT_HTTPHEADER => array(
-							    "authorization: Bearer ".$gClient->getAccessToken()['access_token']
-							  ),
-							));
-
-							$response1 = curl_exec($curl1);
-							$err = curl_error($curl1);
-							if ($err) {
-
-                   activity('v3_sites')->log($err);
-
-				  				echo "cURL Error #:" . $err;
-							} else {
-
-								
-								if(isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap) ){
-									foreach(json_decode( $response1)->sitemap as $key=> $sitemap) {
-										GoogleWebMasters::where('sites',$site->siteUrl)->update(['crawls' => $sitemap->errors]);
-									}
-								}
-							}
-						}
-					}else{
-						 return redirect()->route('googlewebmaster.index')->with('success',$details['success'])->with('error',$details['error_message']);
-					}
-				}
-                         
-             return redirect()->route('googlewebmaster.index')->with('success',$details['success'])->with('error',$details['error_message']);          
-            } else
-            {
-                //For Guest user, get google login url
-                $authUrl = $gClient->createAuthUrl();
-                return redirect()->to($authUrl);
-            }
         }
 
 
@@ -606,59 +499,166 @@ class GoogleWebMasterController extends Controller
 
 	
 	public function getAccounts(){
-		$GoogleClientAccounts = GoogleClientAccount::orderBy("created_at","desc")->get();
+		$GoogleClientAccounts = GoogleClientAccount::orderBy("id","desc")->get();
 		return response()->json( ["code" => 200 , "data" => $GoogleClientAccounts] );
 	}
-
+	
+	public function getAccountNotifications(){
+		$notifications = GoogleClientNotification::with('user')->orderBy("id","desc")->get();
+		return response()->json( ["code" => 200 , "data" => $notifications] );
+	}
 	
 	public function addAccount(Request $request){
 		$GoogleClientAccount = GoogleClientAccount::create($request->all());
 		return redirect()->route('googlewebmaster.index')->with('success', 'google client account added successfully!');          
 	}
-
 	
+	public function allRecords(Request $request){ 
+
+		$google_redirect_url = route('googlewebmaster.get-access-token');
+
+		$id = \Cache::get('google_client_account_id');
+		$GoogleClientAccounts = GoogleClientAccount::get();
+		foreach($GoogleClientAccounts as $GoogleClientAccount){
+			if($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN == null){
+				continue;
+			} 
+			 
+			$this->client = new \Google_Client();
+			$this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+			$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+			$this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
+			$token = $this->client->getAccessToken();
+			if(empty($token)){
+				continue;
+			} 
+			
+			$google_oauthV2 = new \Google_Service_Oauth2($this->client);
+			
+				if ($this->client->getAccessToken())
+				{
+				
+					$details=$this->updateSitesData($request);
+				
+
+					$curl = curl_init();
+					curl_setopt_array($curl, array(
+					CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites",
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_ENCODING => "",
+					CURLOPT_MAXREDIRS => 10,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					CURLOPT_CUSTOMREQUEST => "GET",
+					CURLOPT_HTTPHEADER => array(
+						"authorization: Bearer ".$this->client->getAccessToken()['access_token']
+					),
+					));
+					$response = curl_exec($curl);
+					$err = curl_error($curl);
+
+					if (curl_errno($curl)) {
+
+					$error_msg = curl_error($curl);
+
+							}
+				//echo '<pre>';print_r($response);die;
+				if (isset($error_msg)) {
+					$this->curl_errors_array[]=array('key'=>'sites','error'=>$error_msg,'type'=>'sites');
+					
+					activity('v3_sites')->log($error_msg);
+				}
+				
+				$check_error_response=json_decode($response);
+
+				
+								
+
+					curl_close($curl);
+
+					if(isset($check_error_response->error->message) || $err)
+								{
+
+
+									$this->curl_errors_array[]=array('key'=>'sites','error'=>$check_error_response->error->message,'type'=>'sites');
+									activity('v3_sites')->log($check_error_response->error->message);
+
+									echo $this->curl_errors_array[0]['error'];
+								}else {
+						if(is_array( json_decode( $response)->siteEntry ) ){
+							foreach(json_decode( $response)->siteEntry as $key=> $site) {
+								// Create ot update site url
+								GoogleWebMasters::updateOrCreate(['sites'=>$site->siteUrl]);
+
+								echo "https://www.googleapis.com/webmasters/v3/sites/".urlencode($site->siteUrl)."/sitemaps";
+								$curl1 = curl_init();
+								//replace website name with code coming form site list
+								curl_setopt_array($curl1, array(
+									CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites/".urlencode($site->siteUrl)."/sitemaps",
+								CURLOPT_RETURNTRANSFER => true,
+								CURLOPT_ENCODING => "",
+								CURLOPT_MAXREDIRS => 10,
+								CURLOPT_TIMEOUT => 30,
+								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+								CURLOPT_CUSTOMREQUEST => "GET",
+								CURLOPT_HTTPHEADER => array(
+									"authorization: Bearer ".$this->client->getAccessToken()['access_token']
+								),
+								));
+
+								$response1 = curl_exec($curl1);
+								$err = curl_error($curl1);
+								if ($err) {
+
+					activity('v3_sites')->log($err);
+
+									echo "cURL Error #:" . $err;
+								} else {
+
+									
+									if(isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap) ){
+										foreach(json_decode( $response1)->sitemap as $key=> $sitemap) {
+											GoogleWebMasters::where('sites',$site->siteUrl)->update(['crawls' => $sitemap->errors]);
+										}
+									}
+								}
+							}
+						} 
+					}
+				} 
+		}
+		return redirect()->route('googlewebmaster.index');          
+
+	}
+ 	
 	public function statusAccount(Request $request, $id){
-		// $GoogleClientAccount = GoogleClientAccount::find($id);
-        // $google_redirect_url = route('googlewebmaster.get-access-token');
-        
-		
-		// $gClient = new \Google_Client();
-
-		// $gClient->setApplicationName($GoogleClientAccount->GOOGLE_CLIENT_APPLICATION_NAME);
-
-		// $gClient->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
-
-		// $gClient->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
-
-		// $gClient->setDeveloperKey($GoogleClientAccount->GOOGLE_CLIENT_KEY);
-
-		// $gClient->setRedirectUri($google_redirect_url);
-
-		// $gClient->setScopes(array(
-		// 	'https://www.googleapis.com/auth/webmasters',
-		// ));  
-		// // dump($gClient);
-		// $google_oauthV2 = new \Google_Service_Oauth2($gClient);
-		// // dump($google_oauthV2);
-		// // $gClient->authenticate($request->get('code'));
-		// if($gClient->getAccessToken()){
-		// 	dump($gClient->getAccessToken());
-		// }
-		// else
-		// {
-		// 	$authUrl = $gClient->createAuthUrl();
-		// 	dump($authUrl, 12);
-		// }
 
 		$GoogleClientAccount = GoogleClientAccount::find($id);
-		$GoogleClientAccount->is_active = ! $GoogleClientAccount->is_active;
-		$GoogleClientAccount->save();
-		if($GoogleClientAccount->is_active){
-			$msg = 'Account connected successfully!';
-		} else{
-			$msg = 'Account disconnected successfully!';
-		}
-		return response()->json(['status' => true, 'data' => $GoogleClientAccount, 'msg' => $msg]);          
+        $google_redirect_url = route('googlewebmaster.get-access-token');
+		\Cache::forever('google_client_account_id', $id);
+		$this->client = new \Google_Client();
+
+		// $this->client->setApplicationName($GoogleClientAccount->GOOGLE_CLIENT_APPLICATION_NAME);
+
+		$this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+
+		$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+
+		// $this->client->setDeveloperKey($GoogleClientAccount->GOOGLE_CLIENT_KEY);
+
+		$this->client->setRedirectUri($google_redirect_url);
+		// $this->client->setAccessToken('c3FIOG9vSGV4VHo4QzAyg5T1JvNnJoZ3ExaVNyQWw6WjRsanRKZG5lQk9qUE1BVQ');
+
+        $this->client->setAccessType('offline');
+		$this->client->setIncludeGrantedScopes(true);
+
+		$this->client->setScopes(array(
+			'https://www.googleapis.com/auth/webmasters',
+		));  
+
+		$authUrl = $this->client->createAuthUrl();
+       
+		return redirect($authUrl);
 	}
 
 }

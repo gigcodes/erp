@@ -647,6 +647,7 @@ class Kernel extends ConsoleKernel
         //cron for updating data from csv
         $schedule->command('update-product:from-csv')->daily();	
         $schedule->command('send-instagram-message:in-queue')->everyMinute();	
+        $schedule->command('ConnectGoogleClientAccounts')->hourly();
 
     }
 
