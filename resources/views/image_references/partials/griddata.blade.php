@@ -14,7 +14,7 @@
                 <tbody>
                 <tr>
             @foreach($product->differentWebsiteImages as $images)
-                <td>{{ $images->getDifferentWebsiteName($images->newMedia->id) }}
+                <td>{{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
                 <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
                 </td>
             @endforeach
