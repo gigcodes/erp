@@ -22,21 +22,33 @@ class CashFlowController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+       
         $cash_flows = CashFlow::with(['user', 'files'])->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
         //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
-
+        if ($request->ajax()) 
+        {
+            return view('cashflows.index_page', [
+                'cash_flows' => $cash_flows,
+                'users'      => $users,
+                'categories' => $categories,
+                'purchases'  => $purchases,
+            ]);
+        }
+        else
+        {
         return view('cashflows.index', [
             'cash_flows' => $cash_flows,
             'users'      => $users,
             'categories' => $categories,
             'purchases'  => $purchases,
         ]);
+        }
     }
 
     /**
