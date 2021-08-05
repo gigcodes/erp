@@ -1562,5 +1562,56 @@
             $(mini).toggleClass('hidden');
         });
 		//END - #DEVTASK-19918
+
+	var isLoading = false;
+	var page = 1;
+	$(document).ready(function () {
+
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			status = $("#enter-status").val();
+			keyword = $("#enter-keyword").val();
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/site-development/{{$website->id}}?page="+page+"&k="+keyword+"&status="+status,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					console.log(type);
+					$loader.hide();
+					if('' === data.trim())
+						return;
+					if(type == 'pending') {
+						$('.infinite-scroll-pending-inner').append(data);
+					}
+					if(type == 'completed') {
+						$('.infinite-scroll-completed-inner').append(data);
+					}
+					if(type == 'statutory_not_completed') {
+						$('.infinite-scroll-statutory-inner').append(data);
+					}
+
+
+					isLoading = false;
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
 </script>
 @endsection
