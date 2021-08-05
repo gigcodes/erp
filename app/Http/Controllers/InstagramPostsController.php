@@ -368,6 +368,12 @@ class InstagramPostsController extends Controller
                         if(isset($postJson['keyword'])){
                             $influencer->keyword = $postJson['keyword'];
                         }
+                        if(isset($postJson['email'])){
+                            $influencer->email = $postJson['email'];
+                        }
+                        if(isset($postJson['country'])){
+                            $influencer->country = $postJson['country'];
+                        }
                         $influencer->save();
                     }
                 }else{
