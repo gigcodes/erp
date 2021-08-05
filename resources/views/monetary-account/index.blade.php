@@ -75,7 +75,7 @@
                                             <button type="submit" class="btn btn-image"><img
                                                         src="/images/delete.png"/></button>
                                             {!! Form::close() !!}
-                                            <a href="/monetary-account/{{$account->id}}/history">
+                                            <a href="{{url('/monetary-account/')}}/{{$account->id}}/history">
                                                 <button class="btn btn-image">
                                                     <i class="fa fa-globe"></i>
                                                 </button>

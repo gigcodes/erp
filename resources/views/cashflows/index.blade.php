@@ -69,6 +69,7 @@
                <tr>
                    <th>Date</th>
                    <th>Module</th>
+                   <td>Website</td>
                    <td>Beneficiary Name</td>
                    <th>Type</th>
                    <th>Description</th>
@@ -76,6 +77,7 @@
                    <th>Amount(EUR)</th>
                    <th>Erp Amount</th>
                    <th>Erp Amount(EUR)</th>
+                   <th>Monetary Account</th>
                    <th>Type</th>
                    <th>Actions</th>
                </tr>
@@ -86,6 +88,15 @@
                    <tr>
                        <td class="small">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
                        <td>{!! $cash_flow->getLink() !!}</td>
+                       <td>@switch($cash_flow->cash_flow_able_type)
+                             @case('\App\Order')
+                                  <a href="{{ @$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website_url }}" target="_blank">{{$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website ?? ''}}</a></p>        
+                                  @break
+                           @default
+                             
+                           @endswitch 
+
+                       </td>
                        <td>{!! $cash_flow->get_bname()!!} </td>
                        <td>{{ class_basename($cash_flow->cashFlowAble) }}</td>
                        <td>
@@ -102,6 +113,9 @@
                        <td>{{ $cash_flow->amount_eur }}</td>
                        <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
                        <td>{{ $cash_flow->erp_eur_amount }}</td>
+                       <td>
+                        {{($cash_flow->monetaryAccount)?$cash_flow->monetaryAccount->name: "N/A"}}
+                       </td>
                        <td>{{ ucwords($cash_flow->type) }}</td>
                        <td>
                            <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
@@ -327,7 +341,7 @@
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
-            url: '/cashflow/do-payment',
+            url: "{{url('/cashflow/do-payment')}}",
             type: 'POST',
             data : form.serialize(),
             dataType: 'json',

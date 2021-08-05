@@ -113,7 +113,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');    
-    Route::get('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
+    Route::post('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
     
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
@@ -872,6 +872,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('project-file-manager/insertsize', 'ProjectFileManagerController@insertsize')->name('project-file-manager.insertsize');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
     Route::get('size/log_history/discount/', 'ProjectFileManagerController@sizelogHistory')->name('size/log-history/discount');
+    Route::get('file-name/file-size', 'ProjectFileManagerController@getfilenameandsize')->name('file-name/file-size.get');
      
 
     // Daily Planner
