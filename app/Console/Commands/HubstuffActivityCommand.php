@@ -92,9 +92,9 @@ class HubstuffActivityCommand extends Command
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
-                
+                dump('weekly => '.$user->name.', Current Day => '.$diff_in_days);
+
                 if ($diff_in_days == 7 ) {
-                    dump('weekly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -110,10 +110,9 @@ class HubstuffActivityCommand extends Command
                 }
             }
 
-            if($payment_frequency == "biweekkly"){
-                
+            if($payment_frequency == "biweekly"){
+                dump('biweekly => '.$user->name.', Current Day => '.$diff_in_days);
                 if ($diff_in_days == 14) {
-                    dump('biweekkly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -130,9 +129,9 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "fornightly"){
-                
+                dump('fornightly => '.$user->name.', Current Day => '.$diff_in_days);
+
                 if ($diff_in_days == 15) {
-                    dump('fornightly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -149,9 +148,9 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "monthly"){
-                
+                dump('monthly => '.$user->name.', Current Day => '.$diff_in_days);
+
                 if ($diff_in_days == 30) {
-                    dump('monthly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -190,6 +189,7 @@ class HubstuffActivityCommand extends Command
 
             }else{
                 dump('Frequency Not Match Of User '.$user->name);
+                dump('');
             }
 
         }
