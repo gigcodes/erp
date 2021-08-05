@@ -1490,6 +1490,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
+    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');
