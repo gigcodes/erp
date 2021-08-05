@@ -29,7 +29,6 @@ class AnalyticsController extends Controller
 {
     public function showData(Request $request)
     {   
-
         $website_list = StoreWebsiteAnalytic::all()->toArray();
 
         $pageTrackingData = GoogleAnalyticsPageTracking::select('google_analytics_page_tracking.*','store_website_analytics.website')
@@ -46,6 +45,17 @@ class AnalyticsController extends Controller
 
         $audienceData = GoogleAnalyticsAudience::select('google_analytics_audience.*','store_website_analytics.website')
                             ->leftJoin('store_website_analytics','google_analytics_audience.website_analytics_id','=','store_website_analytics.id');
+
+        // $data = StoreWebsiteAnalytic::leftJoin('google_analytics_platform_device as gapd','gapd.website_analytics_id','=','store_website_analytics.id')
+        //                             ->leftJoin('google_analytics_page_tracking as gapt','gapt.website_analytics_id','=','store_website_analytics.id')
+        //                             ->leftJoin('google_analytics_geo_network as gagn','gagn.website_analytics_id','=','store_website_analytics.id')
+        //                             ->leftJoin('google_analytics_user as gau','gau.website_analytics_id','=','store_website_analytics.id')
+        //                             // ->leftJoin('google_analytics_audience as gaa','gaa.website_analytics_id','=','store_website_analytics.id')
+        //                             ->groupBy('gapd.browser','gapd.os','gagn.country','gagn.iso_code','gau.user_type')
+        //                             ->select('store_website_analytics.website as sw_website','gapd.browser as browser','gapd.os as os','gapd.session as session','gapd.created_at as created_at','gagn.country as country','gagn.iso_code as iso_code','gau.user_type as user_type','gapt.page as page','gapt.avg_time_page as avg_time_page','gapt.page_views as page_views','gapt.unique_page_views as unique_page_views','gapt.exit_rate as exit_rate','gapt.entrances as entries','gapt.entrance_rate as entries_rate')
+        //                             ->get()->toArray();
+
+        //                             dd($data);
     
         /** Filter */
 
@@ -258,7 +268,8 @@ class AnalyticsController extends Controller
                         'website'     => $value['website'], 
                         'account_id'  => $value['id'],
                         'title'       => 'success',
-                        'description' => 'Data fetched successfully'
+                        'description' => 'Data fetched successfully',
+                        'created_at'  => now(),
                     );
                     GoogleAnalyticsHistories::insert($history);
                 }else{
@@ -267,6 +278,7 @@ class AnalyticsController extends Controller
                         'account_id'  => $value['id'],
                         'title'       => 'error',
                         'description' => 'Please add auth json file and view id',
+                        'created_at'  => now(),
                     );
                     GoogleAnalyticsHistories::insert($history);
                 }
@@ -277,7 +289,8 @@ class AnalyticsController extends Controller
                     'website'     => $value['website'], 
                     'account_id'  => $value['id'],
                     'title'       => 'error',
-                    'description' => $e->getMessage()
+                    'description' => $e->getMessage(),
+                    'created_at'  => now(),
                 );
                 GoogleAnalyticsHistories::insert($history);
                 \Log::error('google-analytics :: '.$e->getMessage());

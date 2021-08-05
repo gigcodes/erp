@@ -293,7 +293,7 @@
                     $.each(result.data,function(k,v) {
                         t += `<tr><td>`+v.id+`</td>`;
                         t += `<td>`+v.website+`</td>`;
-                        t += `<td>`+v.title+`</td>`;
+                        t += `<td data-title = "`+v.title+`">`+v.title+`</td>`;
                         t += `<td>`+v.description+`</td>`;
                         t += `<td>`+v.created_at+`</td></tr>`;
                     });
@@ -317,5 +317,26 @@
         $('.url').text(fullpath);
         $('#fullUrlModal').modal('show');
     }
+    
+
+    $(document).on('change','.category-history-filter',function(){
+        var value = $(this).val();
+        if (value == 'error') {
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').hide();
+        }
+        if (value == 'success') {
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').hide();
+        }
+        if (!value) {
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').show();
+        }
+    })
+
+    $('#category-history-modal').on('hidden.bs.modal', function () {
+        $('#category-history-modal').find('.category-history-filter').val('');
+    })
 </script>
 @endsection
