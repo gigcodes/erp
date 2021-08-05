@@ -216,7 +216,7 @@
                 <button type="button" class="btn preview-img-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->isAdmin() || $hasSiteDevelopment)
                 @php
                     $websitenamestr = ($website) ? $website->title : "";
                 @endphp
