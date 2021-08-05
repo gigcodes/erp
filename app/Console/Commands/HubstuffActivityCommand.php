@@ -92,8 +92,9 @@ class HubstuffActivityCommand extends Command
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
-
+                
                 if ($diff_in_days == 7 ) {
+                    dump('weekly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -110,8 +111,9 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "biweekkly"){
-
+                
                 if ($diff_in_days == 14) {
+                    dump('biweekkly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -122,14 +124,15 @@ class HubstuffActivityCommand extends Command
                         if($path == null){
 
                             $path = $zz->getRealPath();
+                        }
                     }
-                }
                 }
             }
 
             if($payment_frequency == "fornightly"){
-
+                
                 if ($diff_in_days == 15) {
+                    dump('fornightly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -146,8 +149,9 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "monthly"){
-
+                
                 if ($diff_in_days == 30) {
+                    dump('monthly => '.$user->name);
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
 
@@ -169,7 +173,7 @@ class HubstuffActivityCommand extends Command
 
                 Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
                     $message->to($data["email"], $data["email"])
-                            ->subject($data["title"])->attach($path);  
+                            ->subject($data["title"])->attach($path);
                 });
 
                 $user->last_mail_sent_payment = $today;
@@ -182,6 +186,10 @@ class HubstuffActivityCommand extends Command
                 $hubstaff_activity->activity_excel_file = $storage_path;
                 $hubstaff_activity->save();
 
+                dump('Mail Sent Successfully => '.$user->name);
+
+            }else{
+                dump('Frequency Not Match Of User '.$user->name);
             }
 
         }
