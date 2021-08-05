@@ -64,7 +64,7 @@
                                  ?>
                                 <tr>
                                     <td><?php echo date("Y-m-d",strtotime($h->created_at)); ?></td>
-                                    <td>{{ $h->model->name }}</td>
+                                    <td>{{ $h->model ? $h->model->name : '' }}</td>
                                     <td>{{ $h->note }}</td>
                                     <td>@if($h->amount<=0) 
                                           {{$h->amount}}
