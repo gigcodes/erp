@@ -39,7 +39,8 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories = $categories->whereNotIn('id', $ignoredCategory);
         }
-        $categories = $categories->paginate(Setting::get('pagination'));
+        //$categories = $categories->paginate(Setting::get('pagination'));
+        $categories = $categories->paginate(20);
 
         //Getting Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
