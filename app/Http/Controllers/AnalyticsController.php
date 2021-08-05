@@ -48,8 +48,7 @@ class AnalyticsController extends Controller
                             ->leftJoin('store_website_analytics','google_analytics_audience.website_analytics_id','=','store_website_analytics.id');
 
         $google_analytics_data = GoogleAnalyticData::leftJoin('store_website_analytics','google_analytic_datas.website_analytics_id','=','store_website_analytics.id')
-                                                    ->select('google_analytic_datas.*','store_website_analytics.website')
-                                                    ->paginate(25);
+                                                    ->select('google_analytic_datas.*','store_website_analytics.website');
         /** Filter */
 
         if( $request->start_date  && $request->end_date ){
@@ -70,6 +69,7 @@ class AnalyticsController extends Controller
             $audienceData->where( 'google_analytics_audience.website_analytics_id', $request->website );
         }
 
+        $google_analytics_data   = $google_analytics_data->orderBy('google_analytic_datas.created_at','DESC')->paginate(Setting::get('pagination'));
         $pageTrackingData   = $pageTrackingData->orderBy('google_analytics_page_tracking.created_at','DESC')->paginate(Setting::get('pagination'),['*'],'tracking-per-page');
         $PlatformDeviceData = $PlatformDeviceData->orderBy('google_analytics_platform_device.created_at','DESC')->paginate(Setting::get('pagination'));
         $geoNetworkData     = $geoNetworkData->orderBy('google_analytics_geo_network.created_at','DESC')->paginate(Setting::get('pagination'),['*'],'geo-network');
