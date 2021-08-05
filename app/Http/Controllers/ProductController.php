@@ -329,6 +329,18 @@ class ProductController extends Controller
         }
         $newProducts = $newProducts->where('isUploaded',0);
 
+        if($request->crop_start_date != null && $request->crop_end_date != null) {
+            $startDate = $request->crop_start_date;
+            $endDate = $request->crop_end_date;
+            $newProducts = $newProducts->leftJoin("cropped_image_references as cri", function ($join) use($startDate, $endDate) {
+                $join->on("cri.product_id", "products.id");
+                $join->whereDate("cri.created_at", ">=", $startDate)->whereDate("cri.created_at", "<=", $endDate);
+            });
+
+            $newProducts = $newProducts->whereNotNull("cri.product_id");
+            $newProducts = $newProducts->groupBy("products.id");
+        }
+
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
 
@@ -355,6 +367,12 @@ class ProductController extends Controller
         }else{
             $auto_push_product = Setting::get('auto_push_product');
         }
+
+
+        // checking here for the product which is cropped
+
+
+
 
         if($request->ajax()) {
 
