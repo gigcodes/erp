@@ -200,14 +200,14 @@
                     </select>
                 </div>
 
-                <!-- <div class="col-md-2">
+                <div class="col-md-2">
                     <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
                     <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
                     <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                         <i class="fa fa-calendar"></i>&nbsp;
-                        <span></span> <i class="fa fa-caret-down"></i>
+                        <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ $startDate .' '.$endDate}}</p><i class="fa fa-caret-down"></i>
                     </div>
-                </div> -->
+                </div>
                
                 <div class="col-md-1">
                     <button type="button" class="btn btn-image filter_img" ><img src="/images/filter.png"></button>
@@ -645,6 +645,11 @@
                 var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice;
             }
         }
+
+        if(startDate != ''&& endDate != '' ){
+            var origin   = window.location.origin;
+            var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice+"&startDate="+startDate+"&endDate="+endDate;
+        }
        
         window.location.href = url;
     });
@@ -767,14 +772,8 @@
         let startDate=   jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
         let endDate =    jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
-        // var url      =  window.location.href; 
-
-        // if (url.indexOf('startDate') > -1)
-        // {
-        //     // var url = url.split(url.indexOf('startDate'));
-        // }
-
-        // window.location.href = url+ '&startDate=' + jQuery('input[name="range_start"]').val()+ '&&endDate='+ jQuery('input[name="range_end"]').val();
+        $("#date_current_show").removeClass("d-none");
+        $("#date_value_show").css("display", "none");
 
     });
 </script>
