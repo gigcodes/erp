@@ -211,7 +211,7 @@
 				</td>
 				<td>{{$data->created_at}}</td>
 				<td style="width:300px"><input type="button" id="approve-lead-group" data-lead-id="{{@$lead_group_array[$data->customer_id]}}" value="approve" onsubmit="return false" />
-				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{$chat_array[$data->customer_id]}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{@$chat_array[$data->customer_id]}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
 				<button title="Send Images" type="button" class="btn btn-image send-message no-pd" data-id="{{$data->cust_id}}"><img src="../images/filled-sent.png" /></button>
 
 				</td>
