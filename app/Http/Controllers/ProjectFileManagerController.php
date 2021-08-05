@@ -9,6 +9,7 @@ use App\User;
 use App\ProjectFileManagerHistory;
 use App\Setting;
 use Carbon\Carbon;
+use File;
 
 class ProjectFileManagerController extends Controller
 {
@@ -284,6 +285,29 @@ class ProjectFileManagerController extends Controller
 		}
 
 		return response()->json(["code" => 500 , "message" => "{$path} has been not found in record"]);
+	}
+	public function getfilenameandsize(Request $request){
+
+		$name = $request->get('name');
+		
+		$path =  base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $name));
+		$files = File::files($path);
+
+		$file_size_arr = array();
+
+		foreach($files as $key => $value)
+		{			
+			$file_size_arr[$key]['file_name'] = $value->getfilename();
+		
+			$base = log($value->getSize()) / log(1024);
+			$suffix = array("", "k", "M", "G", "T")[floor($base)];
+			$size = pow(1024, $base - floor($base)) . $suffix;
+			$File_size = round($size, 2) . ' ' . $suffix;
+						
+			$file_size_arr[$key]['file_size'] = $File_size;
+			// dd($File_size);
+		}
+		return response()->json(['file_size_arr' => $file_size_arr, 'path' => $path, 'files' => $files]);
 	}
 	
 }

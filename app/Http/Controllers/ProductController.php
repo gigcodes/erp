@@ -329,6 +329,18 @@ class ProductController extends Controller
         }
         $newProducts = $newProducts->where('isUploaded',0);
 
+        if($request->crop_start_date != null && $request->crop_end_date != null) {
+            $startDate = $request->crop_start_date;
+            $endDate = $request->crop_end_date;
+            $newProducts = $newProducts->leftJoin("cropped_image_references as cri", function ($join) use($startDate, $endDate) {
+                $join->on("cri.product_id", "products.id");
+                $join->whereDate("cri.created_at", ">=", $startDate)->whereDate("cri.created_at", "<=", $endDate);
+            });
+
+            $newProducts = $newProducts->whereNotNull("cri.product_id");
+            $newProducts = $newProducts->groupBy("products.id");
+        }
+
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
 
@@ -355,6 +367,12 @@ class ProductController extends Controller
         }else{
             $auto_push_product = Setting::get('auto_push_product');
         }
+
+
+        // checking here for the product which is cropped
+
+
+
 
         if($request->ajax()) {
 
@@ -1780,6 +1798,95 @@ class ProductController extends Controller
             ]);
         }
         
+    }
+
+    public function multilistMagento(Request $request){
+
+        $data = $request->data;
+
+        foreach($data as $key => $id){
+
+            try {
+                //code...
+                // Get product by ID
+                $product = Product::find($id);
+                //check for hscode
+                $hsCode = $product->hsCode($product->category, $product->composition);
+                $hsCode = true;
+                if ($hsCode) {
+                    // If we have a product, push it to Magento
+                    if ($product !== null) {
+                        // Dispatch the job to the queue
+                        $category = $product->category;
+                        $brand = $product->brand;
+                        //website search
+                        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                        if(count($websiteArrays) == 0){
+                            \Log::info("Product started ".$product->id." No website found");
+                            $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
+                            $logId = LogListMagento::log($product->id, "No website found " . $product->id, 'info');
+                            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                            $this->updateLogUserId($logId);
+                        }else{
+                            $i = 1;
+                            foreach ($websiteArrays as $websiteArray) {
+                                $website = StoreWebsite::find($websiteArray);
+                                if($website){
+                                    \Log::info("Product started website found For website".$website->website);
+                                    $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
+                                    //currently we have 3 queues assigned for this task.
+                                    $log->sync_status = "waiting";
+                                    $log->queue = \App\Helpers::createQueueName($website->title);
+                                    $log->save();
+                                    PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
+                                    $i++;
+                                }
+                            }
+                        }
+                       
+                        // Update the product so it doesn't show up in final listing
+                        $product->isUploaded = 1;
+                        $product->save();
+                        // Return response
+                        // return response()->json([
+                        //     'result' => 'queuedForDispatch',
+                        //     'status' => 'listed'
+                        // ]);
+                    }
+                }
+                
+                $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
+    
+                $logId = LogListMagento::log($product->id, $msg, 'info');
+                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                $this->updateLogUserId($logId);
+
+                // Return error response by default
+                // return response()->json([
+                //     'result' => 'productNotFound',
+                //     'status' => 'error'
+                // ]);
+            } catch(Exception $e) {
+                //throw $th;
+                $msg = $e->getMessage();
+    
+                $logId = LogListMagento::log($id, $msg, 'info');
+                ProductPushErrorLog::log("",$id, $msg, 'php',$logId->store_website_id,"","",$logId->id);
+                $this->updateLogUserId($logId);
+
+                // Return error response by default
+                // return response()->json([
+                //     'result' => 'productNotFound',
+                //     'status' => 'error'
+                // ]);
+            }
+
+        }
+
+        return response()->json([
+            'result' => 'queuedForDispatch',
+            'status' => 'listed'
+        ]);
     }
 
     public function updateLogUserId($logId)

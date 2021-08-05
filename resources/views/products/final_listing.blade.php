@@ -325,7 +325,18 @@
                                 <lable for="without_composition pr-3">No Composition</lable>
                         </div>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-md-2">
+                        <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_start_date" />
+                        <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_end_date" />
+                        <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                            <!-- <i class="fa fa-calendar"></i>&nbsp;
+                            <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+                            <i class="fa fa-calendar"></i>&nbsp;
+                            <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-1">
                         <div class="form-group">
                             <button type="submit" class="btn btn-secondary" title="Filter">
                                 <i type="submit" class="fa fa-filter" aria-hidden="true"></i>
@@ -338,6 +349,10 @@
                     <div class="col-sm-1">
                         <div class="form-group">
                             <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="button" onclick="maskpushProduct()" class="btn btn-secondary" value="Mask Push product"/>
                         </div>
                     </div>
                 </div>
@@ -434,6 +449,8 @@
 @endsection
 
 @section('scripts')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         function pushProduct() {
             $(".product-push-number").modal("show");
@@ -1776,6 +1793,58 @@
                     //location.reload();
                 });
         });
+
+
+        function maskpushProduct(){
+            var chk = $('.affected_checkbox');
+            var chked_id = [];
+
+            for(let i=0; i < chk.length; i++){
+                if(chk[i].checked)
+                {
+                    chked_id.push($(chk[i]).attr('data-id'));
+                    // console.log($(chk[i]).attr('data-id'));
+                }
+            }
+
+            if(chked_id.length == 0) {
+                toastr['error']('Please Select Product');
+                return false;
+            }
+
+            var ajaxes = [];
+            url = "{{ url('products/multilistMagento') }}";
+            ajaxes.push($.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    data : chked_id,
+                },
+                beforeSend: function () {
+                    // $(thiss).text('Loading...');
+                    // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+                }
+            }).done(function (response) {
+                // thiss.removeClass('fa-spinner').addClass('fa-upload')
+                toastr['success']('Request Send successfully', 'Success')
+                // $('#product' + id).hide();
+            }).fail(function (response) {
+                // console.log(response);
+                // thiss.removeClass('fa-spinner').addClass('fa-upload')
+                toastr['error']('Internal server error', 'Failure')
+                // $('#product' + id).hide();
+                // //alert('Could not update product on magento');
+            }));
+
+            $.when.apply($, ajaxes)
+            .done(function () {
+                //location.reload();
+            });
+
+
+        }
+
         $(document).on('click', '.product-slider-arrow', function () {
             var active_ele = $(this).parents('.modal-body').find('.product-slider.d-block');
             if (active_ele.length !== 0) {
@@ -1928,5 +1997,42 @@
 	        clearInterval(stop);
 	        console.log("Stopped");
 	    });
+
+        let r_s = "";
+        let r_e = "";
+
+        let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+        let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+        jQuery('input[name="range_start"]').val();
+        jQuery('input[name="range_end"]').val();
+
+        function cb(start, end) {
+            $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#filter_date_range_').daterangepicker({
+            startDate: start,
+            maxYear: 1,
+            endDate: end,
+            //parentEl: '#filter_date_range_',
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+
+        cb(start, end);
+
+        $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+            let startDate=   jQuery('input[name="crop_start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+            let endDate =    jQuery('input[name="crop_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+            $("#date_current_show").removeClass("d-none");
+            $("#date_value_show").css("display", "none");
+        });
 	</script>
 @endsection

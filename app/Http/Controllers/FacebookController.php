@@ -5,21 +5,24 @@ namespace App\Http\Controllers;
 use App\BrandFans;
 use App\GroupMembers;
 use App\HashtagPosts;
-use App\ScrappedFacebookUser;
 use App\ScrapInfluencer;
+use App\ScrappedFacebookUser;
 use App\Services\Facebook\Facebook;
+use File;
 use Illuminate\Http\Request;
-
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class FacebookController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $posts = HashtagPosts::all();
 
         return view('scrap.facebook', compact('posts'));
     }
 
-    public function show($type) {
+    public function show($type)
+    {
         if ($type == 'group') {
             $groups = GroupMembers::all();
 
@@ -32,7 +35,8 @@ class FacebookController extends Controller
         }
     }
 
-    public function getInbox() {
+    public function getInbox()
+    {
         $facebook = new Facebook(new \Facebook\Facebook());
 
         return $facebook->getConversations();
@@ -51,8 +55,8 @@ class FacebookController extends Controller
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
      *
@@ -68,22 +72,20 @@ class FacebookController extends Controller
         // NULL? No valid JSON
         if ($payLoad == null) {
             return response()->json([
-                'error' => 'Invalid json'
+                'error' => 'Invalid json',
             ], 400);
         }
         if (is_array($payLoad) && count($payLoad) > 0) {
             $payLoad = json_decode(json_encode($payLoad), true);
             foreach ($payLoad as $postJson) {
-                if($postJson['Owner'])
-                {
-                    $inf = ScrappedFacebookUser::where('owner',$postJson['Owner'])->first();
-                    if($inf == null)
-                    {
-                        $scrapeFacebook = new ScrappedFacebookUser;
-                        $scrapeFacebook->url = $postJson['URL'];
+                if ($postJson['Owner']) {
+                    $inf = ScrappedFacebookUser::where('owner', $postJson['Owner'])->first();
+                    if ($inf == null) {
+                        $scrapeFacebook        = new ScrappedFacebookUser;
+                        $scrapeFacebook->url   = $postJson['URL'];
                         $scrapeFacebook->owner = $postJson['Owner'];
-                        $scrapeFacebook->bio = $postJson['Bio'];
-                        if(isset($postJson['keyword'])){
+                        $scrapeFacebook->bio   = $postJson['Bio'];
+                        if (isset($postJson['keyword'])) {
                             $scrapeFacebook->keyword = $postJson['keyword'];
                         }
                         $scrapeFacebook->save();
@@ -92,10 +94,9 @@ class FacebookController extends Controller
             }
         }
         return response()->json([
-            'ok'
+            'ok',
         ], 200);
-    } 
-
+    }
 
     public function facebookPost(Request $request)
     {
@@ -109,7 +110,7 @@ class FacebookController extends Controller
         // NULL? No valid JSON
         if ($payLoad == null) {
             return response()->json([
-                'error' => 'Invalid json'
+                'error' => 'Invalid json',
             ], 400);
         }
 
@@ -120,41 +121,61 @@ class FacebookController extends Controller
             // Loop over posts
             foreach ($payLoad as $postJson) {
 
-                if(!empty($postJson['name'])){
-                    
-                    $inf = ScrapInfluencer::where('name',$postJson['name'])->first();
-                    if($inf == null){
-                        $influencer              = new ScrapInfluencer;
-                        $influencer->name        = $postJson['name'];
-                        $influencer->url         = isset($postJson['url']) ? $postJson['url'] : "";
-                        $influencer->country     = isset($postJson['country']) ? $postJson['country'] : "";
-                        $influencer->followers   = $postJson['followers'];
-                        $influencer->following   = $postJson['friends'];
+                if (!empty($postJson['name'])) {
+
+                    $inf = ScrapInfluencer::where('name', $postJson['name'])->first();
+                    if ($inf == null) {
+                        $influencer            = new ScrapInfluencer;
+                        $influencer->name      = $postJson['name'];
+                        $influencer->url       = isset($postJson['url']) ? $postJson['url'] : "";
+                        $influencer->country   = isset($postJson['Country']) ? $postJson['Country'] : "";
+                        $influencer->email     = isset($postJson['Email']) ? $postJson['Email'] : "";
+                        $influencer->followers = $postJson['followers'];
+                        $influencer->following = $postJson['friends'];
                         //$influencer->posts       = $postJson['Posts'];
                         $influencer->description = $postJson['bio'];
-                        
+
                         $influencer->profile_pic = $postJson['profile pic'];
                         $influencer->friends     = $postJson['friends'];
                         $influencer->cover_photo = $postJson['cover photo'];
-                        $influencer->interests   = implode(",",$postJson['interests']);
+                        $influencer->interests   = implode(",", $postJson['interests']);
                         $influencer->work_at     = $postJson['works at'];
                         $influencer->platform    = "Facebook";
 
-                        if(isset($postJson['keyword'])){
+                        if (isset($postJson['keyword'])) {
                             $influencer->keyword = $postJson['keyword'];
                         }
+
                         $influencer->save();
+
+                        try {
+                            if (!empty($postJson['Screenshot'])) {
+                                if (!$influencer->hasMedia('instagram-screenshot')) {
+                                    $media = MediaUploader::fromString(base64_decode($postJson['Screenshot']))
+                                        ->toDisk('uploads')
+                                        ->toDirectory('social-media/instagram-screenshot/' . floor($influencer->id / 1000))
+                                        ->useFilename($influencer->id)
+                                        ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
+                                            $model->setAttribute('extension', 'jpg');
+                                        })
+                                        ->upload();
+                                    $influencer->attachMedia($media, 'instagram-screenshot');
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            \Log::info("instagram influencer page error => " . $e->getMessage());
+                        }
                     }
-                }else{
+                } else {
                     //
                 }
-                
+
             }
         }
 
         // Return
         return response()->json([
-            'ok'
+            'ok',
         ], 200);
     }
 

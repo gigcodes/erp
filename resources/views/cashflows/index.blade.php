@@ -3,7 +3,9 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-@endsection
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+  @endsection
 
 @section('content')
     <style>
@@ -16,31 +18,68 @@
     <div class="row m-0 p-0">
         <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Cash Flow
-            <div class="pull-left">
-              {{-- <form action="/order/" method="GET">
-                  <div class="form-group">
-                      <div class="row">
-                          <div class="col-md-12">
-                              <input name="term" type="text" class="form-control"
-                                     value="{{ isset($term) ? $term : '' }}"
-                                     placeholder="Search">
-                          </div>
-                          <div class="col-md-4">
-                              <button hidden type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </div>
-                  </div>
-              </form> --}}
-            </div>
+            
             <div class="pull-right">
               <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#cashCreateModal">+</button>
             </div>
             </h2>
+            
+            <form class="form-search-data">
+               
+                <div class="row">
+                    <div class="col-xs-6 col-md-2 pd-2">
+                        <div class="form-group cls_task_subject">
+                            <input type="text" name="site_name" placeholder="Search Site Name" id="site_name" class="form-control input-sm ui-autocomplete-input" value="" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-2 pd-2">
+                        <div class="form-group">
+                        <input type="text" name="daterange" placeholder="Search date" id="daterange" class="form-control input-sm ui-autocomplete-input" value="<?php if (isset($_GET['daterange'])) { echo $_GET['daterange'] ;} ?>" autocomplete="off">    </div>
+                    </div>
+                    
+                      <div class="col-xs-6 col-md-2 pd-2">
+                        <div class="form-group">
+                            <select onchange="get_bname();" name="module_type" id="module_type" class="form-control input-sm">
+                                <option selected="" value="0"> Filter By Module / Type</option>
+                                <option value="order"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='order') {  echo "selected='selected'" ;} ?> >Order</option>
+                                <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
+                                <option value="assent_manager" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='assent_manager') {  echo "selected='selected'" ;} ?> >Assent Manager</option>
+                          
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-2 pd-2">
+                        <div class="form-group">
+                            <select name="b_name" id="b_name" class="form-control input-sm">
+                                <option value="">Benefiiciary</option>
+                                <option value="1">Cash</option>
+                                <option value="2">Date Asc</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-2 pd-2">
+                        <div class="form-group">
+                            <select name="type" id="type" class="form-control input-sm">
+                                <option value="">Filter by Type</option>
+                                <option value="Pending"  <?php if (isset($_GET['type']) && $_GET['type']=='Pending') {  echo "selected='selected'" ;} ?> >Pending</option>
+                                <option value="Received"  <?php if (isset($_GET['type']) && $_GET['type']=='Received') {  echo "selected='selected'" ;} ?> >Received</option>
+                                <option value="Paid" <?php if (isset($_GET['type']) && $_GET['type']=='Paid') {  echo "selected='selected'" ;} ?> >Paid</option>
+                                
+                            </select>
+                        </div>
+                    </div>
+                    
+                    
 
-            <div class="form-group mb-3 ml-3">
-                <input style="border: 1px solid #ddd;height:30px;border-radius: 4px; padding: 0 5px;" type="text" placeholder="Enter name" name="filter" id="filter_cash_flow" value="">
-                <button class="btn"><img src="/images/filter.png" style="width:16px"></button>
-            </div>
+                    
+
+                    
+                    <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"></button>
+                    
+                </div>    
+                
+            </form>
+          
         </div>
     </div>
 
@@ -83,7 +122,7 @@
                </tr>
                </thead>
 
-               <tbody>
+               <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                @foreach ($cash_flows as $cash_flow)
                    <tr>
                        <td class="small">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
@@ -128,8 +167,9 @@
                </tbody>
            </table>
        </div>
+       <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
-       {!! $cash_flows->appends(Request::except('page'))->links() !!}
+      
    </div>
 
     <div id="cashCreateModal" class="modal fade" role="dialog">
@@ -293,7 +333,17 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script>
+  $(function() {
+    $('input[name="daterange"]').daterangepicker({
+      opens: 'left'
+    }, function(start, end, label) {
+      console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+    });
+  });
+</script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#date-datetime').datetimepicker({
@@ -370,4 +420,82 @@
     });
 
   </script>
+
+<script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('cashflow')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+        function get_bname()
+        {
+          module_type=$("#module_type").val();
+          $("#b_name").empty();
+          if (module_type!='')
+          {
+              
+            $.ajax({
+                    url: "{{url('cashflow/getbnamelist')}}?model_type="+ module_type,
+                    type: 'GET',
+                    success: function (data) {
+                        
+                       
+                      for( var i = 0; i<10; i++){
+                        var id = 1;
+                        var name = 'ssss';
+                        
+                        $("#b_name").append("<option value='"+id+"'>"+name+"</option>");
+
+                    }
+
+                       
+                    },
+                    error: function () {
+                       
+                    }
+                });
+              
+              
+              
+          }      
+        }
+
+  </script>      
 @endsection

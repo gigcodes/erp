@@ -146,7 +146,7 @@ class CroppedImageReferenceController extends Controller
                     $query->whereNull('new_media_id');
                 }
             }
-            $products = $query->orderBy('id', 'desc')->paginate(50);
+            $products = $query->select(["cropped_image_references.*", \DB::raw("max(cropped_image_references.id) as id")])->orderBy('id', 'desc')->paginate(50);
 
         } else {
 
@@ -154,7 +154,7 @@ class CroppedImageReferenceController extends Controller
                 $qu->where('status_id', '!=', StatusHelper::$cropRejected);
             });
 
-            $products = $query->orderBy('id', 'desc')
+            $products = $query->select(["cropped_image_references.*", \DB::raw("max(cropped_image_references.id) as id")])->orderBy('id', 'desc')
                 ->groupBy('original_media_id')
                 ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
                     $q->with('newMedia');
