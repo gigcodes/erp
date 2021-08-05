@@ -426,6 +426,25 @@ class scrapperPhyhon extends Controller
         }
         return response()->json(['remarks' => $remarks]);
     }
+
+    public function history(Request $request){
+       $all_data =  \App\scraperImags::join('store_websites','store_websites.id','scraper_imags.store_website')
+       ->select('store_websites.website','scraper_imags.device','scraper_imags.created_at AS created_date',\DB::raw('count(`scraper_imags`.`id`) as no_image'));
+    
+       if(isset($request->startDate) && isset($request->endDate)){
+            $all_data = $all_data->whereDate('scraper_imags.created_at','>=',date($request->startDate))
+            ->whereDate('scraper_imags.created_at','<=',date($request->endDate));
+        }else{
+            $all_data = $all_data->whereDate('scraper_imags.created_at',Carbon::now()->format('Y-m-d'));
+        }
+
+        $all_data = $all_data->orderBy('no_image', 'DESC')->groupBy('store_websites.website','scraper_imags.device')
+        ->get();
+
+
+        return response()->json(['history' => $all_data]);
+
+    }
 }
 
 
