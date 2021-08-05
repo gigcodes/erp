@@ -54,6 +54,8 @@ class RunErpLeads extends Command
                 ->select(["erp_leads.*", "c.lead_product_freq"])->get();
 
             \Log::channel('customer')->info("Found leads" . $leads->count());
+            \Log::info("Found leads" . $leads->count());
+
             if (!$leads->isEmpty()) {
                 foreach ($leads as $lead) {
                     $limitLead = $lead_product_limit;
@@ -80,6 +82,8 @@ class RunErpLeads extends Command
 
 
                     $allProduts = $products->select(["products.*"])->orderBy("products.created_at","desc")->limit($lead_product_limit)->get()->pluck("id")->toArray();
+
+                    \Log::info("Count Products" . count($allProduts));
                     
                     if (!empty($products)) {
 
@@ -100,6 +104,9 @@ class RunErpLeads extends Command
                                 $newProdArr[$i] = $allProduts[$i];
                             }
                         }
+
+                        \Log::info("Count Products ARR" . count($newProdArr));
+
                         if (count($newProdArr) > 0) {
                             $requestData = new Request();
                             $requestData->setMethod('POST');
