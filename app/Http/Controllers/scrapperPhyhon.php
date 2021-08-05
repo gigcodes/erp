@@ -130,6 +130,8 @@ class scrapperPhyhon extends Controller
 
          $allWebsites=Website::select('name','id')->get();
 
+         $storewebsite = \App\StoreWebsite::get();
+
        //  echo '<pre>';print_r($websites->toArray());die;
 
        
@@ -139,7 +141,7 @@ class scrapperPhyhon extends Controller
         // dd( $websiteList[0]['scrapper_image'] );
 
       //  echo '<pre>';print_r($websites->toArray());die;
-        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request'));
+        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite'));
     }
 
 
@@ -170,6 +172,14 @@ class scrapperPhyhon extends Controller
                     }
                     elseif($request->device == 'desktop'){                        
                         $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
+                    }
+
+                    if(isset($request->startDate) && isset($request->endDate)){
+
+                        $images = $images->whereDate('created_at','>=',date($request->startDate))
+                        ->whereDate('created_at','<=',date($request->endDate));
+                    }else{
+                      //  $images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
                     }
                     
                     $images = $images->get()
@@ -304,6 +314,8 @@ class scrapperPhyhon extends Controller
                 'coordinates'=> $coordinates,
                 'height'=> $height,
                 'width'=> $width,
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
             );
 
             scraperImags::insert( $newImage );

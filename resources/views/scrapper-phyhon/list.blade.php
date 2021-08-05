@@ -153,6 +153,69 @@
                     </div>
 
 </form>
+
+        <form action="" method="POST" id="scrapper-python-form">
+        @csrf
+            <div class="form-group">    
+                <div class="row m-0">
+                    
+                    <div class="col-md-3 pr-0">
+                        <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
+                            <option value="">Select Website</option>
+                                @foreach($storewebsite as $web)
+                                    <option value="{{$web->website}}">{{$web->website}}</option>
+                                @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 pr-0">
+                            
+                        <input type="radio" name="name" id="start" value="start" checked>
+                        <label class="form-check-label pr-4" for="start">
+                            Start
+                        </label>
+                    
+                        <input type="radio" name="name" id="stop" value="stop">
+                        <label class="form-check-label pr-4" for="stop">
+                            Stop
+                        </label>
+
+                        <input type="radio" name="name" id="get-status" value="get-status">
+                        <label class="form-check-label pr-4" for="get-status">
+                            Get status
+                        </label>
+                            
+                    </div>
+
+                    <div class="col-md-2 pr-0">
+                            
+                        <input type="radio" name="type" id="desktop" value="desktop" checked>
+                        <label class="form-check-label pr-4" for="desktop">
+                            Desktop
+                        </label>
+                    
+                        <input type="radio" name="type" id="mobile" value="mobile">
+                        <label class="form-check-label pr-4" for="mobile">
+                            Mobile
+                        </label>
+
+                        <input type="radio" name="type" id="tablet" value="tablet">
+                        <label class="form-check-label pr-4" for="tablet">
+                            Tablet
+                        </label>
+                            
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary" >Send Request</button>
+
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
             <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>

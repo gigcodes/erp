@@ -47,9 +47,9 @@
                     <td>{{ $item->name }}({{ $item->code }})</td>
 
                     <td>
-                        <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
+                        <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
-                        </button>
+                        </button> -->
                         
 
                         <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $store->id,'web_id' => $list->id,'code' => $item->code]) }}" title="Open Images"
@@ -196,9 +196,16 @@
 
         $this = $(this)
         const formData = $this.serialize()
+
+        const store_website = $('#store_website').val();
+        const websiteName_lowercase = store_website.toLowerCase();
+        const websiteName = websiteName_lowercase.replace('www.', '').replace('.com', '');
+
         const typeOfData = $('input[name="type"]:checked').val();
         const nameOfData = $('input[name="name"]:checked').val();
 
+        // console.log("+++++++++++++++++++++++++>>>");
+        // console.log(store_website);
         console.log(websiteName, 'aaaaaaaaa')
 
         $.ajax({
