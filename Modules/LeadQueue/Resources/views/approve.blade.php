@@ -204,7 +204,9 @@
 						@php
 							$chat = App\ChatMessage::find($media);
 						@endphp
-						<img width="75px" heigh="75px" src="{{$chat->media_url}}">
+                        <?php if($chat) { ?>
+						  <img width="75px" heigh="75px" src="{{$chat->media_url}}">
+                        <?php } ?>
 					@endforeach
 				</td>
 				<td>{{$data->created_at}}</td>
