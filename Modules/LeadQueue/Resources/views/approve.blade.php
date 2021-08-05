@@ -119,11 +119,11 @@
 									@php
 									$listOfValues = [];
 									$listOfValues[null] = 'Please Select';
-									foreach($leadList as $item):
-									if($item->lead_id):
-									$listOfValues[$item->lead_id] = $item->lead_id;
-									endif;
-									endforeach;
+    									foreach($leadList as $item):
+    									   if($item->lead_id):
+    									       $listOfValues[$item->lead_id] = $item->lead_id;
+    									   endif;
+    									endforeach;
 									@endphp
 									{{ Form::select('lead_id',$listOfValues,(($lead_id)?$lead_id:null),['class' => 'form-control']) }}
 								</div>
@@ -178,7 +178,7 @@
 		<tbody>
 			@foreach($messageData as $data)
 			@php
-				$media = $chat_array[$data->customer_id];
+				$media = isset($chat_array[$data->customer_id]) ? $chat_array[$data->customer_id] : "";
 				$medias = explode(",",$media);
 			@endphp
 			<tr>
