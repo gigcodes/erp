@@ -119,11 +119,11 @@
 									@php
 									$listOfValues = [];
 									$listOfValues[null] = 'Please Select';
-									foreach($leadList as $item):
-									if($item->lead_id):
-									$listOfValues[$item->lead_id] = $item->lead_id;
-									endif;
-									endforeach;
+    									foreach($leadList as $item):
+    									   if($item->lead_id):
+    									       $listOfValues[$item->lead_id] = $item->lead_id;
+    									   endif;
+    									endforeach;
 									@endphp
 									{{ Form::select('lead_id',$listOfValues,(($lead_id)?$lead_id:null),['class' => 'form-control']) }}
 								</div>
@@ -178,7 +178,7 @@
 		<tbody>
 			@foreach($messageData as $data)
 			@php
-				$media = $chat_array[$data->customer_id];
+				$media = isset($chat_array[$data->customer_id]) ? $chat_array[$data->customer_id] : "";
 				$medias = explode(",",$media);
 			@endphp
 			<tr>
@@ -204,12 +204,14 @@
 						@php
 							$chat = App\ChatMessage::find($media);
 						@endphp
-						<img width="75px" heigh="75px" src="{{$chat->media_url}}">
+                        <?php if($chat) { ?>
+						  <img width="75px" heigh="75px" src="{{$chat->media_url}}">
+                        <?php } ?>
 					@endforeach
 				</td>
 				<td>{{$data->created_at}}</td>
 				<td style="width:300px"><input type="button" id="approve-lead-group" data-lead-id="{{@$lead_group_array[$data->customer_id]}}" value="approve" onsubmit="return false" />
-				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{$chat_array[$data->customer_id]}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{@$chat_array[$data->customer_id]}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
 				<button title="Send Images" type="button" class="btn btn-image send-message no-pd" data-id="{{$data->cust_id}}"><img src="../images/filled-sent.png" /></button>
 
 				</td>
