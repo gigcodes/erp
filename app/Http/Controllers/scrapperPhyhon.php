@@ -132,6 +132,11 @@ class scrapperPhyhon extends Controller
 
          $storewebsite = \App\StoreWebsite::get();
 
+         $current_date = Carbon::now()->format('Y-m-d');
+
+         $startDate = $current_date;
+         $endDate = $current_date;
+
        //  echo '<pre>';print_r($websites->toArray());die;
 
        
@@ -141,7 +146,7 @@ class scrapperPhyhon extends Controller
         // dd( $websiteList[0]['scrapper_image'] );
 
       //  echo '<pre>';print_r($websites->toArray());die;
-        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite'));
+        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
     }
 
 
@@ -166,6 +171,15 @@ class scrapperPhyhon extends Controller
                 if( $website_store_views ){
                     $images = \App\scraperImags::where('store_website',$list->store_website_id)
                     ->where('website_id',$request->code); // this is language code. dont be confused with column name
+
+                    if(isset($request->startDate) && isset($request->endDate)){
+
+                        $images = $images->whereDate('created_at','>=',date($request->startDate))
+                        ->whereDate('created_at','<=',date($request->endDate));
+                    }else{
+                       $images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                    }
+
                     if(isset($request->device) && ($request->device == 'mobile' || $request->device == 'tablet'))
                     {
                         $images = $images->where('device',$request->device);
@@ -174,13 +188,7 @@ class scrapperPhyhon extends Controller
                         $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
                     }
 
-                    if(isset($request->startDate) && isset($request->endDate)){
-
-                        $images = $images->whereDate('created_at','>=',date($request->startDate))
-                        ->whereDate('created_at','<=',date($request->endDate));
-                    }else{
-                      //  $images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
-                    }
+                   
                     
                     $images = $images->get()
                     ->toArray();
@@ -191,7 +199,10 @@ class scrapperPhyhon extends Controller
 
         $allLanguages=Website::orderBy('name', 'ASC')->get();
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories'));
+        $startDate = $request->startDate;
+        $endDate = $request->endDate;
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories','startDate','endDate'));
 
     }
 
