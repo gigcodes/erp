@@ -8,6 +8,7 @@ use App\AnalyticsSummary;
 use App\AnalyticsCustomerBehaviour;
 use App\StoreWebsiteAnalytic;
 // use App\GoogleAnalytics;
+use App\GoogleAnalyticData;
 use App\GoogleAnalyticsPageTracking;
 use App\GoogleAnalyticsPlatformDevice;
 use App\GoogleAnalyticsGeoNetwork;
@@ -46,20 +47,13 @@ class AnalyticsController extends Controller
         $audienceData = GoogleAnalyticsAudience::select('google_analytics_audience.*','store_website_analytics.website')
                             ->leftJoin('store_website_analytics','google_analytics_audience.website_analytics_id','=','store_website_analytics.id');
 
-        // $data = StoreWebsiteAnalytic::leftJoin('google_analytics_platform_device as gapd','gapd.website_analytics_id','=','store_website_analytics.id')
-        //                             ->leftJoin('google_analytics_page_tracking as gapt','gapt.website_analytics_id','=','store_website_analytics.id')
-        //                             ->leftJoin('google_analytics_geo_network as gagn','gagn.website_analytics_id','=','store_website_analytics.id')
-        //                             ->leftJoin('google_analytics_user as gau','gau.website_analytics_id','=','store_website_analytics.id')
-        //                             // ->leftJoin('google_analytics_audience as gaa','gaa.website_analytics_id','=','store_website_analytics.id')
-        //                             ->groupBy('gapd.browser','gapd.os','gagn.country','gagn.iso_code','gau.user_type')
-        //                             ->select('store_website_analytics.website as sw_website','gapd.browser as browser','gapd.os as os','gapd.session as session','gapd.created_at as created_at','gagn.country as country','gagn.iso_code as iso_code','gau.user_type as user_type','gapt.page as page','gapt.avg_time_page as avg_time_page','gapt.page_views as page_views','gapt.unique_page_views as unique_page_views','gapt.exit_rate as exit_rate','gapt.entrances as entries','gapt.entrance_rate as entries_rate')
-        //                             ->get()->toArray();
-
-        //                             dd($data);
-    
+        $google_analytics_data = GoogleAnalyticData::leftJoin('store_website_analytics','google_analytic_datas.website_analytics_id','=','store_website_analytics.id')
+                                                    ->select('google_analytic_datas.*','store_website_analytics.website')
+                                                    ->paginate(25);
         /** Filter */
 
         if( $request->start_date  && $request->end_date ){
+            $google_analytics_data->whereBetween( 'google_analytic_datas.created_at', [ $request->start_date, $request->end_date ] );
             $pageTrackingData->whereBetween( 'google_analytics_page_tracking.created_at', [ $request->start_date, $request->end_date ] );
             $PlatformDeviceData->whereBetween( 'google_analytics_platform_device.created_at', [ $request->start_date, $request->end_date ] );
             $geoNetworkData->whereBetween( 'google_analytics_geo_network.created_at', [ $request->start_date, $request->end_date ] );
@@ -68,6 +62,7 @@ class AnalyticsController extends Controller
         }
 
         if( $request->website ){
+            $google_analytics_data->where( 'google_analytic_datas.website_analytics_id', $request->website );
             $pageTrackingData->where( 'google_analytics_page_tracking.website_analytics_id', $request->website );
             $PlatformDeviceData->where( 'google_analytics_platform_device.website_analytics_id', $request->website );
             $geoNetworkData->where( 'google_analytics_geo_network.website_analytics_id', $request->website );
@@ -81,7 +76,7 @@ class AnalyticsController extends Controller
         $usersData          = $usersData->orderBy('google_analytics_user.created_at','DESC')->paginate(Setting::get('pagination'),['*'],'user-per-page');
         $audienceData       = $audienceData->orderBy('google_analytics_audience.created_at','DESC')->paginate(Setting::get('pagination'),['*'],'audience-per-page');
 
-        return View('analytics.index-new', compact('pageTrackingData','PlatformDeviceData','geoNetworkData','usersData','website_list','audienceData'));
+        return View('analytics.index-new', compact('pageTrackingData','PlatformDeviceData','geoNetworkData','usersData','website_list','audienceData','google_analytics_data'));
     }
 
     public function analyticsDataSummary(Request $request)
@@ -247,6 +242,9 @@ class AnalyticsController extends Controller
                     $response   = getReportRequest($analytics, $value);
                     extract($response);
 
+                    $resultData             = getGoogleAnalyticData( $analyticsObj ,$requestObj);
+                    $resultPageTrackingData = printGoogleAnalyticResults( $resultData , $value['id']);
+
                     $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
                     $resultPageTrackingData = printPageTrackingResults( $resultData , $value['id']);
 
@@ -284,7 +282,7 @@ class AnalyticsController extends Controller
                 }
                 
             }catch(\Exception  $e) {
-
+                dump($e->getMessage());
                 $history = array(
                     'website'     => $value['website'], 
                     'account_id'  => $value['id'],
