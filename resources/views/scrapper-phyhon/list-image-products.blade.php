@@ -86,9 +86,12 @@
         {
             position: absolute;
             top: 0;
-            right : -6px;
+            right : -40px;
             background: transparent;
         }
+               .add-remark-button i{
+                   font-size: 18px;
+               }
         .image-diamention-rasio-desktop
         {
             text-align: center;
@@ -96,7 +99,7 @@
             /* display: flex; */
             overflow: auto;
             margin-bottom: 30px;
-            padding: 0 20px;
+            /*padding: 0 20px;*/
         }
         .image-diamention-rasio-mobile
         {
@@ -106,7 +109,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             margin-bottom: 30px;
-            padding: 0 20px;
+            /*padding: 0 20px;*/
         }
 
         .manage-product-image
@@ -211,7 +214,7 @@
 <!-- END - DEVTASK-4271 -->
 
 <!-- Purpose : Add class infinite-scroll - DEVTASK-4271 -->
-<div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;">
+<div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
         @php
             $oldDate = null;
             $count   = 0;
@@ -292,10 +295,11 @@
                                     array_push($coordinates,$image['height']);
                                     $total_img_height = $image['height'];
                                 @endphp
-                        
 
-                                <div class="image-diamention-rasio {{ $imageDimensioClass }}" style="max-height: {{ $imageHeight }};position: relative;">
-                                    @foreach ($coordinates as $z)
+
+                                <div  style="position: relative;display: flex">
+                                    <div class="image-diamention-rasio {{ $imageDimensioClass }}"  style="max-height: {{ $imageHeight }};">
+                                        @foreach ($coordinates as $z)
                                         @php
                                             if($device == "mobile"){
                                                 $z = ceil((2372*$z)/$total_img_height);
@@ -309,11 +313,13 @@
                                         </td>
                                         @php $x = $z; @endphp
                                     @endforeach
+                                    </div>
                                     <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
                                 </div>
-                            @else    
-                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="position: relative;padding:0px 5px;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow:auto">
-                                    <div style="padding:0px 5px;">
+                            @else
+                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 p-0" style="position: relative;display: flex">
+                                    <div class="product-list-card" style="position: relative;padding:0;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow-y:auto;overflow-x: hidden">
+
                                         <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                             <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
                                                 <div class="carousel-inner maincarousel">
