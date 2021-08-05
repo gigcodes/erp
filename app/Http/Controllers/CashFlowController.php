@@ -24,8 +24,26 @@ class CashFlowController extends Controller
      */
     public function index(Request $request)
     {
-       
-        $cash_flows = CashFlow::with(['user', 'files'])->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+        $cash_flow = CashFlow::with(['user', 'files']);
+        if ($request->type!='')
+            $cash_flow->where('type',$request->type);
+        if ($request->module_type!='')
+           {
+               if ($request->module_type=='order')
+                   $cash_flow->where('cash_flow_able_type','\App\Order');
+               if ($request->module_type=='payment_receipt')
+                   $cash_flow->where('cash_flow_able_type','\App\PaymentReceipt'); 
+               if ($request->module_type=='assent_manager')
+                   $cash_flow->where('cash_flow_able_type','\App\AssetsManager');        
+           }
+        if ($request->daterange!='')
+        {
+            $date=explode("-", $request->daterange);
+            $datefrom=date('Y-m-d',strtotime($date[0]));
+            $dateto=date('Y-m-d',strtotime($date[1]));
+            $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
+        }
+        $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
@@ -115,7 +133,7 @@ class CashFlowController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
@@ -246,5 +264,15 @@ class CashFlowController extends Controller
 
         return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
     }
+
+
+    public function getBnameList(Request $request)
+    {
+          
+        $model_type=$request->model_type;
+          
+          return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
+    }    
+
 }
     

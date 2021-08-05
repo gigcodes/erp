@@ -34,22 +34,23 @@
                     </div>
                     <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                        <input type="text" name="daterange" placeholder="Search date" id="daterange" class="form-control input-sm ui-autocomplete-input" value="" autocomplete="off">    </div>
+                        <input type="text" name="daterange" placeholder="Search date" id="daterange" class="form-control input-sm ui-autocomplete-input" value="<?php if (isset($_GET['daterange'])) { echo $_GET['daterange'] ;} ?>" autocomplete="off">    </div>
                     </div>
                     
                       <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select name="module_type" id="module_type" class="form-control input-sm">
+                            <select onchange="get_bname();" name="module_type" id="module_type" class="form-control input-sm">
                                 <option selected="" value="0"> Filter By Module / Type</option>
-                                <option value="1">Order</option>
-                                <option value="2">Assent Manager</option>
-                                <!-- <option  value="3">Discussion Task</option> -->
+                                <option value="order"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='order') {  echo "selected='selected'" ;} ?> >Order</option>
+                                <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
+                                <option value="assent_manager" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='assent_manager') {  echo "selected='selected'" ;} ?> >Assent Manager</option>
+                          
                             </select>
                         </div>
                     </div>
                     <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select name="sort_by" id="sort_by" class="form-control input-sm">
+                            <select name="b_name" id="b_name" class="form-control input-sm">
                                 <option value="">Benefiiciary</option>
                                 <option value="1">Cash</option>
                                 <option value="2">Date Asc</option>
@@ -58,9 +59,11 @@
                     </div>
                     <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select name="status" id="status" class="form-control input-sm">
-                                <option value="">Filter by Status</option>
-                                <option value="1">Active</option>
+                            <select name="type" id="type" class="form-control input-sm">
+                                <option value="">Filter by Type</option>
+                                <option value="Pending"  <?php if (isset($_GET['type']) && $_GET['type']=='Pending') {  echo "selected='selected'" ;} ?> >Pending</option>
+                                <option value="Received"  <?php if (isset($_GET['type']) && $_GET['type']=='Received') {  echo "selected='selected'" ;} ?> >Received</option>
+                                <option value="Paid" <?php if (isset($_GET['type']) && $_GET['type']=='Paid') {  echo "selected='selected'" ;} ?> >Paid</option>
                                 
                             </select>
                         </div>
@@ -460,6 +463,39 @@
                 });
             }            
         });
+
+        function get_bname()
+        {
+          module_type=$("#module_type").val();
+          $("#b_name").empty();
+          if (module_type!='')
+          {
+              
+            $.ajax({
+                    url: "{{url('cashflow/getbnamelist')}}?model_type="+ module_type,
+                    type: 'GET',
+                    success: function (data) {
+                        
+                       
+                      for( var i = 0; i<10; i++){
+                        var id = 1;
+                        var name = 'ssss';
+                        
+                        $("#b_name").append("<option value='"+id+"'>"+name+"</option>");
+
+                    }
+
+                       
+                    },
+                    error: function () {
+                       
+                    }
+                });
+              
+              
+              
+          }      
+        }
 
   </script>      
 @endsection
