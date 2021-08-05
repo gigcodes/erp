@@ -42,7 +42,7 @@ class SiteDevelopmentController extends Controller
         }
 
         //$categories = $categories->paginate(Setting::get('pagination'));
-        $categories = $categories->paginate(20);
+       // $categories = $categories->paginate(20);
 
 
         $categories->join('site_developments', function($q) use($id){
