@@ -39,7 +39,7 @@
                     
                       <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select onchange="get_bname();" name="module_type" id="module_type" class="form-control input-sm">
+                            <select name="module_type" id="module_type" class="form-control input-sm">
                                 <option selected="" value="0"> Filter By Module / Type</option>
                                 <option value="order"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='order') {  echo "selected='selected'" ;} ?> >Order</option>
                                 <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
