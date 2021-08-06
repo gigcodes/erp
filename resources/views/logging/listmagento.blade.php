@@ -256,6 +256,7 @@
                       <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-image"></i></button>
                       <a target="__blank" href="{{$item->website_url}}/admin/?sku={{$item->getWebsiteSku()}}"><button class="btn btn-xs"><i class="fa fa-globe"></i></button></a>
                       <input style="width:14px;height:14px;margin-left:3px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
+                      <i style="cursor: pointer;" class="btn btn-xs fa fa-upload upload-single" data-id="{{ $item->product_id }}" title="push to magento" aria-hidden="true"></i>
                     </span>
                   </td>
                 </tr>
@@ -881,6 +882,35 @@
       let endDate =    jQuery('input[name="crop_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
       $("#date_current_show").removeClass("d-none");
       $("#date_value_show").css("display", "none");
+  });
+
+  $(document).on('click', '.upload-single', function () {
+      $this = $(this);
+      var id = $(this).data('id');
+      var thiss = $(this);
+      $(this).addClass('fa-spinner').removeClass('fa-upload')
+      url = "{{ url('products') }}/" + id + '/listMagento';
+      $.ajax({
+          type: 'POST',
+          url: url,
+          data: {
+              _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function () {
+              // $(thiss).text('Loading...');
+              // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+          }
+      }).done(function (response) {
+          thiss.removeClass('fa-spinner').addClass('fa-upload')
+          toastr['success']('Request Send successfully', 'Success')
+          $('#product' + id).hide();
+      }).fail(function (response) {
+          console.log(response);
+          thiss.removeClass('fa-spinner').addClass('fa-upload')
+          toastr['error']('Internal server error', 'Failure')
+          $('#product' + id).hide();
+          //alert('Could not update product on magento');
+      })
   });
 
 </script>

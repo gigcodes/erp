@@ -1858,6 +1858,8 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+Route::get('whatsapp/pollTicketsCustomer', 'WhatsAppController@pollTicketCustomer');
+Route::get('whatsapp/pollTickets/{context}', 'WhatsAppController@pollMessages');
 Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
@@ -3203,6 +3205,8 @@ Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixControl
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
