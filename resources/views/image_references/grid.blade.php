@@ -149,6 +149,7 @@
                         <th>Category</th>
                         <th>Supplier</th>
                         <th>Brand</th>
+                        <th>Store Website</th>
                         <th>Original Image</th>
                         <th>Cropped Image</th>
                         <th>Time</th>
