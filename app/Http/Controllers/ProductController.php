@@ -3393,9 +3393,9 @@ class ProductController extends Controller
             $product->save();
         }
 
-        $exitCode = Artisan::call('RejectDuplicateImages', [
-            'media_id' => $request->get('media_id'), 'product_id' => $request->get('product_id')
-        ]);
+        // $exitCode = Artisan::call('RejectDuplicateImages', [
+        //     'media_id' => $request->get('media_id'), 'product_id' => $request->get('product_id')
+        // ]);
         
         return response()->json([
             'status' => 'success'
