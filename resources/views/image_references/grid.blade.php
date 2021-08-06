@@ -648,8 +648,8 @@
         });
 
         $('#show-http-status').on('show.bs.modal', function (e) {
-            $(this).find('.request-body').html($(e.relatedTarget).data('request'));
-            $(this).find('.response-body').html($(e.relatedTarget).data('response'));
+            $(this).find('.request-body').text(JSON.stringify($(e.relatedTarget).data('request')));
+            $(this).find('.response-body').text(JSON.stringify($(e.relatedTarget).data('response')));
         });
 
     </script>

@@ -3287,8 +3287,12 @@ class ProductController extends Controller
     public function saveImage(Request $request)
     {
 
+        $req = $request->all();
+        $req['file'] = $request->file;
+
         $httpHistory = CropImageHttpRequestResponse::create([
-            'request' => json_encode($request->all())
+           
+            'request' => json_encode($req)
         ]);
 
         try{
@@ -3424,9 +3428,13 @@ class ProductController extends Controller
                 $product->save();
             }
 
-            return response()->json([
+            $res = [
                 'status' => 'success'
-            ]);
+            ];
+
+            $httpHistory->update(['response' => json_encode($res)]);
+
+            return response()->json($res);
 
         }catch(\Exception $e){
 
