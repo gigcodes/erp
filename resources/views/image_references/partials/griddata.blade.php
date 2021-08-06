@@ -20,7 +20,7 @@
                }
             }
         @endphp
-        <td>{{ implode("<br>",$websites) }}</td>
+        <td>{!! implode("</br>",$websites) !!}</td>
         <td> <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')" style="max-width: 150px; max-height: 150px;"></td>
         <td>
         @if($product->newMedia)
