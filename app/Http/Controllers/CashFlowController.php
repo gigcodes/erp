@@ -31,7 +31,7 @@ class CashFlowController extends Controller
            {
                if ($request->module_type=='order')
                   {
-                    $cash_flow->where('cash_flow_able_type','\App\Order');
+                    $cash_flow->where('cash_flow_able_type',\App\Order::class);
                     if ($request->b_name!='')
                         {
                             $cash_flow->join('orders','cash_flows.cash_flow_able_id','orders.id');
@@ -42,16 +42,21 @@ class CashFlowController extends Controller
                   } 
                if ($request->module_type=='payment_receipt')
                   {
-                            $cash_flow->where('cash_flow_able_type','\App\PaymentReceipt'); 
+                            $cash_flow->where('cash_flow_able_type',\App\PaymentReceipt::class); 
+                            if ($request->b_name!='')
+                        {
                             $cash_flow->join('payment_receipts','cash_flows.cash_flow_able_id','assets_manager.id');
                             $cash_flow->where('remarks','like',"%$request->b_name%"); 
-                           
+                        }
                   }  
                if ($request->module_type=='assent_manager')
                   {
-                        $cash_flow->where('cash_flow_able_type','\App\AssetsManager'); 
+                        $cash_flow->where('cash_flow_able_type',\App\AssetsManager::class); 
+                        if ($request->b_name!='')
+                        {
                         $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
                         $cash_flow->where('name','like',"%$request->b_name%");
+                        }
                   
                          
 
