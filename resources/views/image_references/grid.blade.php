@@ -182,6 +182,27 @@
         </div>
     </div>
 
+    <div id="show-http-status" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">HTTP Status</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>Request:</h4>
+                    <div class="request-body"></div>
+
+                    <h4>Response:</h4>
+                    <div class="response-body"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="manage-crop-instance" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -624,6 +645,11 @@
                     toastr['error'](jqXHR.responseText, 'Error');
                 }
             });
+        });
+
+        $('#show-http-status').on('show.bs.modal', function (e) {
+            $(this).find('.request-body').html($(e.relatedTarget).data('request'));
+            $(this).find('.response-body').html($(e.relatedTarget).data('response'));
         });
 
     </script>

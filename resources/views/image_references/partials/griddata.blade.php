@@ -38,6 +38,19 @@
                     <option value="Only One Image Available">Only One Image Available</option>
                     <option value="Image incorrect">Image incorrect</option>
             </select>
+
+            <button 
+                style="float:right;padding-right:0px;" 
+                type="button" 
+                class="btn btn-xs show-http-status" 
+                title="Http Status" 
+                data-toggle="modal" data-target="#show-http-status"
+                data-request="{{ $product->httpRequestData ? $product->httpRequestData->request : 'N/A' }}"
+                data-response="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                >
+                <i class="fa fa-info-circle"></i>
+            </button>
+
         </td>
         <td>{!! $product->getProductIssueStatus($product->id) !!}</td>
 
