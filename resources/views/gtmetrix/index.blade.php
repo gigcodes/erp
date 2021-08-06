@@ -176,7 +176,7 @@
             $('#loading-image').hide();        // hide ajax loader   
         })
         .fail(function(){
-            $('#dynamic-content').html('<i class="glyphicon glyphicon-info-sign"></i> Something went wrong, Please try again...');
+            toastr["error"]("Something went wrong please check log file");
             $('#loading-image').hide();
         });
     });
