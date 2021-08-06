@@ -1284,7 +1284,6 @@ class LiveChatController extends Controller
         $selectArray[] = 'users.name AS assigned_to_name'; 
         $query = Tickets::query();
         $query = $query->leftjoin('users','users.id', '=', 'tickets.assigned_to');
-
         $query = $query->select($selectArray);
 
         if($request->ticket_id)
@@ -1336,7 +1335,8 @@ class LiveChatController extends Controller
         {
 			$query = $query->whereDate('date', $request->date);
         }
-
+        $data = $query->orderBy('date', 'DESC')->get();
+        /*
         $pageSize = 10;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
@@ -1348,10 +1348,12 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-       return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        */
+       return view('livechat.tickets', compact('data'));
         
     }
 
+    
     public function createTickets(Request $request) {
         $data = [];
         $data['ticket_id'] = "T" . date("YmdHis");
