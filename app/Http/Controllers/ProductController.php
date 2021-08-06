@@ -33,6 +33,7 @@ use App\PurchaseProductOrder;
 
 use App\Stock;
 use App\Colors;
+use App\CropImageGetRequest;
 use App\CropImageHttpRequestResponse;
 use App\ReadOnly\LocationList;
 use App\UserProduct;
@@ -3025,7 +3026,7 @@ class ProductController extends Controller
      *
      */
     
-    public function giveImage()
+    public function giveImage(Request $request)
     {
         $productId = request("product_id", null);
         $supplierId = request("supplier_id", null);
@@ -3208,8 +3209,7 @@ class ProductController extends Controller
                 $product->save();
             }
 
-            // Return product
-            return response()->json([
+            $res = [
                 'product_id' => $product->id,
                 'image_urls' => $images,
                 'l_measurement' => $product->lmeasurement,
@@ -3217,7 +3217,18 @@ class ProductController extends Controller
                 'd_measurement' => $product->dmeasurement,
                 'category' => "$parent $child",
                 'colors' => $colors,
+            ];
+
+            $http =  CropImageGetRequest::create([
+                'product_id' => $product->id,
+                'request' => json_encode($request->all()),
+                'response' => $res
             ]);
+
+            $res['token'] = $http->id;
+
+            // Return product
+            return response()->json($res);
         }
     }
 
@@ -3273,10 +3284,11 @@ class ProductController extends Controller
     {
 
         $req = $request->all();
+        
         $req['file'] = $request->file;
 
         $httpHistory = CropImageHttpRequestResponse::create([
-           
+            'crop_image_get_request_id' => $request->token,
             'request' => json_encode($req)
         ]);
 
