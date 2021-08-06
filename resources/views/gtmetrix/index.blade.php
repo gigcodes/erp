@@ -122,6 +122,14 @@
                                     <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
                                         <i class="fa fa-play"></i>
                                     </button>
+                                    @if ($key->status == "completed")
+                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"pagespeed",'id'=>$key->test_id])}}" data-type="pagespeed">
+                                            <i class="fa fa-tachometer"></i>
+                                        </button>
+                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"yslow",'id'=>$key->test_id])}}">
+                                            <i class="fa fa-weight"></i>
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -135,7 +143,14 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
    50% 50% no-repeat;display:none;">
 </div>
-
+<div class="modal fade" id="gtmetrix-stats-modal" role="dialog">
+    <div class="modal-dialog modal-md model-width">
+      <!-- Modal content-->
+        <div class="modal-content message-modal" style="width: 100%;">
+            
+        </div>
+    </div>
+</div>
 @include('gtmetrix.history')
 @include('gtmetrix.setSchedule')
 @endsection
@@ -143,7 +158,28 @@
 @section('scripts')
 
 <script>
-
+    $(document).on('click', '.show-pagespeed', function(e){
+        e.preventDefault();
+        var url = $(this).data('url');
+        $('.message-modal').html(''); 
+        $('#loading-image').show();     
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'html'
+        })
+        .done(function(data){
+           // console.log(data);  
+            $('.message-modal').html('');    
+            $('.message-modal').html(data); // load response 
+            $("#gtmetrix-stats-modal").modal("show");
+            $('#loading-image').hide();        // hide ajax loader   
+        })
+        .fail(function(){
+            $('#dynamic-content').html('<i class="glyphicon glyphicon-info-sign"></i> Something went wrong, Please try again...');
+            $('#loading-image').hide();
+        });
+    });
     $(document).on('click','.show-history', function () {
         var btn = $(this);
         var id = $(this).data("id");
