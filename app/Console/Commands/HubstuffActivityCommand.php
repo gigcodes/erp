@@ -100,6 +100,7 @@ class HubstuffActivityCommand extends Command
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
+                dump('weekly => '.$user->name.', Current Day => '.$diff_in_days);
 
                 $today_week = new Carbon();
                 if($today_week->dayOfWeek == Carbon::MONDAY){
@@ -164,6 +165,7 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "fornightly"){
+                dump('fornightly => '.$user->name.', Current Day => '.$diff_in_days);
 
 
                 $date_fornightly = Carbon::now()->format('d');
@@ -198,6 +200,7 @@ class HubstuffActivityCommand extends Command
             }
 
             if($payment_frequency == "monthly"){
+                dump('monthly => '.$user->name.', Current Day => '.$diff_in_days);
 
                 $date_monthly = Carbon::now()->format('d');
 
@@ -245,7 +248,7 @@ class HubstuffActivityCommand extends Command
 
                 Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
                     $message->to($data["email"], $data["email"])
-                            ->subject($data["title"])->attach($path);  
+                            ->subject($data["title"])->attach($path);
                 });
 
                 $user->last_mail_sent_payment = $today;
@@ -258,6 +261,11 @@ class HubstuffActivityCommand extends Command
                 $hubstaff_activity->activity_excel_file = $storage_path;
                 $hubstaff_activity->save();
 
+                dump('Mail Sent Successfully => '.$user->name);
+
+            }else{
+                dump('Frequency Not Match Of User '.$user->name);
+                dump('');
             }
 
         }
