@@ -947,7 +947,7 @@ class TwilioController extends FindByNumberController
     private function getConnectedClients($role = "")
     {
         // $hods = Helpers::getUsersByRoleName('HOD of CRM');
-        $hods = Helpers::getUsersRoleName('HOD of CRM');
+        $hods = Helpers::getUsersRoleName('crm');
         // Log::channel('customerDnd')->info('hods:::::::::'.$hods);
         $andy = User::find(216);
         $yogesh = User::find(6);
