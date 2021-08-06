@@ -341,6 +341,21 @@ class ProductController extends Controller
             $newProducts = $newProducts->groupBy("products.id");
         }
 
+        if($request->store_website_id > 0) {
+            $storeWebsiteID = $request->store_website_id;
+            $newProducts = $newProducts->join("store_website_categories as swc", function ($join) use($storeWebsiteID) {
+                $join->on("swc.category_id", "products.category");
+                $join->where("swc.store_website_id", $storeWebsiteID)->where("swc.remote_id", ">", 0);
+            });
+
+            $newProducts = $newProducts->join("store_website_brands as swb", function ($join) use($storeWebsiteID) {
+                $join->on("swb.brand_id", "products.brand");
+                $join->where("swb.store_website_id", $storeWebsiteID)->where("swb.magento_value", ">", 0);
+            });
+
+            $newProducts = $newProducts->groupBy("products.id");
+        }
+
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
 
@@ -5594,6 +5609,22 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 200 ,"data" => [], "message" => "Lead price created"]);
+    }
+
+    public function getWebsites(Request $request)
+    {
+        $productId = $request->get("product_id");
+        if($productId > 0) {
+            $websites = \App\Helpers\ProductHelper::getStoreWebsiteName($productId);
+            $websitesList = \App\StoreWebsite::whereIn("id",$websites)->get();
+            if(!$websitesList->isEmpty()) {
+                return response()->json(["code" => 200 , "data" => $websitesList]);
+            }else{
+                return response()->json(["code" => 200 , "data" => []]);
+            }
+        }else{
+            return response()->json(["code" => 200 , "data" => []]);
+        }
     }
 
 }
