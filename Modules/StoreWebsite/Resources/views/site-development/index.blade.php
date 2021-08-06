@@ -761,7 +761,7 @@
 			})
 			.done(function(data) {
 				console.log(data)
-				refreshPage()
+				refreshPage();
 				$("#loading-image").hide();
 				$('#editCategory' + id).modal('hide');
 				console.log("success");
