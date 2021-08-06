@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnChatMessagesTable extends Migration
+class AlterTablePaymentReceiptsMonetaryAccount extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddColumnChatMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function($table) {
-            $table->integer('user_feedback_id')->nullable();
-            $table->integer('user_feedback_category_id')->nullable();
+        //
+        Schema::table("payment_receipts",function(Blueprint $table) {
+            $table->integer("monetary_account_id")->nullable()->after("billing_due_date");
         });
     }
 
@@ -27,5 +27,8 @@ class AddColumnChatMessagesTable extends Migration
     public function down()
     {
         //
+        Schema::table("payment_receipts",function(Blueprint $table) {
+            $table->dropField("monetary_account_id");
+        });
     }
 }

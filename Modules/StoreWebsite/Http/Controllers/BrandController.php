@@ -336,7 +336,9 @@ class BrandController extends Controller
             ->get();
             //$missingBrands   = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")->whereNotIn("magento_value",$mangetoIds)->get();
 
-            return view("storewebsite::brand.live-compare",compact('availableBrands'));
+            $total = $availableBrands->count();
+
+            return view("storewebsite::brand.live-compare",compact('availableBrands','total'));
         }
     }
 
@@ -367,8 +369,81 @@ class BrandController extends Controller
             ->select(["b.*"])
             ->get();
 
+            $total = $availableBrands->count();
+
             return view("storewebsite::brand.live-compare",compact('availableBrands'));
         }
+    }
+
+    public function reconsileBrands(Request $request)
+    {
+        $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
+        if($storeWebsite) {
+            $client   = new Client();
+            $response = $client->request('GET', $storeWebsite->magento_url."/rest/V1/brands/list", [
+                'form_params' => [
+                ],
+            ]);
+            $brands = (string)$response->getBody()->getContents();
+            $brands = json_decode($brands,true);
+            $mangetoIds = [];
+            if(!empty($brands)) {
+                foreach($brands as $brand) {
+                    $mangetoIds[] = $brand['attribute_id'];
+                }
+            }
+
+            $rightBrand = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+            ->where("store_website_id",$storeWebsite->id)
+            ->whereIn("magento_value",$mangetoIds)
+            ->groupBy("store_website_brands.magento_value")
+            ->select(["store_website_brands.*"])
+            ->get();
+
+            $noneedTodelete = [];
+            if(!$rightBrand->isEmpty()) {
+                foreach($rightBrand as $rb) {
+                    $noneedTodelete[] = $rb->magento_value;
+                }
+            }
+
+            $needDeleteRequest = array_diff($mangetoIds, $noneedTodelete);
+
+            // go for delete brands
+            if(!empty($needDeleteRequest)) {
+                foreach($needDeleteRequest as $ndr) {
+                    $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                }
+            }
+
+
+            // this we need to push
+            $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+            ->where("store_website_id",$storeWebsite->id)
+            ->whereNotIn("magento_value",$mangetoIds)
+            ->groupBy("store_website_brands.magento_value")
+            ->select(["b.*"])
+            ->get();
+
+            if(!$availableBrands->isEmpty()) {
+                foreach($availableBrands as $avb) {
+                    $magentoBrandId = MagentoHelper::addBrand($avb,$storeWebsite);
+                    if(!empty($magentoBrandId)){
+                        $brandStore = StoreWebsiteBrand::where("brand_id", $avb->id)->where("store_website_id", $storeWebsite->id)->first();
+                        if(!$brandStore) {
+                           $brandStore =  new \App\StoreWebsiteBrand;
+                           $brandStore->brand_id = $avb->id;
+                           $brandStore->store_website_id = $storeWebsite->id;
+                        }
+                        $brandStore->magento_value = $magentoBrandId;
+                        $brandStore->save();
+                    }
+                }
+            }
+
+        }
+
+        return response()->json(["code" => 200 , "message" => "Reconsile request has been finished successfully"]);
     }
 
 }

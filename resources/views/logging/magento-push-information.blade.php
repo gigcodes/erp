@@ -61,14 +61,14 @@
 				 <div class="col-10" style="padding-left:0px;padding-bottom:10px;">
 					<div class="pl-4">
 							<form class="form-inline" action="" method="GET">
-									<div class="form-group col-md-2 pd-3">
+									<div class="form-group mr-3">
 											
 											<input style="width:100%;" name="filter_product_id" type="text" class="form-control" value="{{ isset($_REQUEST['filter_product_id']) ? $_REQUEST['filter_product_id'] : '' }}" placeholder="Product id">
 									</div>
-									<div class="form-group col-md-3 pd-3">
+									<div class="form-group mr-3">
 											<input style="width:100%;" name="filter_product_sku" type="text" class="form-control" value="{{ isset($_REQUEST['filter_product_sku']) ? $_REQUEST['filter_product_sku'] : '' }}" placeholder="SKU">
 									</div>
-									<div class="form-group col-md-3 pd-3">  
+									<div class="form-group mr-3">  
                       <select name="filter_product_status" class="form-control">
                           <option value="">Select status</option>
 
@@ -80,6 +80,37 @@
                       </select>
                       
 									</div>
+                  <div class="form-group mr-3">
+                      <select class="form-control globalSelect2" data-placeholder="Select Brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+                      name="brand_names[]" multiple>
+                      <option value="">Select Brands</option>
+                          @if ($selected_brands)        
+                              @foreach($selected_brands as $brand)
+                                  <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                              @endforeach
+                          @endif
+                      </select>
+                  </div> 
+                  <div class="form-group mr-3">
+                      <select class="form-control globalSelect2" data-placeholder="Select Categories" data-ajax="{{ route('select2.categories',['sort'=>true]) }}"
+                      name="category_names[]" multiple>
+                      <option value="">Select Categories</option>
+                          @if ($selected_categories)        
+                              @foreach($selected_categories as $category)
+                                  <option value="{{ $category->id }}" selected>{{ $category->title }}</option>
+                              @endforeach
+                          @endif
+                      </select>
+                  </div> 
+                  <div class="form-group mr-3">
+                      <select class="form-control globalSelect2" data-placeholder="Select Website" data-ajax="{{ route('select2.websites',['sort'=>true]) }}"
+                      name="website_name" >
+                      <option value="">Select Website</option>
+                          @if (isset($selected_website))        
+                                <option value="{{ $selected_website->id }}" selected>{{ $selected_website->title }}</option>
+                          @endif
+                      </select>
+                  </div> 
 									<div class="form-group col-md-1 pd-3">
 											<button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
 
@@ -110,6 +141,9 @@
             <thead>
              
 							<th>Product Id</th>
+              <th>Website</th>
+              <th>Brand </th>
+              <th>Category</th>
 							<th>Sku</th>
 							<th>Status</th>
 							<th>Quantity</th>
@@ -120,9 +154,12 @@
             <tbody>
               @foreach($logListMagentos as $item)
               
-							<tr>
+							<tr data-id="{{ $item->store_website_id }}">
 
 								<td>{{$item ? $item->product_id : '' }}</td>
+                <td>{{$item && $item->storeWebsite ? $item->storeWebsite->title : '' }}</td>
+                <td>{{$item && $item->product() && $item->product()->brands ? $item->product()->brands->name : '' }}</td>
+                <td>{{$item && $item->product() && $item->product()->categories ? $item->product()->categories->title : '' }}</td>
 								<td>{{$item ? $item->sku : '' }}</td>
 								<td>{{$item ? $item->status : '' }}</td>
 								<td>{{$item ? $item->quantity : '' }}</td>
@@ -176,7 +213,7 @@
                             <input type="url" class="form-control website_url" name="{{ $website->id }}" value="{{ isset($website->productCsvPath) ? $website->productCsvPath->path : '' }}" >
                         </div>
                         <div class="form-group" style="width: 10%">
-                          <button type="button" class="btn  store-product-push-website" ><img src="/images/filled-sent.png" width="16px" style="cursor: pointer;">
+                          <button type="button" data-store_website_id="{{ $website->id }}" class="btn  store-product-push-website" ><img src="/images/filled-sent.png" width="16px" style="cursor: pointer;">
 
                           </button>
                         </div>
@@ -244,7 +281,7 @@ $(document).on('click','.store-product-push-website',function(e){
           const sendData = {}
           sendData.website_url = website_url 
           sendData._token = "{{ csrf_token() }}"
-
+          sendData.store_website_id = $(this).data('store_website_id');
 
               $.ajax({
               method: "POST",
@@ -325,8 +362,17 @@ $(document).on('change','#websites',function(){
 
 
 $(document).on('click','.show-histories',function(){
+
+const website_id = $(this).closest('tr').data('id')
+console.log(website_id)
+
 	$.ajax({
+    headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+      method:'POST',
       url: "/logging/list-magento/product-push-histories/"+ $(this).data('product-id') ,
+      data:{website_id}
     })
     .done(function(response) {
 				let html = null
@@ -340,7 +386,7 @@ $(document).on('click','.show-histories',function(){
 									<td style="word-break: break-word;">${element.status ?? element.old_status}</td>
 									<td style="word-break: break-word;">${element.quantity ?? element.old_quantity}</td>
 									<td style="word-break: break-word;">${element.stock_status ?? element.old_status	}</td>
-									<td style="word-break: break-word;">${element.user.name ?? ''}</td>
+									<td style="word-break: break-word;">${element.user?.name ?? 'command'}</td>
 									<td style="word-break: break-word;">${element.created_at ?? ''}</td>
 							</tr>
 							`

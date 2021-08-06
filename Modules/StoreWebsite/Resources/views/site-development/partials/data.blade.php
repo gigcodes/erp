@@ -6,8 +6,10 @@
     $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
     @endphp
     @foreach($categories as $key => $category)
+    @include("storewebsite::site-development.partials.edit-modal")
     <?php
-    $site = $category->getDevelopment($category->id, $website->id);
+    $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
+
     if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
         <tr>
@@ -15,7 +17,6 @@
                 {{ $pagrank++  }}
             </td>
             <td>
-{{--                <br>--}}
                 {{ $category->title }}
 
               <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
@@ -201,7 +202,7 @@
                 <button type="button" class="btn preview-img-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->isAdmin() || $hasSiteDevelopment)
                 @php
                     $websitenamestr = ($website) ? $website->title : "";
                 @endphp
@@ -223,7 +224,7 @@
                     <i class="fa fa-empire" aria-hidden="true"></i>
                 </button>
 
-                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
+                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, $site->status , [
                     "class" => "form-control save-item-select width-auto globalSelect2",
                     "data-category" => $category->id,
                     "data-type" => "status",
@@ -232,6 +233,7 @@
 
             </td>
         </tr>
+       
         <?php /* <tr class="hidden_row_{{ $category->id  }} dis-none" data-eleid="{{ $category->id }}">
             <td colspan="2">
                 <?php  echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
@@ -272,5 +274,5 @@
             <td></td>
         </tr> */ ?>
     <?php } ?>
-    @include("storewebsite::site-development.partials.edit-modal")
+   
     @endforeach

@@ -21,9 +21,8 @@ Route::post('customer/add_customer_address', 'CustomerController@add_customer_ad
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 
 Route::get('/test/test', 'OrderController@testEmail');
-Route::get('/memory', function () {
-    return view('memory');
-})->name('memory');
+Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
+Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -114,7 +113,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');    
-    Route::get('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
+    Route::post('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
     
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
@@ -265,6 +264,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
+    Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
 
 
@@ -296,6 +296,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/{id}/quickDownload', 'ProductController@quickDownload')->name('products.quick.download');
     Route::post('products/{id}/quickUpload', 'ProductController@quickUpload')->name('products.quick.upload');
     Route::post('products/{id}/listMagento', 'ProductController@listMagento');
+    Route::post('products/multilistMagento', 'ProductController@multilistMagento');
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
@@ -873,6 +874,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('project-file-manager/insertsize', 'ProjectFileManagerController@insertsize')->name('project-file-manager.insertsize');
     Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
     Route::get('size/log_history/discount/', 'ProjectFileManagerController@sizelogHistory')->name('size/log-history/discount');
+    Route::get('file-name/file-size', 'ProjectFileManagerController@getfilenameandsize')->name('file-name/file-size.get');
      
 
     // Daily Planner
@@ -911,6 +913,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
     Route::get('productinventory/in/stock/location/change', 'ProductInventoryController@locationChange')->name('productinventory.location.change');
+
+    Route::post('discount/file/update', 'ProductInventoryController@updategenericprice')->name('discount.file.update');
+    Route::post('retailfromdisc/file/update', 'ProductInventoryController@conditionprice')->name('condition.file.update');
+    Route::post('retailfromexceptionsdisc/file/update', 'ProductInventoryController@exceptionsprice')->name('condition-exceptions.file.update');
+    
+    
+
 
 
     Route::prefix('google-search-image')->group(function () {
@@ -1483,6 +1492,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
+    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');
@@ -1848,6 +1858,8 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+Route::get('whatsapp/pollTicketsCustomer', 'WhatsAppController@pollTicketCustomer');
+Route::get('whatsapp/pollTickets/{context}', 'WhatsAppController@pollMessages');
 Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
@@ -3158,6 +3170,7 @@ Route::get('/change-category/remarks-show', 'scrapperPhyhon@changeCatRemarkList'
 Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
 Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
 Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
+Route::get('/scrapper-python/history', 'scrapperPhyhon@history')->name('scrapper.history');
 
 Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
@@ -3189,8 +3202,11 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
+Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
@@ -3250,6 +3266,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
     Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
     Route::get('categories', 'Select2Controller@allCategory')->name('select2.categories');
+    Route::get('websites', 'Select2Controller@allWebsites')->name('select2.websites');
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');

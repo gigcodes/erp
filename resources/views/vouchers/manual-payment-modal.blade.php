@@ -45,7 +45,7 @@
     <!--input type="text" name="currency" class="form-control" value="{{ old('currency') }}" required-->
     <select name="currency" class="form-control currency-select2" required>
       <option value="">Select Currency</option>
-      @foreach($currencies as $currency)  
+      @foreach($currencies as $currency)
         <option @if($currency->code == old('currency')) selected @endif value="{{$currency->code}}">{{$currency->name}}</option>
       @endforeach
     </select>
@@ -56,15 +56,23 @@
 </div>
 
 <div class="form-group">
-    <strong>Method:</strong>
-    <select name="payment_method_id" id="payment_method_id" class="form-control payment-method-select2" required>
-        <option value="">Select method</option>
-        
-        @foreach($paymentMethods as $key => $method)
-            <option value="{{ $method->id }}">{{ $method->name }}</option>
-        @endforeach
-    </select>
-  </div>
+  <strong>Method:</strong>
+  <select name="payment_method_id" id="payment_method_id" class="form-control payment-method-select2" required>
+      <option value="">Select method</option>
+
+      @foreach($paymentMethods as $key => $method)
+          <option value="{{ $method->id }}">{{ $method->name }}</option>
+      @endforeach
+  </select>
+</div>
+
+<div class="form-group">
+  <strong>Monetary Account:</strong>
+  <?php
+          $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+          echo Form::select('monetary_account_id',$monetaryAccount, null, ['placeholder' => 'Select a Account','class' => 'form-control', "id" => "monetary-account-id-txt"]);
+      ?>
+</div>
 
 
         <div class="form-group">
@@ -81,5 +89,3 @@
     <button type="submit" class="btn btn-danger">Submit</button>
     </div>
 </form>
-
-

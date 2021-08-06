@@ -1008,7 +1008,6 @@ class Category extends Model
     public function getSizeChart($websiteId = 0)
     {
         $sizeCharts = null;
-        return null;
         if($this->id == 5) {
            if($websiteId == 5) {
                $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-men-shoes-size-chart.jpg"; 
@@ -1101,6 +1100,11 @@ class Category extends Model
         }
 
         return $sizeCharts;
+    }
+
+    public function products()
+    {
+        return $this->hasMany( Product::class, 'category', 'id' );
     }
 
 }

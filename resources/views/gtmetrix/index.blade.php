@@ -83,7 +83,8 @@
                             <th>Yslow score</th>
                             <th style="width: 12%;">Resources</th>
                             <th style="width: 7.5%;">Date</th>
-                            <th>Action</th>
+                            <th>PDF</th>
+                            <th style="width: 10.5%;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,7 +94,7 @@
                                 <td>{{ $key->test_id }}</td>
                                 <td>{{ $key->status }}</td>
                                 <td>{{ $key->error }}</td>
-                                <td><a href="{{$key->report_url}}" target="_blank" title="Show report"> Reprot </a></td>
+                                <td><a href="{{$key->report_url}}" target="_blank" title="Show report"> Report </a></td>
                                 <td>{{ $key->html_load_time }}</td>
                                 <td>{{ $key->html_bytes }}</td>
                                 <td>{{ $key->page_load_time }}</td>
@@ -113,10 +114,22 @@
                                     @endif
                                     
                                 <td>{{ $key->created_at }}</td>
+                                <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
                                 <td>  
                                     <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-id="{{ $key->store_view_id }}">
                                         <i class="fa fa-history"></i>
                                     </button>
+                                    <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
+                                        <i class="fa fa-play"></i>
+                                    </button>
+                                    @if ($key->status == "completed")
+                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"pagespeed",'id'=>$key->test_id])}}" data-type="pagespeed">
+                                            <i class="fa fa-tachometer"></i>
+                                        </button>
+                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"yslow",'id'=>$key->test_id])}}">
+                                            <i class="fa fa-compass"></i>
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -127,7 +140,17 @@
         {{ $list->links() }}
     </div>
 </div>
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+   50% 50% no-repeat;display:none;">
+</div>
+<div class="modal fade" id="gtmetrix-stats-modal" role="dialog">
+    <div class="modal-dialog modal-md model-width">
+      <!-- Modal content-->
+        <div class="modal-content message-modal" style="width: 100%;">
+            
+        </div>
+    </div>
+</div>
 @include('gtmetrix.history')
 @include('gtmetrix.setSchedule')
 @endsection
@@ -135,7 +158,28 @@
 @section('scripts')
 
 <script>
-
+    $(document).on('click', '.show-pagespeed', function(e){
+        e.preventDefault();
+        var url = $(this).data('url');
+        $('.message-modal').html(''); 
+        $('#loading-image').show();     
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'html'
+        })
+        .done(function(data){
+           // console.log(data);  
+            $('.message-modal').html('');    
+            $('.message-modal').html(data); // load response 
+            $("#gtmetrix-stats-modal").modal("show");
+            $('#loading-image').hide();        // hide ajax loader   
+        })
+        .fail(function(){
+            toastr["error"]("Something went wrong please check log file");
+            $('#loading-image').hide();
+        });
+    });
     $(document).on('click','.show-history', function () {
         var btn = $(this);
         var id = $(this).data("id");
@@ -184,6 +228,34 @@
 			}
 		});
     });
+
+    $(document).on("click",".run-test",function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var id = $(this).data("id");
+        $.ajax({
+            url: "/gtmetrix/run-event",
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", id : id },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    toastr["success"](result.message);
+                }else{
+                    toastr["error"](result.message);
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+                toastr["error"]("Something went wrong please check log file");
+            }
+        });
+    });
+
 </script>
 
 @endsection

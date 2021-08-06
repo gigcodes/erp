@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\ProductPushInformation;
-
+use Log;
 
 class UpdateProductInformationFromCsv extends Command
 {
@@ -47,7 +47,7 @@ class UpdateProductInformationFromCsv extends Command
         $is_file_exists = null;
         $prodcutInformation = WebsiteProductCsv::pluck('path', 'store_website_id');
 
-        foreach ($prodcutInformation as $file_url) {
+        foreach ($prodcutInformation as $store_website_id => $file_url) {
 
             $client   = new Client();
             if (!$file_url) {
@@ -60,25 +60,32 @@ class UpdateProductInformationFromCsv extends Command
                     $promise = $client->request('GET', $file_url);
                     $is_file_exists = true;
                 } catch (ClientException $e) {
+                    $is_file_exists = false;
+
+                    Log::channel('product_push_information_csv')->info('file-url:' . $file_url . '  and error: ' . $e->getMessage());
                     $this->error('file not exists');
                 }
-    
-    
-                if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+        
+                if ($is_file_exists) {
+                    if( ($handle = fopen($file_url, "r")) !== FALSE){
                     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                         $row++;
                         if ($row > 1) {
                             // dd($data);
-                            $updated =   ProductPushInformation::updateOrCreate(['product_id' => $data[0]], [
+                            $updated =   ProductPushInformation::updateOrCreate(
+                                ['product_id' => $data[0],'store_website_id' => $store_website_id]
+                                , [
                                 'product_id' => $data[0],
                                 'sku' => $data[1],
                                 'status' => $data[2],
                                 'quantity' => $data[3],
                                 'stock_status' => $data[4],
+                                
                             ]);
                             $arr_id[] = $updated->product_id;
                         }
                     }
+                }
                     fclose($handle);
                     $this->info('product updaetd successfully');
                 }

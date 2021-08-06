@@ -12,8 +12,8 @@ use App\Setting;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
-use Storage;
 use Illuminate\Support\Facades\Validator;
+use Storage;
 
 class CashFlowController extends Controller
 {
@@ -22,21 +22,51 @@ class CashFlowController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $cash_flows = CashFlow::with(['user', 'files'])->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+        $cash_flow = CashFlow::with(['user', 'files']);
+        if ($request->type!='')
+            $cash_flow->where('type',$request->type);
+        if ($request->module_type!='')
+           {
+               if ($request->module_type=='order')
+                   $cash_flow->where('cash_flow_able_type','\App\Order');
+               if ($request->module_type=='payment_receipt')
+                   $cash_flow->where('cash_flow_able_type','\App\PaymentReceipt'); 
+               if ($request->module_type=='assent_manager')
+                   $cash_flow->where('cash_flow_able_type','\App\AssetsManager');        
+           }
+        if ($request->daterange!='')
+        {
+            $date=explode("-", $request->daterange);
+            $datefrom=date('Y-m-d',strtotime($date[0]));
+            $dateto=date('Y-m-d',strtotime($date[1]));
+            $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
+        }
+        $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
         //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
-
+        if ($request->ajax()) 
+        {
+            return view('cashflows.index_page', [
+                'cash_flows' => $cash_flows,
+                'users'      => $users,
+                'categories' => $categories,
+                'purchases'  => $purchases,
+            ]);
+        }
+        else
+        {
         return view('cashflows.index', [
             'cash_flows' => $cash_flows,
             'users'      => $users,
             'categories' => $categories,
             'purchases'  => $purchases,
         ]);
+        }
     }
 
     /**
@@ -103,7 +133,7 @@ class CashFlowController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
@@ -203,11 +233,11 @@ class CashFlowController extends Controller
         $id = $request->get("cash_flow_id", 0);
 
         $validator = Validator::make($request->all(), [
-            'cash_flow_id'          => 'required',
-            'description' => 'required',
-            'date'        => 'required',
-            'amount'      => 'required',
-            'type'        => 'required',
+            'cash_flow_id' => 'required',
+            'description'  => 'required',
+            'date'         => 'required',
+            'amount'       => 'required',
+            'type'         => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -216,23 +246,33 @@ class CashFlowController extends Controller
 
         if ($id > 0) {
             $cashflow = \App\CashFlow::find($id);
-            \App\CashFlow::create([
-                "date"                => $request->date,
-                "amount"              => $request->amount,
-                "description"         => $request->description,
-                "type"                => $request->type,
-                "cash_flow_able_id"   => $cashflow->cash_flow_able_id,
-                "cash_flow_able_type" => $cashflow->cash_flow_able_type,
-                "monetary_account_id" => $request->monetary_account_id,
-                "status"              => 1,
-                "order_status"        => $request->type,
-                "updated_by"          => auth()->user()->id,
-                "currency"            => $cashflow->currency,
-            ]);
+            if ($cashflow) {
+                $cashflow->erp_amount          = $request->amount;
+                $cashflow->type                = $request->type;
+                $cashflow->monetary_account_id = $request->monetary_account_id;
+                $cashflow->updated_by          = auth()->user()->id;
+                $cashflow->status              = 1;
+                if ($cashflow->erp_amount > 0) {
+                    $cashflow->erp_eur_amount = \App\Currency::convert($cashflow->erp_amount, 'EUR', $cashflow->currency);
+                }
+                
+                $cashflow->save();
+            }
 
             return response()->json(["code" => 200, "data" => [], "message" => "Receipt Created successfully"]);
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
     }
+
+
+    public function getBnameList(Request $request)
+    {
+          
+        $model_type=$request->model_type;
+          
+          return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
+    }    
+
 }
+    
