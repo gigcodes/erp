@@ -507,7 +507,7 @@ class TwilioController extends FindByNumberController
             $response->hangup();
             return $response;
         } else {
-            $this->createIncomingGather($response, "We did not understand that input.");
+            $this->createIncomingGather($request,$response, "We did not understand that input.");
         }
 
 
@@ -1047,8 +1047,10 @@ class TwilioController extends FindByNumberController
 
         Log::channel('customerDnd')->info('Gathering action...');
 
+        $action_url = 'https://'.$request->getHost() .'/twilio/gatherAction';
         $gather = $response->gather([
-            'action' => url("/twilio/gatherAction")
+            // 'action' => url("/twilio/gatherAction")
+            'action' => $action_url
         ]);
         // $gather->play(\Config::get("app.url") . "/busy_ring.mp3");
         $gather->play('https://'.$request->getHost() . "/busy_ring.mp3");
@@ -1093,7 +1095,7 @@ class TwilioController extends FindByNumberController
             Log::channel('customerDnd')->info(' Missed Call saved');
             Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
 
-            $this->createIncomingGather(new Request(),$response, "Please dial 0 for leave message");
+            $this->createIncomingGather($request,$response, "Please dial 0 for leave message");
         }
 
         if ($customer = Customer::where('phone', 'LIKE', str_replace('+91', '', $request->input('Caller')))->first()) {

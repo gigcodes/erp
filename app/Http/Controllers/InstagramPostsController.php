@@ -368,7 +368,34 @@ class InstagramPostsController extends Controller
                         if(isset($postJson['keyword'])){
                             $influencer->keyword = $postJson['keyword'];
                         }
+                        if(isset($postJson['Email'])){
+                            $influencer->email = $postJson['Email'];
+                        }
+                        if(isset($postJson['Country'])){
+                            $influencer->country = $postJson['Country'];
+                        }
+
+                        $influencer->platform    = "Instagram";
                         $influencer->save();
+
+                        try {
+                            if (!empty($postJson[ 'Screenshot' ])) {
+                                if (!$influencer->hasMedia('instagram-screenshot')) {
+                                    $media = MediaUploader::fromString(base64_decode($postJson[ 'Screenshot' ]))
+                                        ->toDisk('uploads')
+                                        ->toDirectory('social-media/instagram-screenshot/' . floor($influencer->id / 1000))
+                                        ->useFilename($influencer->id)
+                                        ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
+                                            $model->setAttribute('extension', 'jpg');
+                                        })
+                                        ->upload();
+                                    $influencer->attachMedia($media, 'instagram-screenshot');
+                                }
+                            }
+                        } catch(\Exception $e) {
+                            \Log::info("instagram influencer page error => ".$e->getMessage());
+                        }
+                        
                     }
                 }else{
                         // Set tag

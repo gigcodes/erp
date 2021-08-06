@@ -117,12 +117,12 @@
                       <option value="image_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'image_not_found' ? 'selected' : '' }}>Image not found</option>
                   </select>
               </div>
-              <div class="col-md-2 pl-0">
+              <div class="col-md-1 pl-0">
                   <label for="queue">Queue List</label>
                   <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
               </div>
 
-          <div class="col-md-2 pl-0">
+          <div class="col-md-1 pl-0">
             <label for="size_info">Size info</label>
             <select class="form-control" name="size_info">
               <option value=''>All</option>
@@ -145,6 +145,18 @@
               @endforeach
               <option >
             </select>
+          </div>
+
+          <div class="col-md-2 pl-0">
+            <label for="sku">Crop Image Date</label>
+              <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_start_date" />
+              <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_end_date" />
+              <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                  <!-- <i class="fa fa-calendar"></i>&nbsp;
+                  <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+                  <i class="fa fa-calendar"></i>&nbsp;
+                  <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+              </div>
           </div>
 
           <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">
@@ -582,6 +594,8 @@
 @endsection
 
 @section('scripts')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $("#select_date").datepicker({
@@ -828,6 +842,45 @@
           $(".screenshot-modal-information-data").html(response);
           $("#print-live-product-screenshot-modal").modal("show");
       });
+  });
+
+
+  let r_s = "";
+  let r_e = "";
+
+  let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+  let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+  jQuery('input[name="range_start"]').val();
+  jQuery('input[name="range_end"]').val();
+
+  function cb(start, end) {
+      $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+  }
+
+  $('#filter_date_range_').daterangepicker({
+      startDate: start,
+      maxYear: 1,
+      endDate: end,
+      //parentEl: '#filter_date_range_',
+      ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      }
+  }, cb);
+
+  cb(start, end);
+
+
+  $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+      let startDate=   jQuery('input[name="crop_start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+      let endDate =    jQuery('input[name="crop_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+      $("#date_current_show").removeClass("d-none");
+      $("#date_value_show").css("display", "none");
   });
 
 </script>
