@@ -148,13 +148,11 @@ class WebsiteStoreViewGTMetrixController extends Controller
     public function getstats($type = null, $id)
     {
         $data = array();
-        $resourcedata = StoreViewsGTMetrix::select('resources')->where('test_id', $id)->orderBy("created_at", "desc")->get();
+        $resourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->orderBy("created_at", "desc")->get();
         foreach ($resourcedata as $value) {
-            $resources =json_decode(json_encode($value['resources']), true);
             if($type == 'pagespeed' && $id){
                 $title = 'PageSpeed';
-                $url = $this->remove_http($resources['pagespeed']);
-                $pagespeeddata = strip_tags(file_get_contents("https://".env('GTMETRIX_USERNAME') . ':' . env('GTMETRIX_API_KEY')."@".$url));
+                $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
                 $jsondata = json_decode($pagespeeddata, true);
                 foreach ($jsondata['rules'] as $key=>$pagespeed) {
                     $data[$key]['name'] = $pagespeed['name'];
@@ -168,8 +166,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
             }
             if($type == 'yslow' && $id){
                 $title = 'YSlow';
-                $url = $this->remove_http($resources['yslow']);
-                $yslowdata = strip_tags(file_get_contents("https://".env('GTMETRIX_USERNAME') . ':' . env('GTMETRIX_API_KEY')."@".$url));
+                $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
                 $jsondata = json_decode($yslowdata, true);
                 $i=0;
                 foreach ($jsondata['g'] as $key=>$yslow) {
