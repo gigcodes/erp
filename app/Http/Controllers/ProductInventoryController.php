@@ -952,6 +952,22 @@ class ProductInventoryController extends Controller
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
 
+		// started to update status request
+		if($request->get("update_status",false) ==  true) {
+			foreach($inventory_data as $upd) {
+				$nups = $request->get("status_id_update",0);
+				if($nups) {
+				   $upd->status_id = $nups;
+				   if($nups != \App\Helpers\StatusHelper::$requestForExternalScraper) {
+				   	$upd->sub_status_id = null;
+				   }
+				   $upd->save();
+				}
+			}
+			return response()->json(["code" => 200 , "data" => [], "message" => "Request has been updated successfully"]);
+		}
+		// end for update request status
+
 		$query = DB::table('products as p')
 				->selectRaw('
 				   sum(CASE WHEN p.category = ""

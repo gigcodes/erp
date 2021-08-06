@@ -264,6 +264,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
+    Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
 
 
