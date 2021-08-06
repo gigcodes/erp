@@ -30,12 +30,34 @@ class CashFlowController extends Controller
         if ($request->module_type!='')
            {
                if ($request->module_type=='order')
-                   $cash_flow->where('cash_flow_able_type','\App\Order');
+                  {
+                    $cash_flow->where('cash_flow_able_type','\App\Order');
+                    if ($request->b_name!='')
+                        {
+                            $cash_flow->join('orders','cash_flows.cash_flow_able_id','orders.id');
+                            $cash_flow->join('customers','orders.customer_id','customers.id');
+                            $cash_flow->where('name','like',"%$request->b_name%");
+                        } 
+
+                  } 
                if ($request->module_type=='payment_receipt')
-                   $cash_flow->where('cash_flow_able_type','\App\PaymentReceipt'); 
+                  {
+                            $cash_flow->where('cash_flow_able_type','\App\PaymentReceipt'); 
+                            $cash_flow->join('payment_receipts','cash_flows.cash_flow_able_id','assets_manager.id');
+                            $cash_flow->where('remarks','like',"%$request->b_name%"); 
+                           
+                  }  
                if ($request->module_type=='assent_manager')
-                   $cash_flow->where('cash_flow_able_type','\App\AssetsManager');        
+                  {
+                        $cash_flow->where('cash_flow_able_type','\App\AssetsManager'); 
+                        $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
+                        $cash_flow->where('name','like',"%$request->b_name%");
+                  
+                         
+
+                  }      
            }
+        
         if ($request->daterange!='')
         {
             $date=explode("-", $request->daterange);
@@ -43,7 +65,7 @@ class CashFlowController extends Controller
             $dateto=date('Y-m-d',strtotime($date[1]));
             $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
         }
-        $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+        $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('cash_flows.id', 'desc')->paginate(Setting::get('pagination'));
         $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
@@ -268,10 +290,59 @@ class CashFlowController extends Controller
 
     public function getBnameList(Request $request)
     {
-          
-        $model_type=$request->model_type;
-          
-          return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
+         
+         $model_type=$request->model_type;
+         if ($model_type=='order')
+         {
+                $model_type="\App\Customer";
+                $rs=$model_type::get();
+                $data='';
+                foreach($rs as $r)
+                {
+                   
+                    $arr['name']=$r->name;
+
+
+                    $data=$arr;
+
+                }
+                
+                return response()->json($data);
+         } 
+         if ($model_type=='assent_manager')
+         {
+                $model_type="\App\AssetsManager";
+                $rs=$model_type::get();
+                $data='';
+                foreach($rs as $r)
+                {
+                    $arr['name']=$r->name;
+
+
+                    $data=$arr;
+
+                }
+                
+                return response()->json($data);
+         } 
+         
+         if ($model_type=='payment_receipt')
+         {
+                $model_type="\App\PaymentReceipt";
+                $rs=$model_type::get();
+                $data='';
+                foreach($rs as $r)
+                {
+                    
+                    $arr['name']=$r->remarks;
+
+
+                    $data=$arr;
+
+                }
+                
+                return response()->json($data);
+         }  
     }    
 
 }

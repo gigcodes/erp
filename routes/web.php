@@ -14,6 +14,7 @@
 use App\Helpers\TwilioHelper;
 
 Auth::routes();
+
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 
 //Route::get('unused_category', 'TestingController@Demo');
@@ -1488,9 +1489,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
+    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
+   
+   
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');

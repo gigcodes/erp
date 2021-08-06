@@ -39,7 +39,7 @@
                     
                       <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select name="module_type" id="module_type" class="form-control input-sm">
+                            <select onchange="get_bname();" name="module_type" id="module_type" class="form-control input-sm">
                                 <option selected="" value="0"> Filter By Module / Type</option>
                                 <option value="order"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='order') {  echo "selected='selected'" ;} ?> >Order</option>
                                 <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
@@ -52,8 +52,7 @@
                         <div class="form-group">
                             <select name="b_name" id="b_name" class="form-control input-sm">
                                 <option value="">Benefiiciary</option>
-                                <option value="1">Cash</option>
-                                <option value="2">Date Asc</option>
+                                
                             </select>
                         </div>
                     </div>
@@ -475,17 +474,12 @@
                     url: "{{url('cashflow/getbnamelist')}}?model_type="+ module_type,
                     type: 'GET',
                     success: function (data) {
-                        
-                       
-                      for( var i = 0; i<10; i++){
-                        var id = 1;
-                        var name = 'ssss';
-                        
-                        $("#b_name").append("<option value='"+id+"'>"+name+"</option>");
-
-                    }
-
-                       
+                      $("#b_name").append("<option value=''>Benefiiciary</option>");
+                      Object.entries(data).forEach(entry => {
+                        const [key, value] = entry;
+                        $("#b_name").append("<option value='"+data[key]+"'>"+data[key]+"</option>");
+                     });
+               
                     },
                     error: function () {
                        
