@@ -27,22 +27,41 @@ class SiteDevelopmentController extends Controller
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
-        $categories = SiteDevelopmentCategory::orderBy('title', 'asc');
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) as site_development_id'));
+
         if ($request->k != null) {
-            $categories = $categories->where("title", "like", "%" . $request->k . "%");
+            $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
         }
 
         $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
 
         if (request('status') == "ignored") {
-            $categories = $categories->whereIn('id', $ignoredCategory);
+            $categories = $categories->whereIn('site_development_categories.id', $ignoredCategory);
         } else {
-            $categories = $categories->whereNotIn('id', $ignoredCategory);
+            $categories = $categories->whereNotIn('site_development_categories.id', $ignoredCategory);
         }
-        //$categories = $categories->paginate(Setting::get('pagination'));
-        $categories = $categories->paginate(20);
 
-        //Getting Roles Developer
+        //$categories = $categories->paginate(Setting::get('pagination'));
+       // $categories = $categories->paginate(20);
+
+
+        $categories->join('site_developments', function($q) use($id){
+            $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
+            ->where('site_developments.website_id', $id);
+            
+        });
+        /* Status filter */
+        if($request->status){
+            //$categories->where('site_developments.status' , $request->status);
+            $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) = '. $request->status);
+        }
+        
+        $categories->groupBy('site_development_categories.id');
+        $categories->orderBy('title', 'asc');
+        $categories->orderBy('site_developments.id', 'DESC');
+        $categories = $categories->paginate(Setting::get('pagination'));
+//   dd($categories);
+        //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
 
         //User Roles with Developers
@@ -59,8 +78,10 @@ class SiteDevelopmentController extends Controller
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
 
 //dd($allStatus);
+
         $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
         ->where("site_developments.website_id",$id)
+        ->where("site_developments.status",$request->status)
         ->groupBy("sds.id")
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
         ->orderBy("name","desc")

@@ -7,7 +7,8 @@
     @endphp
     @foreach($categories as $key => $category)
     <?php
-    $site = $category->getDevelopment($category->id, $website->id);
+    $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
+
     if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
         <tr>
@@ -201,7 +202,7 @@
                 <button type="button" class="btn preview-img-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->isAdmin() || $hasSiteDevelopment)
                 @php
                     $websitenamestr = ($website) ? $website->title : "";
                 @endphp
@@ -223,7 +224,7 @@
                     <i class="fa fa-empire" aria-hidden="true"></i>
                 </button>
 
-                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
+                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, $site->status , [
                     "class" => "form-control save-item-select width-auto globalSelect2",
                     "data-category" => $category->id,
                     "data-type" => "status",
