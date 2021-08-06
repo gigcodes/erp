@@ -173,12 +173,12 @@
 							<th width="16%">Action</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody class="infinite-scroll-pending-inner">
 						@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
 				</div>
-				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
+				<!-- {{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }} -->
 			</div>
 		</div>
 	</div>
@@ -1562,7 +1562,7 @@
             $(mini).toggleClass('hidden');
         });
 		//END - #DEVTASK-19918
-
+	//START - Load More functionality
 	var isLoading = false;
 	var page = 1;
 	$(document).ready(function () {
@@ -1589,9 +1589,9 @@
 					$loader.show();
 				},
 				success: function (data) {
-					console.log(type);
+					//console.log(data);
 					$loader.hide();
-					if('' === data.trim())
+					/*if('' === data.trim())
 						return;
 					if(type == 'pending') {
 						$('.infinite-scroll-pending-inner').append(data);
@@ -1601,10 +1601,12 @@
 					}
 					if(type == 'statutory_not_completed') {
 						$('.infinite-scroll-statutory-inner').append(data);
-					}
-
-
+					}*/
+					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					}
 				},
 				error: function () {
 					$loader.hide();
@@ -1613,5 +1615,6 @@
 			});
 		}
 	});
+	//End load more functionality
 </script>
 @endsection
