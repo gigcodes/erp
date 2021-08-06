@@ -84,7 +84,7 @@
                             <th style="width: 12%;">Resources</th>
                             <th style="width: 7.5%;">Date</th>
                             <th>PDF</th>
-                            <th>Action</th>
+                            <th style="width: 10.5%;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,7 +127,7 @@
                                             <i class="fa fa-tachometer"></i>
                                         </button>
                                         <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"yslow",'id'=>$key->test_id])}}">
-                                            <i class="fa fa-weight"></i>
+                                            <i class="fa fa-compass"></i>
                                         </button>
                                     @endif
                                 </td>
