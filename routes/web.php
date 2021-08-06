@@ -3287,3 +3287,6 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
     Route::get('/records', 'ChatMessagesController@customChatRecords');
 });
 
+Route::prefix('lead-order')->middleware('auth')->group(static function(){
+    Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
+});
