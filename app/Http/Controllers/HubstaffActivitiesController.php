@@ -1102,6 +1102,15 @@ class HubstaffActivitiesController extends Controller
         $approved    = 0;
         $pending    = 0;
         $member      = HubstaffMember::where('hubstaff_user_id', $request->user_id)->first();
+        $user_rate = $user_payment_frequency= '';
+
+        $user = User::where('id', $member->user_id)->first();
+        if($user)
+        {
+            $userRate = UserRate::getRateForUser($user->id);
+            $user_rate = (isset($userRate) ? $userRate->hourly_rate: '');
+            $user_payment_frequency = (isset($userRate) ? $user->fixed_price_user_or_job : '');
+        }
 
         if (!$member) {
             return response()->json([
@@ -1238,6 +1247,8 @@ class HubstaffActivitiesController extends Controller
                             $aprids = array_merge($approveIDs, $approvedArr);
                             $pendids = array_merge($pendingIds, $pendingArr);
 
+                            $payment_approved = $hubActivitySummery->accepted + $approved;
+
                             $hubActivitySummery->tracked      = $totalTracked;
                             $hubActivitySummery->accepted     = $hubActivitySummery->accepted + $approved;
                             $hubActivitySummery->pending      = $hubActivitySummery->pending + $pending;
@@ -1263,6 +1274,56 @@ class HubstaffActivitiesController extends Controller
                             $hubActivitySummery->final_approval   = 1;
                             $hubActivitySummery->rejection_note = $rejection_note;
                             $hubActivitySummery->save();
+                        }
+
+                        if($user_rate && $user_rate != '' && $user_payment_frequency == 3)
+                        {
+                            $payment_receipt = PaymentReceipt::where('user_id', $user_id)->where('date', $dk)->first();
+
+                            if($payment_receipt)
+                            {
+                                $approved = ($payment_approved ?? 0 );
+                                $min     = $approved / 60;
+                                $min     = number_format($min, 2);
+    
+                                $hour_rate =  $user_rate / 160;
+                                $hours = $min / 60;
+    
+                                $rate_estimated = $hours * $hour_rate;
+                                $rate_estimated =  number_format($rate_estimated, 2);
+    
+                                PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s") ]);
+    
+                            }else{
+                                $min     = $approved / 60;
+                                $min     = number_format($min, 2);
+    
+                                $hour_rate =  $user_rate / 160;
+                                $hours = $min / 60;
+    
+                                $rate_estimated = $hours * $hour_rate;
+                                $rate_estimated =  number_format($rate_estimated, 2);
+    
+                                $payment_receipt = new PaymentReceipt;
+                                $payment_receipt->date = $dk;
+                                $payment_receipt->worked_minutes = $min;
+                                $payment_receipt->rate_estimated = $rate_estimated;
+                                $payment_receipt->status = 'Pending';
+                                $payment_receipt->currency = ($userRate->currency ?? 'USD');
+                                $payment_receipt->developer_task_id = '';
+                                $payment_receipt->user_id = $member->user_id;
+                                $payment_receipt->by_command = 2;
+                                $payment_receipt->save();
+    
+                                DeveloperTaskHistory::create([
+                                    'developer_task_id' => '',
+                                    'model' => 'App\Hubstaff\HubstaffActivitySummary',
+                                    'attribute' => "task_status",
+                                    'old_value' => '',
+                                    'new_value' => '',
+                                    'user_id' => Auth::id(),
+                                ]);
+                            }
                         }
                     }
                 }
@@ -1372,6 +1433,8 @@ class HubstaffActivitiesController extends Controller
                     $pendingJson = json_encode( array_values( $this->array_except( $pending_ids, json_decode($approvedJson) ) ) );
                 }
             // }
+
+            $payment_approved = $approved;
             
             $hubActivitySummery->tracked        = $totalTracked;
             $hubActivitySummery->accepted       = $approved;
@@ -1402,6 +1465,56 @@ class HubstaffActivitiesController extends Controller
             $hubActivitySummery->final_approval   = 1;
             $hubActivitySummery->rejection_note   = $rejection_note;
             $hubActivitySummery->save();
+        }
+
+        if($user_rate && $user_rate != '' && $user_payment_frequency == 3)
+        {
+            $payment_receipt = PaymentReceipt::where('user_id', $user_id)->where('date', $request->date)->first();
+
+            if($payment_receipt)
+            {
+                $approved = ($payment_approved ?? 0 );
+                $min     = $approved / 60;
+                $min     = number_format($min, 2);
+
+                $hour_rate =  $user_rate / 160;
+                $hours = $min / 60;
+
+                $rate_estimated = $hours * $hour_rate;
+                $rate_estimated =  number_format($rate_estimated, 2);
+
+                PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s") ]);
+
+            }else{
+                $min     = $approved / 60;
+                $min     = number_format($min, 2);
+
+                $hour_rate =  $user_rate / 160;
+                $hours = $min / 60;
+
+                $rate_estimated = $hours * $hour_rate;
+                $rate_estimated =  number_format($rate_estimated, 2);
+
+                $payment_receipt = new PaymentReceipt;
+                $payment_receipt->date = $request->date;
+                $payment_receipt->worked_minutes = $min;
+                $payment_receipt->rate_estimated = $rate_estimated;
+                $payment_receipt->status = 'Pending';
+                $payment_receipt->currency = ($userRate->currency ?? 'USD');
+                $payment_receipt->developer_task_id = '';
+                $payment_receipt->user_id = $member->user_id;
+                $payment_receipt->by_command = 2;
+                $payment_receipt->save();
+
+                DeveloperTaskHistory::create([
+                    'developer_task_id' => '',
+                    'model' => 'App\Hubstaff\HubstaffActivitySummary',
+                    'attribute' => "task_status",
+                    'old_value' => '',
+                    'new_value' => '',
+                    'user_id' => Auth::id(),
+                ]);
+            }
         }
 
         $requestData = new Request();

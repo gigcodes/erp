@@ -2202,19 +2202,23 @@ class DevelopmentController extends Controller
                         'message'	=> 'Please provide salary payment method for user.'
                     ],500);
                 }
+                // dd($dev_task_user);
                 if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) { 
+                    $userRate = UserRate::getRateForUser($dev_task_user->id);
                     // Fixed price task.
                     if($issue->cost == null) {
                         return response()->json([
                             'message'	=> 'Please provide cost for fixed price task.'
                         ],500);
                     }
+
                     if(!$issue->is_milestone) {
                         $payment_receipt = new PaymentReceipt;
                         $payment_receipt->date = date( 'Y-m-d' );
                         $payment_receipt->worked_minutes = $issue->estimate_minutes;
                         $payment_receipt->rate_estimated = $issue->cost;
                         $payment_receipt->status = 'Pending';
+                        $payment_receipt->currency = ($userRate->currency ?? 'USD');
                         $payment_receipt->developer_task_id = $issue->id;
                         $payment_receipt->user_id = $dev_task_user->id;
                         $payment_receipt->by_command = 3;
@@ -2222,6 +2226,7 @@ class DevelopmentController extends Controller
                     }
                 }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
                     $userRate = UserRate::getRateForUser($dev_task_user->id);
+
                     if($userRate && $userRate->hourly_rate !== null){
                         if($issue->estimate_minutes){
                             if($issue->ApprovedDeveloperTaskHistory){
@@ -2246,6 +2251,7 @@ class DevelopmentController extends Controller
                     $payment_receipt->worked_minutes = $issue->estimate_minutes;
                     $payment_receipt->rate_estimated = $rate_estimated;
                     $payment_receipt->status = 'Pending';
+                    $payment_receipt->currency = ($userRate->currency ?? 'USD');
                     $payment_receipt->developer_task_id = $issue->id;
                     $payment_receipt->user_id = $dev_task_user->id;
                     $payment_receipt->by_command = 2;
