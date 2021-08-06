@@ -829,29 +829,33 @@ return;
             alert("please select status before proceed");
             return false;
         }
-        $.ajax({
-            url: form.attr("action"),
-            type: form.attr("method"),
-            data : form.serialize()+'&'+$.param({"update_status" : true , "status_id_update" : $(".change-status").val()}),
-            dataType:"json",
-            beforeSend: function() {
+
+        if(confirm("Are you sure you want to proceed ?")) {
+            $.ajax({
+                url: form.attr("action"),
+                type: form.attr("method"),
+                data : form.serialize()+'&'+$.param({"update_status" : true , "status_id_update" : $(".change-status").val()}),
+                dataType:"json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            })
+            .done(function(data) {
+                $("#loading-image").hide();
+                if(data.code == 200) {
+                    toastr['success'](data.message, 'success');
+                    location.reload();
+                }else{
+                    toastr['error'](data.message, 'error');
+                }
+            })
+            .fail(function(jqXHR, ajaxOptions, thrownError) {
                 $("#loading-image").show();
-            }
-        })
-        .done(function(data) {
-            $("#loading-image").hide();
-            if(data.code == 200) {
-                toastr['success'](data.message, 'success');
-                location.reload();
-            }else{
-                toastr['error'](data.message, 'error');
-            }
-        })
-        .fail(function(jqXHR, ajaxOptions, thrownError) {
-            $("#loading-image").show();
-            toastr['error']("Oops, Something went wrong!", 'error');
-            console.error(jqXHR);
-        });
+                toastr['error']("Oops, Something went wrong!", 'error');
+                console.error(jqXHR);
+            });
+        }
+
     });
 
     $(document).on("click",".add-size-btn",function() {
