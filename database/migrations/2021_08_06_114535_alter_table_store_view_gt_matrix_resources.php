@@ -14,8 +14,6 @@ class AlterTableStoreViewGtMatrixResources extends Migration
     public function up()
     {
         //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->text('resources')->change();
-        });
+        \DB::statement("ALTER TABLE `store_views_gt_metrix` CHANGE `resources` `resources` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
     }
 }
