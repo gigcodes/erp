@@ -45,16 +45,24 @@
 			  		</form>
 				 </div>
 		    </div>
-		    <div class="col">
+		    <div class="col reconsile-brand-form">
 		    	<div class="h" style="margin-bottom:10px;">
 					<div class="row">
 						<div class="form-group">
-					  				<button class="btn btn-secondary" onclick="refresh()">Refresh</button>
-					  			</div>
-		    			
+			  				<?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2 store-website-id","placeholder" => "Select Website"]) ?>
+			  			</div>
 					</div>
 		    	</div>
 		    </div>
+            <div class="col">
+                <div class="h" style="margin-bottom:10px;">
+                    <div class="row">
+                        <div class="form-group">
+                            <button class="btn btn-secondary btn-reconsile-brand">Reconsile</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 	    </div>
 
 	    <div class="row mb-3 ml-3">
@@ -180,7 +188,7 @@
 	    <!-- Modal content-->
 	    <div class="modal-content">
 	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Live</h4>
+	        	<h4 class="modal-title">Brand Live<span class="brand-live-data-count"></span></h4>
 	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
 	        </div>
 	        <div class="modal-body"></div>
@@ -191,13 +199,7 @@
 <div id="missing-live-data" class="modal fade" role="dialog">
   	<div class="modal-dialog">
 	    <!-- Modal content-->
-	    <div class="modal-content">
-	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Missing</h4>
-	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        </div>
-	        <div class="modal-body"></div>
-    	</div>
+	    
 	</div>
 </div>
 
@@ -262,7 +264,7 @@
             },
             success: function(response) {
             	$("#loading-image").hide();
-                $("#brand-live-data").find(".modal-body").html(response);
+                $("#brand-live-data").find(".modal-dialog").html(response);
                 $("#brand-live-data").modal("show");
             },
             error: function(response) {
@@ -286,7 +288,7 @@
             },
             success: function(response) {
             	$("#loading-image").hide();
-                $("#missing-live-data").find(".modal-body").html(response);
+                $("#missing-live-data").find(".modal-dialog").html(response);
                 $("#missing-live-data").modal("show");
             },
             error: function(response) {
@@ -296,7 +298,36 @@
     	});
 	});
 
-	
+    $(document).on("click",".btn-reconsile-brand",function(e) {
+        e.preventDefault();
+        if(confirm("Are you sure you want to do reconsile?")) {
+            var $this = $(this);
+            var swi = $(".reconsile-brand-form").find(".store-website-id").val();
+            $.ajax({
+                url: "/store-website/brand/reconsile-brand",
+                type: 'POST',
+                data : {
+                    store_website_id: swi,
+                    _token : "{{ csrf_token() }}"
+                },
+                beforeSend: function() {
+                  $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        toastr["success"](response.message);
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                },
+                error: function(response) {
+                    $("#loading-image").hide();
+                    toastr["error"]("Oops, something went wrong");
+                }
+            });
+        }
+    });
 
 </script>
 

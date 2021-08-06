@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Events\CashFlowCreated;
-use App\Events\CashFlowUpdated  ;
+use App\Events\CashFlowUpdated;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -56,6 +56,27 @@ class CashFlow extends Model
 
     }
 
+    public function order()
+    {
+        return $this->hasOne(\App\Order::class, 'id', 'cash_flow_able_id');
+    }
+
+    public function assetsManager()
+    {
+        return $this->hasOne(\App\AssetsManager::class, 'id', 'cash_flow_able_id');
+    }
+
+    public function paymentReceipt()
+    {
+        return $this->hasOne(\App\PaymentReceipt::class, 'id', 'cash_flow_able_id');
+    }
+
+    public function monetaryAccount()
+    {
+        return $this->hasOne(\App\MonetaryAccount::class,'id', 'monetary_account_id');
+    }
+    
+
     public function getLink()
     {
         if ($this->cash_flow_able_type == \App\Order::class) {
@@ -65,6 +86,20 @@ class CashFlow extends Model
         } else {
             return '<a href="javascript:;" class="btn-link">' . $this->cash_flow_able_id . '</a>';
         }
+    }
+
+    public function get_bname()
+    {
+        if ($this->cash_flow_able_type == \App\Order::class) {
+            return ($this->order) ? $this->order->customer->name : "N/A";
+        } else if ($this->cash_flow_able_type == \App\AssetsManager::class) {
+            return ($this->assetsManager) ? $this->assetsManager->name : "N/A";
+        } else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
+            return ($this->paymentReceipt) ? $this->paymentReceipt->remarks : "N/A";
+        } else {
+            return "Cash";
+        }
+
     }
 
 }

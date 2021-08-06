@@ -211,8 +211,9 @@
                                <td>
                                    <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
+                                       <div class="ml-2" style="float: right;">%</div>
                                        <div style="float: right;width:50%;">
-                                            <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}%" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
+                                            <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
                                        </div>
                                    </div>
                                </td>
@@ -221,15 +222,17 @@
                                <td>
                                    <div class="form-group">
                                        <div class="input-group">
-                                           <input style="min-width: 30px;border-radius: 4px" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ $key['add_duty'] }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
+                                           <input style="width: 75%;border-radius: 4px;" placeholder="add duty" data-ref="{{str_replace(' ', '_', $key['country_name'])}}" value="{{ str_replace('%', '', $key['add_duty']) }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $key['country_name'])}}" name="add_duty">
+                                           <div class="ml-2" style="float: left;">%</div>
                                        </div>
                                    </div>
                                </td>
                                <td>
                                   <div style="align-items: center">
                                       <span style="min-width:50px;">{{ $key['add_profit'] }}</span>
+                                      <div class="ml-2" style="float: right;">%</div>
                                       <div style="float: right;width:50%;">
-                                          <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}%" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
+                                          <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $key['storeWebsitesID']}}" value="{{ $key['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $key['storeWebsitesID']}}" name="add_profit">
                                       </div>
                                   </div>
                                </td>
@@ -442,7 +445,7 @@
                     if(item.status){
                         let row = $(`.tr_${item.row_id}`); 
                         $(row).find('td:nth-child(12) span').html(item.add_profit);
-                        $(row).find('.add_profit').val(add_profit+'%');
+                        $(row).find('.add_profit').val(add_profit);
                         $(row).find('td:nth-child(13)').html(item.price);
                     }
                 }); 

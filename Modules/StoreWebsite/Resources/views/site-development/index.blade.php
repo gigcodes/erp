@@ -115,7 +115,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", [""=>"All Status"] + $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */ ?>
@@ -260,6 +260,8 @@
 				<div class="col-md-12">
 					<div class="col-md-8" style="padding-bottom: 10px;">
 						<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field"></textarea>
+						<input type="hidden" name="remark_cat_id" data-cat_id="" id="remark_cat_id" />
+						<input type="hidden" name="remark_website_id" data-website_id="" id="remark_website_id" />
 					</div>
 					<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field">
 						<img src="/images/send.png" style="cursor: default;">
@@ -695,6 +697,9 @@
 
 		$(document).on("click", ".btn-remark-field", function() {
 			var id = $("#remark-field").data("id");
+			var cat_id = $("#remark_cat_id").val();
+			var website_id = $("#remark_website_id").val();
+			
 			var val = $("#remark-field").val();
 			$.ajax({
 				url: '/site-development/' + id + '/remarks',
@@ -703,7 +708,9 @@
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
 				},
 				data: {
-					remark: val
+					remark: val,
+					cat_id: cat_id, 
+					website_id : website_id
 				},
 				beforeSend: function() {
 					$("#loading-image").show();
@@ -1077,9 +1084,12 @@
 
 	$(document).on("click", ".btn-store-development-remark", function(e) {
 		var id = $(this).data("site-id");
+		var cat_id = $(this).data("site-category-id");
+		var website_id = $(this).data("store-website-id");
 		$.ajax({
 			url: '/site-development/' + id + '/remarks',
 			type: 'GET',
+			data:{cat_id: cat_id, website_id: website_id},
 			headers: {
 				'X-CSRF-TOKEN': "{{ csrf_token() }}"
 			},
@@ -1090,9 +1100,11 @@
 			$("#loading-image").hide();
 			toastr["success"]("Remarks fetched successfully");
 
-			var html = "";
-
-			$.each(response.data, function(k, v) {
+			var html = "";			
+			const shorter = (a,b)=>  a.id>b.id ? -1: 1;
+			response.data.flat().sort(shorter)
+			
+			$.each(response.data.flat().sort(shorter), function(k, v) {
 				html += "<tr>";
 				html += "<td>" + v.id + "</td>";
 				html += "<td>" + v.remarks + "</td>";
@@ -1102,6 +1114,8 @@
 			});
 
 			$("#remark-area-list").find("#remark-field").data("id", id);
+			$("#remark-area-list").find("#remark_cat_id").val(cat_id);
+			$("#remark-area-list").find("#remark_website_id").val(website_id);
 			$("#remark-area-list").find(".remark-action-list-view").html(html);
 			$("#remark-area-list").modal("show").css('z-index',1051);
 			//$this.closest("tr").remove();
@@ -1217,7 +1231,7 @@
 
 					tr += '</td><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>'+
 						'<select class="form-control select-site-status" name="status" data-site_id="' +siteId + '">'+option_data+'</select>'+
-						'</td><td>' + response.username[i-1] + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td>';
+						'</td><td style="word-break: break-all">' + response.username[i-1] + '</td><td style="word-break: break-all">' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td><td>';
 					if(admin_flag == 1){
 						tr += '<span title="admin priority" class="' + admin_permission +'"><button data-id = ' + id + ' type="button" class="btn btn-image remark-admin-flag pd-5"><img height="14" src="/images/flagged.png"></button></span>';
 					}else{
@@ -1548,5 +1562,56 @@
             $(mini).toggleClass('hidden');
         });
 		//END - #DEVTASK-19918
+
+	var isLoading = false;
+	var page = 1;
+	$(document).ready(function () {
+
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			status = $("#enter-status").val();
+			keyword = $("#enter-keyword").val();
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/site-development/{{$website->id}}?page="+page+"&k="+keyword+"&status="+status,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					console.log(type);
+					$loader.hide();
+					if('' === data.trim())
+						return;
+					if(type == 'pending') {
+						$('.infinite-scroll-pending-inner').append(data);
+					}
+					if(type == 'completed') {
+						$('.infinite-scroll-completed-inner').append(data);
+					}
+					if(type == 'statutory_not_completed') {
+						$('.infinite-scroll-statutory-inner').append(data);
+					}
+
+
+					isLoading = false;
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
 </script>
 @endsection

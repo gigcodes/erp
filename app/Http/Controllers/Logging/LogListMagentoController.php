@@ -21,11 +21,15 @@ use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use App\ProductPushInformation;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Category;
+use App\Brand;
 
 
 use App\Jobs\PushToMagento;
 use App\StoreWebsite;
 use App\WebsiteProductCsv;
+use Log;
+
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -133,6 +137,20 @@ class LogListMagentoController extends Controller
         if($request->queue != null) {
             $logListMagentos->where('log_list_magentos.queue', $request->queue);
         }
+
+
+        if($request->crop_start_date != null && $request->crop_end_date != null) {
+            $startDate = $request->crop_start_date;
+            $endDate = $request->crop_end_date;
+            $logListMagentos = $logListMagentos->leftJoin("cropped_image_references as cri", function ($join) use($startDate, $endDate) {
+                $join->on("cri.product_id", "products.id");
+                $join->whereDate("cri.created_at", ">=", $startDate)->whereDate("cri.created_at", "<=", $endDate);
+            });
+
+            $logListMagentos = $logListMagentos->whereNotNull("cri.product_id");
+            $logListMagentos = $logListMagentos->groupBy("products.id");
+        }
+
 
         // Get paginated result
         $logListMagentos->select(
@@ -625,6 +643,28 @@ class LogListMagentoController extends Controller
         //     ->orderBy('log_list_magentos.id', 'DESC');
 
         $logListMagentos = ProductPushInformation::with('storeWebsite')->orderBy('product_id','DESC');
+        $selected_brands = $request->brand_names;
+        $selected_categories = $request->category_names;
+        $selected_website = $request->website_name; 
+        if(($selected_brands && count($selected_brands)) || ($selected_categories && count($selected_categories)) ){
+            $skus = ProductPushInformation::filterProductSku($selected_categories, $selected_brands);
+            foreach($skus as $sku){
+                $logListMagentos = $logListMagentos->orWhere('sku', 'like', '%' . $sku . '%');
+            }
+        }
+        if($selected_brands && count($selected_brands)){
+            $selected_brands = Brand::whereIn('id', $selected_brands)->get();
+        }
+
+        if($selected_categories && count($selected_categories)){
+            $selected_categories = Category::whereIn('id', $selected_categories)->get();
+        }
+        if($selected_website){
+            $selected_website = StoreWebsite::where('id', $selected_website)->first();
+            $logListMagentos = $logListMagentos->whereHas('storeWebsite', function($q) use ($selected_website){
+                $q->where('id', $selected_website->id);
+            });
+        }
         $allWebsiteUrl = StoreWebsite::with('productCsvPath')->get();
 // dd($allWebsiteUrl);
         if(!empty($request->filter_product_id)){
@@ -643,7 +683,7 @@ class LogListMagentoController extends Controller
         $dropdownList = ProductPushInformation::select('status')->distinct('status')->get();
         $total_count = ProductPushInformation::get()->count();
 
-       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl'));
+       return view('logging.magento-push-information', compact('logListMagentos','total_count','dropdownList','allWebsiteUrl', 'selected_categories', 'selected_brands', 'selected_website'));
            
 
     }
@@ -669,26 +709,34 @@ class LogListMagentoController extends Controller
             $promise = $client->request('GET', $file_url);
             $is_file_exists = true;
         } catch (ClientException $e) {
+            $is_file_exists = false;
+
+            Log::channel('product_push_information_csv')->info('file-url:' . $file_url . '  and error: ' . $e->getMessage());
             return response()->json(['error'=>'file not exists']);
         }
 
 
-        if ($is_file_exists &&   ($handle = fopen($file_url, "r")) !== FALSE) {
+        if ($is_file_exists ) {
+            if(($handle = fopen($file_url, "r")) !== FALSE){
+
           while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
           	$row++;
           	if ($row > 1) {
                 
-              $updated =   ProductPushInformation::updateOrCreate(['product_id'=>$data[0]],[
+              $updated =   ProductPushInformation::updateOrCreate(
+                  ['product_id'=>$data[0],
+                  'store_website_id' => $request->store_website_id
+                ],[
                     'product_id'=> $data[0],
                     'sku'=>$data[1] ,
                     'status'=> $data[2],
-                    'quantity'=>$data[3] ,
+                    'quantity'=>$data[3] > 0 ? $data[3] : 0 ,
                     'stock_status'=> $data[4],
-                    'store_website_id' => $request->store_website_id
                 ]);
                 $arr_id[] = $updated->product_id;
           	}
           }
+        }
           fclose($handle);
         }
 
@@ -722,7 +770,8 @@ class LogListMagentoController extends Controller
     
     public function productPushHistories(Request $request,$product_id)
     {
-        $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->latest()->get();
+        // dd($request->all());
+        $history  =   ProductPushInformationHistory::with('user')->where('product_id',$product_id)->where('store_website_id',$request->website_id)->latest()->get();
         return response()->json($history);
 
     }

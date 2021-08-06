@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnChatMessagesTable extends Migration
+class AlterTableProductDiscountExcelFilesTruncate extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class AddColumnChatMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function($table) {
-            $table->integer('user_feedback_id')->nullable();
-            $table->integer('user_feedback_category_id')->nullable();
-        });
+        \DB::statement(" TRUNCATE `supplier_discount_log_history`");
+        \DB::statement(" TRUNCATE `product_discount_excel_files`");
+      
     }
 
     /**
@@ -29,3 +28,4 @@ class AddColumnChatMessagesTable extends Migration
         //
     }
 }
+

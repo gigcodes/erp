@@ -150,6 +150,11 @@ return [
             'path'   => storage_path('logs/insta-message-queue-by-rate-limit/insta-message-queue-by-rate-limit.log'),
             'days'   => 7,
         ],
+        'product_push_information_csv' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/product-push-information-csv/product-push-information-csv.log'),
+            'days'   => 7,
+        ],
 
         'product-thumbnail' => [
             'driver' => 'daily',

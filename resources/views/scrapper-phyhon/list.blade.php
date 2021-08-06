@@ -153,6 +153,114 @@
                     </div>
 
 </form>
+
+        <form action="" method="POST" id="scrapper-python-form">
+        @csrf
+            <div class="form-group">    
+                <div class="row m-0">
+                    
+                    <div class="col-md-3 pr-0">
+                        <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
+                            <option value="">Select Website</option>
+                                @foreach($storewebsite as $web)
+                                    <option value="{{$web->website}}">{{$web->website}}</option>
+                                @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 pr-0">
+                            
+                        <input type="radio" name="name" id="start" value="start" checked>
+                        <label class="form-check-label pr-4" for="start">
+                            Start
+                        </label>
+                    
+                        <input type="radio" name="name" id="stop" value="stop">
+                        <label class="form-check-label pr-4" for="stop">
+                            Stop
+                        </label>
+
+                        <input type="radio" name="name" id="get-status" value="get-status">
+                        <label class="form-check-label pr-4" for="get-status">
+                            Get status
+                        </label>
+                            
+                    </div>
+
+                    <div class="col-md-2 pr-0">
+                            
+                        <input type="radio" name="type" id="desktop" value="desktop" checked>
+                        <label class="form-check-label pr-4" for="desktop">
+                            Desktop
+                        </label>
+                    
+                        <input type="radio" name="type" id="mobile" value="mobile">
+                        <label class="form-check-label pr-4" for="mobile">
+                            Mobile
+                        </label>
+
+                        <input type="radio" name="type" id="tablet" value="tablet">
+                        <label class="form-check-label pr-4" for="tablet">
+                            Tablet
+                        </label>
+                            
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary" >Send Request</button>
+
+                        <button type="submit" class="btn btn-secondary view_history" >History</button>
+
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+    <div id="history" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="history_img">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">History</h5>
+
+                    <div class="col-md-6">
+                        <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+                        <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+                        <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                            <i class="fa fa-calendar"></i>&nbsp;
+                            <span id="date_current_show"></span><i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary view_history">Submit</button>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                        <th style="width:30%">Website</th>
+                        <th style="width:20%">Device</th>
+                        <th style="width:30%">Date</th>
+                        <th style="width:20%">No. Of Images</th>
+                        </thead>
+                        <tbody  class="history_data">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
+                    <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
             <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
@@ -213,7 +321,8 @@
     {{-- @include('partials.modals.category') --}}
     {{-- @include('partials.modals.forward-products') --}}
     {{-- @include('partials.add-order-model') --}}
-    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
@@ -1293,6 +1402,80 @@
                 })
             }
         }
+
+        let r_s = "";
+        let r_e = "";
+
+        let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+        let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+        jQuery('input[name="range_start"]').val();
+        jQuery('input[name="range_end"]').val();
+
+        function cb(start, end) {
+            $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#filter_date_range_').daterangepicker({
+            startDate: start,
+            maxYear: 1,
+            endDate: end,
+            //parentEl: '#filter_date_range_',
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+
+        cb(start, end);
+
+        $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+            let startDate=   jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+            let endDate =    jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        
+        $(document).on("click",".view_history",function(e) {
+            e.preventDefault();
+
+            let startDate=   jQuery('input[name="range_start"]').val();
+            let endDate =    jQuery('input[name="range_end"]').val();
+
+            $.ajax({
+                type: "GET",
+                url: "{{route('scrapper.history')}}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    startDate:startDate,
+                    endDate:endDate,
+                },
+                dataType : "json",  
+                beforeSend : function() {
+                    $(this).text('Loading...');
+                },
+            }).done(function (response) {
+                
+                var html_data = '';
+                $.each(response.history,function(k,v){
+                    html_data += '<tr>';
+                    html_data += '<td>'+v.website+'</td>';
+                    html_data += '<td>'+(v.device ?? '')+'</td>';
+                    html_data += '<td>'+ moment(v.created_date).format('YYYY-MM-DD') +'</td>';
+                    
+                    html_data += '<td>'+v.no_image+'</td>';
+                    html_data += '</tr>';
+                })
+                $('.history_data').html(html_data);
+                $('#history').modal('show');
+
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
         
 </script>
 

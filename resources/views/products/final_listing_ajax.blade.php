@@ -346,9 +346,11 @@
                 @endif
                 <i style="cursor: pointer;" class="fa fa-tasks" data-toggle="modal" title="Activity"
                    data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
+                <a href="javascript:;" data-product-id="{{$product->id}}" class="check-website-should-pushed">
+                    <i style="cursor: pointer;" class="fa fa-globe" data-toggle="modal" title="Website" data-target="#product-website-{{ $product->id }}" aria-hidden="true"></i>   
+                </a>   
                 <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"
                    data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
-
             </td>
             <td>
                 <select class="form-control post-remark" id="post_remark_{{$product->id}}"
