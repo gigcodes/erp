@@ -301,6 +301,11 @@
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group">
+                            <?php echo Form::select("store_website_id",[null => "-- None --"] + \App\StoreWebsite::listMagentoSite(),request('store_website_id'),["class" => "form-control"]); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
                                 <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
@@ -445,6 +450,32 @@
             </div>
         </div>  
     </div>
+
+    <div class="common-modal-website-list modal " role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title">Website list</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+               </div>
+               <div class="modal-body website-list-table">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered">
+                            <thead>
+                              <tr>
+                                <th width="2%">Id</th>
+                                <th width="10%">Website</th>
+                              </tr>
+                            </thead>
+                            <tbody class="website-list-table-body">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
 
 @endsection
 
@@ -2033,6 +2064,35 @@
             let endDate =    jQuery('input[name="crop_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
             $("#date_current_show").removeClass("d-none");
             $("#date_value_show").css("display", "none");
+        });
+
+
+        $(document).on("click",".check-website-should-pushed",function() {
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: "/products/get-push-websites",
+                data: {
+                    product_id : $this.data("product-id")
+                },
+                dataType : "json"
+            }).done(function (response) {
+                var tr = ``;
+                if(response.code == 200) {
+                    $.each(response.data,function (k,v) {
+                        tr += `<tr>`;
+                            tr += `<td>`+v.id+`</td>`
+                            tr += `<td>`+v.website+`</td>`
+                        tr += `</tr>`;
+                     });
+                    $(".website-list-table-body").html(tr);
+                    $(".common-modal-website-list").modal("show");
+                }
+
+            }).fail(function (response) {
+                //alert('Could not update status');
+            });
+
         });
 	</script>
 @endsection

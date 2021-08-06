@@ -269,6 +269,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
+    Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
 
 
@@ -1862,6 +1863,8 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+Route::get('whatsapp/pollTicketsCustomer', 'WhatsAppController@pollTicketCustomer');
+Route::get('whatsapp/pollTickets/{context}', 'WhatsAppController@pollMessages');
 Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
