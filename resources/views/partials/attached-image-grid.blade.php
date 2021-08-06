@@ -199,6 +199,7 @@
                 <th style="width:10%">Phone</th>
                 <th style="width:20%">Brand</th>
                 <th style="width:20%">Category</th>
+                <th style="width:5%">Platform</th>
                 <th style="width:20%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">

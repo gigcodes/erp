@@ -173,12 +173,12 @@
 							<th width="16%">Action</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody class="infinite-scroll-pending-inner">
 						@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
 				</div>
-				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
+				<!-- {{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }} -->
 			</div>
 		</div>
 	</div>
@@ -1562,5 +1562,59 @@
             $(mini).toggleClass('hidden');
         });
 		//END - #DEVTASK-19918
+	//START - Load More functionality
+	var isLoading = false;
+	var page = 1;
+	$(document).ready(function () {
+
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			status = $("#enter-status").val();
+			keyword = $("#enter-keyword").val();
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/site-development/{{$website->id}}?page="+page+"&k="+keyword+"&status="+status,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					//console.log(data);
+					$loader.hide();
+					/*if('' === data.trim())
+						return;
+					if(type == 'pending') {
+						$('.infinite-scroll-pending-inner').append(data);
+					}
+					if(type == 'completed') {
+						$('.infinite-scroll-completed-inner').append(data);
+					}
+					if(type == 'statutory_not_completed') {
+						$('.infinite-scroll-statutory-inner').append(data);
+					}*/
+					$('.infinite-scroll-pending-inner').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
 </script>
 @endsection

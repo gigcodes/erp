@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableStoreViewGtMatrixPdf extends Migration
+class AlterTableProductDiscountExcelFilesTruncate extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
      */
     public function up()
     {
-        //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->string("pdf_file")->nullable()->after("resources");
-        });
+        \DB::statement(" TRUNCATE `supplier_discount_log_history`");
+        \DB::statement(" TRUNCATE `product_discount_excel_files`");
+      
     }
 
     /**
@@ -27,8 +26,6 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
     public function down()
     {
         //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->dropField("pdf_file");
-        });
     }
 }
+

@@ -41,6 +41,10 @@ class SiteDevelopmentController extends Controller
             $categories = $categories->whereNotIn('site_development_categories.id', $ignoredCategory);
         }
 
+        //$categories = $categories->paginate(Setting::get('pagination'));
+       // $categories = $categories->paginate(20);
+
+
         $categories->join('site_developments', function($q) use($id){
             $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
             ->where('site_developments.website_id', $id);
