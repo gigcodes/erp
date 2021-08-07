@@ -107,7 +107,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
     public function runErpEvent(Request $request)
     {
         $gtmatrix = StoreViewsGTMetrix::where('id', $request->id)->first();
+
         if ($gtmatrix) {
+            $gt_metrix['store_view_id'] = $gtmatrix->store_view_id;
+            $gt_metrix['website_url'] = $gtmatrix->website_url;
+            $new_id = StoreViewsGTMetrix::create($gt_metrix)->id;
+            $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
             try {
 
                 $client = new GTMetrixClient();
@@ -116,12 +121,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $client->getLocations();
                 $client->getBrowsers();
 
-                $test   = $client->startTest($gtmatrix->website_url);
+                $test   = $client->startTest($gtmetrix->website_url);
                 $update = [
                     'test_id' => $test->getId(),
                     'status'  => 'queued',
                 ];
-                $gtmatrix->update($update);
+                $gtmetrix->update($update);
 
                 return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
 
