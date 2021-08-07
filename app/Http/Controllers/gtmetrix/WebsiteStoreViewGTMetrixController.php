@@ -157,31 +157,35 @@ class WebsiteStoreViewGTMetrixController extends Controller
         foreach ($resourcedata as $value) {
             if($type == 'pagespeed' && $id){
                 $title = 'PageSpeed';
-                $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
-                $jsondata = json_decode($pagespeeddata, true);
-                foreach ($jsondata['rules'] as $key=>$pagespeed) {
-                    $data[$key]['name'] = $pagespeed['name'];
-                    if(isset($pagespeed['score'])){
-                        $data[$key]['score'] = $pagespeed['score']; 
-                    }else{
-                        $data[$key]['score'] = 'n/a';
+                if(!empty($value['pagespeed_json'])){
+                    $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
+                    $jsondata = json_decode($pagespeeddata, true);
+                    foreach ($jsondata['rules'] as $key=>$pagespeed) {
+                        $data[$key]['name'] = $pagespeed['name'];
+                        if(isset($pagespeed['score'])){
+                            $data[$key]['score'] = $pagespeed['score']; 
+                        }else{
+                            $data[$key]['score'] = 'n/a';
+                        }  
                     }
-                    
                 }
+                
             }
             if($type == 'yslow' && $id){
                 $title = 'YSlow';
-                $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
-                $jsondata = json_decode($yslowdata, true);
-                $i=0;
-                foreach ($jsondata['g'] as $key=>$yslow) {
-                    $data[$i]['name'] = trans('lang.'.$key);
-                    if(isset($yslow['score'])){
-                        $data[$i]['score'] = $yslow['score']; 
-                    }else{
-                        $data[$i]['score'] = 'n/a'; 
-                    } 
-                    $i++;                 
+                if(!empty($value['yslow_json'])){
+                    $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
+                    $jsondata = json_decode($yslowdata, true);
+                    $i=0;
+                    foreach ($jsondata['g'] as $key=>$yslow) {
+                        $data[$i]['name'] = trans('lang.'.$key);
+                        if(isset($yslow['score'])){
+                            $data[$i]['score'] = $yslow['score']; 
+                        }else{
+                            $data[$i]['score'] = 'n/a'; 
+                        } 
+                        $i++;                 
+                    }
                 }
             }
         }

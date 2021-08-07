@@ -169,11 +169,10 @@
             dataType: 'html'
         })
         .done(function(data){
-           // console.log(data);  
             $('.message-modal').html('');    
             $('.message-modal').html(data); // load response 
             $("#gtmetrix-stats-modal").modal("show");
-            $('#loading-image').hide();        // hide ajax loader   
+            $('#loading-image').hide();        // hide ajax loader 
         })
         .fail(function(){
             toastr["error"]("Something went wrong please check log file");
