@@ -78,15 +78,15 @@
             </div>
             <div class="col-md-2 pl-0">
               <label for="product_id">Product ID</label>
-              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ old('queue') }}">
+              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}">
             </div>
             <div class="col-md-2 pl-0">
               <label for="sku">SKU</label>
-              <input type="text" class="form-control" id="sku" name="sku" value="{{ old('sku')}}">
+              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}">
             </div>
             <div class="col-md-2 pl-0">
               <label for="sku">Brand</label>
-              <input type="text" class="form-control" id="brand" name="brand" value="{{ old('brand')}}">
+              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}">
             </div>
             @php
               $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
@@ -100,8 +100,8 @@
               <label for="sku">Status</label>
               <select class="form-control" name="status">
                 <option value=''>All</option>
-                <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
-                <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
+                <option value="out_of_stock" {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
             </div>
 
@@ -149,8 +149,8 @@
 
           <div class="col-md-2 pl-0">
             <label for="sku">Crop Image Date</label>
-              <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_start_date" />
-              <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_end_date" />
+              <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
+              <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
               <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                   <!-- <i class="fa fa-calendar"></i>&nbsp;
                   <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
@@ -874,7 +874,7 @@
       }
   }, cb);
 
-  cb(start, end);
+  //cb(start, end);
 
 
   $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
