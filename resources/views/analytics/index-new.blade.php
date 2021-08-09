@@ -313,6 +313,9 @@
             @endforeach
         </tbody>
     </table>
+        @if (count($google_analytics_data) === 0)
+            <div style="text-align:center"><h3 style="color: gray">No Data Availble</h3></div>    
+        @endif
     <div>
         <tr>{{ $google_analytics_data->links() }}</tr>
     </div>

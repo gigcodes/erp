@@ -245,20 +245,22 @@ class AnalyticsController extends Controller
                     $resultData             = getGoogleAnalyticData( $analyticsObj ,$requestObj);
                     $resultPageTrackingData = printGoogleAnalyticResults( $resultData , $value['id']);
 
-                    $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
-                    $resultPageTrackingData = printPageTrackingResults( $resultData , $value['id']);
+                    // This Code Is Not Required Because We Put All Of Below Entry In A Single Table (google_analytics_datas).
 
-                    $resultData           = getPlatformDeviceData( $analyticsObj ,$requestObj);
-                    $ResultPlatformDevice = printPlatformDeviceResults( $resultData , $value['id']);
+                    // $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
+                    // $resultPageTrackingData = printPageTrackingResults( $resultData , $value['id']);
 
-                    $resultData             = getGeoNetworkData( $analyticsObj ,$requestObj);
-                    $ResultGeoNetworkDevice = printGeoNetworkResults( $resultData , $value['id']);
+                    // $resultData           = getPlatformDeviceData( $analyticsObj ,$requestObj);
+                    // $ResultPlatformDevice = printPlatformDeviceResults( $resultData , $value['id']);
 
-                    $resultData  = getUsersData( $analyticsObj ,$requestObj);
-                    $UsersDevice = printUsersResults( $resultData , $value['id']);
+                    // $resultData             = getGeoNetworkData( $analyticsObj ,$requestObj);
+                    // $ResultGeoNetworkDevice = printGeoNetworkResults( $resultData , $value['id']);
 
-                    $resultData = getAudiencesData( $analyticsObj ,$requestObj);
-                    $Audiences  = printAudienceResults( $resultData , $value['id']);
+                    // $resultData  = getUsersData( $analyticsObj ,$requestObj);
+                    // $UsersDevice = printUsersResults( $resultData , $value['id']);
+
+                    // $resultData = getAudiencesData( $analyticsObj ,$requestObj);
+                    // $Audiences  = printAudienceResults( $resultData , $value['id']);
 
                     \Log::info('google-analytics :: Daily run success');
 

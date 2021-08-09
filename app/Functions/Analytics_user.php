@@ -58,7 +58,6 @@ function getReportRequest($analytics, $request)
         }else{
             $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
         }
-        $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
 
         if (file_exists($websiteKeyFile)) {
             $client = new Google_Client();
@@ -410,6 +409,7 @@ function getGoogleAnalyticData( $analytics, $request){
     $userGender->setName('ga:userGender');
 
     $request->setDimensions(array( $dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode));
+    // $request->setDimensions(array( $dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode, $userAge, $userGender));
 
     // Create the Metrics object.
     $metric = new Google_Service_AnalyticsReporting_Metric();
@@ -461,12 +461,13 @@ function printGoogleAnalyticResults($reports, $websiteAnalyticsId)
             $data[$key]['os'] = $value['dimensions']['3'];
             $data[$key]['country'] = $value['dimensions']['4'];
             $data[$key]['iso_code'] = $value['dimensions']['5'];
-            $data[$key]['age'] = $value['dimensions']['6'];
-            $data[$key]['gender'] = $value['dimensions']['7'];
+            // $data[$key]['age'] = $value['dimensions']['6'];
+            // $data[$key]['gender'] = $value['dimensions']['7'];
+            $data[$key]['created_at'] = now();
             foreach ($value['metrics'] as $m_key => $m_value) {
                 $data[$key]['avg_time_page']     = $m_value['values'][0];
                 $data[$key]['unique_page_views'] = $m_value['values'][1];
-                $data[$key]['page_views']        = $m_value['values'][2];
+                $data[$key]['page_view']        = $m_value['values'][2];
                 $data[$key]['exit_rate']         = $m_value['values'][3];
                 $data[$key]['entrances']         = $m_value['values'][4];
                 $data[$key]['entrance_rate']     = $m_value['values'][5];
