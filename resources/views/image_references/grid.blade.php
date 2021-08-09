@@ -183,7 +183,7 @@
     </div>
 
     <div id="show-http-status" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog" style="width:100%;max-width:96%">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">HTTP Status</h4>

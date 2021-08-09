@@ -45,8 +45,8 @@
                 class="btn btn-xs show-http-status" 
                 title="Http Status" 
                 data-toggle="modal" data-target="#show-http-status"
-                data-request="{{ $product->httpRequestData ? $product->httpRequestData->request : 'N/A' }}"
-                data-response="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-request="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-response="{{ $product->httpRequestData ? $product->httpRequestData->requestData : 'N/A' }}"
                 >
                 <i class="fa fa-info-circle"></i>
             </button>
