@@ -9,7 +9,7 @@
          </td>
 
          <td style="white-space: nowrap;">
-          {{$influencer->platform}}
+          {{!empty($influencer->platform) ? $influencer->platform : "Instagram"}}
         </td>
 	      
         <td style="white-space: nowrap;">
@@ -188,7 +188,15 @@
                 data-id="{{ $influencer->id }}">
                 <img src="{{asset('images/forward.png')}}">
         </button>
-
+        @if($influencer->hasMedia('instagram-screenshot'))
+          @php
+            $url = $influencer->getMedia('instagram-screenshot')->first()->getUrl();
+          @endphp
+          <a href="{{$url}}" target="_blank" class="btn" 
+                data-id="{{ $influencer->id }}">
+                <i class="fa fa-picture-o"></i>
+          </a>
+        @endif
       </div>
     </td>
 </tr>

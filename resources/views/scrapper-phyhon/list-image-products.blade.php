@@ -190,7 +190,7 @@
                         <option value="">Select Language</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <select class="form-control select-multiple" id="web_device" tabindex="-1" aria-hidden="true" name="device">
                         <option value="">Select Device</option>
 
@@ -199,11 +199,23 @@
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "tablet" ? 'selected' :'' ) }} value="tablet">Tablet</option>
                     </select>
                 </div>
+
+                <div class="col-md-2">
+                    <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+                    <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+                    <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ $startDate .' '.$endDate}}</p><i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+               
                 <div class="col-md-1">
                     <button type="button" class="btn btn-image filter_img" ><img src="/images/filter.png"></button>
                
                     <!-- <button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>     -->
                  </div>
+
+                
             </div>
         </div>
     </form>
@@ -253,6 +265,15 @@
             
         @endphp
 
+        <div class="row">
+            <div class="col-md-12">
+                <br>
+                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{count($images)}}</h5> 
+
+                <hr style="margin: 5px 0px;">
+            </div>
+        </div> 
+
         @foreach($images as $image)
                 {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
 
@@ -261,14 +282,14 @@
                         $count = 0; 
                         $oldDate = date( 'Y-m-d' ,strtotime($image['created_at']));
                     ?>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-12">
                                 <br>
                                 <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($images)}}</h5> 
 
                                 <hr style="margin: 5px 0px;">
                             </div>
-                        </div> 
+                        </div>  -->
 
                     <?php } ?>
                     
@@ -414,6 +435,8 @@
 
 
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script>
     var i=1;
@@ -585,6 +608,9 @@
         var webstore = $('#web_store').find(":selected").val();
         var weblanguage = $('#web_language').find(":selected").val();
         var webdevice = $('#web_device').find(":selected").val();
+        var startDate = $('input[name="range_start"]').val();
+        var endDate = $('input[name="range_end"]').val();
+
         if(website == '' ){
              toastr['error']('Please Select Website');
              return false;
@@ -618,6 +644,11 @@
                 var origin   = window.location.origin;
                 var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice;
             }
+        }
+
+        if(startDate != ''&& endDate != '' ){
+            var origin   = window.location.origin;
+            var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice+"&startDate="+startDate+"&endDate="+endDate;
         }
        
         window.location.href = url;
@@ -702,6 +733,49 @@
         $('#remark-load-more-data').modal('show');
         $('#remark-load-more-data').find('p').text(remark);
     })
+
+
+
+    let r_s = "";
+    let r_e = "";
+
+    let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+    let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+    jQuery('input[name="range_start"]').val();
+    jQuery('input[name="range_end"]').val();
+
+    function cb(start, end) {
+        $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#filter_date_range_').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        //parentEl: '#filter_date_range_',
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end);
+
+
+    $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+                    
+        let startDate=   jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        let endDate =    jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+        $("#date_current_show").removeClass("d-none");
+        $("#date_value_show").css("display", "none");
+
+    });
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection

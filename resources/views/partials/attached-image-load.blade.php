@@ -27,6 +27,7 @@
         <span class="show-short-category-{{$suggested->id}}">{{ str_limit($catList, 30, '...')}}</span>
             <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
     </td>
+    <td>{{$suggested->platform ?? ''}}</td>
     <td>
 
     <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}">
