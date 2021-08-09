@@ -93,7 +93,7 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
-        $query = CroppedImageReference::with('httpRequestData');
+        $query = CroppedImageReference::with('httpRequestData.requestData');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
 
@@ -187,6 +187,9 @@ class CroppedImageReferenceController extends Controller
         } else {
             $totalCounts = 0;
         }
+
+        // dd($products);
+
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('image_references.partials.griddata', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'))->render(),
