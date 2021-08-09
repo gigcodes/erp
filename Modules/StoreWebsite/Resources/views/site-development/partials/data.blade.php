@@ -6,16 +6,18 @@
     $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
     @endphp
     @foreach($categories as $key => $category)
+  
     <?php
-    $site = $category->getDevelopment($category->id, $website->id);
+    $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
+
     if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
         <tr>
             <td>
                 {{ $pagrank++  }}
+				  @include("storewebsite::site-development.partials.edit-modal")
             </td>
             <td>
-{{--                <br>--}}
                 {{ $category->title }}
 
               <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
@@ -137,32 +139,17 @@
                                   <div class="expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
                                       <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif hidden"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
                                   </div>
-                                    <div class="d-flex">
-                                        @php $last_remark = $site->getLastRemark($site->site_development_category_id, $site->website_id) @endphp
-                                    </div>
-
-                                    <div class="d-flex">
-                                        @if($last_remark) Remarks = @endif
-                                        <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                            <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($last_remark)  {{ str_limit($last_remark, 35, '...') }} @endif</span>
-                                        </div>
-                                    </div>
-                                    <div class="expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                        <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif hidden">
-                                            @if($last_remark) {{ $last_remark }} @endif
-                                        </span>
-                                    </div>
-                                  <!-- <div class="d-flex">
+                                  <div class="d-flex">
                                       @if($site->lastRemark) Remarks = @endif
                                       <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
                                           <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 35, '...') }} @endif</span>
                                       </div>
                                   </div>
                                   <div class="expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                    <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif hidden">
-                                        @if($site->lastRemark) {{ $site->lastRemark->remarks }} @endif
-                                    </span>
-                                  </div> -->
+                                <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif hidden">
+                                    @if($site->lastRemark) {{ $site->lastRemark->remarks }} @endif
+                                </span>
+                                  </div>
                                   <!-- END - #DEVTASK-19918 -->
                               @endif
                           </div>
@@ -216,7 +203,7 @@
                 <button type="button" class="btn preview-img-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->isAdmin() || $hasSiteDevelopment)
                 @php
                     $websitenamestr = ($website) ? $website->title : "";
                 @endphp
@@ -238,7 +225,7 @@
                     <i class="fa fa-empire" aria-hidden="true"></i>
                 </button>
 
-                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
+                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, $site->status , [
                     "class" => "form-control save-item-select width-auto globalSelect2",
                     "data-category" => $category->id,
                     "data-type" => "status",
@@ -247,6 +234,7 @@
 
             </td>
         </tr>
+       
         <?php /* <tr class="hidden_row_{{ $category->id  }} dis-none" data-eleid="{{ $category->id }}">
             <td colspan="2">
                 <?php  echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
@@ -287,5 +275,5 @@
             <td></td>
         </tr> */ ?>
     <?php } ?>
-    @include("storewebsite::site-development.partials.edit-modal")
+   
     @endforeach

@@ -69,7 +69,9 @@ class CroppedImageReference extends Model
     	}
 	}
 
-
+    public function httpRequestData(){
+        return $this->hasOne(CropImageHttpRequestResponse::class,'cropped_image_reference_id',  'id');
+    }
 
 
 
