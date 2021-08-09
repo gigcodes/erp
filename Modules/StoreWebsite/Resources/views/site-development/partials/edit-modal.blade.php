@@ -12,12 +12,12 @@
               <strong>Name:</strong>
               <input type="text" name="composition" class="form-control" value="{{ $category->title }}" id="category-name{{ $category->id }}">
             </div>
+          </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-secondary" onclick="submitCategoryChange({{ $category->id }})">Edit</button>
           </div>
-        </form>
-      </div>
 
     </div>
   </div>
