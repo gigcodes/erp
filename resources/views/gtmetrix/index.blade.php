@@ -169,11 +169,10 @@
             dataType: 'html'
         })
         .done(function(data){
-           // console.log(data);  
             $('.message-modal').html('');    
             $('.message-modal').html(data); // load response 
             $("#gtmetrix-stats-modal").modal("show");
-            $('#loading-image').hide();        // hide ajax loader   
+            $('#loading-image').hide();        // hide ajax loader 
         })
         .fail(function(){
             toastr["error"]("Something went wrong please check log file");
@@ -204,7 +203,7 @@
 						t += `<td>`+v.status+`</td>`;
 						t += `<td>`+v.error+`</td>`;
 						t += `<td><a href="`+v.website_url+`" target="_blank" title="Goto website"> Website </a></td>`;
-						t += `<td> <a href="`+v.report_url+`" target="_blank" title="Show report"> Reprot </a></td>`;
+						t += `<td> <a href="`+v.report_url+`" target="_blank" title="Show report"> Report </a></td>`;
 						t += `<td>`+v.html_load_time+`</td>`;
 						t += `<td>`+v.html_bytes+`</td>`;
 						t += `<td>`+v.page_load_time+`</td>`;

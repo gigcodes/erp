@@ -7,7 +7,6 @@
     @endphp
 
     @foreach($categories as $key => $category)
-
     <?php
     $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
 
@@ -280,7 +279,3 @@
     <?php } ?>
 
     @endforeach
-
-{{--    @foreach($categories as $key => $category)--}}
-{{--        @include("storewebsite::site-development.partials.edit-modal")--}}
-{{--    @endforeach--}}

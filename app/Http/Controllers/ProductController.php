@@ -3237,7 +3237,7 @@ class ProductController extends Controller
             $http =  CropImageGetRequest::create([
                 'product_id' => $product->id,
                 'request' => json_encode($request->all()),
-                'response' => $res
+                'response' => json_encode($res)
             ]);
 
             $res['token'] = $http->id;
@@ -3299,7 +3299,7 @@ class ProductController extends Controller
     {
 
         $req = $request->all();
-        
+
         $req['file'] = $request->file;
 
         $httpHistory = CropImageHttpRequestResponse::create([
