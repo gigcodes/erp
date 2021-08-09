@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Brand;
 use App\Category;
 use App\Customer;
+use App\DeveloperTask;
 use App\Supplier;
 use App\User;
 use App\Vendor;
 use App\StoreWebsite;
+use App\Task;
 use Illuminate\Http\Request;
 
 class Select2Controller extends Controller
@@ -251,6 +253,55 @@ class Select2Controller extends Controller
             $result['items'][] = [
                 'id' => $brand->id,
                 'text' => $brand->name
+            ];
+        }
+    
+        return response()->json($result);
+    }
+
+    public function allTasks(Request $request)
+    {
+        if (isset($request->sort)) {
+            $tasks = DeveloperTask::select('id', 'subject')->where('subject','<>',"");
+        } else {
+    
+            $tasks = DeveloperTask::select('id', 'subject')->where('subject','<>',"");
+        }
+    
+        if (!empty($request->q)) {
+    
+            $tasks->where(function ($q) use ($request) {
+                $q->where('subject', 'LIKE',  $request->q . '%');
+            });
+        }
+        $tasks = $tasks->paginate(30); 
+      
+        if(!count($tasks)){
+            if (isset($request->sort)) {
+                $tasks = Task::select('id', 'task_subject')->where('task_subject','<>',"");
+            } else {
+        
+                $tasks = Task::select('id', 'task_subject')->where('task_subject','<>',"");
+            }
+        
+            if (!empty($request->q)) {
+        
+                $tasks->where(function ($q) use ($request) {
+                    $q->where('task_subject', 'LIKE',  $request->q . '%');
+                });
+            }
+            $tasks = $tasks->paginate(30); 
+            // $result['total_count'] = $tasks->total();
+            // $result['incomplete_results'] = $tasks->nextPageUrl() !== null;
+        }
+        $result['total_count'] = $tasks->total();
+        $result['incomplete_results'] = $tasks->nextPageUrl() !== null;
+        
+        foreach ($tasks as $task) {
+    
+            $result['items'][] = [
+                'id' => $task->id,
+                'text' => get_class($task) == 'App\DeveloperTask' ? '#DEVTASK-'.  $task->id .'-'. $task->subject : '#TASK-'.  $task->id .'-'. $task->task_subject
             ];
         }
     

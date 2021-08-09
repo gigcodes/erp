@@ -809,6 +809,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
 
+    Route::post('/task/send', 'TaskModuleController@SendTask')->name('task.send/user');
+
     Route::get('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
@@ -3259,6 +3261,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
     Route::get('categories', 'Select2Controller@allCategory')->name('select2.categories');
     Route::get('websites', 'Select2Controller@allWebsites')->name('select2.websites');
+    Route::get('tasks', 'Select2Controller@allTasks')->name('select2.tasks');
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
