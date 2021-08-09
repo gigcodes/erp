@@ -5,18 +5,22 @@
     $userId = auth()->user()->id;
     $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
     @endphp
+
     @foreach($categories as $key => $category)
-    @include("storewebsite::site-development.partials.edit-modal")
+
     <?php
     $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
 
     if ($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
     ?>
+
         <tr>
             <td>
                 {{ $pagrank++  }}
             </td>
             <td>
+                @include("storewebsite::site-development.partials.edit-modal")
+
                 {{ $category->title }}
 
               <div style="display: flex;float: right">  <button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;margin-top:0px;" class="pl-0"><i class="fa fa-edit"></i></button>
@@ -233,7 +237,7 @@
 
             </td>
         </tr>
-       
+
         <?php /* <tr class="hidden_row_{{ $category->id  }} dis-none" data-eleid="{{ $category->id }}">
             <td colspan="2">
                 <?php  echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
@@ -274,5 +278,9 @@
             <td></td>
         </tr> */ ?>
     <?php } ?>
-   
+
     @endforeach
+
+{{--    @foreach($categories as $key => $category)--}}
+{{--        @include("storewebsite::site-development.partials.edit-modal")--}}
+{{--    @endforeach--}}
