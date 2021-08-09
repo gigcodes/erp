@@ -31,7 +31,9 @@ class SuggestedProduct extends Model
         'size',
         'customer_id',
         'total',
-        'chat_message_id'
+        'chat_message_id',
+        'platform',
+        'platform_id',
     ];
 
     public function customer()

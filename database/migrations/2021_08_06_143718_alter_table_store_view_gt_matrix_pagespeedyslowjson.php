@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableStoreViewGtMatrixPdf extends Migration
+class AlterTableStoreViewGtMatrixPagespeedyslowjson extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,8 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
     {
         //
         Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->string("pdf_file")->nullable()->after("resources");
+            $table->string("pagespeed_json", 255)->nullable()->after("pdf_file");
+            $table->string("yslow_json", 255)->nullable()->after("pagespeed_json");
         });
     }
 
@@ -28,7 +29,8 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
     {
         //
         Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->dropField("pdf_file");
+            $table->dropField("pagespeed_json");
+            $table->dropField("yslow_json");
         });
     }
 }

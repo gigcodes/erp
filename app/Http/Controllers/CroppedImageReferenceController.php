@@ -20,7 +20,7 @@ class CroppedImageReferenceController extends Controller
      */
     public function index()
     {
-        $products = CroppedImageReference::with(['media', 'newMedia'])->orderBy('id', 'desc')->paginate(50);
+        $products = CroppedImageReference::with(['media', 'newMedia', 'httpRequestData'])->orderBy('id', 'desc')->paginate(50);
 
         return view('image_references.index', compact('products'));
     }
@@ -93,7 +93,7 @@ class CroppedImageReferenceController extends Controller
 
     public function grid(Request $request)
     {
-        $query = CroppedImageReference::query();
+        $query = CroppedImageReference::with('httpRequestData.requestData');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
 
@@ -187,6 +187,9 @@ class CroppedImageReferenceController extends Controller
         } else {
             $totalCounts = 0;
         }
+
+        // dd($products);
+
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('image_references.partials.griddata', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'))->render(),
@@ -194,6 +197,7 @@ class CroppedImageReferenceController extends Controller
                 'total' => $total,
             ], 200);
         }
+        
         return view('image_references.grid', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
     }
 

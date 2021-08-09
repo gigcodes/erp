@@ -52,8 +52,7 @@
                         <div class="form-group">
                             <select name="b_name" id="b_name" class="form-control input-sm">
                                 <option value="">Benefiiciary</option>
-                                <option value="1">Cash</option>
-                                <option value="2">Date Asc</option>
+                                
                             </select>
                         </div>
                     </div>
@@ -338,6 +337,7 @@
   <script>
   $(function() {
     $('input[name="daterange"]').daterangepicker({
+      autoUpdateInput: false,
       opens: 'left'
     }, function(start, end, label) {
       console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
@@ -475,17 +475,12 @@
                     url: "{{url('cashflow/getbnamelist')}}?model_type="+ module_type,
                     type: 'GET',
                     success: function (data) {
-                        
-                       
-                      for( var i = 0; i<10; i++){
-                        var id = 1;
-                        var name = 'ssss';
-                        
-                        $("#b_name").append("<option value='"+id+"'>"+name+"</option>");
-
-                    }
-
-                       
+                      $("#b_name").append("<option value=''>Benefiiciary</option>");
+                      Object.entries(data).forEach(entry => {
+                        const [key, value] = entry;
+                        $("#b_name").append("<option value='"+data[key]+"'>"+data[key]+"</option>");
+                     });
+               
                     },
                     error: function () {
                        

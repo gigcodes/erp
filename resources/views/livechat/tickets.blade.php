@@ -97,7 +97,7 @@
 @include('partials.flash_messages')
     <div class="row tickets m-0">
         <div class="col-lg-12 margin-tb pr-0 pl-0">
-            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)
+            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} <span id="list_count"></span>
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
@@ -170,7 +170,7 @@
                                 placeholder="Category" id="search_category">
                     </div> -->
                     <div>
-                        <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
+                        <button type="button" class="btn btn-image" onclick="startPolling(1)"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
                     <div >
                         <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
@@ -195,35 +195,10 @@
     </div>
 
     <div class="space-right">
-    <div class="table-responsive ">
-      <table style="font-size:13.8px;" class="table table-bordered tickets" id="list-table" cellspacing=0 >
-        <thead>
-          <tr>
-            <th>Sr. No.</th>
-            <th>Ticket</th>
-            <th>Source</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Subject</th>
-            <th>Message</th>
-            <th>Assigned To</th>
-            <th>Inquiry Type</th>
-            <th>Country</th>
-            <th>Order No.</th>
-            <th>Phone</th>
-            <th style="width: 18%">Communication</th>
-            <th style="width: 8%">Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-            @include('livechat.partials.ticket-list')
-        </tbody>
-      </table>
+   
+    @include('livechat.partials.ticket-list')
     </div>
-    </div>
-    {!! $data->render() !!}
+    
 
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
@@ -338,88 +313,62 @@
     });
 
     function submitSearch(){
-        src = "{{url('livechat/tickets')}}";
-        term = $('#term').val();
-        serach_inquiry_type = $('#serach_inquiry_type').val();
-        search_country = $('#search_country').val();
-        search_order_no = $('#search_order_no').val();
-        search_phone_no = $('#search_phone_no').val();
-        //search_category = $('#search_category').val();
-        ticket_id = $('#ticket').val();
-        status_id = $('#status_id').val();
-        date = $('#date').val();
-        users_id = $('#users_id').val();
-        $.ajax({
-            url: src,
-            dataType: "json",
-            data: {
-                term : term,
-                serach_inquiry_type : serach_inquiry_type,
-                search_country : search_country,
-                search_order_no : search_order_no,
-                search_phone_no : search_phone_no,
-                //search_category : search_category,
-                ticket_id : ticket_id,
-                status_id : status_id,
-                date : date,
-                users_id : users_id,
+                src = "{{url('whatsapp/pollTicketsCustomer')}}";
+                term = $('#term').val();
+                erp_user = 152;
+                serach_inquiry_type = $('#serach_inquiry_type').val();
+                search_country = $('#search_country').val();
+                search_order_no = $('#search_order_no').val();
+                search_phone_no = $('#search_phone_no').val();
+                //search_category = $('#search_category').val();
+                ticket_id = $('#ticket').val();
+                status_id = $('#status_id').val();
+                date = $('#date').val();
+                users_id = $('#users_id').val();
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                        erpUser:erp_user,
+                        term : term,
+                        serach_inquiry_type : serach_inquiry_type,
+                        search_country : search_country,
+                        search_order_no : search_order_no,
+                        search_phone_no : search_phone_no,
+                        ticket_id : ticket_id,
+                        status_id : status_id,
+                        date : date,
+                        users_id : users_id,
 
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
 
-        }).done(function (data) {
-            $("#loading-image").hide();
-            $("#list-table tbody").empty().html(data.tbody);
-            $("#list_count").text(data.count);
-            if (data.links.length > 10) {
-                $('ul.pagination').replaceWith(data.links);
-            } else {
-                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }).done(function (message) {
+                    $("#loading-image").hide();
+                    //location.reload();
+                    //alert(ticket_id);
+                    $('#ticket').val(ticket_id);
+
+                    var rendered = renderMessage(message, tobottom);
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+                
             }
-
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-            alert('No response from server');
-        });
-        
-    }
 
     function resetSearch(){
-      src = "{{url('livechat/tickets')}}";
-        blank = '';
-        $.ajax({
-            url: src,
-            dataType: "json",
-            data: {
-               
-               blank : blank, 
-
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
-
-        }).done(function (data) {
-            $("#loading-image").hide();
-            $('#term').val('')
-            $('#serach_inquiry_type').val('')
-            $('#search_country').val('')
-            $('#search_order_no').val('')
-            $('#search_phone_no').val('')
-            //$('#search_category').val()
-            $('#ticket').val('')
-            $("#list-table tbody").empty().html(data.tbody);
-            $("#list_count").text(data.count);
-            if (data.links.length > 10) {
-                $('ul.pagination').replaceWith(data.links);
-            } else {
-                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-            }
-
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-            alert('No response from server');
-        });
+        $("#loading-image").hide();
+        $('#term').val('');
+        $('#serach_inquiry_type').val('');
+        $('#search_country').val('');
+        $('#search_order_no').val('');
+        $('#search_phone_no').val('');
+        $('#ticket').val('');
+        $('#users_id').val('');
+        location.reload();
     }
 
 

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableStoreViewGtMatrixPdf extends Migration
+class CropImageHttpRequestResponses4534 extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
      */
     public function up()
     {
-        //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->string("pdf_file")->nullable()->after("resources");
+        Schema::table('crop_image_http_request_responses', function (Blueprint $table) {
+            $table->unsignedInteger('crop_image_get_request_id')->index('cropped_image_get_req_id')->nullable();
         });
     }
 
@@ -26,9 +25,6 @@ class AlterTableStoreViewGtMatrixPdf extends Migration
      */
     public function down()
     {
-        //
-        Schema::table("store_views_gt_metrix",function(Blueprint $table) {
-            $table->dropField("pdf_file");
-        });
+       
     }
 }

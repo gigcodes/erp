@@ -149,6 +149,7 @@
                         <th>Category</th>
                         <th>Supplier</th>
                         <th>Brand</th>
+                        <th>Store Website</th>
                         <th>Original Image</th>
                         <th>Cropped Image</th>
                         <th>Time</th>
@@ -174,6 +175,27 @@
                     <h4 class="modal-title">Communication</h4>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="show-http-status" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:100%;max-width:96%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">HTTP Status</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>Request:</h4>
+                    <div class="request-body"></div>
+
+                    <h4>Response:</h4>
+                    <div class="response-body"></div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -624,6 +646,11 @@
                     toastr['error'](jqXHR.responseText, 'Error');
                 }
             });
+        });
+
+        $('#show-http-status').on('show.bs.modal', function (e) {
+            $(this).find('.request-body').text(JSON.stringify($(e.relatedTarget).data('request')));
+            $(this).find('.response-body').text(JSON.stringify($(e.relatedTarget).data('response')));
         });
 
     </script>
