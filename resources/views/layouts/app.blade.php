@@ -709,6 +709,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold leads</a>
                                             </ul>
                                         </li>
+                                        <li><a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead and Order Pricing</a></li>
                                     </ul>
                                 </li>
 

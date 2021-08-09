@@ -6,17 +6,24 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <table class="table fixed_header table-responsive" id="latest-remark-records">
-            <thead class="thead-dark">
+          <div class="col-sm-2 pull-right pr-0">
+            <select class="form-control mb-3 category-history-filter">
+              <option value="">Select Search</option>
+              <option value="error">Error</option>
+              <option value="success">Success</option>
+            </select>
+          </div>
+          <table class="table table-striped table-bordered" id="latest-remark-records">
+            <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col">Website</th>
-                <th scope="col">Title</th>
-                <th scope="col">Description</th>
-                <th scope="col">Created At</th>
+                <th scope="col" width="6%">#</th>
+                <th scope="col" width="15%">Website</th>
+                <th scope="col" width="8%">Title</th>
+                <th scope="col" width="54%">Description</th>
+                <th scope="col" width="17%">Created At</th>
               </tr>
             </thead>
-            <tbody class="show-list-records" >
+            <tbody class="show-list-records">
 
             </tbody>
           </table>
