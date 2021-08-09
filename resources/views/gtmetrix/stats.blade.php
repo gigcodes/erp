@@ -14,9 +14,13 @@
               </tr>
             </thead>
             <tbody class="show-list-records" >
-              @foreach ($data as $statsdata)
-                <tr><td class="w-100">{{$statsdata['name']}}</td><td class="w-100">{{$statsdata['score']}}</td></tr>
-              @endforeach
+              @if(!empty($data))
+                @foreach ($data as $statsdata)
+                  <tr><td class="w-100">{{$statsdata['name']}}</td><td class="w-100">{{$statsdata['score']}}</td></tr>
+                @endforeach
+              @else
+                <tr><td colspan=2>No Results found !!</td></tr>
+              @endif
             </tbody>
           </table>
         </div>
