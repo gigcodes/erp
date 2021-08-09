@@ -88,7 +88,7 @@ class LogListMagentoController extends Controller
 
         // Filters
         if (!empty($request->product_id)) {
-            $logListMagentos->where('product_id', 'LIKE', '%' . $request->product_id . '%');
+            $logListMagentos->where('products.id', 'LIKE', '%' . $request->product_id . '%');
         }
 
         if (!empty($request->sku)) {
@@ -585,7 +585,7 @@ class LogListMagentoController extends Controller
             $estimated_minimum_days = 0;
             $supplier               = \App\Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
                 ->where('product_suppliers.product_id', $product->id)
-                ->select('suppliers.*')
+                ->select(['suppliers.*','product_suppliers.supplier_link'])
                 ->first();
             if ($supplier) {
                 $estimated_minimum_days = is_numeric($supplier->est_delivery_time) ? $supplier->est_delivery_time : 0;
@@ -605,6 +605,7 @@ class LogListMagentoController extends Controller
             $data['stock']                  = $product->stock;
             $data['estimated_minimum_days'] = $estimated_minimum_days;
             $data['estimated_maximum_days'] = $estimated_minimum_days + 7;
+            $data['supplier_link'] = $product->supplier_link    ;
 
             $category = [];
             if($product->categories) {
