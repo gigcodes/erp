@@ -141,22 +141,7 @@ class LogListMagentoController extends Controller
             $logListMagentos->where('log_list_magentos.queue', $request->queue);
         }
 
-
-        if($request->crop_start_date != null && $request->crop_end_date != null) {
-            $startDate = $request->crop_start_date;
-            $endDate = $request->crop_end_date;
-            $logListMagentos = $logListMagentos->leftJoin("cropped_image_references as cri", function ($join) use($startDate, $endDate) {
-                $join->on("cri.product_id", "products.id");
-                $join->whereDate("cri.created_at", ">=", $startDate)->whereDate("cri.created_at", "<=", $endDate);
-            });
-
-            $logListMagentos = $logListMagentos->whereNotNull("cri.product_id");
-            $logListMagentos = $logListMagentos->groupBy("products.id");
-        }
-
-
-        // Get paginated result
-        $logListMagentos->select(
+        $selectClause = [
             'log_list_magentos.*',
             'products.*',
             'brands.name as brand_name',
@@ -167,9 +152,26 @@ class LogListMagentoController extends Controller
             'sw.title as website_title',
             'sw.magento_url as website_url',
             'log_list_magentos.user_id as log_user_id'
-        );
-        $total_count     = $logListMagentos->count();
+        ];
+        if($request->crop_start_date != null && $request->crop_end_date != null) {
+            $selectClause[] = 'cri.product_id as cri_product_id';
+
+            $startDate = $request->crop_start_date;
+            $endDate = $request->crop_end_date;
+            $logListMagentos->leftJoin("cropped_image_references as cri", function ($join) use($startDate, $endDate) {
+                $join->on("cri.product_id", "products.id");
+                $join->whereDate("cri.created_at", ">=", $startDate)->whereDate("cri.created_at", "<=", $endDate);
+            });
+
+            $logListMagentos->whereNotNull("cri.product_id");
+            $logListMagentos->groupBy("products.id");
+        }
+
+
+        // Get paginated result
+        $logListMagentos->select($selectClause);
         $logListMagentos = $logListMagentos->paginate(25);
+        $total_count     = $logListMagentos->total();
         //dd($logListMagentos);
         foreach ($logListMagentos as $key => $item) {
             if ($item->hasMedia(config('constants.media_tags'))) {
