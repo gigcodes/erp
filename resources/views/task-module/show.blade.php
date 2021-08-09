@@ -1261,54 +1261,6 @@
               50% 50% no-repeat;display:none;">
     </div>
 
-
-    {{-- <div id="task-name-send" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Files Forwarding</h4>
-                </div>
-                <div class="modal-body">
-                                           
-                    <div class="container">
-                        <!-- Horizonatal Form -->
-                        <div class="row">
-                          <div class="col-xs-6">
-                            <form class="form-horizontal">
-                              <div class="form-group">
-                                     <label for="nameField" class="col-xs-2">Send to</label>
-                                     <div class="col-xs-10">
-                                        <select class="form-control">
-                                            <option value="" >Select User</option>    
-                                            
-                                        </select>
-                                      </div>
-                              </div>
-
-                              <div class="form-group">
-                                <label for="nameField" class="col-xs-2">Task</label>
-                                <div class="col-xs-10">
-                                    <select class="form-control">
-                                        <option value="">Select Task</option>    
-                                      
-                                    </select>
-                                 </div>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-        
-                </div>
-               <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-dismiss="modal">Send</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-
-
-
     @include("development.partials.time-history-modal")
     @include("task-module.partials.tracked-time-history")
 @endsection

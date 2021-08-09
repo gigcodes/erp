@@ -2559,14 +2559,13 @@ class TaskModuleController extends Controller
             $user = User::find($task->user_id);
         }
         $taskdata = $request->taskdata;
-        // dd($taskdata);
+     
         $media        = \Plank\Mediable\Media::find($request->id);
-        // dd($id, $user, $taskdata);
+     
         $admin = Auth::user();
-        // dd($admin); 
+       
         $userid = Auth::id();
-        // dd($task->assign_to);
-    // dd($request->task_id);
+       
         if ($user && $user->phone) {
             if ($request->type == 'TASK') {
                 
@@ -2635,7 +2634,7 @@ class TaskModuleController extends Controller
             $task = Task::find($request->user_id);
             $task_id = $request->doc_id;
             $userid = Auth::id();
-        //   dd($id, $user->id, $task_id);
+     
             if ($user && $user->phone) {
                 $params = ChatMessage::create([
                     'id'      => $id,
@@ -2661,23 +2660,6 @@ class TaskModuleController extends Controller
         }  
             return response()->json(["message" => "Sorry required fields is missing like phone"],500);
 
-            //     if ($user) {
-        //         if ($media) {
-        //             \App\ChatMessage::sendWithChatApi(
-        //                 $user->phone,
-        //                 // null,
-        //                 // "Please find attached file",
-        //                 $media->getUrl()
-        //             );
-        //             return response()->json(["message" => "Document send succesfully"],200);
-        //         }
-        //     }else{
-        //         return response()->json(["message" => "User  not available"],500);
-        //     }
-        // }
-
-        // return response()->json(["message" => "Sorry required fields is missing like id , userid"],500);
-        // }
     }
 	public function approveTimeHistory(Request $request) {
         if(Auth::user()->isAdmin) {
