@@ -1591,17 +1591,7 @@
 				success: function (data) {
 					//console.log(data);
 					$loader.hide();
-					/*if('' === data.trim())
-						return;
-					if(type == 'pending') {
-						$('.infinite-scroll-pending-inner').append(data);
-					}
-					if(type == 'completed') {
-						$('.infinite-scroll-completed-inner').append(data);
-					}
-					if(type == 'statutory_not_completed') {
-						$('.infinite-scroll-statutory-inner').append(data);
-					}*/
+					
 					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
 					if(data.tbody == "") {

@@ -6,7 +6,7 @@
     $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
     @endphp
     @foreach($categories as $key => $category)
-    @include("storewebsite::site-development.partials.edit-modal")
+  
     <?php
     $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
 
@@ -15,6 +15,7 @@
         <tr>
             <td>
                 {{ $pagrank++  }}
+				  @include("storewebsite::site-development.partials.edit-modal")
             </td>
             <td>
                 {{ $category->title }}
