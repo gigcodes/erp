@@ -46,7 +46,7 @@ class CreateMailinglistInfluencers extends Command
             $email= $influencer->email;
             foreach($websites as $website)
                 {
-                    $name=$website->name;
+                    $name=$website->title;
                     if ($name!='')
                     $name=$name."_".date("d_m_Y");
                     else
@@ -88,7 +88,8 @@ class CreateMailinglistInfluencers extends Command
                             'name' => $name,
                             'website_id' => $website->id,
                             'service_id' => $service_id,
-                            'remote_id' => $res->id,
+                            'email' =>$email,
+                            'remote_id' =>$res->id,
                         ]);
                         
                     }

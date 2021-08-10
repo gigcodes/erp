@@ -800,27 +800,29 @@ class HashtagController extends Controller
         $service_id=$services->id;
         $influencers = \App\ScrapInfluencer::where('email','!=',"")->get();
         $websites = \App\StoreWebsite::select('id','title')->orderBy('id','desc')->get();
+        //var_dump($websites);
         foreach($influencers as $influencer)
         {
-            $email= $influencer->email;
+           $email= $influencer->email;
             foreach($websites as $website)
                 {
-                    $name=$website->name;
+                    $name=$website->title;
                     if ($name!='')
                     $name=$name."_".date("d_m_Y");
                     else
                        $name='WELCOME_LIST_'.date("d_m_Y");
                    
-                    if (\App\Mailinglist::where('email',$email)->where('website_id',$website->id)->first())
+                    if (!\App\Mailinglist::where('email',$email)->where('website_id',$website->id)->first())
                     {
                         
+                       
                         $curl = curl_init();
                         $data = [
-                            "folderId" => 1,
+                            "id" => 1,
                             "name" =>$name
                         ];
                         curl_setopt_array($curl, array(
-                            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists",
+                            CURLOPT_URL => "https://api.sendinblue.com/v2/contacts/lists",
                             CURLOPT_RETURNTRANSFER => true,
                             CURLOPT_ENCODING => "",
                             CURLOPT_MAXREDIRS => 10,
@@ -830,8 +832,7 @@ class HashtagController extends Controller
                             CURLOPT_CUSTOMREQUEST => "POST",
                             CURLOPT_POSTFIELDS => json_encode($data),
                             CURLOPT_HTTPHEADER => array(
-                                // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                                "api-key: ".getenv('SEND_IN_BLUE_API'),
                                 "Content-Type: application/json"
                             ),
                         ));
@@ -841,12 +842,13 @@ class HashtagController extends Controller
                         curl_close($curl);
                         \Log::info($response);
                         $res = json_decode($response);
-                        var_dump($res);
+                        var_dump($response);
         
                         \App\Mailinglist::create([
                             'name' => $name,
                             'website_id' => $website->id,
                             'service_id' => $service_id,
+                            'email' =>$email,
                             'remote_id' =>'',
                         ]);
 
