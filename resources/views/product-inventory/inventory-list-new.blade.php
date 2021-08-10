@@ -62,6 +62,27 @@
         </div>
     </form>
 </div>
+<div class="table-responsive" id="inventory-data-maps">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Total Product</th>
+                <th>No of product in stock</th>
+                <th>No of product Updated</th>
+                <th>No of product Not updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ $totalProduct }}</td>
+                <td>{{ $noofProductInStock }}</td>
+                <td>{{ $productUpdated }}</td>
+                <td>{{ ($noofProductInStock - $productUpdated) }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
         <thead>

@@ -99,6 +99,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
     Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', 'Logging\LogListMagentoController@updateProductPushInformation')->name('update.magento.product-push-information');    
+
+    Route::get('list-magento/product-push-update-infomation/summery', 'Logging\LogListMagentoController@updateProductPushInformationSummery')->name('update.magento.product-push-information-summery');    
     Route::post('list-magento/product-push-update-website', 'Logging\LogListMagentoController@updateProductPushWebsite')->name('update.magento.product-push-website');    
 
 

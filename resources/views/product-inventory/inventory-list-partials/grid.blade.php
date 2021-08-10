@@ -54,7 +54,7 @@
           <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>
           <td class="status-history" data='@if(isset($data['status_history']))@json($data['status_history'])@endif' style="display:none"></td>
 
-          <td class="product-inventory" data='@if(isset($data->many_scraped_products))@json($data->many_scraped_products)@endif' style="display:none"></td>
+          <td class="product-inventory" data='@json($data->fetchMultipleSkuRecord())' style="display:none"></td>
           <!-- <td class="inventory-history" data='@if(isset($data['inventory_history']))@json($data['inventory_history'])@endif' style="display:none"></td> -->
       </tr>
     @endforeach
