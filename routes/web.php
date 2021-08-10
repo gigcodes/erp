@@ -14,6 +14,7 @@
 use App\Helpers\TwilioHelper;
 
 Auth::routes();
+
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 
 //Route::get('unused_category', 'TestingController@Demo');
@@ -103,6 +104,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
     Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', 'Logging\LogListMagentoController@updateProductPushInformation')->name('update.magento.product-push-information');    
+
+    Route::get('list-magento/product-push-update-infomation/summery', 'Logging\LogListMagentoController@updateProductPushInformationSummery')->name('update.magento.product-push-information-summery');    
     Route::post('list-magento/product-push-update-website', 'Logging\LogListMagentoController@updateProductPushWebsite')->name('update.magento.product-push-website');    
 
 
@@ -267,6 +270,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -1495,9 +1501,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
+    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
+   
+   
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');
@@ -3210,6 +3218,8 @@ Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixControl
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
@@ -3298,3 +3308,6 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
     Route::get('/records', 'ChatMessagesController@customChatRecords');
 });
 
+Route::prefix('lead-order')->middleware('auth')->group(static function(){
+    Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
+});

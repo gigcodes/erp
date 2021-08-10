@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use App\Order;
 use App\Learning;
 use App\Sop;
+use App\CustomerCharity;
 
 class ChatMessagesController extends Controller
 {
@@ -53,6 +54,9 @@ class ChatMessagesController extends Controller
                 break;
             case 'vendor':
                 $object = Vendor::find($request->object_id);
+                break;
+            case 'charity':
+                $object = CustomerCharity::find($request->object_id);
                 break;
             case 'task':
                 $object = Task::find($request->object_id);
@@ -235,7 +239,7 @@ class ChatMessagesController extends Controller
         foreach ($chatMessages as $chatMessage) {
 
             $objectname = null;
-            if($request->object == 'customer' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
+            if($request->object == 'customer' || $request->object == 'charity' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
                 $objectname = $object->name;
             }
             if($request->object == 'task' || $request->object == 'developer_task') {

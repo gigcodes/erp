@@ -303,8 +303,11 @@ class scrapperPhyhon extends Controller
         $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
         
         $coordinates = $request->coordinates;
+        
         if (is_array($coordinates)) {
             $coordinates = implode(',',$request->coordinates);
+        }else{
+            $coordinates = implode(',',json_decode($request->coordinates, true));
         }
 
         // For Height Width Of Base64
@@ -312,7 +315,6 @@ class scrapperPhyhon extends Controller
             $data = \getimagesizefromstring($binary);
             $width = $data[0];
             $height = $data[1];
-
 
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 

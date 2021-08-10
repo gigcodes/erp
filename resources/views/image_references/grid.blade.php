@@ -149,6 +149,7 @@
                         <th>Category</th>
                         <th>Supplier</th>
                         <th>Brand</th>
+                        <th>Store Website</th>
                         <th>Original Image</th>
                         <th>Cropped Image</th>
                         <th>Time</th>
@@ -183,7 +184,7 @@
     </div>
 
     <div id="show-http-status" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog" style="width:100%;max-width:96%">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">HTTP Status</h4>

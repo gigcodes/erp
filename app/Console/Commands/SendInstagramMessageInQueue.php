@@ -49,7 +49,10 @@ class SendInstagramMessageInQueue extends Command
     public function handle()
     {
         $accountSettingInfo = Setting::select('val')->where('name', 'instagram_message_queue_rate_setting')->first();
-        $accountSettingInformation = json_decode($accountSettingInfo->val, true);
+        $accountSettingInformation = null;
+        if ($accountSettingInfo) {
+            $accountSettingInformation = json_decode($accountSettingInfo->val, true);
+        }
 
         $allMessages =   ChatMessage::with('getSenderUsername')->whereNotNull('instagram_user_id')->whereNotNull('account_id')->where('is_queue', 1)->get();
 
@@ -100,6 +103,7 @@ class SendInstagramMessageInQueue extends Command
                         'thread_id'   => $thread->thread_id,
                         'title'       => 'Send text message',
                         'description' => 'Message send successfully',
+                        'created_at'  => now(),
                     ];
 
                     
@@ -114,6 +118,7 @@ class SendInstagramMessageInQueue extends Command
                     $history = [
                         'thread_id'   => $thread->thread_id,
                         'title'       => 'Send text message',
+                        'created_at'  => now(),
                         'description' => $exception->getMessage()
                     ];
                 }

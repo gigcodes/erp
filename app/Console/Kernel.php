@@ -148,6 +148,7 @@ use App\Console\Commands\UpdateProductInformationFromCsv;
 use App\Console\Commands\ConnectGoogleClientAccounts; 
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\UpdateCharities;
 
 use DB;
 
@@ -293,6 +294,7 @@ class Kernel extends ConsoleKernel
         ProjectFileManagerDateAndSize::class,
         AddRoutesToGroups::class,
         ConnectGoogleClientAccounts::class,
+        UpdateCharities::class,
     ];
 
     /**
