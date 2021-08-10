@@ -2077,27 +2077,12 @@ class WhatsAppController extends FindByNumberController
                     $data['message'] = $request->get('message');
                 }
 
-<<<<<<< HEAD
-=======
-            } elseif ($context == 'charity') {
-                $data['charity_id'] = $request->vendor_id;
-                $charity = CustomerCharity::where('id', $request->vendor_id)->first();
-                $module_id = $request->vendor_id; 
-                if ($request->get('message')) {
-                    $data['message'] = $request->get('message');
-                }
-
->>>>>>> 460cada877d1d67b33859d84b3413e08711c4a62
                 // update message for chatbot request->vendor_id
                 if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                 }
                 unset($data['vendor_id']);
-<<<<<<< HEAD
-=======
-
->>>>>>> 460cada877d1d67b33859d84b3413e08711c4a62
             } elseif ($context == 'task') {
                 $data['task_id'] = $request->task_id;
                 $task = Task::find($request->task_id);
@@ -4408,11 +4393,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-<<<<<<< HEAD
             if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
-=======
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'charity' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
->>>>>>> 460cada877d1d67b33859d84b3413e08711c4a62
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
