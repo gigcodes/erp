@@ -235,6 +235,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('users/status-change', 'UserController@statusChange');
     Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
     Route::get('users/add-system-ip', 'UserController@addSystemIp');
+    Route::post('users/add-system-ip-from-text', 'UserController@addSystemIpFromText');
     Route::get('users/delete-system-ip', 'UserController@deleteSystemIp');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
@@ -265,6 +266,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
