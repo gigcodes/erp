@@ -2112,7 +2112,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 Route::prefix('social-media')->middleware('auth')->group(function () {
     Route::get('/instagram-posts/grid','InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
-    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue');
+    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue')->name('instagram.message-queue');
     Route::get('/instagram/message-queue/approve', 'InstagramPostsController@messageQueueApprove')->name('instagram.message-queue.approve');
     Route::post('/instagram/message-queue/settings', 'InstagramPostsController@messageQueueSetting')->name('instagram.message-queue.settings');
     Route::post('/instagram/message-queue/approve/approved', 'InstagramPostsController@messageQueueApproved')->name('instagram.message-queue.approved');
