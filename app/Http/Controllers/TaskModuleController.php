@@ -2664,12 +2664,6 @@ class TaskModuleController extends Controller
     }
 
     public function SendTaskSOP(Request $request){
-
-        // $media        = \Plank\Mediable\Media::find($request->id);
-        // $medialink = $media->getUrl();
-        // dd($medialink);
-
-
       
             $media        = \Plank\Mediable\Media::find($request->id);
             $user         = \App\User::find($request->user_id);
@@ -2685,16 +2679,10 @@ class TaskModuleController extends Controller
                     'content' => $media->getUrl(),
                 
                 ]);
-              
-                
-           
-       
+                    
            return response()->json(["message" => "Data Added Successfully"]);
-
-    
-
-
     }
+    
 	public function approveTimeHistory(Request $request) {
         if(Auth::user()->isAdmin) {
             if(!$request->approve_time || $request->approve_time == "" || !$request->developer_task_id || $request->developer_task_id == '') {
