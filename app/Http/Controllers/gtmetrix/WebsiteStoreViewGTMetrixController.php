@@ -107,7 +107,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
     public function runErpEvent(Request $request)
     {
         $gtmatrix = StoreViewsGTMetrix::where('id', $request->id)->first();
+
         if ($gtmatrix) {
+            $gt_metrix['store_view_id'] = $gtmatrix->store_view_id;
+            $gt_metrix['website_url'] = $gtmatrix->website_url;
+            $new_id = StoreViewsGTMetrix::create($gt_metrix)->id;
+            $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
             try {
 
                 $client = new GTMetrixClient();
@@ -116,12 +121,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $client->getLocations();
                 $client->getBrowsers();
 
-                $test   = $client->startTest($gtmatrix->website_url);
+                $test   = $client->startTest($gtmetrix->website_url);
                 $update = [
                     'test_id' => $test->getId(),
                     'status'  => 'queued',
                 ];
-                $gtmatrix->update($update);
+                $gtmetrix->update($update);
 
                 return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
 
@@ -129,5 +134,62 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
             }
         }
+    }
+    function remove_http($url) {
+       $disallowed = array('http://', 'https://');
+       foreach($disallowed as $d) {
+          if(strpos($url, $d) === 0) {
+             return str_replace($d, '', $url);
+          }
+       }
+       return $url;
+    }
+
+    /**
+     * Show the pagespeed or yslow stats.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getstats($type = null, $id)
+    {
+        $data = array();
+        $resourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->orderBy("created_at", "desc")->get();
+        foreach ($resourcedata as $value) {
+            if($type == 'pagespeed' && $id){
+                $title = 'PageSpeed';
+                if(!empty($value['pagespeed_json'])){
+                    $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
+                    $jsondata = json_decode($pagespeeddata, true);
+                    foreach ($jsondata['rules'] as $key=>$pagespeed) {
+                        $data[$key]['name'] = $pagespeed['name'];
+                        if(isset($pagespeed['score'])){
+                            $data[$key]['score'] = $pagespeed['score']; 
+                        }else{
+                            $data[$key]['score'] = 'n/a';
+                        }  
+                    }
+                }
+                
+            }
+            if($type == 'yslow' && $id){
+                $title = 'YSlow';
+                if(!empty($value['yslow_json'])){
+                    $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
+                    $jsondata = json_decode($yslowdata, true);
+                    $i=0;
+                    foreach ($jsondata['g'] as $key=>$yslow) {
+                        $data[$i]['name'] = trans('lang.'.$key);
+                        if(isset($yslow['score'])){
+                            $data[$i]['score'] = $yslow['score']; 
+                        }else{
+                            $data[$i]['score'] = 'n/a'; 
+                        } 
+                        $i++;                 
+                    }
+                }
+            }
+        }
+        return view('gtmetrix.stats', compact('data','title'));
+        //return response()->json(["code" => 200, "data" => $data]);
     }
 }

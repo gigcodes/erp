@@ -534,6 +534,7 @@
 	//     });
 
 	function saveCategory() {
+		websiteId = $('#website_id').val()
 		var text = $('#add-category').val()
 		if (text === '') {
 			alert('Please Enter Text');
@@ -543,6 +544,7 @@
 					type: 'POST',
 					dataType: 'json',
 					data: {
+						websiteId : websiteId,
 						text: text,
 						"_token": "{{ csrf_token() }}"
 					},
@@ -761,7 +763,7 @@
 			})
 			.done(function(data) {
 				console.log(data)
-				refreshPage()
+				refreshPage();
 				$("#loading-image").hide();
 				$('#editCategory' + id).modal('hide');
 				console.log("success");
@@ -1591,17 +1593,7 @@
 				success: function (data) {
 					//console.log(data);
 					$loader.hide();
-					/*if('' === data.trim())
-						return;
-					if(type == 'pending') {
-						$('.infinite-scroll-pending-inner').append(data);
-					}
-					if(type == 'completed') {
-						$('.infinite-scroll-completed-inner').append(data);
-					}
-					if(type == 'statutory_not_completed') {
-						$('.infinite-scroll-statutory-inner').append(data);
-					}*/
+					
 					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
 					if(data.tbody == "") {

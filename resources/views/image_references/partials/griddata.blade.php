@@ -1,12 +1,26 @@
 @foreach($products as $product)
     <tr>
-
+        @php
+            $productModel = $product->product
+        @endphp
         <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox" data-id="{{ $product->product_id }}">
             {{ $product->id }}</td>
-        <td>{{ $product->product_id  }} <br><b> {{ ( $product->product->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
-        <td>@if($product->product) @if (isset($product->product->product_category)) {{ $product->product->product_category->title }} @endif @endif</td>
-        <td>@if($product->product) {{ $product->product->supplier }} @endif</td>
-        <td>@if($product->product)  @if ($product->product->brands) {{ $product->product->brands->name }} @endif @endif</td>
+        <td>{{ $product->product_id  }} <br><b> {{ ( $productModel->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
+        <td>@if($productModel) @if (isset($productModel->product_category)) {{ $productModel->product_category->title }} @endif @endif</td>
+        <td>@if($productModel) {{ $productModel->supplier }} @endif</td>
+        <td>@if($productModel)  @if ($productModel->brands) {{ $productModel->brands->name }} @endif @endif</td>
+        @php
+            $websites = [];
+            if($productModel) {
+               $listofWebsite = $productModel->getWebsites();
+               if(!$listofWebsite->isEmpty()) {
+                    foreach($listofWebsite as $lw) {
+                        $websites[] = $lw->title;
+                    }
+               }
+            }
+        @endphp
+        <td>{!! implode("</br>",$websites) !!}</td>
         <td> <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')" style="max-width: 150px; max-height: 150px;"></td>
         <td>
         @if($product->newMedia)
@@ -45,8 +59,8 @@
                 class="btn btn-xs show-http-status" 
                 title="Http Status" 
                 data-toggle="modal" data-target="#show-http-status"
-                data-request="{{ $product->httpRequestData ? $product->httpRequestData->request : 'N/A' }}"
-                data-response="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-request="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-response="{{ $product->httpRequestData ? $product->httpRequestData->requestData : 'N/A' }}"
                 >
                 <i class="fa fa-info-circle"></i>
             </button>
