@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use App\Order;
 use App\Learning;
 use App\Sop;
+use App\CustomerCharity;
 
 class ChatMessagesController extends Controller
 {
@@ -53,6 +54,9 @@ class ChatMessagesController extends Controller
                 break;
             case 'vendor':
                 $object = Vendor::find($request->object_id);
+                break;
+            case 'charity':
+                $object = CustomerCharity::find($request->object_id);
                 break;
             case 'task':
                 $object = Task::find($request->object_id);

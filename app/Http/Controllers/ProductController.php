@@ -74,6 +74,7 @@ use App\Status;
 use App\ProductSupplier;
 use Qoraiche\MailEclipse\MailEclipse;
 use Illuminate\Support\Facades\Artisan;
+use App\CustomerCharity;
 
 class ProductController extends Controller
 {
@@ -1708,8 +1709,24 @@ class ProductController extends Controller
         return round($inr, -3);
     }
 
-    public function listMagento(Request $request, $id)
+    public function listMagento(Request $request, $id, $context = null)
     {
+        if($context && $context == 'charity'){
+            $charity = CustomerCharity::find($id);
+            $charity_category = Category::where('title', 'charity')->first();
+            $charity_brand = Brand::where('name', 'charity')->first();
+            $product = Product::find($charity->product_id);
+            if($product == null){
+                $product = new Product();
+                $product->sku = '';
+                $product->name = $charity->name;
+                $product->brand = $charity_brand->id;
+                $product->category = $charity_category->id;
+                $product->save();
+                CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
+            }
+            $id = $product->id;
+        }
         try {
             //code...
             // Get product by ID

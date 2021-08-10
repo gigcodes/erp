@@ -1,9 +1,6 @@
 @extends('layouts.app')
-
 @section('favicon' , 'vendor.png')
-
 @section('title', 'Vendor Info')
-
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
@@ -23,7 +20,6 @@
  .input-sm{
     width: 60px;
     }
-
     #loading-image {
             position: fixed;
             top: 50%;
@@ -108,10 +104,8 @@
     .td-full-container{
         color: #333;
     }
-
   </style>
 @endsection
-
 @section('large_content')
     <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -121,7 +115,7 @@
             <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
             <div class="pull-left cls_filter_box">
-                <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
+                <form class="form-inline" action="{{ route('customer.charity') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Name</label>
                         <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
@@ -151,21 +145,7 @@
                                 }
                             ?>
                         </select>
-                    </div>
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <label for="with_archived">Category</label>
-                        <?php
-                        $category_post = request('category'); 
-                        ?>
-                        <select class="form-control" name="category" id="category">
-                            <option value="">Select Category</option>
-                            <?php
-                            foreach ($vendor_categories as $row_cate) { ?>
-                                <option value="<?php echo $row_cate->id;?>" <?php if($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title;?></option>
-                            <?php } 
-                            ?>
-                        </select>
-                    </div>
+                    </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <label for="with_archived">Communication History</label>
                        <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
@@ -195,18 +175,12 @@
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-3">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+            <div class="pull-right mt-3"> 
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
             </div>
         </div>   
     </div>
-
     @include('partials.flash_messages')
-
     <div class="row">
         <div class="col-md-12">
             <div class="panel-group" style="margin-bottom: 5px;">
@@ -241,7 +215,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     <div class="infinite-scroll">
@@ -250,8 +223,7 @@
             <thead>
             <tr>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="7%">Name</th>
+                <th width="7%">Product</th>
                 <th width="7%">Phone</th>
                 <th width="7%">Email</th>
                 {{-- <th width="10%">Social handle</th>
@@ -261,31 +233,24 @@
                 <th width="15%">Action</th>
             </tr>
             </thead>
-
             <tbody id="vendor-body">
-
-            @include('vendors.partials.data')
-
+            @include('vendors.partials.charity-data')
                      </tbody>
         </table>
     </div>
-
     {!! $vendors->appends(Request::except('page'))->links() !!}
     </div>
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('common.commonEmailModal')
-    @include('vendors.partials.vendor-modals')
     @include('vendors.partials.charity-modals')
     @include('vendors.partials.add-vendor-info-modal')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
     @include('vendors.partials.modal-conference')
     @include('vendors.partials.change-hubstaff-role')
-
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -317,16 +282,13 @@
                     <div class="form-group">
                         <button class="btn btn-secondary save-reminder">Save</button>
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
-
         </div>
     </div>
-
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -345,7 +307,6 @@
             </div>
         </div>
     </div>
-
     <div id="email-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -361,17 +322,14 @@
             </div>
         </div>
     </div>
-
     @include('customers.zoomMeeting')
     <div id="forwardModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
-
         <!-- Modal content-->
         <div class="modal-content">
           <form action="{{ route('whatsapp.forward') }}" method="POST">
             @csrf
             <input type="hidden" name="message_id" id="forward_message_id" value="">
-
             <div class="modal-header">
               <h4 class="modal-title">Forward Message</h4>
               <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -380,7 +338,6 @@
               <div class="form-group">
                   <strong>Client:</strong>
                   <select class="selectpicker form-control" name="customer_id[]" title="Choose a Customer" required multiple></select>
-
                   @if ($errors->has('customer_id'))
                       <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
                   @endif
@@ -392,13 +349,10 @@
             </div>
           </form>
         </div>
-
       </div>
     </div>
-
     <div class="modal fade" id="createUser" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -408,17 +362,14 @@
                         <div><button class="btn btn-secondary m-1" onclick="inviteGithub()">Invite to Github</button></div>
                         <div><button class="btn btn-secondary m-1" onclick="inviteHubstaff()">Invite to Hubstaff</button></div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
             </div>
         </div>
     </div>
-
     <div id="create_broadcast" class="modal fade" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -438,7 +389,6 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 @endsection
@@ -449,8 +399,39 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
-
     <script type="text/javascript">
+
+        $(document).on('click', '.upload-single', function () {
+            $(self).hide();
+            $this = $(this);
+            var ajaxes = [];
+            // for (var i = 0; i < productIds.length; i++) {
+            var id = $(this).data('id');
+            var thiss = $(this);
+            $(this).addClass('fa-spinner').removeClass('fa-upload')
+            url = "{{ url('products') }}/" + id + '/listMagento/' + 'charity';
+            ajaxes.push($.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                beforeSend: function () {
+                    // $(thiss).text('Loading...');
+                    // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+                }
+            }).done(function (response) {
+                thiss.removeClass('fa-spinner').addClass('fa-upload')
+                toastr['success']('Request Send successfully', 'Success')
+                $('#product' + id).hide();
+            }));
+
+            // }
+            $.when.apply($, ajaxes)
+                .done(function () {
+                    //location.reload();
+                });
+        });
 
         $('.selectpicker').select2({
             tags: true,
@@ -466,7 +447,6 @@
                 },
                 processResults: function (data, params) {
                     params.page = params.page || 1;
-
                     return {
                         results: data,
                         pagination: {
@@ -484,13 +464,11 @@
                 if (customer.loading) {
                     return customer.name;
                 }
-
                 if (customer.name) {
                     return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.name,
-
         });
         var vendorToRemind = null;
         $('#vendor-search').select2({
@@ -510,7 +488,6 @@
                         data[i].id = data[i].name ? data[i].name : data[i].text;
                     }
                     params.page = params.page || 1;
-
                     return {
                         results: data,
                         pagination: {
@@ -525,16 +502,13 @@
             },
             minimumInputLength: 1,
             templateResult: function (customer) {
-
                 if (customer.name) {
                     //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
                     return "<p>" + customer.name +"</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.name,
-
         });
-
         var vendorToRemind = null;
         $('#vendor-phone-number').select2({
             tags: true,
@@ -553,7 +527,6 @@
                         data[i].id = data[i].phone ? data[i].phone : data[i].text;
                     }
                     params.page = params.page || 1;
-
                     return {
                         results: data,
                         pagination: {
@@ -568,13 +541,11 @@
             },
             minimumInputLength: 1,
             templateResult: function (customer) {
-
                 if (customer.name) {
                     return "<p style='color:#333;'>"+ customer.phone+ "</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.phone,
-
         });
         $('#vendor-email').select2({
             tags: true,
@@ -593,7 +564,6 @@
                         data[i].id = data[i].email ? data[i].email : data[i].text;
                     }
                     params.page = params.page || 1;
-
                     return {
                         results: data,
                         pagination: {
@@ -608,15 +578,12 @@
             },
             minimumInputLength: 1,
             templateResult: function (customer) {
-
                 if (customer.name) {
                     return "<p style='color:#333;'>"+ customer.email+ "</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.email,
-
         });
-
         $(document).on('click', '.emailToAllModal', function () {
             var select_vendor = [];
             $('.select_vendor').each(function(){
@@ -624,26 +591,18 @@
                     select_vendor.push($(this).val());
                 }
             });
-
             if (select_vendor.length === 0) {
                 alert('Please Select vendors!!');
                 return false;
             }
-
             $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val(select_vendor.join());
-
             $('#emailToAllModal').modal("show");
-
         });
-
-
         $(document).on('click', '.change-hubstaff-role', function () {
             var id = $(this).data('id');
             $("#hidden-vendor-id").val(id);
             $("#userHubstaffRoleModal").modal('show');
         });
-
-
         $(document).on('submit', '#user-hubstaff-role-form', function (e) {
             e.preventDefault();
             $.ajax({
@@ -660,19 +619,16 @@
             })
         });
         
-
         $(document).on('click', '.send-email-to-vender', function () {
             $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val($(this).data('id'));
             $('#emailToAllModal').modal("show");
         });
-
         $(document).on('click', '.set-reminder', function () {
             let vendorId = $(this).data('id');
             let frequency = $(this).data('frequency');
             let message = $(this).data('reminder_message');
             let reminder_from = $(this).data('reminder_from');
             let reminder_last_reply = $(this).data('reminder_last_reply');
-
             $('#frequency').val(frequency);
             $('#reminder_message').val(message);
             $("#reminderModal").find("#reminder_from").val(reminder_from);
@@ -683,14 +639,12 @@
             }
             vendorToRemind = vendorId;
         });
-
         $(document).on('click', '.save-reminder', function () {
             var reminderModal = $("#reminderModal");
             let frequency = $('#frequency').val();
             let message = $('#reminder_message').val();
             let reminder_from = reminderModal.find("#reminder_from").val();
             let reminder_last_reply = (reminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
-
             $.ajax({
                 url: "{{action('VendorController@updateReminder')}}",
                 type: 'POST',
@@ -712,12 +666,10 @@
                 }
             });
         });
-
         $(document).on('click', '.edit-vendor', function () {
             var vendor = $(this).data('vendor');
-            var url = "{{ url('vendors') }}/" + vendor.id;
-
-            $('#vendorEditModal form').attr('action', url);
+            var url = "/products/customer/charity/" + vendor.id; 
+            $('#charityEditModal form').attr('action', url);
             $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
             $('#vendor_name').val(vendor.name);
             $('#vendor_address').val(vendor.address);
@@ -732,30 +684,23 @@
             $('#vendor_account_iban').val(vendor.account_iban);
             $('#vendor_account_swift').val(vendor.account_swift);
         });
-
         $(document).on('click', '.create-agent', function () {
             var id = $(this).data('id');
-
             $('#agent_vendor_id').val(id);
         });
-
         $(document).on('click', '.edit-agent-button', function () {
             var agent = $(this).data('agent');
             var url = "{{ url('agent') }}/" + agent.id;
-
             $('#editAgentModal form').attr('action', url);
             $('#agent_name').val(agent.name);
             $('#agent_address').val(agent.address);
             $('#agent_phone').val(agent.phone);
             $('#agent_email').val(agent.email);
         });
-
         $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
-
             var id = $(this).data('id');
             $('#add-remark input[name="id"]').val(id);
-
             $.ajax({
                 type: 'GET',
                 headers: {
@@ -768,7 +713,6 @@
                 },
             }).done(response => {
                 var html = '';
-
                 $.each(response, function (index, value) {
                     html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
                     html + "<hr>";
@@ -776,11 +720,9 @@
                 $("#makeRemarkModal").find('#remark-list').html(html);
             });
         });
-
         $('#addRemarkButton').on('click', function () {
             var id = $('#add-remark input[name="id"]').val();
             var remark = $('#add-remark').find('textarea[name="remark"]').val();
-
             $.ajax({
                 type: 'POST',
                 headers: {
@@ -794,17 +736,13 @@
                 },
             }).done(response => {
                 $('#add-remark').find('textarea[name="remark"]').val('');
-
                 var html = ' <p> ' + remark + ' <br> <small>By You updated on ' + moment().format('DD-M H:mm') + ' </small></p>';
-
                 $("#makeRemarkModal").find('#remark-list').append(html);
             }).fail(function (response) {
                 console.log(response);
-
                 alert('Could not fetch remarks');
             });
         });
-
         $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {
@@ -812,7 +750,6 @@
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
         });
-
         $(document).on('click', '.load-email-modal', function () {
             var id = $(this).data('id');
              $.ajax({
@@ -844,13 +781,10 @@
                     for (var i = 0; i < message.attachment.length; i++) {
                         var imageUrl = message.attachment[i];
                         imageUrl = imageUrl.trim();
-
                         // Set empty imgSrc
                         var imgSrc = '';
-
                         // Set image type
                         var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
-
                         // Set correct icon/image
                         if (imageType == '.jpg' || imageType == 'jpeg') {
                             imgSrc = imageUrl;
@@ -869,7 +803,6 @@
                         } else {
                             imgSrc = '/images/icon-file-unknown.svg';
                         }
-
                         // Set media
                         if (imgSrc != '') {
                             content += '<div class="col-4"><a href="' + message.attachment[i] + '" target="_blank"><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
@@ -881,14 +814,11 @@
                         html += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + content + '</p><br/><span class="timestamp">' + message.created_at.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
                     }
                 });
-
                 html += '</div>';
-
                 $("#email-list-history").find(".modal-body").html(html);
                 $("#email-list-history").modal("show");
             }).fail(function (response) {
                 console.log(response);
-
                 alert('Could not load email');
             });
         });
@@ -903,15 +833,14 @@
             var data = new FormData();
             var vendor_id = $(this).data('vendorid');
             var message = $(this).siblings('input').val();
-
             data.append("vendor_id", vendor_id);
             data.append("message", message);
             data.append("status", 1);
-
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
                         url: BASE_URL+'/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -924,11 +853,9 @@
                     }).done(function (response) {
                         thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
                         $(thiss).siblings('input').val('');
-
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
-
                         alert("Could not send message");
                         console.log(errObj);
                     });
@@ -941,16 +868,15 @@
             var thiss = $(this);
             var data = new FormData();
             var vendor_id = $(this).data('vendorid');
-
             var message = $("#messageid_"+vendor_id).val();
             data.append("vendor_id", vendor_id);
             data.append("message", message);
             data.append("status", 1);
-
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
                         url: BASE_URL+'/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -979,7 +905,6 @@
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
-
                         alert("Could not send message");
                         console.log(errObj);
                     });
@@ -991,7 +916,6 @@
         $(document).on('change', '.update-category-user', function () {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
-
             $.ajax({
                 url: '{{ action('VendorController@assignUserToCategory') }}',
                 data: {
@@ -1002,16 +926,12 @@
                     toastr['success']('User assigned to category completely!')
                 }
             });
-
         });
-
         $(document).on('click', '.add-cc', function (e) {
             e.preventDefault();
-
             if ($('#cc-label').is(':hidden')) {
                 $('#cc-label').fadeIn();
             }
-
             var el = `<div class="row cc-input">
             <div class="col-md-10">
                 <input type="text" name="cc[]" class="form-control mb-3">
@@ -1020,37 +940,28 @@
                 <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
             </div>
         </div>`;
-
             $('#cc-list').append(el);
         });
-
         $(document).on('click', '.cc-delete-button', function (e) {
             e.preventDefault();
             var parent = $(this).parent().parent();
-
             parent.hide(300, function () {
                 parent.remove();
                 var n = 0;
-
                 $('.cc-input').each(function () {
                     n++;
                 });
-
                 if (n == 0) {
                     $('#cc-label').fadeOut();
                 }
             });
         });
-
         // bcc
-
         $(document).on('click', '.add-bcc', function (e) {
             e.preventDefault();
-
             if ($('#bcc-label').is(':hidden')) {
                 $('#bcc-label').fadeIn();
             }
-
             var el = `<div class="row bcc-input">
             <div class="col-md-10">
                 <input type="text" name="bcc[]" class="form-control mb-3">
@@ -1059,32 +970,25 @@
                 <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
             </div>
         </div>`;
-
             $('#bcc-list').append(el);
         });
-
         $(document).on('click', '.bcc-delete-button', function (e) {
             e.preventDefault();
             var parent = $(this).parent().parent();
-
             parent.hide(300, function () {
                 parent.remove();
                 var n = 0;
-
                 $('.bcc-input').each(function () {
                     n++;
                 });
-
                 if (n == 0) {
                     $('#bcc-label').fadeOut();
                 }
             });
         });
-
         $(document).on('click', '.block-twilio', function () {
             var vendor_id = $(this).data('id');
             var thiss = $(this);
-
             $.ajax({
                 type: "POST",
                 url: "{{ route('vendors.block') }}",
@@ -1103,19 +1007,15 @@
                 }
             }).fail(function (response) {
                 $(thiss).html('<img src="/images/unblocked-twilio.png" />');
-
                 alert('Could not block customer!');
-
                 console.log(response);
             });
         });
-
          $(document).on('click', '.call-select', function() {
         var id = $(this).data('id');
         $('#show'+id).toggle();
         console.log('#show'+id);
       });
-
           $(document).ready(function() {
               src = "{{ route('vendors.index') }}";
               $(".search").autocomplete({
@@ -1126,7 +1026,6 @@
                       phone = $('#phone').val();
                       address = $('#address').val();
                       category = $('#category').val();
-
                       $.ajax({
                           url: src,
                           dataType: "json",
@@ -1141,7 +1040,6 @@
                           beforeSend: function () {
                               $("#loading-image").show();
                           },
-
                       }).done(function (data) {
                           $("#loading-image").hide();
                           console.log(data);
@@ -1152,16 +1050,12 @@
                               $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                           }
                           $(".select2-quick-reply").select2({});
-
                       }).fail(function (jqXHR, ajaxOptions, thrownError) {
                           alert('No response from server');
                       });
                   },
                   minLength: 1,
-
               });
-
-
               $(document).ready(function () {
                   src = "{{ route('vendors.index') }}";
                   $("#search_id").autocomplete({
@@ -1175,7 +1069,6 @@
                               beforeSend: function () {
                                   $("#loading-image").show();
                               },
-
                           }).done(function (data) {
                               $("#loading-image").hide();
                               $("#vendor-table tbody").empty().html(data.tbody);
@@ -1185,21 +1078,16 @@
                                   $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                               }
                               $(".select2-quick-reply").select2({});
-
                           }).fail(function (jqXHR, ajaxOptions, thrownError) {
                               alert('No response from server');
                           });
                       },
                       minLength: 1,
-
                   });
               });
-
               $(document).on("change", ".quickComment", function (e) {
-
                   var message = $(this).val();
                   var select = $(this);
-
                   if ($.isNumeric(message) == false) {
                       $.ajax({
                           headers: {
@@ -1213,7 +1101,6 @@
                           var vendors_id =$(select).find("option[value='']").data("vendorid");
                           var message_re = data.data.reply;
                           $("textarea#messageid_"+vendors_id).val(message_re);
-
                           console.log(data)
                       }).fail(function (jqXHR, ajaxOptions, thrownError) {
                           alert('No response from server');
@@ -1222,13 +1109,9 @@
                   //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
                   var vendors_id =$(select).find("option[value='']").data("vendorid");
                   var message_re = $(this).find("option:selected").html();
-
                   $("textarea#messageid_"+vendors_id).val($.trim(message_re));
-
               });
-
               $(".select2-quick-reply").select2({tags: true});
-
               $(document).on("click", ".delete_quick_comment", function (e) {
                   var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected").val();
                   if (typeof deleteAuto != "undefined") {
@@ -1244,30 +1127,23 @@
                           if (data.code == 200) {
                               // $(".quickComment ")
                               //     .find('option').not(':first').remove();
-
                               $(".quickComment").each(function(){
                               var selecto=  $(this)
                                   $(this).children("option").not(':first').each(function(){
                                     $(this).remove();
-
-
                                   });
                                   $.each(data.data, function (k, v) {
                                       $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
                                   });
                                   $(selecto).select2({tags: true});
                               });
-
-
                           }
-
                       }).fail(function (jqXHR, ajaxOptions, thrownError) {
                           alert('No response from server');
                       });
                   }
               });
           });
-
           function createUserFromVendor(id, email) {
                 $('#vendor_id').attr('data-id', id);
                 if (email) {
@@ -1275,11 +1151,9 @@
                 }
                 $('#createUser').modal('show');
             }
-
             $('#createUser').on('hidden.bs.modal', function() {
                 $('#createUser').removeAttr('data-email');
             })
-
          $(document).on("click", "#vendor_id", function () {
             $('#createUser').modal('hide');
             id = $(this).attr('data-id');
@@ -1299,17 +1173,14 @@
                           if (data.code == 200) {
                               alert(data.data);
                           }
-
                       }).fail(function (jqXHR, ajaxOptions, thrownError) {
                           $("#loading-image").hide(); 
                           alert('No response from server');
                       });
           });
-
           function inviteGithub() {
             $('#createUser').modal('hide');
             const email = $('#createUser').attr('data-email');
-
             $.ajax({
                 type: "POST",
                 url: "/vendors/inviteGithub",
@@ -1324,15 +1195,12 @@
             .fail(function(error) {
                 alert(error.responseJSON.message);
             });
-
             console.log(email);
         }
-
         function inviteHubstaff() {
             $('#createUser').modal('hide');
             const email = $('#createUser').attr('data-email');
             console.log(email);
-
             $.ajax({
                 type: "POST",
                 url: BASE_URL+"/vendors/inviteHubstaff",
@@ -1348,11 +1216,9 @@
                 toastr["error"](error.responseJSON.message);
             })
         }
-
         $('#reminder_from').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
-
         $(document).on("change",".vendor-update-status",function(){
             var $this = $(this);
             $.ajax({
@@ -1406,7 +1272,6 @@
                 
             })
         });
-
     $('ul.pagination').hide();
     $('.infinite-scroll').jscroll({
         autoTrigger: true,
@@ -1420,7 +1285,6 @@
             $('ul.pagination').hide();
         }
     });
-
     $(document).on('click', '.create_broadcast', function () {
         var vendors = [];
         $(".select_vendor").each(function () {
@@ -1434,7 +1298,6 @@
         }
         $("#create_broadcast").modal("show");
     });
-
     $("#send_message").submit(function (e) {
         e.preventDefault();
         var vendors = [];
@@ -1447,12 +1310,10 @@
             alert('Please select vendor');
             return false;
         }
-
         if ($("#send_message").find("#message_to_all_field").val() == "") {
             alert('Please type message ');
             return false;
         }
-
         $.ajax({
             type: "POST",
             url: "{{ route('vendors/send/message') }}",
@@ -1475,14 +1336,11 @@
             toastr['error']("Request was failed due to some reason please check log for more information");
         });
     });
-
-
     $(document).on('click', '.add-vendor-info', function (e) {
           e.preventDefault();
           $("#hidden_edit_vendor_id").val($(this).data('id'));
           $("#add-vendor-info-modal").modal("show");
       });
-
       $(document).on('click', '.btn-submit-info', function (e) {
           e.preventDefault();
           var formData = $('#add-vendor-info-modal').find('form').serialize();
