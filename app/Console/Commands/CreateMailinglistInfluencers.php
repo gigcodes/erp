@@ -46,22 +46,56 @@ class CreateMailinglistInfluencers extends Command
             $email= $influencer->email;
             foreach($websites as $website)
                 {
-                    $name='WELCOME_LIST_'.date("d_m_Y");
+                    $name=$website->name;
+                    if ($name!='')
+                    $name=$name."_".date("d_m_Y");
+                    else
+                       $name='WELCOME_LIST_'.date("d_m_Y");
+                   
                     if (!\App\Mailinglist::where('email',$email)->where('website_id',$website->id)->first())
                     {
-                        $data=[
+                        
+                        $curl = curl_init();
+                        $data = [
+                            "folderId" => 1,
+                            "name" =>$name
+                        ];
+                        curl_setopt_array($curl, array(
+                            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists",
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => "",
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 0,
+                            CURLOPT_FOLLOWLOCATION => true,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => "POST",
+                            CURLOPT_POSTFIELDS => json_encode($data),
+                            CURLOPT_HTTPHEADER => array(
+                                // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                                "Content-Type: application/json"
+                            ),
+                        ));
+        
+                        $response = curl_exec($curl);
+        
+                        curl_close($curl);
+                        \Log::info($response);
+                        $res = json_decode($response);
+                        
+        
+                        \App\Mailinglist::create([
+                            'name' => $name,
                             'website_id' => $website->id,
                             'service_id' => $service_id,
-                            'email'=>$email,
-                            'name'=>$name
-                        ];
-                        \App\Mailinglist::insert($data);
+                            'remote_id' => $res->id,
+                        ]);
                         
                     }
                     
                 }
         } 
            
-        return redirect()->back()->with('message', 'Mailing LIst Added Successfully');
+       
     }
 }   
