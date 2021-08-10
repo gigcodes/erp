@@ -265,6 +265,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');

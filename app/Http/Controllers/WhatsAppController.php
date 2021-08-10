@@ -90,6 +90,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Imports\CustomerNumberImport;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\CustomerCharity;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -2068,6 +2069,21 @@ class WhatsAppController extends FindByNumberController
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                 }
+
+            } elseif ($context == 'charity') {
+                $data['charity_id'] = $request->vendor_id;
+                $charity = CustomerCharity::where('id', $request->vendor_id)->first();
+                $module_id = $request->vendor_id; 
+                if ($request->get('message')) {
+                    $data['message'] = $request->get('message');
+                }
+
+                // update message for chatbot request->vendor_id
+                if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                }
+                unset($data['vendor_id']);
 
             } elseif ($context == 'task') {
                 $data['task_id'] = $request->task_id;
@@ -4379,7 +4395,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'charity' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4438,6 +4454,11 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'hubstuff') { 
                     $user = User::find($message->hubstuff_activity_user_id);
                     $phone = $user->phone;
+                    $whatsapp_number = Auth::user()->whatsapp_number;
+                }
+                if ($context == 'charity') { 
+                    $charity = CustomerCharity::find(1);
+                    $phone = $charity->phone;
                     $whatsapp_number = Auth::user()->whatsapp_number;
                 }
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
