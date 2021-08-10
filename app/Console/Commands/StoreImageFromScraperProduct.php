@@ -54,11 +54,11 @@ class StoreImageFromScraperProduct extends Command
             foreach($images as $im) {
                 \Log::info("Product started => ".$im->id);
                 $this->info("Product started => ".$im->id);
-                $scrapedProducts = \App\ScrapedProduct::where("sku",$im->sku)->orWhere("product_id",$im->id)->first();
+                $scrapedProducts = \App\ScrapedProducts::where("sku",$im->sku)->orWhere("product_id",$im->id)->first();
                 if($scrapedProducts) {
                     // delete image which is original 
-                    \DB::table("mediables")->where("mediable_type",\App\Product::class)->where("mediable_id",$im->id)->where("tag","original")->delete();
-                    $listOfImages = json_decode($scrapedProducts->images,true);
+                    //\DB::table("mediables")->where("mediable_type",\App\Product::class)->where("mediable_id",$im->id)->where("tag","original")->delete();
+                    $listOfImages = $scrapedProducts->images;
                     $this->info("Product images found => ".count($listOfImages));
                     /*if(!empty($listOfImages)) {
                         $im->attachImagesToProduct($listOfImages);
