@@ -1091,14 +1091,18 @@ class ProductInventoryController extends Controller
     	$filter_data = $request->input();
 		// $inventory_data = \App\Product::getProducts($filter_data);
 
-		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id")->paginate(20);		
+		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id")->orderBy("swp.created_at","desc")->paginate(20);		
     	
     	$inventory_data_count = $inventory_data->total();
-		
 
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
+    	$totalProduct =  \App\Product::count();
+    	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
+    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->count();
 
-        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count'));
+
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
+
+        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct'));
     }
 
     public function downloadReport() {

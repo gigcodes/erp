@@ -28,8 +28,11 @@
                 <tbody>
                 <tr>
             @foreach($product->differentWebsiteImages as $images)
-                <td>{{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
-                <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+                <td>
+                    <div style="width: 190px;margin: 0px;display: inline-block;">
+                        {{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
+                        <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+                    </div>
                 </td>
             @endforeach
                 </tr>
@@ -59,8 +62,8 @@
                 class="btn btn-xs show-http-status" 
                 title="Http Status" 
                 data-toggle="modal" data-target="#show-http-status"
-                data-request="{{ $product->httpRequestData ? $product->httpRequestData->request : 'N/A' }}"
-                data-response="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-request="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-response="{{ $product->httpRequestData ? $product->httpRequestData->requestData : 'N/A' }}"
                 >
                 <i class="fa fa-info-circle"></i>
             </button>
