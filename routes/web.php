@@ -79,6 +79,11 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
 
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
+    Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
+    Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
+    Route::get('/accounts/status/{id}', 'GoogleWebMasterController@statusAccount')->name('googlewebmaster.account.status');
+    Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
+    Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
 });
 
