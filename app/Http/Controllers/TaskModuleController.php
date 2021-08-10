@@ -2647,6 +2647,7 @@ class TaskModuleController extends Controller
                     'message' => $media->getUrl(),
                 
                 ]);
+            
                 if ($params) {
                     app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, 'message');
     
@@ -2658,9 +2659,9 @@ class TaskModuleController extends Controller
                     'message' => 'Something Was Wrong'
                 ], 500);
             }
-        }  
-            return response()->json(["message" => "Sorry required fields is missing like User, Phone"],500);
-
+        }
+            return response()->json(["message" => "Sorry required fields is missing like User, Phone"], 500);
+       
     }
 
     public function SendTaskSOP(Request $request){
