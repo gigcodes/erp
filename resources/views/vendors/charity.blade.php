@@ -406,10 +406,10 @@
             $this = $(this);
             var ajaxes = [];
             // for (var i = 0; i < productIds.length; i++) {
-            var id = $(this).data('id');
+            var id = $(this).data('product-id');
             var thiss = $(this);
             $(this).addClass('fa-spinner').removeClass('fa-upload')
-            url = "{{ url('products') }}/" + id + '/listMagento/' + 'charity';
+            url = "{{ url('products') }}/" + id + '/listMagento';
             ajaxes.push($.ajax({
                 type: 'POST',
                 url: url,

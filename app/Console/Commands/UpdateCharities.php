@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 use App\Vendor;
 use App\VendorCategory;
 use App\CustomerCharity;
+use App\Category;
+use App\Brand;
+use App\Product;
 
 class UpdateCharities extends Command
 {
@@ -44,7 +47,21 @@ class UpdateCharities extends Command
         if($vendor_category){
             $vendors = Vendor::where('category_id', $vendor_category->id)->get()->toArray();
             foreach($vendors as $v){
-                CustomerCharity::insert($v);
+                $customer_charity = CustomerCharity::where('name', $v['name'])->first();
+                unset($v['id']);
+                if($customer_charity){
+                    continue;
+                }
+                $charity = CustomerCharity::create($v); 
+                $charity_category = Category::where('title', 'charity')->first();
+                $charity_brand = Brand::where('name', 'charity')->first();
+                $product = new Product();
+                $product->sku = '';
+                $product->name = $charity->name;
+                $product->brand = $charity_brand->id;
+                $product->category = $charity_category->id;
+                $product->save();
+                CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
             }
         }else{
             dump('charity category not exist!');

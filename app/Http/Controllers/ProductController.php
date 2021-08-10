@@ -33,8 +33,6 @@ use App\PurchaseProductOrder;
 
 use App\Stock;
 use App\Colors;
-use App\CropImageGetRequest;
-use App\CropImageHttpRequestResponse;
 use App\ReadOnly\LocationList;
 use App\UserProduct;
 use App\UserProductFeedback;
@@ -341,21 +339,6 @@ class ProductController extends Controller
             });
 
             $newProducts = $newProducts->whereNotNull("cri.product_id");
-            $newProducts = $newProducts->groupBy("products.id");
-        }
-
-        if($request->store_website_id > 0) {
-            $storeWebsiteID = $request->store_website_id;
-            $newProducts = $newProducts->join("store_website_categories as swc", function ($join) use($storeWebsiteID) {
-                $join->on("swc.category_id", "products.category");
-                $join->where("swc.store_website_id", $storeWebsiteID)->where("swc.remote_id", ">", 0);
-            });
-
-            $newProducts = $newProducts->join("store_website_brands as swb", function ($join) use($storeWebsiteID) {
-                $join->on("swb.brand_id", "products.brand");
-                $join->where("swb.store_website_id", $storeWebsiteID)->where("swb.magento_value", ">", 0);
-            });
-
             $newProducts = $newProducts->groupBy("products.id");
         }
 
@@ -1726,24 +1709,9 @@ class ProductController extends Controller
         return round($inr, -3);
     }
 
-    public function listMagento(Request $request, $id, $context = null)
+    public function listMagento(Request $request, $id)
     {
-        if($context && $context == 'charity'){
-            $charity = CustomerCharity::find($id);
-            $charity_category = Category::where('title', 'charity')->first();
-            $charity_brand = Brand::where('name', 'charity')->first();
-            $product = Product::find($charity->product_id);
-            if($product == null){
-                $product = new Product();
-                $product->sku = '';
-                $product->name = $charity->name;
-                $product->brand = $charity_brand->id;
-                $product->category = $charity_category->id;
-                $product->save();
-                CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
-            }
-            $id = $product->id;
-        }
+        
         try {
             //code...
             // Get product by ID
@@ -3058,7 +3026,7 @@ class ProductController extends Controller
      *
      */
     
-    public function giveImage(Request $request)
+    public function giveImage()
     {
         $productId = request("product_id", null);
         $supplierId = request("supplier_id", null);
@@ -3241,7 +3209,8 @@ class ProductController extends Controller
                 $product->save();
             }
 
-            $res = [
+            // Return product
+            return response()->json([
                 'product_id' => $product->id,
                 'image_urls' => $images,
                 'l_measurement' => $product->lmeasurement,
@@ -3249,18 +3218,7 @@ class ProductController extends Controller
                 'd_measurement' => $product->dmeasurement,
                 'category' => "$parent $child",
                 'colors' => $colors,
-            ];
-
-            $http =  CropImageGetRequest::create([
-                'product_id' => $product->id,
-                'request' => json_encode($request->all()),
-                'response' => json_encode($res)
             ]);
-
-            $res['token'] = $http->id;
-
-            // Return product
-            return response()->json($res);
         }
     }
 
@@ -3314,171 +3272,136 @@ class ProductController extends Controller
      */
     public function saveImage(Request $request)
     {
+        // Find the product or fail
+        $product = Product::findOrFail($request->get('product_id'));
+        // Check if this product is being cropped
+        /*if ($product->status_id != StatusHelper::$isBeingCropped) {
+            return response()->json([
+                'status' => 'unknown product'
+            ], 400);
+        }*/
 
-        $req = $request->all();
+        // Check if we have a file
+        if ($request->hasFile('file')) {
+            $image = $request->file('file');
 
-        $req['file'] = $request->file;
-
-        $httpHistory = CropImageHttpRequestResponse::create([
-            'crop_image_get_request_id' => $request->token,
-            'request' => json_encode($req)
-        ]);
-
-        try{
-
-            // Find the product or fail
-            $product = Product::find($request->get('product_id'));
-            
-            if(!$product){
-
-                $res = [
-                    'status' => 'error',
-                    'message' => 'Unknown product with ID:' . $request->get('product_id')
-                ];
-
-                $httpHistory->update(['response' => json_encode($res)]);
-
-                return response()->json($res);
-
+            //Get the last image of the product.
+            $allMediaIds = [];
+            $pMedia = $product->getMedia(config('constants.media_original_tag'));
+            if(!$pMedia->isEmpty()) {
+                foreach($pMedia as $m) {
+                    $allMediaIds[] = $m->id;
+                }
             }
 
-            // Check if we have a file
-            if ($request->hasFile('file')) {
-                $image = $request->file('file');
+            $productMediacount = count($allMediaIds);
 
-                //Get the last image of the product.
-                $allMediaIds = [];
-                $pMedia = $product->getMedia(config('constants.media_original_tag'));
-                if(!$pMedia->isEmpty()) {
-                    foreach($pMedia as $m) {
-                        $allMediaIds[] = $m->id;
-                    }
-                }
+            $media = MediaUploader::fromSource($image)
+                ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
+                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
+                ->upload();
+            $colorName =  null;    
+            if ($request->get('color')) {
+                $colorCode = str_replace(['(', ')'], '', $request->get('color'));
+                $rgbarr = explode(",", $colorCode, 3);
+                $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                $colorName = $hex;
+                $tag = 'gallery_' . $hex;
 
-                $productMediacount = count($allMediaIds);
-
-                $media = MediaUploader::fromSource($image)
-                    ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
-                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
-                    ->upload();
-                $colorName =  null;    
-                if ($request->get('color')) {
-                    $colorCode = str_replace(['(', ')'], '', $request->get('color'));
-                    $rgbarr = explode(",", $colorCode, 3);
-                    $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
-                    $colorName = $hex;
-                    $tag = 'gallery_' . $hex;
-
-                    // check the store website count is existed with the total image
-                    $storeWebCount = $product->getMedia($tag)->count();
-                    if($productMediacount <= $storeWebCount) {
-                        $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
-                        if ($store_websites !== null) {
-                            $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                ->where('product_id', $product->id)->exists();
-                            if (!$exist) {
-                                SiteCroppedImages::create([
-                                    'website_id' => $store_websites->id,
-                                    'product_id' => $product->id
-                                ]);
-                            }
+                // check the store website count is existed with the total image
+                $storeWebCount = $product->getMedia($tag)->count();
+                if($productMediacount <= $storeWebCount) {
+                    $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                    if ($store_websites !== null) {
+                        $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                            ->where('product_id', $product->id)->exists();
+                        if (!$exist) {
+                            SiteCroppedImages::create([
+                                'website_id' => $store_websites->id,
+                                'product_id' => $product->id
+                            ]);
                         }
                     }
-
-                } else {
-                    $tag = config('constants.media_gallery_tag');
                 }
 
-                $product->attachMedia($media, $tag);
-                $product->crop_count = $product->crop_count + 1;
-                $product->save();
+            } else {
+                $tag = config('constants.media_gallery_tag');
+            }
+            $product->attachMedia($media, $tag);
+            $product->crop_count = $product->crop_count + 1;
+            $product->save();
 
 
-                $imageReference = new CroppedImageReference();
-                $imageReference->original_media_id = $request->get('media_id');
-                $imageReference->new_media_id = $media->id;
-                $imageReference->original_media_name = $request->get('filename');
-                $imageReference->new_media_name = $media->filename . '.' . $media->extension;
-                $imageReference->speed = $request->get('time');
-                $imageReference->product_id = $product->id;
-                $imageReference->color = $colorName;
-                $imageReference->instance_id = $request->get('instance_id');
-                $imageReference->save();
+            $imageReference = new CroppedImageReference();
+            $imageReference->original_media_id = $request->get('media_id');
+            $imageReference->new_media_id = $media->id;
+            $imageReference->original_media_name = $request->get('filename');
+            $imageReference->new_media_name = $media->filename . '.' . $media->extension;
+            $imageReference->speed = $request->get('time');
+            $imageReference->product_id = $product->id;
+            $imageReference->color = $colorName;
+            $imageReference->instance_id = $request->get('instance_id');
+            $imageReference->save();
 
-                $httpHistory->update(['cropped_image_reference_id' => $imageReference->id]);
-                
-                //CHeck number of products in Crop Reference Grid
-                $cropCount = CroppedImageReference::where('product_id', $product->id)
-                ->whereIn('original_media_id', $allMediaIds)
-                ->count();
 
-                //check website count using Product
-                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-                
+            
+            //CHeck number of products in Crop Reference Grid
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereIn('original_media_id', $allMediaIds)->count();
+
+            //check website count using Product
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            try {
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
                 } else {
                     $multi = count($websiteArrays);
                 }
+            } catch (\Exception $e) {
+                $multi = 1;
+            }
+            $totalM = $productMediacount;
+
+            $productMediacount = ($productMediacount * $multi);
+
+            //\Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+
+            if ($productMediacount <= $cropCount) {
+                $product->cropped_at = Carbon::now()->toDateTimeString();
+                //check final approval
+                if($product->checkPriceRange()){
+                    $product->status_id = StatusHelper::$finalApproval;
+                }else{
+                    $product->status_id = StatusHelper::$priceCheck;
+                }
                 
-                $totalM = $productMediacount;
-
-                $productMediacount = ($productMediacount * $multi);
-
-                //\Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
-
-                if ($productMediacount <= $cropCount) {
-                    $product->cropped_at = Carbon::now()->toDateTimeString();
-                    //check final approval
-                    if($product->checkPriceRange()){
-                        $product->status_id = StatusHelper::$finalApproval;
-                    }else{
-                        $product->status_id = StatusHelper::$priceCheck;
-                    }
-                    
-                    $product->scrap_priority = 0;
-                    $product->save();
-                } else {
-                    $product->cropped_at = Carbon::now()->toDateTimeString();
-                    $product->save();
-                }
-
-
-                // get the status as per crop
-                if ($product->category > 0) {
-                    $category = \App\Category::find($product->category);
-                    if (!empty($category) && $category->status_after_autocrop > 0) {
-                        \App\Helpers\StatusHelper::updateStatus($product, $category->status_after_autocrop);
-                    }
-                }
-
+                $product->scrap_priority = 0;
+                $product->save();
             } else {
-                $product->status_id = StatusHelper::$cropSkipped;
+                $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->save();
             }
 
-            $res = [
-                'status' => 'success'
-            ];
 
-            $httpHistory->update(['response' => json_encode($res)]);
+            // get the status as per crop
+            if ($product->category > 0) {
+                $category = \App\Category::find($product->category);
+                if (!empty($category) && $category->status_after_autocrop > 0) {
+                    \App\Helpers\StatusHelper::updateStatus($product, $category->status_after_autocrop);
+                }
+            }
 
-            return response()->json($res);
-
-        }catch(\Exception $e){
-
-            $res = [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'line_no' => $e->getLine(),
-                'file' => $e->getFile()
-            ];
-
-            $httpHistory->update(['response' => json_encode($res)]);
-
-            return response()->json($res);
+        } else {
+            $product->status_id = StatusHelper::$cropSkipped;
+            $product->save();
         }
 
+        $exitCode = Artisan::call('RejectDuplicateImages', [
+            'media_id' => $request->get('media_id'), 'product_id' => $request->get('product_id')
+        ]);
+        
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
     public function rejectedListingStatistics()
@@ -5673,22 +5596,6 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 200 ,"data" => [], "message" => "Lead price created"]);
-    }
-
-    public function getWebsites(Request $request)
-    {
-        $productId = $request->get("product_id");
-        if($productId > 0) {
-            $websites = \App\Helpers\ProductHelper::getStoreWebsiteName($productId);
-            $websitesList = \App\StoreWebsite::whereIn("id",$websites)->get();
-            if(!$websitesList->isEmpty()) {
-                return response()->json(["code" => 200 , "data" => $websitesList]);
-            }else{
-                return response()->json(["code" => 200 , "data" => []]);
-            }
-        }else{
-            return response()->json(["code" => 200 , "data" => []]);
-        }
     }
 
 }
