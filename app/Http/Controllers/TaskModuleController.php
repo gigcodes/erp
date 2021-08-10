@@ -2566,7 +2566,7 @@ class TaskModuleController extends Controller
         $admin = Auth::user();
        
         $userid = Auth::id();
-       
+        $msg = $media->getUrl();
         if ($user && $user->phone) {
             if ($request->type == 'TASK') {
                 
@@ -2610,9 +2610,10 @@ class TaskModuleController extends Controller
             
             ]);
             }
-      
+            
+           
             if($params){
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, 'message');
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
 
                 return response()->json([
                     'message' => 'Successfully Send File'
@@ -2635,8 +2636,9 @@ class TaskModuleController extends Controller
             $task = Task::find($request->user_id);
             $task_id = $request->doc_id;
             $userid = Auth::id();
-     
+            $msg = $media->getUrl();
             if ($user && $user->phone) {
+               
                 $params = ChatMessage::create([
                     'id'      => $id,
                     // 'user_id' => $user->id,
@@ -2647,9 +2649,9 @@ class TaskModuleController extends Controller
                     'message' => $media->getUrl(),
                 
                 ]);
-            
+               
                 if ($params) {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, 'message');
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
     
                     return response()->json([
                         'message' => 'Successfully Send Document'
