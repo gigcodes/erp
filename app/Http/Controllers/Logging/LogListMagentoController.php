@@ -777,7 +777,12 @@ class LogListMagentoController extends Controller
           while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
           	$row++;
           	if ($row > 1) {
-                
+            
+            $availableProduct = Product::where('sku',$data[1])->first();
+            $real_product_id  =null;
+            if($availableProduct){
+                $real_product_id = $availableProduct->id ?? null;
+            }
               $updated =   ProductPushInformation::updateOrCreate(
                   ['product_id'=>$data[0],
                   'store_website_id' => $request->store_website_id
@@ -788,6 +793,7 @@ class LogListMagentoController extends Controller
                     'stock_status'=> $data[4],
                     'is_added_from_csv'=>1,
                     'is_available'=>1,
+                    'real_product_id'=>$real_product_id
                 ]);
                 $arr_id[] = $updated->product_id;
           	}
@@ -796,7 +802,7 @@ class LogListMagentoController extends Controller
           fclose($handle);
         }
 
-        ProductPushInformation::whereNotIn('product_id',$arr_id)->update(['is_available'=>0]);
+        ProductPushInformation::whereNotIn('product_id',$arr_id)->where('store_website_id',$request->store_website_id)->where('is_available',1)->update(['is_available'=>0]);
         return response()->json(['message'=>'Data updated succesfully']);
 
     }
@@ -809,13 +815,9 @@ class LogListMagentoController extends Controller
                 continue;
             }
 
-            if($req != null && ($req != ''))
-            {
                 $updated =   WebsiteProductCsv::updateOrCreate(['store_website_id'=>$key],[
                     'path'=> $req,
-                    'store_website_id'=>$key
                 ]);
-            }
 
             // WebsiteProductCsv::where('store_website_id',$key)->update(['path'=>$req]);
         }
