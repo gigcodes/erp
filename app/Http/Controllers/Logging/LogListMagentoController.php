@@ -23,7 +23,7 @@ use App\ProductPushInformation;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Category;
 use App\Brand;
-
+use App\Exports\LogListMagentoExport;
 
 use App\Jobs\PushToMagento;
 use App\Product;
@@ -67,6 +67,46 @@ class LogListMagentoController extends Controller
 
             $new->save();
         }
+    }
+	
+	public function export(Request $request)
+    {
+        $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
+            ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
+            ->join('brands', 'products.brand', '=', 'brands.id')
+            ->join('categories', 'products.category', '=', 'categories.id')
+            ->orderBy('log_list_magentos.id', 'DESC')->where('log_list_magentos.sync_status', 'success')
+			->select('sw.website as website',
+			 'sw.title as website_title',
+             'log_list_magentos.id as log_list_magento_id',
+             'log_list_magentos.created_at as log_created_at'
+        );
+		
+		if (!empty($request->start_date)){
+            $logListMagentos->where('log_list_magentos.created_at', '>=', $request->start_date.' 00:00:00');
+        }
+		if (!empty($request->end_date)){
+            $logListMagentos->where('log_list_magentos.created_at', '<=', $request->end_date.' 23:59:59');
+        }
+		$logListMagentos = $logListMagentos->get();
+		$list[0]['website_title'] = "Website Title";
+		$list[0]['website'] = "Website ";
+		$list[0]['total_error'] = "Error";
+		$list[0]['total_success'] = "Success";
+		$list[0]['products_pushed'] = "Products Pushed";
+		$i=1;
+		foreach ($logListMagentos as $key => $item) {
+            if ($item->log_list_magento_id) {
+				$list[$i]['website_title'] = $item['website_title'];
+				$list[$i]['website'] = $item['website'];
+               $list[$i]['total_error']   = \App\ProductPushErrorLog::where('log_list_magento_id', $item->log_list_magento_id)->where('response_status', 'error')->count();
+                $list[$i]['total_success'] = \App\ProductPushErrorLog::where('log_list_magento_id', $item->log_list_magento_id)->where('response_status', 'success')->count();
+				$list[$i]['products_pushed'] =  $list[$i]['total_error'] + $list[$i]['total_success'] ;
+            }
+			$i++;
+        }
+		
+        return Excel::download(new LogListMagentoExport($list), 'logListMagentos.xlsx');
     }
 
     public function index(Request $request)
@@ -117,9 +157,9 @@ class LogListMagentoController extends Controller
         }
 
 
-         if (!empty($request->job_start_date)) {
+        if (!empty($request->job_start_date)) {
            $logListMagentos->whereDate('log_list_magentos.job_start_time', 'LIKE', '%' . $request->job_start_date . '%');
-         }
+        }
 
         if (!empty($request->status)) {
             if ($request->status == 'available') {
@@ -194,7 +234,12 @@ class LogListMagentoController extends Controller
         $users = \App\User::all();
         // dd($logListMagentos);
         // For ajax
-        if ($request->ajax()) {
+		 if ($request->ajax() and $request->type == 'product_log_list') {
+            return response()->json([
+                'tbody' => view('logging.partials.magento_product_data', compact('logListMagentos', 'total_count'))->render(),
+                'links' => (string) $logListMagentos->render(),
+            ], 200);
+        } else if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos', 'total_count'))->render(),
                 'links' => (string) $logListMagentos->render(),
