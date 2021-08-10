@@ -62,6 +62,7 @@
         </div>
     </form>
 </div>
+
 <div class="table-responsive" id="inventory-data-maps">
     <table class="table table-bordered">
         <thead>
@@ -70,6 +71,7 @@
                 <th>No of product in stock</th>
                 <th>No of product Updated</th>
                 <th>No of product Not updated</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -78,7 +80,7 @@
                 <td>{{ $noofProductInStock }}</td>
                 <td>{{ $productUpdated }}</td>
                 <td>{{ ($noofProductInStock - $productUpdated) }}</td>
-            </tr>
+                <td> <a class="action btn btn-action" data-id="" data-title="History" data-toggle="modal" data-target="#history-modal">History</a></tr>
         </tbody>
     </table>
 </div>
@@ -143,6 +145,44 @@
         </div>
     </div>
 </div>
+
+<div id="history-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">History</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Total Product</th>
+                <th>No of product in stock</th>
+                <th>No of product Updated</th>
+                <th>No of product Not updated</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($history as $h) { ?>
+                        <tr>
+                <td><?php echo $h['date'];?></td>            
+                <td>{{ $h['totalProduct'] }}</td>
+                <td>{{ $h['noofProductInStock'] }}</td>
+                <td>{{ $h['productUpdated'] }}</td>
+                <td>{{ ($h['noofProductInStock'] - $h['productUpdated']) }}</td>
+</tr>
+             <?php } ?> 
+               </tbody>
+    </table>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 <div id="inventory-history-modal" class="modal fade" role="dialog">
@@ -701,6 +741,9 @@ return;
             console.error(jqXHR);
         });
     });
+
+
+   
 
 </script>
 @endsection
