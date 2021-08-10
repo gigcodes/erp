@@ -33,9 +33,16 @@
   }
  label{
    margin-top:5px;
-   margin-bottom:0;
+   margin-bottom:4px;
    margin-left:3px;
  }
+.export_btn {
+	margin: 27px 0 0 0;
+}
+@media(max-width:767px){
+	div#Export_popup .col-xs-12{padding:0;}
+	.export_btn{margin:10px 0 0 0;}
+}
 </style>
 @endsection
 
@@ -59,7 +66,9 @@
         <button class="btn btn-primary" id="retry-failed-job">
           Retry failed job
         </button>
-
+		
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Export_popup">Export</button>
+        
       </div>
       </h2>
   </div>
@@ -69,7 +78,7 @@
     <div class="mb-3">
 
       <div class="panel-body p-0">
-        <form action="{{ route('list.magento.logging') }}" method="GET">
+        <form action="{{ route('list.magento.logging') }}" method="GET" class="handle-search">
           <div class="row m-0">
           <div class="col-md-2 pl-0">
                 <label for="select_date">Date</label>
@@ -149,8 +158,8 @@
 
           <div class="col-md-2 pl-0">
             <label for="sku">Crop Image Date</label>
-              <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_start_date" />
-              <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_end_date" />
+              <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
+              <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
               <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                   <!-- <i class="fa fa-calendar"></i>&nbsp;
                   <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
@@ -202,73 +211,14 @@
               <th style="width:4%">Try</th>
               <th style="width:8%">Action</th>
             </thead>
-            <tbody>
-              @foreach($logListMagentos as $item)
-                <tr>
-
-                  <td>
-                    <a class="show-product-information" data-id="{{ $item->product_id }}" href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a>
-                  </td>
-                  <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
-                    <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 5 ,'...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden"><a href="{{ $item->website_url }}/default/catalogsearch/result/?q={{ $item->sku }}" target="__blank">{{$item->sku}}</a></span>
-                  </td>
-                  <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
-                    <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->brand_name, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-brand_name-{{$item->id}} hidden">{{$item->brand_name}}</span>
-                  </td>
-                  <td class="expand-row-msg" data-name="category_title" data-id="{{$item->id}}">
-                    <span class="show-short-category_title-{{$item->id}}">{{ str_limit($item->category_home, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-category_title-{{$item->id}} hidden">{{$item->category_home}}</span>
-                  </td>
-                  <td> {{$item->price}} </td>
-                  <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
-                  </td>
-                  <td>
-                    @if(isset($item->log_created_at))
-                      {{ date('M d, Y',strtotime($item->log_created_at))}}
-                    @endif
-                  </td>
-                  <td class="expand-row-msg" data-name="website_title" data-id="{{$item->id}}">
-                    <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
-                  </td>
-                  <td class="">
-                    {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
-                  </td>
-                  <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
-                  <td> {{$item->sync_status}} </td>
-                    <td>{{$item->job_start_time}} </td>
-                    <td>{{$item->job_end_time}} </td>
-                  <td>{{$item->total_success}} </td>
-                  <td> {{$item->total_error}}</td>
-                  <td>{{$item->log_user_name}}</td>
-                  <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
-                  <td>@if(!empty($item->size_chart_url)) <a href="{{$item->size_chart_url}}" target="__blank">Yes</a> @else No @endif</td>
-                  <td>@if($item->queue) #{{$item->queue_id}}({{$item->queue}}) @else - @endif</td>
-                  <td>{{$item->tried}}</td>
-                  <td >
-                    <span style="display:flex;">
-                      <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
-                      <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                      <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-image"></i></button>
-                      <a target="__blank" href="{{$item->website_url}}/admin/?sku={{$item->getWebsiteSku()}}"><button class="btn btn-xs"><i class="fa fa-globe"></i></button></a>
-                      <input style="width:14px;height:14px;margin-left:3px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
-                      <i style="cursor: pointer;" class="btn btn-xs fa fa-upload upload-single" data-id="{{ $item->product_id }}" title="push to magento" aria-hidden="true"></i>
-                    </span>
-                  </td>
-                </tr>
-              @endforeach()
+            <tbody class="infinite-scroll-pending-inner">
+				@include("logging.partials.magento_product_data")                
             </tbody>
           </table>
 
 
         </div>
-        <div class="text-center">
-         {!! $logListMagentos->appends($filters)->links() !!}
-       </div>
+        
      </div>
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
@@ -293,6 +243,39 @@
             </tbody>
           </table>
 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  
+  <div id="Export_popup" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="padding: 0px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Export</h4>
+        </div>
+        <div class="modal-body">
+		  {{Form::open(array('url'=>'/logging/list-magento/export', 'method'=>'get'))}}
+				<div class="col-md-8 col-xs-12 pl-0">
+					<label for="sku">Select Date</label>
+					<input type="hidden" class="start_date" name="start_date" />
+					<input type="hidden" class="end_date" name="end_date" />
+					<div id="filter_date_range_new" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+						<!-- <i class="fa fa-calendar"></i>&nbsp;
+						<span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+						<i class="fa fa-calendar"></i>&nbsp;
+						<span class="d-none" id="date_current_show_new"></span> <p style="display:contents;" id="date_value_show_new"> </p><i class="fa fa-caret-down"></i>
+					</div>
+				</div>
+				<div class="col-md-4 pl-0 col-xs-12 export_btn">
+					<button type="submit" class="btn btn-primary">Export</button>
+				</div>
+			</form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -860,18 +843,18 @@
   }
 
   $('#filter_date_range_').daterangepicker({
-      startDate: start,
-      maxYear: 1,
-      endDate: end,
-      //parentEl: '#filter_date_range_',
-      ranges: {
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        //parentEl: '#filter_date_range_',
+        ranges: {
           'Today': [moment(), moment()],
           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
           'This Month': [moment().startOf('month'), moment().endOf('month')],
           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-      }
+        }
   }, cb);
 
   cb(start, end);
@@ -883,6 +866,40 @@
       $("#date_current_show").removeClass("d-none");
       $("#date_value_show").css("display", "none");
   });
+
+
+  jQuery('input[name="start_date"]').val();
+  jQuery('input[name="end_date"]').val();
+
+  function cb1(start, end) {
+      $('#filter_date_range_new span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+  }
+
+  $('#filter_date_range_new').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+  }, cb1);
+
+  cb1(start, end);
+
+
+  $('#filter_date_range_new').on('apply.daterangepicker', function(ev, picker) {
+      let startDate=   jQuery('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+      let endDate =    jQuery('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+      $("#date_current_show_new").removeClass("d-none");
+      $("#date_value_show_new").css("display", "none");
+  });
+
+
 
   $(document).on('click', '.upload-single', function () {
       $this = $(this);
@@ -912,7 +929,46 @@
           //alert('Could not update product on magento');
       })
   });
+  /** infinite loader **/
+	var isLoading = false;
+	var page = 1;
+	$(document).ready(function () {
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
 
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/logging/list-magento?type=product_log_list&page="+page,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					//console.log(data);
+					$loader.hide();				
+					$('.infinite-scroll-pending-inner').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
 </script>
 @if (Session::has('errors'))
   <script>
