@@ -763,4 +763,35 @@ class HashtagController extends Controller
 
         return view('instagram.hashtags.users', compact('users', 'id'));
     }
+
+    public function addmailinglist(Request $request)
+    {
+        $services = \App\Service::first();
+        $service_id=$services->id;
+        $influencers = \App\ScrapInfluencer::where('email','!=',"")->get();
+        $websites = \App\StoreWebsite::select('id','title')->orderBy('id','desc')->get();
+        foreach($influencers as $influencer)
+        {
+            $email= $influencer->email;
+            foreach($websites as $website)
+                {
+                    
+                    if (!\App\Mailinglist::where('email',$email)->where('website_id',$website->id)->first())
+                    {
+                        $data=[
+                            'website_id' => $website->id,
+                            'service_id' => $service_id,
+                            'email'=>$email,
+                            'name'=>'InfluencerCallLead'
+                        ];
+                        \App\Mailinglist::insert($data);
+                        
+                    }
+                    
+                }
+        } 
+           
+        return redirect()->back()->with('message', 'Mailing LIst Added Successfully');
+
+    }  
 }
