@@ -265,6 +265,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -813,6 +816,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
     //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
+
+    Route::post('/task/send', 'TaskModuleController@SendTask')->name('task.send/user');
+    Route::post('/task/send-sop', 'TaskModuleController@SendTaskSOP')->name('task.send/Sop');
 
     Route::get('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
@@ -3272,6 +3278,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
     Route::get('categories', 'Select2Controller@allCategory')->name('select2.categories');
     Route::get('websites', 'Select2Controller@allWebsites')->name('select2.websites');
+    Route::get('tasks', 'Select2Controller@allTasks')->name('select2.tasks');
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');

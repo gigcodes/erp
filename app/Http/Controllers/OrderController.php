@@ -3490,6 +3490,13 @@ class OrderController extends Controller
 
     public function testEmail(Request $request)
     {
+
+        Mail::raw('Hi, welcome user!', function ($message) {
+          $message->to("webreak.pravin@gmail.com")->subject("Welcome Message");
+        });
+
+        die;
+
         $order = \App\Order::find(2032);
 
         $emailClass = (new OrderConfirmation($order))->build();
