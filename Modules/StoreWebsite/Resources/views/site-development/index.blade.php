@@ -534,6 +534,7 @@
 	//     });
 
 	function saveCategory() {
+		websiteId = $('#website_id').val()
 		var text = $('#add-category').val()
 		if (text === '') {
 			alert('Please Enter Text');
@@ -543,6 +544,7 @@
 					type: 'POST',
 					dataType: 'json',
 					data: {
+						websiteId : websiteId,
 						text: text,
 						"_token": "{{ csrf_token() }}"
 					},
