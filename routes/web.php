@@ -1594,6 +1594,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
         Route::get('/report', 'HubstaffActivitiesController@activityReport')->name('hubstaff-acitivtity.report');
         Route::get('/report-download', 'HubstaffActivitiesController@activityReportDownload')->name('hubstaff-acitivtity-report.download');
+        Route::get('/payment_data', 'HubstaffActivitiesController@activityPaymentData')->name('hubstaff-acitivtity.payment_data');
 
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');

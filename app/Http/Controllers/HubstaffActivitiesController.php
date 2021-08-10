@@ -15,6 +15,7 @@ use App\Task;
 use App\Team;
 use App\User;
 use App\UserRate;
+use App\PayentMailData;
 use Artisan;
 use Auth;
 use DB;
@@ -501,11 +502,23 @@ class HubstaffActivitiesController extends Controller
                     $user = User::find($activity->system_user_id);
                     if ($user) {
                         $activity->userName = $user->name;
+                        $activity->payment_frequency = $user->payment_frequency;
+                        $activity->last_mail_sent_payment = $user->last_mail_sent_payment;
+                        $activity->fixed_price_user_or_job = $user->fixed_price_user_or_job;
+                        $activity->user_id_data = $user->id;
                     } else {
                         $activity->userName = '';
+                        $activity->payment_frequency = '';
+                        $activity->last_mail_sent_payment = '';
+                        $activity->fixed_price_user_or_job = '';
+                        $activity->user_id_data = '';
                     }
                 } else {
                     $activity->userName = '';
+                    $activity->payment_frequency = '';
+                    $activity->last_mail_sent_payment = '';
+                    $activity->fixed_price_user_or_job = '';
+                    $activity->user_id_data = '';
                 }
 
                 // send hubstaff activities
@@ -583,6 +596,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                             Log::channel('hubstaff_activity_command')->info('end admin condition if forwarded and status approve');
 
@@ -616,6 +633,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                         
@@ -647,6 +668,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                         
@@ -679,6 +704,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                     }
@@ -711,6 +740,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                     }
@@ -739,6 +772,10 @@ class HubstaffActivitiesController extends Controller
                         $a['totalNotPaid']   = $totalNotPaid;
                         $a['final_approval'] = $final_approval;
                         $a['note']           = '';
+                        $a['payment_frequency'] = $activity->payment_frequency;
+                        $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                        $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                        $a['user_id_data'] = $activity->user_id_data;
                         $activityUsers->push($a);
                     }
                     Log::channel('hubstaff_activity_command')->info('end status new condition');
@@ -797,6 +834,10 @@ class HubstaffActivitiesController extends Controller
                     $a['totalNotPaid']   = $totalNotPaid;
                     $a['final_approval'] = $final_approval;
                     $a['note']           = $note;
+                    $a['payment_frequency'] = $activity->payment_frequency;
+                    $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                    $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                    $a['user_id_data'] = $activity->user_id_data;
                     $activityUsers->push($a);
 
                 }
@@ -808,7 +849,42 @@ class HubstaffActivitiesController extends Controller
         //START - Purpose : set data for download  - DEVATSK-4300
         if( $request->submit ==  'report_download' ){
 
-           return $this->downloadExcelReport($activityUsers);
+            $total_amount = 0;
+            $total_amount_paid = 0;
+            $total_balance = 0;
+            foreach($activityUsers as $key => $value){
+                $total_amount += $value['amount'] ?? 0;
+                $total_amount_paid += $value['amount_paid'] ?? 0;
+                $total_balance += $value['balance'] ?? 0;
+            }
+
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $z = (array) $file_data;
+            $path = '';
+            foreach($z as $zz){
+                if($path == null){
+
+                    $path = $zz->getRealPath();
+
+                }
+            }
+            
+            $today = Carbon::now()->toDateTimeString();
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+            $storage_path = substr($path, strpos($path, 'framework'));
+            
+            PayentMailData::create([
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'file_path' => $storage_path,
+                'total_amount' => $total_amount,
+                'total_amount_paid' => $total_amount_paid,
+                'total_balance' => $total_balance,
+                'payment_date' => $payment_date,
+            ]);
+
+            return $file_data;
 
         }
         //END - DEVATSK-4300
@@ -2062,5 +2138,12 @@ class HubstaffActivitiesController extends Controller
     {
         $file_path = storage_path($request->file);
         return response()->download($file_path);
+    }
+
+    public function activityPaymentData(Request $request){
+
+        $get_data = PayentMailData::where('user_id',$request->user_id)->get();
+        return response()->json(['status' => true, 'data' => $get_data]);
+
     }
 }
