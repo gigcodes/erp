@@ -14,6 +14,7 @@ use App\VendorCategory;
 
 class CustomerCharityController extends Controller
 {
+    CONST DEFAULT_FOR = 2; //For Vendor
 
     public function index(Request $request){ 
      	
@@ -249,5 +250,123 @@ class CustomerCharityController extends Controller
         'totalVendor' => $totalVendor,
         ]);
 
+    }
+
+    public function store(Request $request, $id = null){
+
+        $this->validate($request, [
+            'category_id'   => 'sometimes|nullable|numeric',
+            'name'          => 'required|string|max:255',
+            'address'       => 'sometimes|nullable|string',
+            'phone'         => 'required|nullable|numeric',
+            'email'         => 'sometimes|nullable|email',
+            'social_handle' => 'sometimes|nullable',
+            'website'       => 'sometimes|nullable',
+            'login'         => 'sometimes|nullable',
+            'password'      => 'sometimes|nullable',
+            'gst'           => 'sometimes|nullable|max:255',
+            'account_name'  => 'sometimes|nullable|max:255',
+            'account_iban'  => 'sometimes|nullable|max:255',
+            'account_swift' => 'sometimes|nullable|max:255',
+            'frequency_of_payment'   => 'sometimes|nullable|max:255',
+            'bank_name'   => 'sometimes|nullable|max:255',
+            'bank_address'   => 'sometimes|nullable|max:255',
+            'city'   => 'sometimes|nullable|max:255',
+            'country'   => 'sometimes|nullable|max:255',
+            'ifsc_code'   => 'sometimes|nullable|max:255',
+            'remark'   => 'sometimes|nullable|max:255',
+      ]);
+  
+      $source = $request->get("source","");
+  
+      $data = $request->except(['_token', 'create_user']);
+      if(empty($data["whatsapp_number"]))  {
+          //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+          //get default whatsapp number for vendor from whatsapp config
+          $task_info = DB::table('whatsapp_configs')
+                      ->select('*')
+                      ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+                      ->first();
+      if(isset($task_info->number) && $task_info->number!=null){
+      $data["whatsapp_number"] = $task_info->number;
+      }
+      }
+  
+      if(empty($data["default_phone"]))  {
+        $data["default_phone"] = $data["phone"];
+      }
+  
+      if(!empty($source)) {
+         $data["status"] = 0;
+      }  
+  
+  
+      if($id == null){
+          CustomerCharity::create($data);
+      }else{
+        CustomerCharity::where('id', $id)->update($data);
+      }
+  
+      if ($request->create_user == 'on') {
+        if ($request->email != null) {
+          $userEmail = User::where('email', $request->email)->first();
+        } else {
+          $userEmail = null;
+        }
+        $userPhone = User::where('phone', $request->phone)->first();
+        if ($userEmail == null && $userPhone == null) {
+          $user = new User;
+          $user->name = str_replace(' ', '_', $request->name);
+          if ($request->email == null) {
+            $email = str_replace(' ', '_', $request->name) . '@solo.com';
+          } else {
+            // $email = explode('@', $request->email);
+            // $email = $email[0] . '@solo.com';
+            $email = $request->email;
+          }
+          $password = str_random(10);
+          $user->email = $email;
+          $user->password = Hash::make($password);
+          $user->phone = $request->phone;
+  
+          // check the default whatsapp no and store it
+          $whpno = \DB::table('whatsapp_configs')
+              ->select('*')
+              ->whereRaw("find_in_set(4,default_for)")
+              ->first();
+          if($whpno)     {
+            $user->whatsapp_number = $whpno->number;
+          }
+  
+          $user->save();
+          $role = Role::where('name', 'Developer')->first();
+          $user->roles()->sync($role->id);
+          $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
+          app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone,$user->whatsapp_number, $message);
+        } else {
+          if(!empty($source)) {
+             return redirect()->back()->withErrors('Charity Created , couldnt create User, Email or Phone Already Exist');
+          }
+          return redirect()->route('customer.charity')->withErrors('Charity Created , couldnt create User, Email or Phone Already Exist');
+        }
+      }
+  
+      $isInvitedOnGithub = false;
+      if ($request->create_user_github == 'on' && isset($request->email)) {
+        //has requested for github invitation
+        $isInvitedOnGithub = $this->sendGithubInvitaion($request->email);
+      }
+  
+      $isInvitedOnHubstaff = false;
+      if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
+        //has requested hubstaff invitation
+        $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
+      }
+  
+      if(!empty($source)) {
+         return redirect()->back()->withSuccess('You have successfully saved a charity!');
+      }
+  
+      return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }
 }

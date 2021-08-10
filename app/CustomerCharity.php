@@ -17,4 +17,13 @@ class CustomerCharity extends Model
      * @SWG\Property(property="assign_to",type="string")
      */
 	protected $guarded = [];
+
+    public function whatsappAll($needBroadCast = false)
+    {
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'charity_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+
+        return $this->hasMany('App\ChatMessage', 'charity_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+    }
 }

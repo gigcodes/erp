@@ -182,11 +182,7 @@
         </div>
         <div class="col-lg-12 margin-tb">
             <div class="pull-right mt-3">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
             </div>
         </div>   
     </div>
@@ -236,8 +232,7 @@
             <thead>
             <tr>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="7%">Name</th>
+                <th width="7%">Product</th>
                 <th width="7%">Phone</th>
                 <th width="7%">Email</th>
                 {{-- <th width="10%">Social handle</th>
@@ -261,7 +256,7 @@
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('common.commonEmailModal')
-    @include('vendors.partials.vendor-modals')
+    @include('vendors.partials.charity-modals')
     @include('vendors.partials.add-vendor-info-modal')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
@@ -700,9 +695,9 @@
 
         $(document).on('click', '.edit-vendor', function () {
             var vendor = $(this).data('vendor');
-            var url = "{{ url('vendors') }}/" + vendor.id;
-
-            $('#vendorEditModal form').attr('action', url);
+            var url = "/products/customer/charity/" + vendor.id;
+            
+            $('#charityEditModal form').attr('action', url);
             $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
             $('#vendor_name').val(vendor.name);
             $('#vendor_address').val(vendor.address);
@@ -896,7 +891,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -935,7 +930,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,

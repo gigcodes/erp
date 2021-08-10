@@ -3,28 +3,14 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ url('vendors/store') }}" method="POST">
+      <form action="{{ route('customer.charity.post') }}" method="POST">
         @csrf
 
         <div class="modal-header">
           <h4 class="modal-title">Store a Vendor</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <strong>Category:</strong>
-            <select class="form-control" name="category_id">
-              <option value="">Select a Category</option>
-
-              @foreach ($vendor_categories as $category)
-                <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->title }}</option>
-              @endforeach
-            </select>
-
-            @if ($errors->has('category_id'))
-              <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
-            @endif
-          </div>
+        <div class="modal-body"> 
 
           <div class="form-group">
             <strong>Name:</strong>
@@ -235,28 +221,13 @@
     <!-- Modal content-->
     <div class="modal-content">
       <form action="" method="POST">
-        @csrf
-        @method('PUT')
+        @csrf 
 
         <div class="modal-header">
           <h4 class="modal-title">Update a Vendor</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <strong>Category:</strong>
-            <select class="form-control" name="category_id" id="vendor_category">
-              <option value="">Select a Category</option>
-
-              @foreach ($vendor_categories as $category)
-                <option value="{{ $category->id }}" {{ $category->id == old('category_id') ? 'selected' : '' }}>{{ $category->title }}</option>
-              @endforeach
-            </select>
-
-            @if ($errors->has('category_id'))
-              <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
-            @endif
-          </div>
+        <div class="modal-body"> 
 
           <div class="form-group">
             <strong>Name:</strong>

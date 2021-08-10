@@ -5,14 +5,7 @@
 @endphp
 @foreach ($vendors as $vendor)
 <tr>
-    <td>{{ $vendor->id }}</td>
-    <td class="expand-row table-hover-cell">
-<span class="td-mini-container">
- @if(isset($vendor->category->title)) {{ strlen($vendor->category->title ) > 7 ? substr($vendor->category->title , 0, 7) : $vendor->category->title  }} @endif
-</span>
-       {{ strlen($vendor->category_name) > 7 ? substr($vendor->category_name, 0, 7) : $vendor->category_name }}
-</span>
-    </td>
+    <td>{{ $vendor->id }}</td>  
     <td style="word-break: break-all;" class="expand-row">
         <div class="row">
             <div class="col-md-6 cls_remove_rightpadding">
@@ -49,7 +42,7 @@
                     </div>
                     <div class="col-md-1 cls_remove_allpadding">
                         <button class="btn btn-sm btn-image send-message1" data-vendorid="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="charity" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     </div>
                 </div>
             </div>
@@ -116,7 +109,7 @@
 
     <td>
         <div class="cls_action_btn"> 
-            <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
+            <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#charityEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
             {!! Form::open(['method' => 'DELETE','route' => ['vendors.destroy', $vendor->id],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn btn-image"><img src="<?php echo $base_url;?>/images/delete.png"/></button>
             {!! Form::close() !!}
