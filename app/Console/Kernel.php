@@ -147,6 +147,7 @@ use App\Console\Commands\AddRoutesToGroups;
 use App\Console\Commands\UpdateProductInformationFromCsv;
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\UpdateCharities;
 
 use DB;
 
@@ -291,6 +292,7 @@ class Kernel extends ConsoleKernel
         SendInstagramMessageInQueue::class,
         ProjectFileManagerDateAndSize::class,
         AddRoutesToGroups::class,
+        UpdateCharities::class,
     ];
 
     /**

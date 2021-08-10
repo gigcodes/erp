@@ -315,7 +315,11 @@ class TwilioController extends FindByNumberController
                 $is_available = 0;
                 foreach ($clients as $client) {
 
-                    if($is_available == 0)
+                    $user_details = User::find($client['agent_id']);
+                    $is_online = $user_details->isOnline();
+                    // dd($is_online);
+
+                    if($is_available == 0 && $is_online)
                     {
 
                         Log::channel('customerDnd')->info(' client >> '.$client['agent_name_id']);

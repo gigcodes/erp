@@ -87,15 +87,15 @@
             </div>
             <div class="col-md-2 pl-0">
               <label for="product_id">Product ID</label>
-              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ old('queue') }}">
+              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}">
             </div>
             <div class="col-md-2 pl-0">
               <label for="sku">SKU</label>
-              <input type="text" class="form-control" id="sku" name="sku" value="{{ old('sku')}}">
+              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}">
             </div>
             <div class="col-md-2 pl-0">
               <label for="sku">Brand</label>
-              <input type="text" class="form-control" id="brand" name="brand" value="{{ old('brand')}}">
+              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}">
             </div>
             @php
               $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
@@ -109,8 +109,8 @@
               <label for="sku">Status</label>
               <select class="form-control" name="status">
                 <option value=''>All</option>
-                <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
-                <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
+                <option value="out_of_stock" {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
             </div>
 
@@ -857,7 +857,7 @@
         }
   }, cb);
 
-  cb(start, end);
+  //cb(start, end);
 
 
   $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
