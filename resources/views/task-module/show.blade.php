@@ -3497,7 +3497,7 @@ $(document).on("click",".btn-save-documents",function(e){
 
         var type = $(this).parent().find('#selector_id option[value="'+ taskdata +'"]').html().includes('DEVTASK') ? 'DEVTASK' : 'TASK';
               
-        if($(this).parent().find("#selector_id").val() == ' '){
+        if($(this).parent().find("#selector_id").val() == ''){
             toastr["error"]('Please Select Task Or DevTask', "Message")
             return false;
         }
