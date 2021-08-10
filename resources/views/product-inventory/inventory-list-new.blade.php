@@ -79,7 +79,7 @@
                 <td>{{ $totalProduct }}</td>
                 <td>{{ $noofProductInStock }}</td>
                 <td>{{ $productUpdated }}</td>
-                <td>{{ ($noofProductInStock - $productUpdated) }}</td>
+                <td>{{ ($totalProduct - $productUpdated) }}</td>
                 <td> <a class="action btn btn-action" data-id="" data-title="History" data-toggle="modal" data-target="#history-modal">History</a></tr>
         </tbody>
     </table>
@@ -158,22 +158,16 @@
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Total Product</th>
-                <th>No of product in stock</th>
                 <th>No of product Updated</th>
-                <th>No of product Not updated</th>
                 
             </tr>
         </thead>
         <tbody>
             <?php foreach($history as $h) { ?>
-                        <tr>
-                <td><?php echo $h['date'];?></td>            
-                <td>{{ $h['totalProduct'] }}</td>
-                <td>{{ $h['noofProductInStock'] }}</td>
-                <td>{{ $h['productUpdated'] }}</td>
-                <td>{{ ($h['noofProductInStock'] - $h['productUpdated']) }}</td>
-</tr>
+                <tr>
+                    <td><?php echo $h['date'];?></td>            
+                    <td>{{ $h['productUpdated'] }}</td>
+                </tr>
              <?php } ?> 
                </tbody>
     </table>
