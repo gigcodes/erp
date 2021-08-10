@@ -55,7 +55,7 @@ a {
 			      		</br>
 			      		RATE : {{:prop.hourly_rate}} {{:prop.currency}}
 			      		</br>
-			      		S/F PX : {{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}
+			      		S/F PX : {{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}
 					</td>
 					 
 			        <td>
