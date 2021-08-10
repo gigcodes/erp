@@ -1104,10 +1104,13 @@ class ProductInventoryController extends Controller
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
                 ->join("products as p", "p.id", "sp.product_id")
                 ->where("suppliers.supplier_status_id", 1)
-                ->groupBy("p.id")->count();
+                ->select(\DB::raw("count(p.id) as total"))->first();
+
+        $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
 
     	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
-    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->groupBy("p.id")->whereDate("last_cron_check",date("Y-m-d"))->count();
+    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->select(\DB::raw("count(p.id) as total"))->first();
+    	$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
 
 		$history=array();
 		$date=date('Y-m-d');
@@ -1116,7 +1119,7 @@ class ProductInventoryController extends Controller
 		{
 			$nStock = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->count();
 			$history[] = ['date'=>$date,'productUpdated'=>$nStock];
-		    $dates = date("Y-m-d",strtotime($date . ' - 1 day'));
+		    $date = date("Y-m-d",strtotime($date . ' - 1 day'));
 		}
 
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
