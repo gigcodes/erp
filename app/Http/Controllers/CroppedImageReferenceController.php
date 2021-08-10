@@ -20,7 +20,7 @@ class CroppedImageReferenceController extends Controller
      */
     public function index()
     {
-        $products = CroppedImageReference::with(['media', 'newMedia', 'httpRequestData'])->orderBy('id', 'desc')->paginate(50);
+        $products = CroppedImageReference::with(['media', 'newMedia'])->orderBy('id', 'desc')->paginate(50);
 
         return view('image_references.index', compact('products'));
     }
@@ -94,6 +94,7 @@ class CroppedImageReferenceController extends Controller
     public function grid(Request $request)
     {
         $query = CroppedImageReference::with(['differentWebsiteImages','product','httpRequestData.requestData','product.product_category'])->join('products','products.id', 'cropped_image_references.product_id');
+  
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
 
             if (is_array(request('category'))) {
@@ -152,7 +153,7 @@ class CroppedImageReferenceController extends Controller
                     $query->whereNull('cropped_image_references.new_media_id');
                 }
             }
-            $products = $query->select(["cropped_image_references.*"])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
+        $products = $query->select(["cropped_image_references.*"])->orderBy('cropped_image_references.id', 'desc')->paginate(50);
 
         } else {
 
@@ -160,11 +161,11 @@ class CroppedImageReferenceController extends Controller
             //     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
             // });
 
-            $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
-
-            $products = $query->select(["cropped_image_references.*"])->orderBy('cropped_image_references.id', 'desc')
+           $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
+			
+			     $products = $query->select(["cropped_image_references.*"])->orderBy('cropped_image_references.id', 'desc')
                 ->groupBy('cropped_image_references.original_media_id')
-                ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
+		           ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
                     $q->with('newMedia');
                 }])
                 ->paginate(50);
@@ -205,7 +206,6 @@ class CroppedImageReferenceController extends Controller
                 'total' => $total,
             ], 200);
         }
-        
         return view('image_references.grid', compact('products', 'total', 'pendingProduct', 'totalCounts', 'pendingCategoryProduct'));
     }
 
