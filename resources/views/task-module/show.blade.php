@@ -3493,9 +3493,19 @@ $(document).on("click",".btn-save-documents",function(e){
         var task_id = $(this).data("media-id");
         var taskdata = $(this).parent().find("#selector_id").val();
       
-        var type = $(this).parent().find("#selector_id").html().includes('DEVTASK') ? 'DEVTASK' : 'TASK';
-        // alert(type);
-// alert(taskdata);
+        console.log(task_id, taskdata);
+
+        var type = $(this).parent().find('#selector_id option[value="'+ taskdata +'"]').html().includes('DEVTASK') ? 'DEVTASK' : 'TASK';
+              
+        if($(this).parent().find("#selector_id").val() == ' '){
+            toastr["error"]('Please Select Task Or DevTask', "Message")
+            return false;
+        }
+       
+        // $(this).parent().find("#selector_id").val(' ').change();
+        // $(this).parent().find("#selector_id").html(' ').change();
+        
+// console.log($(this).parent().find("#selector_id").html(), type);
 
 		$.ajax({
             url: '/task/send',
@@ -3517,8 +3527,34 @@ $(document).on("click",".btn-save-documents",function(e){
             }
 			
         });
+        
 	});
 
+        $(document).on("click", ".send-to-sop-page",function(){
+            var id = $(this).data("id");
+            var task_id = $(this).data("media-id");
+      
+            $.ajax({
+            url: '/task/send-sop',
+            type: 'POST',
+            headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+            dataType:"json",
+			data: { id : id , task_id: task_id},
+            beforeSend: function() {
+				$("#loading-image").show();
+           	},
+            success:function(response) {
+                $("#loading-image").hide();
+                toastr["success"]("File Added Successfully In Sop");
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+			
+        });
+        });
      // on status change
 
         $(document).on('change', '.change-task-status', function () {

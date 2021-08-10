@@ -40,6 +40,7 @@ use App\UserRate;
 use Exception;
 use Response;
 use App\Hubstaff\HubstaffActivity;
+use App\Sop;
 
 
 class TaskModuleController extends Controller
@@ -2585,7 +2586,7 @@ class TaskModuleController extends Controller
                 'id'      => $id,
                 'user_id' => $user->id,
                 'task_id' => $taskdata,
-              
+               
                 'sent_to_user_id' => $userid,
               
                 'erp_user' => $task->assign_to,
@@ -2620,11 +2621,11 @@ class TaskModuleController extends Controller
             return response()->json([
                 'message' => 'Something Was Wrong'
             ],500);
-        }
+        
         
         return response()->json(["message" => "Sorry required fields is missing like id , userid"],500);
     }
-    
+}
     public function sendDocument(Request $request)
     {
         if ($request->id != null && $request->user_id != null) {
@@ -2658,7 +2659,40 @@ class TaskModuleController extends Controller
                 ], 500);
             }
         }  
-            return response()->json(["message" => "Sorry required fields is missing like phone"],500);
+            return response()->json(["message" => "Sorry required fields is missing like User, Phone"],500);
+
+    }
+
+    public function SendTaskSOP(Request $request){
+
+        // $media        = \Plank\Mediable\Media::find($request->id);
+        // $medialink = $media->getUrl();
+        // dd($medialink);
+
+
+      
+            $media        = \Plank\Mediable\Media::find($request->id);
+            $user         = \App\User::find($request->user_id);
+          
+            $task = Task::find($request->task_id);
+            $username = User::find($task->assign_to);
+          
+            // dd($username->name);
+            $userid = Auth::id();
+                
+                $params = Sop::create([
+                    'name' => $username->name,
+                    'content' => $media->getUrl(),
+                
+                ]);
+              
+                
+           
+       
+           return response()->json(["message" => "Data Added Successfully"]);
+
+    
+
 
     }
 	public function approveTimeHistory(Request $request) {

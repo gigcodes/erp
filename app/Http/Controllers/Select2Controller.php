@@ -271,7 +271,7 @@ class Select2Controller extends Controller
         if (!empty($request->q)) {
     
             $tasks->where(function ($q) use ($request) {
-                $q->where('subject', 'LIKE',  $request->q . '%');
+                $q->where('id', 'LIKE',  $request->q . '%')->orwhere('subject', 'LIKE',  $request->q . '%')->get();
             });
         }
         $tasks = $tasks->paginate(30); 
@@ -287,7 +287,7 @@ class Select2Controller extends Controller
             if (!empty($request->q)) {
         
                 $tasks->where(function ($q) use ($request) {
-                    $q->where('task_subject', 'LIKE',  $request->q . '%');
+                    $q->where('id', 'LIKE',  $request->q . '%')->orwhere('task_subject', 'LIKE',  $request->q . '%')->get();
                 });
             }
             $tasks = $tasks->paginate(30); 

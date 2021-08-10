@@ -813,6 +813,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
 
     Route::post('/task/send', 'TaskModuleController@SendTask')->name('task.send/user');
+    Route::post('/task/send-sop', 'TaskModuleController@SendTaskSOP')->name('task.send/Sop');
 
     Route::get('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
