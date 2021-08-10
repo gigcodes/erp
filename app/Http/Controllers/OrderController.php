@@ -2246,10 +2246,19 @@ class OrderController extends Controller
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
                 $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
-                $customer_array  = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                $customer_array  = Customer::with('storeWebsite','orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+
+                // dd($customer_array);
                 if (!empty($customer_array)) {
                     $callBusyMessages['data'][$key]['customerid']    = $customer_array[0]['id'];
                     $callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
+                    $callBusyMessages['data'][$key]['store_website_id'] = $customer_array[0]['store_website_id'];
+
+                    if(count($customer_array[0]['store_website'])){
+                        $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];
+                    }
+
+
                     if (!empty($customer_array[0]['lead'])) {
                         $callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
                     }
@@ -2260,6 +2269,19 @@ class OrderController extends Controller
         return view('orders.missed_call', compact('callBusyMessages'));
 
     }
+
+    public function getOrdersFromMissedCalls(Request $request)
+    {
+            $callBusyMessages = CallBusyMessage::findOrFail($request->id);
+
+    $formatted_phone = str_replace('+91', '', $callBusyMessages->twilio_call_sid);
+
+    $customer_array  = Customer::with('orders')->where('phone', 'LIKE', "%$formatted_phone%")->first();
+    return response()->json($customer_array->orders);   
+    }
+
+
+
 
     public function callsHistory()
     {
