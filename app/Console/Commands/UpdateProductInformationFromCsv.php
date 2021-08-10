@@ -72,14 +72,13 @@ class UpdateProductInformationFromCsv extends Command
 
         // ProductPushInformation::truncate();
         // ProductPushInformationHistory::truncate();
-
-
+        // ProductPushInformationSummery::truncate();
 
         foreach ($prodcutInformation as $store_website_id => $file_url) {
 
             $client   = new Client();
             if (!$file_url) {
-                $this->error('Plese add url');
+                $this->error('Please add url');
             } else {
 
                 try {
@@ -99,6 +98,13 @@ class UpdateProductInformationFromCsv extends Command
                         $row++;
                         if ($row > 1) {
                             // dd($data);
+                            $availableProduct = Product::where('sku',$data[1])->first();
+                            $real_product_id  =null;
+                            if($availableProduct){
+                                $real_product_id = $availableProduct->id ?? null;
+                            }
+                
+
                             $updated =   ProductPushInformation::updateOrCreate(
                                 ['product_id' => $data[0],'store_website_id' => $store_website_id]
                                 , [
@@ -106,6 +112,10 @@ class UpdateProductInformationFromCsv extends Command
                                 'status' => $data[2],
                                 'quantity' => $data[3],
                                 'stock_status' => $data[4],
+                                'is_added_from_csv'=>1,
+                                'real_product_id'=>$real_product_id,
+                                'is_available'=>1,
+
                                 
                             ]);
                             $arr_id[] = $updated->product_id;
@@ -113,6 +123,8 @@ class UpdateProductInformationFromCsv extends Command
                     }
                 }
                     fclose($handle);
+                    ProductPushInformation::whereNotIn('product_id',$arr_id)->where('store_website_id',$store_website_id)->where('is_available',1)->update(['is_available'=>0]);
+
                     $this->info('product updated successfully');
                 }
 
@@ -127,7 +139,7 @@ class UpdateProductInformationFromCsv extends Command
                                     ->leftJoin('categories as c','c.id','p.category')
                                     ->leftJoin('store_websites as sw','sw.id','product_push_informations.store_website_id')
                                     ->groupBy(['b.id','c.id','sw.id'])
-                                    ->get();
+                                    ->get()
                                     ;
 
         foreach($summuryOfProducts as $summery){
