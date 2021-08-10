@@ -106,7 +106,7 @@ class HubstuffActivityCommand extends Command
                 if($today_week->dayOfWeek == Carbon::MONDAY){
                     // if ($diff_in_days == 7 ) {
                     
-                        $res = $tasks_controller->getActivityUsers(new Request(), $req);
+                        $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                         $z = (array) $res;
                         foreach($z as $zz){
                             if($path == null){
@@ -137,7 +137,7 @@ class HubstuffActivityCommand extends Command
             if($payment_frequency == "biweekly"){
 
                 if($today_week->dayOfWeek == Carbon::MONDAY || $today_week->dayOfWeek == Carbon::THURSDAY){
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req);
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     $z = (array) $res;
                     foreach($z as $zz){
                         if($path == null){
@@ -172,7 +172,7 @@ class HubstuffActivityCommand extends Command
 
                 if($date_fornightly == 15){
                     
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req);
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     $z = (array) $res;
                     foreach($z as $zz){
                         if($path == null){
@@ -215,7 +215,7 @@ class HubstuffActivityCommand extends Command
 
                 if($date_monthly == 1){
                     
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req);
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     $z = (array) $res;
                     foreach($z as $zz){
                         if($path == null){

@@ -2179,6 +2179,7 @@ class DevelopmentController extends Controller
         }
         if (strtolower($request->get('is_resolved')) == "done") {
             if(Auth::user()->isAdmin()) {
+                $is_team = 0;
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
@@ -2192,6 +2193,7 @@ class DevelopmentController extends Controller
                     $team_lead = \DB::table('teams')->where('id', $team_user->team_id)->first();
                     if($team_lead){
                         $dev_task_user = User::find($team_lead->user_id); 
+                        $is_team = 1;
                     }
                 } 
                 if(empty($dev_task_user)){
@@ -2199,7 +2201,8 @@ class DevelopmentController extends Controller
                 } 
                 if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) { 
                     return response()->json([
-                        'message'	=> 'Please provide salary payment method for user.'
+                        // 'message'	=> 'Please provide salary payment method for user. '
+                        'message'	=> 'Please provide salary payment method for '.$dev_task_user->name.' .'
                     ],500);
                 }
                 // dd($dev_task_user);
@@ -2243,7 +2246,8 @@ class DevelopmentController extends Controller
                         }
                     }else{
                         return response()->json([
-                            'message'   => 'Please provide hourly rate of user.'
+                            // 'message'   => 'Please provide hourly rate of user.'
+                            'message'   => 'Please provide hourly rate for '.$dev_task_user->name.' .'
                         ],500);
                     }  
                     $payment_receipt = new PaymentReceipt;
