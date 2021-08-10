@@ -1106,10 +1106,15 @@ class ProductInventoryController extends Controller
 
 		$history=array();
 		$date=date('Y-m-d');
+		$date=date("Y-m-d",strtotime($date . ' - 1 day'));
 		for($count=0;$count<7;$count++)
 		{
 			$tp =  \App\Product::whereDate('created_at' ,'<=',$date )->count();
-    	    $nStock =  \App\Product::whereDate('created_at' ,'<=',$date )->where("stock",">",0)->count();
+    	    $nStock =  \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->first();
+			if ($nStock)
+			  $nStock=$nStock->in_stock ;
+			else
+			  $nStock=0;   
     	    $pUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",$date)->count();
            
 			$history[]=['date'=>$date,'totalProduct'=>$tp,'noofProductInStock'=>$nStock,'productUpdated'=>$pUpdated];
