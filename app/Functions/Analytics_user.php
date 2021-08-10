@@ -58,6 +58,7 @@ function getReportRequest($analytics, $request)
         }else{
             $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
         }
+
         if (file_exists($websiteKeyFile)) {
             $client = new Google_Client();
             $client->setAuthConfig($websiteKeyFile);
@@ -378,4 +379,105 @@ function printAudienceResults($reports, $websiteAnalyticsId)
         }
         return true;
     }
+}
+
+function getGoogleAnalyticData( $analytics, $request){
+
+    // Create the Dimensions object.
+    $dimension = new Google_Service_AnalyticsReporting_Dimension();
+    $dimension->setName('ga:userType');
+
+    $pagePath = new Google_Service_AnalyticsReporting_Dimension();
+    $pagePath->setName('ga:pagePath');
+
+    $browser = new Google_Service_AnalyticsReporting_Dimension();
+    $browser->setName('ga:browser');
+
+    $operatingSystem = new Google_Service_AnalyticsReporting_Dimension();
+    $operatingSystem->setName('ga:operatingSystem');
+
+    $country = new Google_Service_AnalyticsReporting_Dimension();
+    $country->setName('ga:country');
+    
+    $countryIsoCode = new Google_Service_AnalyticsReporting_Dimension();
+    $countryIsoCode->setName('ga:countryIsoCode');
+
+    $userAge = new Google_Service_AnalyticsReporting_Dimension();
+    $userAge->setName('ga:userAgeBracket');
+
+    $userGender = new Google_Service_AnalyticsReporting_Dimension();
+    $userGender->setName('ga:userGender');
+
+    $request->setDimensions(array( $dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode));
+    // $request->setDimensions(array( $dimension, $pagePath, $browser, $operatingSystem, $country, $countryIsoCode, $userAge, $userGender));
+
+    // Create the Metrics object.
+    $metric = new Google_Service_AnalyticsReporting_Metric();
+    $metric->setExpression("ga:avgTimeOnPage");
+    $metric->setAlias("avgTimeOnPage");
+
+    $uniquePageviews = new Google_Service_AnalyticsReporting_Metric();
+    $uniquePageviews->setExpression("ga:uniquePageviews");
+    $uniquePageviews->setAlias("uniquePageviews");
+
+    $pageviews = new Google_Service_AnalyticsReporting_Metric();
+    $pageviews->setExpression("ga:pageviews");
+    $pageviews->setAlias("pageviews");
+
+    $exitRate = new Google_Service_AnalyticsReporting_Metric();
+    $exitRate->setExpression("ga:exitRate");
+    $exitRate->setAlias("exitRate");
+
+    $entrances = new Google_Service_AnalyticsReporting_Metric();
+    $entrances->setExpression("ga:entrances");
+    $entrances->setAlias("entrances");
+
+    $entranceRate = new Google_Service_AnalyticsReporting_Metric();
+    $entranceRate->setExpression("ga:entranceRate");
+    $entranceRate->setAlias("entranceRate");
+
+    $session = new Google_Service_AnalyticsReporting_Metric();
+    $session->setExpression("ga:sessions");
+    $session->setAlias("session");
+
+    $request->setMetrics( array( $metric, $uniquePageviews, $pageviews, $exitRate, $entrances, $entranceRate, $session) );
+
+    $body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+    $body->setReportRequests(array($request));
+
+    return $analytics->reports->batchGet($body);
+}
+
+function printGoogleAnalyticResults($reports, $websiteAnalyticsId)
+{    
+    for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
+        $report = $reports[$reportIndex];
+        $rows   = $report->getData()->getRows();
+        foreach ($rows as $key => $value) {
+            $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
+            $data[$key]['user_type'] = $value['dimensions']['0'];
+            $data[$key]['page'] = $value['dimensions']['1'];
+            $data[$key]['browser'] = $value['dimensions']['2'];
+            $data[$key]['os'] = $value['dimensions']['3'];
+            $data[$key]['country'] = $value['dimensions']['4'];
+            $data[$key]['iso_code'] = $value['dimensions']['5'];
+            // $data[$key]['age'] = $value['dimensions']['6'];
+            // $data[$key]['gender'] = $value['dimensions']['7'];
+            $data[$key]['created_at'] = now();
+            foreach ($value['metrics'] as $m_key => $m_value) {
+                $data[$key]['avg_time_page']     = $m_value['values'][0];
+                $data[$key]['unique_page_views'] = $m_value['values'][1];
+                $data[$key]['page_view']        = $m_value['values'][2];
+                $data[$key]['exit_rate']         = $m_value['values'][3];
+                $data[$key]['entrances']         = $m_value['values'][4];
+                $data[$key]['entrance_rate']     = $m_value['values'][5];
+                $data[$key]['session']     = $m_value['values'][6];
+            }
+
+            \App\GoogleAnalyticData::insert( $data );
+            $data = null;
+        }
+        return true;
+    }
+    
 }
