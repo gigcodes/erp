@@ -58,7 +58,7 @@ class StoreImageFromScraperProduct extends Command
                 if($scrapedProducts) {
                     // delete image which is original 
                     //\DB::table("mediables")->where("mediable_type",\App\Product::class)->where("mediable_id",$im->id)->where("tag","original")->delete();
-                    $listOfImages = json_decode($scrapedProducts->images,true);
+                    $listOfImages = $scrapedProducts->images;
                     $this->info("Product images found => ".count($listOfImages));
                     /*if(!empty($listOfImages)) {
                         $im->attachImagesToProduct($listOfImages);
