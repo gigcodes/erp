@@ -68,7 +68,8 @@
 </div>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb p-0">
-		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
+		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
+		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
 		<div class="pull-right pr-2">
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
 				<button style=" color: #757575" class="btn btn-secondary btn-image">
@@ -534,7 +535,7 @@
 	//     });
 
 	function saveCategory() {
-		websiteId = $('#website_id').val()
+		var websiteId = $('#website_id_data').val();//$('#website_id').val()
 		var text = $('#add-category').val()
 		if (text === '') {
 			alert('Please Enter Text');
