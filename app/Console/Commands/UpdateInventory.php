@@ -57,7 +57,7 @@ class UpdateInventory extends Command
                 ->where(function ($q) {
                     $q->whereDate("last_cron_check", "!=", date("Y-m-d"))->orWhereNull('last_cron_check');
                 })
-                ->limit(100)
+                ->limit(500)
                 ->where("suppliers.supplier_status_id", 1)
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime", "p.id as product_id", "suppliers.id as supplier_id", "sp.id as sproduct_id", "p.isUploaded","p.color")->get()->groupBy("sku")->toArray();
 

@@ -86,7 +86,7 @@
                             {{isset($product->size) ? $product->size : "-"}}
                         </td>
                         <td>
-                            {{isset($product->product->category) ? $product->product->categories->title : "-"}}
+                            {{isset($product->product->categories) ? $product->product->categories->title : "-"}}
                         </td>
                         <td>
                             {{isset($product->composition) ? $product->composition : "-"}}

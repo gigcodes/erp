@@ -10,6 +10,9 @@ use App\CustomerCharity;
 use App\VendorCharity;
 use App\Setting;
 use App\User;
+use App\Category;
+use App\Brand;
+use App\Product;
 use App\VendorCategory;
 
 class CustomerCharityController extends Controller
@@ -165,7 +168,7 @@ class CustomerCharityController extends Controller
                     SELECT *,
                     (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
-                    (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
+                    (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at 
                     FROM (SELECT customer_charities.id, customer_charities.frequency, customer_charities.is_blocked ,customer_charities.reminder_message, customer_charities.category_id, customer_charities.name, customer_charities.phone, customer_charities.email, customer_charities.address, customer_charities.social_handle, customer_charities.website, customer_charities.login, customer_charities.password, customer_charities.gst, customer_charities.account_name, customer_charities.account_iban, customer_charities.account_swift,
                         customer_charities.created_at,customer_charities.updated_at,
                         customer_charities.updated_by,
@@ -174,13 +177,16 @@ class CustomerCharityController extends Controller
                         customer_charities.status,
                         category_name,
                     chat_messages.message_id 
-                    FROM customer_charities
+                    FROM customer_charities 
+
                     LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
                     ON customer_charities.id = chat_messages.vendor_id
+
                     LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
                     ON customer_charities.category_id = vendor_categories.id WHERE ' . $whereArchived . '
                     )
                     AS customer_charities
+ 
                     WHERE (name LIKE "%' . $term . '%" OR
                     phone LIKE "%' . $term . '%" OR
                     email LIKE "%' . $term . '%" OR
@@ -299,7 +305,7 @@ class CustomerCharityController extends Controller
       if($id == null){
           $charity = CustomerCharity::create($data); 
           $charity_category = Category::where('title', 'charity')->first();
-          $charity_category = Brand::where('name', 'charity')->first();
+          $charity_brand = Brand::where('name', 'charity')->first();
           $product = new Product(); 
           $product->sku = '';
           $product->name = $charity->name;

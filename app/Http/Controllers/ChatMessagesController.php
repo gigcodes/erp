@@ -239,7 +239,7 @@ class ChatMessagesController extends Controller
         foreach ($chatMessages as $chatMessage) {
 
             $objectname = null;
-            if($request->object == 'customer' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
+            if($request->object == 'customer' || $request->object == 'charity' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
                 $objectname = $object->name;
             }
             if($request->object == 'task' || $request->object == 'developer_task') {

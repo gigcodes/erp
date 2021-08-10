@@ -14,6 +14,7 @@
 use App\Helpers\TwilioHelper;
 
 Auth::routes();
+
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 
 //Route::get('unused_category', 'TestingController@Demo');
@@ -78,6 +79,11 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
 
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
+    Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
+    Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
+    Route::get('/accounts/status/{id}', 'GoogleWebMasterController@statusAccount')->name('googlewebmaster.account.status');
+    Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
+    Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
 });
 
@@ -98,11 +104,15 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
     Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', 'Logging\LogListMagentoController@updateProductPushInformation')->name('update.magento.product-push-information');    
+
+    Route::get('list-magento/product-push-update-infomation/summery', 'Logging\LogListMagentoController@updateProductPushInformationSummery')->name('update.magento.product-push-information-summery');    
     Route::post('list-magento/product-push-update-website', 'Logging\LogListMagentoController@updateProductPushWebsite')->name('update.magento.product-push-website');    
 
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
-    Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
+    Route::get('list-magento/export', 'Logging\LogListMagentoController@export')->name('list.magento.logging.export');
+    
+	Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', 'Logging\LogListMagentoController@productInformation')->name('list.magento.product-information');
     Route::get('list-magento/retry-failed-job', 'Logging\LogListMagentoController@retryFailedJob')->name('list.magento.retry-failed-job');
@@ -232,6 +242,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('users/status-change', 'UserController@statusChange');
     Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
     Route::get('users/add-system-ip', 'UserController@addSystemIp');
+    Route::post('users/add-system-ip-from-text', 'UserController@addSystemIpFromText');
     Route::get('users/delete-system-ip', 'UserController@deleteSystemIp');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
@@ -262,6 +273,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
 
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
@@ -269,6 +283,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
+    Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
 
 
@@ -814,6 +829,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
     //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
+
+    Route::post('/task/send', 'TaskModuleController@SendTask')->name('task.send/user');
+    Route::post('/task/send-sop', 'TaskModuleController@SendTaskSOP')->name('task.send/Sop');
 
     Route::get('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
@@ -1494,9 +1512,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
+    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
+   
+   
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');
@@ -1862,6 +1882,8 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+Route::get('whatsapp/pollTicketsCustomer', 'WhatsAppController@pollTicketCustomer');
+Route::get('whatsapp/pollTickets/{context}', 'WhatsAppController@pollMessages');
 Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
@@ -3207,6 +3229,8 @@ Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixControl
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
@@ -3267,6 +3291,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
     Route::get('categories', 'Select2Controller@allCategory')->name('select2.categories');
     Route::get('websites', 'Select2Controller@allWebsites')->name('select2.websites');
+    Route::get('tasks', 'Select2Controller@allTasks')->name('select2.tasks');
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
@@ -3295,3 +3320,6 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
     Route::get('/records', 'ChatMessagesController@customChatRecords');
 });
 
+Route::prefix('lead-order')->middleware('auth')->group(static function(){
+    Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
+});

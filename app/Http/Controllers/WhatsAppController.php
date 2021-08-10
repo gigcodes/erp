@@ -2077,12 +2077,27 @@ class WhatsAppController extends FindByNumberController
                     $data['message'] = $request->get('message');
                 }
 
+<<<<<<< HEAD
+=======
+            } elseif ($context == 'charity') {
+                $data['charity_id'] = $request->vendor_id;
+                $charity = CustomerCharity::where('id', $request->vendor_id)->first();
+                $module_id = $request->vendor_id; 
+                if ($request->get('message')) {
+                    $data['message'] = $request->get('message');
+                }
+
+>>>>>>> 460cada877d1d67b33859d84b3413e08711c4a62
                 // update message for chatbot request->vendor_id
                 if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                 }
                 unset($data['vendor_id']);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 460cada877d1d67b33859d84b3413e08711c4a62
             } elseif ($context == 'task') {
                 $data['task_id'] = $request->task_id;
                 $task = Task::find($request->task_id);
@@ -3612,6 +3627,238 @@ class WhatsAppController extends FindByNumberController
      *
      * @return \Illuminate\Http\Response
      */
+    public function pollTicket(Request $request, $context)
+    {
+        $params = [];
+        $result = [];
+        $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
+
+        switch ($context) {
+            case 'customer':
+                $column = 'customer_id';
+                $column_value = $request->customerId;
+                break;
+            case 'purchase':
+                $column = 'purchase_id';
+                $column_value = $request->purchaeId;
+                break;
+            default :
+                $column = 'customer_id';
+                $column_value = $request->customerId;
+        }
+
+        $messages = ChatMessage::select(['id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'resent', 'created_at', 'media_url', 'message'])->where($column, $column_value)->latest();
+
+        // IS IT NECESSARY ?
+        if ($request->get("elapse")) {
+            $elapse = (int)$request->get("elapse");
+            $date = new \DateTime;
+            $date->modify(sprintf("-%s seconds", $elapse));
+            // $messages = $messages->where('created_at', '>=', $date->format('Y-m-d H:i:s'));
+        }
+
+        foreach ($messages->get() as $message) {
+            $messageParams = [
+                'id' => $message->id,
+                'number' => $message->number,
+                'assigned_to' => $message->assigned_to,
+                'created_at' => Carbon::parse($message->created_at)->format('Y-m-d H:i:s'),
+                'approved' => $message->approved,
+                'status' => $message->status,
+                'user_id' => $message->user_id,
+                'sent' => $message->sent,
+                'resent' => $message->resent,
+            ];
+
+            if ($message->media_url) {
+                $messageParams['media_url'] = $message->media_url;
+                $headers = get_headers($message->media_url, 1);
+                $messageParams['content_type'] = $headers["Content-Type"][1];
+            }
+
+            if ($message->message) {
+                $messageParams['message'] = $message->message;
+            }
+
+            if ($message->hasMedia(config('constants.media_tags'))) {
+                $images_array = [];
+
+                foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
+                    $temp_image = [
+                        'key' => $image->getKey(),
+                        'image' => $image->getUrl(),
+                        'product_id' => '',
+                        'special_price' => '',
+                        'size' => ''
+                    ];
+
+                    $image_key = $image->getKey();
+
+                    $product_image = Product::with('Media')
+                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key)")
+                        // ->whereHas('Media', function($q) use($image) {
+                        //    $q->where('media.id', $image->getKey());
+                        // })
+                        ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+
+                    if ($product_image) {
+                        $temp_image['product_id'] = $product_image->id;
+                        $temp_image['special_price'] = $product_image->price_inr_special;
+
+                        $string = $product_image->supplier;
+                        $expr = '/(?<=\s|^)[a-z]/i';
+                        preg_match_all($expr, $string, $matches);
+                        $supplier_initials = implode('', $matches[0]);
+                        $temp_image['supplier_initials'] = strtoupper($supplier_initials);
+
+                        if ($product_image->size != null) {
+                            $temp_image['size'] = $product_image->size;
+                        } else {
+                            $temp_image['size'] = (string)$product_image->lmeasurement . ', ' . (string)$product_image->hmeasurement . ', ' . (string)$product_image->dmeasurement;
+                        }
+                    }
+
+                    array_push($images_array, $temp_image);
+                }
+
+                $messageParams['images'] = $images_array;
+            }
+
+            $result[] = array_merge($params, $messageParams);
+        }
+
+        $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+
+        if ($request->page) {
+            $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+        } else {
+            $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+        }
+
+        $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+        return response()->json($result);
+    }
+
+    public function pollTicketCustomer(Request $request)
+    {
+        // Remove time limit
+        set_time_limit(0);
+
+        $params = [];
+        $result = [];
+        
+        if ($request->erpUser) {
+            $column = 'erp_user';
+            $value = $request->erpUser;
+        }
+
+        $select_fields = ['id', 'customer_id', 'number', 'user_id', 'erp_user', 'assigned_to', 'approved', 'status', 'sent', 'error_status', 'resent', 'created_at', 'media_url', 'message'];
+        
+        $messages = ChatMessage::select($select_fields)->where($column, $value);
+
+        $selectArray[] = 'tickets.*'; 
+        $selectArray[] = 'users.name AS assigned_to_name'; 
+        $query = \App\Tickets::query();
+        $query = $query->leftjoin('users','users.id', '=', 'tickets.assigned_to');
+        $query = $query->select($selectArray);
+
+        if($request->ticket_id)
+        {
+            $query = $query->where('ticket_id', $request->ticket_id);
+        }
+
+        if($request->users_id !='')
+        {
+            $query = $query->where('assigned_to', $request->users_id);
+        }
+        
+        if($request->term !=""){
+
+            $query = $query->where('tickets.name', 'LIKE','%'.$request->term.'%')->orWhere('tickets.email', 'LIKE', '%'.$request->term.'%');
+        }
+
+        if($request->search_country !=""){
+
+            $query = $query->where('tickets.country', 'LIKE','%'.$request->search_country.'%');
+        }
+
+        if($request->search_order_no !=""){
+
+            $query = $query->where('tickets.order_no', 'LIKE','%'.$request->search_order_no.'%');
+        }
+
+        if($request->search_phone_no !=""){
+
+            $query = $query->where('tickets.phone_no', 'LIKE','%'.$request->search_phone_no.'%');
+        }
+        
+        if($request->serach_inquiry_type !=""){
+
+            $query = $query->where('tickets.type_of_inquiry', 'LIKE','%'.$request->serach_inquiry_type.'%');
+        }
+        
+        if($request->status_id !='')
+        {
+            $query = $query->where('status_id', $request->status_id);
+        }
+
+        if($request->date !='')
+        {
+            $query = $query->whereDate('date', $request->date);
+        }
+        $data = $query->orderBy('date', 'DESC')->get();
+
+        foreach ($data as $message) {
+            
+            $messageParams = [
+                'ticket_id' => substr($message->ticket_id, -5),
+                'source_of_ticket' => str_limit($message->source_of_ticket,10),
+                'name' => $message->name,
+                'email' => str_limit($message->email,6),
+                'subject' => str_limit($message->subject,4),
+                'assigned_to_name' => $message->assigned_to_name,
+                'type_of_inquiry' => $message->type_of_inquiry,
+                'country' => $message->country,
+                'order_no' => str_limit($message->order_no,4),
+                'phone_no' => str_limit($message->phone_no,5),
+                'status_id' => $message->status_id,
+                'brand' => $message->brand,
+                'style' => $message->style,
+                'keyword' => $message->keyword,
+                'image' => $message->image,
+                'id' => $message->id
+            ];
+
+            if ($message->message) {
+                $messageParams['message'] = str_limit($message->message,5);
+            }
+
+            $result[] = array_merge($params, $messageParams);
+        }
+
+        $result = array_values(collect($result)->sortBy('ticket_id')->reverse()->toArray());
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10000;
+
+        if ($request->page) {
+            $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
+
+        } else {
+            $currentItems = array_reverse(array_slice($result, $perPage * ($currentPage - 1), $perPage));
+            $result = array_reverse($result);
+        }
+
+        $result = new LengthAwarePaginator($currentItems, count($result), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
+        return response()->json($result);
+    }
+
     public function pollMessages(Request $request, $context)
     {
         $params = [];
@@ -4161,7 +4408,11 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
+<<<<<<< HEAD
             if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
+=======
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'charity' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
+>>>>>>> 460cada877d1d67b33859d84b3413e08711c4a62
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4226,6 +4477,11 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'hubstuff') { 
                     $user = User::find($message->hubstuff_activity_user_id);
                     $phone = $user->phone;
+                    $whatsapp_number = Auth::user()->whatsapp_number;
+                }
+                if ($context == 'charity') { 
+                    $charity = CustomerCharity::find(1);
+                    $phone = $charity->phone;
                     $whatsapp_number = Auth::user()->whatsapp_number;
                 }
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);

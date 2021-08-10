@@ -5,13 +5,24 @@ namespace App\Http\Controllers;
 use App\ApiResponseMessage;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
+use App\Setting;
 
 class ApiResponseMessageController extends Controller
 {
 
-    public function index(){
-        $api_response = ApiResponseMessage::with(['storeWebsite'])->orderBy('created_at','desc')->get();
+    public function index(Request $request){
+        $api=ApiResponseMessage::with(['storeWebsite']);
+        if ($request->store_website_id!='')
+            $api->where('store_website_id',$request->store_website_id);
+        $api_response =$api->orderBy('created_at','desc')->paginate(Setting::get('pagination'));
         $store_websites = StoreWebsite::orderBy('created_at','desc')->get();
+        if ($request->ajax())
+        {
+            $page=$request->page;
+            $count= ($page -1) * 15;
+            return view('apiResponse/index_ajax',compact('api_response','store_websites','count'));
+        }
+        else
         return view('apiResponse/index',compact('api_response','store_websites'));
     }
 

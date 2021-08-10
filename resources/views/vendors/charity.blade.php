@@ -422,7 +422,7 @@
                 }
             }).done(function (response) {
                 thiss.removeClass('fa-spinner').addClass('fa-upload')
-                toastr['success']('Request Send successfully', 'Success')
+                toastr['success']('Charity pushed to magento sites.', 'Success')
                 $('#product' + id).hide();
             }));
 
@@ -1272,7 +1272,7 @@
                 
             })
         });
-    $('ul.pagination').hide();
+        $('ul.pagination').hide();
     $('.infinite-scroll').jscroll({
         autoTrigger: true,
         // debug: true,

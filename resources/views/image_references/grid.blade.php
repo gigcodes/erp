@@ -138,7 +138,7 @@
         </div>
    
 
-        {!! $products->links() !!}
+        
         <div class="col-md-12">
             <div class="table-responsive">
                 <table class="table-striped table-bordered table" id="log-table">
@@ -149,6 +149,7 @@
                         <th>Category</th>
                         <th>Supplier</th>
                         <th>Brand</th>
+                        <th>Store Website</th>
                         <th>Original Image</th>
                         <th>Cropped Image</th>
                         <th>Time</th>
@@ -174,6 +175,27 @@
                     <h4 class="modal-title">Communication</h4>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="show-http-status" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:100%;max-width:96%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">HTTP Status</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>Request:</h4>
+                    <div class="request-body"></div>
+
+                    <h4>Response:</h4>
+                    <div class="response-body"></div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -303,8 +325,9 @@
 </script>
 
  <script type="text/javascript">
+ var page = 1;
         $(document).ready(function () {
-            $('#brand,#category,#crop,#supplier,#status,#filter-id').on('change', function () {
+			$('#brand,#category,#crop,#supplier,#status,#filter-id').on('change', function () {
                 $.ajax({
                     url: '/crop-references-grid',
                     dataType: "json",
@@ -315,6 +338,7 @@
                         supplier : $('#supplier').val(),
                         status : $('#status').val(),
                         filter_id : $('#filter-id').val(),
+						page: page
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
@@ -626,6 +650,58 @@
             });
         });
 
+        $('#show-http-status').on('show.bs.modal', function (e) {
+            $(this).find('.request-body').text(JSON.stringify($(e.relatedTarget).data('request')));
+            $(this).find('.response-body').text(JSON.stringify($(e.relatedTarget).data('response')));
+        });
+//START - Load More functionality
+	var isLoading = false;
+	//var page = 1;
+	$(document).ready(function () {
+
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: '/crop-references-grid',
+				type: 'GET',
+				data: {
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    crop : $('#crop').val(),
+                    supplier : $('#supplier').val(),
+                    status : $('#status').val(),
+                    filter_id : $('#filter-id').val(),
+                    page : page,
+                },
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					$loader.hide();
+					$('#content_data').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
     </script>
 
 @endsection

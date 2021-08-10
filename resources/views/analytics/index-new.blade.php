@@ -75,7 +75,7 @@
 @include('partials.flash_messages')
 @include('analytics.history')
 
-<div class="col-md-12">
+{{-- <div class="col-md-12">
     <div id="exTab2" >
         <ul class="nav nav-tabs">
             <li class="{{ request('geo-network') || request('audience-per-page') || request('user-per-page') || request('tracking-per-page') ? '' : 'active' }}"><a  href="#browser" data-toggle="tab">Platform or Device</a></li>
@@ -264,6 +264,61 @@
     </div>
 
     
+</div> --}}
+
+<div class="col-md-12">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Website</th>
+                <th>Browser</th>
+                <th>Operating System</th>
+                <th>Country</th>
+                <th>Country Iso Code</th>
+                <th>User Type</th>
+                <th>Paeg</th>
+                <th>Avg Time Page</th>
+                <th>Page Views</th>
+                <th>Unique Page Views</th>
+                <th>Exist Rate</th>
+                <th>Entrances</th>
+                <th>Entrance Rate</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Session</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($google_analytics_data as $data)
+                <tr>
+                    <td>{{ $data->website }}</td>
+                    <td>{{ $data->browser }}</td>
+                    <td>{{ $data->os }}</td>
+                    <td>{{ $data->country }}</td>
+                    <td>{{ $data->iso_code }}</td>
+                    <td>{{ $data->user_type }}</td>
+                    <td>{{ $data->page }}</td>
+                    <td>{{ $data->avg_time_page }}</td>
+                    <td>{{ $data->page_view }}</td>
+                    <td>{{ $data->unique_page_views }}</td>
+                    <td>{{ $data->exit_rate }}</td>
+                    <td>{{ $data->entrances }}</td>
+                    <td>{{ $data->entrance_rate }}</td>
+                    <td>{{ $data->age }}</td>
+                    <td>{{ $data->gender }}</td>
+                    <td>{{ $data->session }}</td>
+                    <td>{{ $data->created_at }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+        @if (count($google_analytics_data) === 0)
+            <div style="text-align:center"><h3 style="color: gray">No Data Availble</h3></div>    
+        @endif
+    <div>
+        <tr>{{ $google_analytics_data->links() }}</tr>
+    </div>
 </div>
 <div class="row mt-5">
     <div class="container-fluid">
@@ -293,7 +348,7 @@
                     $.each(result.data,function(k,v) {
                         t += `<tr><td>`+v.id+`</td>`;
                         t += `<td>`+v.website+`</td>`;
-                        t += `<td>`+v.title+`</td>`;
+                        t += `<td data-title = "`+v.title+`">`+v.title+`</td>`;
                         t += `<td>`+v.description+`</td>`;
                         t += `<td>`+v.created_at+`</td></tr>`;
                     });
@@ -317,5 +372,26 @@
         $('.url').text(fullpath);
         $('#fullUrlModal').modal('show');
     }
+    
+
+    $(document).on('change','.category-history-filter',function(){
+        var value = $(this).val();
+        if (value == 'error') {
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').hide();
+        }
+        if (value == 'success') {
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').hide();
+        }
+        if (!value) {
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').show();
+        }
+    })
+
+    $('#category-history-modal').on('hidden.bs.modal', function () {
+        $('#category-history-modal').find('.category-history-filter').val('');
+    })
 </script>
 @endsection

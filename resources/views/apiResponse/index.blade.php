@@ -235,7 +235,7 @@ form label.required:after{
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <!-- <form id="coupon-form" method="POST" onsubmit="return executeCouponOperation();"> -->
-        <form id="edit-form" method="POST" >
+        <form id="edit-form"  method="POST" >
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Edit Api Response</h5>
@@ -264,7 +264,37 @@ form label.required:after{
 <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
 @endif
 
+<form class="form-search-data">
+               
+               <div class="row">
+                   
+                  
+                   
+                     
+                   <div class="col-xs-6 col-md-2 pd-2">
+                       <div class="form-group">
+                       <select class="form-control select select2 required" name="store_website_id"  >
+                                    <option value="">Please select Website</option>
+                                    @foreach($store_websites as $web)
+                                      <?php $sel='';
+                                      if (isset($_GET['store_website_id']) && $_GET['store_website_id']==$web->id)
+                                              $sel=" selected='selected' "; ?>
+                                        <option value="{{ $web->id }}" {{ $sel }} >{{ $web->title }}</option>
+                                    @endforeach
+                    </select>
+                       </div>
+                   </div>
+                   
+                  
 
+                   
+
+                   
+                   <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"></button>
+                   
+               </div>    
+               
+           </form>
 <div class="row">
     <div class="table-responsive">
         <table class="table table-striped table-bordered" style="width: 99%" id="api_response_table">
@@ -277,7 +307,7 @@ form label.required:after{
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="pending-row-render-view infinite-scroll-api-inner">
                 @php $i = 1; @endphp
                 @foreach($api_response as $res)
                     <tr>
@@ -286,8 +316,8 @@ form label.required:after{
                         <td>{{ $res->key }}</td>
                         <td>{{ $res->value }}</td>
                         <td>
-                            <a class="btn btn-warning" onclick="editModal({{ $res->id}});" href="javascript:void(0);">Edit</a>
-                            <a class="btn btn-danger" href="{{ route('api-response-message.responseDelete',['id' => $res->id]) }}">Delete</a>
+                            <a class="btn btn-secondary" onclick="editModal({{ $res->id}});" href="javascript:void(0);">Edit</a>
+                            <a class="btn btn-secondary" href="{{ route('api-response-message.responseDelete',['id' => $res->id]) }}">Delete</a>
                         </td>
                     </tr>
                     @php $i = $i+1; @endphp
@@ -296,6 +326,8 @@ form label.required:after{
         </table>
     </div>
 </div>
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
 @endsection
 
 @section('scripts')
@@ -314,7 +346,7 @@ form label.required:after{
             }
         });
 
-        $('#api_response_table').dataTable();
+      //  $('#api_response_table').dataTable();
         
     });
 
@@ -366,4 +398,50 @@ form label.required:after{
         }
     })
 </script>
+<script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+             $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('api-response')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-api-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+       
+
+  </script>      
+
 @endsection

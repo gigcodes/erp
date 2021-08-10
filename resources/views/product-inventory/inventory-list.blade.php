@@ -51,7 +51,7 @@ table tr td{
 </div>
 @endif
 <div class="col-lg-12 margin-tb">
-    <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start">
+    <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start filter-form-for-search">
         <div class="form-group mr-pd col-md-2">
             {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control','style' => 'width: 100%;']) !!}
         </div>
@@ -149,6 +149,7 @@ table tr td{
         </div>
         <div class="form-group mr-pd col-md-2">    
             <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
+            <button type="button" class="btn btn-secondary btn-change-status-all"></i>Change status all</button>
         </div>
         <div class="form-group mr-pd col-md-2">    
             <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
@@ -494,10 +495,10 @@ table tr td{
                 result += "<td>" + (data[value].id ? data[value].id :'-' )+ "</td>"
                 result += "<td>" + (data[value].sku ? data[value].sku :'-' )+ "</td>"
                 result += "<td>" + (data[value].title ? data[value].title : '-') + "</td>"
-                result += "<td>" + (data[value].categories ? data[value].categories :'-') +'/'+(data[value].brand['name'] ? data[value].brand['name'] :'-') + "</td>"
+                result += "<td>" + (data[value].categories ? data[value].categories :'-') +'/'+(data[value].brand_name) + "</td>"
                 result += "<td>" + (data[value].price ? data[value].price :'-' )+ "</td>"
                 result += "<td>" + (data[value].discounted_percentage ? data[value].discounted_percentage :'0') + "</td>"
-                result += "<td>" +  (data[value].supplier  ? data[value].supplier :'-')+ "</td>"
+                result += "<td>" +  (data[value].product_supplier  ? data[value].product_supplier :'-')+ "</td>"
                 result += "<td>" + (data[value].color ? data[value].color: '-' )+ "</td>"
                 result += "<td>" + (data[value].composition ? data[value].composition :'-') + "</td>"
                 result += "<td>" + (data[value].size_system ? data[value].size_system :'-') + "</td>"
@@ -818,6 +819,43 @@ return;
         .fail(function(jqXHR, ajaxOptions, thrownError) {
             console.error(jqXHR);
         });
+    });
+
+
+    $(document).on("click",".btn-change-status-all",function () {
+        var form = $(".filter-form-for-search");
+        var status = $(".change-status").val();
+        if(status == "") {
+            alert("please select status before proceed");
+            return false;
+        }
+
+        if(confirm("Are you sure you want to proceed ?")) {
+            $.ajax({
+                url: form.attr("action"),
+                type: form.attr("method"),
+                data : form.serialize()+'&'+$.param({"update_status" : true , "status_id_update" : $(".change-status").val()}),
+                dataType:"json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            })
+            .done(function(data) {
+                $("#loading-image").hide();
+                if(data.code == 200) {
+                    toastr['success'](data.message, 'success');
+                    location.reload();
+                }else{
+                    toastr['error'](data.message, 'error');
+                }
+            })
+            .fail(function(jqXHR, ajaxOptions, thrownError) {
+                $("#loading-image").show();
+                toastr['error']("Oops, Something went wrong!", 'error');
+                console.error(jqXHR);
+            });
+        }
+
     });
 
     $(document).on("click",".add-size-btn",function() {

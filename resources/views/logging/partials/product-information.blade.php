@@ -1,5 +1,5 @@
 <tr>
-    <td>{{ $data['sku'] }}</td>
+    <td><a target="__blank" href="{{ $data['supplier_link'] }}">{{ $data['sku'] }}</a></td>
     <td>{{ $data['description'] }}<br><b>Category:</b>{{ $data['category'] }}</td>
     <td>{{ $data['name'] }}</td>
     <td>{{ $data['price'] }}</td>
