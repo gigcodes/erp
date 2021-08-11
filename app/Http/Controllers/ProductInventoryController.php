@@ -1122,6 +1122,8 @@ class ProductInventoryController extends Controller
 		    $date = date("Y-m-d",strtotime($date . ' - 1 day'));
 		}
 
+		 
+
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
 
         return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct','history'));
