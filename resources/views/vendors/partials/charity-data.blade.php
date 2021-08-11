@@ -1,11 +1,10 @@
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
     $isHrm = Auth::user()->hasRole('HOD of CRM')
-
 @endphp
 @foreach ($vendors as $vendor)
 <tr>
-    <td>{{ $vendor->id }}</td>  
+    <td>{{ $vendor->id }}</td> 
     <td style="word-break: break-all;" class="expand-row">
         <div class="row">
             <div class="col-md-6 cls_remove_rightpadding">
@@ -32,7 +31,6 @@
     </td>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
-
     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
         <div class="row">
             <div class="col-md-8 form-inline cls_remove_rightpadding">
@@ -56,7 +54,6 @@
                                 ?>
                                 <?php 
                                 //echo Form::select("quickComment",["" => "Auto Reply"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]);
-
                                 ?>
                                 <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;" >
                                     <option  data-vendorid="{{ $vendor->id }}"  value="">Auto Reply</option>
@@ -105,17 +102,16 @@
         </div>
     </td>
 
-
-
     <td>
         <div class="cls_action_btn"> 
             <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#charityEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
-            {!! Form::open(['method' => 'DELETE','route' => ['vendors.destroy', $vendor->id],'style'=>'display:inline']) !!}
+            {!! Form::open(['method' => 'DELETE','route' => ['customer.charity.delete', $vendor->id],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn btn-image"><img src="<?php echo $base_url;?>/images/delete.png"/></button>
             {!! Form::close() !!}
-            
+            @if($vendor->product_id)
+                <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
+            @endif
         </div>
     </td>
 </tr>
 @endforeach
-   

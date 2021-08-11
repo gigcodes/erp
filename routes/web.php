@@ -277,6 +277,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
     Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
+    Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
+
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
