@@ -42,7 +42,7 @@ return [
         'mysql' => [
             'read' => [
                 'host' => [
-                    env('DB_HOST_READ', 'erp-mysql'),
+                    env('DB_HOST_READ', '127.0.0.1'),
                 ],
             ],
             'write' => [
@@ -54,12 +54,12 @@ return [
             'sticky' => true,
             'driver' => 'mysql',
             'port' => env('DB_PORT', '3306'),
-            // 'database' => env('DB_DATABASE', 'erp'),
-            // 'username' => env('DB_USERNAME', 'root'),
-            // 'password' => env('DB_PASSWORD', ''),
+            'database' => env('DB_DATABASE', 'erp'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
             'database' => env('DB_DATABASE', 'sololuxury'),
-            'username' => env('DB_USERNAME', 'homestead'),
-            'password' => env('DB_PASSWORD', 'secret'),
+            'username' => env('DB_USERNAME', 'vaibhav'),
+            'password' => env('DB_PASSWORD', 'jain'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
