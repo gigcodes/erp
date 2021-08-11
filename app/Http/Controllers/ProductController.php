@@ -2755,8 +2755,6 @@ class ProductController extends Controller
             }
 
             $res = [
-            // Return product
-            return response()->json([
                 'product_id' => $product->id,
                 'image_urls' => $images,
                 'l_measurement' => $product->lmeasurement,
