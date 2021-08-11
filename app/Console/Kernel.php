@@ -146,6 +146,7 @@ use App\Console\Commands\SendInstagramMessageInQueue;
 use App\Console\Commands\AddRoutesToGroups;
 use App\Console\Commands\UpdateProductInformationFromCsv;
 use App\Console\Commands\ConnectGoogleClientAccounts; 
+use App\Console\Commands\UpdateLanguageToGroup;
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
 use App\Console\Commands\UpdateCharities;
@@ -295,6 +296,7 @@ class Kernel extends ConsoleKernel
         AddRoutesToGroups::class,
         ConnectGoogleClientAccounts::class,
         UpdateCharities::class,
+        UpdateLanguageToGroup::class,
     ];
 
     /**
