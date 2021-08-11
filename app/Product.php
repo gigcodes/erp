@@ -103,6 +103,7 @@ class Product extends Model
         'suggested_color',
         'last_brand',
         'sub_status_id',
+        "is_cron_check"
     ];
 
     protected $dates         = ['deleted_at'];
