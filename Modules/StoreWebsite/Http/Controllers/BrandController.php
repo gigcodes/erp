@@ -159,7 +159,7 @@ class BrandController extends Controller
                 $apppliedResult[$raw->brand_id][] = $raw->store_website_id;
             }
         }
-		$limit = 35; 
+		$limit = 30; 
 		if ($request->ajax() && $request->pagination == null) {
 			$brands = $query->limit($limit)->offset(($request->page - 1)*$limit)->get();
             return response()->json([
