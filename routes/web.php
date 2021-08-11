@@ -1999,6 +1999,7 @@ Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest'
 
 
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
+Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
 
 Route::prefix('instagram')->middleware('auth')->group(function () {

@@ -238,6 +238,9 @@ button[disabled]:hover {
             <div class="pull-right">
                 <div class="row">
                 <div class="form-group mr-3 mb-3">    
+                    <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-sm" >Ceate Mailing List</a> 
+                </div>      
+                <div class="form-group mr-3 mb-3">    
                     <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
                 </div>        
                 <div class="form-group mr-3 mb-3">
