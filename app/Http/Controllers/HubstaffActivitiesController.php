@@ -29,6 +29,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Exports\HubstaffNotificationReport;
+use Mail;
+use App\Mails\Manual\HubstuffActivitySendMail;
 
 
 class HubstaffActivitiesController extends Controller
@@ -277,6 +279,136 @@ class HubstaffActivitiesController extends Controller
         }
         
         return response()->json(["code" => 500, "data" => [], "message" => "Requested id is not in database"]);
+    }
+
+    public function HubstaffActivityCommandExecution(Request $request)
+    {
+        $start_date    = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
+        $end_date      = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+
+        $users = User::where('payment_frequency', '!=' ,'')->get();
+        $today = Carbon::now()->toDateTimeString();
+
+        foreach ($users as $key => $user) {
+            
+            $user_id = $user->id;
+
+            $data["email"] = $user->email;
+            $data["title"] = "Hubstuff Activities Report";
+
+            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+
+            foreach ($tasks as $task) {
+                $task->user;
+
+                $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
+                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
+                if ($totalPaid) {
+                    $task->paid_amount = number_format($totalPaid, 2);
+                    $task->balance     = $task->rate_estimated - $totalPaid;
+                    $task->balance     = number_format($task->balance, 2);
+                } else {
+                    $task->paid_amount = 0;
+                    $task->balance     = $task->rate_estimated;
+                    $task->balance     = number_format($task->balance, 2);
+                }
+                // $task->assignedUser;
+                if ($task->task_id) {
+                    $task->taskdetails      = Task::find($task->task_id);
+                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task_details;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->approximate;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        } 
+                    }
+                } else if ($task->developer_task_id) {
+                    $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
+                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        }
+                    }
+                } else {
+                    $task->details          = $task->remarks;
+                    $task->estimate_minutes = $task->worked_minutes;
+                }
+            }
+
+            $activityUsers = collect([]);
+
+            foreach($tasks  as $task)
+            {
+                $a['date']        = $task->date;
+                $a['details']  = $task->details;
+
+                if($task->task_id)
+                    $category =  'Task #'.$task->task_id;
+                elseif($task->developer_task_id) 
+                    $category =  'Devtask #'.$task->developer_task_id;
+                else 
+                    $category =  'Manual';
+
+                $a['category']     = $category;
+                $a['time_spent']   = $task->estimate_minutes;
+                $a['amount']       = $task->rate_estimated;
+                $a['currency']     = $task->currency;
+                $a['amount_paid']  = $task->paid_amount;
+                $a['balance']  = $task->balance;
+                $activityUsers->push($a);
+            }
+
+
+            $total_amount = 0;
+            $total_amount_paid = 0;
+            $total_balance = 0;
+            foreach($activityUsers as $key => $value){
+                $total_amount += $value['amount'] ?? 0;
+                $total_amount_paid += $value['amount_paid'] ?? 0;
+                $total_balance += $value['balance'] ?? 0;
+            }
+
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $z = (array) $file_data;
+            $path = '';
+            foreach($z as $zz){
+                if($path == null){
+
+                    $path = $zz->getRealPath();
+
+                }
+            }
+            
+            $today = Carbon::now()->toDateTimeString();
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+            $storage_path = substr($path, strpos($path, 'framework'));
+            
+            PayentMailData::create([
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'file_path' => $storage_path,
+                'total_amount' => round($total_amount,2),
+                'total_amount_paid' => round($total_amount_paid,2),
+                'total_balance' => round($total_balance,2),
+                'payment_date' => $payment_date,
+                'command_execution' => "Manually",
+            ]);
+
+            Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
+                $message->to($data["email"], $data["email"])
+                        ->subject($data["title"])->attach($path);
+            });
+
+        }
     }
     
     public function getActivityUsers(Request $request, $params = null, $where = null)
