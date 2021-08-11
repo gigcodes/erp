@@ -779,7 +779,7 @@
 
 	function refreshPage() {
 		$.ajax({
-			url: '{{ route("site-development.index" , $website->id)}}',
+			url: window.location.href,
 			dataType: "json",
 			data: {},
 		}).done(function(data) {
