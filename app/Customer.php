@@ -36,6 +36,7 @@ class Customer extends Model
     // protected $appends = ['communication'];
     protected $fillable = [
         'name',
+        'email',
         'phone',
         'city',
         'whatsapp_number',
