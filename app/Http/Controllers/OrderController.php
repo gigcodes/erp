@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AutoReply;
 use App\CallBusyMessage;
+use App\CallBusyMessageStatus;
 use App\CallHistory;
 use App\CallRecording;
 use App\Category;
@@ -2236,12 +2237,12 @@ class OrderController extends Controller
 
     public function missedCalls()
     {
-
-        $callBusyMessages = CallBusyMessage::select('call_busy_messages.id', 'twilio_call_sid', 'message', 'recording_url', 'call_busy_messages.created_at')
+        $callBusyMessages = CallBusyMessage::with(['status'=>function($q){
+          return   $q->select('id','name','label');
+        }])
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
             ->orderBy('id', 'DESC')->paginate(20)->toArray();
-
-        foreach ($callBusyMessages['data'] as $key => $value) {
+            foreach ($callBusyMessages['data'] as $key => $value) {
 
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
@@ -2263,10 +2264,14 @@ class OrderController extends Controller
                         $callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
                     }
                 }
+                
+                // dd($callBusyMessages['data']['customerid']);
 
             }
         }
-        return view('orders.missed_call', compact('callBusyMessages'));
+
+        $allStatuses = CallBusyMessageStatus::get();
+        return view('orders.missed_call', compact('callBusyMessages','allStatuses'));
 
     }
 
@@ -2274,10 +2279,10 @@ class OrderController extends Controller
     {
             $callBusyMessages = CallBusyMessage::findOrFail($request->id);
 
-    $formatted_phone = str_replace('+91', '', $callBusyMessages->twilio_call_sid);
+            $formatted_phone = str_replace('+91', '', $callBusyMessages->twilio_call_sid);
 
-    $customer_array  = Customer::with('orders')->where('phone', 'LIKE', "%$formatted_phone%")->first();
-    return response()->json($customer_array->orders);   
+            $customer_array  = Customer::with('orders')->where('phone', 'LIKE', "%$formatted_phone%")->first();
+            return response()->json($customer_array->orders);   
     }
 
 
@@ -3617,6 +3622,62 @@ class OrderController extends Controller
             }
         }
          return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
+    }
+
+    public function addStatus(Request $request)
+    {
+        $label=preg_replace('/[^A-Za-z0-9-]+/', '-', $request->name);
+
+      $newStatus =   CallBusyMessageStatus::create([
+            'label'=>$label,
+            'name'=>$request->name
+        ]);
+
+        return response()->json(['data'=>  $newStatus,'message'=>$newStatus->name . ' status added successfully.']);
+
+    }
+
+    public function storeStatus(Request $request,$id)
+    {
+        $callBusyMessage = CallBusyMessage::find($id);
+        $callBusyMessage->call_busy_message_statuses_id = $request->selectedId;
+        $callBusyMessage->save();
+
+        return response()->json(['message'=> ' Status updated successfuly.']);
+
+
+    }
+
+
+    public function sendWhatappMessageOrEmail(Request $request)
+    {    $newValue=  array();
+        parse_str($request->formData,$newValue);
+
+        $newArr = $request->except(['_token','formData']);
+        $finalArr = array_merge( $newValue,$newArr);
+            $customer = null;
+        if($finalArr['customerId']){
+
+            $customer = Customer::find($finalArr['customerId']);
+
+        }else{
+            $formatted_phone = str_replace('+91', '', $finalArr['fullNumber']);
+            $customer  = Customer::where('phone', 'LIKE', "%$formatted_phone%")->first();
+            // $customer= Customer::where('')
+        }
+
+
+        // if(!empty($finalArr['whatsapp']) && !empty($customer) && !empty($customer->phone) && !empty($customer->whatsapp_number) &&  !empty($finalArr['message']) ){
+            
+        //     app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone,$customer->whatsapp_number, $finalArr['message']);
+            
+        // }
+        // if(!empty($finalArr['email'])  && !empty($finalArr['message']) ){
+           
+
+        // }
+
+
     }
 
 }

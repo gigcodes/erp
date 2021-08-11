@@ -44,4 +44,9 @@ class CallBusyMessage extends Model {
          return CallBusyMessage::where('caller_sid', '=', $sId)->first();
      }
 
+     public function status()
+     {
+         return $this->belongsTo(CallBusyMessageStatus::class,'call_busy_message_statuses_id','id');
+     }
+
 }
