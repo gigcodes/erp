@@ -180,43 +180,7 @@
             </div>
         </div>   
     </div>
-    @include('partials.flash_messages')
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel-group" style="margin-bottom: 5px;">
-                <div class="panel mt-3 panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
-                        </h4>
-                    </div>
-                    <div id="collapse1" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <table class="table table-bordered table-striped">
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Responsible User</th>
-                                </tr>
-                                @foreach($vendor_categories as $cat)
-                                    <tr>
-                                        <td>{{ $cat->title }}</td>
-                                        <td>
-                                            <select class="form-control update-category-user" data-categoryId="{{$cat->id}}" name="user_id" id="user_id_{{$cat->id}}">
-                                                <option value="">None</option>
-                                                @foreach($users as $user)
-                                                    <option value="{{$user->id}}" {{$user->id==$cat->user_id ? 'selected': ''}}>{{ $user->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('partials.flash_messages') 
     <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">

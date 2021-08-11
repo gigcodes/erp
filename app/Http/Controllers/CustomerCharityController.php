@@ -302,6 +302,8 @@ class CustomerCharityController extends Controller
       }  
   
   
+      unset($data['create_user_github']);
+      unset($data['create_user_hubstaff']);
       if($id == null){
           $charity = CustomerCharity::create($data); 
           $charity_category = Category::where('title', 'charity')->first();
@@ -315,8 +317,8 @@ class CustomerCharityController extends Controller
           CustomerCharity::where('id', $charity->id)->update([
               'product_id' => $product->id
           ]);
-      }else{
-        CustomerCharity::where('id', $id)->update($data);
+      }else{ 
+          CustomerCharity::where('id', $id)->update($data);
       }
   
       if ($request->create_user == 'on') {
@@ -366,13 +368,14 @@ class CustomerCharityController extends Controller
       $isInvitedOnGithub = false;
       if ($request->create_user_github == 'on' && isset($request->email)) {
         //has requested for github invitation
-        $isInvitedOnGithub = $this->sendGithubInvitaion($request->email);
+        $isInvitedOnGithub = app('App\Http\Controllers\VendorController')->sendGithubInvitaion($request->email);
+
       }
   
       $isInvitedOnHubstaff = false;
       if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
         //has requested hubstaff invitation
-        $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
+        $isInvitedOnHubstaff = app('App\Http\Controllers\VendorController')->sendHubstaffInvitation($request->email);
       }
   
       if(!empty($source)) {
