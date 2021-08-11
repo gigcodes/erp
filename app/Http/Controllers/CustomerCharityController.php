@@ -14,6 +14,8 @@ use App\Category;
 use App\Brand;
 use App\Product;
 use App\VendorCategory;
+use Illuminate\Support\Facades\Hash;
+use App\Role;
 
 class CustomerCharityController extends Controller
 {
