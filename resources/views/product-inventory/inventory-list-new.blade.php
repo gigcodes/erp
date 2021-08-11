@@ -166,7 +166,7 @@
             <?php foreach($history as $h) { ?>
                 <tr>
                     <td><?php echo $h['date'];?></td>            
-                    <td>{{ $h['productUpdated'] }}</td>
+                    <td>{{ $h->updated_product }}</td>
                 </tr>
              <?php } ?> 
                </tbody>
