@@ -87,11 +87,11 @@ class MagentoProductPushErrors extends Controller
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
 //                'response_status' => $row->response_status,
                 'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">
- <option value="" ></option>
- <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
- <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
- <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
-</select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
+                <option value="" ></option>
+                <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
+                <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
+                <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
+                </select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
                 <i class="fa fa-info-circle"></i>
             </button></div>',
             ];

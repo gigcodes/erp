@@ -68,7 +68,8 @@
 </div>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb p-0">
-		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
+		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
+		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
 		<div class="pull-right pr-2">
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
 				<button style=" color: #757575" class="btn btn-secondary btn-image">
@@ -534,6 +535,7 @@
 	//     });
 
 	function saveCategory() {
+		var websiteId = $('#website_id_data').val();//$('#website_id').val()
 		var text = $('#add-category').val()
 		if (text === '') {
 			alert('Please Enter Text');
@@ -543,6 +545,7 @@
 					type: 'POST',
 					dataType: 'json',
 					data: {
+						websiteId : websiteId,
 						text: text,
 						"_token": "{{ csrf_token() }}"
 					},
@@ -776,7 +779,7 @@
 
 	function refreshPage() {
 		$.ajax({
-			url: '{{ route("site-development.index" , $website->id)}}',
+			url: window.location.href,
 			dataType: "json",
 			data: {},
 		}).done(function(data) {
@@ -1591,17 +1594,7 @@
 				success: function (data) {
 					//console.log(data);
 					$loader.hide();
-					/*if('' === data.trim())
-						return;
-					if(type == 'pending') {
-						$('.infinite-scroll-pending-inner').append(data);
-					}
-					if(type == 'completed') {
-						$('.infinite-scroll-completed-inner').append(data);
-					}
-					if(type == 'statutory_not_completed') {
-						$('.infinite-scroll-statutory-inner').append(data);
-					}*/
+					
 					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
 					if(data.tbody == "") {

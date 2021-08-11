@@ -59,7 +59,8 @@ class SiteDevelopmentController extends Controller
         $categories->groupBy('site_development_categories.id');
         $categories->orderBy('title', 'asc');
         $categories->orderBy('site_developments.id', 'DESC');
-        $categories = $categories->paginate(Setting::get('pagination'));
+       $categories = $categories->paginate(Setting::get('pagination'));
+       
 //   dd($categories);
         //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
@@ -113,6 +114,11 @@ class SiteDevelopmentController extends Controller
                 $develop        = new SiteDevelopmentCategory;
                 $develop->title = $request->text;
                 $develop->save();
+
+                $site = new SiteDevelopment;
+                $site->site_development_category_id = $develop->id;
+                $site->website_id = $request->websiteId;
+                $site->save();
 
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
 

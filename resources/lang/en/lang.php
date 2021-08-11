@@ -18,5 +18,10 @@
  'ynumreq'=>'Make fewer HTTP requests',
  'ynofilter'=>'Avoid AlphaImageLoader filter',
  'ycompress'=>'Compress components',
+ 'yemptysrc'=>'Avoid empty src or href',
+ 'ycsstop'=>'Put CSS at top',
+ 'yjsbottom'=>'Put JavaScript at bottom',
+ 'yimgnoscale'=>'Do not scale images in HTML',
+ 
 ];
 ?>

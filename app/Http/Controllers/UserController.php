@@ -750,4 +750,35 @@ class UserController extends Controller
 		}
 		return $request->status;
 	}
+
+	public function addSystemIpFromText(Request $request)
+	{
+		if($request->id){
+
+			$chatMessage = \app\ChatMessage::where("id",$request->id)->first();
+			if($chatMessage) {
+				preg_match_all('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $chatMessage->message, $ip_matches);
+				$ip_matches = array_filter($ip_matches);
+				if(!empty($ip_matches)) {
+					if($chatMessage->user_id > 0 || $chatMessage->erp_user > 0) {
+						foreach ($ip_matches[0] as $key => $value) {
+							$shell_cmd = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$value." -c Added from chat messages");
+							UserSysyemIp::create([
+								'index_txt'  => $shell_cmd['index']??'null',
+								'ip'         => $value,
+								'user_id'    => $chatMessage->erp_user??$chatMessage->user_id,
+								'other_user_name' => $request->other_user_name??null,
+								'notes'      => "Added from chat messages",
+							]);
+						}
+					}
+				}
+				return response()->json( ["code" => 200 , "message" => "Success"] );
+			}else{
+				return response()->json( ["code" => 500 , "message" => "Can only white list user ip only!"] );
+			}
+		}
+
+		return response()->json( ["code" => 500 , "message" => "Message record not found!"] );
+	}
 }

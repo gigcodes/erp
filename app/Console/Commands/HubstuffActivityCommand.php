@@ -54,8 +54,9 @@ class HubstuffActivityCommand extends Command
        
         $users = User::where('payment_frequency', '!=' ,'')->get();
         $today = Carbon::now()->toDateTimeString();
-        
+
         foreach ($users as $key => $user) {
+            
             
             $payment_frequency = $user->payment_frequency;
             $last_mail_sent = $user->last_mail_sent_payment;
@@ -66,6 +67,13 @@ class HubstuffActivityCommand extends Command
                 $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_mail_sent);
             }
             $from = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+
+            // $today_week = new Carbon();
+            // if($today_week->dayOfWeek == Carbon::FRIDAY)
+            //     dd($today_week);
+            // else
+            //     dd("555");
+           
             $diff_in_days = $to->diffInDays($from);
 
             $req = new Request;  
@@ -81,7 +89,7 @@ class HubstuffActivityCommand extends Command
             $req->request->add(["submit" => "report_download"]);
 
 
-            $res = $tasks_controller->getActivityUsers($req, $req);
+            // $res = $tasks_controller->getActivityUsers($req, $req);
 
 
 
@@ -92,13 +100,53 @@ class HubstuffActivityCommand extends Command
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
+                $today_week = new Carbon();
+                // dump('weekly => '.$user->name.', Current Day => '.$diff_in_days);
+                dump('weekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
-                if ($diff_in_days == 7 ) {
+               
+                if($today_week->dayOfWeek == Carbon::MONDAY){
+                    dump('Get Report ......');
+                    // if ($diff_in_days == 7 ) {
+                    
+                        $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                        $z = (array) $res;
+                        foreach($z as $zz){
+                            if($path == null){
 
-                    $res = $tasks_controller->getActivityUsers($req, $req);
+                                $path = $zz->getRealPath();
 
+                            }
+                        }
+                    // }
+                }
+
+                // if ($diff_in_days == 7 ) {
+
+                //     $res = $tasks_controller->getActivityUsers($req, $req);
+
+                //     $z = (array) $res;
+
+                //     foreach($z as $zz){
+                //         if($path == null){
+
+                //             $path = $zz->getRealPath();
+
+                //         }
+                //     }
+                // }
+            }
+
+            if($payment_frequency == "biweekly"){
+
+                $today_week = new Carbon();
+
+                dump('biweekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
+
+                if($today_week->dayOfWeek == Carbon::MONDAY || $today_week->dayOfWeek == Carbon::THURSDAY){
+                    dump('Get Report ......');
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     $z = (array) $res;
-
                     foreach($z as $zz){
                         if($path == null){
 
@@ -107,60 +155,103 @@ class HubstuffActivityCommand extends Command
                         }
                     }
                 }
-            }
 
-            if($payment_frequency == "biweekkly"){
+                // if ($diff_in_days == 14) {
 
-                if ($diff_in_days == 14) {
+                //     $res = $tasks_controller->getActivityUsers($req, $req);
 
-                    $res = $tasks_controller->getActivityUsers($req, $req);
+                //     $z = (array) $res;
 
-                    $z = (array) $res;
+                //     foreach($z as $zz){
 
-                    foreach($z as $zz){
+                //         if($path == null){
 
-                        if($path == null){
-
-                            $path = $zz->getRealPath();
-                    }
-                }
-                }
+                //             $path = $zz->getRealPath();
+                //     }
+                // }
+                // }
             }
 
             if($payment_frequency == "fornightly"){
+                $date_fornightly = Carbon::now()->format('d');
 
-                if ($diff_in_days == 15) {
+                // dump('fornightly => '.$user->name.', Current Day => '.$diff_in_days);
+                dump('fornightly => '.$user->name.', Today Date =>'.$date_fornightly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
-                    $res = $tasks_controller->getActivityUsers($req, $req);
-
+                if($date_fornightly == 15){
+                    dump('Get Report ......');
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     $z = (array) $res;
-
                     foreach($z as $zz){
-
                         if($path == null){
 
                             $path = $zz->getRealPath();
+
                         }
                     }
                 }
+
+                // if ($diff_in_days == 15) {
+
+                //     $res = $tasks_controller->getActivityUsers($req, $req);
+
+                //     $z = (array) $res;
+
+                //     foreach($z as $zz){
+
+                //         if($path == null){
+
+                //             $path = $zz->getRealPath();
+                //         }
+                //     }
+                // }
             }
 
             if($payment_frequency == "monthly"){
+                $date_monthly = Carbon::now()->format('d');
 
-                if ($diff_in_days == 30) {
+                // dump('monthly => '.$user->name.', Current Day => '.$diff_in_days);
 
-                    $res = $tasks_controller->getActivityUsers($req, $req);
 
+                $last_month_first_date = new Carbon('first day of last month');
+                $last_month_last_date = new Carbon('last day of last month');
+                $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date);
+                $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_last_date);
+
+                $req->request->add(["start_date" => $from]);
+                $req->request->add(["end_date" => $to]);
+
+                dump('monthly => '.$user->name.', Today Date =>'.$date_monthly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$from.', End Date => '.$to);
+
+                if($date_monthly == 1){
+
+                    dump('Get Report ......');
+                    
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                     $z = (array) $res;
-
                     foreach($z as $zz){
-
                         if($path == null){
 
                             $path = $zz->getRealPath();
+
                         }
                     }
                 }
+
+                // if ($diff_in_days == 30) {
+
+                //     $res = $tasks_controller->getActivityUsers($req, $req);
+
+                //     $z = (array) $res;
+
+                //     foreach($z as $zz){
+
+                //         if($path == null){
+
+                //             $path = $zz->getRealPath();
+                //         }
+                //     }
+                // }
             }
 
             if ($path) {
@@ -169,7 +260,7 @@ class HubstuffActivityCommand extends Command
 
                 Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
                     $message->to($data["email"], $data["email"])
-                            ->subject($data["title"])->attach($path);  
+                            ->subject($data["title"])->attach($path);
                 });
 
                 $user->last_mail_sent_payment = $today;
@@ -182,6 +273,12 @@ class HubstuffActivityCommand extends Command
                 $hubstaff_activity->activity_excel_file = $storage_path;
                 $hubstaff_activity->save();
 
+                dump('Mail Sent Successfully => '.$user->name);
+                dump('');
+
+            }else{
+                dump('Frequency Not Match Of User '.$user->name);
+                dump('');
             }
 
         }

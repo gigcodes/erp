@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Product;
 use App\ProductPushErrorLog;
+use App\ProductPushInformation;
 use App\StoreWebsite;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -114,9 +115,28 @@ class PushToMagento implements ShouldQueue
                 return false;
             }
 
-
             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                MagentoHelper::callHelperForProductUpload($product, $website, $this->log);
+              $addedProduct =   MagentoHelper::callHelperForProductUpload($product, $website, $this->log);
+              $availableProduct = Product::where('sku',$addedProduct->sku)->first();
+              $real_product_id  =null;
+              if($availableProduct){
+                  $real_product_id = $availableProduct->id ?? null;
+              }
+            
+              if(is_object($addedProduct) || $addedProduct instanceof \Illuminate\Database\Eloquent\Collection){
+                $updated =   ProductPushInformation::updateOrCreate(
+                    ['product_id'=>$addedProduct->id ?? NULL,
+                    'store_website_id' => $website->store_website_id
+                  ],[
+                      'sku'=>$addedProduct->sku,
+                      'status'=> $addedProduct->status,
+                      'quantity'=>$addedProduct->stock,
+                      'stock_status'=> $addedProduct->stock_status,
+                      'is_added_from_csv'=>0,
+                      'real_product_id'=>$real_product_id
+                  ]);
+              }
+             
                 return false;
             } else {
                 ProductPushErrorLog::log('', $product->id, 'Magento helper class not found', 'error', $website->id, null, null, $this->log->id);

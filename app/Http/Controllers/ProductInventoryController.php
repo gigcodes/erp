@@ -1090,15 +1090,41 @@ class ProductInventoryController extends Controller
     public function inventoryListNew( Request $request ){
     	$filter_data = $request->input();
 		// $inventory_data = \App\Product::getProducts($filter_data);
-
-		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id")->paginate(20);		
+        
+		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id");
+		if ($request->start_date!='')
+		  $inventory_data->whereDate('products.created_at' ,'>=',$request->start_date );
+		if ($request->end_date!='')
+		   $inventory_data->whereDate('products.created_at' ,'<=',$request->end_date );	  
+		$inventory_data=$inventory_data->orderBy("swp.created_at","desc")->paginate(20);		
     	
     	$inventory_data_count = $inventory_data->total();
-		
 
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
+    	$totalProduct =  \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
+                ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
+                ->join("products as p", "p.id", "sp.product_id")
+                ->where("suppliers.supplier_status_id", 1)
+                ->select(\DB::raw("count(distinct p.id) as total"))->first();
 
-        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count'));
+        $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
+
+    	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
+    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->select(\DB::raw("count(distinct p.id) as total"))->first();
+    	$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
+
+		$history=array();
+		$date=date('Y-m-d');
+		$date=date("Y-m-d",strtotime($date . ' - 1 day'));
+		for($count=0;$count<7;$count++)
+		{
+			$nStock = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->select(\DB::raw("count(distinct product_id) as total"))->first();
+			$history[] = ['date'=>$date,'productUpdated'=>($nStock) ? $nStock->total : 0];
+		    $date = date("Y-m-d",strtotime($date . ' - 1 day'));
+		}
+
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
+
+        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct','history'));
     }
 
     public function downloadReport() {

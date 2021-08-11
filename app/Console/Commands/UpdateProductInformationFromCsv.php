@@ -2,11 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Product;
 use App\WebsiteProductCsv;
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\ProductPushInformation;
+use App\ProductPushInformationHistory;
+use App\ProductPushInformationSummery;
+use App\ProductPushSummery;
 use Log;
 
 class UpdateProductInformationFromCsv extends Command
@@ -47,15 +51,37 @@ class UpdateProductInformationFromCsv extends Command
         $is_file_exists = null;
         $prodcutInformation = WebsiteProductCsv::pluck('path', 'store_website_id');
 
+// test data for adding fake sku in products 
+// $taskSku =ProductPushInformation::pluck('sku')->toArray();
+
+// foreach($taskSku as $key=> $task){
+//     $taskSku[$key] = explode('-', $task)[0];
+// }
+//  $pros= Product::limit(10000)->get();
+
+// foreach($pros as $ppp){
+
+//     $take_randd = array_rand($taskSku,1);
+
+//     $ppp->sku = $taskSku[$take_randd];
+//     $ppp->save();
+//     dump($ppp->id);
+
+// }
+
+
+        // ProductPushInformation::truncate();
+        // ProductPushInformationHistory::truncate();
+        // ProductPushInformationSummery::truncate();
+
         foreach ($prodcutInformation as $store_website_id => $file_url) {
 
             $client   = new Client();
             if (!$file_url) {
-                $this->error('Plese add url');
+                $this->error('Please add url');
             } else {
 
                 try {
-
                     // $response = $client->get($url);
                     $promise = $client->request('GET', $file_url);
                     $is_file_exists = true;
@@ -72,14 +98,24 @@ class UpdateProductInformationFromCsv extends Command
                         $row++;
                         if ($row > 1) {
                             // dd($data);
+                            $availableProduct = Product::where('sku',$data[1])->first();
+                            $real_product_id  =null;
+                            if($availableProduct){
+                                $real_product_id = $availableProduct->id ?? null;
+                            }
+                
+
                             $updated =   ProductPushInformation::updateOrCreate(
                                 ['product_id' => $data[0],'store_website_id' => $store_website_id]
                                 , [
-                                'product_id' => $data[0],
                                 'sku' => $data[1],
                                 'status' => $data[2],
                                 'quantity' => $data[3],
                                 'stock_status' => $data[4],
+                                'is_added_from_csv'=>1,
+                                'real_product_id'=>$real_product_id,
+                                'is_available'=>1,
+
                                 
                             ]);
                             $arr_id[] = $updated->product_id;
@@ -87,11 +123,33 @@ class UpdateProductInformationFromCsv extends Command
                     }
                 }
                     fclose($handle);
-                    $this->info('product updaetd successfully');
+                    ProductPushInformation::whereNotIn('product_id',$arr_id)->where('store_website_id',$store_website_id)->where('is_available',1)->update(['is_available'=>0]);
+
+                    $this->info('product updated successfully');
                 }
 
             }
-            ProductPushInformation::whereNotIn('product_id', $arr_id)->delete();
+            ProductPushInformation::whereNotIn('product_id', $arr_id)->where('store_website_id',$store_website_id)->update(['is_available'=>0]);
+        }
+
+
+        $summuryOfProducts=     ProductPushInformation::selectRaw('count(*) as total_product_count,sw.id as store_website_id,c.id  as       customer_id , b.id as brand_id')
+                                    ->leftJoin('products as p','p.id','product_push_informations.real_product_id')
+                                    ->leftJoin('brands as b','b.id','p.brand')
+                                    ->leftJoin('categories as c','c.id','p.category')
+                                    ->leftJoin('store_websites as sw','sw.id','product_push_informations.store_website_id')
+                                    ->groupBy(['b.id','c.id','sw.id'])
+                                    ->get()
+                                    ;
+
+        foreach($summuryOfProducts as $summery){
+
+            ProductPushInformationSummery::create([
+                'brand_id'=>$summery->brand_id,
+                'category_id'=>$summery->customer_id,
+                'store_website_id'=>$summery->store_website_id,
+                'product_push_count'=>$summery->total_product_count
+            ]); 
         }
     }
 }

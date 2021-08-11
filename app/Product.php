@@ -810,7 +810,7 @@ class Product extends Model
                         $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', urldecode($filename));
 
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateReplace()->upload();
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateIncrement()->upload();
                         $this->attachMedia($media, config('constants.media_original_tag'));
                         $countImageUpdated++;
                     }
@@ -1628,5 +1628,14 @@ class Product extends Model
     public function getWebsiteSku()
     {
         return $this->sku."-".$this->color;
+    }
+
+    public function fetchMultipleSkuRecord()
+    {
+        $records = \App\ScrapedProducts::where("scraped_products.sku",$this->sku)->leftJoin("products as p","p.id","scraped_products.product_id")
+        ->leftJoin("brands as b","b.id","scraped_products.brand_id")
+        ->select(["scraped_products.*","p.supplier as product_supplier","b.name as brand_name"])
+        ->get();
+        return $records;
     }
 }
