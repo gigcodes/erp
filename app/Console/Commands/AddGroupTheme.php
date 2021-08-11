@@ -58,7 +58,7 @@ class AddGroupTheme extends Command
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
             $response = json_decode($result['response']);
-            $existing_themes = ['AvoirChic', 'Brands & Labels', 'Shades Shop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau']; 
+            $existing_themes = ['General', 'Lussolicious', 'o-labels.com', 'Luxury Space', 'Italybrandoutlets', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau']; 
             $changed_themes = [];
             foreach($response as $g){
                 dump($g->name);
@@ -136,6 +136,7 @@ class AddGroupTheme extends Command
                     $theme_name = 'theme_Upeau';
                 }else{
                     dump($theme_name . ' theme not exist');
+                    continue;
                 }
 
                 $ref_group_id = $ref_themes[$theme_name];
