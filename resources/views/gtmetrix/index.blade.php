@@ -105,7 +105,7 @@
                                 <td>
                                     @if ( $key->resources && $key->resources )
                                         <ul style="display: inline-block;">
-                                            @foreach ($key->resources as $item => $value)
+                                            @foreach (json_decode($key->resources) as $item => $value)
                                                     <li> <a href="{{ $value }}" target="_blank" rel="noopener noreferrer"> {{ $item }} </a> </li>
                                             @endforeach
                                         </ul>

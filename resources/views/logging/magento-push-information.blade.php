@@ -261,7 +261,7 @@
                   <th>Status</th>
                   <th>Quantity</th>
                   <th>Is avilable</th>
-                  <th>Is Update From Csv</th>
+                  <th>Pushed by erp</th>
                   <th>Stock Status</th>
                   <th>Updated by</th>
                   <th>Created At</th>
@@ -493,8 +493,8 @@ console.log(website_id)
 									<td style="word-break: break-word;">${element.sku ?? element.old_sku}</td>
 									<td style="word-break: break-word;">${element.status ?? element.old_status}</td>
 									<td style="word-break: break-word;">${element.quantity ?? element.old_quantity}</td>
-									<td style="word-break: break-word;">${element.is_avilable ?'Yes' :'No' }</td>
-									<td style="word-break: break-word;">${element.old_is_added_from_csv ? 'Yes' :'No'}</td>
+									<td style="word-break: break-word;">${element.is_available ?'Yes' :'No' }</td>
+									<td style="word-break: break-word;">${element.is_added_from_csv ? "No" :'Yes'}</td>
 									<td style="word-break: break-word;">${element.stock_status ?? element.old_status	}</td>
 									<td style="word-break: break-word;">${element.user?.name ?? 'command'}</td>
 									<td style="word-break: break-word;">${element.created_at ?? ''}</td>
