@@ -40,12 +40,9 @@ class CreateMailinglistInfluencers extends Command
     public function handle()
     {
                
-        
-
-
         $services = \App\Service::first();
         $service_id=$services->id;
-        $influencers = \App\ScrapInfluencer::where('email','!=',"")->get();
+        $influencers = \App\ScrapInfluencer::where('read_status','!=',1)->where('email','!=',"")->get();
         $websites = \App\StoreWebsite::select('id','title')->orderBy('id','desc')->get();
        
         $email_list=array();
@@ -116,15 +113,15 @@ class CreateMailinglistInfluencers extends Command
                            {
                            $email_list2[]=['email'=>$email_list[$count]['email'],'name'=>$email_list[$count]['name']];
                            
-
-                                $customer = new Customer;
-
-                                
-                                $customer->email            = $email;
-                                $customer->name             = $email_list[$count]['name'];
-                                $customer->store_website_id = $website->id;
-                                $customer->save();
-                               
+                            if (!\App\Customer::where('email',$email)->first())
+                            {
+                                    $customer = new Customer;
+                            
+                                    $customer->email            = $email;
+                                    $customer->name             = $email_list[$count]['name'];
+                                    $customer->store_website_id = $website->id;
+                                    $customer->save();
+                            }   
                            }
                            
                             
@@ -167,7 +164,7 @@ class CreateMailinglistInfluencers extends Command
         
        }       
        
-
+       \App\ScrapInfluencer::update(['read_status'=>1]);
        
     }
 }   
