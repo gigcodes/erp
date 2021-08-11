@@ -16,6 +16,7 @@ class AddCharityIdToChatMessagesTable extends Migration
     {
        DB::select("ALTER TABLE `chat_messages` ADD `charity_id` INT(11) NULL AFTER `vendor_id`;");
        DB::select("ALTER TABLE `chat_messages` ADD INDEX(`user_id`);");
+       DB::select("ALTER TABLE `customer_charities` ADD `product_id` INT(11) NULL AFTER `category_id`;");
     }
 
     /**

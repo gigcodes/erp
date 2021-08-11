@@ -101,8 +101,9 @@
                         <th width="1%">User Requested</th>
                         <th width="1%">Pending payment time</th>
                         <th width="1%">Status</th>
-                        <th width="6%">Note</th>
-                        <th width="5%" colspan="2" class="text-center">Action</th>
+                        <th width="3%">Note</th>
+                        <th width="5%">Frequency</th>
+                        <th width="2%" colspan="2" class="text-center">Action</th>
                         </tr>
                         @php
                             $totalTracked = 0;
@@ -197,7 +198,21 @@
                                 <span class="show-short-note-{{$index}}">{{ str_limit($user['note'], 12, '...')}}</span>
 		                        <span style="word-break:break-all;" class="show-full-note-{{$index}} hidden">{{$user['note']}}</span>
                             </td>
-                            
+                            @php
+                            $fixed_price_user_or_job = '';    
+                            if($user['fixed_price_user_or_job'] == 1)
+                                $fixed_price_user_or_job = 'Fixed Price Job';
+                            elseif($user['fixed_price_user_or_job'] == 2)
+                                $fixed_price_user_or_job = 'Hourly Per Task';
+                            elseif($user['fixed_price_user_or_job'] == 3)
+                                $fixed_price_user_or_job = 'Salaried';                  
+                            @endphp
+                            <td>
+                                <p>S/F PX : {{$fixed_price_user_or_job}}</p>
+                                <p>Frequency : {{$user['payment_frequency']}} </p>
+                                <!-- <p>Last Voucher Date : {{ \Carbon\Carbon::parse($user['last_mail_sent_payment'])->format('d-m-y') }}</p> -->
+                                <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
+                            </td>
                             <td>
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                                 <form action="">
@@ -376,6 +391,42 @@
                     </tr>
                 </thead>
                 <tbody class=" hubstaff-activity-table"></tbody>
+            </table>
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal" id="hubstaffPaymentReportModel">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Hubstaff Payment Report</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th>Total Amount</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody class="hubstaff-payment-table"></tbody>
             </table>
         </div>
   
@@ -855,6 +906,51 @@ let r_s = jQuery('input[name="start_date"]').val();
 
             window.location.replace("{{ route('hubstaff-acitivtity-report.download') }}?file=" +  file );
 
+        })
+
+
+        $(document).on('click','.list_history_payment_data',function(){
+            var $this = $(this);
+            var user_id = $this.data("user-id");
+
+            $.ajax({
+                url: "{{ route('hubstaff-acitivtity.payment_data') }}",
+                type: 'GET',
+                data: {"user_id":user_id},
+                success:function( response ){
+                    if (response.status == true) {
+
+                        // console.log("------------>>>");
+                        // console.log(response.data);
+                        // array = response.data;
+                        var html = '';
+                        // for (let i = 0; i < array.length; i++) {
+                        //     html = '<tr>';
+                        //     html = '<td>'+array[i].start_date+'</td>';
+                        //     html = '<td>'+array[i].end_date+'</td>';
+                        //     html = '<td>'+array[i].total_amount+'</td>';
+                        //     html = '<td>'+array[i].file_path+'</td>';
+                        //     html = '</tr>';
+                        // }
+
+                        $.each( response.data, function( key, value ) {
+                            html += '<tr>';
+                            html += '<td>'+moment(value.start_date).format('DD-MM-YYYY')+'</td>';
+                            html += '<td>'+moment(value.end_date).format('DD-MM-YYYY')+'</td>';
+                            html += '<td>'+value.total_amount+'</td>';
+                            // html += '<td>'+value.file_path+'</td>';
+                            html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download activity-report-download" aria-hidden="true"></a></td>';
+                            html += '</tr>';
+                        });
+
+                        // console.log("----html-------->>>");
+                        // console.log(html);
+
+                        $('#hubstaffPaymentReportModel .hubstaff-payment-table').html(html);
+                        $('#hubstaffPaymentReportModel').modal('show');
+                    }
+                }
+            });
         })
 
 </script>

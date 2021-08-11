@@ -34,7 +34,7 @@
     </div>
 </div>
 <form action="" method="get">
-    <div class="row ">
+    
         <div class="col-md-2">
             <label > Select website: </label>
             <div class="form-group">
@@ -60,17 +60,18 @@
         </div>
         <div class="form-group col-md-3 pt-4" style="">
             <label >  </label>
-            <button class="btn btn-secondary">Search</button>
-            <a href="{{ url('/display/analytics-data') }}" class="btn btn-secondary">
-                Clear
+            <button class="btn btn-image search"><img src="https://erp.theluxuryunlimited.com/images/search.png" alt="Search" style="cursor: nwse-resize; width: 0px;"></button>
+            <a href="{{ url('/display/analytics-data') }}" class="btn btn-image">
+                <i class="fa fa-history" aria-hidden="true"></i>
             </a>
         </div>
-    </div>
 </form>
 
-<div class="col-lg-12 mb-5">
-    <button class="btn btn-secondary show-history"> Show history </button>
+<div class="mt-1">
+    <button class="btn btn-default show-history"> Show history </button>
 </div>
+
+
 
 @include('partials.flash_messages')
 @include('analytics.history')
@@ -270,23 +271,23 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>Website</th>
-                <th>Browser</th>
-                <th>Operating System</th>
-                <th>Country</th>
-                <th>Country Iso Code</th>
-                <th>User Type</th>
-                <th>Paeg</th>
-                <th>Avg Time Page</th>
-                <th>Page Views</th>
-                <th>Unique Page Views</th>
-                <th>Exist Rate</th>
-                <th>Entrances</th>
-                <th>Entrance Rate</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Session</th>
-                <th>Created At</th>
+                <th style="width:3%">Website</th>
+                <th style="width:3%">Browser</th>
+                <th style="width:3%">OS</th>
+                <th style="width:3%">Country</th>
+                <th style="width:3%">Iso Code</th>
+                <th style="width:3%">User Type</th>
+                <th style="width:10%">Page</th>
+                <th style="width:7%">Avg Time</th>
+                <th style="width:7%">Page Views</th>
+                <th style="width:4%">U. Page Views</th>
+                <th style="width:4%">Exist Rate</th>
+                <th style="width:4%">Entrances</th>
+                <th style="width:5%">Entrance Rate</th>
+                <th style="width:3%">Age</th>
+                <th style="width:3%">Gender</th>
+                <th style="width:4%">Session</th>
+                <th style="width:4%">Date</th>
             </tr>
         </thead>
         <tbody>
@@ -299,7 +300,7 @@
                     <td>{{ $data->iso_code }}</td>
                     <td>{{ $data->user_type }}</td>
                     <td>{{ $data->page }}</td>
-                    <td>{{ $data->avg_time_page }}</td>
+                    <td>{{ round($data->avg_time_page, 4) }}</td>
                     <td>{{ $data->page_view }}</td>
                     <td>{{ $data->unique_page_views }}</td>
                     <td>{{ $data->exit_rate }}</td>
@@ -308,7 +309,7 @@
                     <td>{{ $data->age }}</td>
                     <td>{{ $data->gender }}</td>
                     <td>{{ $data->session }}</td>
-                    <td>{{ $data->created_at }}</td>
+                    <td>{{ $data->created_at->format('Y-m-d') }}</td>
                 </tr>
             @endforeach
         </tbody>

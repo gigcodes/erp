@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('favicon' , 'instagram.png')
+@section('favicon' , 'google.png')
 
-@section('title', 'Influencer Info')
+@section('title', 'Google Scrapper')
 
 @section('styles')
 <style type="text/css">
@@ -27,45 +27,45 @@
         }
 
 h2{
-	font-size:24px;
-	font-weight:600;
+    font-size:24px;
+    font-weight:600;
 
 }
 
 h3 {
-	font-size:20px;
-	font-weight:600;
+    font-size:20px;
+    font-weight:600;
         
 
 }
 
 p{ 
-	font-size: 14px;
-	font-weight: 400;
-	margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 15px;
 }
 /* 
 a.navbar-brand{
     font-size: 22px;
-	font-weight: 600;
-	color: #5a5555;  
+    font-weight: 600;
+    color: #5a5555;  
 } */
 
 .navbar-light .navbar-nav .nav-link{
     font-size: 14px;
-	color: #757575;
+    color: #757575;
 }
 
 #search_li input{
     height:35px !important;
-	border: 1px !important;
-	font-size:14px !important;
-	/* max-width: */
+    border: 1px !important;
+    font-size:14px !important;
+    /* max-width: */
 
 }
 
 .btn{
-	padding: 6px 12px;
+    padding: 6px 12px;
     font-size: 14px;
     font-weight: 400;
     text-align: center;
@@ -82,7 +82,7 @@ a.navbar-brand{
 }
 
 .btn:disabled{
-	opacity : 0.5;
+    opacity : 0.5;
     pointer-events: none;
 }
 
@@ -93,8 +93,8 @@ button[disabled]:hover {
 .action-icon{
     width:20px;
     height:20px;
-	padding:3px;
-	border-radius: 4px;
+    padding:3px;
+    border-radius: 4px;
 }
 
 .action-icon:hover{
@@ -158,7 +158,7 @@ button[disabled]:hover {
 
     table{
         border: 1px;
-	    border-radius: 4px;  
+        border-radius: 4px;  
         /* font-size: 13px;  */
         word-break: break-all;
     }
@@ -177,8 +177,8 @@ button[disabled]:hover {
 
    .form-control{
         height:35px !important;
-	    font-size:14px !important;
-	    border-radius: 4px !important;
+        font-size:14px !important;
+        border-radius: 4px !important;
     }
 
     </style>
@@ -189,82 +189,76 @@ button[disabled]:hover {
    </div>
     <div class="row">
         <div class="col-md-12">
-           <h2 class="page-heading">Influencers (<span id="total">{{ $influencers->total() }}</span>)</h2>
+           <h2 class="page-heading">Google Scrapper</h2>
             <div class="pull-left">
-            <form class="form-inline" action="{{ route('influencers.index') }}" method="GET">
+            <form class="form-inline" action="{{-- route('influencers.index') --}}" method="GET">
                 <div class="row">
-                <div class="form-group mr-3 mb-3">
+                <!-- <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="term"
-                               value="{{ isset($term) ? $term : '' }}"
+                               value="{{-- isset($term) ? $term : '' --}}"
                                placeholder="Search...">
-                </div>
-                <div class="form-group mr-3 mb-3">
+                </div> -->
+                <!-- <div class="form-group mr-3 mb-3">
                         <select class="form-control" name="posts" id="">
                             <option value="">Posts</option>
-                            <option value="10" {{$posts == 10 ? 'selected' : ''}}>Greater than 10</option>
-                            <option value="20" {{$posts == 20 ? 'selected' : ''}}>Greater than 20</option>
-                            <option value="30" {{$posts == 30 ? 'selected' : ''}}>Greater than 30</option>
-                            <option value="50" {{$posts == 50 ? 'selected' : ''}}>Greater than 50</option>
-                            <option value="100" {{$posts == 100 ? 'selected' : ''}}>Greater than 100</option>
+                            <option value="10" {{--$posts == 10 ? 'selected' : ''--}}>Greater than 10</option>
+                            <option value="20" {{--$posts == 20 ? 'selected' : ''--}}>Greater than 20</option>
+                            <option value="30" {{--$posts == 30 ? 'selected' : ''--}}>Greater than 30</option>
+                            <option value="50" {{--$posts == 50 ? 'selected' : ''--}}>Greater than 50</option>
+                            <option value="100" {{--$posts == 100 ? 'selected' : ''--}}>Greater than 100</option>
                         </select>
-                </div>
-                <div class="form-group mr-3 mb-3">
+                </div> -->
+                <!-- <div class="form-group mr-3 mb-3">
                         <select class="form-control" name="followers" id="">
                             <option value="">Followers</option>
-                            <option value="10" {{$followers == 10 ? 'selected' : ''}}>Greater than 10</option>
-                            <option value="20" {{$followers == 20 ? 'selected' : ''}}>Greater than 20</option>
-                            <option value="30" {{$followers == 30 ? 'selected' : ''}}>Greater than 30</option>
-                            <option value="50" {{$followers == 50 ? 'selected' : ''}}>Greater than 50</option>
-                            <option value="100" {{$followers == 100 ? 'selected' : ''}}>Greater than 100</option>
+                            <option value="10" {{--$followers == 10 ? 'selected' : ''--}}>Greater than 10</option>
+                            <option value="20" {{--$followers == 20 ? 'selected' : ''--}}>Greater than 20</option>
+                            <option value="30" {{--$followers == 30 ? 'selected' : ''--}}>Greater than 30</option>
+                            <option value="50" {{--$followers == 50 ? 'selected' : ''--}}>Greater than 50</option>
+                            <option value="100" {{--$followers == 100 ? 'selected' : ''--}}>Greater than 100</option>
                         </select>
-                </div>
-                <div class="form-group mr-3 mb-3">
+                </div> -->
+                <!-- <div class="form-group mr-3 mb-3">
                         <select class="form-control" name="following" id="">
                             <option value="">Following</option>
-                            <option value="10" {{$following == 10 ? 'selected' : ''}}>Greater than 10</option>
-                            <option value="20" {{$following == 20 ? 'selected' : ''}}>Greater than 20</option>
-                            <option value="30" {{$following == 30 ? 'selected' : ''}}>Greater than 30</option>
-                            <option value="50" {{$following == 50 ? 'selected' : ''}}>Greater than 50</option>
-                            <option value="100" {{$following == 100 ? 'selected' : ''}}>Greater than 100</option>
+                            <option value="10" {{--$following == 10 ? 'selected' : ''--}}>Greater than 10</option>
+                            <option value="20" {{--$following == 20 ? 'selected' : ''--}}>Greater than 20</option>
+                            <option value="30" {{--$following == 30 ? 'selected' : ''--}}>Greater than 30</option>
+                            <option value="50" {{--$following == 50 ? 'selected' : ''--}}>Greater than 50</option>
+                            <option value="100" {{--$following == 100 ? 'selected' : ''--}}>Greater than 100</option>
                         </select>
-                </div>
-                <div class="form-group mr-3 mb-3">
-                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                </div> -->
+                <!-- <div class="form-group mr-3 mb-3">
+                <button type="submit" class="btn btn-image ml-3"><img src="{{--asset('images/filter.png')--}}" /></button> -->
                     <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
-                </div>
+                <!-- </div> -->
                 </div>
                 </form>
             </div>
             <div class="pull-right">
-                <div class="row">
-                <div class="form-group mr-3 mb-3">    
-                    <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-sm" >Ceate Mailing List</a> 
-                </div>      
-                <div class="form-group mr-3 mb-3">    
-                    <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
-                </div>        
-                <div class="form-group mr-3 mb-3">
-                     <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
-                </div>
-                @php
-                    $accountsList = ["" => "N/A"] + \App\Account::where('platform','instagram')->where('email',"!=",'')->get()->pluck('email','id')->toArray();
-                @endphp
-                <div class="form-group mr-3 mb-3">
-                     <?php echo Form::select('instagram_account_id',$accountsList,null, ["class" => "form-control select2","id" => 'instagram_account_id']); ?>
-                </div>
-                <div class="form-group mr-3 mb-3">
-                    <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
-                </div>
+                <div class="row">        
+                    <div class="form-group mr-3 mb-3">
+                        <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
+                    </div>
+                    <div class="form-group mr-3 mb-3">    
+                        <input name="name" type="text" class="form-control" id="startname" placeholder="Start"> 
+                    </div>
+                    <div class="form-group mr-3 mb-3">    
+                        <input name="name" type="text" class="form-control" id="endname" placeholder="End"> 
+                    </div>
+                    <div class="form-group mr-3 mb-3">
+                        <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-12">
-            @if(Session::has('message'))
+            <!-- @if(Session::has('message')) -->
                 <div class="alert alert-success">
-                    {{ Session::get('message') }}
+                    {{-- Session::get('message') --}}
                 </div>
-            @endif
+            <!-- @endif -->
         </div>
         <div class="col-md-12">
              <div class="row">
@@ -283,44 +277,43 @@ button[disabled]:hover {
                                 <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Platform</th>
-                                    <th>Wait time</th>
-                                    <th>No of Request</th>
-                                    <th>Account</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Created Date </th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                               @foreach($keywords as $keyword)     
-                                <tr data-keyword-id="{{$keyword->id}}" data-keyword-name="{{ $keyword->name }}">
-                                   <td>{{ $keyword->name }}</td>
-                                   <td>
+                                @foreach($keywords as $keyword) 
+                                <tr data-keyword-id="{{ $keyword->id }}" data-keyword-name="{{ $keyword->keyword }}">
+                                   <td>{{ $keyword->keyword }}</td>
+                                    <td>
                                         <div class="form-group mr-3 mb-3">
-                                             <?php echo Form::select('platform',["py_instagram" => "Py Instagram", "py_facebook" => "Py Facebook"],null, ["class" => "form-control select2 platform-request"]); ?>
+                                        {{ $keyword->start }}
                                         </div>
                                    </td>
                                    <td>
                                         <div class="form-group mr-3 mb-3">
-                                             <?php echo Form::text('wait_time',$keyword->wait_time, ["class" => "form-control wait-time"]); ?>
+                                        {{ $keyword->end }}
                                         </div>
                                    </td>
+                                  <!-- <td>
+                                        <div class="form-group mr-3 mb-3">
+                                             <?php //echo Form::text('no_of_request',$keyword->no_of_requets, ["class" => "form-control no-of-request"]); ?>
+                                        </div>
+                                   </td> -->
                                    <td>
                                         <div class="form-group mr-3 mb-3">
-                                             <?php echo Form::text('no_of_request',$keyword->no_of_requets, ["class" => "form-control no-of-request"]); ?>
+                                        {{ $keyword->created_at }}
                                         </div>
                                    </td>
-                                   <td>
-                                        <div class="form-group mr-3 mb-3">
-                                             <?php echo Form::select('instagram_account_id',$accountsList,$keyword->instagram_account_id, ["class" => "form-control select2","id" => 'instagram_account_id_change']); ?>
-                                        </div>
-                                   </td>
-                                   <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
-                                   <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
-                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
-                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
-                                   <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
-                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
-                                   <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
+                                   <td><button class="btn btn-link" onclick="getImage('{{-- $keyword->name --}}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
+                                   <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{-- $keyword->name --}}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
+                                   <button class="btn btn-link" onclick="startScript('{{-- $keyword->name --}}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
+                                   <button class="btn btn-link" onclick="stopScript('{{-- $keyword->name --}}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
+                                   <button class="btn btn-link" onclick="restartScript('{{-- $keyword->name --}}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
+                                   <button class="btn btn-link" onclick="getLog('{{-- $keyword->name --}}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
+                                   <button class="btn btn-link task-history" data-id="{{-- $keyword->name --}}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
                                    </td>
                                 </tr>
                                 @endforeach
@@ -350,19 +343,22 @@ button[disabled]:hover {
                     <tr>
 
                         <th style="width:2.5%">#</th>
-                        <th style="width:6%">Platform</th>
+                        <th style="width:6%">Title</th>
                         <th style="width:6%">Date</th>
-                        <th style="width: 10%">Username</th>
+                        <th style="width:6%">Image</th>
+                        <th style="width: 10%">Url</th>
                         <th style="width:8%">Email</th>
-                        <th style="width:7%">Hashtag</th>
-                        <th style="width:5%" >Posts</th>
-                        <th style="width:5%">Followers</th>
+                        <th style="width:7%">Number</th>
+                        <th style="width:5%">AboutUs</th>
+                        <!-- <th style="width:5%">Followers</th>
                         <th style="width:5%">Following</th>
                         <th style="width:7%">Country</th>
-                        <th style="width:8%">Description</th>
+                        <th style="width:8%">Description</th> -->
                         <th style="width:7%">Sender</th>
                         <th style="width:17%">Communication</th>
                         <th style="width:6%">Auto Reply</th>
+                        <th>Facebook</th>
+                        <th>Instagram</th>
                         <th style="width:5%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
@@ -372,12 +368,12 @@ button[disabled]:hover {
                     </tr>
                    </thead>
                      <tbody>
-                   @include('instagram.hashtags.partials.influencer-data')
+                   @include('google-scrapper.partials.google-scrapper-data')
                    
                     </tbody>
                 </table>
                 
-                 {!! $influencers->render() !!}
+                  {{--!! $influencers->render() !!--}}
             </div>
         </div>
 
@@ -419,9 +415,9 @@ button[disabled]:hover {
                                     <div class="form-group">
                                     <select class="form-control account-search select2" name="account_id" data-placeholder="Sender...">
                                         <option value="">Select sender...</option>
-                                        @foreach ($accounts as $key => $account)
-                                            <option value="{{ $key }}">{{ $account }}</option>
-                                        @endforeach
+                                       
+                                            <option value="{{-- $key --}}">{{-- $account --}}</option>
+                                       
                                     </select>
                                     </div>
                                 </div>
@@ -448,102 +444,102 @@ button[disabled]:hover {
 </div>
 @endsection
 @include("marketing.whatsapp-configs.partials.image")
-@include('instagram.hashtags.partials.influencer-history')
+@include('google-scrapper.partials.google-scrapper-history')
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script type="text/javascript">
 
         $(".select2-quick-reply").select2( { tags: true } );
 
-        $(document).on("change", ".quickComments", function (e) {
-            var message = $(this).val();
-            var select = $(this);
-            if ($.isNumeric(message) == false) {
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: "/instagram/influencers/reply/add",
-                    dataType: "json",
-                    method: "POST",
-                    data: {reply: message}
-                }).done(function (data) {
-                    var vendors_id =$(select).find("option[value='']").data("vendorid");
-                    var message_re = data.data.reply;
-                    $("textarea#message"+vendors_id).val(message_re);
-                    console.log(data)
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
-            }
-            var vendors_id =$(select).find("option[value='']").data("vendorid");
-            var message_re = $(this).find("option:selected").html();
-            $("textarea#message"+vendors_id).val($.trim(message_re));
-        });
+        // $(document).on("change", ".quickComments", function (e) {
+        //     var message = $(this).val();
+        //     var select = $(this);
+        //     if ($.isNumeric(message) == false) {
+        //         $.ajax({
+        //             headers: {
+        //                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        //             },
+        //             url: "/instagram/influencers/reply/add",
+        //             dataType: "json",
+        //             method: "POST",
+        //             data: {reply: message}
+        //         }).done(function (data) {
+        //             var vendors_id =$(select).find("option[value='']").data("vendorid");
+        //             var message_re = data.data.reply;
+        //             $("textarea#message"+vendors_id).val(message_re);
+        //             console.log(data)
+        //         }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        //             alert('No response from server');
+        //         });
+        //     }
+        //     var vendors_id =$(select).find("option[value='']").data("vendorid");
+        //     var message_re = $(this).find("option:selected").html();
+        //     $("textarea#message"+vendors_id).val($.trim(message_re));
+        // });
 
-        $(document).on("click", ".delete_quick_comment", function (e) {
-            var deleteAuto = $(this).closest(".d-flex").find(".quickComments").find("option:selected").val();
-            if (typeof deleteAuto != "undefined") {
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: BASE_URL+"/instagram/influencers/reply/delete",
-                    dataType: "json",
-                    method: "POST",
-                    data: {id: deleteAuto}
-                }).done(function (data) {
-                    if (data.code == 200) {
-                        $(".quickComment").each(function(){
-                        var selecto=  $(this)
-                            $(this).children("option").not(':first').each(function(){
-                            $(this).remove();
-                            });
-                            $.each(data.data, function (k, v) {
-                                $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
-                            });
-                            $(selecto).select2({tags: true});
-                        });
-                    }
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
-            }
-        });
+        // $(document).on("click", ".delete_quick_comment", function (e) {
+        //     var deleteAuto = $(this).closest(".d-flex").find(".quickComments").find("option:selected").val();
+        //     if (typeof deleteAuto != "undefined") {
+        //         $.ajax({
+        //             headers: {
+        //                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        //             },
+        //             url: BASE_URL+"/instagram/influencers/reply/delete",
+        //             dataType: "json",
+        //             method: "POST",
+        //             data: {id: deleteAuto}
+        //         }).done(function (data) {
+        //             if (data.code == 200) {
+        //                 $(".quickComment").each(function(){
+        //                 var selecto=  $(this)
+        //                     $(this).children("option").not(':first').each(function(){
+        //                     $(this).remove();
+        //                     });
+        //                     $.each(data.data, function (k, v) {
+        //                         $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
+        //                     });
+        //                     $(selecto).select2({tags: true});
+        //                 });
+        //             }
+        //         }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        //             alert('No response from server');
+        //         });
+        //     }
+        // });
 
-        $(document).on("click",".task-history",function(e) {
-            e.preventDefault();
-            var id = $(this).data("id");
-            $.ajax({
-                url: '/instagram/influencers/history',
-                type: 'POST',
-                data : { _token: "{{ csrf_token() }}", id : id },
-                dataType: 'json',
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-                success: function(result){
-                    $("#loading-image").hide();
-                    if(result.code == 200) {
-                        var t = '';
-                        $.each(result.data,function(k,v) {
-                            t += `<tr><td>`+v.influencers_name+`</td>`;
-                            t += `<td>`+v.title+`</td>`;
-                            t += `<td>`+v.description+`</td>`;
-                            t += `<td>`+v.created_at+`</td></tr>`;
-                        });
-                        if( t == '' ){
-                            t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
-                        }
-                    }
-                    $("#category-history-modal").find(".show-list-records").html(t);
-                    $("#category-history-modal").modal("show");
-                },
-                error: function (){
-                    $("#loading-image").hide();
-                }
-            });
-        });
+        // $(document).on("click",".task-history",function(e) {
+        //     e.preventDefault();
+        //     var id = $(this).data("id");
+        //     $.ajax({
+        //         url: '/instagram/influencers/history',
+        //         type: 'POST',
+        //         data : { _token: "{{-- csrf_token() --}}", id : id },
+        //         dataType: 'json',
+        //         beforeSend: function () {
+        //             $("#loading-image").show();
+        //         },
+        //         success: function(result){
+        //             $("#loading-image").hide();
+        //             if(result.code == 200) {
+        //                 var t = '';
+        //                 $.each(result.data,function(k,v) {
+        //                     t += `<tr><td>`+v.influencers_name+`</td>`;
+        //                     t += `<td>`+v.title+`</td>`;
+        //                     t += `<td>`+v.description+`</td>`;
+        //                     t += `<td>`+v.created_at+`</td></tr>`;
+        //                 });
+        //                 if( t == '' ){
+        //                     t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+        //                 }
+        //             }
+        //             $("#category-history-modal").find(".show-list-records").html(t);
+        //             $("#category-history-modal").modal("show");
+        //         },
+        //         error: function (){
+        //             $("#loading-image").hide();
+        //         }
+        //     });
+        // });
 
         $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
@@ -559,7 +555,7 @@ button[disabled]:hover {
             });
 
          $(document).ready(function() {
-        src = "{{ route('influencers.index') }}";
+        src = "{{-- route('influencers.index') --}}";
         $(".global").autocomplete({
         source: function(request, response) {
             term = $('#term').val();
@@ -627,13 +623,13 @@ button[disabled]:hover {
            name = $(this).closest("tr").data("keyword-name");
            instagram_account_id = $(this).val();
            $.ajax({
-               url: '{{ route('influencers.keyword.save') }}',
+               url: '{{-- route('influencers.keyword.save') --}}',
                type: 'POST',
                dataType: 'json',
                data: {
                     name: name,
                     instagram_account_id: instagram_account_id,
-                    "_token": "{{ csrf_token() }}",
+                    "_token": "{{-- csrf_token() --}}",
                 },
            })
            .done(function(response) {
@@ -647,20 +643,25 @@ button[disabled]:hover {
 
      function submitKeywork() {
            name = $('#keywordname').val();
-           instagram_account_id = $('#instagram_account_id').val();
+           start = $('#startname').val();
+           end = $('#endname').val();
+
            $.ajax({
-               url: '{{ route('influencers.keyword.save') }}',
+               url: '{{ route('google-scrapper.keyword.save') }}',
                type: 'POST',
                dataType: 'json',
                data: {
                     name: name,
-                    instagram_account_id: instagram_account_id,
+                    start: start,
+                    end: end,
                     "_token": "{{ csrf_token() }}",
                 },
            })
            .done(function(response) {
                $('#keywordname').val('')
-               alert(response.message);
+               $('#startname').val('')
+               $('#endname').val('')
+            //    alert(response.message);
                location.reload();
            })
            .fail(function() {
@@ -670,12 +671,12 @@ button[disabled]:hover {
 
      function getImage(name) {
               $.ajax({
-               url: '{{ route('influencers.image') }}',
+               url: '{{-- route('influencers.image') --}}',
                type: 'POST',
                dataType: 'json',
                data: {
                     name: name,
-                    "_token": "{{ csrf_token() }}",
+                    "_token": "{{-- csrf_token() --}}",
                 },
                })
                .done(function(response) {
@@ -693,12 +694,12 @@ button[disabled]:hover {
           }
         function getStatus(name) {
               $.ajax({
-               url: '{{ route('influencers.status') }}',
+               url: '{{-- route('influencers.status') --}}',
                type: 'POST',
                dataType: 'json',
                data: {
                     name: name,
-                    "_token": "{{ csrf_token() }}",
+                    "_token": "{{-- csrf_token() --}}",
                 },
                })
                .done(function(response) {
@@ -716,7 +717,7 @@ button[disabled]:hover {
             var result = confirm("You Want to start this script "+name+"?");
             if(result){
                 $.ajax({
-                   url: '{{ route('influencers.start') }}',
+                   url: '{{-- route('influencers.start') --}}',
                    type: 'POST',
                    dataType: 'json',
                    data: {
@@ -724,7 +725,7 @@ button[disabled]:hover {
                         platform : platform,
                         wait_time : wait_time,
                         no_of_request : no_of_request,
-                        "_token": "{{ csrf_token() }}",
+                        "_token": "{{-- csrf_token() --}}",
                     },
                    })
                    .done(function(response) {
@@ -741,12 +742,12 @@ button[disabled]:hover {
             var result = confirm("You Want the log for this script "+name+"?");
             if(result){
                 $.ajax({
-                   url: '{{ route('influencers.log') }}',
+                   url: '{{-- route('influencers.log') --}}',
                    type: 'POST',
                    dataType: 'json',
                    data: {
                         name: name,
-                        "_token": "{{ csrf_token() }}",
+                        "_token": "{{-- csrf_token() --}}",
                     },
                    })
                    .done(function(response) {
@@ -766,12 +767,12 @@ button[disabled]:hover {
             var result = confirm("You Want to re-start this script "+name+"?");
             if(result){
                 $.ajax({
-                   url: '{{ route('influencers.restart') }}',
+                   url: '{{-- route('influencers.restart') ----}}',
                    type: 'POST',
                    dataType: 'json',
                    data: {
                         name: name,
-                        "_token": "{{ csrf_token() }}",
+                        "_token": "{{-- csrf_token() --}}",
                     },
                    })
                    .done(function(response) {
@@ -788,13 +789,13 @@ button[disabled]:hover {
             var result = confirm("You Want to stop this script "+name+"?");
             if(result){
                 $.ajax({
-                   url: '{{ route('influencers.stop') }}',
+                   url: '{{-- route('influencers.stop') --}}',
                    type: 'POST',
                    dataType: 'json',
                    data: {
                         name: name,
                         platform : platform,
-                        "_token": "{{ csrf_token() }}",
+                        "_token": "{{-- csrf_token() --}}",
                     },
                    })
                    .done(function(response) {
@@ -814,7 +815,7 @@ button[disabled]:hover {
           
           $(document).on('click', '.expand-row-msg', function () {
             var name = $(this).data('name');
-			var id = $(this).data('id');
+            var id = $(this).data('id');
             var full = '.expand-row-msg .show-short-'+name+'-'+id;
             var mini ='.expand-row-msg .show-full-'+name+'-'+id;
             $(full).toggleClass('hidden');
@@ -822,7 +823,7 @@ button[disabled]:hover {
         });
 
         $(document).on('click', '.send_btn', function () {
-			var id = $(this).data('id');
+            var id = $(this).data('id');
             var account_id = $(".account-search-"+id).val();
             var message = $('#message'+id).val();
             $.ajax({
@@ -978,11 +979,11 @@ button[disabled]:hover {
         function sortData() {
                 
                 $.ajax({
-                url: '{{ route('influencers.sort') }}',
+                url: '{{-- route('influencers.sort') --}}',
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        '_token': "{{ csrf_token() }}",
+                        '_token': "{{-- csrf_token() --}}",
                     },
                 beforeSend: function() {
                     $("#loading-image").show();

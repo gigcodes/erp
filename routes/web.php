@@ -277,6 +277,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
     Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
+    Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
+
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
@@ -1598,6 +1603,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
         Route::get('/report', 'HubstaffActivitiesController@activityReport')->name('hubstaff-acitivtity.report');
         Route::get('/report-download', 'HubstaffActivitiesController@activityReportDownload')->name('hubstaff-acitivtity-report.download');
+        Route::get('/payment_data', 'HubstaffActivitiesController@activityPaymentData')->name('hubstaff-acitivtity.payment_data');
 
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
@@ -2002,6 +2008,7 @@ Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest'
 
 
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
+Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -3322,3 +3329,6 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
 Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
+// Google Scrapper Keyword
+Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
