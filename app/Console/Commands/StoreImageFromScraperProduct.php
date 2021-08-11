@@ -48,7 +48,6 @@ class StoreImageFromScraperProduct extends Command
         ->select(["products.*","m.id as media_id"])
         ->havingRaw("media_id is null")
         ->groupBy("products.id")
-        ->limit(100)
         ->get();
 
         if(!$images->isEmpty()) {
