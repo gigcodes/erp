@@ -2004,6 +2004,7 @@ Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest'
 
 
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
+Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -3324,3 +3325,6 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
 Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
+// Google Scrapper Keyword
+Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');

@@ -96,7 +96,7 @@ class HubstuffActivityCommand extends Command
 
             $path = null;
 
-            $data["email"] = 'g62@gopanear.com';//$user->email;
+            $data["email"] = $user->email;
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
