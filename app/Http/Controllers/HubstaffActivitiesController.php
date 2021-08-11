@@ -878,9 +878,9 @@ class HubstaffActivitiesController extends Controller
                 'start_date' => $start_date,
                 'end_date' => $end_date,
                 'file_path' => $storage_path,
-                'total_amount' => $total_amount,
-                'total_amount_paid' => $total_amount_paid,
-                'total_balance' => $total_balance,
+                'total_amount' => round($total_amount,2),
+                'total_amount_paid' => round($total_amount_paid,2),
+                'total_balance' => round($total_balance,2),
                 'payment_date' => $payment_date,
             ]);
 
