@@ -117,7 +117,9 @@
             padding-bottom: 20px;
             border-bottom: 1px solid;
             margin-bottom: 20px;
-            object-fit:cover;
+            /* object-fit:cover; */
+            object-fit:contain;
+
         }
         .product-list-card::-webkit-scrollbar-thumb, .image-diamention-rasio::-webkit-scrollbar-thumb
         {
