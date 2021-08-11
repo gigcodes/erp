@@ -44,10 +44,11 @@ class StoreImageFromScraperProduct extends Command
             $q->where("med.tag","original");
         })
         ->leftJoin("media as m","m.id","med.media_id")
+        ->where("products.is_cron_check",0)
         ->select(["products.*","m.id as media_id"])
         ->havingRaw("media_id is null")
         ->groupBy("products.id")
-        ->limit(10)
+        ->limit(100)
         ->get();
 
         if(!$images->isEmpty()) {
@@ -69,6 +70,8 @@ class StoreImageFromScraperProduct extends Command
                     }
                 }
 
+                $im->is_cron_check = 1;
+                $im->save();
             }
         }
 
