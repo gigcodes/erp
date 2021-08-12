@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddCharityIdToChatMessagesTable extends Migration
+class AddProductIdToCustomerCharitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddCharityIdToChatMessagesTable extends Migration
      */
     public function up()
     {
-       DB::select("ALTER TABLE `chat_messages` ADD `charity_id` INT(11) NULL AFTER `vendor_id`;");
-       DB::select("ALTER TABLE `chat_messages` ADD INDEX(`user_id`);");
+        DB::select("ALTER TABLE `customer_charities` ADD `product_id` INT(11) NULL AFTER `category_id`;");
+        DB::select("ALTER TABLE `customer_charities` CHANGE `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT;");
     }
 
     /**
@@ -25,7 +25,7 @@ class AddCharityIdToChatMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
+        Schema::table('customer_charities', function (Blueprint $table) {
             //
         });
     }

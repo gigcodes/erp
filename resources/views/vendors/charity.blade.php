@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('favicon' , 'vendor.png')
-@section('title', 'Vendor Info')
+@section('title', 'Charity Info')
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
@@ -113,7 +113,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
-            <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
+            <h2 class="page-heading">Charity Info ({{ $totalVendor }})</h2>
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('customer.charity') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
@@ -180,49 +180,13 @@
             </div>
         </div>   
     </div>
-    @include('partials.flash_messages')
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel-group" style="margin-bottom: 5px;">
-                <div class="panel mt-3 panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
-                        </h4>
-                    </div>
-                    <div id="collapse1" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <table class="table table-bordered table-striped">
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Responsible User</th>
-                                </tr>
-                                @foreach($vendor_categories as $cat)
-                                    <tr>
-                                        <td>{{ $cat->title }}</td>
-                                        <td>
-                                            <select class="form-control update-category-user" data-categoryId="{{$cat->id}}" name="user_id" id="user_id_{{$cat->id}}">
-                                                <option value="">None</option>
-                                                @foreach($users as $user)
-                                                    <option value="{{$user->id}}" {{$user->id==$cat->user_id ? 'selected': ''}}>{{ $user->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('partials.flash_messages') 
     <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
+                <th width="5%"><a href="/products/customer/charity{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
                 <th width="7%">Product</th>
                 <th width="7%">Phone</th>
                 <th width="7%">Email</th>

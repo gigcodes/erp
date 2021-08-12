@@ -4459,12 +4459,7 @@ class WhatsAppController extends FindByNumberController
                     $user = User::find($message->hubstuff_activity_user_id);
                     $phone = $user->phone;
                     $whatsapp_number = Auth::user()->whatsapp_number;
-                }
-                if ($context == 'charity') { 
-                    $charity = CustomerCharity::find(1);
-                    $phone = $charity->phone;
-                    $whatsapp_number = Auth::user()->whatsapp_number;
-                }
+                } 
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);
