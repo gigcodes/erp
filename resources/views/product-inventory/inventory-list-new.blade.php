@@ -158,15 +158,22 @@
         <thead>
             <tr>
                 <th>Date</th>
+                <th>Total Product</th>
+                <th>No of product in Stock</th>
                 <th>No of product Updated</th>
+                <th>No of pending Product</th>
+                
                 
             </tr>
         </thead>
         <tbody>
             <?php foreach($history as $h) { ?>
                 <tr>
-                    <td><?php echo $h['date'];?></td>            
-                    <td>{{ $h['productUpdated'] }}</td>
+                    <td><?php echo $h['date'];?></td> 
+                    <td>{{ $h->total_product }}</td>  
+                    <td>{{ $h->in_stock }}</td>          
+                    <td>{{ $h->updated_product }}</td>
+                    <td>{{ $h->total_product-$h->updated_product }}</td>
                 </tr>
              <?php } ?> 
                </tbody>
