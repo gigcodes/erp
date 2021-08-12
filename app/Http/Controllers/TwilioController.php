@@ -1095,7 +1095,6 @@ class TwilioController extends FindByNumberController
                 'caller_sid' => $request->input('CallSid')
             ];
 
-            CallBusyMessage::create($params);
             
             //Add Customer If Not Exist in
 
@@ -1118,6 +1117,7 @@ class TwilioController extends FindByNumberController
 
                 Customer::create($add_customer);
             }
+            CallBusyMessage::create($params);
 
 
             Log::channel('customerDnd')->info(' Missed Call saved');
