@@ -2255,7 +2255,7 @@ class OrderController extends Controller
                     $callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
                     $callBusyMessages['data'][$key]['store_website_id'] = $customer_array[0]['store_website_id'];
 
-                    if(count($customer_array[0]['store_website'])){
+                    if(isset($customer_array[0]['store_website']) && count($customer_array[0]['store_website'])){
                         $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];
                     }
 

@@ -91,15 +91,15 @@
                             style="cursor: pointer;" data-call-message-id={{ $callBusyMessage['id'] }}></i>
                          
                          
-                            <i class="fa fa-info-circle send-mail-or-whatsup-message-button" type="button" data-product-id="1709"
-                            title="Status Logs" aria-hidden="true" data-id="107" data-name="Status"
+                            <i class="fa fa-envelope-o send-mail-or-whatsup-message-button pl-1" type="button" data-product-id="1709"
+                            title="Send Message" aria-hidden="true" data-id="107" data-name="Status"
                             style="cursor: pointer;" data-call-message-id={{ $callBusyMessage['id']}}   data-number="{{ $callBusyMessage['twilio_call_sid'] }}" data-fullname="{{ isset($callBusyMessage['customer_name']) ? $callBusyMessage['customer_name'] : null }}" data-customer-id="{{ isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null }}"></i>
 
                             
-                            <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
+                            <a type="button" class="btn btn-xs btn-image load-communication-modal pl-1" data-object="customer" data-id="{{isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
 
                             @if (isset($callBusyMessage['customerid']))
-                                <a class="btn btn-image"
+                                <a class="btn btn-image p-0"
                                     href="{{ route('customer.show', $callBusyMessage['customerid']) }}"><img
                                         src="/images/view.png" /></a>
                             @endif

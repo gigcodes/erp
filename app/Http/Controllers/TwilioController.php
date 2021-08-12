@@ -1096,6 +1096,30 @@ class TwilioController extends FindByNumberController
             ];
 
             CallBusyMessage::create($params);
+            
+            //Add Customer If Not Exist in
+
+            $check_customer = Customer::where('phone', 'LIKE', str_replace('+', '', $request->input('Caller')))->first();
+
+            if(!$check_customer)
+            {
+
+                $defaultWhatapp =     $task_info = \DB::table('whatsapp_configs')
+                ->select('*')
+                    ->whereRaw("find_in_set(" . CustomerController::DEFAULT_FOR . ",default_for)")
+                    ->first();
+                $defaultNo = $defaultWhatapp->number;
+
+                $add_customer = [
+                    'name' => str_replace('+', '', $request->input('Caller')), 
+                    'phone' => str_replace('+', '', $request->input('Caller')), 
+                    'whatsapp_number' => $defaultNo,
+                ];
+
+                Customer::create($add_customer);
+            }
+
+
             Log::channel('customerDnd')->info(' Missed Call saved');
             Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
 
