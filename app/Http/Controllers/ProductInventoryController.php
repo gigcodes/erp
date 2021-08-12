@@ -1112,15 +1112,17 @@ class ProductInventoryController extends Controller
     	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->select(\DB::raw("count(distinct p.id) as total"))->first();
     	$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
 
-		$history=array();
-		$date=date('Y-m-d');
+		$history=\App\InventoryHistory::orderBy('date', 'DESC')->limit(7)->get();
+		/*$date=date('Y-m-d');
 		$date=date("Y-m-d",strtotime($date . ' - 1 day'));
 		for($count=0;$count<7;$count++)
 		{
 			$nStock = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->select(\DB::raw("count(distinct product_id) as total"))->first();
 			$history[] = ['date'=>$date,'productUpdated'=>($nStock) ? $nStock->total : 0];
 		    $date = date("Y-m-d",strtotime($date . ' - 1 day'));
-		}
+		}*/
+
+		 
 
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
 
