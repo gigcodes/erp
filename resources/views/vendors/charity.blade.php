@@ -647,6 +647,13 @@
             $('#vendor_account_name').val(vendor.account_name);
             $('#vendor_account_iban').val(vendor.account_iban);
             $('#vendor_account_swift').val(vendor.account_swift);
+            $('#frequency_of_payment').val(vendor.frequency_of_payment);
+            $('#bank_name').val(vendor.bank_name);
+            $('#bank_address').val(vendor.bank_address);
+            $('#city').val(vendor.city);
+            $('#country').val(vendor.country);
+            $('#ifsc_code').val(vendor.ifsc_code);
+            $('#remark').val(vendor.remark);
         });
         $(document).on('click', '.create-agent', function () {
             var id = $(this).data('id');
