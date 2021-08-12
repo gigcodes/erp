@@ -76,7 +76,8 @@
         font-size: 15px;
     }
     #quick-chatbox-window-modal .card-footer{
-        padding:8px 5px !important;
+        /* padding:8px 5px !important; */
+        padding:2px 5px !important;
     }
     .selectedValue{
         flex-grow: 1;
@@ -126,7 +127,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-3 chat pr-0" style="margin-top : 0px !important;">
-                        <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
+                        <div class="card_chat mb-sm-3 mb-md-0 contacts_card" style="height:680px !important;">
                             <div class="card-header">
                                 <h3>Chats</h3>
                                 <!-- <div class="input-group">
@@ -137,30 +138,43 @@
                                 </div> -->
                             </div>
                             <div class="card-body contacts_body">
+                            {{-- $chatIds11 = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')->orderBy('status','desc')->get(); --}}
                                 @php
-                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')->orderBy('status','desc')->get();
+                                
+
+                                $chatIds = \App\CustomerLiveChat::with('customer')
+                                ->join(DB::raw('(Select max(id) as id from customer_live_chats group by customer_id) LatestMessage'), function($join) {
+                                $join->on('customer_live_chats.id', '=', 'LatestMessage.id');
+                                })
+                                ->groupBy('customer_id')->orderBy('created_at', 'desc')->get();
+
+                                
+
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
+                                
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                     @php
                                     $customer = $chatId->customer;
                                     $customerInital = substr($customer->name, 0, 1);
+                                    $website_data = \App\StoreWebsite::where("id", $customer->store_website_id)->first();
                                     @endphp
                                         <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
                                         <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
 
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
-                                                <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
+                                                <!-- <soan class="rounded-circle user_inital">{{ $customerInital }}</soan> -->
                                                 {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
                                                 <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
                                             </div>
                                             <div class="user_info">
                                                 <span>{{ $customer->name }}</span>
-                                                <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
+                                                <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
+                                                <p>{{ $website_data->website ?? '' }} </p>
                                             </div>
-                                            @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
+                                            <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
                                         </div>
                                     </li>
 
@@ -199,6 +213,9 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <button  style="padding-right:2px;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="1" data-object="customer" data-id="{{ @$customer->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+
                                 <div class="video_cam">
                                     <span><i class="fa fa-video"></i></span>
                                     <span><i class="fa fa-phone"></i></span>
@@ -255,12 +272,96 @@
                                 </div>
                             </div>
 
+
+
+                            <div class="card-footer">
+                                <div class="rows">
+                                         <div class="col-md-4">
+                                            <div class="chat-rightbox">
+                                                <select class="form-control globalSelect2" id="live_quick_replies">
+                                                    <option value="">Quick Reply</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="chat-rightbox">
+                                                @php
+                                                $all_categories = \App\ReplyCategory::all();
+                                                @endphp
+                                                <select class="form-control globalSelect2" id="keyword_category">
+                                                    <option value="">Select Category</option>
+                                                    @if(isset($all_categories))
+                                                        @foreach ($all_categories as $category)
+                                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="chat-rightbox" style="display:flex;">
+                                                <input type="text" name="quick_comment_live" placeholder="New Quick Comment" class="form-control quick_comment_live">
+                                                <span><button class="btn btn-secondary quick_comment_add_live ml-2" style="height:34px!important;">+</button></span>
+                                            </div>
+                                        </div>
+                                        
+                                </div>
+                                <!-- <div class="chat-rightbox">
+                                    @php
+                                    $all_categories = \App\ReplyCategory::all();
+                                    @endphp
+                                    <select class="form-control globalSelect2" id="keyword_category">
+                                        <option value="">Select Category</option>
+                                        @if(isset($all_categories))
+                                            @foreach ($all_categories as $category)
+                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                
+                                 -->
+                            </div>
+
                         </div>
                         <div class="card-body " id="customer_order_details">
 
                         </div>
                     </div>
                     <div class="col-md-3 customer-info pl-0">
+                        
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered" id="">
+                                    <thead>
+                                        <!-- <tr>
+                                            <th style="width: 5%;">Header</th>
+                                            <th style="width: 5%;">Details</th>
+                                        </tr> -->
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>General Info</th>
+                                            <td id="chatCustomerInfo"></th>
+                                        </tr>
+                                        <tr>
+                                            <td>Visited Pages</th>
+                                            <td id="chatVisitedPages"></th>
+                                        </tr>
+                                        <tr>
+                                            <td>Additional info</th>
+                                            <td id="chatAdditionalInfo"></th>
+                                        </tr>
+                                        <tr>
+                                            <td>Technology</th>
+                                            <td id="chatTechnology"></th>
+                                        </tr>
+                                      
+                                    </tbody>
+                                </table>
+                            </div>
+                        
+                    </div>
+                    <!-- <div class="col-md-3 customer-info pl-0">
                         <div class="chat-righbox">
                             <div class="title">General Info</div>
                             <div id="chatCustomerInfo"></div>
@@ -305,9 +406,30 @@
                                 <option value="">Quick Reply</option>
                             </select>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="chat-list-history" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Communication</h4>
+                <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+            </div>
+            <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>

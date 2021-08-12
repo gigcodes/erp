@@ -2,7 +2,13 @@
 @section('large_content')
 
 <?php 
-$chatIds = \App\CustomerLiveChat::latest()->orderBy('seen','asc')->orderBy('status','desc')->get();
+// $chatIds = \App\CustomerLiveChat::latest()->orderBy('seen','asc')->orderBy('status','desc')->get();
+
+$chatIds = \App\CustomerLiveChat::with('customer')
+->join(DB::raw('(Select max(id) as id from customer_live_chats group by customer_id) LatestMessage'), function($join) {
+$join->on('customer_live_chats.id', '=', 'LatestMessage.id');
+})
+->groupBy('customer_id')->orderBy('created_at', 'desc')->get();
 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 ?>
     <style type="text/css">
@@ -125,7 +131,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         $language = json_decode($content, true);
                                         @endphp
                                         <div class="selectedValue">
-                                            <select id="autoTranslate" class="form-control auto-translate">
+                                            <select id="autoTranslate" class="form-control auto-translate globalSelect2 chat_lang_{{$chatId->customer_id}}" data-customerId="{{$chatId->customer_id}}">
                                                 <option value="">Translation Language</option>
                                                 @foreach ($language as $key => $value)
                                                     <option value="{{$value}}">{{$key}}</option>
@@ -156,15 +162,23 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         </div>
                                         <div class="row cls_quick_reply_box">
                                             <div class="col-md-4 cls_remove_rightpadding">
-                                                <select class="form-control" id="quick_replies">
+                                                @php
+                                                    $all_replay = \App\Reply::where('model','Store Website')->get();
+                                                @endphp
+                                                <select class="form-control quick_replies_data category_quick_{{ @$customer->id }}" id="quick_replies">
                                                     <option value="">Quick Reply</option>
+                                                    @if(isset($all_replay))
+                                                        @foreach ($all_replay as $rpl)
+                                                            <option value="{{ $rpl->reply }}">{{ $rpl->reply }}</option>
+                                                        @endforeach
+                                                    @endif
                                                 </select>
                                             </div>
                                             <div class="col-md-4 cls_remove_rightpadding pl-3">
                                                 @php
                                                     $all_categories = \App\ReplyCategory::all();
                                                 @endphp
-                                                <select class="form-control auto-translate" id="categories">
+                                                <select class="form-control auto-translate" id="categories" data-id="{{ @$customer->id }}" data-store_id="{{ $customer->store_website_id ?? 1 }}">
                                                     <option value="">Select Category</option>
                                                     @if(isset($all_categories))
                                                         @foreach ($all_categories as $category)
@@ -184,6 +198,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                 </div>
                                             </div>
                                         </div>
+                                        <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id ?? 1 }}" />
                                         <div onclick="getLiveChats('{{ $customer->id }}')" class="card-body msg_card_body" style="display: none;" id="live-message-recieve">
                                             @if(isset($message) && !empty($message))
                                                 @foreach($message as $msg)
@@ -422,7 +437,13 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 if ($(this).val() != "") {
                     var category_id = $(this).val();
 
-                    var store_website_id = $('#selected_customer_store').val();
+                    // category_quick_5119
+
+                    var store_website_id = $('#live_selected_customer_store').val();
+
+                    // var store_website_id = $(this).data('store_id');
+                    var id = $(this).data('id');
+
                   /*  if(store_website_id == ''){
                         store_website_id = 0;
                     }*/
@@ -433,10 +454,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                     }).done(function(data){
                         console.log(data);
                         if(data.status == 1){
-                            $('#quick_replies').empty().append('<option value="">Quick Reply</option>');
+                            $('.category_quick_'+id).empty().append('<option value="">Quick Reply</option>');
                             var replies = data.data;
                             replies.forEach(function (reply) {
-                                $('#quick_replies').append($('<option>', {
+                                $('.category_quick_'+id).append($('<option>', {
                                     value: reply.reply,
                                     text: reply.reply,
                                     'data-id': reply.id
@@ -483,8 +504,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 })
             });
 
-            $('#quick_replies').on("change", function(){
-                $('.message_textarea').text($(this).val());
+            $('.quick_replies_data').on("change", function(){
+                // $('.message_textarea').text($(this).val());
+
+                $(this).closest('td').find('.message_textarea').text($(this).val())
             });
     </script>
 @endsection
