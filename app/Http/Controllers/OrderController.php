@@ -3640,7 +3640,7 @@ class OrderController extends Controller
     public function storeStatus(Request $request,$id)
     {
         $callBusyMessage = CallBusyMessage::find($id);
-        $callBusyMessage->call_busy_message_statuses_id = $request->selectedId;
+        $callBusyMessage->call_busy_message_statuses_id = $request->select_id;
         $callBusyMessage->save();
 
         return response()->json(['message'=> ' Status updated successfuly.']);
@@ -3711,7 +3711,7 @@ class OrderController extends Controller
                 $email             = Email::create([
                     'model_id'         => $customer->id,
                     'model_type'       => Customer::class,
-                    'from'             => 'buying@amourint.com',
+                    'from'             => 'customercare@sololuxury.co.in',
                     'to'               => $customer->email,
                     'subject'          => $subject,
                     'message'          => $addRequestData['message'],
