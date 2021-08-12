@@ -150,6 +150,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                             <i class="fa fa-location-arrow"></i>
                                                         </span>
                                                     </a>
+                                                    <button  style="padding:0 ;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="1" data-object="customer" data-id="{{ @$customer->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                                                 </div>
                                             </div>                                          
                                         </div>
@@ -285,6 +286,27 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 </table>
             </div>
         </div>
+
+
+
+        <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
