@@ -1601,6 +1601,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/report-download', 'HubstaffActivitiesController@activityReportDownload')->name('hubstaff-acitivtity-report.download');
         Route::get('/payment_data', 'HubstaffActivitiesController@activityPaymentData')->name('hubstaff-acitivtity.payment_data');
         Route::post('/command_execution_manually', 'HubstaffActivitiesController@HubstaffActivityCommandExecution')->name('hubstaff-acitivtity.command_execution_manually');
+        Route::get('/hubstaff-payment-download', 'HubstaffActivitiesController@HubstaffPaymentReportDownload')->name('hubstaff-payment-report.download');
 
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
@@ -2128,7 +2129,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 Route::prefix('social-media')->middleware('auth')->group(function () {
     Route::get('/instagram-posts/grid','InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
-    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue');
+    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue')->name('instagram.message-queue');
     Route::get('/instagram/message-queue/approve', 'InstagramPostsController@messageQueueApprove')->name('instagram.message-queue.approve');
     Route::post('/instagram/message-queue/settings', 'InstagramPostsController@messageQueueSetting')->name('instagram.message-queue.settings');
     Route::post('/instagram/message-queue/approve/approved', 'InstagramPostsController@messageQueueApproved')->name('instagram.message-queue.approved');
