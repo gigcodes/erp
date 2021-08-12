@@ -8,7 +8,9 @@ use Facebook\Facebook;
 use Blade;
 use Studio\Totem\Totem;
 use App\ScrapedProducts;
+use App\CallBusyMessage;
 use Illuminate\Support\Facades\Validator;
+use App\Observers\CallBusyMessageObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
         }, 'image is not valid base64 encoded string.');
-
+		CallBusyMessage::observe(CallBusyMessageObserver::class);
     }
 
     /**
