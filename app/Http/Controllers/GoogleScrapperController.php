@@ -28,10 +28,5 @@ class GoogleScrapperController extends Controller
         return response()->json(['message' => 'Google Scrapper Keyword Saved']); 
         
     }
-
-    public function extractedData(Request $request)
-    {
-        var_dump($request);
-    }
     
 }

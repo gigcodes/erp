@@ -3330,4 +3330,4 @@ Route::prefix('lead-order')->middleware('auth')->group(static function(){
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
-Route::post('google-scrapper-data', 'GoogleScrapperController@extractedData');
+
