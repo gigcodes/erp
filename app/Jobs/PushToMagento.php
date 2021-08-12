@@ -117,6 +117,11 @@ class PushToMagento implements ShouldQueue
 
             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
               $addedProduct =   MagentoHelper::callHelperForProductUpload($product, $website, $this->log);
+              $availableProduct = Product::where('sku',$addedProduct->sku)->first();
+              $real_product_id  =null;
+              if($availableProduct){
+                  $real_product_id = $availableProduct->id ?? null;
+              }
             
               if(is_object($addedProduct) || $addedProduct instanceof \Illuminate\Database\Eloquent\Collection){
                 $updated =   ProductPushInformation::updateOrCreate(
@@ -127,7 +132,8 @@ class PushToMagento implements ShouldQueue
                       'status'=> $addedProduct->status,
                       'quantity'=>$addedProduct->stock,
                       'stock_status'=> $addedProduct->stock_status,
-                      'is_added_from_csv'=>0
+                      'is_added_from_csv'=>0,
+                      'real_product_id'=>$real_product_id
                   ]);
               }
              

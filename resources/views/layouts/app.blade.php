@@ -575,6 +575,21 @@ $metaData = '';
                                         </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Social media<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('influencers.index') }}">Instagram influencer</a>
+                                            <a class="dropdown-item" href="{{ route('instagram.message-queue') }}">Instagram Message Queue</a>
+                                            <a class="dropdown-item" href="{{ route('instagram.message-queue.approve') }}"> Instagram Message Queue Approval</a>
+                                            
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supplier<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -700,6 +715,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
+                                            <a class="dropdown-item" href="{{ route('customer.charity') }}">Charity</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>

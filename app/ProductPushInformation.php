@@ -37,11 +37,23 @@ class ProductPushInformation extends Model
                 $old_arr['old_' . $key] = $oldValue;
             }
 
+            if(!empty($dirties['is_added_from_csv']) && !empty($old_contents['is_added_from_csv']) ){
+                    $dirties['is_added_from_csv'] = !$old_contents['is_added_from_csv'];
+            }else{
+                $dirties['is_added_from_csv'] = $old_contents['is_added_from_csv'];
+            }
+
+
+            if(!empty($dirties['is_available']) && !empty($old_contents['is_available']) ){
+                    $dirties['is_available'] = !$old_contents['is_available'];
+            }else{
+                $dirties['is_available'] = $old_contents['is_available'];
+            }
+
             $new_values =  array_merge($old_arr, $dirties);
             $new_values['user_id'] =$user_id  ?? 'command' ;
             // unset($new_values['store_website_id']);
             unset($new_values['real_product_id']);
-            unset($new_values['is_available']);
             unset($new_values['id']);
             ProductPushInformationHistory::create($new_values);
         });
@@ -67,17 +79,11 @@ class ProductPushInformation extends Model
                 $old_arr['old_' . $key] = $oldValue;
                 $old_arr['user_id'] = $user_id ?? 'command';
             }
-
-
+            $old_arr['is_added_from_csv'] = $p->is_added_from_csv;
+            $old_arr['is_available'] = $p->is_available;
             ProductPushInformationHistory::create($old_arr);
             $productSku = explode('-',$p->sku)[0];
 
-            $availableProduct = Product::where('sku',$productSku)->first();
-
-            if($availableProduct){
-                $p->real_product_id = $availableProduct->id;
-                $p->save();
-            }
 
         });
     }

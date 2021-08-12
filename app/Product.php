@@ -103,6 +103,7 @@ class Product extends Model
         'suggested_color',
         'last_brand',
         'sub_status_id',
+        "is_cron_check"
     ];
 
     protected $dates         = ['deleted_at'];
@@ -810,7 +811,7 @@ class Product extends Model
                         $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', urldecode($filename));
 
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateReplace()->upload();
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateIncrement()->upload();
                         $this->attachMedia($media, config('constants.media_original_tag'));
                         $countImageUpdated++;
                     }

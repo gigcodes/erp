@@ -160,7 +160,9 @@
     .red-notification { 
         color:grey;
      }   
-
+     select.globalSelect2 + span.select2 {
+    width: calc(100% - 26px) !important;
+}
     </style>
 @endsection
 
@@ -653,6 +655,7 @@
                                             $special_task = \App\Task::find($task->id);
                                             $users_list = '';
                                             foreach ($special_task->users as $key => $user) {
+                                                // dd($special_task);
                                               if ($key != 0) {
                                                 $users_list .= ', ';
                                               }
@@ -1149,14 +1152,14 @@
         <div class="modal-content">
         	<div class="modal-body">
     			<div class="col-md-12">
-	        		<table class="table table-bordered">
+	        		<table class="table table-bordered" style="table-layout: fixed">
 					    <thead>
 					      <tr>
-					        <th>Sl no</th>
-					        <th>Files</th>
-					        <th>Send to</th>
-					        <th>Created at</th>
-                            <th>Action</th>
+					        <th style="width: 5%;">Sl no</th>
+					        <th style=" width: 30%">Files</th>
+					        <th style="word-break: break-all; width: 45%">Send to</th>
+					        <th style="width: 10%">Created at</th>
+                            <th style="width: 10%">Action</th>
 					      </tr>
 					    </thead>
 					    <tbody class="task-image-list-view">
@@ -1257,6 +1260,7 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+
     @include("development.partials.time-history-modal")
     @include("task-module.partials.tracked-time-history")
 @endsection
@@ -3266,6 +3270,7 @@ $(document).on("click",".btn-save-documents",function(e){
                 success: function (response) {
 					$("#preview-task-image").modal("show");
 					$(".task-image-list-view").html(response);
+                    initialize_select2()
                 },
                 error: function () {
                 }
@@ -3456,7 +3461,11 @@ $(document).on("click",".btn-save-documents",function(e){
         $(document).on("click",".link-send-document",function(e) {
 		e.preventDefault();
 		var id = $(this).data("id");
+        
 		var user_id = $(this).closest("tr").find(".send-message-to-id").val();
+       
+        var doc_id = $(this).data("media-id");
+      
 		$.ajax({
 			url: '/task/send-document',
 			type: 'POST',
@@ -3464,7 +3473,7 @@ $(document).on("click",".btn-save-documents",function(e){
 	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
 	    	},
 	    	dataType:"json",
-			data: { id : id , user_id: user_id},
+			data: { id : id , user_id: user_id ,doc_id: doc_id},
 			beforeSend: function() {
 				$("#loading-image").show();
            	}
@@ -3478,7 +3487,75 @@ $(document).on("click",".btn-save-documents",function(e){
 
 	});
 
-        // on status change
+    $(document).on("click",".link-send-task",function(e) {
+		
+		var id = $(this).data("id");
+        var task_id = $(this).data("media-id");
+        var taskdata = $(this).parent().find("#selector_id").val();
+      
+        console.log(task_id, taskdata);
+
+        var type = $(this).parent().find('#selector_id option[value="'+ taskdata +'"]').html().includes('DEVTASK') ? 'DEVTASK' : 'TASK';
+              
+        if($(this).parent().find("#selector_id").val() == ''){
+            toastr["error"]('Please Select Task Or DevTask', "Message")
+            return false;
+        }
+       
+        // $(this).parent().find("#selector_id").val(' ').change();
+        // $(this).parent().find("#selector_id").html(' ').change();
+        
+// console.log($(this).parent().find("#selector_id").html(), type);
+
+		$.ajax({
+            url: '/task/send',
+            type: 'POST',
+            headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+            dataType:"json",
+			data: { id : id , task_id: task_id , taskdata: taskdata, type: type},
+            beforeSend: function() {
+				$("#loading-image").show();
+           	},
+            success:function(response) {
+                $("#loading-image").hide();
+                toastr["success"]("File sent successfully");
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+			
+        });
+        
+	});
+
+        $(document).on("click", ".send-to-sop-page",function(){
+            var id = $(this).data("id");
+            var task_id = $(this).data("media-id");
+      
+            $.ajax({
+            url: '/task/send-sop',
+            type: 'POST',
+            headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+            dataType:"json",
+			data: { id : id , task_id: task_id},
+            beforeSend: function() {
+				$("#loading-image").show();
+           	},
+            success:function(response) {
+                $("#loading-image").hide();
+                toastr["success"]("File Added Successfully In Sop");
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+			
+        });
+        });
+     // on status change
 
         $(document).on('change', '.change-task-status', function () {
          
