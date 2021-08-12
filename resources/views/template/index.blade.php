@@ -67,9 +67,9 @@
 <div class="row" id="product-template-page">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Templates</h2>
-       <!--  <div class="pull-right">
+        <div class="pull-right">
             <button type="button" class="btn btn-secondary create-product-template-btn">+ Add Template</button>
-        </div> -->
+        </div>
         <div class="pull-right">
             <a type="button" class="btn btn-secondary" href="{{route('fetch.bearbanner.templates')}}" style="margin-right: 7px !important;">Refresh Templates</a>
         </div>

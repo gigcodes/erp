@@ -3,6 +3,7 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\StoreWebsite;
+use App\Product;
 use App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -123,7 +124,8 @@ class BrandController extends Controller
 
             return redirect()->back()->with('success','Brand Request finished successfully');;
         }
-
+		$storeWebsite = StoreWebsite::pluck('title','id')->toArray();
+		
         $query = Brand::leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.id')->select('brands.*', DB::raw('count(products.id) as counts'));
 
         // $query = $query->whereNull("brands.deleted_at");
@@ -144,19 +146,10 @@ class BrandController extends Controller
 
         $query->orderBy('brands.name', 'asc');
 
-        $brands = $query->get();
-
         // echo "<pre>";
         // print_r($brands->toArray());
         // exit;
-
-
-
-
-        $categories = Category::join('products', 'products.category', '=', 'categories.id')->orderBy('categories.title','asc')->pluck('categories.title','categories.id');
-
-        $storeWebsite = StoreWebsite::pluck('title','id')->toArray();
-
+	
         $appliedQ      = StoreWebsiteBrand::all();
         
         $apppliedResult = [];
@@ -166,6 +159,17 @@ class BrandController extends Controller
                 $apppliedResult[$raw->brand_id][] = $raw->store_website_id;
             }
         }
+		$limit = 30; 
+		if ($request->ajax() && $request->pagination == null) {
+			$brands = $query->limit($limit)->offset(($request->page - 1)*$limit)->get();
+            return response()->json([
+                'tbody' => view('storewebsite::brand.partials.brand_data', compact('brands', 'storeWebsite', 'apppliedResult'))->render(),
+                'count' => count($brands)
+            ], 200);
+        } else{
+			 $brands = $query->limit($limit)->get(); 
+		}
+       $categories = Category::join('products', 'products.category', '=', 'categories.id')->orderBy('categories.title','asc')->pluck('categories.title','categories.id');
 
         return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','categories']));
     }

@@ -18,12 +18,12 @@
         <div class="pull-right ">
 
 
-            <div class="d-flex justify-content-between  mx-3">
+            {{-- <div class="d-flex justify-content-between  mx-3">
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#instagram-account-popup">
                     Edit account
                 </button>
-            </div>
+            </div> --}}
         </div>
     </div>
 </h2>

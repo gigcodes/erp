@@ -440,13 +440,21 @@ class ProductTemplatesController extends Controller
             $StoreWebsite = StoreWebsite::where('id',$request->store_website_id)->first();
 
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
-                foreach ($request->get('product_media_list') as $mediaid) {
+                $mediaList = array_unique($request->get('product_media_list'));
+                foreach ($mediaList as $mediaid) {
                     $media = Media::find($mediaid);
-                    $template->attachMedia($media, ['template-image-attach']);
-                    $template->save();
+                    try{
+                      $template->attachMedia($media, ['template-image-attach']);
+                      $template->save();
+                    }catch(\Exception $e) {
 
-                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+                    }
 
+                    try{
+                        $StoreWebsite->attachMedia($media, ['website-image-attach']);
+                    }catch(\Exception $e) {
+                        
+                    }
                     $imagesArray[]=$media->getUrl();
                 }
             }

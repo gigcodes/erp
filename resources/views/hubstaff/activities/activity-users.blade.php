@@ -15,6 +15,7 @@
             <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
             <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
             <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
+            <a class="btn btn-secondary hubstaff_activity_command" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
         </div>
     </div>
    
@@ -101,8 +102,9 @@
                         <th width="1%">User Requested</th>
                         <th width="1%">Pending payment time</th>
                         <th width="1%">Status</th>
-                        <th width="6%">Note</th>
-                        <th width="5%" colspan="2" class="text-center">Action</th>
+                        <th width="3%">Note</th>
+                        <th width="5%">Frequency</th>
+                        <th width="2%" colspan="2" class="text-center">Action</th>
                         </tr>
                         @php
                             $totalTracked = 0;
@@ -197,7 +199,21 @@
                                 <span class="show-short-note-{{$index}}">{{ str_limit($user['note'], 12, '...')}}</span>
 		                        <span style="word-break:break-all;" class="show-full-note-{{$index}} hidden">{{$user['note']}}</span>
                             </td>
-                            
+                            @php
+                            $fixed_price_user_or_job = '';    
+                            if($user['fixed_price_user_or_job'] == 1)
+                                $fixed_price_user_or_job = 'Fixed Price Job';
+                            elseif($user['fixed_price_user_or_job'] == 2)
+                                $fixed_price_user_or_job = 'Hourly Per Task';
+                            elseif($user['fixed_price_user_or_job'] == 3)
+                                $fixed_price_user_or_job = 'Salaried';                  
+                            @endphp
+                            <td>
+                                <p>S/F PX : {{$fixed_price_user_or_job}}</p>
+                                <p>Frequency : {{$user['payment_frequency']}} </p>
+                                <!-- <p>Last Voucher Date : {{ \Carbon\Carbon::parse($user['last_mail_sent_payment'])->format('d-m-y') }}</p> -->
+                                <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
+                            </td>
                             <td>
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                                 <form action="">
@@ -252,6 +268,43 @@
     </div>  
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="hubstaff_activity_modal" tabindex="-1" role="dialog"  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="">Hubstuff Activity Command</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+            <div class="col-md-12 mb-5 hubstaff_payment_user">
+                <select class="form-control" id="select2insidemodal" name="user">
+                    <option value="">Select</option>                           
+                    @foreach(App\User::orderBy('name')->get() as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-12">
+                <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+                <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+                <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span  id="date_current_show"></span><i class="fa fa-caret-down"></i>
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary execute_hubstaff_payment_command">Excecute</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="open-timing-modal" class="modal" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -376,6 +429,43 @@
                     </tr>
                 </thead>
                 <tbody class=" hubstaff-activity-table"></tbody>
+            </table>
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal" id="hubstaffPaymentReportModel">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Hubstaff Payment Report</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th>Total Amount</th>
+                        <th>Commane Execution</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody class="hubstaff-payment-table"></tbody>
             </table>
         </div>
   
@@ -560,6 +650,12 @@ let r_s = jQuery('input[name="start_date"]').val();
         let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
         let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
 
+        let r_s_p = "";
+        let r_e_p = "";
+
+        let start_p = r_s_p ? moment(r_s_p,'YYYY-MM-DD') : moment().subtract(0, 'days');
+        let end_p =   r_e_p ? moment(r_e_p,'YYYY-MM-DD') : moment();
+
         // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
         // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
 
@@ -613,6 +709,28 @@ let r_s = jQuery('input[name="start_date"]').val();
             jQuery('input[name="hub_staff_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
 
+        function hubpaymentdate(start_p, end_p, id){
+            $('#filter_date_range_ span').html(start_p.format('MMMM D, YYYY') + ' - ' + end_p.format('MMMM D, YYYY'));
+            jQuery('input[name="range_start"]').val(start_p.format('YYYY-MM-DD'));
+            jQuery('input[name="range_end"]').val(end_p.format('YYYY-MM-DD'));
+        }
+
+        $('#filter_date_range_').daterangepicker({
+            maxYear: 1,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, hubpaymentdate);
+
+        $('#filter_date_range_').on('apply.daterangepicker', function (ev, picker) {
+            jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+            jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+        });
 
     // $(document).on('click', '.show-activitie1s', function(e) {
     //     e.preventDefault();
@@ -855,6 +973,105 @@ let r_s = jQuery('input[name="start_date"]').val();
 
             window.location.replace("{{ route('hubstaff-acitivtity-report.download') }}?file=" +  file );
 
+        })
+
+
+        $(document).on('click','.list_history_payment_data',function(){
+            var $this = $(this);
+            var user_id = $this.data("user-id");
+
+            $.ajax({
+                url: "{{ route('hubstaff-acitivtity.payment_data') }}",
+                type: 'GET',
+                data: {"user_id":user_id},
+                success:function( response ){
+                    if (response.status == true) {
+
+                        // console.log("------------>>>");
+                        // console.log(response.data);
+                        // array = response.data;
+                        var html = '';
+                        // for (let i = 0; i < array.length; i++) {
+                        //     html = '<tr>';
+                        //     html = '<td>'+array[i].start_date+'</td>';
+                        //     html = '<td>'+array[i].end_date+'</td>';
+                        //     html = '<td>'+array[i].total_amount+'</td>';
+                        //     html = '<td>'+array[i].file_path+'</td>';
+                        //     html = '</tr>';
+                        // }
+
+                        $.each( response.data, function( key, value ) {
+                            html += '<tr>';
+                            html += '<td>'+moment(value.start_date).format('DD-MM-YYYY')+'</td>';
+                            html += '<td>'+moment(value.end_date).format('DD-MM-YYYY')+'</td>';
+                            html += '<td>'+value.total_amount+'</td>';
+                            html += '<td>'+(value.command_execution ?? '-')+'</td>';
+                            html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download hubstaff-payment-download" aria-hidden="true"></a></td>';
+                            html += '</tr>';
+                        });
+
+                        // console.log("----html-------->>>");
+                        // console.log(html);
+
+                        $('#hubstaffPaymentReportModel .hubstaff-payment-table').html(html);
+                        $('#hubstaffPaymentReportModel').modal('show');
+                    }
+                }
+            });
+        })
+
+        $(document).on('click','.hubstaff-payment-download',function(){
+            var file = $(this).data('file');
+            var $this = $(this);
+
+            window.location.replace("{{ route('hubstaff-payment-report.download') }}?file=" +  file );
+
+        })
+
+        $('#hubstaff_activity_modal').on('shown.bs.modal', function (e) {  
+            $("#select2insidemodal").select2({
+                dropdownParent: $("#hubstaff_activity_modal")
+            });
+        })
+
+        $(document).on('click','.execute_hubstaff_payment_command',function(){
+            var user_id = $("#select2insidemodal").val();
+            var startDate=   jQuery('input[name="range_start"]').val();
+            var endDate =    jQuery('input[name="range_end"]').val();
+
+            if(user_id == ''){
+                toastr['error']('Please Select User');
+                return false;
+            }
+
+            if(startDate == ''){
+                toastr['error']('Please Select Date Range');
+                return false;
+            }
+
+            $.ajax({
+                url: "{{ route('hubstaff-acitivtity.command_execution_manually') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    user_id : user_id,
+                    startDate:startDate,
+                    endDate:endDate,
+                },
+                cors: true ,
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+                }).done( function(response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200)
+                    {
+                        toastr['success'](response.message);
+                    }
+                }).fail(function(errObj) {
+                    $("#loading-image").hide();
+                });
         })
 
 </script>
