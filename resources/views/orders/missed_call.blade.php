@@ -31,6 +31,44 @@
 </h2>
 
 
+<form method="get" action="{{route('order.missed-calls')}}">
+
+    <div class="form-group">
+        <div class="row ml-2">
+    
+   
+            <div class="col-md-2">
+
+                <select name="filterWebsite" class="set-call-status select2" >
+                    <option value="{{ null }}">Select website</option>
+                    @foreach ($storeWebsite as $key=> $website)
+                        <option value="{{ $key }}"  {{ $key == $selectedWebsite ? 'selected': '' }}>{{ $website }}</option>
+                    @endforeach
+                </select>
+
+        </div>
+
+
+            <div class="col-md-2">
+
+                    <select name="filterStatus" class="set-call-status select2" >
+                        <option value="{{ null }}">Select status</option>
+                        @foreach ($allStatuses as $status)
+                            <option value="{{ $status->id }}" {{ $selectedStatus == $status->id ? 'selected' :'' }} >{{ $status->name }}</option>
+                        @endforeach
+                    </select>
+
+            </div>
+
+           
+            <div class="col-md-1 d-flex justify-content-between">
+                <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
             <p>{{ $message }}</p>
@@ -45,12 +83,12 @@
         <div class="table-responsive">
             <table class="table table-bordered">
                 <tr>
-                    <th style="width: 10%">Mobile Number</th>
-                    <th style="width: 10%">Message</th>
-                    <th style="width: 10%">Website name</th>
+                    <th style="width: 12%">Mobile Number</th>
+                    <th style="width: 12%">Message</th>
+                    <th style="width: 15%">Website name</th>
                     <th style="width: 20%">Call Recording</th>
                     <th style="width: 15%">Call Time</th>
-                    <th style="width: 20%">Status</th>
+                    <th style="width: 11%">Status</th>
                     <th  style="width:15%">Action</th>
                 </tr>
 
@@ -140,10 +178,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+              
             </div>
         </div>
     </div>
@@ -222,25 +257,25 @@
         </div>
       </div>
     
- {{-- chat history modal  --}}
- <div id="chat-list-history" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
-                <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
-                <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
-      <input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
-                
-            </div>
-            <div class="modal-body" style="background-color: #999999;">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{-- chat history modal  --}}
+        <div id="chat-list-history" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
+                        <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
+                        <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
+            <input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
+                        
+                    </div>
+                    <div class="modal-body" style="background-color: #999999;">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
 
 
@@ -377,6 +412,9 @@ const formData = $(this).serialize()
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
+                    beforeSend: function () {
+                    $("#loading-image-preview").show();
+                },
                     method:'POST',
                     url: "/order/calls/send-message",
                     data: {
@@ -388,6 +426,8 @@ const formData = $(this).serialize()
                    
                 })
                 .done(function(response) {
+                    $("#loading-image-preview").hide();
+
                     if(response.error){
                         toastr['error'](response.error, 'error');
                         return
@@ -398,7 +438,10 @@ const formData = $(this).serialize()
                         $('#send-mail-or-whatsup-message').modal('hide')
                     }
 
-                });
+                }).fail(function (response) {
+                $("#loading-image-preview").hide();
+                console.log("Sorry, something went wrong");
+            });;
 
     })
 

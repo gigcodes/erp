@@ -67,6 +67,8 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 use Session;
 use Storage;
 use \SoapClient;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class OrderController extends Controller
 {
@@ -2235,14 +2237,32 @@ class OrderController extends Controller
         //      return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
     }
 
-    public function missedCalls()
+    public function missedCalls(Request $request)
     {
         $callBusyMessages = CallBusyMessage::with(['status'=>function($q){
           return   $q->select('id','name','label');
         }])
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
-            ->orderBy('id', 'DESC')->paginate(20)->toArray();
-            foreach ($callBusyMessages['data'] as $key => $value) {
+            ->orderBy('id', 'DESC');
+
+            if(!empty($request->filterStatus)){
+
+                $callBusyMessages->where('call_busy_message_statuses_id',$request->filterStatus);
+
+            }
+
+            if(!empty($request->filterWebsite)){
+                $callBusyMessages->whereHas('customer.storeWebsite',function(Builder $query) use ($request){
+                    $query->where('id',$request->filterWebsite);
+                });
+            }
+
+        
+            
+            $callBusyMessages=    $callBusyMessages->paginate(20)->toArray();
+
+// dd($callBusyMessages);
+        foreach ($callBusyMessages['data'] as $key => $value) {
 
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
@@ -2259,7 +2279,6 @@ class OrderController extends Controller
                         $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];
                     }
 
-
                     if (!empty($customer_array[0]['lead'])) {
                         $callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
                     }
@@ -2270,8 +2289,18 @@ class OrderController extends Controller
             }
         }
 
+        
+        // $callBusyMessages =  collect($callBusyMessages)->filter(function($qqq) use ($request){
+        //     return $qqq->store_website_id == $request->filterWebsite;
+            
+        // });
+
+
+        $storeWebsite = StoreWebsite::pluck('title','id');
+        $selectedStatus = $request->filterStatus;
+        $selectedWebsite = $request->filterWebsite;
         $allStatuses = CallBusyMessageStatus::get();
-        return view('orders.missed_call', compact('callBusyMessages','allStatuses'));
+        return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite'));
 
     }
 
@@ -3640,7 +3669,7 @@ class OrderController extends Controller
     public function storeStatus(Request $request,$id)
     {
         $callBusyMessage = CallBusyMessage::find($id);
-        $callBusyMessage->call_busy_message_statuses_id = $request->selectedId;
+        $callBusyMessage->call_busy_message_statuses_id = $request->select_id;
         $callBusyMessage->save();
 
         return response()->json(['message'=> ' Status updated successfuly.']);
@@ -3711,7 +3740,7 @@ class OrderController extends Controller
                 $email             = Email::create([
                     'model_id'         => $customer->id,
                     'model_type'       => Customer::class,
-                    'from'             => 'buying@amourint.com',
+                    'from'             => 'customercare@sololuxury.co.in',
                     'to'               => $customer->email,
                     'subject'          => $subject,
                     'message'          => $addRequestData['message'],
