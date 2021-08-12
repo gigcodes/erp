@@ -140,10 +140,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+              
             </div>
         </div>
     </div>
@@ -377,6 +374,9 @@ const formData = $(this).serialize()
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
+                    beforeSend: function () {
+                    $("#loading-image-preview").show();
+                },
                     method:'POST',
                     url: "/order/calls/send-message",
                     data: {
@@ -388,6 +388,8 @@ const formData = $(this).serialize()
                    
                 })
                 .done(function(response) {
+                    $("#loading-image-preview").hide();
+
                     if(response.error){
                         toastr['error'](response.error, 'error');
                         return
@@ -398,7 +400,10 @@ const formData = $(this).serialize()
                         $('#send-mail-or-whatsup-message').modal('hide')
                     }
 
-                });
+                }).fail(function (response) {
+                $("#loading-image-preview").hide();
+                console.log("Sorry, something went wrong");
+            });;
 
     })
 
