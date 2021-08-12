@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 
-class AddCharityIdToChatMessagesTable extends Migration
+class AlterManuallyCommandTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +13,10 @@ class AddCharityIdToChatMessagesTable extends Migration
      */
     public function up()
     {
-       DB::select("ALTER TABLE `chat_messages` ADD `charity_id` INT(11) NULL AFTER `vendor_id`;");
-       DB::select("ALTER TABLE `chat_messages` ADD INDEX(`user_id`);");
+        //
+        Schema::table("payment_mail_records",function(Blueprint $table){
+            $table->string("command_execution")->nullable()->after("payment_date");
+        });
     }
 
     /**
@@ -25,8 +26,6 @@ class AddCharityIdToChatMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            //
-        });
+        //
     }
 }

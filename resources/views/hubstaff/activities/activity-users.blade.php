@@ -15,6 +15,7 @@
             <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
             <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
             <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
+            <a class="btn btn-secondary hubstaff_activity_command" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
         </div>
     </div>
    
@@ -268,6 +269,43 @@
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="hubstaff_activity_modal" tabindex="-1" role="dialog"  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="">Hubstuff Activity Command</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+            <div class="col-md-12 mb-5 hubstaff_payment_user">
+                <select class="form-control" id="select2insidemodal" name="user">
+                    <option value="">Select</option>                           
+                    @foreach(App\User::orderBy('name')->get() as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-12">
+                <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+                <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+                <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span  id="date_current_show"></span><i class="fa fa-caret-down"></i>
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary execute_hubstaff_payment_command">Excecute</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="open-timing-modal" class="modal" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
@@ -423,6 +461,7 @@
                         <th>From Date</th>
                         <th>To Date</th>
                         <th>Total Amount</th>
+                        <th>Commane Execution</th>
                         <th>Download</th>
                     </tr>
                 </thead>
@@ -611,6 +650,12 @@ let r_s = jQuery('input[name="start_date"]').val();
         let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
         let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
 
+        let r_s_p = "";
+        let r_e_p = "";
+
+        let start_p = r_s_p ? moment(r_s_p,'YYYY-MM-DD') : moment().subtract(0, 'days');
+        let end_p =   r_e_p ? moment(r_e_p,'YYYY-MM-DD') : moment();
+
         // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
         // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
 
@@ -664,6 +709,28 @@ let r_s = jQuery('input[name="start_date"]').val();
             jQuery('input[name="hub_staff_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
 
+        function hubpaymentdate(start_p, end_p, id){
+            $('#filter_date_range_ span').html(start_p.format('MMMM D, YYYY') + ' - ' + end_p.format('MMMM D, YYYY'));
+            jQuery('input[name="range_start"]').val(start_p.format('YYYY-MM-DD'));
+            jQuery('input[name="range_end"]').val(end_p.format('YYYY-MM-DD'));
+        }
+
+        $('#filter_date_range_').daterangepicker({
+            maxYear: 1,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, hubpaymentdate);
+
+        $('#filter_date_range_').on('apply.daterangepicker', function (ev, picker) {
+            jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+            jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+        });
 
     // $(document).on('click', '.show-activitie1s', function(e) {
     //     e.preventDefault();
@@ -938,8 +1005,8 @@ let r_s = jQuery('input[name="start_date"]').val();
                             html += '<td>'+moment(value.start_date).format('DD-MM-YYYY')+'</td>';
                             html += '<td>'+moment(value.end_date).format('DD-MM-YYYY')+'</td>';
                             html += '<td>'+value.total_amount+'</td>';
-                            // html += '<td>'+value.file_path+'</td>';
-                            html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download activity-report-download" aria-hidden="true"></a></td>';
+                            html += '<td>'+(value.command_execution ?? '-')+'</td>';
+                            html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download hubstaff-payment-download" aria-hidden="true"></a></td>';
                             html += '</tr>';
                         });
 
@@ -951,6 +1018,60 @@ let r_s = jQuery('input[name="start_date"]').val();
                     }
                 }
             });
+        })
+
+        $(document).on('click','.hubstaff-payment-download',function(){
+            var file = $(this).data('file');
+            var $this = $(this);
+
+            window.location.replace("{{ route('hubstaff-payment-report.download') }}?file=" +  file );
+
+        })
+
+        $('#hubstaff_activity_modal').on('shown.bs.modal', function (e) {  
+            $("#select2insidemodal").select2({
+                dropdownParent: $("#hubstaff_activity_modal")
+            });
+        })
+
+        $(document).on('click','.execute_hubstaff_payment_command',function(){
+            var user_id = $("#select2insidemodal").val();
+            var startDate=   jQuery('input[name="range_start"]').val();
+            var endDate =    jQuery('input[name="range_end"]').val();
+
+            if(user_id == ''){
+                toastr['error']('Please Select User');
+                return false;
+            }
+
+            if(startDate == ''){
+                toastr['error']('Please Select Date Range');
+                return false;
+            }
+
+            $.ajax({
+                url: "{{ route('hubstaff-acitivtity.command_execution_manually') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    user_id : user_id,
+                    startDate:startDate,
+                    endDate:endDate,
+                },
+                cors: true ,
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+                }).done( function(response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200)
+                    {
+                        toastr['success'](response.message);
+                    }
+                }).fail(function(errObj) {
+                    $("#loading-image").hide();
+                });
         })
 
 </script>
