@@ -171,8 +171,9 @@
                                             </div>
                                             <div class="user_info">
                                                 <span>{{ $customer->name }}</span>
+                                                <h5>{{ $customer->phone ?? '' }} </h5>
                                                 <!-- <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p> -->
-                                                <p>{{ $website_data->website ?? '' }} </p>
+                                                <h5>{{ $website_data->website ?? '' }} </h5>
                                             </div>
                                             <!-- @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif -->
                                         </div>
