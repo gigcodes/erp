@@ -117,6 +117,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\MonetaryAccountUpdated' => [
             'App\Listeners\MonetaryAccountHistoryUpdate',
         ],
+        'App\Events\SendgridEventCreated' => [
+                'App\Listeners\SendgridEventCreatedListner',
+        ]
     ];
 
     /**

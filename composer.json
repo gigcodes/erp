@@ -10,6 +10,7 @@
     "require": {
         "php": "^7.1.3",
         "ext-json": "*",
+        "antiques/laravel-sendgrid-events": "^1.0",
         "atayahmet/laravel-nestable": "^0.8.7",
         "barryvdh/laravel-ide-helper": "^2.4",
         "barryvdh/laravel-snappy": "*",

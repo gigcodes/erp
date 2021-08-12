@@ -3310,3 +3310,16 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
 Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
+
+Route::group([
+    'middleware' => "sendgrid"
+], function () {
+    Route::get(
+        config('sendgridevents.webhook_url'),
+        [
+            'as' => 'sendgrid.webhook',
+            'uses' => 'WebhookController@post'
+        ]
+    );
+});
+
