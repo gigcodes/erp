@@ -3628,10 +3628,10 @@ class OrderController extends Controller
     {
         $label=preg_replace('/[^A-Za-z0-9-]+/', '-', $request->name);
 
-      $newStatus =   CallBusyMessageStatus::create([
-            'label'=>$label,
-            'name'=>$request->name
-        ]);
+        $newStatus =   CallBusyMessageStatus::create([
+                'label'=>$label,
+                'name'=>$request->name
+            ]);
 
         return response()->json(['data'=>  $newStatus,'message'=>$newStatus->name . ' status added successfully.']);
 
@@ -3650,32 +3650,106 @@ class OrderController extends Controller
 
 
     public function sendWhatappMessageOrEmail(Request $request)
-    {    $newValue=  array();
-        parse_str($request->formData,$newValue);
+    {
+        $newValue =  array();
+        parse_str($request->formData, $newValue);
 
-        $newArr = $request->except(['_token','formData']);
-        $finalArr = array_merge( $newValue,$newArr);
-            $customer = null;
-        if($finalArr['customerId']){
 
-            $customer = Customer::find($finalArr['customerId']);
+        $defaultWhatapp =     $task_info = \DB::table('whatsapp_configs')
+        ->select('*')
+            ->whereRaw("find_in_set(" . CustomerController::DEFAULT_FOR . ",default_for)")
+            ->first();
+        $defaultNo = $defaultWhatapp->number;
 
-        }else{
-            $formatted_phone = str_replace('+91', '', $finalArr['fullNumber']);
-            $customer  = Customer::where('phone', 'LIKE', "%$formatted_phone%")->first();
+
+        $newArr = $request->except(['_token', 'formData']);
+        $addRequestData = array_merge($newValue, $newArr);
+
+
+            if(empty($addRequestData['message'])){
+                return response()->json(['error'=>'Please type message']);
+            }
+
+            if(empty($addRequestData['whatsapp'] ) && empty($addRequestData['email']) ){
+                return response()->json(['error'=>'Please select atleast one checkbox']);
+            }
+
+
+        $customer = null;
+        $shouldSaveInChatMessage = false;
+
+        if ($addRequestData['customerId'] && !empty($addRequestData['whatsapp'])) {
+            $customer = Customer::find($addRequestData['customerId']);
+
+
+            if (!empty($customer) && !empty($customer->phone) && !empty($customer->whatsapp_number)) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $addRequestData['message']);
+                $shouldSaveInChatMessage = true;
+
+            }
+        } else if (!$addRequestData['customerId'] &&  !empty($addRequestData['whatsapp'])) {
+            $formatted_phone = str_replace('+91', '', $addRequestData['fullNumber']);
+            $sendTo =  str_replace('+', '', $addRequestData['fullNumber']);
+            $sendFrom = $defaultNo;
+            if (!empty($addRequestData['whatsapp']) &&  !empty($sendTo) && !empty($sendFrom)) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($sendTo, $sendFrom, $addRequestData['message']);
+                $shouldSaveInChatMessage = true;
+
+            }
             // $customer= Customer::where('')
         }
 
-
-        // if(!empty($finalArr['whatsapp']) && !empty($customer) && !empty($customer->phone) && !empty($customer->whatsapp_number) &&  !empty($finalArr['message']) ){
+        
+        if ($addRequestData['customerId'] && !empty($addRequestData['email'])) {
+            $customer = Customer::find($addRequestData['customerId']);
             
-        //     app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone,$customer->whatsapp_number, $finalArr['message']);
-            
-        // }
-        // if(!empty($finalArr['email'])  && !empty($finalArr['message']) ){
-           
+            $subject = 'Ordered miss-called';
 
-        // }
+            if (!empty($customer) && !empty($customer->email) && !empty($addRequestData['message'])) {
+                // dump('send customer email final');
+
+                $email             = Email::create([
+                    'model_id'         => $customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'buying@amourint.com',
+                    'to'               => $customer->email,
+                    'subject'          => $subject,
+                    'message'          => $addRequestData['message'],
+                    'template'         => 'customer-simple',
+                    'additional_data'  => '',
+                    'status'           => 'pre-send',
+                    'is_draft'         => 0,
+                ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+
+                $shouldSaveInChatMessage = true;
+
+                // Mail::send('order-misscall.communication', $data, function($message)use($data,$customer) {
+                //     $message->to($customer->email)
+                //     ->subject($data["title"]);
+                // });
+
+               
+            }
+        }
+
+      if($shouldSaveInChatMessage ){
+          $params = [
+              'customer_id' => $customer->id,
+              'number' => $customer->phone,
+              'message' =>$addRequestData['message'],
+              'user_id' => Auth::id(),
+              'approve' => 0,
+              'status' => 1
+          ];
+    
+          ChatMessage::create($params);
+
+
+          return response()->json(['message'=>'Message send successfully']);
+      }
+
 
 
     }

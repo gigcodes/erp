@@ -95,6 +95,9 @@
                             title="Status Logs" aria-hidden="true" data-id="107" data-name="Status"
                             style="cursor: pointer;" data-call-message-id={{ $callBusyMessage['id']}}   data-number="{{ $callBusyMessage['twilio_call_sid'] }}" data-fullname="{{ isset($callBusyMessage['customer_name']) ? $callBusyMessage['customer_name'] : null }}" data-customer-id="{{ isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null }}"></i>
 
+                            
+                            <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
+
                             @if (isset($callBusyMessage['customerid']))
                                 <a class="btn btn-image"
                                     href="{{ route('customer.show', $callBusyMessage['customerid']) }}"><img
@@ -180,7 +183,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title" id="exampleModalLabel">Message history</h4>
+              <h4 class="modal-title" id="exampleModalLabel">Send message</h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -219,6 +222,26 @@
         </div>
       </div>
     
+ {{-- chat history modal  --}}
+ <div id="chat-list-history" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
+                <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
+                <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
+      <input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
+                
+            </div>
+            <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
     <script type="text/javascript">
@@ -291,7 +314,8 @@ let userData  = null
 
                         const html = ` <option value=${response.data.id}>${response.data.name}</option> `
                         $('.set-call-status').append(html);
-                                        
+                        $('#add-status-form')[0].reset()
+ 
                     $('#add-status').modal('hide')
                    
                 });
@@ -364,10 +388,17 @@ const formData = $(this).serialize()
                    
                 })
                 .done(function(response) {
-                    
+                    if(response.error){
+                        toastr['error'](response.error, 'error');
+                        return
+                    }
+                    if(response.message){
+                        $('#send-message-whatsup-or-email')[0].reset()
+                        toastr['success'](response.message, 'success');
+                        $('#send-mail-or-whatsup-message').modal('hide')
+                    }
 
                 });
-            // $('#order-details').modal('show')
 
     })
 
