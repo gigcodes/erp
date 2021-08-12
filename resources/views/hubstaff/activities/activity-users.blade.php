@@ -280,6 +280,16 @@
         </button>
       </div>
       <div class="modal-body">
+
+            <div class="col-md-12 mb-5 hubstaff_payment_user">
+                <select class="form-control" id="select2insidemodal" name="user">
+                    <option value="">Select</option>                           
+                    @foreach(App\User::orderBy('name')->get() as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="col-md-12">
                 <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
                 <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
@@ -699,10 +709,10 @@ let r_s = jQuery('input[name="start_date"]').val();
             jQuery('input[name="hub_staff_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
 
-        function hubpaymentdate(start, end, id){
-            $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-            jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
-            jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+        function hubpaymentdate(start_p, end_p, id){
+            $('#filter_date_range_ span').html(start_p.format('MMMM D, YYYY') + ' - ' + end_p.format('MMMM D, YYYY'));
+            jQuery('input[name="range_start"]').val(start_p.format('YYYY-MM-DD'));
+            jQuery('input[name="range_end"]').val(end_p.format('YYYY-MM-DD'));
         }
 
         $('#filter_date_range_').daterangepicker({
@@ -721,7 +731,6 @@ let r_s = jQuery('input[name="start_date"]').val();
             jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
             jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
-
 
     // $(document).on('click', '.show-activitie1s', function(e) {
     //     e.preventDefault();
@@ -997,7 +1006,7 @@ let r_s = jQuery('input[name="start_date"]').val();
                             html += '<td>'+moment(value.end_date).format('DD-MM-YYYY')+'</td>';
                             html += '<td>'+value.total_amount+'</td>';
                             html += '<td>'+(value.command_execution ?? '-')+'</td>';
-                            html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download activity-report-download" aria-hidden="true"></a></td>';
+                            html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download hubstaff-payment-download" aria-hidden="true"></a></td>';
                             html += '</tr>';
                         });
 
@@ -1011,22 +1020,41 @@ let r_s = jQuery('input[name="start_date"]').val();
             });
         })
 
+        $(document).on('click','.hubstaff-payment-download',function(){
+            var file = $(this).data('file');
+            var $this = $(this);
+
+            window.location.replace("{{ route('hubstaff-payment-report.download') }}?file=" +  file );
+
+        })
+
+        $('#hubstaff_activity_modal').on('shown.bs.modal', function (e) {  
+            $("#select2insidemodal").select2({
+                dropdownParent: $("#hubstaff_activity_modal")
+            });
+        })
+
         $(document).on('click','.execute_hubstaff_payment_command',function(){
+            var user_id = $("#select2insidemodal").val();
             var startDate=   jQuery('input[name="range_start"]').val();
             var endDate =    jQuery('input[name="range_end"]').val();
 
-            if(startDate == ''){
-                toastr['error']('Please Select Date Range', 'error');
+            if(user_id == ''){
+                toastr['error']('Please Select User');
                 return false;
             }
 
-            console.log("++++++++>>>");
-            console.log(startDate,endDate);
+            if(startDate == ''){
+                toastr['error']('Please Select Date Range');
+                return false;
+            }
+
             $.ajax({
                 url: "{{ route('hubstaff-acitivtity.command_execution_manually') }}",
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
+                    user_id : user_id,
                     startDate:startDate,
                     endDate:endDate,
                 },
@@ -1037,7 +1065,10 @@ let r_s = jQuery('input[name="start_date"]').val();
                 }
                 }).done( function(response) {
                     $("#loading-image").hide();
-                    toastr['success']('Command execution successfully', 'success');
+                    if(response.code == 200)
+                    {
+                        toastr['success'](response.message);
+                    }
                 }).fail(function(errObj) {
                     $("#loading-image").hide();
                 });

@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Log;
 use App\Exports\HubstaffNotificationReport;
 use Mail;
 use App\Mails\Manual\HubstuffActivitySendMail;
+use App\Mails\Manual\DocumentEmail;
 
 
 class HubstaffActivitiesController extends Controller
@@ -283,10 +284,11 @@ class HubstaffActivitiesController extends Controller
 
     public function HubstaffActivityCommandExecution(Request $request)
     {
-        $start_date    = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
-        $end_date      = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+        $start_date    = $request->startDate ? $request->startDate : date('Y-m-d', strtotime("-1 days"));
+        $end_date      = $request->endDate ? $request->endDate : date('Y-m-d', strtotime("-1 days"));
+        $userid        = $request->user_id;
 
-        $users = User::where('payment_frequency', '!=' ,'')->get();
+        $users = User::where('id',$userid)->get();
         $today = Carbon::now()->toDateTimeString();
 
         foreach ($users as $key => $user) {
@@ -376,20 +378,14 @@ class HubstaffActivitiesController extends Controller
                 $total_balance += $value['balance'] ?? 0;
             }
 
-            $file_data = $this->downloadExcelReport($activityUsers);
-            $z = (array) $file_data;
             $path = '';
-            foreach($z as $zz){
-                if($path == null){
-
-                    $path = $zz->getRealPath();
-
-                }
-            }
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $path = $file_data;
+           
             
             $today = Carbon::now()->toDateTimeString();
             $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
-            $storage_path = substr($path, strpos($path, 'framework'));
+            $storage_path = $path;
             
             PayentMailData::create([
                 'user_id' => $user_id,
@@ -403,12 +399,31 @@ class HubstaffActivitiesController extends Controller
                 'command_execution' => "Manually",
             ]);
 
-            Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
-                $message->to($data["email"], $data["email"])
-                        ->subject($data["title"])->attach($path);
-            });
+            
+            $file_paths[] = $path;
+
+            $emailClass = (new DocumentEmail('Hubstuff Activities Report', 'Hubstaff Payment Activity', $file_paths))->build();
+
+            $email = \App\Email::create([
+                'model_id'        => $user_id,
+                'model_type'      => \App\User::class,
+                'from'            => $emailClass->fromMailer,
+                'to'              => $user->email,
+                'subject'         => $emailClass->subject,
+                'message'         => $emailClass->render(),
+                'template'        => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'status'          => 'pre-send',
+                'is_draft'        => 1,
+                'cc'              => null,
+                'bcc'             => null,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
 
         }
+        
+        return response()->json(["code" => 200, "message" => "Command Execution Success"]);
     }
     
     public function getActivityUsers(Request $request, $params = null, $where = null)
@@ -991,19 +1006,21 @@ class HubstaffActivitiesController extends Controller
             }
 
             $file_data = $this->downloadExcelReport($activityUsers);
-            $z = (array) $file_data;
-            $path = '';
-            foreach($z as $zz){
-                if($path == null){
+            $path = $file_data;
+            // $z = (array) $file_data;
+            // $path = '';
+            // foreach($z as $zz){
+            //     if($path == null){
 
-                    $path = $zz->getRealPath();
+            //         $path = $zz->getRealPath();
 
-                }
-            }
+            //     }
+            // }
             
             $today = Carbon::now()->toDateTimeString();
             $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
-            $storage_path = substr($path, strpos($path, 'framework'));
+            // $storage_path = substr($path, strpos($path, 'framework'));
+            $storage_path = $path;
             
             PayentMailData::create([
                 'user_id' => $user_id,
@@ -1095,8 +1112,12 @@ class HubstaffActivitiesController extends Controller
             $user = User::where('id', Auth::user()->id)->first();
         }
         $activities[] = $activityUsers;
+
+        $path = "hubstaff_payment_activity/" . Carbon::now()->format('Y-m-d-H-m-s') . "_hubstaff_payment_activity.xlsx";
         //END - DEVATSK-4300
-        return Excel::download(new HubstaffActivityReport($activities), $user->name.'.xlsx');
+        Excel::store(new HubstaffActivityReport($activities), $path, 'files');
+        return $path;
+        // return Excel::download(new HubstaffActivityReport($activities), $user->name.'.xlsx');
     }
     public function downloadExcelReportOld($activityUsers, $users)
     {   
@@ -2269,6 +2290,12 @@ class HubstaffActivitiesController extends Controller
     public function activityReportDownload(Request $request)
     {
         $file_path = storage_path($request->file);
+        return response()->download($file_path);
+    }
+
+    public function HubstaffPaymentReportDownload(Request $request)
+    {
+        $file_path = storage_path('app/files').'/'.$request->file;
         return response()->download($file_path);
     }
 
