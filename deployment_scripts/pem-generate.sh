@@ -62,41 +62,7 @@ then
 elif [ "$server" == "Cropper-Server" ]		### Check for Cropper Server
 then
 	ssh -i ~/.ssh/id_rsa root@178.62.200.246 "$command"
-
-elif [ "$server" == "BRANDS" ]
-then
-	ssh -i ~/.ssh/id_rsa root@138.68.161.55 "$command"
-
-elif [ "$server" == "AVOIRCHIC" ]
-then
-	ssh -i ~/.ssh/id_rsa root@138.68.141.190 "$command"
-
-elif [ "$server" == "OLABELS" ]
-then
-	ssh -i ~/.ssh/id_rsa root@138.68.185.192 "$command"
-
-elif [ "$server" == "SOLOLUXURY" ]
-then
-	ssh -i ~/.ssh/id_rsa root@46.101.78.91 "$command"
-
-elif [ "$server" == "SUVANDNAT" ]
-then
-	ssh -i ~/.ssh/id_rsa root@188.166.168.141 "$command"
-
-elif [ "$server" == "THEFITEDIT" ]
-then
-	ssh -i ~/.ssh/id_rsa root@139.59.182.8 "$command"
-
-elif [ "$server" == "THESHADESSHOP" ]
-then
-	ssh -i ~/.ssh/id_rsa root@138.68.165.128 "$command"
-
-elif [ "$server" == "UPEAU" ]
-then
-	ssh -i ~/.ssh/id_rsa root@138.68.181.9 "$command"
-
-elif [ "$server" == "VERALUSSO" ]
-then
-	ssh -i ~/.ssh/id_rsa root@139.59.175.99 "$command"
-
+else
+	hostip=`grep $server'_HOST' /var/www/erp.theluxuryunlimited.com/.env|cut -d'=' -f2`
+	ssh -i ~/.ssh/id_rsa root@$hostip "$command"
 fi
