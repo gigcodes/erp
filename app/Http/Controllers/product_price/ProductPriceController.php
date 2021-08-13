@@ -75,7 +75,8 @@ class ProductPriceController extends Controller
                 store_websites.id as store_websites_id,
                 store_websites.website as product_website'
             ));
-            
+            $products = $products->whereNull('products.deleted_at');
+        
             if (isset($filter_data['country_code'])) {
                 $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']); 
             }
