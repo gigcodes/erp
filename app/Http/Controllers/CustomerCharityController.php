@@ -172,6 +172,13 @@ class CustomerCharityController extends Controller
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                     (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at 
                     FROM (SELECT customer_charities.id,customer_charities.product_id, customer_charities.frequency, customer_charities.is_blocked ,customer_charities.reminder_message, customer_charities.category_id, customer_charities.name, customer_charities.phone, customer_charities.email, customer_charities.address, customer_charities.social_handle, customer_charities.website, customer_charities.login, customer_charities.password, customer_charities.gst, customer_charities.account_name, customer_charities.account_iban, customer_charities.account_swift,
+                    customer_charities.frequency_of_payment, 
+                    customer_charities.bank_name, 
+                    customer_charities.bank_address, 
+                    customer_charities.city, 
+                    customer_charities.country, 
+                    customer_charities.ifsc_code, 
+                    customer_charities.remark, 
                         customer_charities.created_at,customer_charities.updated_at,
                         customer_charities.updated_by,
                         customer_charities.reminder_from,
@@ -280,8 +287,6 @@ class CustomerCharityController extends Controller
             'remark'   => 'sometimes|nullable|max:255',
       ]);
   
-      $source = $request->get("source","");
-  
       $data = $request->except(['_token', 'create_user']);
       if(empty($data["whatsapp_number"]))  {
           //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
@@ -303,9 +308,6 @@ class CustomerCharityController extends Controller
          $data["status"] = 0;
       }  
   
-  
-      unset($data['create_user_github']);
-      unset($data['create_user_hubstaff']);
       if($id == null){
           $charity = CustomerCharity::create($data); 
           $charity_category = Category::where('title', 'charity')->first();
@@ -321,68 +323,7 @@ class CustomerCharityController extends Controller
           ]);
       }else{ 
           CustomerCharity::where('id', $id)->update($data);
-      }
-  
-      if ($request->create_user == 'on') {
-        if ($request->email != null) {
-          $userEmail = User::where('email', $request->email)->first();
-        } else {
-          $userEmail = null;
-        }
-        $userPhone = User::where('phone', $request->phone)->first();
-        if ($userEmail == null && $userPhone == null) {
-          $user = new User;
-          $user->name = str_replace(' ', '_', $request->name);
-          if ($request->email == null) {
-            $email = str_replace(' ', '_', $request->name) . '@solo.com';
-          } else {
-            // $email = explode('@', $request->email);
-            // $email = $email[0] . '@solo.com';
-            $email = $request->email;
-          }
-          $password = str_random(10);
-          $user->email = $email;
-          $user->password = Hash::make($password);
-          $user->phone = $request->phone;
-  
-          // check the default whatsapp no and store it
-          $whpno = \DB::table('whatsapp_configs')
-              ->select('*')
-              ->whereRaw("find_in_set(4,default_for)")
-              ->first();
-          if($whpno)     {
-            $user->whatsapp_number = $whpno->number;
-          }
-  
-          $user->save();
-          $role = Role::where('name', 'Developer')->first();
-          $user->roles()->sync($role->id);
-          $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
-          app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone,$user->whatsapp_number, $message);
-        } else {
-          if(!empty($source)) {
-             return redirect()->back()->withErrors('Charity Created , couldnt create User, Email or Phone Already Exist');
-          }
-          return redirect()->route('customer.charity')->withErrors('Charity Created , couldnt create User, Email or Phone Already Exist');
-        }
-      }
-  
-      $isInvitedOnGithub = false;
-      if ($request->create_user_github == 'on' && isset($request->email)) {
-        //has requested for github invitation
-        $isInvitedOnGithub = app('App\Http\Controllers\VendorController')->sendGithubInvitaion($request->email);
-
-      }
-  
-      $isInvitedOnHubstaff = false;
-      if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
-        //has requested hubstaff invitation
-        $isInvitedOnHubstaff = app('App\Http\Controllers\VendorController')->sendHubstaffInvitation($request->email);
-      }
-  
-      if(!empty($source)) {
-         return redirect()->back()->withSuccess('You have successfully saved a charity!');
-      }
+      }   
   
       return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }

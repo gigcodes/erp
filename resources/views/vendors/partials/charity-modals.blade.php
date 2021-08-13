@@ -145,27 +145,6 @@
               <div class="alert alert-danger">{{$errors->first('remark')}}</div>
             @endif
           </div>
-          <div class="form-group">
-            <strong>Create User:</strong>
-            <input type="checkbox" name="create_user" class="form-control">
-            @if ($errors->has('create_user'))
-              <div class="alert alert-danger">{{$errors->first('create_user')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Invite (Github):</strong>
-            <input type="checkbox" name="create_user_github" class="form-control">
-            @if ($errors->has('create_user'))
-              <div class="alert alert-danger">{{$errors->first('create_user_github')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Invite (Hubstaff):</strong>
-            <input type="checkbox" name="create_user_hubstaff" class="form-control">
-            @if ($errors->has('create_user'))
-              <div class="alert alert-danger">{{$errors->first('create_user_hubstaff')}}</div>
-            @endif
-          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
