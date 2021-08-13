@@ -371,10 +371,10 @@ class TwilioController extends FindByNumberController
 
                                 $dial->client($client['agent_name_id']);
 
-                                // AgentCallStatus::where('agent_id', $client['agent_id'])
-                                // ->where('agent_name_id', $client['agent_name_id'])
-                                // ->where('status', '0')
-                                // ->update(['status' => '1']);
+                                AgentCallStatus::where('agent_id', $client['agent_id'])
+                                ->where('agent_name_id', $client['agent_name_id'])
+                                ->where('status', '0')
+                                ->update(['status' => '1']);
                             }
                         }
                     } //Check user Admin - Temporary
