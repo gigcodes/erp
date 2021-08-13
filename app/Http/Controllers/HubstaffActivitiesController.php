@@ -21,7 +21,7 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\HubstaffActivityReport;
 use App\DeveloperTaskHistory;
@@ -399,6 +399,7 @@ class HubstaffActivitiesController extends Controller
                 'command_execution' => "Manually",
             ]);
 
+           
             
             $file_paths[] = $path;
 
@@ -427,7 +428,7 @@ class HubstaffActivitiesController extends Controller
     }
     
     public function getActivityUsers(Request $request, $params = null, $where = null)
-    {   
+    {  
         if($params !== null){
             $params = $params->request->all();
             
@@ -2304,5 +2305,44 @@ class HubstaffActivitiesController extends Controller
         $get_data = PayentMailData::where('user_id',$request->user_id)->get();
         return response()->json(['status' => true, 'data' => $get_data]);
 
+    }
+
+    public function addtocashflow(Request $request)
+    {
+        $id=$request->id;
+        $PayentMailData=\App\PayentMailData::where('id',$id)->first();
+        PayentMailData::create([
+            'user_id' => $user_id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'file_path' => $storage_path,
+            'total_amount' => round($total_amount,2),
+            'total_amount_paid' => round($total_amount_paid,2),
+            'total_balance' => round($total_balance,2),
+            'payment_date' => $payment_date,
+            'command_execution' => "Manually",
+        ]);
+
+        $receipt_id=\App\PaymentReceipt::insertGetId([
+            'user_id' => $PayentMailData->user_id,
+            'date' => $PayentMailData->payment_date,
+            'billing_start_date' => $PayentMailData->start_date,
+            'billing_end_date' => $PayentMailData->end_date,
+            'payment' => round($PayentMailData->total_amount_paid,2),
+            'billing_due_date' => $PayentMailData->payment_date,
+            
+        ]);
+        \App\CashFlow::create([
+            'user_id' =>  $PayentMailData->user_id,
+            'date' =>  $PayentMailData->payment_date,
+            'amount' => round($PayentMailData->total_amount_paid,2),
+            'cash_flow_able_id'=>$receipt_id,
+            'cash_flow_able_type '=> '\App\PaymentReceipt',
+            'type'=>'Pending',
+            'description'=>'Receipt created'
+
+        ]);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "cashflow added succesfully"]);
     }
 }

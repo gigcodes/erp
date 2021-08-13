@@ -975,6 +975,35 @@ let r_s = jQuery('input[name="start_date"]').val();
 
         })
 
+        $(document).on('click','.hubstaff-payment-receipt',function(){
+            var $this = $(this);
+            var id = $this.data("id");
+
+            $.ajax({
+                url: "{{ route('hubstaff-acitivtity.addtocashflow') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id : id
+                },
+                cors: true ,
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+                }).done( function(response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200)
+                    {
+                        toastr['success'](response.message);
+                    }
+                }).fail(function(errObj) {
+                    $("#loading-image").hide();
+                });
+        })
+
+        
+
 
         $(document).on('click','.list_history_payment_data',function(){
             var $this = $(this);
@@ -1001,11 +1030,14 @@ let r_s = jQuery('input[name="start_date"]').val();
                         // }
 
                         $.each( response.data, function( key, value ) {
+                             rpost='';
+                            if (value.command_execution && value.command_execution=="Manually")
+                                 rpost='<a style="cursor:pointer;" data-id="'+value.id+'" class="hubstaff-payment-receipt" aria-hidden="true"> Add To Cashflow </a>';
                             html += '<tr>';
                             html += '<td>'+moment(value.start_date).format('DD-MM-YYYY')+'</td>';
                             html += '<td>'+moment(value.end_date).format('DD-MM-YYYY')+'</td>';
                             html += '<td>'+value.total_amount+'</td>';
-                            html += '<td>'+(value.command_execution ?? '-')+'</td>';
+                            html += '<td>'+(value.command_execution ?? '-')+rpost+'</td>';
                             html += '<td><a style="cursor:pointer;" data-file="'+value.file_path+'" class="fa fa-download hubstaff-payment-download" aria-hidden="true"></a></td>';
                             html += '</tr>';
                         });
