@@ -34,7 +34,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Google Client Accounts</span></h4>
+          <h4 class="modal-title">Google Client Apps</span></h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -62,7 +62,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Add Google Client Account</span></h4>
+          <h4 class="modal-title">Add Google App</span></h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -526,6 +526,7 @@
 				btn.prop('disabled',true);
 			},
 			success: function(result){
+				console.log(result);
 				if(result.code == 200) {
 					var t = '';
 					$.each(result.data,function(k,v) {
@@ -533,10 +534,16 @@
 						t += `<td>`+v.GOOGLE_CLIENT_ID+`</td>`;
 						t += `<td>`+v.GOOGLE_CLIENT_APPLICATION_NAME+`</td>`;
 						t += `<td>
-									<a href="/googlewebmaster/accounts/status/${v.id}">
-										${v.is_active ? 'Disconnect' : 'Connect'} 
-									</a>
+									<span href="#">
+										<i title="add account" class="fa fa-plus add_acc" data-id="${v.id}" ></i> 
+									</span> 
+									<span>
+										<a href="/googlewebmaster/accounts/connect/${v.id}">Connect</a>
+									</span>
 							</td>`;
+						$.each(v.mails,function(kk,vv) {
+							t += `<tr><td colspan="1">${vv.google_account}</td><td colspan="2"></td><td><a href="/googlewebmaster/accounts/disconnect/${vv.id}">Disconnect</a></td></tr>`;
+						})
 					});
 					if( t == '' ){
 						t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
