@@ -7,9 +7,7 @@ use App\ProductDiscountExcelFile;
 use App\SupplierDiscountLogHistory;
 use App\SupplierBrandDiscount;
 
-
-
-class AlterTableProductDiscountExcelFilesTruncate extends Migration
+class AlterTableTruncateThreeTable20148 extends Migration
 {
     /**
      * Run the migrations.
@@ -18,11 +16,9 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function up()
     {
-        
         ProductDiscountExcelFile::truncate();
         SupplierDiscountLogHistory::truncate();
         SupplierBrandDiscount::truncate();
-
     }
 
     /**
@@ -35,4 +31,3 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
         //
     }
 }
-

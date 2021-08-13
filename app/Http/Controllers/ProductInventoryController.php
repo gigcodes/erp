@@ -31,7 +31,7 @@ use App\Supplier;
 use App\SupplierBrandDiscount;
 use App\SupplierDiscountLogHistory;
 use App\User;
-use App\product_discount_excel_file;
+use App\ProductDiscountExcelFile;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
@@ -1503,7 +1503,7 @@ class ProductInventoryController extends Controller
 
 		$brand_data = \App\SupplierBrandDiscount::distinct()->get(['brand_id']);
 		$id = $request->id;
-		$excel_data = product_discount_excel_file::join('users','users.id','product_discount_excel_files.user_id')->select('product_discount_excel_files.*','users.name')->get();
+		$excel_data = ProductDiscountExcelFile::join('users','users.id','product_discount_excel_files.user_id')->select('product_discount_excel_files.*','users.name')->get();
 
 		// dd($excel_data);
 
@@ -1658,7 +1658,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
             // ------------------------------------------------------------------ SS21---------------------------------------------------------------------------
@@ -1877,7 +1877,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
 			
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
@@ -2087,7 +2087,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
 
@@ -2247,7 +2247,7 @@ class ProductInventoryController extends Controller
                     }
         
                     $file->move(public_path('product_discount_file'), $fileName);
-                    $excel_log = product_discount_excel_file::create($params_file);
+                    $excel_log = ProductDiscountExcelFile::create($params_file);
                     return redirect()->back()->with('success', 'Excel Imported Successfully!');
                 }
             
