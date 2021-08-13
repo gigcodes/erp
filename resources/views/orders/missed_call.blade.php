@@ -11,6 +11,9 @@
             padding: 5px 8px 0 !important;
 
         }
+        #customer_order_details{
+            padding: 10px 0 !important;
+        }
 
     </style>
 
@@ -106,9 +109,28 @@
                         <td>{{ !empty($callBusyMessage['store_website_name']) ? $callBusyMessage['store_website_name'] : ' ' }}
                         </td>
                         <td>
-                            <audio src="{{ $callBusyMessage['recording_url'] }}" controls preload="metadata">
-                                <p>Alas, your browser doesn't support html5 audio.</p>
+                            <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
+                            <p>Alas, your browser doesn't support html5 audio.</p>
                             </audio>
+                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-http-status" title="Http Status" data-toggle="modal" data-target="#show-recording-text{{$key}}" data-request="N/A" data-response="N/A">
+                                <i class="fa fa-headphones"></i>
+                            </button>
+                            <div id="show-recording-text{{$key}}" class="modal fade" role="dialog" >
+                                <div class="modal-dialog" style="width:100%;max-width:96%">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Audio Text</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{ $callBusyMessage['audio_text'] }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </td>
                         <td>{{ $callBusyMessage['created_at'] }}</td>
 
@@ -124,9 +146,9 @@
                         </td>
 
                         <td>
-                            <i class="fa fa-info-circle show-histories" type="button" data-product-id="1709"
+                            <!-- <i class="fa fa-info-circle show-histories" type="button" data-product-id="1709"
                             title="Status Logs" aria-hidden="true" data-id="107" data-name="Status"
-                            style="cursor: pointer;" data-call-message-id={{ $callBusyMessage['id'] }}></i>
+                            style="cursor: pointer;" data-call-message-id={{ $callBusyMessage['id'] }}></i> -->
                          
                          
                             <i class="fa fa-envelope-o send-mail-or-whatsup-message-button pl-1" type="button" data-product-id="1709"
@@ -137,15 +159,63 @@
                             <a type="button" class="btn btn-xs btn-image load-communication-modal pl-1" data-object="customer" data-id="{{isset($callBusyMessage['customerid']) ? $callBusyMessage['customerid'] : null}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
 
                             @if (isset($callBusyMessage['customerid']))
-                                <a class="btn btn-image p-0"
+                            <i class="fa fa-info-circle show_customer_histories" data-customer_id="{{ $callBusyMessage['customerid'] }}" style="cursor: pointer;" title="Customer Information" aria-hidden="true"></i>
+                            @endif
+
+                            @if (isset($callBusyMessage['customerid']))
+                                <!-- <a class="btn btn-image p-0"
                                     href="{{ route('customer.show', $callBusyMessage['customerid']) }}"><img
-                                        src="/images/view.png" /></a>
+                                        src="/images/view.png" /></a> -->
                             @endif
 
                         </td>
                     </tr>
                 @endforeach
             </table>
+        </div>
+    </div>
+
+    <!-- Customer Detail Modal -->
+    <div class="modal fade" id="customer-information" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customer Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                        <div class="card-body" style="height:100px !important;">
+                            <h5 class="card-title customer_info_name"></h5>
+                            <h5 class="card-subtitle mb-2 text-muted cutsomer_info_phone"></h5>
+                            <h5 class="card-subtitle mb-2 text-muted cutsomer_info_email"></h5>
+                            <h5 class="card-subtitle mb-2 text-muted cutsomer_info_website"></h5>
+                           
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card">
+                        <div class="card-body" style="height:100px !important;">
+                            <h5 class="card-title cutsomer_info_addess"></h5>
+                            
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body " id="customer_order_data">
+
+                </div>
+                
+            </div>
+            
+            </div>
         </div>
     </div>
 
@@ -447,10 +517,62 @@ const formData = $(this).serialize()
 
 
 
+    $(document).on('click','.show_customer_histories',function(e){
+        var customer_id = $(this).data('customer_id');
 
+        $.ajax({
+            method:'get',
+            url: "{{ route('customer.getcustomerinfo') }}",
+            data:{
+                customer_id : customer_id,
+            }
+        })
+        .done(function(response) {
+            if(response.status == 200){
+                $('.customer_info_name').html(response.data.name);
+                $('.cutsomer_info_phone').html(response.data.phone);
+                $('.cutsomer_info_email').html(response.data.email);
+                $('.cutsomer_info_website').html(response.data.website);
+                $('.cutsomer_info_addess').html(response.data.address);
+            }
+        });
 
+        $.ajax({
+            url: "{{ route('livechat.getorderdetails') }}",
+            type: 'GET',
+            dataType: 'json',
+            data: { customer_id : customer_id ,   _token: "{{ csrf_token() }}" },
+        })
+        .done(function(data) {
+            if (data[0] == true) {
+                let information = data[1];
+                let name = information.customer.name;
+                let number = information.customer.phone;
+                let email = information.customer.email ;
+                let accordion_data = '';
+                // if (information.leads_total){
+                    accordion_data = get_leads_table_data(information.leads,information.leads_total)
+                // }
+                // if (information.orders_total){
+                    accordion_data += get_orders_table_data(information.orders,information.orders_total)
+                // }
+                // if (information.exchanges_return_total){
+                    accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
+                // }
 
+                $('#customer_order_data').html(accordion_data);
 
+            } else {
+                $('#customer_order_data').html('');
+            }
+        })
+        .fail(function() {
+            console.log("error");
+            
+        });
+        $('#customer-information').modal('show')
+
+    })
     </script>
 
 @endsection

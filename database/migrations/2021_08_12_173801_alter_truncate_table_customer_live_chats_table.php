@@ -3,13 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\ProductDiscountExcelFile;
-use App\SupplierDiscountLogHistory;
-use App\SupplierBrandDiscount;
 
-
-
-class AlterTableProductDiscountExcelFilesTruncate extends Migration
+class AlterTruncateTableCustomerLiveChatsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -18,11 +13,8 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function up()
     {
-        
-        ProductDiscountExcelFile::truncate();
-        SupplierDiscountLogHistory::truncate();
-        SupplierBrandDiscount::truncate();
-
+        //
+        \DB::table('customer_live_chats')->truncate();
     }
 
     /**
@@ -35,4 +27,3 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
         //
     }
 }
-

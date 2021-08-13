@@ -838,6 +838,7 @@ class LiveChatController extends Controller
             $customer       = Customer::findorfail($chatId);
             $name           = $customer->name;
             $customerInital = substr($name, 0, 1);
+            $message = array();
             if (count($chat_message) == 0) {
                 //$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
             } else {

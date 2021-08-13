@@ -116,7 +116,8 @@ height: 15px;
 width:15px;
 background-color: #4cd137;
 border-radius: 50%;
-bottom: 0.2em;
+/* bottom: 0.2em; */
+bottom: 1.2em;
 right: 0.4em;
 border:1.5px solid white;
 }
@@ -270,7 +271,7 @@ margin-bottom: 15px !important;
 	text-overflow: ellipsis;
 	width: 100%;
 	overflow: hidden;
-	padding-bottom: 10px;
+	padding-bottom: 5px;
 }
 .chat-righbox .name{
 	display: flex;
@@ -532,13 +533,15 @@ function customerInfoSetter(customerInfo){
 	if(lastVisited.geolocation.country != ''){
 		customerLocation.push(lastVisited.geolocation.country);
 	}
-	var customerInfoHTML = '<div class="name"><div class="inital-wrapper"><span class="inital">L</span></div><div class="fname-wrapper"><div class="fullname">' + customerInfo.name + '</div><div class="email">' + customerInfo.email + '</div></div></div>';
+	var customerInfoHTML = '';
+	// customerInfoHTML = '<div class="name"><div class="inital-wrapper"><span class="inital">L</span></div><div class="fname-wrapper"><div class="fullname">' + customerInfo.name + '</div><div class="email">' + customerInfo.email + '</div></div></div>';
+	customerInfoHTML = '<div class="name"><div class="fname-wrapper"><div class="fullname">' + customerInfo.name + '</div><div class="email">' + customerInfo.email + '</div></div></div>';
 
 	var atSeenAtUTC = new Date(customerInfo.customer_last_event_created_at);
 
 	customerInfoHTML += '<div class="time"><svg fill="#9c999d" width="16px" height="16px" viewBox="0 0 14 14"><g><path fill="inherit" d="M6.993.333A6.663 6.663 0 0 0 .333 7c0 3.68 2.98 6.667 6.66 6.667A6.67 6.67 0 0 0 13.667 7 6.67 6.67 0 0 0 6.993.333zm.007 12A5.332 5.332 0 0 1 1.667 7 5.332 5.332 0 0 1 7 1.667 5.332 5.332 0 0 1 12.333 7 5.332 5.332 0 0 1 7 12.333z"></path><path fill="inherit" d="M7.333 3.667h-1v4l3.5 2.1.5-.82-3-1.78z"></path></g></svg> ' + formatAMPM(atSeenAtUTC) + ' local time</div>';
 	customerInfoHTML += '<div class="location"><svg fill="#9c999d" width="16px" height="16px" viewBox="0 0 10 14"><path fill="inherit" d="M5 .333A4.663 4.663 0 0 0 .333 5C.333 8.5 5 13.667 5 13.667S9.667 8.5 9.667 5A4.663 4.663 0 0 0 5 .333zm0 6.334a1.667 1.667 0 1 1 .001-3.335A1.667 1.667 0 0 1 5 6.667z"></path></svg> ' + customerLocation.join(', ') + '</div>';
-	customerInfoHTML += '<div class="mapouter"><div class="gmap_canvas" id="gmap"><iframe width="100%" height="250" id="gmap_canvas" src="https://maps.google.com/maps?q=' + customerLocation.join(', ') + '&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe></div></div>';
+	// customerInfoHTML += '<div class="mapouter"><div class="gmap_canvas" id="gmap"><iframe width="100%" height="250" id="gmap_canvas" src="https://maps.google.com/maps?q=' + customerLocation.join(', ') + '&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe></div></div>';
 
 	$('#chatCustomerInfo').html(customerInfoHTML);
 
@@ -606,6 +609,9 @@ function getLeadOrderDetails(customer_id){
     	data: { customer_id : customer_id ,   _token: "{{ csrf_token() }}" },
     })
     .done(function(data) {
+
+		console.log("444444");
+		console.log(data);
     	
 
 		if (data[0] == true) {
@@ -614,15 +620,15 @@ function getLeadOrderDetails(customer_id){
 			let number = information.customer.phone;
 			let email = information.customer.email ;
 			let accordion_data = '';
-			if (information.leads_total){
+			// if (information.leads_total){
 				accordion_data = get_leads_table_data(information.leads,information.leads_total)
-			}
-			if (information.orders_total){
+			// }
+			// if (information.orders_total){
 				accordion_data += get_orders_table_data(information.orders,information.orders_total)
-			}
-			if (information.exchanges_return_total){
+			// }
+			// if (information.exchanges_return_total){
 				accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
-			}
+			// }
 
 			$('#customer_order_details').html(accordion_data);
 
@@ -683,7 +689,7 @@ const get_leads_table_data = (leads,total) => {
 		let table = createTable(head,leads,bodyElements)
 		return createCard('leads__card__id','leads__target','Leads <span>('+total+')</span>	',table)
 	}
-	return ''
+	return '<div class="card card-in-modal"><div class="card-header" id="leads__card__id"><h5 class="mb-0"><button class="btn btn-link leads__button" type="button" data-toggle="collapse" data-target="#leads__target" aria-expanded="false" aria-controls="collapseOne">Leads <span>(0)</span>	</button></h5></div></div>';
 }
 
 const get_orders_table_data = (orders,total) => {
@@ -693,7 +699,7 @@ const get_orders_table_data = (orders,total) => {
 		let table = createTable(head,orders,bodyElements)
 		return createCard('orders__card__id','orders__target','Orders <span>('+total+')</span>	',table)
 	}
-	return ''
+	return '<div class="card card-in-modal"><div class="card-header" id="leads__card__id"><h5 class="mb-0"><button class="btn btn-link leads__button" type="button" data-toggle="collapse" data-target="#leads__target" aria-expanded="false" aria-controls="collapseOne">Orders <span>(0)</span>	</button></h5></div></div>'
 }
 
 const get_exchanges_return_table_data = (data,total) => {
@@ -705,7 +711,7 @@ const get_exchanges_return_table_data = (data,total) => {
 		let table = createTable(head,data,bodyElements)
 		return createCard('exchanges_return__card__id','exchanges_return__target','return/exchange <span>('+total+')</span>	',table)
 	}
-	return ''
+	return '<div class="card card-in-modal"><div class="card-header" id="leads__card__id"><h5 class="mb-0"><button class="btn btn-link leads__button" type="button" data-toggle="collapse" data-target="#leads__target" aria-expanded="false" aria-controls="collapseOne">return/exchange <span>(0)</span>	</button></h5></div></div>'
 }
 
 function getChats(id){
@@ -736,6 +742,7 @@ function getChats(id){
 	        $('#message-id').val(data.data.id);
 			$('#new_message_count').text(data.data.count);
 			$('#user_name').text(data.data.name);
+			$(".load-communication-modal").attr("data-id", data.data.id);
 			$("li.active").removeClass("active");
 			$("#user"+data.data.id).addClass("active");
 			$('#user_inital').text(data.data.customerInital);
@@ -817,6 +824,7 @@ function getChatsWithoutRefresh(){
 		 getLanguage(data.data.id);
 		 $('#new_message_count').text(data.data.count);
 		 $('#user_name').text(data.data.name);
+		 $(".load-communication-modal").attr("data-id", data.data.id);
 		 $("li .active").removeClass("active");
 		 $("#user"+data.data.id).addClass("active");
 		 $('#user_inital').text(data.data.customerInital);

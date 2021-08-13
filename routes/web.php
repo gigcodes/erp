@@ -81,7 +81,8 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
     Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
     Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
-    Route::get('/accounts/status/{id}', 'GoogleWebMasterController@statusAccount')->name('googlewebmaster.account.status');
+    Route::get('/accounts/connect/{id}', 'GoogleWebMasterController@connectAccount')->name('googlewebmaster.account.connect');
+    Route::get('/accounts/disconnect/{id}', 'GoogleWebMasterController@disconnectAccount')->name('googlewebmaster.account.disconnect');
     Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
@@ -717,7 +718,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
-
+    Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
     Route::post('order/create-product', 'OrderController@createProduct')->name('order.create.product');

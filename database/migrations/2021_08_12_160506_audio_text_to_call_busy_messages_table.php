@@ -3,13 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\ProductDiscountExcelFile;
-use App\SupplierDiscountLogHistory;
-use App\SupplierBrandDiscount;
 
-
-
-class AlterTableProductDiscountExcelFilesTruncate extends Migration
+class AudioTextToCallBusyMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -18,11 +13,9 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function up()
     {
-        
-        ProductDiscountExcelFile::truncate();
-        SupplierDiscountLogHistory::truncate();
-        SupplierBrandDiscount::truncate();
-
+        Schema::table('call_busy_messages', function (Blueprint $table) {
+          $table->text('audio_text');
+        });
     }
 
     /**
@@ -32,7 +25,8 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('call_busy_messages', function (Blueprint $table) {
+            //
+        });
     }
 }
-
