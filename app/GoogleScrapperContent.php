@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GoogleScrapperContent extends Model
 {
+    protected $table='google_scrapper_content';
     protected $fillable = [
         'title',
         'date', 
