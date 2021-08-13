@@ -798,7 +798,6 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
@@ -834,7 +833,6 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
