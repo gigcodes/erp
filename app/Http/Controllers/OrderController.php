@@ -2236,8 +2236,8 @@ class OrderController extends Controller
 
     public function missedCalls()
     {
-
-        $callBusyMessages = CallBusyMessage::select('call_busy_messages.id', 'twilio_call_sid', 'message', 'recording_url', 'call_busy_messages.created_at')
+		
+		 $callBusyMessages = CallBusyMessage::select('call_busy_messages.id', 'twilio_call_sid', 'message', 'recording_url', 'call_busy_messages.created_at', 'audio_text')
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
             ->orderBy('id', 'DESC')->paginate(20)->toArray();
 
