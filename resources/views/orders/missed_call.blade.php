@@ -109,9 +109,28 @@
                         <td>{{ !empty($callBusyMessage['store_website_name']) ? $callBusyMessage['store_website_name'] : ' ' }}
                         </td>
                         <td>
-                            <audio src="{{ $callBusyMessage['recording_url'] }}" controls preload="metadata">
-                                <p>Alas, your browser doesn't support html5 audio.</p>
+                            <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
+                            <p>Alas, your browser doesn't support html5 audio.</p>
                             </audio>
+                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-http-status" title="Http Status" data-toggle="modal" data-target="#show-recording-text{{$key}}" data-request="N/A" data-response="N/A">
+                                <i class="fa fa-headphones"></i>
+                            </button>
+                            <div id="show-recording-text{{$key}}" class="modal fade" role="dialog" >
+                                <div class="modal-dialog" style="width:100%;max-width:96%">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Audio Text</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{ $callBusyMessage['audio_text'] }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </td>
                         <td>{{ $callBusyMessage['created_at'] }}</td>
 

@@ -23,7 +23,7 @@ class CallBusyMessage extends Model
      * @SWG\Property(property="updated_at",type="datetime")
     
      */
-    protected $fillable = ['lead_id', 'twilio_call_sid', 'caller_sid', 'message', 'recording_url', 'status', 'call_busy_message_statuses_id'];
+    protected $fillable = ['lead_id', 'twilio_call_sid', 'caller_sid', 'message', 'recording_url', 'status', 'call_busy_message_statuses_id','audio_text'];
 
     protected $table = "call_busy_messages";
 
