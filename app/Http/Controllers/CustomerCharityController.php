@@ -10,7 +10,12 @@ use App\CustomerCharity;
 use App\VendorCharity;
 use App\Setting;
 use App\User;
+use App\Category;
+use App\Brand;
+use App\Product;
 use App\VendorCategory;
+use Illuminate\Support\Facades\Hash;
+use App\Role;
 
 class CustomerCharityController extends Controller
 {
@@ -165,9 +170,8 @@ class CustomerCharityController extends Controller
                     SELECT *,
                     (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
-                    (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
-
-                    FROM (SELECT customer_charities.id, customer_charities.frequency, customer_charities.is_blocked ,customer_charities.reminder_message, customer_charities.category_id, customer_charities.name, customer_charities.phone, customer_charities.email, customer_charities.address, customer_charities.social_handle, customer_charities.website, customer_charities.login, customer_charities.password, customer_charities.gst, customer_charities.account_name, customer_charities.account_iban, customer_charities.account_swift,
+                    (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at 
+                    FROM (SELECT customer_charities.id,customer_charities.product_id, customer_charities.frequency, customer_charities.is_blocked ,customer_charities.reminder_message, customer_charities.category_id, customer_charities.name, customer_charities.phone, customer_charities.email, customer_charities.address, customer_charities.social_handle, customer_charities.website, customer_charities.login, customer_charities.password, customer_charities.gst, customer_charities.account_name, customer_charities.account_iban, customer_charities.account_swift,
                         customer_charities.created_at,customer_charities.updated_at,
                         customer_charities.updated_by,
                         customer_charities.reminder_from,
@@ -175,7 +179,7 @@ class CustomerCharityController extends Controller
                         customer_charities.status,
                         category_name,
                     chat_messages.message_id 
-                    FROM customer_charities
+                    FROM customer_charities 
 
                     LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
                     ON customer_charities.id = chat_messages.vendor_id
@@ -183,9 +187,8 @@ class CustomerCharityController extends Controller
                     LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
                     ON customer_charities.category_id = vendor_categories.id WHERE ' . $whereArchived . '
                     )
-
                     AS customer_charities
-
+ 
                     WHERE (name LIKE "%' . $term . '%" OR
                     phone LIKE "%' . $term . '%" OR
                     email LIKE "%' . $term . '%" OR
@@ -234,7 +237,7 @@ class CustomerCharityController extends Controller
         ], 200);
         } */
 
-        $updatedProducts = \App\CustomerCharity::join("users as u","u.id","customer_charities.updated_by")
+        $updatedProducts = CustomerCharity::join("users as u","u.id","customer_charities.updated_by")
         ->groupBy("customer_charities.updated_by")
         ->select([\DB::raw("count(u.id) as total_records"),"u.name"])
         ->get();
@@ -301,10 +304,23 @@ class CustomerCharityController extends Controller
       }  
   
   
+      unset($data['create_user_github']);
+      unset($data['create_user_hubstaff']);
       if($id == null){
-          CustomerCharity::create($data);
-      }else{
-        CustomerCharity::where('id', $id)->update($data);
+          $charity = CustomerCharity::create($data); 
+          $charity_category = Category::where('title', 'charity')->first();
+          $charity_brand = Brand::where('name', 'charity')->first();
+          $product = new Product(); 
+          $product->sku = '';
+          $product->name = $charity->name;
+          $product->brand = $charity_brand->id;
+          $product->category = $charity_category->id;
+          $product->save(); 
+          CustomerCharity::where('id', $charity->id)->update([
+              'product_id' => $product->id
+          ]);
+      }else{ 
+          CustomerCharity::where('id', $id)->update($data);
       }
   
       if ($request->create_user == 'on') {
@@ -354,13 +370,14 @@ class CustomerCharityController extends Controller
       $isInvitedOnGithub = false;
       if ($request->create_user_github == 'on' && isset($request->email)) {
         //has requested for github invitation
-        $isInvitedOnGithub = $this->sendGithubInvitaion($request->email);
+        $isInvitedOnGithub = app('App\Http\Controllers\VendorController')->sendGithubInvitaion($request->email);
+
       }
   
       $isInvitedOnHubstaff = false;
       if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
         //has requested hubstaff invitation
-        $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
+        $isInvitedOnHubstaff = app('App\Http\Controllers\VendorController')->sendHubstaffInvitation($request->email);
       }
   
       if(!empty($source)) {
@@ -368,5 +385,13 @@ class CustomerCharityController extends Controller
       }
   
       return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
+    }
+
+    public function delete($id){
+        $customer_charity = CustomerCharity::find($id);
+        $customer_charity->delete();
+
+    return redirect()->route('customer.charity')->withSuccess('You have successfully deleted a charity');
+
     }
 }

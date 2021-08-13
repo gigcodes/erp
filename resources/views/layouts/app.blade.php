@@ -575,6 +575,21 @@ $metaData = '';
                                         </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Social media<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('influencers.index') }}">Instagram influencer</a>
+                                            <a class="dropdown-item" href="{{ route('instagram.message-queue') }}">Instagram Message Queue</a>
+                                            <a class="dropdown-item" href="{{ route('instagram.message-queue.approve') }}"> Instagram Message Queue Approval</a>
+                                            
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supplier<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -3112,6 +3127,13 @@ $metaData = '';
              e.preventDefault();
             var customerId = $("input[name='message-id'").val();
             var language = $(".auto-translate").val();
+
+            if(customerId == '' || customerId == undefined)
+                customerId = $(this).data('customerid');
+
+            if(language == '' || language == undefined)
+                language = $(".chat_lang_"+customerId).val();
+
             let self = $(this);
             $.ajax({
                 url: "/customer/language-translate/"+customerId,

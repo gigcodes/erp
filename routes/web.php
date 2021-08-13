@@ -79,6 +79,12 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
 
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
+    Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
+    Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
+    Route::get('/accounts/connect/{id}', 'GoogleWebMasterController@connectAccount')->name('googlewebmaster.account.connect');
+    Route::get('/accounts/disconnect/{id}', 'GoogleWebMasterController@disconnectAccount')->name('googlewebmaster.account.disconnect');
+    Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
+    Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
 });
 
@@ -105,7 +111,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
-    Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
+    Route::get('list-magento/export', 'Logging\LogListMagentoController@export')->name('list.magento.logging.export');
+    
+	Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', 'Logging\LogListMagentoController@productInformation')->name('list.magento.product-information');
     Route::get('list-magento/retry-failed-job', 'Logging\LogListMagentoController@retryFailedJob')->name('list.magento.retry-failed-job');
@@ -270,6 +278,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
     Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     
+
+    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
+    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
+    Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
+
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
@@ -690,7 +703,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('order/permanentDelete/{order}', 'OrderController@permanentDelete')->name('order.permanentDelete');
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
+    Route::get('order/missed-calls/orders/{id}', 'OrderController@getOrdersFromMissedCalls')->name('order.getOrdersFromMissedCalls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+    Route::post('order/calls/add-status', 'OrderController@addStatus')->name('order.store.add-status');
+    Route::post('order/calls/store-status/{id}', 'OrderController@storeStatus')->name('order.store.store-status');
+    Route::post('order/calls/send-message', 'OrderController@sendWhatappMessageOrEmail')->name('order.send-message.whatsapp-or-email');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
@@ -701,7 +718,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
-
+    Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
     Route::post('order/create-product', 'OrderController@createProduct')->name('order.create.product');
@@ -1587,6 +1604,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
         Route::get('/report', 'HubstaffActivitiesController@activityReport')->name('hubstaff-acitivtity.report');
         Route::get('/report-download', 'HubstaffActivitiesController@activityReportDownload')->name('hubstaff-acitivtity-report.download');
+        Route::get('/payment_data', 'HubstaffActivitiesController@activityPaymentData')->name('hubstaff-acitivtity.payment_data');
+        Route::post('/command_execution_manually', 'HubstaffActivitiesController@HubstaffActivityCommandExecution')->name('hubstaff-acitivtity.command_execution_manually');
+        Route::get('/hubstaff-payment-download', 'HubstaffActivitiesController@HubstaffPaymentReportDownload')->name('hubstaff-payment-report.download');
 
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
@@ -1991,6 +2011,7 @@ Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest'
 
 
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
+Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -2113,7 +2134,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 Route::prefix('social-media')->middleware('auth')->group(function () {
     Route::get('/instagram-posts/grid','InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
-    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue');
+    Route::get('/instagram/message-queue', 'InstagramPostsController@messageQueue')->name('instagram.message-queue');
     Route::get('/instagram/message-queue/approve', 'InstagramPostsController@messageQueueApprove')->name('instagram.message-queue.approve');
     Route::post('/instagram/message-queue/settings', 'InstagramPostsController@messageQueueSetting')->name('instagram.message-queue.settings');
     Route::post('/instagram/message-queue/approve/approved', 'InstagramPostsController@messageQueueApproved')->name('instagram.message-queue.approved');
@@ -3311,3 +3332,6 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
 Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
+// Google Scrapper Keyword
+Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');

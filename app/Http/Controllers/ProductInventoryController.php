@@ -31,7 +31,7 @@ use App\Supplier;
 use App\SupplierBrandDiscount;
 use App\SupplierDiscountLogHistory;
 use App\User;
-use App\product_discount_excel_file;
+use App\ProductDiscountExcelFile;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
@@ -1090,19 +1090,43 @@ class ProductInventoryController extends Controller
     public function inventoryListNew( Request $request ){
     	$filter_data = $request->input();
 		// $inventory_data = \App\Product::getProducts($filter_data);
-
-		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id")->orderBy("swp.created_at","desc")->paginate(20);		
+        
+		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id");
+		if ($request->start_date!='')
+		  $inventory_data->whereDate('products.created_at' ,'>=',$request->start_date );
+		if ($request->end_date!='')
+		   $inventory_data->whereDate('products.created_at' ,'<=',$request->end_date );	  
+		$inventory_data=$inventory_data->orderBy("swp.created_at","desc")->paginate(20);		
     	
     	$inventory_data_count = $inventory_data->total();
 
-    	$totalProduct =  \App\Product::count();
-    	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
-    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->count();
+    	$totalProduct =  \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
+                ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
+                ->join("products as p", "p.id", "sp.product_id")
+                ->where("suppliers.supplier_status_id", 1)
+                ->select(\DB::raw("count(distinct p.id) as total"))->first();
 
+        $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
+
+    	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
+    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->select(\DB::raw("count(distinct p.id) as total"))->first();
+    	$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
+
+		$history=\App\InventoryHistory::orderBy('date', 'DESC')->limit(7)->get();
+		/*$date=date('Y-m-d');
+		$date=date("Y-m-d",strtotime($date . ' - 1 day'));
+		for($count=0;$count<7;$count++)
+		{
+			$nStock = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->select(\DB::raw("count(distinct product_id) as total"))->first();
+			$history[] = ['date'=>$date,'productUpdated'=>($nStock) ? $nStock->total : 0];
+		    $date = date("Y-m-d",strtotime($date . ' - 1 day'));
+		}*/
+
+		 
 
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
 
-        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct'));
+        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct','history'));
     }
 
     public function downloadReport() {
@@ -1479,7 +1503,7 @@ class ProductInventoryController extends Controller
 
 		$brand_data = \App\SupplierBrandDiscount::distinct()->get(['brand_id']);
 		$id = $request->id;
-		$excel_data = product_discount_excel_file::join('users','users.id','product_discount_excel_files.user_id')->select('product_discount_excel_files.*','users.name')->get();
+		$excel_data = ProductDiscountExcelFile::join('users','users.id','product_discount_excel_files.user_id')->select('product_discount_excel_files.*','users.name')->get();
 
 		// dd($excel_data);
 
@@ -1634,7 +1658,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
             // ------------------------------------------------------------------ SS21---------------------------------------------------------------------------
@@ -1853,7 +1877,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
 			
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
@@ -2063,7 +2087,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
 
@@ -2223,7 +2247,7 @@ class ProductInventoryController extends Controller
                     }
         
                     $file->move(public_path('product_discount_file'), $fileName);
-                    $excel_log = product_discount_excel_file::create($params_file);
+                    $excel_log = ProductDiscountExcelFile::create($params_file);
                     return redirect()->back()->with('success', 'Excel Imported Successfully!');
                 }
             

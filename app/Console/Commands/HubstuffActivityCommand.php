@@ -96,7 +96,7 @@ class HubstuffActivityCommand extends Command
 
             $path = null;
 
-            $data["email"] = 'g62@gopanear.com';//$user->email;
+            $data["email"] = $user->email;
             $data["title"] = "Hubstuff Activities Report";
 
             if($payment_frequency == "weekly" ){
@@ -110,14 +110,15 @@ class HubstuffActivityCommand extends Command
                     // if ($diff_in_days == 7 ) {
                     
                         $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                        $z = (array) $res;
-                        foreach($z as $zz){
-                            if($path == null){
+                        $path = $res;
+                        // $z = (array) $res;
+                        // foreach($z as $zz){
+                        //     if($path == null){
 
-                                $path = $zz->getRealPath();
+                        //         $path = $zz->getRealPath();
 
-                            }
-                        }
+                        //     }
+                        // }
                     // }
                 }
 
@@ -146,14 +147,15 @@ class HubstuffActivityCommand extends Command
                 if($today_week->dayOfWeek == Carbon::MONDAY || $today_week->dayOfWeek == Carbon::THURSDAY){
                     dump('Get Report ......');
                     $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                    $z = (array) $res;
-                    foreach($z as $zz){
-                        if($path == null){
+                    $path = $res;
+                    // $z = (array) $res;
+                    // foreach($z as $zz){
+                    //     if($path == null){
 
-                            $path = $zz->getRealPath();
+                    //         $path = $zz->getRealPath();
 
-                        }
-                    }
+                    //     }
+                    // }
                 }
 
                 // if ($diff_in_days == 14) {
@@ -181,14 +183,15 @@ class HubstuffActivityCommand extends Command
                 if($date_fornightly == 15){
                     dump('Get Report ......');
                     $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                    $z = (array) $res;
-                    foreach($z as $zz){
-                        if($path == null){
+                    $path = $res;
+                    // $z = (array) $res;
+                    // foreach($z as $zz){
+                    //     if($path == null){
 
-                            $path = $zz->getRealPath();
+                    //         $path = $zz->getRealPath();
 
-                        }
-                    }
+                    //     }
+                    // }
                 }
 
                 // if ($diff_in_days == 15) {
@@ -228,14 +231,15 @@ class HubstuffActivityCommand extends Command
                     dump('Get Report ......');
                     
                     $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                    $z = (array) $res;
-                    foreach($z as $zz){
-                        if($path == null){
+                    $path = $res;
+                    // $z = (array) $res;
+                    // foreach($z as $zz){
+                    //     if($path == null){
 
-                            $path = $zz->getRealPath();
+                    //         $path = $zz->getRealPath();
 
-                        }
-                    }
+                    //     }
+                    // }
                 }
 
                 // if ($diff_in_days == 30) {
@@ -256,7 +260,10 @@ class HubstuffActivityCommand extends Command
 
             if ($path) {
 
+
                 Auth::logout($user);
+
+                $path = storage_path('app/files').'/'.$path;
 
                 Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
                     $message->to($data["email"], $data["email"])
@@ -266,12 +273,14 @@ class HubstuffActivityCommand extends Command
                 $user->last_mail_sent_payment = $today;
                 $user->save();
 
-                $storage_path = substr($path, strpos($path, 'framework'));
+                // $storage_path = substr($path, strpos($path, 'framework'));
                     
                 $hubstaff_activity = new HubstaffActivityByPaymentFrequency;
                 $hubstaff_activity->user_id = $user->id;
-                $hubstaff_activity->activity_excel_file = $storage_path;
+                $hubstaff_activity->activity_excel_file = $path;
                 $hubstaff_activity->save();
+
+                // dd("555555");
 
                 dump('Mail Sent Successfully => '.$user->name);
                 dump('');
