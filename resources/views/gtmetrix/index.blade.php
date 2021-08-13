@@ -192,7 +192,7 @@
 			success: function(result){
 				if(result.code == 200) {
 					var t = '';
-					$.each(result.data.data,function(k,v) {
+					$.each(result.data,function(k,v) {
                         var re = '';
                         if(v.resources){
 
