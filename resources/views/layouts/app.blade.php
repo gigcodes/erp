@@ -3127,6 +3127,13 @@ $metaData = '';
              e.preventDefault();
             var customerId = $("input[name='message-id'").val();
             var language = $(".auto-translate").val();
+
+            if(customerId == '' || customerId == undefined)
+                customerId = $(this).data('customerid');
+
+            if(language == '' || language == undefined)
+                language = $(".chat_lang_"+customerId).val();
+
             let self = $(this);
             $.ajax({
                 url: "/customer/language-translate/"+customerId,
