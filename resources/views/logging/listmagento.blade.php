@@ -202,6 +202,7 @@
               <th style="width:8%">Sync Status</th>
               <th style="width:4%">Job Start</th>
               <th style="width:4%">Job End</th>
+              <th style="width:4%">Total Assigned</th>
               <th style="width:5%;padding-left: 0">Success</th>
               <th style="width:5%">Failure</th>
               <th style="width:3%;padding-left: 0">User</th>
