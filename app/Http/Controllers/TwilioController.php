@@ -319,56 +319,65 @@ class TwilioController extends FindByNumberController
                     $is_online = $user_details->isOnline();
                     // dd($is_online);
 
-                    if($is_available == 0 && $is_online)
+                    //Check user Admin - Temporary - START
+                    $agent_role_admin = RoleUser::where('user_id',$client['agent_id'])->where('role_id',1)->first();
+
+                    Log::channel('customerDnd')->info('agent_role_admin >> '.$agent_role_admin);
+
+                    if($agent_role_admin || $client['agent_id'] == '319')
                     {
-
-                        Log::channel('customerDnd')->info(' client >> '.$client['agent_name_id']);
-
-                        // Add Agent Entry - START
-                        $check_agent = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->first();
-                        if ($check_agent === null) {
-                            // user doesn't exist in AgentCallStatus - Insert Query for Add Agent User
-                            $params_insert_agent = [
-                                'agent_id' => $client['agent_id'],
-                                'agent_name' => $client['agent_name'],
-                                'agent_name_id' => $client['agent_name_id'],
-                                'site_id' => $object->store_website_id,
-                                'twilio_no' => $request->get("Called"),
-                                'status' => '0',
-                            ];
-                            AgentCallStatus::create($params_insert_agent);
-                        }
-                        // Add Agent Entry - END
-                        
-                        
-                        $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
-
-                        if ($check_agent_available != null) {
-                            if($check_agent_available->status == 0)
-                                $is_available = 1;
-                        }else{
-                            $is_available = 1;
-                        }
-
-                        Log::channel('customerDnd')->info(' is_available >> '.$is_available);
-
-                        if($is_available == 1)
+                    //Check user Admin - Temporary - END
+                        if($is_available == 0 && $is_online)
                         {
-                            $dial = $response->dial('',[
-                                'record' => 'true',
-                                'recordingStatusCallback' => $url,
-                                'action' => $actionurl,
-                                'timeout' => '60'
-                            ]);
 
-                            $dial->client($client['agent_name_id']);
+                            Log::channel('customerDnd')->info(' client >> '.$client['agent_name_id']);
 
-                            // AgentCallStatus::where('agent_id', $client['agent_id'])
-                            // ->where('agent_name_id', $client['agent_name_id'])
-                            // ->where('status', '0')
-                            // ->update(['status' => '1']);
+                            // Add Agent Entry - START
+                            $check_agent = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->first();
+                            if ($check_agent === null) {
+                                // user doesn't exist in AgentCallStatus - Insert Query for Add Agent User
+                                $params_insert_agent = [
+                                    'agent_id' => $client['agent_id'],
+                                    'agent_name' => $client['agent_name'],
+                                    'agent_name_id' => $client['agent_name_id'],
+                                    'site_id' => $object->store_website_id,
+                                    'twilio_no' => $request->get("Called"),
+                                    'status' => '0',
+                                ];
+                                AgentCallStatus::create($params_insert_agent);
+                            }
+                            // Add Agent Entry - END
+                            
+                            
+                            $check_agent_available = AgentCallStatus::where('agent_id',$client['agent_id'])->where('agent_name_id',$client['agent_name_id'])->where('twilio_no','!=',"")->first();
+
+                            if ($check_agent_available != null) {
+                                if($check_agent_available->status == 0)
+                                    $is_available = 1;
+                            }else{
+                                $is_available = 1;
+                            }
+
+                            Log::channel('customerDnd')->info(' is_available >> '.$is_available);
+
+                            if($is_available == 1)
+                            {
+                                $dial = $response->dial('',[
+                                    'record' => 'true',
+                                    'recordingStatusCallback' => $url,
+                                    'action' => $actionurl,
+                                    'timeout' => '60'
+                                ]);
+
+                                $dial->client($client['agent_name_id']);
+
+                                // AgentCallStatus::where('agent_id', $client['agent_id'])
+                                // ->where('agent_name_id', $client['agent_name_id'])
+                                // ->where('status', '0')
+                                // ->update(['status' => '1']);
+                            }
                         }
-                    }
+                    } //Check user Admin - Temporary
                 }
 
                 if($is_available == 0)
