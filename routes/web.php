@@ -717,7 +717,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
-
+    Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
     Route::post('order/create-product', 'OrderController@createProduct')->name('order.create.product');
