@@ -126,7 +126,7 @@ class CustomerCharityController extends Controller
 
         if (request('communication_history') != null && !request('with_archived')) {
             $communication_history = request('communication_history');
-            $query->orWhereRaw("customer_charities.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
+            $query->orWhereRaw("customer_charities.id in (select charity_id from chat_messages where charity_id is not null and message like '%" . $communication_history . "%')");
         }
 
     
@@ -183,16 +183,12 @@ class CustomerCharityController extends Controller
                         customer_charities.updated_by,
                         customer_charities.reminder_from,
                         customer_charities.reminder_last_reply,
-                        customer_charities.status,
-                        category_name,
+                        customer_charities.status, 
                     chat_messages.message_id 
                     FROM customer_charities 
 
-                    LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
-                    ON customer_charities.id = chat_messages.vendor_id
-
-                    LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                    ON customer_charities.category_id = vendor_categories.id WHERE ' . $whereArchived . '
+                    LEFT JOIN (SELECT MAX(id) as message_id, charity_id FROM chat_messages GROUP BY charity_id ORDER BY created_at DESC) AS chat_messages
+                    ON customer_charities.id = chat_messages.charity_id
                     )
                     AS customer_charities
  
@@ -200,8 +196,7 @@ class CustomerCharityController extends Controller
                     phone LIKE "%' . $term . '%" OR
                     email LIKE "%' . $term . '%" OR
                     address LIKE "%' . $term . '%" OR
-                    social_handle LIKE "%' . $term . '%" OR
-                    category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
+                    social_handle LIKE "%' . $term . '%" OR 
                     id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' .$permittedCategories. '
                     ORDER BY ' . $sortByClause . ' message_created_at DESC;
                 ');
@@ -335,4 +330,49 @@ class CustomerCharityController extends Controller
     return redirect()->route('customer.charity')->withSuccess('You have successfully deleted a charity');
 
     }
-}
+
+    public function charitySearch()
+    {
+      $term = request()->get("q", null);
+      /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('address', 'LIKE', "%" . $term . "%")
+        ->orWhere('phone', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")
+        ->orWhereHas('category', function ($qu) use ($term) {
+          $qu->where('title', 'LIKE', "%" . $term . "%");
+        })->get();*/
+      $search = CustomerCharity::where('name', 'LIKE', "%" . $term . "%")
+                ->get();
+      return response()->json($search);
+    }
+
+    public function charityEmail()
+    {
+      $term = request()->get("q", null);
+      /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('address', 'LIKE', "%" . $term . "%")
+        ->orWhere('phone', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")
+        ->orWhereHas('category', function ($qu) use ($term) {
+          $qu->where('title', 'LIKE', "%" . $term . "%");
+        })->get();*/
+      $search = CustomerCharity::where('email', 'LIKE', "%" . $term . "%")
+                ->get();
+      return response()->json($search);
+    }
+
+
+    public function charityPhoneNumber()
+    {
+      $term = request()->get("q", null);
+      /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('address', 'LIKE', "%" . $term . "%")
+        ->orWhere('phone', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")
+        ->orWhereHas('category', function ($qu) use ($term) {
+          $qu->where('title', 'LIKE', "%" . $term . "%");
+        })->get();*/
+      $search = CustomerCharity::where('phone', 'LIKE', "%" . $term . "%")
+                ->get();
+      return response()->json($search);
+    }}

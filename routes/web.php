@@ -277,6 +277,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
     Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
+    Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
+    Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
+    Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -3051,6 +3054,9 @@ Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.
 Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
 Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
 Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
+Route::get('charity-search', 'CharityController@charitySearch')->name('charity-search');
+Route::get('charity-email', 'CharityController@charityEmail')->name('charity-email');
+Route::get('charity-phone-number', 'CharityController@charityPhoneNumber')->name('charity-phone-number');
 
 });
 

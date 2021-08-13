@@ -118,7 +118,7 @@
                 <form class="form-inline" action="{{ route('customer.charity') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Name</label>
-                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                        <select name="term" type="text" class="form-control" placeholder="Search" id="charity-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
@@ -128,7 +128,7 @@
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Email</label>
-                        <select name="email" type="text" class="form-control" placeholder="Search" id="vendor-email" data-allow-clear="true">
+                        <select name="email" type="text" class="form-control" placeholder="Search" id="charity-email" data-allow-clear="true">
                             <?php
                                 if (request()->get('email')) {
                                     echo '<option value="'.request()->get('email').'" selected>'.request()->get('email').'</option>';
@@ -138,7 +138,7 @@
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Phone Number</label>
-                        <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
+                        <select name="phone" type="text" class="form-control" placeholder="Search" id="charity-phone-number" data-allow-clear="true">
                             <?php
                                 if (request()->get('phone')) {
                                     echo '<option value="'.request()->get('phone').'" selected>'.request()->get('phone').'</option>';
@@ -157,19 +157,7 @@
                             "0" => "De-Active",
                             "1" => "Active"
                         ],request('status'),["class"=> "form-control"]) ?>
-                    </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_updated_by">Updated by</label>
-                        <?php echo Form::select("updated_by",
-                            ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
-                            request('updated_by'),
-                            ["class"=> "form-control"]
-                        ); ?>
-                    </div>
-                    <div class="form-group ml-3 cls_filter_checkbox">
-                    <label for="with_archived">Archived</label>
-                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                    </div>
+                    </div> 
                     <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
@@ -435,11 +423,11 @@
             templateSelection: (customer) => customer.text || customer.name,
         });
         var vendorToRemind = null;
-        $('#vendor-search').select2({
+        $('#charity-search').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'/vendor-search',
+                url: BASE_URL+'/customer-charity-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -474,11 +462,11 @@
             templateSelection: (customer) => customer.text || customer.name,
         });
         var vendorToRemind = null;
-        $('#vendor-phone-number').select2({
+        $('#charity-phone-number').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'/vendor-search-phone',
+                url: BASE_URL+'/customer-charity-phone-number',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -511,11 +499,11 @@
             },
             templateSelection: (customer) => customer.text || customer.phone,
         });
-        $('#vendor-email').select2({
+        $('#charity-email').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'/vendor-search-email',
+                url: BASE_URL+'/customer-charity-email',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
