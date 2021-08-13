@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\product_discount_excel_file;
+use App\ProductDiscountExcelFile;
 use App\SupplierDiscountLogHistory;
 use App\SupplierBrandDiscount;
 
@@ -16,7 +16,7 @@ class AlterTableTruncateThreeTable20148 extends Migration
      */
     public function up()
     {
-        product_discount_excel_file::truncate();
+        ProductDiscountExcelFile::truncate();
         SupplierDiscountLogHistory::truncate();
         SupplierBrandDiscount::truncate();
     }
