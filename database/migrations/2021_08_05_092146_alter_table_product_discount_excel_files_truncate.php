@@ -3,6 +3,11 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use App\product_discount_excel_file;
+use App\SupplierDiscountLogHistory;
+use App\SupplierBrandDiscount;
+
+
 
 class AlterTableProductDiscountExcelFilesTruncate extends Migration
 {
@@ -13,9 +18,11 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function up()
     {
-        \DB::statement(" TRUNCATE `supplier_discount_log_history`");
-        \DB::statement(" TRUNCATE `product_discount_excel_files`");
-      
+        
+        product_discount_excel_file::truncate();
+        SupplierDiscountLogHistory::truncate();
+        SupplierBrandDiscount::truncate();
+
     }
 
     /**
