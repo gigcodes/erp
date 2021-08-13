@@ -649,13 +649,17 @@ class GoogleWebMasterController extends Controller
 		$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
 		$this->client->refreshToken($mail_acc->GOOGLE_CLIENT_REFRESH_TOKEN);
 		$access_token = $this->client->getAccessToken();
-		$is_removed = $this->client->revokeToken($access_token['access_token']);
+		if($access_token){
+			$is_removed = $this->client->revokeToken($access_token['access_token']);
+		}else{
+			return redirect()->route('googlewebmaster.index')->with('error', 'Refresh token is invalid!');          
+		}
 		
-		if($is_removed){
+		if(isset($is_removed)){
 			$mail_acc->delete();
 			return redirect()->route('googlewebmaster.index')->with('success', 'Account disconnected successfully!');          
 		}else{
-			return redirect()->route('googlewebmaster.index')->with('success', 'Account disconnected successfully!');          
+			return redirect()->route('googlewebmaster.index')->with('error', 'Soemthing went wrong!');          
 		}
 		
 	} 

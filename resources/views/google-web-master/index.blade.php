@@ -72,7 +72,6 @@
 				<input name="GOOGLE_CLIENT_SECRET" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT SECRET (required)"> 
 				<input name="GOOGLE_CLIENT_KEY" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT KEY"> 
 				<input name="GOOGLE_CLIENT_APPLICATION_NAME" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT APPLICATION_NAME (required)"> 
-				<input name="GOOGLE_CLIENT_ACCESS_TOKEN" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT ACCESS TOKEN"> 
 				<input name="GOOGLE_CLIENT_MULTIPLE_KEYS" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT MULTIPLE KEYS">  
 				<button type="submit" class="btn btn-secondary m-3 float-right">Submit</button>  
 			</form>
