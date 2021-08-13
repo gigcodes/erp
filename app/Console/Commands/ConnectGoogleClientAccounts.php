@@ -73,8 +73,7 @@ class ConnectGoogleClientAccounts extends Command
                 }
                 $acc->expires_in = $token['expires_in'];
                 $acc->save();
-                dump(['access_token' => $token]);
-                dump($acc->id . ' accept_token saved.');
+                dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | accept_token saved.');
             }catch(\Exception $e){
                 foreach($admins as $admin){
                     // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
