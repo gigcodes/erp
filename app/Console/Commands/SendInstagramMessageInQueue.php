@@ -75,7 +75,6 @@ class SendInstagramMessageInQueue extends Command
             $receiver = $mes->getRecieverUsername->username;
             $message = $mes->message;
             $sender_id = $mes->getSenderUsername->id;
-
                 Log::channel('insta_message_queue_by_rate_limit')->info('sender message limit:' . $accountSettingInformation[$sender_id] . 'sender name:' . $sender);
                 $i = new Instagram();
                 try {

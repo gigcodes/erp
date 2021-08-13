@@ -15,6 +15,7 @@ use App\Task;
 use App\Team;
 use App\User;
 use App\UserRate;
+use App\PayentMailData;
 use Artisan;
 use Auth;
 use DB;
@@ -28,6 +29,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Exports\HubstaffNotificationReport;
+use Mail;
+use App\Mails\Manual\HubstuffActivitySendMail;
+use App\Mails\Manual\DocumentEmail;
 
 
 class HubstaffActivitiesController extends Controller
@@ -277,6 +281,150 @@ class HubstaffActivitiesController extends Controller
         
         return response()->json(["code" => 500, "data" => [], "message" => "Requested id is not in database"]);
     }
+
+    public function HubstaffActivityCommandExecution(Request $request)
+    {
+        $start_date    = $request->startDate ? $request->startDate : date('Y-m-d', strtotime("-1 days"));
+        $end_date      = $request->endDate ? $request->endDate : date('Y-m-d', strtotime("-1 days"));
+        $userid        = $request->user_id;
+
+        $users = User::where('id',$userid)->get();
+        $today = Carbon::now()->toDateTimeString();
+
+        foreach ($users as $key => $user) {
+            
+            $user_id = $user->id;
+
+            $data["email"] = $user->email;
+            $data["title"] = "Hubstuff Activities Report";
+
+            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+
+            foreach ($tasks as $task) {
+                $task->user;
+
+                $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
+                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
+                if ($totalPaid) {
+                    $task->paid_amount = number_format($totalPaid, 2);
+                    $task->balance     = $task->rate_estimated - $totalPaid;
+                    $task->balance     = number_format($task->balance, 2);
+                } else {
+                    $task->paid_amount = 0;
+                    $task->balance     = $task->rate_estimated;
+                    $task->balance     = number_format($task->balance, 2);
+                }
+                // $task->assignedUser;
+                if ($task->task_id) {
+                    $task->taskdetails      = Task::find($task->task_id);
+                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task_details;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->approximate;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        } 
+                    }
+                } else if ($task->developer_task_id) {
+                    $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
+                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        }
+                    }
+                } else {
+                    $task->details          = $task->remarks;
+                    $task->estimate_minutes = $task->worked_minutes;
+                }
+            }
+
+            $activityUsers = collect([]);
+
+            foreach($tasks  as $task)
+            {
+                $a['date']        = $task->date;
+                $a['details']  = $task->details;
+
+                if($task->task_id)
+                    $category =  'Task #'.$task->task_id;
+                elseif($task->developer_task_id) 
+                    $category =  'Devtask #'.$task->developer_task_id;
+                else 
+                    $category =  'Manual';
+
+                $a['category']     = $category;
+                $a['time_spent']   = $task->estimate_minutes;
+                $a['amount']       = $task->rate_estimated;
+                $a['currency']     = $task->currency;
+                $a['amount_paid']  = $task->paid_amount;
+                $a['balance']  = $task->balance;
+                $activityUsers->push($a);
+            }
+
+
+            $total_amount = 0;
+            $total_amount_paid = 0;
+            $total_balance = 0;
+            foreach($activityUsers as $key => $value){
+                $total_amount += $value['amount'] ?? 0;
+                $total_amount_paid += $value['amount_paid'] ?? 0;
+                $total_balance += $value['balance'] ?? 0;
+            }
+
+            $path = '';
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $path = $file_data;
+           
+            
+            $today = Carbon::now()->toDateTimeString();
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+            $storage_path = $path;
+            
+            PayentMailData::create([
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'file_path' => $storage_path,
+                'total_amount' => round($total_amount,2),
+                'total_amount_paid' => round($total_amount_paid,2),
+                'total_balance' => round($total_balance,2),
+                'payment_date' => $payment_date,
+                'command_execution' => "Manually",
+            ]);
+
+            
+            $file_paths[] = $path;
+
+            $emailClass = (new DocumentEmail('Hubstuff Activities Report', 'Hubstaff Payment Activity', $file_paths))->build();
+
+            $email = \App\Email::create([
+                'model_id'        => $user_id,
+                'model_type'      => \App\User::class,
+                'from'            => $emailClass->fromMailer,
+                'to'              => $user->email,
+                'subject'         => $emailClass->subject,
+                'message'         => $emailClass->render(),
+                'template'        => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'status'          => 'pre-send',
+                'is_draft'        => 1,
+                'cc'              => null,
+                'bcc'             => null,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+
+        }
+        
+        return response()->json(["code" => 200, "message" => "Command Execution Success"]);
+    }
     
     public function getActivityUsers(Request $request, $params = null, $where = null)
     {   
@@ -501,11 +649,23 @@ class HubstaffActivitiesController extends Controller
                     $user = User::find($activity->system_user_id);
                     if ($user) {
                         $activity->userName = $user->name;
+                        $activity->payment_frequency = $user->payment_frequency;
+                        $activity->last_mail_sent_payment = $user->last_mail_sent_payment;
+                        $activity->fixed_price_user_or_job = $user->fixed_price_user_or_job;
+                        $activity->user_id_data = $user->id;
                     } else {
                         $activity->userName = '';
+                        $activity->payment_frequency = '';
+                        $activity->last_mail_sent_payment = '';
+                        $activity->fixed_price_user_or_job = '';
+                        $activity->user_id_data = '';
                     }
                 } else {
                     $activity->userName = '';
+                    $activity->payment_frequency = '';
+                    $activity->last_mail_sent_payment = '';
+                    $activity->fixed_price_user_or_job = '';
+                    $activity->user_id_data = '';
                 }
 
                 // send hubstaff activities
@@ -583,6 +743,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                             Log::channel('hubstaff_activity_command')->info('end admin condition if forwarded and status approve');
 
@@ -616,6 +780,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                         
@@ -647,6 +815,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                         
@@ -679,6 +851,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                     }
@@ -711,6 +887,10 @@ class HubstaffActivitiesController extends Controller
                             $a['totalNotPaid']   = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
                             $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
                             $activityUsers->push($a);
                         }
                     }
@@ -739,6 +919,10 @@ class HubstaffActivitiesController extends Controller
                         $a['totalNotPaid']   = $totalNotPaid;
                         $a['final_approval'] = $final_approval;
                         $a['note']           = '';
+                        $a['payment_frequency'] = $activity->payment_frequency;
+                        $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                        $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                        $a['user_id_data'] = $activity->user_id_data;
                         $activityUsers->push($a);
                     }
                     Log::channel('hubstaff_activity_command')->info('end status new condition');
@@ -797,6 +981,10 @@ class HubstaffActivitiesController extends Controller
                     $a['totalNotPaid']   = $totalNotPaid;
                     $a['final_approval'] = $final_approval;
                     $a['note']           = $note;
+                    $a['payment_frequency'] = $activity->payment_frequency;
+                    $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                    $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                    $a['user_id_data'] = $activity->user_id_data;
                     $activityUsers->push($a);
 
                 }
@@ -808,7 +996,44 @@ class HubstaffActivitiesController extends Controller
         //START - Purpose : set data for download  - DEVATSK-4300
         if( $request->submit ==  'report_download' ){
 
-           return $this->downloadExcelReport($activityUsers);
+            $total_amount = 0;
+            $total_amount_paid = 0;
+            $total_balance = 0;
+            foreach($activityUsers as $key => $value){
+                $total_amount += $value['amount'] ?? 0;
+                $total_amount_paid += $value['amount_paid'] ?? 0;
+                $total_balance += $value['balance'] ?? 0;
+            }
+
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $path = $file_data;
+            // $z = (array) $file_data;
+            // $path = '';
+            // foreach($z as $zz){
+            //     if($path == null){
+
+            //         $path = $zz->getRealPath();
+
+            //     }
+            // }
+            
+            $today = Carbon::now()->toDateTimeString();
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+            // $storage_path = substr($path, strpos($path, 'framework'));
+            $storage_path = $path;
+            
+            PayentMailData::create([
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'file_path' => $storage_path,
+                'total_amount' => round($total_amount,2),
+                'total_amount_paid' => round($total_amount_paid,2),
+                'total_balance' => round($total_balance,2),
+                'payment_date' => $payment_date,
+            ]);
+
+            return $file_data;
 
         }
         //END - DEVATSK-4300
@@ -887,8 +1112,12 @@ class HubstaffActivitiesController extends Controller
             $user = User::where('id', Auth::user()->id)->first();
         }
         $activities[] = $activityUsers;
+
+        $path = "hubstaff_payment_activity/" . Carbon::now()->format('Y-m-d-H-m-s') . "_hubstaff_payment_activity.xlsx";
         //END - DEVATSK-4300
-        return Excel::download(new HubstaffActivityReport($activities), $user->name.'.xlsx');
+        Excel::store(new HubstaffActivityReport($activities), $path, 'files');
+        return $path;
+        // return Excel::download(new HubstaffActivityReport($activities), $user->name.'.xlsx');
     }
     public function downloadExcelReportOld($activityUsers, $users)
     {   
@@ -2062,5 +2291,18 @@ class HubstaffActivitiesController extends Controller
     {
         $file_path = storage_path($request->file);
         return response()->download($file_path);
+    }
+
+    public function HubstaffPaymentReportDownload(Request $request)
+    {
+        $file_path = storage_path('app/files').'/'.$request->file;
+        return response()->download($file_path);
+    }
+
+    public function activityPaymentData(Request $request){
+
+        $get_data = PayentMailData::where('user_id',$request->user_id)->get();
+        return response()->json(['status' => true, 'data' => $get_data]);
+
     }
 }

@@ -362,7 +362,11 @@ class TemplatesController extends Controller
                                     $media = $product->getMedia(config('constants.media_tags'))->first();
                                     $media = Media::find($media->id);
                                     $tag = 'template-image';
-                                    $oldTemplate->attachMedia($media, $tag);   
+                                    try {
+                                       $oldTemplate->attachMedia($media, $tag);
+                                    } catch (\Exception $e) {
+                                        continue;
+                                    }
                                }
                             }else{
                                 //check if Product Template Already Exist

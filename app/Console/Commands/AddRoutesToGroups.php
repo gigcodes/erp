@@ -172,7 +172,7 @@ class AddRoutesToGroups extends Command
                 dump(['status' => 'success', 'responseData' => $changed_themes], 200);
             }
         } 
-        // dump(['existing_themes_ids' => $existing_themes_ids, 'all_themes_ids' => $all_themes_ids, 'changed_themes' => $changed_themes]);
+        dump(['existing_themes_ids' => $existing_themes_ids, 'all_themes_ids' => $all_themes_ids, 'changed_themes' => $changed_themes]);
 
     }
 }
