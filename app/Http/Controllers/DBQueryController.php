@@ -48,20 +48,35 @@ class DBQueryController extends Controller
     {
         try{
             // dd($request->command_name);
-            $command_name = $request->command_name;
+            $manual_command_name = '';
+            $command_name = '';
 
-            $params = [
-                'command_name' => $command_name,
-                'user_id' => Auth::id(),
-                'status' => 0,
-            ];
+            if($request->manual_command_name != '')
+            {
+                $manual_command_name = $request->manual_command_name;
+
+                $params = [
+                    'command_name' => $manual_command_name,
+                    'user_id' => Auth::id(),
+                    'status' => 0,
+                ];
+
+            }else{
+                $command_name = $request->command_name;
+
+                $params = [
+                    'command_name' => $command_name,
+                    'user_id' => Auth::id(),
+                    'status' => 0,
+                ];
+            }
 
             $store=   CommandExecutionHistory::create($params);
 
             $store_user_id = $store->user_id;
             $store_id = $store->id;
 
-            CommandExecution::dispatch($command_name,$store_user_id,$store_id)->onQueue("command_execution");
+            CommandExecution::dispatch($command_name,$manual_command_name,$store_user_id,$store_id)->onQueue("command_execution");
 
             return response()->json([ 'code' => 200, 'data' => $match ]);
            

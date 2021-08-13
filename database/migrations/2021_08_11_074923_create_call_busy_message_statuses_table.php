@@ -3,13 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\ProductDiscountExcelFile;
-use App\SupplierDiscountLogHistory;
-use App\SupplierBrandDiscount;
 
-
-
-class AlterTableProductDiscountExcelFilesTruncate extends Migration
+class CreateCallBusyMessageStatusesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -18,11 +13,12 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function up()
     {
-        
-        ProductDiscountExcelFile::truncate();
-        SupplierDiscountLogHistory::truncate();
-        SupplierBrandDiscount::truncate();
-
+        Schema::create('call_busy_message_statuses', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('label');
+            $table->string('name');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -32,7 +28,6 @@ class AlterTableProductDiscountExcelFilesTruncate extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('call_busy_message_statuses');
     }
 }
-
