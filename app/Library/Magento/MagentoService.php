@@ -477,7 +477,7 @@ class MagentoService
 
                 if (!empty($this->prices['specialPrice'])) {
                     foreach ($this->prices['specialPrice'] as $kp => $sp) {
-                        $url     = $website->magento_url . "/rest/V1/multistore/productprice/" . $data['product']['sku'];
+                        $url     = $this->storeWebsite->magento_url . "/rest/V1/multistore/productprice/" . $data['product']['sku'];
                         $resData = [
                             "countrycode" => implode(",", $sp),
                             "prices"      => ["base_price" => number_format($kp, 2, '.', ',')],
