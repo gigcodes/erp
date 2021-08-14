@@ -78,21 +78,16 @@
         <div class="row cls_mesg_box">
             <div class="col-md-12">
                 <div class="col-md-12 expand-row" style="padding: 3px;">
-                @if(isset($vendor->chat_messages[0]))
+                    @php
+                        $chat_msg = App\ChatMessage::where('charity_id', $vendor->id)->latest()->first();
+                    @endphp
+                @if(isset($chat_msg))
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
+                    {{ strlen($chat_msg->message) > 30 ? substr($chat_msg->message, 0, 30) . '...' : $chat_msg->message }}
                     </span>
                     <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->chat_messages[0]->message }}
-                    </span>
-                @endif
-                @if(isset($vendor->message))
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
-                    </span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->message }}
-                    </span>
+                      {{ $chat_msg->message }}
+                    </span> 
                 @else
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}"></span>
                     <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>
@@ -109,7 +104,7 @@
                 <button type="submit" class="btn btn-image"><img src="<?php echo $base_url;?>/images/delete.png"/></button>
             {!! Form::close() !!}
             @if($vendor->product_id)
-                <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
+                <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}"  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
             @endif
         </div>
     </td>
