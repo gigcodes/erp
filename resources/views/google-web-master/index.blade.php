@@ -533,9 +533,6 @@
 						t += `<td>`+v.GOOGLE_CLIENT_ID+`</td>`;
 						t += `<td>`+v.GOOGLE_CLIENT_APPLICATION_NAME+`</td>`;
 						t += `<td>
-									<span href="#">
-										<i title="add account" class="fa fa-plus add_acc" data-id="${v.id}" ></i> 
-									</span> 
 									<span>
 										<a href="/googlewebmaster/accounts/connect/${v.id}">Connect</a>
 									</span>
