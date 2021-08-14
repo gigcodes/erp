@@ -194,6 +194,8 @@ class CommonController extends Controller
                 $params['model_type'] = "Customer::class";
             } elseif ($request->object == 'order') {
                 $params['model_type'] = "Order::class";
+            } elseif ($request->object == 'charity') {
+                $params['model_type'] = "Charity::class";
             }
         }
 

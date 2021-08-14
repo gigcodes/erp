@@ -353,6 +353,21 @@
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
     <script type="text/javascript">
 
+        $(document).on('click', '.send-email-common-btn', function () {
+            $('#commonEmailModal .getTemplateData').parent().remove();
+        });
+
+        $(document).on('submit', '#commonEmailModal', function () {
+            if($('#commonEmailModal input[name="subject"]').val() == ''){
+                toastr['error']('please add subject.', 'error');
+                return false;
+            }
+            if($('#commonEmailModal textarea[name="message"]').val() == ''){
+                toastr['error']('please add subject.', 'error');
+                return false;
+            }
+        });
+
         $(document).on('click', '.upload-single', function () {
             $(self).hide();
             $this = $(this);

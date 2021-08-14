@@ -106,6 +106,9 @@
             @if($vendor->product_id)
                 <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}"  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
             @endif
+            @if($vendor->email)
+                <button type="button" class="btn send-email-common-btn" data-toemail="{{ $vendor->email }}" data-object="charity" data-id="{{ $vendor->id }}"><i class="fa fa-envelope-square"></i></button>
+            @endif
         </div>
     </td>
 </tr>
