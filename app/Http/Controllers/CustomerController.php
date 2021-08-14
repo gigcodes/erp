@@ -2877,7 +2877,7 @@ class CustomerController extends Controller
 
     public function customerinfo(Request $request)
     {
-        $customer = Customer::join('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
+        $customer = Customer::leftjoin('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
         return response()->json(["status" => 200 ,"data" => $customer]);
     }
 }
