@@ -276,10 +276,13 @@ class LiveChatController extends Controller
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
 
-                if(!empty($chat->thread) && !empty($chat->thread->events) && !empty($chat->thread->events->fields[2]) && isset($chat->thread->events->fields[2]->value)) 
-                    $userPhone  = $chat->thread->events->fields[2]->value;
+                
+
+                if(isset($chat->thread->events[0]->fields[2]->value)) 
+                    $userPhone  = $chat->thread->events[0]->fields[2]->value;
                 else
                     $userPhone  = null;
+
                 /*$translate = new TranslateClient([
                     'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
                 ]);*/
@@ -357,7 +360,6 @@ class LiveChatController extends Controller
                     $customer->email = $userEmail;
                     $customer->phone = $userPhone ?? null;
                     $customer->language = $customer_language;
-                    $customer->phone = null;
                     $customer->store_website_id = $websiteId;
                     $customer->language = 'en';
                     $customer->save();
