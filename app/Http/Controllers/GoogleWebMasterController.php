@@ -138,6 +138,7 @@ class GoogleWebMasterController extends Controller
         $accountInfo = $oauth2->userinfo->get();
 
 		$mail_acc = new GoogleClientAccountMail();
+		GoogleClientAccountMail::where('google_account', $accountInfo->name)->delete();
 		$mail_acc->google_account = $accountInfo->name;  
 		$mail_acc->google_client_account_id = $id; 
 		$mail_acc->GOOGLE_CLIENT_ACCESS_TOKEN = $access_token['access_token'];
