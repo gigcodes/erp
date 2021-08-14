@@ -79,7 +79,8 @@ class LogListMagentoController extends Controller
 			->select('sw.website as website',
 			 'sw.title as website_title',
              'log_list_magentos.id as log_list_magento_id',
-             'log_list_magentos.created_at as log_created_at'
+             'log_list_magentos.created_at as log_created_at',
+             'log_list_magentos.total_request_assigned'
         );
 		
 		if (!empty($request->start_date)){
