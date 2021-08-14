@@ -36,6 +36,7 @@
                   <td> {{$item->sync_status}} </td>
                     <td>{{$item->job_start_time}} </td>
                     <td>{{$item->job_end_time}} </td>
+                  <td>{{$item->total_request_assigned}} </td>
                   <td>{{$item->total_success}} </td>
                   <td> {{$item->total_error}}</td>
                   <td>{{$item->log_user_name}}</td>
