@@ -1363,7 +1363,7 @@ class InstagramPostsController extends Controller
         return response()->json(["code" => 200 , "data" => $productCategory]);
     }
 
-    public function messageQueue()
+    public function messageQueue(Request $request)
     {
         $queueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
         ->where("is_queue", ">", 0)
@@ -1371,16 +1371,34 @@ class InstagramPostsController extends Controller
         ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
         // ->groupBy("c.whatsapp_number")
         // ->select(\DB::raw("count(*) as total_message"))
-        ->paginate(Setting::get('pagination'))
         ;
+        
+        if($request->filterMessage){
+            $queueList = $queueList->where('message','LIKE','%'.$request->filterMessage.'%');
+        }
+        
+        if($request->filterFullName){
+            $queueList = $queueList->where('fullname','LIKE','%'.$request->filterFullName.'%');
+        }
+        
+
+      $queueList = $queueList->paginate(Setting::get('pagination'));
+
 
         $accountSettingInfo = Setting::select('val')->where('name','instagram_message_queue_rate_setting')->first();
-        $accountSettingInformation = json_decode($accountSettingInfo->val,true);
+
+$accountSettingInformation= null;
+        if($accountSettingInfo){
+            $accountSettingInformation = json_decode($accountSettingInfo->val,true);
+        }
 
         // $instaAccounts = Account::where('platform','instagram')->whereNotNull('email')->get();
         $instaAccounts    = Account::where('status', 1)->where('platform', 'instagram')->get();
 
-        return view('social-media.instagram-posts.message-queue',compact('instaAccounts','accountSettingInformation','queueList'));
+        $filterFullName = $request->filterFullName;
+        $filterMessage = $request->filterMessage;
+
+        return view('social-media.instagram-posts.message-queue',compact('instaAccounts','accountSettingInformation','queueList','filterFullName','filterMessage'));
     }
 
     public function messageQueueSetting(Request $request)
@@ -1402,20 +1420,33 @@ class InstagramPostsController extends Controller
         return response()->json(['code' => 200, 'message' => 'Data updated succesfully']);
     }
 
-    public function messageQueueApprove()
+    public function messageQueueApprove(Request $request)
     {
         $approveQueueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
         ->where("is_queue", 0)
         ->where("instagram_user_id", ">", 0)
         ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
-        ->paginate(Setting::get('pagination'))
+        ;
+        
+        if($request->filterMessage){
+            $approveQueueList = $approveQueueList->where('message','LIKE','%'.$request->filterMessage.'%');
+        }
+        
+        if($request->filterFullName){
+            $approveQueueList = $approveQueueList->where('fullname','LIKE','%'.$request->filterFullName.'%');
+        }
+        
+        
+        $approveQueueList= $approveQueueList->paginate(Setting::get('pagination'));
 
-
+        // dd($approveQueueList);
         // ->groupBy("c.whatsapp_number")
         // ->select(\DB::raw("count(*) as total_message"))
-        ;
+        $filterFullName = $request->filterFullName;
+        $filterMessage = $request->filterMessage;
 
-        return view('social-media.instagram-posts.message-queue-approve' ,compact('approveQueueList'));
+
+        return view('social-media.instagram-posts.message-queue-approve' ,compact('approveQueueList','filterFullName','filterMessage'));
     }
 
     public function messageQueueApproved(Request $request)

@@ -2243,7 +2243,9 @@ class OrderController extends Controller
           return   $q->select('id','name','label');
         }])
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
-            ->orderBy('id', 'DESC');
+            ->leftjoin("call_recordings as cr", "cr.twilio_call_sid", "call_busy_messages.caller_sid")
+            ->select('call_busy_messages.*','cr.recording_url')
+            ->orderBy('call_busy_messages.id', 'DESC');
 
             if(!empty($request->filterStatus)){
 
