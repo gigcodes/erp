@@ -643,9 +643,7 @@
             $('#vendor_phone').val(vendor.phone);
             $('#vendor_email').val(vendor.email);
             $('#vendor_social_handle').val(vendor.social_handle);
-            $('#vendor_website').val(vendor.website);
-            $('#vendor_login').val(vendor.login);
-            $('#vendor_password').val(vendor.password);
+            $('#vendor_website').val(vendor.website); 
             $('#vendor_gst').val(vendor.gst);
             $('#vendor_account_name').val(vendor.account_name);
             $('#vendor_account_iban').val(vendor.account_iban);
