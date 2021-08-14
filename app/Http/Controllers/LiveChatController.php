@@ -1344,8 +1344,7 @@ class LiveChatController extends Controller
         {
 			$query = $query->whereDate('date', $request->date);
         }
-        $data = $query->orderBy('date', 'DESC')->get();
-        /*
+        
         $pageSize = 10;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
@@ -1357,8 +1356,9 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-        */
-       return view('livechat.tickets', compact('data'));
+         return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        
+      
         
     }
 
