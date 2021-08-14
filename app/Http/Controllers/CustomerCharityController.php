@@ -126,7 +126,7 @@ class CustomerCharityController extends Controller
 
         if (request('communication_history') != null && !request('with_archived')) {
             $communication_history = request('communication_history');
-            $query->orWhereRaw("customer_charities.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
+            $query->orWhereRaw("customer_charities.id in (select charity_id from chat_messages where charity_id is not null and message like '%" . $communication_history . "%')");
         }
 
     
@@ -172,20 +172,23 @@ class CustomerCharityController extends Controller
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                     (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at 
                     FROM (SELECT customer_charities.id,customer_charities.product_id, customer_charities.frequency, customer_charities.is_blocked ,customer_charities.reminder_message, customer_charities.category_id, customer_charities.name, customer_charities.phone, customer_charities.email, customer_charities.address, customer_charities.social_handle, customer_charities.website, customer_charities.login, customer_charities.password, customer_charities.gst, customer_charities.account_name, customer_charities.account_iban, customer_charities.account_swift,
+                    customer_charities.frequency_of_payment, 
+                    customer_charities.bank_name, 
+                    customer_charities.bank_address, 
+                    customer_charities.city, 
+                    customer_charities.country, 
+                    customer_charities.ifsc_code, 
+                    customer_charities.remark, 
                         customer_charities.created_at,customer_charities.updated_at,
                         customer_charities.updated_by,
                         customer_charities.reminder_from,
                         customer_charities.reminder_last_reply,
-                        customer_charities.status,
-                        category_name,
+                        customer_charities.status, 
                     chat_messages.message_id 
                     FROM customer_charities 
 
-                    LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
-                    ON customer_charities.id = chat_messages.vendor_id
-
-                    LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                    ON customer_charities.category_id = vendor_categories.id WHERE ' . $whereArchived . '
+                    LEFT JOIN (SELECT MAX(id) as message_id, charity_id FROM chat_messages GROUP BY charity_id ORDER BY created_at DESC) AS chat_messages
+                    ON customer_charities.id = chat_messages.charity_id
                     )
                     AS customer_charities
  
@@ -193,8 +196,7 @@ class CustomerCharityController extends Controller
                     phone LIKE "%' . $term . '%" OR
                     email LIKE "%' . $term . '%" OR
                     address LIKE "%' . $term . '%" OR
-                    social_handle LIKE "%' . $term . '%" OR
-                    category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
+                    social_handle LIKE "%' . $term . '%" OR 
                     id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' .$permittedCategories. '
                     ORDER BY ' . $sortByClause . ' message_created_at DESC;
                 ');
@@ -280,8 +282,6 @@ class CustomerCharityController extends Controller
             'remark'   => 'sometimes|nullable|max:255',
       ]);
   
-      $source = $request->get("source","");
-  
       $data = $request->except(['_token', 'create_user']);
       if(empty($data["whatsapp_number"]))  {
           //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
@@ -303,9 +303,6 @@ class CustomerCharityController extends Controller
          $data["status"] = 0;
       }  
   
-  
-      unset($data['create_user_github']);
-      unset($data['create_user_hubstaff']);
       if($id == null){
           $charity = CustomerCharity::create($data); 
           $charity_category = Category::where('title', 'charity')->first();
@@ -313,76 +310,17 @@ class CustomerCharityController extends Controller
           $product = new Product(); 
           $product->sku = '';
           $product->name = $charity->name;
+          $product->short_description = $charity->name;
           $product->brand = $charity_brand->id;
           $product->category = $charity_category->id;
           $product->save(); 
           CustomerCharity::where('id', $charity->id)->update([
               'product_id' => $product->id
           ]);
+          Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
       }else{ 
           CustomerCharity::where('id', $id)->update($data);
-      }
-  
-      if ($request->create_user == 'on') {
-        if ($request->email != null) {
-          $userEmail = User::where('email', $request->email)->first();
-        } else {
-          $userEmail = null;
-        }
-        $userPhone = User::where('phone', $request->phone)->first();
-        if ($userEmail == null && $userPhone == null) {
-          $user = new User;
-          $user->name = str_replace(' ', '_', $request->name);
-          if ($request->email == null) {
-            $email = str_replace(' ', '_', $request->name) . '@solo.com';
-          } else {
-            // $email = explode('@', $request->email);
-            // $email = $email[0] . '@solo.com';
-            $email = $request->email;
-          }
-          $password = str_random(10);
-          $user->email = $email;
-          $user->password = Hash::make($password);
-          $user->phone = $request->phone;
-  
-          // check the default whatsapp no and store it
-          $whpno = \DB::table('whatsapp_configs')
-              ->select('*')
-              ->whereRaw("find_in_set(4,default_for)")
-              ->first();
-          if($whpno)     {
-            $user->whatsapp_number = $whpno->number;
-          }
-  
-          $user->save();
-          $role = Role::where('name', 'Developer')->first();
-          $user->roles()->sync($role->id);
-          $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
-          app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone,$user->whatsapp_number, $message);
-        } else {
-          if(!empty($source)) {
-             return redirect()->back()->withErrors('Charity Created , couldnt create User, Email or Phone Already Exist');
-          }
-          return redirect()->route('customer.charity')->withErrors('Charity Created , couldnt create User, Email or Phone Already Exist');
-        }
-      }
-  
-      $isInvitedOnGithub = false;
-      if ($request->create_user_github == 'on' && isset($request->email)) {
-        //has requested for github invitation
-        $isInvitedOnGithub = app('App\Http\Controllers\VendorController')->sendGithubInvitaion($request->email);
-
-      }
-  
-      $isInvitedOnHubstaff = false;
-      if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
-        //has requested hubstaff invitation
-        $isInvitedOnHubstaff = app('App\Http\Controllers\VendorController')->sendHubstaffInvitation($request->email);
-      }
-  
-      if(!empty($source)) {
-         return redirect()->back()->withSuccess('You have successfully saved a charity!');
-      }
+      }   
   
       return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }
@@ -394,4 +332,49 @@ class CustomerCharityController extends Controller
     return redirect()->route('customer.charity')->withSuccess('You have successfully deleted a charity');
 
     }
-}
+
+    public function charitySearch()
+    {
+      $term = request()->get("q", null);
+      /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('address', 'LIKE', "%" . $term . "%")
+        ->orWhere('phone', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")
+        ->orWhereHas('category', function ($qu) use ($term) {
+          $qu->where('title', 'LIKE', "%" . $term . "%");
+        })->get();*/
+      $search = CustomerCharity::where('name', 'LIKE', "%" . $term . "%")
+                ->get();
+      return response()->json($search);
+    }
+
+    public function charityEmail()
+    {
+      $term = request()->get("q", null);
+      /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('address', 'LIKE', "%" . $term . "%")
+        ->orWhere('phone', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")
+        ->orWhereHas('category', function ($qu) use ($term) {
+          $qu->where('title', 'LIKE', "%" . $term . "%");
+        })->get();*/
+      $search = CustomerCharity::where('email', 'LIKE', "%" . $term . "%")
+                ->get();
+      return response()->json($search);
+    }
+
+
+    public function charityPhoneNumber()
+    {
+      $term = request()->get("q", null);
+      /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('address', 'LIKE', "%" . $term . "%")
+        ->orWhere('phone', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")
+        ->orWhereHas('category', function ($qu) use ($term) {
+          $qu->where('title', 'LIKE', "%" . $term . "%");
+        })->get();*/
+      $search = CustomerCharity::where('phone', 'LIKE', "%" . $term . "%")
+                ->get();
+      return response()->json($search);
+    }}
