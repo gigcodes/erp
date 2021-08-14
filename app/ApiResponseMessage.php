@@ -11,4 +11,6 @@ class ApiResponseMessage extends Model
     public function storeWebsite(){
         return $this->hasOne('App\StoreWebsite','id','store_website_id');
     }
+
+    
 }
