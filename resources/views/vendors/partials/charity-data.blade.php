@@ -87,15 +87,7 @@
                     </span>
                     <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
                       {{ $chat_msg->message }}
-                    </span>
-                @endif
-                @if(isset($vendor->message))
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
-                    </span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->message }}
-                    </span>
+                    </span> 
                 @else
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}"></span>
                     <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>
@@ -112,7 +104,7 @@
                 <button type="submit" class="btn btn-image"><img src="<?php echo $base_url;?>/images/delete.png"/></button>
             {!! Form::close() !!}
             @if($vendor->product_id)
-                <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
+                <button type="submit" class="btn btn-image upload-single" title="push to magento" data-product-id="{{$vendor->product_id}}"  data-id="{{$vendor->id}}"><img src="<?php echo $base_url;?>/images/upload.png"/></button>
             @endif
         </div>
     </td>

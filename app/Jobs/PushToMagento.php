@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\Library\Magento\MagentoService;
 
 class PushToMagento implements ShouldQueue
 {
@@ -50,7 +51,7 @@ class PushToMagento implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        try {
+        //try {
 
             //$jobId = app(JobRepository::class)->id;
 
@@ -115,7 +116,9 @@ class PushToMagento implements ShouldQueue
                 return false;
             }
 
-            if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+            $magentoService = new MagentoService($product, $website, $this->log);
+            $magentoService->pushProduct();
+            /*if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
               $addedProduct =   MagentoHelper::callHelperForProductUpload($product, $website, $this->log);
               $availableProduct = Product::where('sku',$addedProduct->sku)->first();
               $real_product_id  =null;
@@ -141,9 +144,9 @@ class PushToMagento implements ShouldQueue
             } else {
                 ProductPushErrorLog::log('', $product->id, 'Magento helper class not found', 'error', $website->id, null, null, $this->log->id);
                 return false;
-            }
+            }*/
 
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             if ($this->log) {
                 ProductPushErrorLog::log('', $product->id, $e->getMessage(), 'error', $website->id, null, null, $this->log->id);
                 $this->log->message         = $e->getMessage();
@@ -154,7 +157,7 @@ class PushToMagento implements ShouldQueue
             } else {
                 \Log::error($e);
             }
-        }
+        }*/
 
         // Load Magento Soap Helper
         // $magentoSoapHelper = new MagentoSoapHelper();
