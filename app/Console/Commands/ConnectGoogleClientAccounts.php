@@ -59,40 +59,40 @@ class ConnectGoogleClientAccounts extends Command
         }
         dump(['admins' => $admins]);
         foreach($GoogleClientAccountsMails as $acc){
-            try{
-                $GoogleClientAccount = GoogleClientAccount::find($acc->google_client_account_id);
+            $GoogleClientAccount = GoogleClientAccount::find($acc->google_client_account_id);
 
                 $gClient = new \Google_Client();
                 $gClient->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
                 $gClient->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
                 $gClient->refreshToken($acc->GOOGLE_CLIENT_REFRESH_TOKEN);
                 $token = $gClient->getAccessToken();
-                $acc->GOOGLE_CLIENT_ACCESS_TOKEN = $token['access_token'];
-                if($token['refresh_token']){
-                    $acc->GOOGLE_CLIENT_REFRESH_TOKEN = $token['refresh_token'];
-                }
-                $acc->expires_in = $token['expires_in'];
-                $acc->save();
-                dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | accept_token saved.');
-            }catch(\Exception $e){
-                foreach($admins as $admin){
-                    // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
-                    Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
+                if($token){
+                    $acc->GOOGLE_CLIENT_ACCESS_TOKEN = $token['access_token'];
+                    if($token['refresh_token']){
+                        $acc->GOOGLE_CLIENT_REFRESH_TOKEN = $token['refresh_token'];
+                    }
+                    $acc->expires_in = $token['expires_in'];
+                    $acc->save();
+                    dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is connected.');
+                }else{                                       
+                    foreach($admins as $admin){
+                        // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
+                        Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
                             $message->to($admin['email'])
-                                ->subject('Connect client ID');  
-                    });
-                    $html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
-                    GoogleClientNotification::create([
-                        'google_client_id' => $acc->id,
-                        'receiver_id' => $admin['id'],
-                        'message' => 'refresh token is invalid',
-                        'notification_type' => 'error' 
-                    ]);
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
-                    dump($acc->id . ' email sent to ' . $admin['name']);
+                            ->subject('Connect client ID');  
+                        });
+                        $html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
+                        GoogleClientNotification::create([
+                            'google_client_id' => $acc->id,
+                            'receiver_id' => $admin['id'],
+                            'message' => 'Your account had been disconnected, please connect your account',
+                            'notification_type' => 'error' 
+                        ]);
+                        // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
+                        dump($acc->id . ' email sent to ' . $admin['name']);
+                    }
+                    dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is not connected.');
                 }
-                dump($acc->id . ' refresh token is invalid.');
-            }
         }
         dump('ConnectGoogleClientAccounts command ended.');
     }
