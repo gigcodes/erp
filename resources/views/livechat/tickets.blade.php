@@ -97,7 +97,7 @@
 @include('partials.flash_messages')
     <div class="row tickets m-0">
         <div class="col-lg-12 margin-tb pr-0 pl-0">
-            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} <span id="list_count"></span>
+        <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
@@ -170,7 +170,7 @@
                                 placeholder="Category" id="search_category">
                     </div> -->
                     <div>
-                        <button type="button" class="btn btn-image" onclick="startPolling(1)"><img src="{{ asset('images/filter.png')}}"/></button>
+                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
                     <div >
                         <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
