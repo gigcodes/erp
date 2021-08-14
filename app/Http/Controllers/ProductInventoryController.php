@@ -2262,6 +2262,217 @@ class ProductInventoryController extends Controller
 
 	}
 
+
+	public function mapping_excel(Request $request)
+	{
+
+		$this->validate($request, [
+            'excel' => 'required|file',
+        ]);
+
+        $file = $request->file('excel');
+
+        if ($file->getClientOriginalExtension() == 'xlsx') {
+            $reader = new Xlsx();
+        } else {
+            if ($file->getClientOriginalExtension() == 'xls') {
+                $reader = new Xls();
+            }
+        }
+
+		try {
+			$ogfilename = $file->getClientOriginalName();  
+            $fileName_array = chop($ogfilename, ".xlsx");
+            $fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
+            $params_file['excel_name'] = $fileName;
+            $params_file['user_id'] =\Auth::user()->id;
+                
+            $spreadsheet = $reader->load($file->getPathname());
+
+            $rows = $spreadsheet->getActiveSheet()->toArray();
+			$i = 0;
+			foreach($rows as $row) {
+				if($row[$i] != '' && $row[$i+1] != '' && $row[$i+2] != '')
+				{
+					$data = $row;
+					$column_index = $i;
+					break;
+				}
+				$i++;
+			}
+			
+			return response()->json(["code" => 200, "message" => 'Header Data Get Successfully , Please do Mapping', "header_data" => $data, "column_index" => $column_index ]);
+		
+		}catch(\Exception $e){
+			return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+		}
+
+		return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+
+	}
+
+	public function export_mapping_excel(Request $request){
+		
+		$file = $request->file;
+		
+		if ($file->getClientOriginalExtension() == 'xlsx') {
+			$reader = new Xlsx();
+		} else {
+			if ($file->getClientOriginalExtension() == 'xls') {
+				$reader = new Xls();
+			}
+		}
+
+		try {
+			$brand_index = $request->brand_dropdown;
+			$gender_index = $request->gender_dropdown;
+			$category_index = $request->category_dropdown;
+			$exceptions_index = $request->exceptions_dropdown;
+			$generice_price_index = $request->generice_price_dropdown;
+			$condition_from_retail_index = $request->condition_from_retail_dropdown;
+			$condition_from_exceptions_index = $request->condition_from_exceptions_dropdown;
+			$column_index = $request->column_index;
+
+			// dd($brand_index,$gender_index,$category_index,$exceptions_index,$generice_price_index,$condition_from_retail_index,$condition_from_exceptions_index);
+
+			$ogfilename = $file->getClientOriginalName();
+                    
+            $fileName_array = chop($ogfilename, ".xlsx");
+            $fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
+                
+            $params_file['excel_name'] = $fileName;
+            $params_file['user_id'] =\Auth::user()->id;
+
+            $spreadsheet = $reader->load($file->getPathname());
+
+            $rows = $spreadsheet->getActiveSheet()->toArray();
+
+				foreach ($rows as $key => $row) {
+
+					if ($key <= $column_index) {
+						continue;
+					}
+				
+					$brand_name = trim($row[$brand_index]);
+					
+
+					if($brand_name != '')
+						$brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
+					else	
+						$brand = '';
+			
+					if (!$brand && $brand_name != '') {
+						$params_brand = [
+							"name" => $brand_name,
+						];
+						$brand = Brand::create($params_brand);
+						
+					}
+					
+					if($brand)
+					{
+						
+						$discount = new SupplierBrandDiscount();
+						
+						$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->first();
+
+					
+						if ($exist_row) {
+
+
+							if ($generice_price_index != null && $exist_row->generic_price != $row[$generice_price_index]) {
+								
+								$updaterow3 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $row[$generice_price_index]]);
+
+								
+
+								$params['supplier_brand_discounts_id'] = $exist_row->id;
+								$params['header_name']  = 'generic_price';
+								$params['old_value']   = $exist_row->generic_price;
+								$params['new_value']   = $row[$generice_price_index];
+								$params['user_id'] = \Auth::user()->id;
+
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+
+							if ($condition_from_retail_index != null && $exist_row->condition_from_retail != $row[$condition_from_retail_index]) {
+								$updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $row[$condition_from_retail_index]]);
+
+								$params['supplier_brand_discounts_id'] = $exist_row->id;
+								$params['header_name']  = 'condition_from_retail';
+								$params['old_value']   = $exist_row->condition_from_retail;
+								$params['new_value']   = $row[$condition_from_retail_index];
+								$params['user_id'] = \Auth::user()->id;
+
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+							if ($condition_from_exceptions_index != null && $exist_row->condition_from_retail_exceptions != $row[$condition_from_exceptions_index]) {
+								$updaterow5 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('condition_from_retail', $row[$condition_from_retail_index])->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $row[$condition_from_exceptions_index]]);
+								
+								$params['supplier_brand_discounts_id'] = $exist_row->id;
+								$params['header_name']  = 'condition_from_retail_exceptions';
+								$params['old_value']   = $exist_row->condition_from_retail_exceptions;
+								$params['new_value']   = $row[$condition_from_exceptions_index];
+								$params['user_id'] = \Auth::user()->id;
+
+								$log_history1 = \App\SupplierDiscountLogHistory::create($params);
+							}
+						} else {
+							$discount->supplier_id = $request->supplier;
+							$discount->brand_id = $brand->id;
+							$discount->gender = $row[$gender_index];
+							$discount->category = $row[$category_index];
+							$discount->generic_price = ($generice_price_index != null ? $row[$generice_price_index] : null);
+							$discount->exceptions = ($exceptions_index != null ? $row[$exceptions_index] : null);
+							$discount->condition_from_retail = ($condition_from_retail_index != null ? $row[$condition_from_retail_index] : null);
+							$discount->condition_from_retail_exceptions = ($condition_from_exceptions_index ? $row[$condition_from_exceptions_index] : null);
+							$discount->save();
+
+
+							if ($generice_price_index != null && $row[$generice_price_index] != null) {
+								$params['supplier_brand_discounts_id'] = $discount->id;
+								$params['header_name']  = 'generic_price';
+								$params['old_value']   = '-';
+								$params['new_value']   = $row[$generice_price_index];
+								$params['user_id'] = \Auth::user()->id;
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+							if ($condition_from_retail_index != null && $row[$condition_from_retail_index] != null) {
+								$params['supplier_brand_discounts_id'] = $discount->id;
+								$params['header_name']  = 'condition_from_retail';
+								$params['old_value']   = '-';
+								$params['new_value']   = $row[$condition_from_retail_index];
+								$params['user_id'] = \Auth::user()->id;
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+							if ($condition_from_exceptions_index != null && $row[$condition_from_exceptions_index] != null) {
+								$params['supplier_brand_discounts_id'] = $discount->id;
+								$params['header_name']  = 'condition_from_retail_exceptions';
+								$params['old_value']   = '-';
+								$params['new_value']   = $row[$condition_from_exceptions_index];
+								$params['user_id'] = \Auth::user()->id;
+								$log_history1 = \App\SupplierDiscountLogHistory::create($params);
+							}
+						}
+					}
+				}
+
+				$file->move(public_path('product_discount_file'), $fileName);
+				$excel_log = ProductDiscountExcelFile::create($params_file);
+				return response()->json(["code" => 200, "message" => 'Excel Imported Successfully!' ]);
+			
+
+		}catch(\Exception $e){
+			return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+		}
+
+		return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+	}
+
 	public function updategenericprice(Request $request){
 	
 		$generic_price_data= $request->generic_price_data;

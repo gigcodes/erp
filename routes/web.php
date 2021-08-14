@@ -367,6 +367,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/discount/files','ProductInventoryController@supplierDiscountFiles')->name('supplier.discount.files');
     Route::post('product/discount/files','ProductInventoryController@exportExcel')->name('supplier.discount.files.post');
     Route::get('product/discount/excel/files','ProductInventoryController@download_excel')->name('excel.files');
+    Route::post('product/mapping/excel','ProductInventoryController@mapping_excel')->name('product.mapping.excel');
+    Route::post('product/export/mapping/excel','ProductInventoryController@export_mapping_excel')->name('product.mapping.export.excel');
 
     Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
 
