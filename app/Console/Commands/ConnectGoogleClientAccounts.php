@@ -77,10 +77,14 @@ class ConnectGoogleClientAccounts extends Command
                 }else{                                       
                     foreach($admins as $admin){
                         // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
-                        Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
-                            $message->to($admin['email'])
-                            ->subject('Connect google account');  
-                        });
+                        try{
+                            Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
+                                $message->to($admin['email'])
+                                ->subject('Connect google account');  
+                            });
+                        }catch(\Exception $e){
+                            \Log::error($e);
+                        }
                         $html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
                         GoogleClientNotification::create([
                             'google_client_id' => $acc->id,
