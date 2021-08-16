@@ -404,19 +404,39 @@ class BrandController extends Controller
             ->select(["store_website_brands.*"])
             ->get();
 
+            $assingedBrands = [];
             $noneedTodelete = [];
             if(!$rightBrand->isEmpty()) {
                 foreach($rightBrand as $rb) {
                     $noneedTodelete[] = $rb->magento_value;
+                    if($rb->magento_value > 0) {
+                        $assingedBrands[$rb->magento_value] = $rb;
+                    }
                 }
             }
 
             $needDeleteRequest = array_diff($mangetoIds, $noneedTodelete);
 
             // go for delete brands
+            $userId = auth()->user()->id;
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
-                    $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    try{
+                        $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    }catch(Exception $e) {
+                        \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
+                    }
+                    if(isset($assingedBrands[$ndr])) {
+                        $brandStore = $assingedBrands[$ndr];
+                        $brandStore->delete();
+                        StoreWebsiteBrandHistory::create([
+                            'brand_id' => $brandStore->brand_id,
+                            'store_website_id' => $brandStore->store_website_id,
+                            'type' => "remove",
+                            'created_by' => $userId,
+                            'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
+                        ]);
+                    }
                 }
             }
 
