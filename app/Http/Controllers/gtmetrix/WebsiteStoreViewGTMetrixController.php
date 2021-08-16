@@ -161,7 +161,6 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'PageSpeed';
                 if(!empty($value['pagespeed_json'])){
                     $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
-                    dd($pagespeeddata);exit;
                     $jsondata = json_decode($pagespeeddata, true);
                     foreach ($jsondata['rules'] as $key=>$pagespeed) {
                         $data[$key]['name'] = $pagespeed['name'];
