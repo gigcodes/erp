@@ -63,7 +63,6 @@
 </div>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        {{ $list->links() }}
         <div class="panel-group" style="margin-bottom: 5px;">
             <div class="panel mt-3 panel-default">
                 <table class="table table-bordered table-striped table-responsive">
@@ -195,9 +194,12 @@
 					var t = '';
 					$.each(result.data,function(k,v) {
                         var re = '';
-                        $.each(v.resources, function (indexInArray, valueOfElement) { 
-                            re += `<li> <a href="`+valueOfElement+`" target="_blank" > `+indexInArray+` </a> </li>`;
-                        });
+                        if(v.resources){
+
+                            $.each(v.resources, function (indexInArray, valueOfElement) { 
+                                re += `<li> <a href="`+valueOfElement+`" target="_blank" > `+indexInArray+` </a> </li>`;
+                            });
+                        }
 						t += `<tr><td>`+v.store_view_id+`</td>`;
 						t += `<td>`+v.test_id+`</td>`;
 						t += `<td>`+v.status+`</td>`;
