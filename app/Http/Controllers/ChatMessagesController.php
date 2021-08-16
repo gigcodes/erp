@@ -132,9 +132,6 @@ class ChatMessagesController extends Controller
         
         if ($request->object == "user-feedback") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
-            if ($request->feedback_status_id != null) {
-                $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id)->where('user_feedback_status',$request->feedback_status_id);
-            }
         }
         if ($request->object == "hubstuff") {
             $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
