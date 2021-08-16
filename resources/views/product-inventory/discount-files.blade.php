@@ -434,7 +434,9 @@
 @endsection
 
 @section('scripts')
-
+<div id="loading-image1" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
+  50% 50% no-repeat;display:none;">
+    </div>
 <script type="text/javascript">
  
     
@@ -661,7 +663,7 @@
 
         var supplier = $('#supplier-select :selected').val();
         formData.append('supplier', supplier );
-        $("#loading-image").show();
+        
         $.ajax({
             type:'POST',
             url: "{{route('product.mapping.export.excel')}}",
@@ -669,18 +671,22 @@
             cache:false,
             contentType: false,
             processData: false,
+            beforeSend: function() {
+              $("#loading-image1").show();
+            },
             success:function(response){
                 if(response.code == 200){
                     toastr.success(response.message);
                    
                     setTimeout(function(){  location.reload(); }, 2000);
                 }
-                $("#loading-image").hide();
+                $("#loading-image1").hide();
             },
             error: function(data){
+                $("#loading-image1").hide()
             }
         });
-        $("#loading-image").hide();
+        ;
     }));   
 
 </script>
