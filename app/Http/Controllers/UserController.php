@@ -691,14 +691,6 @@ class UserController extends Controller
 
             $userID = $request->user_id ?? null;
 
-            UserSysyemIp::create([
-                'index_txt'       => $shell_cmd['index'] ?? 'null',
-                'ip'              => $value,
-                'user_id'         => $chatMessage->erp_user ?? $chatMessage->user_id,
-                'other_user_name' => $request->other_user_name ?? null,
-                'notes'           => "Added from chat messages",
-            ]);
-
             if ($userID) {
                 $user = \App\User::find($userID);
                 if ($user) {
