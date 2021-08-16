@@ -245,4 +245,4 @@ Route::post('scraper-images-save','scrapperPhyhon@imageSave');
 //New API for trust pilot reviews
 Route::get('review/get','\App\Http\Controllers\Api\v1\BrandReviewController@getAllBrandReview');
 Route::post('review/scrap' ,'\App\Http\Controllers\Api\v1\BrandReviewController@storeReview');
-
+Route::post('google-scrapper-data', '\App\Http\Controllers\Api\v1\GoogleScrapperController@extractedData');
