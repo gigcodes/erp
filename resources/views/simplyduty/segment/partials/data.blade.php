@@ -14,13 +14,12 @@
         <td><span id="price_{{$segment->id}}">{{ $segment->price }}</span></td>
         <td>
        
-        <form id="frmdel" action="{{ url('duty/segment/delete') }}" method="POST" >
-        @csrf
+        
         <input type="hidden" value="{{ $segment->id }}" name="segment_id">
         <button type="button" class="btn btn-secondary" onclick="showaddedit('{{$segment->id}}')">Edit</button>
-        <button type="button" class="btn btn-secondary" onclick="$('#frmdel').submit();">Delete</button>
+        <button type="button" class="btn btn-secondary" onclick="deletesegment('{{$segment->id}}');">Delete</button>
        
-    </form>
+    
 
         </td>
         

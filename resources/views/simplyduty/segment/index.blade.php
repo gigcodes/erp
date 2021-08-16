@@ -1,11 +1,3 @@
-@extends('layouts.app')
-
-@section('favicon' , 'password-manager.png')
-
-@section('title', 'SimplyDuty Category')
-
-
-@section('content')
 
 <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -65,7 +57,7 @@
 				    	@csrf
 					    <div class="form-group">
 					        <label for="document">Segment Name</label>
-					        <input class="form-control" type="text" name="segment" id="segment" value="" required>
+					        <input class="form-control" type="text" name="segment" id="segment_txt" value="" required>
 					    </div>
                         <div class="form-group">
 					        <label for="document">Price</label>
@@ -75,8 +67,9 @@
 
 	            </div>
 	            <div class="modal-footer">
-	                <button type="submit" class="btn btn-default btn-save-documents">Save</button>
-	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	                <button type="button" onclick="savesegment();" class="btn btn-default btn-save-documents">Save</button>
+                    <button type="button" class="btn btn-default" onclick='$("#segmentadd").modal("hide");'>Close</button>
+	               
 	            </div>
 			</form>
         </div>
@@ -84,8 +77,6 @@
 </div>
 
 
-@endsection
-@section('scripts')
 
 
 
@@ -96,10 +87,9 @@
      $('#segment_id').val(id);
      if (id>0)
      {
-        $('#segment').val($('#segment_'+id).html()); 
+        $('#segment_txt').val($('#segment_'+id).html()); 
         $('#price').val($('#price_'+id).html());
      }
      $("#segmentadd").modal("show");  
  }     
         </script>
-@endsection
