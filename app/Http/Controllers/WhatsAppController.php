@@ -2042,11 +2042,12 @@ class WhatsAppController extends FindByNumberController
                 }
             }
             if(Auth::user()->isAdmin()){
-                $u_id = Auth::id();
+                $u_id =  $request->user_id;
             }
-            $data['user_id'] = $u_id;
+            $data['user_id'] = Auth::id();
+            $data['sent_to_user_id'] = $u_id;
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
-            $module_id = $request->user_id;
+            $module_id = $u_id;
         }elseif ($context == 'hubstuff') {
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
