@@ -415,7 +415,16 @@ class BrandController extends Controller
                 }
             }
 
-            $needDeleteRequest = array_diff($mangetoIds, $noneedTodelete);
+
+            $needDeleteRequest = [];
+            if(!empty($noneedTodelete)) {
+                foreach($noneedTodelete as $nrei) {
+                    if(!in_array($nrei,$mangetoIds)) {
+                        $needDeleteRequest[] = $nrei;
+                    }
+                }
+            }
+            
             \Log::info(print_r(["Delete request IDS",$needDeleteRequest],true));
 
             // go for delete brands
