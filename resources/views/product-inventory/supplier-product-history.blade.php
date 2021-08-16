@@ -26,7 +26,7 @@
 
 
 
-<form method="get" action="{{route('supplier.product.history')}}">
+<form method="get" action="{{route('supplier.product.history')}}" class="handle-search">
 
      <div class="form-group">
                         <div class="row">
@@ -38,16 +38,16 @@
                                <select class="form-control select-multiple" id="supplier-select" tabindex="-1" aria-hidden="true" name="supplier" onchange="//showStores(this)">
                                     <option value="">Select Supplier</option>
 
-                                    @foreach($suppliers as $supplier)
+                                    @foreach($suppliers as $supplierId=>$supplier)
 
-                                    @if(isset($request->supplier) && $supplier->id==$request->supplier)
+                                    @if(isset($request->supplier) && $supplierId==$request->supplier)
 
-                                     <option value="{{$supplier->id}}" selected="selected">{{$supplier->supplier}}</option>
+                                     <option value="{{$supplierId}}" selected="selected">{{$supplier}}</option>
 
 
                                     @else
 
-                                     <option value="{{$supplier->id}}">{{$supplier->supplier}}</option>
+                                     <option value="{{$supplierId}}">{{$supplier}}</option>
 
 
                                     @endif
@@ -83,6 +83,7 @@
                     <tr>
                        
                         <th>Supplier Name</th> 
+                        <th>Last scrapped on</th> 
                       
                         <th>Products</th>
 
@@ -96,26 +97,11 @@
                       
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($allHistory as $key=> $row ) 
-                    <tr>
-                       <td>{{$row['supplier_name']}}</td>
-                       <td>{{$row['products']}}</td>
-                       <td><a href="javascript:;" data-supplier-id="{{ $row['supplier_id'] }}" class="brand-result-page">{{$row['brands']}}</a></td>
-                       <?php foreach($columnData as $e) { ?>
-                           <td> <?php echo isset($row['dates'][$e]) ? $row['dates'][$e] : 0; ?> </td>
-                       <?php } ?> 
-                       <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$row['supplier_id'])}}">Details</td>
-                    </tr>
-
-                    @endforeach
-                    <tr>
-                         <td colspan="11">
-        {{ $inventory->appends(request()->except("page"))->links() }}
-    </td>
-                    </tr>
+                <tbody id="product_history">
+                    @include("product-inventory.partials.supplier-product-history-data")
                 </tbody>
             </table>
+			<img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
         </div>
     </div>
 
@@ -174,7 +160,51 @@
               }
           });
      });
-
+	 
+//START - Load More functionality
+	var isLoading = false;
+	var page = 1;
+	
+	$(document).ready(function () {
+		loadMore();
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/product/history/by/supplier?page="+page,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					$loader.hide();					
+					$('#product_history').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					} else {
+						if(page < 25 ){
+							loadMore();
+						}
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
 </script>
 
 @endsection
