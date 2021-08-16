@@ -421,7 +421,11 @@ class BrandController extends Controller
             $userId = auth()->user()->id;
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
-                    $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    try{
+                        $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    }catch(Exception $e) {
+                        \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
+                    }
                     if(isset($assingedBrands[$ndr])) {
                         $brandStore = $assingedBrands[$ndr];
                         $brandStore->delete();
