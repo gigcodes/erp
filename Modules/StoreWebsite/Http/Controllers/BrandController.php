@@ -418,6 +418,7 @@ class BrandController extends Controller
             $needDeleteRequest = array_diff($mangetoIds, $noneedTodelete);
 
             // go for delete brands
+            $userId = auth()->user()->id;
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
                     $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
@@ -426,11 +427,11 @@ class BrandController extends Controller
                         if(isset($brandStore)) {
                             $brandStore->delete();
                             StoreWebsiteBrandHistory::create([
-                                'brand_id' => $request->brand,
-                                'store_website_id' => $request->store,
+                                'brand_id' => $brandStore->brand_id,
+                                'store_website_id' => $brandStore->store_website_id,
                                 'type' => "remove",
-                                'created_by' => $user->id,
-                                'message' => "{$brand->name} removed from {$website->title} store."
+                                'created_by' => $userId,
+                                'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
                             ]);
                         }
                     }else {
