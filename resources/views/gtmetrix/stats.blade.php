@@ -16,7 +16,24 @@
             <tbody class="show-list-records" >
               @if(!empty($data))
                 @foreach ($data as $statsdata)
-                  <tr><td class="w-100">{{$statsdata['name']}}</td><td class="w-100">{{$statsdata['score']}}</td></tr>
+                  <tr>
+                    <td class="w-100">{{$statsdata['name']}}</td>
+                    <td class="w-100"> 
+                 
+                    @if($statsdata['score'] >= 89)
+                    @php $color = 'bg-success' ; @endphp
+                    @endif
+                    @if($statsdata['score'] <= 48)
+                    @php $color = 'bg-danger' ; @endphp
+                    @endif
+                    @if($statsdata['score'] <= 60 && $statsdata['score'] >= 48 )
+                    @php $color = 'bg-warning' ; @endphp
+                    @endif
+                    <div class="progress">
+                      <div class="progress-bar {{$color}} progress-bar-striped " role="progressbar" style="width: {{$statsdata['score']}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{$statsdata['score']}}%</div>
+                    </div>
+                    </td>
+                </tr>
                 @endforeach
               @else
                 <tr><td colspan=2>No Results found !!</td></tr>

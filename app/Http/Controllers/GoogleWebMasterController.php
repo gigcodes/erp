@@ -495,7 +495,7 @@ class GoogleWebMasterController extends Controller
 	}
 	
 	public function getAccountNotifications(){
-		$notifications = GoogleClientNotification::with('user')->orderBy("id","desc")->get();
+		$notifications = GoogleClientNotification::with('user', 'account')->orderBy("id","desc")->get();
 		return response()->json( ["code" => 200 , "data" => $notifications] );
 	}
 	

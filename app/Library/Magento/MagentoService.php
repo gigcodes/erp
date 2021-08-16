@@ -915,30 +915,26 @@ class MagentoService
                     continue;
                 }
 
-                /** need to focus on this
-
                 $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
-                new GoogleTranslate(),
-                $translation->locale,
-                [$this->meta["meta_title"]],
-                ','
+                    new GoogleTranslate(),
+                    $translation->locale,
+                    [$this->meta["meta_title"]],
+                    ','
                 );
 
                 $translatetSeoDescription = \App\Http\Controllers\GoogleTranslateController::translateProducts(
-                new GoogleTranslate(),
-                $translation->locale,
-                [$this->meta["meta_description"]],
-                ','
+                    new GoogleTranslate(),
+                    $translation->locale,
+                    [$this->meta["meta_description"]],
+                    ','
                 );
 
                 $translatetSeoKeywords = \App\Http\Controllers\GoogleTranslateController::translateProducts(
-                new GoogleTranslate(),
-                $translation->locale,
-                [$this->meta["meta_keyword"]],
-                ','
+                    new GoogleTranslate(),
+                    $translation->locale,
+                    [$this->meta["meta_keyword"]],
+                    ','
                 );
-
-                 **/
 
                 $tdata[$translation->locale] = [
                     "title"                  => $translation->title,

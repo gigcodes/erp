@@ -57,7 +57,7 @@ class ConnectGoogleClientAccounts extends Command
                 $admins[] = $data;
             }
         }
-        dump(['admins' => $admins]);
+        
         foreach($GoogleClientAccountsMails as $acc){
             $GoogleClientAccount = GoogleClientAccount::find($acc->google_client_account_id);
 
@@ -76,19 +76,30 @@ class ConnectGoogleClientAccounts extends Command
                     dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is connected.');
                 }else{                                       
                     foreach($admins as $admin){
-                        // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
-                        Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
-                            $message->to($admin['email'])
-                            ->subject('Connect google account');  
-                        });
-                        $html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
+                        // // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
+                        // try{
+                        //     Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
+                        //         $message->to($admin['email'])
+                        //         ->subject('Connect google account');  
+                        //     });
+                        // }catch(\Exception $e){
+                        //     \Log::error($e);
+                        // }
+                        //$html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
+
+                        $msg = 'Google Webmaster:: Your account   has been disconnected. <a href="'. route('googlewebmaster.account.connect', $acc->google_client_account_id) .'">Click here</a> to connect';
+
                         GoogleClientNotification::create([
                             'google_client_id' => $acc->id,
                             'receiver_id' => $admin['id'],
-                            'message' => 'Your account had been disconnected, please connect your account',
+                            'message' => $msg,
                             'notification_type' => 'error' 
                         ]);
-                        // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
+
+                        $msg = 'Google Webmaster:: Your account   has been disconnected. Gogo this link to connect: ' . route('googlewebmaster.account.connect', $acc->google_client_account_id);
+
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin['phone'], $admin['whatsapp_number'], $msg); // for whatsapp
+
                         dump($acc->id . ' email sent to ' . $admin['name']);
                     }
                     dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is not connected.');

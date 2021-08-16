@@ -101,6 +101,13 @@ class DBQueryController extends Controller
            
         }
     }
+
+    public function ReportDownload(Request $request)
+    {
+        // dd($request->all());
+        $file_path = storage_path($request->file);
+        return response()->download($file_path);
+    }
     //END - DEVTASK-19941
 
 
