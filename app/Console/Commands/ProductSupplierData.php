@@ -4,8 +4,11 @@ namespace App\Console\Commands;
 
 use App\Product;
 use App\ProductSupplier;
+use App\Exports\ProductSupplierExport;
 use App\Supplier;
 use Illuminate\Console\Command;
+use Excel;
+use Carbon\Carbon;
 
 class ProductSupplierData extends Command
 {
@@ -89,31 +92,43 @@ class ProductSupplierData extends Command
             }
         }
 
-        $chatFileData = '';
-        $chatFileData .= html_entity_decode("Product Supplier Data", ENT_QUOTES, 'UTF-8');
-        $chatFileData .= "\n" . "\n";
-
-        foreach ($supplier_not_exist_product_supplier_table as $k => $v) {
-            $chatFileData .= html_entity_decode("Product Id : " . $v['product_id'], ENT_QUOTES, 'UTF-8');
-            $chatFileData .= "\n";
-            $chatFileData .= html_entity_decode("Prodcuct Name : " . $v['product_name'], ENT_QUOTES, 'UTF-8');
-            $chatFileData .= "\n";
-            $chatFileData .= html_entity_decode("Supplier Id : " . $v['supplier_id'], ENT_QUOTES, 'UTF-8');
-            $chatFileData .= "\n" . "\n";
-        }
+        $filename = Carbon::now()->format('Y-m-d-H-m-s') . "_not_mapping_supplier.xlsx";
+        $path = "not_mapping_product_supplier/" . $filename;
         
-        $date = date('Y_m_d_H_i_s');
-        $storagelocation = storage_path() . '/logs/not_mapping_product_supplier';
-        if (!is_dir($storagelocation)) {
-            mkdir($storagelocation, 0777, true);
-        }
-        $filename = "not_mapping_supplier_".$date.".txt";
-        $file = $storagelocation . '/' . $filename;
-        $downloadUrl = config('env.APP_URL').'/admin-menu/db-query/report-download?file=/logs/not_mapping_product_supplier/'.$filename;
-        $txt = fopen($file, "w") or die("Unable to open file!");
+        
+        Excel::store(new ProductSupplierExport($supplier_not_exist_product_supplier_table,$path), $path, 'files');
+
+        $downloadUrl = '/admin-menu/db-query/report-download?file=app/files/not_mapping_product_supplier/'.$filename;
+
+        $download_url = '<a href="'.$downloadUrl.'" >Download File</a>';
+
+        dd("Please Check This File : ".$download_url);
+
+        // $chatFileData = '';
+        // $chatFileData .= html_entity_decode("Product Supplier Data", ENT_QUOTES, 'UTF-8');
+        // $chatFileData .= "\n" . "\n";
+
+        // foreach ($supplier_not_exist_product_supplier_table as $k => $v) {
+        //     $chatFileData .= html_entity_decode("Product Id : " . $v['product_id'], ENT_QUOTES, 'UTF-8');
+        //     $chatFileData .= "\n";
+        //     $chatFileData .= html_entity_decode("Prodcuct Name : " . $v['product_name'], ENT_QUOTES, 'UTF-8');
+        //     $chatFileData .= "\n";
+        //     $chatFileData .= html_entity_decode("Supplier Id : " . $v['supplier_id'], ENT_QUOTES, 'UTF-8');
+        //     $chatFileData .= "\n" . "\n";
+        // }
+        
+        // $date = date('Y_m_d_H_i_s');
+        // $storagelocation = storage_path() . '/logs/not_mapping_product_supplier';
+        // if (!is_dir($storagelocation)) {
+        //     mkdir($storagelocation, 0777, true);
+        // }
+        // $filename = "not_mapping_supplier_".$date.".txt";
+        // $file = $storagelocation . '/' . $filename;
+        // $downloadUrl = config('env.APP_URL').'/admin-menu/db-query/report-download?file=/logs/not_mapping_product_supplier/'.$filename;
+        // $txt = fopen($file, "w") or die("Unable to open file!");
       
-        fwrite($txt, $chatFileData);
-        fclose($txt);
+        // fwrite($txt, $chatFileData);
+        // fclose($txt);
 
         // header('Content-Description: File Transfer');
         // header('Content-Disposition: attachment; filename='.basename($file));
@@ -126,7 +141,7 @@ class ProductSupplierData extends Command
         // unlink($file);
        
         // dd("Please Check This File : ".$file);
-        dd("Please Check This File : ".$downloadUrl);
+        // dd("Please Check This File : ".$downloadUrl);
     
     }
 }
