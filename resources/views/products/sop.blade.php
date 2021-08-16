@@ -118,7 +118,7 @@
                                         <td><input type="checkbox" name="sop[]" value="{{ $sop->id }}"></td>
                                         <td>{{ $sop->name }}</td>
                                     </tr>
-                                @endforeach        
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -144,17 +144,15 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th width="7%"></th>
-                            <th width="93%">Sop User</th>
-                        </tr>
-                    </thead>
-                    <tbody class="sop-user-permission-list">
-                           
-                    </tbody>
-                </table>
+                <select class="sop-permission-user" name="states[]" multiple="multiple">
+                    {{-- @foreach ($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach --}}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default sop-permission-submit">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     
@@ -875,11 +873,13 @@ $(document).on('click', '.send-message-open', function (event) {
         });
 
         $("#Sop-User-Permission-Modal").on("hidden.bs.modal", function (e) {
-            $(this).find('tbody').text('');
+            $(this).find('.sop-permission-user').text('');
         });
 
         $(document).on('click','.sop-user-list',function(){
             var sop_id = $(this).data('sop_id');
+            $('#Sop-User-Permission-Modal').find('.sop-permission-submit').attr('data-sop_id',sop_id);
+
             $.ajax({
                 type: 'get',
                 url: "{{ route('sop.permission.user-list') }}",
@@ -889,23 +889,28 @@ $(document).on('click', '.send-message-open', function (event) {
                     $('#Sop-User-Permission-Modal').find('.modal-title').text(response.sop.name+' Permission');
 
                     for (let j = 0; j < response.user.length; j++) {
-                        var html = '<tr>'+
-                            '<td><input class="sop-selected-user" type="checkbox" data-user_id="'+response.user[j].id+'" data-sop_id="'+sop_id+'"></td>'+
-                            '<td>'+response.user[j].name+'</td>'+
-                            '</tr>';
-                            $('#Sop-User-Permission-Modal').find('.sop-user-permission-list').append(html);
-                        
+                        var html = '<option value="'+response.user[j].id+'">'+response.user[j].name+'</option>';
+                            $('#Sop-User-Permission-Modal').find('.sop-permission-user').append(html);
                     }
-                    for (let i = 0; i < response.user_list.length; i++) {
-                        $('#Sop-User-Permission-Modal').find('.sop-selected-user[data-user_id="'+response.user_list[i]+'"]').attr('checked','checked');
-                    }
+
+                    var vals = response.user_list;
+
+                    let s2 = $('.sop-permission-user').select2()
+
+                    // vals.forEach(function(e){
+                    //     if(!s2.find('option:contains(' + e + ')').length) {
+                    //             console.log('aaaaaa')
+                    //     }
+                    // });
+
+                    s2.val(vals).trigger("change");
                 }
             })
         })
 
-        $(document).on('click','.sop-selected-user',function(){
-            var sop_id = $(this).data('sop_id');
-            var user_id = $(this).data('user_id');
+        $(document).on('click','.sop-permission-submit',function(){
+            var sop_id = $(this).attr('data-sop_id');
+            var user_id = $('#Sop-User-Permission-Modal').find('.sop-permission-user').val();
             $.ajax({
                 type: 'get',
                 url: "{{ route('sop.remove.permission') }}",
@@ -915,7 +920,9 @@ $(document).on('click', '.send-message-open', function (event) {
                 }
             })
         })
-
+        $(document).ready(function() {
+            $('.sop-permission-user').select2();
+        });
     </script>
 
 @endsection
