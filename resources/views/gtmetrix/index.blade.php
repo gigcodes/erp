@@ -102,9 +102,9 @@
                                 <td>{{ $key->pagespeed_score }}</td>
                                 <td>{{ $key->yslow_score }}</td>
                                 <td>
-                                    @if ( $key->resources && $key->resources )
+                                    @if (!empty($key->resources) && is_array($key->resources))
                                         <ul style="display: inline-block;">
-                                            @foreach (($key->resources) as $item => $value)
+                                            @foreach ($key->resources as $item => $value)
                                                     <li> <a href="{{ $value }}" target="_blank" rel="noopener noreferrer"> {{ $item }} </a> </li>
                                             @endforeach
                                         </ul>
