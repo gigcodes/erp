@@ -17,20 +17,29 @@ class CommandExecution implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $command_name;
+    protected $manual_command_name;
     protected $store_user_id;
     protected $store_id;
 
-    public function __construct($command_name,$store_user_id,$store_id)
+    public function __construct($command_name,$manual_command_name,$store_user_id,$store_id)
     {
         $this->command_name = $command_name;
+        $this->manual_command_name = $manual_command_name;
         $this->store_user_id = $store_user_id;
         $this->store_id = $store_id;
     }
 
     public function handle()
     {
-        dump($this->command_name . ' : command is started...');
-        $compare = Process::fromShellCommandline('php artisan '.$this->command_name, base_path());
+        if($this->manual_command_name != '')
+        {
+            dump($this->manual_command_name . ' : command is started...');
+            $compare = Process::fromShellCommandline($this->manual_command_name, base_path());
+        }else{
+            dump($this->command_name . ' : command is started...');
+            $compare = Process::fromShellCommandline('php artisan '.$this->command_name, base_path());
+        }
+        
         $compare->setTimeout(7200);
         $compare->setIdleTimeout(7200);
         $compare->run();

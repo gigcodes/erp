@@ -81,7 +81,8 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
     Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
     Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
-    Route::get('/accounts/status/{id}', 'GoogleWebMasterController@statusAccount')->name('googlewebmaster.account.status');
+    Route::get('/accounts/connect/{id}', 'GoogleWebMasterController@connectAccount')->name('googlewebmaster.account.connect');
+    Route::get('/accounts/disconnect/{id}', 'GoogleWebMasterController@disconnectAccount')->name('googlewebmaster.account.disconnect');
     Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
@@ -272,15 +273,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
-    Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
-
-    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
-    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
+    Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue'); 
     
-
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
     Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
+    Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
+    Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
+    Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -702,7 +702,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('order/permanentDelete/{order}', 'OrderController@permanentDelete')->name('order.permanentDelete');
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
+    Route::get('order/missed-calls/orders/{id}', 'OrderController@getOrdersFromMissedCalls')->name('order.getOrdersFromMissedCalls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+    Route::post('order/calls/add-status', 'OrderController@addStatus')->name('order.store.add-status');
+    Route::post('order/calls/store-status/{id}', 'OrderController@storeStatus')->name('order.store.store-status');
+    Route::post('order/calls/send-message', 'OrderController@sendWhatappMessageOrEmail')->name('order.send-message.whatsapp-or-email');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
@@ -713,7 +717,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
-
+    Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
     Route::post('order/create-product', 'OrderController@createProduct')->name('order.create.product');
@@ -1885,8 +1889,6 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
-Route::get('whatsapp/pollTicketsCustomer', 'WhatsAppController@pollTicketCustomer');
-Route::get('whatsapp/pollTickets/{context}', 'WhatsAppController@pollMessages');
 Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
@@ -3055,6 +3057,9 @@ Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.
 Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
 Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
 Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
+Route::get('charity-search', 'CharityController@charitySearch')->name('charity-search');
+Route::get('charity-email', 'CharityController@charityEmail')->name('charity-email');
+Route::get('charity-phone-number', 'CharityController@charityPhoneNumber')->name('charity-phone-number');
 
 });
 
@@ -3341,5 +3346,6 @@ Route::group([
 });
 
 // Google Scrapper Keyword
-Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+

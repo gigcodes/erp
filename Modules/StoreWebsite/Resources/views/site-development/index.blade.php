@@ -554,9 +554,12 @@
 					},
 				})
 				.done(function(data) {
-					$('#add-category').val('')
-					refreshPage()
+					$('#add-category').val('');
 					$("#loading-image").hide();
+					toastr["success"](data.messages);
+					// refreshPage()
+					setTimeout(function(){ refreshPage(); }, 2000);
+					
 					console.log(data)
 					console.log("success");
 				})

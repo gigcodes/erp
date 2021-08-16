@@ -58,10 +58,12 @@ class UpdateCharities extends Command
                 $product = new Product();
                 $product->sku = '';
                 $product->name = $charity->name;
+                $product->short_description = $charity->name;
                 $product->brand = $charity_brand->id;
                 $product->category = $charity_category->id;
                 $product->save();
                 CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
+                Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
             }
         }else{
             dump('charity category not exist!');
