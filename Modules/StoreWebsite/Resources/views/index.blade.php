@@ -24,8 +24,8 @@
 		  			</button>
                     <button style="display: inline-block;" class="btn btn-sm ml-5 btn-secondary open-store-magento-user-lising">
                             User Listing
-                        </button>
-                    <button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store generate pem file</button>
+                        </button> &nbsp; 
+                    <button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store Generate Reindex</button>
 
 				 </div> 		
 		    </div>
