@@ -22,6 +22,16 @@
             width: 150px !important;
             flex-grow: 1;
         }
+        .modal-lg{
+            width: auto;
+            max-width: inherit;
+        }
+        @media (min-width: 768px){
+            .modal-dialog {
+                width: 900px;
+                max-width: 900px;
+            }
+        }
     </style>
 
     <div class="row m-0" id="common-page-layout">
@@ -280,16 +290,28 @@
 
                         if (response.code == 200) {
                             var html_content = '';
+
+
                             $.each(response.data, function(key, value) {
 
                                 html_content += '<tr>';
-                                html_content += '<td>' + value.count + '</td>';
-                                html_content += '<td>' + value.message + '</td>';
+                                html_content +=  '<td>' +value.count + '</td>';
+                                html_content +=  '<td class="data">';
+                                var myContent = value.message;
+                                html_content +=   myContent.replace(/(<([^>]+)>)/ig,"");
+                                html_content += '</td>';
                                 html_content += '</tr>';
+
+
+                                // $('.table_data_count').html(html_content);
+                                //
+                                // $('.table_data_message').text(html_content2).html('</td>');
+
                             });
 
-                            $('.table_data').html(html_content);
 
+                            $('.table_data').html(html_content);
+                            //
                             $('#today_common_error_report_modal').modal('show');
                         }
 
@@ -313,10 +335,13 @@
                         if (response.code == 200) {
                             var html_content = '';
                             $.each(response.data, function(key, value) {
-
+                                // console.log(response.data, 'response')
                                 html_content += '<tr>';
-                                html_content += '<td>' + value.count + '</td>';
-                                html_content += '<td>' + value.message + '</td>';
+                                html_content +=  '<td>' +value.count + '</td>';
+                                html_content +=  '<td class="data">';
+                                var myContent = value.message;
+                                html_content +=   myContent.replace(/(<([^>]+)>)/ig,"");
+                                html_content += '</td>';
                                 html_content += '</tr>';
                             });
 

@@ -32,6 +32,7 @@ class MagentoProductPushErrors extends Controller
 
         $websites = StoreWebsite::get();
 
+
         return view('magento-product-error.index', compact('title', 'websites'));
     }
 
