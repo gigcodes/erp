@@ -36,8 +36,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
         }
 
         $list = $query->from(\DB::raw('(SELECT MAX( id) as id,  store_view_id, html_load_time FROM store_views_gt_metrix GROUP BY store_views_gt_metrix.store_view_id) as t'))
-            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')
-            ->paginate(30);
+            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
+            ->paginate(25);
 
         $cronStatus = Setting::where('name', "gtmetrixCronStatus")->get()->first();
         $cronTime   = Setting::where('name', "gtmetrixCronType")->get()->first();
@@ -100,6 +100,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
         if ($request->id) {
             $history = StoreViewsGTMetrix::where('store_view_id', $request->id)->orderBy("created_at", "desc")->get();
+
             return response()->json(["code" => 200, "data" => $history]);
         }
     }
