@@ -422,20 +422,16 @@ class BrandController extends Controller
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
                     $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
-                    if($status) {
-                        $brandStore = $assingedBrands[$ndr];
-                        if(isset($brandStore)) {
-                            $brandStore->delete();
-                            StoreWebsiteBrandHistory::create([
-                                'brand_id' => $brandStore->brand_id,
-                                'store_website_id' => $brandStore->store_website_id,
-                                'type' => "remove",
-                                'created_by' => $userId,
-                                'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
-                            ]);
-                        }
-                    }else {
-                        \Log::info("Brand not deleted store ".$status);
+                    $brandStore = $assingedBrands[$ndr];
+                    if(isset($brandStore)) {
+                        $brandStore->delete();
+                        StoreWebsiteBrandHistory::create([
+                            'brand_id' => $brandStore->brand_id,
+                            'store_website_id' => $brandStore->store_website_id,
+                            'type' => "remove",
+                            'created_by' => $userId,
+                            'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
+                        ]);
                     }
                 }
             }
