@@ -19,7 +19,8 @@ style="padding: 0px 10px;">
                     $selected_all = true;
                     $im = [
                         'abs' => $imageDetails->getAbsolutePath(),
-                        'url' => $imageDetails->getUrl(),
+                        // 'url' => $imageDetails->getUrl(),
+                        'url' => convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension),
                         'id' => $imageDetails->getKey(),
                     ];
                     if (!in_array($imageDetails->getKey(), $selected_products)) {
