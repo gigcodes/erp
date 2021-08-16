@@ -404,10 +404,14 @@ class BrandController extends Controller
             ->select(["store_website_brands.*"])
             ->get();
 
+            $assingedBrands = [];
             $noneedTodelete = [];
             if(!$rightBrand->isEmpty()) {
                 foreach($rightBrand as $rb) {
                     $noneedTodelete[] = $rb->magento_value;
+                    if($rb->magento_value > 0) {
+                        $assingedBrands[$rb->magento_value] = $rb;
+                    }
                 }
             }
 
@@ -417,6 +421,21 @@ class BrandController extends Controller
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
                     $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    if($status) {
+                        $brandStore = $assingedBrands[$ndr];
+                        if(isset($brandStore)) {
+                            $brandStore->delete();
+                            StoreWebsiteBrandHistory::create([
+                                'brand_id' => $request->brand,
+                                'store_website_id' => $request->store,
+                                'type' => "remove",
+                                'created_by' => $user->id,
+                                'message' => "{$brand->name} removed from {$website->title} store."
+                            ]);
+                        }
+                    }else {
+                        \Log::info("Brand not deleted store ".$status);
+                    }
                 }
             }
 
