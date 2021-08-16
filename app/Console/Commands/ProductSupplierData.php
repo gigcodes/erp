@@ -109,6 +109,7 @@ class ProductSupplierData extends Command
         }
         $filename = "not_mapping_supplier_".$date.".txt";
         $file = $storagelocation . '/' . $filename;
+        $downloadUrl = config('env.APP_URL').'/admin-menu/db-query/report-download?file=/logs/not_mapping_product_supplier/'.$filename;
         $txt = fopen($file, "w") or die("Unable to open file!");
       
         fwrite($txt, $chatFileData);
@@ -124,8 +125,8 @@ class ProductSupplierData extends Command
         // readfile($file);
         // unlink($file);
        
-        dd("Please Check This File : ".$file);
-
+        // dd("Please Check This File : ".$file);
+        dd("Please Check This File : ".$downloadUrl);
     
     }
 }
