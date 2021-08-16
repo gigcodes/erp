@@ -13,9 +13,7 @@ class MediaObserver
     { 
         $this->updateBits($media);
 
-
-        $mediable = DB::table('mediables')->where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-        if($media->aggregate_type == "image" && $mediable){
+        if(($media->aggregate_type == "image") &&   str_contains($media->directory,'product')){
             $m_url = $media->getAbsolutePath();
             $file=@file_get_contents($m_url);
 
