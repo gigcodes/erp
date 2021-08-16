@@ -367,6 +367,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/discount/files','ProductInventoryController@supplierDiscountFiles')->name('supplier.discount.files');
     Route::post('product/discount/files','ProductInventoryController@exportExcel')->name('supplier.discount.files.post');
     Route::get('product/discount/excel/files','ProductInventoryController@download_excel')->name('excel.files');
+    Route::post('product/mapping/excel','ProductInventoryController@mapping_excel')->name('product.mapping.excel');
+    Route::post('product/export/mapping/excel','ProductInventoryController@export_mapping_excel')->name('product.mapping.export.excel');
 
     Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
 
@@ -3273,6 +3275,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/delete', 'DBQueryController@delete')->name('admin.databse.menu.direct.dbquery.delete');
     Route::post('/admin-menu/db-query/command_execution', 'DBQueryController@command_execution')->name('admin.command_execution');//Purpose : Add Route for Command Exicute - DEVTASK-19941
     Route::get('/admin-menu/db-query/command_execution_history', 'DBQueryController@command_execution_history')->name('admin.command_execution_history');//Purpose : Add Route for Command Exicution History data - DEVTASK-19941
+    Route::get('/admin-menu/db-query/report-download', 'DBQueryController@ReportDownload')->name('admin.db-query.download');
 });
 
 Route::middleware('auth')->prefix('totem')->group(function() {
@@ -3333,5 +3336,6 @@ Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
 // Google Scrapper Keyword
-Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+

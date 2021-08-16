@@ -353,6 +353,21 @@
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
     <script type="text/javascript">
 
+        $(document).on('click', '.send-email-common-btn', function () {
+            $('#commonEmailModal .getTemplateData').parent().remove();
+        });
+
+        $(document).on('submit', '#commonEmailModal', function () {
+            if($('#commonEmailModal input[name="subject"]').val() == ''){
+                toastr['error']('please add subject.', 'error');
+                return false;
+            }
+            if($('#commonEmailModal textarea[name="message"]').val() == ''){
+                toastr['error']('please add subject.', 'error');
+                return false;
+            }
+        });
+
         $(document).on('click', '.upload-single', function () {
             $(self).hide();
             $this = $(this);
@@ -628,9 +643,7 @@
             $('#vendor_phone').val(vendor.phone);
             $('#vendor_email').val(vendor.email);
             $('#vendor_social_handle').val(vendor.social_handle);
-            $('#vendor_website').val(vendor.website);
-            $('#vendor_login').val(vendor.login);
-            $('#vendor_password').val(vendor.password);
+            $('#vendor_website').val(vendor.website); 
             $('#vendor_gst').val(vendor.gst);
             $('#vendor_account_name').val(vendor.account_name);
             $('#vendor_account_iban').val(vendor.account_iban);

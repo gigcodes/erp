@@ -53,21 +53,7 @@
             @if ($errors->has('website'))
               <div class="alert alert-danger">{{$errors->first('website')}}</div>
             @endif
-          </div>
-          <div class="form-group">
-            <strong>Login:</strong>
-            <input type="text" name="login" class="form-control" value="{{ old('login') }}">
-            @if ($errors->has('login'))
-              <div class="alert alert-danger">{{$errors->first('login')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Password:</strong>
-            <input type="password" name="password" class="form-control" value="{{ old('password') }}">
-            @if ($errors->has('password'))
-              <div class="alert alert-danger">{{$errors->first('password')}}</div>
-            @endif
-          </div>
+          </div>  
           <div class="form-group">
             <strong>GST:</strong>
             <input type="text" name="gst" class="form-control" value="{{ old('gst') }}">
@@ -208,21 +194,7 @@
             @if ($errors->has('website'))
               <div class="alert alert-danger">{{$errors->first('website')}}</div>
             @endif
-          </div>
-          <div class="form-group">
-            <strong>Login:</strong>
-            <input type="text" name="login" class="form-control" value="{{ old('login') }}" id="vendor_login">
-            @if ($errors->has('login'))
-              <div class="alert alert-danger">{{$errors->first('login')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Password:</strong>
-            <input type="password" name="password" class="form-control" value="{{ old('password') }}" id="vendor_password">
-            @if ($errors->has('password'))
-              <div class="alert alert-danger">{{$errors->first('password')}}</div>
-            @endif
-          </div>
+          </div> 
           <div class="form-group">
             <strong>GST:</strong>
             <input type="text" name="gst" class="form-control" value="{{ old('gst') }}" id="vendor_gst">
