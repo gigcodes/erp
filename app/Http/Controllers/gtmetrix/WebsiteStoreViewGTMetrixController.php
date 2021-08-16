@@ -95,13 +95,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function history(Request $request)
+    public function history($id)
     {
+        $title = 'History';
+        if ($id) {
+            $history = StoreViewsGTMetrix::where('store_view_id', $id)->orderBy("created_at", "desc")->paginate(25);
 
-        if ($request->id) {
-            $history = StoreViewsGTMetrix::where('store_view_id', $request->id)->orderBy("created_at", "desc")->get();
-
-            return response()->json(["code" => 200, "data" => $history]);
+            return view('gtmetrix.history', compact('history','title'));
+            //return response()->json(["code" => 200, "data" => $history]);
         }
     }
 
@@ -160,6 +161,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'PageSpeed';
                 if(!empty($value['pagespeed_json'])){
                     $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
+                    dd($pagespeeddata);exit;
                     $jsondata = json_decode($pagespeeddata, true);
                     foreach ($jsondata['rules'] as $key=>$pagespeed) {
                         $data[$key]['name'] = $pagespeed['name'];
@@ -176,6 +178,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'YSlow';
                 if(!empty($value['yslow_json'])){
                     $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
+                    dd($yslowdata);exit;
                     $jsondata = json_decode($yslowdata, true);
                     $i=0;
                     foreach ($jsondata['g'] as $key=>$yslow) {
