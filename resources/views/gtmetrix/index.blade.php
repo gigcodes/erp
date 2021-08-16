@@ -160,7 +160,6 @@
     </div>
 </div>
 
-@include('gtmetrix.history')
 @include('gtmetrix.setSchedule')
 @endsection
     
@@ -198,8 +197,8 @@
             dataType: 'html'
         })
         .done(function(data){
-            $('.message-modal').html('');    
-            $('.message-modal').html(data); // load response 
+            $('#gtmetrix-history-modal .message-modal').html('');    
+            $('#gtmetrix-history-modal .message-modal').html(data); // load response 
             $("#gtmetrix-history-modal").modal("show");
 
             $('#loading-image').hide();        // hide ajax loader 
