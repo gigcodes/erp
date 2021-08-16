@@ -172,5 +172,31 @@ class SopController extends Controller
        }
        return response()->json(['status' => true, 'message' => "Permission Saved successfully"]);
    }
+
+   public function sopPermissionUserList(Request $request)
+   {
+        $sop = Sop::find($request->sop_id);
+        $sop_users = SopPermission::where('sop_id', $request->sop_id)->get()->pluck('user_id');
+        $user = User::all();
+        return response()->json(['user_list' => $sop_users,'user' => $user,'sop' => $sop]);
+   }
+
+   public function sopRemovePermission(Request $request)
+   {
+        $user_id = $request->user_id;
+        $sop_id = $request->sop_id;
+        
+        $sop_permission = SopPermission::where('user_id', $user_id)->where('sop_id',$sop_id);
+        if ($sop_permission->count() > 0) {
+            $sop_permission->first()->delete();
+            return response()->json(['message' => 'Permission Removed Successfully']);
+        }
+        $new_permission = new SopPermission;
+        $new_permission->sop_id = $sop_id;
+        $new_permission->user_id = $user_id;
+        $new_permission->save();
+
+        return response()->json(['message' => 'Permission Apply Successfully']);        
+   }
        
 }

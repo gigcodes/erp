@@ -132,6 +132,34 @@
     
         </div>
     </div>
+    
+    <!-- Sop-User Perission Modal -->
+    <div id="Sop-User-Permission-Modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Sop Users Permissions</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="7%"></th>
+                            <th width="93%">Sop User</th>
+                        </tr>
+                    </thead>
+                    <tbody class="sop-user-permission-list">
+                           
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+        </div>
+    </div>
 
     <!-- Button trigger modal -->
 
@@ -255,7 +283,7 @@
                                             </a>
 
                                             <button type="button" class="btn send-email-common-btn" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
-                                       
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}" style="font-size:15px; margin-left:-17px;"><i class="fa fa-user-o"></i></button>   
                                 </td>
                         @endforeach
 
@@ -845,6 +873,48 @@ $(document).on('click', '.send-message-open', function (event) {
             $('.sop-data-table').hide();
             $('#sopDataPermissionForm')[0].reset();
         });
+
+        $("#Sop-User-Permission-Modal").on("hidden.bs.modal", function (e) {
+            $(this).find('tbody').text('');
+        });
+
+        $(document).on('click','.sop-user-list',function(){
+            var sop_id = $(this).data('sop_id');
+            $.ajax({
+                type: 'get',
+                url: "{{ route('sop.permission.user-list') }}",
+                data: {sop_id:sop_id},
+                success: function(response){
+
+                    $('#Sop-User-Permission-Modal').find('.modal-title').text(response.sop.name+' Permission');
+
+                    for (let j = 0; j < response.user.length; j++) {
+                        var html = '<tr>'+
+                            '<td><input class="sop-selected-user" type="checkbox" data-user_id="'+response.user[j].id+'" data-sop_id="'+sop_id+'"></td>'+
+                            '<td>'+response.user[j].name+'</td>'+
+                            '</tr>';
+                            $('#Sop-User-Permission-Modal').find('.sop-user-permission-list').append(html);
+                        
+                    }
+                    for (let i = 0; i < response.user_list.length; i++) {
+                        $('#Sop-User-Permission-Modal').find('.sop-selected-user[data-user_id="'+response.user_list[i]+'"]').attr('checked','checked');
+                    }
+                }
+            })
+        })
+
+        $(document).on('click','.sop-selected-user',function(){
+            var sop_id = $(this).data('sop_id');
+            var user_id = $(this).data('user_id');
+            $.ajax({
+                type: 'get',
+                url: "{{ route('sop.remove.permission') }}",
+                data: {sop_id:sop_id,user_id:user_id},
+                success: function(response){
+                    toastr.success(response.message);
+                }
+            })
+        })
 
     </script>
 
