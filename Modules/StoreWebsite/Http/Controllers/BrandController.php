@@ -399,7 +399,7 @@ class BrandController extends Controller
 
             $rightBrand = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
             ->where("store_website_id",$storeWebsite->id)
-            ->whereIn("magento_value",$mangetoIds)
+            ->where("magento_value",">",0)
             ->groupBy("store_website_brands.magento_value")
             ->select(["store_website_brands.*"])
             ->get();
