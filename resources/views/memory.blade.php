@@ -41,7 +41,7 @@
                         @csrf
                         <div class="form-group mb-0">
                             <input type="number" class="form-control" id="thresold-limit" name="limit"
-                                placeholder="Enter thresold limit (%)" min="0" max="100" required>
+                                placeholder="Enter thresold limit (%)" min="0" max="100" value="{{$thresold_limit}}" required>
 
                         </div>
 

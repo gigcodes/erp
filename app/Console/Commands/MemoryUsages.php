@@ -62,6 +62,6 @@ class MemoryUsages extends Command
 
         $memory_usage->save();
 
-
+        dump('Memory Usages Successfully');
     }
 }
