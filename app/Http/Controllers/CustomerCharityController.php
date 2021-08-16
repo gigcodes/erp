@@ -377,4 +377,7 @@ class CustomerCharityController extends Controller
       $search = CustomerCharity::where('phone', 'LIKE', "%" . $term . "%")
                 ->get();
       return response()->json($search);
-    }}
+    }
+
+    
+}

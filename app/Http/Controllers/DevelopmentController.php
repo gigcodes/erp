@@ -700,6 +700,8 @@ class DevelopmentController extends Controller
         }
         else if ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
+        }else if($request->order == 'oldest_first'){
+            $issues = $issues->orderBy('developer_tasks.id', 'ASC');
         } else {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }

@@ -496,7 +496,7 @@
 		//call control
 		var buttons = $("<ul style='list-style: none !important; ' class='buttons'><h4>Call Control</h4></ul>").appendTo(center);
 		$("<li><button class='btn btn-danger hangup' onclick='callerHangup()'>Hangup</button></li>").appendTo(buttons);
-		$("<li><button class='btn btn-primary muter' onclick='callerMute()'></button></li>").appendTo(buttons);
+		// $("<li><button class='btn btn-primary muter' onclick='callerMute()'></button></li>").appendTo(buttons);
 
 		function calculateTime() {
 			++totalSeconds;
