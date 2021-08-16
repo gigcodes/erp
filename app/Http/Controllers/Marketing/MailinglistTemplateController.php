@@ -47,10 +47,11 @@ class MailinglistTemplateController extends Controller
             ->pluck('title','id')
             ->toArray();
 
+		
         return view("marketing.mailinglist.templates.index", compact('mailings', 'rViewMail', 'MailingListCategory', 'storeWebSites'));
 
     }
-    public function ajax(Request $request)
+    public function ajax(Request $request) 
     {
 
         $query = MailinglistTemplate::query();

@@ -13,6 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\MailinglistTemplate;
+use App\CampaignEvent;
 
 class MailinglistController extends Controller
 {
@@ -20,7 +22,64 @@ class MailinglistController extends Controller
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
-    {
+    {		
+		/*$mailinglist = Mailinglist::find(43);
+		$mailing_item = (new MailinglistTemplate)->getWelcomeTemplate($mailinglist->website_id);
+		if(!empty($mailing_item['static_template'])) { 
+			$htmlContent = $mailing_item->static_template;
+                $data = [
+                    "to" => [0=>["email"=>$mailinglist->email]],
+                    "sender" => [
+                        //"id" => 1,
+                        "email" => 'Info@theluxuryunlimited.com'
+                    ],
+                    "subject" => $mailing_item->subject,
+                  //  "htmlContent" => $htmlContent, 
+                    "textContent" => $htmlContent, 
+					"tags" => [
+						"Welcome message"
+					]
+                ]; //dd($data);
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
+
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => array(
+                    "api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
+                    "Content-Type: application/json"
+                    ),
+                ));
+				$response = curl_exec($curl);
+				$response = json_decode($response);
+                curl_close($curl); //dd($response);
+		}*/
+			
+	   /* $curl = curl_init();
+                curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.sendinblue.com/v3/webhooks?type=marketing&sort=desc",
+
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_HTTPHEADER => array(
+                    "api-key:".config('env.SEND_IN_BLUE_API'),
+                    "Content-Type: application/json"
+                    ),
+                ));
+				$response = curl_exec($curl);
+				$response = json_decode($response);
+                curl_close($curl); dd($response);*/
+				
+		
 		$services = Service::all();
         $list = Mailinglist::paginate(15);
         $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
@@ -691,4 +750,96 @@ class MailinglistController extends Controller
         $customer->save();
         return response()->json(true);
     }
+	
+	public function notifyUrl(Request $request) {
+		//$data = json_decode($request->input);
+		//CampaignEvent::create(['email'=>'', 'event'=>'', 'date_event'=>'', 'subject'=>$request ]);
+		CampaignEvent::create(['email'=>$request->email, 'event'=>$request->event, 'date_event'=>$request->date, 'subject'=>$request->subject ]);
+		if($request->event == "spam") { 
+			Mailinglist::where('email', $request->email)->update(['is_spam'=>1, 'spam_date'=>$request->date, 'is_master'=>0]);
+		}
+	}
+	
+	public function sendEmails() {
+		$mailingTemplates = MailinglistTemplate::where('auto_send', 1)->where('duration', '>', 0)->limit(2)->get();	
+		$date1 = $date2 = null;
+		$date = [];
+		foreach($mailingTemplates as $key=>$mailingTemplate) {
+			$now = Carbon::now();
+			if($mailingTemplate['duration_in'] == "hours") {
+				$date[$key] = $now->subHours($mailingTemplate['duration'])->format('Y-m-d H');
+			}else {
+				$date[$key] = $now->subDays($mailingTemplate['duration'])->format('Y-m-d H');
+			}
+		}
+		
+		if(isset($date[0])) {
+			$date1 = $date[0];
+		}if(isset($date[1])) {
+			 $date2 = $date[1];
+		} 
+		$mailing_list = [];
+		if(count($date) > 0) {
+			$mailing_list = Mailinglist::where(['is_spam'=>0])->where('emails_sent', '>=', 1)->where('emails_sent', '<', 3)
+			    ->where(function($query) use ($date1,$date2){
+					$query->where('created_at','like',$date1.'%');
+					if($date2 != null) {
+						$query->orWhere('created_at','like',$date2.'%');	
+					}
+                })->get()->groupBy('emails_sent');
+				
+				foreach($mailing_list  as $emails_sent=>$emailList) {
+					if($emails_sent == 1 and $mailingTemplates[0]) {
+						$mailing_item = $mailingTemplates[0];
+					} else if($emails_sent == 2 and isset($mailingTemplates[1])) {
+						$mailing_item = $mailingTemplates[1];
+					}
+					$array_emails = [];
+					foreach ($emailList as $emailDetail){
+						array_push($array_emails,["email" => $emailDetail['email']]);
+					}
+					
+					if(!empty($mailing_item['static_template']) and count($array_emails)>0) { 
+						$htmlContent = $mailing_item->static_template;
+						 $data = [
+							"to" => $array_emails,
+							"sender" => [
+								//"id" => 1,
+								"email" => 'Info@theluxuryunlimited.com'
+							],
+							"subject" => $mailing_item->subject,
+							"textContent" => $htmlContent
+						];
+						$curl = curl_init();
+						curl_setopt_array($curl, array(
+						CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
+
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_ENCODING => "",
+						CURLOPT_MAXREDIRS => 10,
+						CURLOPT_TIMEOUT => 30,
+						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						CURLOPT_CUSTOMREQUEST => "POST",
+						CURLOPT_POSTFIELDS => json_encode($data),
+						CURLOPT_HTTPHEADER => array(
+						   "api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
+								"Content-Type: application/json"
+							),
+						));
+						curl_close($curl);
+						foreach ($emailList as $emailDetail){
+							CampaignEvent::create(['email'=>$emailDetail->email, 'event'=>'sent', 'subject'=>$mailing_item->subject, 'date_event'=>Carbon::now()]);
+							Mailinglist::where('id', $emailDetail->id)->update(['emails_sent'=>$emails_sent+1]);
+						}
+					}		
+				}
+		
+		}
+	
+		$thirdEmailDate = Carbon::now()->subDays(7)->format('Y-m-d');
+		$emails = Mailinglist::where(['emails_sent'=>3, 'is_spam'=>0, 'is_master'=>0])->pluck('email')->toArray();
+		$masterEmails = CampaignEvent::whereIn('email', $emails)->where('event', 'delivered')->orderBy('id', 'desc')
+		->where('created_at','like', $thirdEmailDate.'%')->pluck('email')->toArray();
+		Mailinglist::whereIn('email', $masterEmails)->update(['is_master'=> 1]);
+	}
 }

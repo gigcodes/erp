@@ -21,7 +21,7 @@ class MailinglistTemplate extends Model
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      */
-    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id', 'auto_send', 'duration'];
+    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id'];
 
     public function file()
     {
@@ -194,6 +194,18 @@ class MailinglistTemplate extends Model
     public static function getBotEmailTemplate($store = null)
     {   
         $category = \App\MailinglistTemplateCategory::where('title', 'botMail')->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+	
+	public static function getWelcomeTemplate($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Welcome')->first();
 
         if ($category) {
             // get the template for that cateogry and store website
