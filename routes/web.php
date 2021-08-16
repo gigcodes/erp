@@ -419,6 +419,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
    // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
    Route::get('sop/permission-data', 'SopController@sopPermissionData')->name('sop.permission-data');
    Route::get('sop/permission-list', 'SopController@sopPermissionList')->name('sop.permission-list');
+   Route::get('sop/permission/user-list', 'SopController@sopPermissionUserList')->name('sop.permission.user-list');
+   Route::get('sop/remove-permission', 'SopController@sopRemovePermission')->name('sop.remove.permission');
 
   
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
