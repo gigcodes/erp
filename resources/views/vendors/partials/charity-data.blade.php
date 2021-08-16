@@ -109,6 +109,7 @@
             @if($vendor->email)
                 <button type="button" class="btn send-email-common-btn" data-toemail="{{ $vendor->email }}" data-object="charity" data-id="{{ $vendor->id }}"><i class="fa fa-envelope-square"></i></button>
             @endif
+            <button type="button" class="btn add-charity-country" title="add charity-price country-wise" data-product-id="{{ $vendor->product_id }}" data-id="{{ $vendor->id }}"><i class="fa fa-list"></i></button>
         </div>
     </td>
 </tr>
