@@ -168,6 +168,11 @@
     </div>
   </div>
 </div>
+
+
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
+  50% 50% no-repeat;display:none;">
+    </div>
 @endsection
 
 @section('scripts')
@@ -256,10 +261,16 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+            },
+            beforeSend: function() {
+              $("#loading-image").show();
             }
           }).done( function(response) {
-              $("#update-status-message-tpl").modal("hide");
+            $("#loading-image").hide();
+            toastr["success"]('Message sent successfully');
+            $("#update-status-message-tpl").modal("hide");
           }).fail(function(errObj) {
+            $("#loading-image").hide();
             alert("Could not change status");
           });
       });
@@ -275,10 +286,16 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'0',
               message:$("#order-template-status-tpl").html(),
+            },
+            beforeSend: function() {
+              $("#loading-image").show();
             }
           }).done( function(response) {
+            $("#loading-image").hide();
+            toastr["success"]('Message sent successfully');
             $("#update-status-message-tpl").modal("hide");
           }).fail(function(errObj) {
+            $("#loading-image").hide();
             alert("Could not change status");
           });
       });
