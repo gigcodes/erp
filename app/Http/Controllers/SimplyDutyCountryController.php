@@ -16,6 +16,7 @@ class SimplyDutyCountryController extends Controller
      */
     public function index(Request $request)
     {
+       
         if($request->code || $request->country){
            $query = SimplyDutyCountry::query();
 
@@ -45,9 +46,22 @@ class SimplyDutyCountryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function segment_add(Request $request)
     {
-        //
+        $id=$request->segment_id;
+        $segment=$request->segment;
+        $price=$request->price;
+        if ($id==0)
+           {
+            SimplyDutyCountry::insert(['segment'=>$segment,'price'=>$price]);
+            redirect('duty/segment')->with('message',"Segment Added Successfully") ;
+           }
+        else
+          {
+            SimplyDutyCountry::where('id',$id)->insert(['segment'=>$segment,'price'=>$price]) ;
+            redirect('duty/segment')->with('message',"Segment Updated Successfully") ;
+          }   
+
     }
 
     /**

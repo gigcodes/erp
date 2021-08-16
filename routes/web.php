@@ -2309,6 +2309,9 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');
 
     //Simple Duty Country
+    Route::get('duty/segment', 'SimplyDutySegmentController@index');
+    Route::post('duty/segment/add', 'SimplyDutySegmentController@segment_add');
+    Route::post('duty/segment/delete', 'SimplyDutySegmentController@segment_delete');
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
     Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');

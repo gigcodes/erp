@@ -11,6 +11,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SimplyDuty Country</h2>
             <div class="pull-right">
+            <a  class="btn btn-secondary" href="{{url('duty/segment')}}" >Segment</a>
                 <button type="button" class="btn btn-secondary" onclick="getCategoryData()">Load from SimplyDuty</button>
                 <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/resend2.png"/></button>
             </div>
