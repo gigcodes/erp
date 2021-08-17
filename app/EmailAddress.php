@@ -36,6 +36,16 @@ class EmailAddress extends Model
     'store_website_id',
     'recovery_phone',
     'recovery_email',
+    'signature_name',
+    'signature_title',
+    'signature_email',
+    'signature_phone',
+    'signature_website',
+    'signature_address',
+    'signature_logo',
+    'signature_image',
+    'signature_social'
+
   ];
   
    public function website()
