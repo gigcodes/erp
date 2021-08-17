@@ -1,4 +1,4 @@
-
+@foreach($contents as $content) 
     <tr>
         
         <td>
@@ -9,38 +9,33 @@
          </td>
 
          <td style="white-space: nowrap;">
-          {{--!empty($influencer->platform) ? $influencer->platform : "Instagram"--}} 
+          {{ isset($content->title) ? $content->title : "" }} 
         </td>
 	      
         <td style="white-space: nowrap;">
-          {{--date('d-m-y', strtotime($influencer->created_at))--}}
+          {{ isset($content->date) ? date('d-m-y', strtotime($content->date)) : "" }}
         </td>
 
         <td style="white-space: nowrap;">
-           {{--image--}} 
+          <img src='{{ isset($content->image) ? $content->image : "" }}' width="100px" height="100px" > 
         </td>
 
         <td>
-            <a href="{{-- $influencer->url --}}" target="_blank">
-             {{-- str_limit($influencer->name, 12, '...')--}}
+            <a href="{{$content->url}}" target="_blank">
+             {{ isset($content->url) ? $content->url : "" }}
             </a>
         </td>
 
-        <td class="expand-row-msg" data-name="email" data-id="{{--$influencer->id--}}">
-	            	<span onclick="showModal(' {{--$influencer->email--}} ','Email')" class="show-short-email- {{--$influencer->id--}} ">
-                  {{-- str_limit($influencer->email, 12, '...')--}} 
-                </span>
-	            	<span style="word-break:break-all;" class="show-full-email-{{--$influencer->id--}} hidden">
-                   {{--$influencer->email--}} 
-                </span>
+        <td class="expand-row-msg" data-name="email" data-id="{{--$content->email--}}">
+          {{ isset($content->email) ? $content->email : "" }}
         </td>
 
         <td>
-         {{-- $influencer->Number --}}
+         {{ isset($content->number) ? $content->number : "" }}
         </td>
 
         <td>
-         {{-- $influencer->AboutUs --}} 
+        {{ isset($content->about_us) ? $content->about_us : "" }}
         </td>
 
         <td>
@@ -69,7 +64,7 @@
                   /* border: none; */
                   padding: 2px;
                   height: 30px;
-    border-radius: 5px;" name="" class="quick-message-field" 
+                   border-radius: 5px;" name="" class="quick-message-field" 
                             id="message{{-- $influencer->id --}}"></textarea>
                  <input type="hidden" id="message-id" name="message-id" />
                   <a style="margin-right: -16px;
@@ -169,7 +164,7 @@
       </div>
     </td>
 </tr>
-
+@endforeach
 
 
 <tr class="dis-none" id="expand-{{-- $influencer->id --}}">

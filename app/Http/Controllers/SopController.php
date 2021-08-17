@@ -164,13 +164,40 @@ class SopController extends Controller
        if ($permission->count() > 0) {
            $permission->delete();
        }
-       foreach ($sop as $sp){
-            $sopPermission = new SopPermission;
-            $sopPermission->user_id = $user_id;
-            $sopPermission->sop_id = $sp;
-            $sopPermission->save();
-       }
+       if($sop){
+            foreach ($sop as $sp){
+                    $sopPermission = new SopPermission;
+                    $sopPermission->user_id = $user_id;
+                    $sopPermission->sop_id = $sp;
+                    $sopPermission->save();
+            }
+        }
        return response()->json(['status' => true, 'message' => "Permission Saved successfully"]);
+   }
+
+   public function sopPermissionUserList(Request $request)
+   {
+        $sop = Sop::find($request->sop_id);
+        $sop_users = SopPermission::where('sop_id', $request->sop_id)->get()->pluck('user_id');
+        $user = User::all();
+        return response()->json(['user_list' => $sop_users,'user' => $user,'sop' => $sop]);
+   }
+
+   public function sopRemovePermission(Request $request)
+   {
+        $user_id = $request->user_id;
+        $sop_id = $request->sop_id;
+        $sop_permission = SopPermission::where('sop_id',$sop_id)->delete();
+        if ($user_id) {
+            foreach ($user_id as $u_id) {
+                $new_permission = new SopPermission;
+                $new_permission->sop_id = $sop_id;
+                $new_permission->user_id = $u_id;
+                $new_permission->save();
+            }
+        }
+
+        return response()->json(['message' => 'Permission Apply Successfully']);
    }
        
 }

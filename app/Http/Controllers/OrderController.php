@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AutoReply;
 use App\CallBusyMessage;
+use App\CallBusyMessageStatus;
 use App\CallHistory;
 use App\CallRecording;
 use App\Category;
@@ -66,6 +67,8 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 use Session;
 use Storage;
 use \SoapClient;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class OrderController extends Controller
 {
@@ -2234,32 +2237,87 @@ class OrderController extends Controller
         //      return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
     }
 
-    public function missedCalls()
+    public function missedCalls(Request $request)
     {
-
-        $callBusyMessages = CallBusyMessage::select('call_busy_messages.id', 'twilio_call_sid', 'message', 'recording_url', 'call_busy_messages.created_at')
+        $callBusyMessages = CallBusyMessage::with(['status'=>function($q){
+          return   $q->select('id','name','label');
+        }])
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
-            ->orderBy('id', 'DESC')->paginate(20)->toArray();
+            ->leftjoin("call_recordings as cr", "cr.twilio_call_sid", "call_busy_messages.caller_sid")
+            ->select('call_busy_messages.*','cr.recording_url')
+            ->orderBy('call_busy_messages.id', 'DESC');
 
+            if(!empty($request->filterStatus)){
+
+                $callBusyMessages->where('call_busy_message_statuses_id',$request->filterStatus);
+
+            }
+
+            if(!empty($request->filterWebsite)){
+                $callBusyMessages->whereHas('customer.storeWebsite',function(Builder $query) use ($request){
+                    $query->where('id',$request->filterWebsite);
+                });
+            }
+
+        
+            
+            $callBusyMessages=    $callBusyMessages->paginate(20)->toArray();
+
+// dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
 
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
                 $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
-                $customer_array  = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                $customer_array  = Customer::with('storeWebsite','orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+
+                // dd($customer_array);
                 if (!empty($customer_array)) {
                     $callBusyMessages['data'][$key]['customerid']    = $customer_array[0]['id'];
                     $callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
+                    $callBusyMessages['data'][$key]['store_website_id'] = $customer_array[0]['store_website_id'];
+
+                    if(isset($customer_array[0]['store_website']) && count($customer_array[0]['store_website'])){
+                        $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];
+                    }
+
                     if (!empty($customer_array[0]['lead'])) {
                         $callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
                     }
                 }
+                
+                // dd($callBusyMessages['data']['customerid']);
 
             }
         }
-        return view('orders.missed_call', compact('callBusyMessages'));
+
+        
+        // $callBusyMessages =  collect($callBusyMessages)->filter(function($qqq) use ($request){
+        //     return $qqq->store_website_id == $request->filterWebsite;
+            
+        // });
+
+
+        $storeWebsite = StoreWebsite::pluck('title','id');
+        $selectedStatus = $request->filterStatus;
+        $selectedWebsite = $request->filterWebsite;
+        $allStatuses = CallBusyMessageStatus::get();
+        return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite'));
 
     }
+
+    public function getOrdersFromMissedCalls(Request $request)
+    {
+            $callBusyMessages = CallBusyMessage::findOrFail($request->id);
+
+            $formatted_phone = str_replace('+91', '', $callBusyMessages->twilio_call_sid);
+
+            $customer_array  = Customer::with('orders')->where('phone', 'LIKE', "%$formatted_phone%")->first();
+            return response()->json($customer_array->orders);   
+    }
+
+
+
 
     public function callsHistory()
     {
@@ -3595,6 +3653,136 @@ class OrderController extends Controller
             }
         }
          return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
+    }
+
+    public function addStatus(Request $request)
+    {
+        $label=preg_replace('/[^A-Za-z0-9-]+/', '-', $request->name);
+
+        $newStatus =   CallBusyMessageStatus::create([
+                'label'=>$label,
+                'name'=>$request->name
+            ]);
+
+        return response()->json(['data'=>  $newStatus,'message'=>$newStatus->name . ' status added successfully.']);
+
+    }
+
+    public function storeStatus(Request $request,$id)
+    {
+        $callBusyMessage = CallBusyMessage::find($id);
+        $callBusyMessage->call_busy_message_statuses_id = $request->select_id;
+        $callBusyMessage->save();
+
+        return response()->json(['message'=> ' Status updated successfuly.']);
+
+
+    }
+
+
+    public function sendWhatappMessageOrEmail(Request $request)
+    {
+        $newValue =  array();
+        parse_str($request->formData, $newValue);
+
+
+        $defaultWhatapp =     $task_info = \DB::table('whatsapp_configs')
+        ->select('*')
+            ->whereRaw("find_in_set(" . CustomerController::DEFAULT_FOR . ",default_for)")
+            ->first();
+        $defaultNo = $defaultWhatapp->number;
+
+
+        $newArr = $request->except(['_token', 'formData']);
+        $addRequestData = array_merge($newValue, $newArr);
+
+
+            if(empty($addRequestData['message'])){
+                return response()->json(['error'=>'Please type message']);
+            }
+
+            if(empty($addRequestData['whatsapp'] ) && empty($addRequestData['email']) ){
+                return response()->json(['error'=>'Please select atleast one checkbox']);
+            }
+
+
+        $customer = null;
+        $shouldSaveInChatMessage = false;
+
+        if ($addRequestData['customerId'] && !empty($addRequestData['whatsapp'])) {
+            $customer = Customer::find($addRequestData['customerId']);
+
+
+            if (!empty($customer) && !empty($customer->phone) && !empty($customer->whatsapp_number)) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $addRequestData['message']);
+                $shouldSaveInChatMessage = true;
+
+            }
+        } else if (!$addRequestData['customerId'] &&  !empty($addRequestData['whatsapp'])) {
+            $formatted_phone = str_replace('+91', '', $addRequestData['fullNumber']);
+            $sendTo =  str_replace('+', '', $addRequestData['fullNumber']);
+            $sendFrom = $defaultNo;
+            if (!empty($addRequestData['whatsapp']) &&  !empty($sendTo) && !empty($sendFrom)) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($sendTo, $sendFrom, $addRequestData['message']);
+                $shouldSaveInChatMessage = true;
+
+            }
+            // $customer= Customer::where('')
+        }
+
+        
+        if ($addRequestData['customerId'] && !empty($addRequestData['email'])) {
+            $customer = Customer::find($addRequestData['customerId']);
+            
+            $subject = 'Ordered miss-called';
+
+            if (!empty($customer) && !empty($customer->email) && !empty($addRequestData['message'])) {
+                // dump('send customer email final');
+
+                $email             = Email::create([
+                    'model_id'         => $customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'customercare@sololuxury.co.in',
+                    'to'               => $customer->email,
+                    'subject'          => $subject,
+                    'message'          => $addRequestData['message'],
+                    'template'         => 'customer-simple',
+                    'additional_data'  => '',
+                    'status'           => 'pre-send',
+                    'is_draft'         => 0,
+                ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+
+                $shouldSaveInChatMessage = true;
+
+                // Mail::send('order-misscall.communication', $data, function($message)use($data,$customer) {
+                //     $message->to($customer->email)
+                //     ->subject($data["title"]);
+                // });
+
+               
+            }
+        }
+
+      if($shouldSaveInChatMessage ){
+          $params = [
+              'customer_id' => $customer->id,
+              'number' => $customer->phone,
+              'message' =>$addRequestData['message'],
+              'user_id' => Auth::id(),
+              'approve' => 0,
+              'status' => 1
+          ];
+    
+          ChatMessage::create($params);
+
+
+          return response()->json(['message'=>'Message send successfully']);
+      }
+
+
+
     }
 
 }
