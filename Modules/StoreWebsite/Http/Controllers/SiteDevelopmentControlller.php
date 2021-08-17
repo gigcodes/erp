@@ -115,10 +115,14 @@ class SiteDevelopmentController extends Controller
                 $develop->title = $request->text;
                 $develop->save();
 
-                $site = new SiteDevelopment;
-                $site->site_development_category_id = $develop->id;
-                $site->website_id = $request->websiteId;
-                $site->save();
+                $all_website  = StoreWebsite::get();
+
+                foreach($all_website as $key => $value) {
+                    $site = new SiteDevelopment;
+                    $site->site_development_category_id = $develop->id;
+                    $site->website_id = $value->id;
+                    $site->save();
+                }
 
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
 

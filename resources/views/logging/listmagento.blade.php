@@ -43,6 +43,10 @@
 	div#Export_popup .col-xs-12{padding:0;}
 	.export_btn{margin:10px 0 0 0;}
 }
+    .ac-btns button{
+      height: 20px;
+        width: auto;
+    }
 </style>
 @endsection
 
@@ -156,24 +160,31 @@
             </select>
           </div>
 
-          <div class="col-md-2 pl-0">
-            <label for="sku">Crop Image Date</label>
-              <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
-              <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
-              <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
-                  <!-- <i class="fa fa-calendar"></i>&nbsp;
-                  <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
-                  <i class="fa fa-calendar"></i>&nbsp;
-                  <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
-              </div>
-          </div>
-
-          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">
-            <button class="btn btn-primary" id="submit">
+          <div class="col-md-4 pl-0 pr-0 d-flex" style="align-items: flex-end;justify-content: space-between;">
+           <div>
+             <label for="sku">Crop Image Date</label>
+             <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
+             <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
+             <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+               <!-- <i class="fa fa-calendar"></i>&nbsp;
+               <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+               <i class="fa fa-calendar"></i>&nbsp;
+               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+             </div>
+           </div>
+            <button class="btn btn-primary " style="height: 34px" id="submit">
               <span class="fa fa-filter"></span> Filter Results
             </button>
-            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
+            <button class="btn btn-primary "  style="height: 34px" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
+
           </div>
+
+{{--          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">--}}
+{{--            <button class="btn btn-primary" id="submit">--}}
+{{--              <span class="fa fa-filter"></span> Filter Results--}}
+{{--            </button>--}}
+{{--            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>--}}
+{{--          </div>--}}
 
                 </div>
 
@@ -191,23 +202,24 @@
             <thead>
               <th style="width:5%">Product ID</th>
               <th style="width:5%">SKU</th>
-              <th style="width:7%">Brand</th>
+              <th style="width:5%">Brand</th>
               <th style="width:6%">Category</th>
               <th style="width:5%">Price</th>
               <th style="width:6%">Message</th>
               <th style="width:6%">Date/  Time</th>
-              <th style="width:5%">Website</th>
-              <th style="width:6%">Status</th>
+              <th style="width:6%">Website</th>
+              <th style="width:5%">Status</th>
               <th style="width:4%">Lang. Id</th>
               <th style="width:8%">Sync Status</th>
-              <th style="width:4%">Job Start</th>
+              <th style="width:6%">Job Start</th>
               <th style="width:4%">Job End</th>
-              <th style="width:5%;padding-left: 0">Success</th>
+              <th style="width:4%;word-break: break-all">Total Assigned</th>
+              <th style="width:4%;padding-left: 0;word-break: break-all">Success</th>
               <th style="width:5%">Failure</th>
               <th style="width:3%;padding-left: 0">User</th>
               <th style="width:5%;">Time</th>
               <th style="width:4%;padding-left: 5px">Size</th>
-              <th style="width:7%;padding-left: 2px">Queue</th>
+              <th style="width:8%;padding-left: 2px">Queue</th>
               <th style="width:4%">Try</th>
               <th style="width:8%">Action</th>
             </thead>

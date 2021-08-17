@@ -290,6 +290,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
     Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
 
+    Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
+    Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
+
+
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
@@ -375,6 +379,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/discount/files','ProductInventoryController@supplierDiscountFiles')->name('supplier.discount.files');
     Route::post('product/discount/files','ProductInventoryController@exportExcel')->name('supplier.discount.files.post');
     Route::get('product/discount/excel/files','ProductInventoryController@download_excel')->name('excel.files');
+    Route::post('product/mapping/excel','ProductInventoryController@mapping_excel')->name('product.mapping.excel');
+    Route::post('product/export/mapping/excel','ProductInventoryController@export_mapping_excel')->name('product.mapping.export.excel');
 
     Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
 
@@ -425,6 +431,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
    // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
    Route::get('sop/permission-data', 'SopController@sopPermissionData')->name('sop.permission-data');
    Route::get('sop/permission-list', 'SopController@sopPermissionList')->name('sop.permission-list');
+   Route::get('sop/permission/user-list', 'SopController@sopPermissionUserList')->name('sop.permission.user-list');
+   Route::get('sop/remove-permission', 'SopController@sopRemovePermission')->name('sop.remove.permission');
 
   
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
@@ -2317,10 +2325,13 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');
 
     //Simple Duty Country
+    Route::get('duty/segment', 'SimplyDutySegmentController@index');
+    Route::get('duty/segment/add', 'SimplyDutySegmentController@segment_add');
+    Route::get('duty/segment/delete', 'SimplyDutySegmentController@segment_delete');
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
     Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
-
+    Route::get('duty/country/addsegment', 'SimplyDutyCountryController@addsegment');
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
     Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
@@ -3244,6 +3255,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
+Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.history');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
@@ -3281,6 +3293,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/delete', 'DBQueryController@delete')->name('admin.databse.menu.direct.dbquery.delete');
     Route::post('/admin-menu/db-query/command_execution', 'DBQueryController@command_execution')->name('admin.command_execution');//Purpose : Add Route for Command Exicute - DEVTASK-19941
     Route::get('/admin-menu/db-query/command_execution_history', 'DBQueryController@command_execution_history')->name('admin.command_execution_history');//Purpose : Add Route for Command Exicution History data - DEVTASK-19941
+    Route::get('/admin-menu/db-query/report-download', 'DBQueryController@ReportDownload')->name('admin.db-query.download');
 });
 
 Route::middleware('auth')->prefix('totem')->group(function() {
@@ -3341,5 +3354,6 @@ Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
 // Google Scrapper Keyword
-Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+

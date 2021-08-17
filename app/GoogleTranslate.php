@@ -54,7 +54,7 @@ class GoogleTranslate
             $result = $translate->translate($text, [
                 'target' => $target
             ]);
-
+            
             return $result['text'];
         } catch (\Exception $e) {
             if (!empty($lastFileId)) {

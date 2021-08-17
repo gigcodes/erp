@@ -68,7 +68,7 @@ class LiveChatController extends Controller
 
                 $name  = $detials[0];
                 $email = $detials[1];
-                $phone = $detials[2];
+                $phone = (isset($detials[2]) ? $detials[2] : null);
                 //Check if customer exist
 
                 $customer = Customer::where('email', $email)->first();
@@ -85,7 +85,7 @@ class LiveChatController extends Controller
                     $customer        = new Customer;
                     $customer->name  = $name;
                     $customer->email = $email;
-                    $customer->phone = null;
+                    $customer->phone = $phone ?? null;
                     $customer->language = 'en';
                     $customer->save();
                 }
@@ -275,6 +275,14 @@ class LiveChatController extends Controller
                 $userEmail = $chat->users[0]->email;
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
+
+                
+
+                if(isset($chat->thread->events[0]->fields[2]->value)) 
+                    $userPhone  = $chat->thread->events[0]->fields[2]->value;
+                else
+                    $userPhone  = null;
+
                 /*$translate = new TranslateClient([
                     'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
                 ]);*/
@@ -350,8 +358,8 @@ class LiveChatController extends Controller
                     $customer        = new Customer;
                     $customer->name  = $userName;
                     $customer->email = $userEmail;
+                    $customer->phone = $userPhone ?? null;
                     $customer->language = $customer_language;
-                    $customer->phone = null;
                     $customer->store_website_id = $websiteId;
                     $customer->language = 'en';
                     $customer->save();
@@ -1336,8 +1344,7 @@ class LiveChatController extends Controller
         {
 			$query = $query->whereDate('date', $request->date);
         }
-        $data = $query->orderBy('date', 'DESC')->get();
-        /*
+        
         $pageSize = 10;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
@@ -1349,8 +1356,9 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-        */
-       return view('livechat.tickets', compact('data'));
+         return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        
+      
         
     }
 

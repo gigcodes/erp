@@ -1782,8 +1782,8 @@ class UserManagementController extends Controller
         $status = UserFeedbackStatus::get();
 
         $user_id = $request->user_id;
-        $category = UserFeedbackCategory::where('user_id',$user_id)->groupBy('category')->get();
-        return view('usermanagement::user-feedback-table',compact('category', 'status'));
+        $category = UserFeedbackCategory::groupBy('category')->get();
+        return view('usermanagement::user-feedback-table',compact('category', 'status','user_id'));
 
     }
 }
