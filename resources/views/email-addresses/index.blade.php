@@ -228,10 +228,83 @@
               <div class="alert alert-danger">{{$errors->first('password')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Signature Name:</strong>
+            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" required>
+
+            @if ($errors->has('signature_name'))
+              <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
+            @endif
+          </div>
+          
+          <div class="form-group">
+            <strong>Signature Title:</strong>
+            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" required>
+
+            @if ($errors->has('signature_title'))
+              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Phone:</strong>
+            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" required>
+
+            @if ($errors->has('signature_phone'))
+              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Email:</strong>
+            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" required>
+
+            @if ($errors->has('signature_email'))
+              <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Website:</strong>
+            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" required>
+
+            @if ($errors->has('signature_website'))
+              <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Address:</strong>
+            <textarea name="signature_address" id="address" class="form-control" >{{ old('signature_address') }}</textarea>
+            
+            @if ($errors->has('signature_address'))
+              <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Logo:</strong>
+            <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
+
+            @if ($errors->has('signature_logo'))
+              <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Image:</strong>
+            <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
+
+            @if ($errors->has('signature_image'))
+              <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Social Tag:</strong>
+            
+            <textarea id="social" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
+            @if ($errors->has('signature_tag'))
+              <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
+            @endif
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Add</button>
+          <button type="submit"  class="btn btn-secondary">Add</button>
         </div>
       </form>
     </div>
@@ -446,6 +519,80 @@
               <div class="alert alert-danger">{{$errors->first('password')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Signature Name:</strong>
+            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" required>
+
+            @if ($errors->has('signature_name'))
+              <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
+            @endif
+          </div>
+          
+          <div class="form-group">
+            <strong>Signature Title:</strong>
+            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" required>
+
+            @if ($errors->has('signature_title'))
+              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Phone:</strong>
+            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" required>
+
+            @if ($errors->has('signature_phone'))
+              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Email:</strong>
+            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" required>
+
+            @if ($errors->has('signature_email'))
+              <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Website:</strong>
+            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" required>
+
+            @if ($errors->has('signature_website'))
+              <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Address:</strong>
+            <textarea name="signature_address" id="address1" class="form-control" >{{ old('signature_address') }}</textarea>
+            
+            @if ($errors->has('signature_address'))
+              <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Logo:</strong>
+            <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
+
+            @if ($errors->has('signature_logo'))
+              <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Image:</strong>
+            <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
+
+            @if ($errors->has('signature_image'))
+              <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Signature Social Tag:</strong>
+            
+            <textarea id="social1" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
+            @if ($errors->has('signature_tag'))
+              <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
+            @endif
+          </div>
+        
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -477,7 +624,19 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.tiny.cloud/1/8lx26kd08fse8eckrno8tqi4pkf298s9d9hunvvzy4ri6ru4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+  tinymce.init({
+    selector: '#address',
+    menubar: false
+  });
+  tinymce.init({
+    selector: '#social',
+    menubar: false
+  });
+ 
   
+</script>
   <script type="text/javascript">
     $(document).on('click', '.edit-email-addresses', function() {
       var emailAddress = $(this).data('email-addresses');
@@ -500,6 +659,22 @@
 
       $('#emailAddressEditModal').find('input[name="recovery_phone"]').val(emailAddress.recovery_phone);
       $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
+
+      $('#emailAddressEditModal').find('input[name="signature_name"]').val(emailAddress.signature_name);
+	    $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
+      $('#emailAddressEditModal').find('input[name="signature_email"]').val(emailAddress.signature_email);
+      $('#emailAddressEditModal').find('input[name="signature_phone"]').val(emailAddress.signature_phone);
+      $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
+      $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
+      $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
+      tinymce.init({
+    selector: '#address1',
+    menubar: false
+  });
+  tinymce.init({
+    selector: '#social1',
+    menubar: false
+  });
 	  
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
 
