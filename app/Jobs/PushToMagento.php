@@ -83,7 +83,7 @@ class PushToMagento implements ShouldQueue
 
             // started to check the validation for the category size is available or not and if not then throw the error
             $categorym = $product->categories;
-            if ($categorym) {
+            if ($categorym && !$product->isCharity()) {
                 $categoryparent = $categorym->parent;
                 if ($categoryparent && $categoryparent->size_chart_needed == 1 && empty($categoryparent->getSizeChart($website->id))) {
                     ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
@@ -93,7 +93,7 @@ class PushToMagento implements ShouldQueue
                     $this->log->save();
                     return false;
                 }
-
+                
                 if ($categorym && $categorym->size_chart_needed == 1 && empty($categorym->getSizeChart($website->id))) {
                     ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
                     $this->log->message         = "Size chart is needed for push product";
@@ -103,8 +103,8 @@ class PushToMagento implements ShouldQueue
                     return false;
                 }
             }
-
-
+            
+            
             // check the product has images or not and then if no image for push then assign error it
             $images = $product->getImages("gallery_" . $website->cropper_color);
             if(empty($images)) {

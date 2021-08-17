@@ -16,6 +16,10 @@ use App\Product;
 use App\VendorCategory;
 use Illuminate\Support\Facades\Hash;
 use App\Role;
+use App\Helpers\ProductHelper; 
+use App\StoreWebsite; 
+use App\Website; 
+use App\CharityCountry; 
 
 class CustomerCharityController extends Controller
 {
@@ -377,6 +381,51 @@ class CustomerCharityController extends Controller
       $search = CustomerCharity::where('phone', 'LIKE', "%" . $term . "%")
                 ->get();
       return response()->json($search);
+    }
+
+
+    public function charityWebsites($id)
+    {
+        $cc = CustomerCharity::find($id);
+        $websiteArrays = ProductHelper::getStoreWebsiteName($cc->product_id);
+        if(count($websiteArrays)){
+            foreach ($websiteArrays as $websiteArray) {
+                $website = StoreWebsite::find($websiteArray);
+                $webStores = Website::select('code', 'name')->where("store_website_id", $website->id)->get();
+            }
+        } 
+        foreach($webStores as $w){
+            $c_raw = CharityCountry::where('charity_id', $id)->where('country_code', $w->code)->first();
+            $w->price = 1;
+            if($c_raw){
+                $w->price = $c_raw->price;
+            }
+        }
+
+        return response()->json($webStores);
+    }
+
+
+    public function addCharityWebsites(Request $request, $id)
+    {
+        $countries = explode('&', $request->data);
+        // dd($countries);
+        foreach($countries as $c){
+            $cc = explode('=', $c)[0];
+            $val = explode('=', $c)[1];
+            if($val){
+                $c_raw = CharityCountry::where('charity_id', $id)->where('country_code', $cc)->first();
+                if(!$c_raw){
+                    $c_raw = new CharityCountry();
+                    $c_raw->charity_id = $id;
+                    $c_raw->country_code = $cc; 
+                } 
+                $c_raw->price = $val;
+                $c_raw->save();
+            }
+        }
+
+        return response()->json('Charity Updated Successfully!');
     }
 
     
