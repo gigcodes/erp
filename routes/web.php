@@ -18,7 +18,8 @@ Auth::routes();
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
-Route::get('send_emails', 'Marketing\MailinglistController@sendEmails');
+Route::get('send_email_2', 'Marketing\MailinglistController@sendIntroEmail2');
+Route::get('send_email_3', 'Marketing\MailinglistController@sendIntroEmail3');
 
 //Route::get('unused_category', 'TestingController@Demo');
 

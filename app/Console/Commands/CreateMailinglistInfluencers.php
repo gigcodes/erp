@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Customer;
+use App\EmailEvent;
 use Illuminate\Console\Command;
 
 class CreateMailinglistInfluencers extends Command
@@ -92,7 +93,7 @@ class CreateMailinglistInfluencers extends Command
                 }
             }
 
-
+				
             foreach ($influencers as $list) {
                 
                 $response = $this->callApi("https://api.sendinblue.com/v3/contacts", "POST", [
@@ -110,9 +111,48 @@ class CreateMailinglistInfluencers extends Command
                         "source" => "scrap_influencer",
                     ]);
                 }
-                if (!empty($this->mailList)) {
+                $mailing_item = MailinglistTemplate::template("Intro Email 1"); ;
+				if (!empty($this->mailList)) {
                     foreach ($this->mailList as $mllist) {
                         $mllist->listCustomers()->attach($customer->id);
+						$list_contact_id = \DB::table('list_contact')->where(['list_id'=>$mllist->id, "customer_id"=>$customer->id])->pluck('id')->first();					
+							    
+						/*** send welcome email to mailing list customers start**/
+						if(!empty($mailing_item['static_template'])) { 
+							$htmlContent = $mailing_item->static_template;
+								$data = [
+									"to" => [0=>["email"=>$customer->email]],
+									"sender" => [
+										//"id" => 1,
+										"email" => 'Info@theluxuryunlimited.com'
+									],
+									"subject" => $mailing_item->subject,
+									"htmlContent" => $htmlContent, 
+									"tags" => [
+										"intro_email"=>1,
+										"list_contact_id"=>$list_contact_id
+									]
+								];
+								$curl = curl_init();
+								curl_setopt_array($curl, array(
+								CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
+
+								CURLOPT_RETURNTRANSFER => true,
+								CURLOPT_ENCODING => "",
+								CURLOPT_MAXREDIRS => 10,
+								CURLOPT_TIMEOUT => 30,
+								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+								CURLOPT_CUSTOMREQUEST => "POST",
+								CURLOPT_POSTFIELDS => json_encode($data),
+								CURLOPT_HTTPHEADER => array(
+									  "api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
+										"Content-Type: application/json"
+									),
+								));
+								curl_close($curl);
+								EmailEvent::create(["list_contact_id"=>$list_contact_id,"intro_email"=>1]);
+						}	
+						/*** send welcome email to mailing list customers end**/						
                     }
                 }
 
