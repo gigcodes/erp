@@ -69,7 +69,14 @@ Route::resource('courier', 'CourierController');
 Route::resource('product-location', 'ProductLocationController');
 });
 
+/** Magento Settings */
+Route::middleware('auth')->group(function () {
 
+    Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
+    Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
+    Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
+
+});
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     
