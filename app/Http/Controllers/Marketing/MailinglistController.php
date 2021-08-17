@@ -706,18 +706,18 @@ class MailinglistController extends Controller
 	public function sendIntroEmail2() {
 		$mailing_item = MailinglistTemplate::template("Intro Email 2"); 
 		$now = Carbon::now();
-		if($mailingTemplate) {
-			if($mailingTemplate->duration_in == "hours") {
+		if($mailing_item) {
+			if($mailing_item->duration_in == "hours") {
 				$last_email_sent_at = $now->subHours($mailing_item['duration'])->format('Y-m-d H:i:s');
 			} else{
 				$last_email_sent_at = $now->subDays($mailing_item['duration'])->format('Y-m-d H:i:s');
 			}
 			$mailingLists = EmailEvent::leftJoin('list_contacts', 'list_contacts.id', '=', 'email_events.list_contact_id')
-			->leftJoin('mailinglists', 'mailinglists.id', '=', 'email_events.mailinglist_id')
-			->leftJoin('customers', 'customers.id', '=', 'email_events.customer_id')->where('intro_email',1)
-			->where('email_events.created_at', '<', $last_email_sent_at->addMinutes(60))
+			->leftJoin('mailinglists', 'mailinglists.id', '=', 'list_contacts.list_id')
+			->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')->where('intro_email',2)
+			->where('email_events.created_at', '<',  Carbon::parse($last_email_sent_at)->addMinutes(60))
 			->where('email_events.created_at', '>=', $last_email_sent_at)->where('email_events.spam', 0)
-			->select('mailinglist.id as mailingListId', 'customers.id as customerId', 'customers.email', 'list_contacts.id as list_contact_id')->get();
+			->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'list_contacts.id as list_contact_id')->get();
 			
 			foreach($mailingLists as $mailingList) {
 				if(!empty($mailing_item['static_template'])) { 
@@ -761,18 +761,18 @@ class MailinglistController extends Controller
 	public function sendIntroEmail3() {
 		$mailing_item = MailinglistTemplate::template("Intro Email 3"); 
 		$now = Carbon::now();
-		if($mailingTemplate) {
-			if($mailingTemplate->duration_in == "hours") {
+		if($mailing_item) {
+			if($mailing_item->duration_in == "hours") {
 				$last_email_sent_at = $now->subHours($mailing_item['duration'])->format('Y-m-d H:i:s');
 			} else{
 				$last_email_sent_at = $now->subDays($mailing_item['duration'])->format('Y-m-d H:i:s');
 			}
 			$mailingLists = EmailEvent::leftJoin('list_contacts', 'list_contacts.id', '=', 'email_events.list_contact_id')
-			->leftJoin('mailinglists', 'mailinglists.id', '=', 'email_events.mailinglist_id')
-			->leftJoin('customers', 'customers.id', '=', 'email_events.customer_id')->where('intro_email',2)
-			->where('email_events.created_at', '<', $last_email_sent_at->addMinutes(60))
+			->leftJoin('mailinglists', 'mailinglists.id', '=', 'list_contacts.list_id')
+			->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')->where('intro_email',2)
+			->where('email_events.created_at', '<', Carbon::parse($last_email_sent_at)->addMinutes(60))
 			->where('email_events.created_at', '>=', $last_email_sent_at)->where('email_events.spam', 0)
-			->select('mailinglist.id as mailingListId', 'customers.id as customerId', 'customers.email', 'list_contacts.id as list_contact_id')->get();
+			->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'list_contacts.id as list_contact_id')->get();
 			
 			foreach($mailingLists as $mailingList) {
 				if(!empty($mailing_item['static_template'])) { 

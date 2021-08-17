@@ -145,11 +145,11 @@ class MailinglistTemplate extends Model
     }
 
     public static function getTemplate($category, $store = null)
-    {
+    { 
         if ($store) {
             return self::where('store_website_id', $store)->where('category_id', $category->id)->first();
-        } else {
-            return self::where(function($q) {
+        } else { 
+		return self::where(function($q) {
                 $q->whereNull('store_website_id')->orWhere('store_website_id','=',"")->orWhere('store_website_id',"<=",0);
             })->where('category_id', $category->id)->first();
         }
