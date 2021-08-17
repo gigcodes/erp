@@ -7,8 +7,13 @@
                 $latest_msg = substr($latest_messages->message,0,20).'...';
             }
         }
+        $feedback_status = App\UserFeedbackStatusUpdate::where('user_id', $user_id)->where('user_feedback_category_id', $cat->id)->first();
+        $status_id = 0;
+        if ($feedback_status) {
+            $status_id = $feedback_status->user_feedback_status_id;
+        }
     @endphp
-    <tr>
+    <tr data-cat_id="{{ $cat->id }}" data-user_id="{{ $user_id }}">
         <td>{{ $cat->category }}</td>
         <td class="communication-td">
             <input type="text" class="form-control send-message-textbox" data-id="{{$user_id}}" id="send_message_{{$user_id}}" name="send_message_{{$user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
@@ -32,7 +37,7 @@
             <select class="form-control user_feedback_status">
                 <option value="">Select</option>
                 @foreach ($status as $st)
-                    <option value="{{$st->id}}">{{ $st->status }}</option>
+                    <option value="{{$st->id}}" @if ($st->id == $status_id) {{ "selected" }} @endif>{{ $st->status }}</option>
                 @endforeach
             </select>
         </td>
