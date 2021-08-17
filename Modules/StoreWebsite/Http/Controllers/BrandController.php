@@ -410,9 +410,9 @@ class BrandController extends Controller
                 foreach($rightBrand as $rb) {
                     if(is_null($rb->deleted_at)) {
                         $noneedTodelete[] = $rb->magento_value;
-                        if($rb->magento_value > 0) {
-                            $assingedBrands[$rb->magento_value] = $rb;
-                        }
+                    }
+                    if($rb->magento_value > 0) {
+                        $assingedBrands[$rb->magento_value] = $rb;
                     }
                 }
             }
