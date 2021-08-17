@@ -571,7 +571,7 @@
           <div class="form-group">
             <strong>Signature Logo:</strong>
             <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
-            <img src="" id="img1" style="width:100px;height:100px">>
+            <img src="" id="img1" style="width:100px;height:100px">
 
             @if ($errors->has('signature_logo'))
               <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
@@ -670,8 +670,8 @@
       $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
       $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
       $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
-      $("#img1").attr("src",  "{{url('/')}}/public/uploads/" + emailAddress.signature_logo);
-      $("#img2").attr("src",  "{{url('/')}}/public/uploads/" + emailAddress.signature_image);
+      $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
+      $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
       tinymce.init({
     selector: '#address1',
     menubar: false
