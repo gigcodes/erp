@@ -123,7 +123,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('email-addresses.store') }}" method="POST">
+      <form action="{{ route('email-addresses.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-header">
@@ -385,7 +385,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="" method="POST">
+      <form action="" method="POST" enctype="multipart/form-data" >
         @csrf
         @method('PUT')
 
@@ -571,6 +571,7 @@
           <div class="form-group">
             <strong>Signature Logo:</strong>
             <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
+            <img src="" id="img1" style="width:100px;height:100px">>
 
             @if ($errors->has('signature_logo'))
               <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
@@ -579,6 +580,8 @@
           <div class="form-group">
             <strong>Signature Image:</strong>
             <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
+            <img src="" id="img2" style="width:100px;height:100px">>
+
 
             @if ($errors->has('signature_image'))
               <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
@@ -667,6 +670,8 @@
       $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
       $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
       $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
+      $("#img1").attr("src",  "{{url('/')}}/public/uploads/" + emailAddress.signature_logo);
+      $("#img2").attr("src",  "{{url('/')}}/public/uploads/" + emailAddress.signature_image);
       tinymce.init({
     selector: '#address1',
     menubar: false
