@@ -120,7 +120,7 @@
 
         <div class="common-modal modal" role="dialog">
 
-            <div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;">
+            <div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;word-break: break-all;">
             </div>
         </div>
 
