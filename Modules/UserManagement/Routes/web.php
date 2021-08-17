@@ -17,6 +17,7 @@ Route::prefix('user-management')->middleware('auth')->group(function () {
 
     Route::get('/feedback-category/store', 'UserManagementController@addFeedbackCategory')->name("user.feedback-category");
     Route::get('/feedback-status/store', 'UserManagementController@addFeedbackStatus')->name("user.feedback-status");
+    Route::get('/feedback-status/update', 'UserManagementController@updateFeedbackStatus')->name("user.feedback-status.update");
     Route::get('/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.feedback-table-data");
 
     // Route::get('/userfeedback','UserManagementController@cat_name');

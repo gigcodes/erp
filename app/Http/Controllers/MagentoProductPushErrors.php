@@ -32,6 +32,7 @@ class MagentoProductPushErrors extends Controller
 
         $websites = StoreWebsite::get();
 
+
         return view('magento-product-error.index', compact('title', 'websites'));
     }
 
@@ -79,7 +80,7 @@ class MagentoProductPushErrors extends Controller
                 'product_id'      => '<a class="show-product-information" data-id="'.$row->product_id.'" href="/products/'.$row->product_id.'" target="__blank">'.$row->product_id.'</a>',
                 'updated_at'      => $row->created_at->format('d-m-y H:i:s'),
                 'store_website'   => ($row->store_website) ? $row->store_website->title : "-",
-                'message'         => str_limit($row->message, 30, 
+                'message'         => str_limit(strip_tags($row->message), 30, 
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
                 'request_data'    => str_limit($row->request_data, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
@@ -180,8 +181,8 @@ class MagentoProductPushErrors extends Controller
     //START - Purpose : Open modal and get data - DEVTASK-20123
     public function groupErrorMessageReport(Request $request)
     {
-        $records = ProductPushErrorLog::where('response_status','error')
-            ->latest('count')
+        // $records = ProductPushErrorLog::where('response_status','error')
+        $records = ProductPushErrorLog::latest('count')
             ->groupBy('message')
             ->select(\DB::raw('*,COUNT(message) AS count'));
 
@@ -197,27 +198,28 @@ class MagentoProductPushErrors extends Controller
 
             $records = $records->get();
 
+            
         $recordsArr = []; 
-        foreach($records as $row){
+        foreach($records as $key => $row){
             
             if (strpos($row->message, 'Failed readiness') !== false) {
 
-                if (array_key_exists("Failed_readiness",$recordsArr))
+                if (array_key_exists("Failed_readiness_".$row->response_status,$recordsArr))
                 {
-                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
-                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                    $recordsArr['Failed_readiness_'.$row->response_status]['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness_'.$row->response_status]['message'] = 'Failed readiness';
                 }else{
-                    $recordsArr['Failed_readiness'] = [
+                    $recordsArr['Failed_readiness_'.$row->response_status] = [
                         'count' => 1,
                         'message' => $row->message,
-    
+                        'status' => $row->response_status,
                     ];
                 }
             }else{
                 $recordsArr[] = [
                     'count' => $row->count,
                     'message' => $row->message,
-
+                    'status' => $row->response_status,
                 ];
             }
         }
@@ -246,17 +248,35 @@ class MagentoProductPushErrors extends Controller
         $log = ProductPushErrorLog::where('id', $id)->first();
         $logged_user = $request->user();
 
-        if($log){
-            $old_value = $log->response_status;
-            $log->response_status = $request->type;
-            $log->save();
+        $newtime = strtotime($log->created_at);
+        $created_at = date('Y-m-d',$newtime);
 
-            MagentoLogHistory::create([
-                'log_id' => $log->id,
-                'user_id' => $logged_user->id,
-                'old_value' => $old_value,
-                'new_value' => $request->type,
-            ]);
+        if($log){
+
+            $log_data = ProductPushErrorLog::whereDate('created_at',$created_at)->Where('message', 'like',  $log->message )->Where('store_website_id', $log->store_website_id )->get();
+
+            foreach($log_data as $key => $value)
+            {
+                ProductPushErrorLog::where("id", $value->id)->update(["response_status" => $request->type]);
+
+                $old_value = $value->response_status;
+                MagentoLogHistory::create([
+                    'log_id' => $value->id,
+                    'user_id' => $logged_user->id,
+                    'old_value' => $old_value,
+                    'new_value' => $request->type,
+                ]);
+            }
+            // $old_value = $log->response_status;
+            // $log->response_status = $request->type;
+            // $log->save();
+
+            // MagentoLogHistory::create([
+            //     'log_id' => $log->id,
+            //     'user_id' => $logged_user->id,
+            //     'old_value' => $old_value,
+            //     'new_value' => $request->type,
+            // ]);
         }
         return response()->json(true);
 

@@ -16,7 +16,8 @@
           <table class="table fixed_header" id="latest-remark-records">
             <thead>
               <tr>
-                <th scope="col">Google Client ID</th>
+		<th scope="col">Date</th>
+                <th scope="col">Google Account</th>
                 <th scope="col">Receiver</th> 
                 <th scope="col">Message</th>  
               </tr>
@@ -496,7 +497,8 @@
 				if(result.code == 200) {
 					var t = '';
 					$.each(result.data,function(k,v) {
-						t += `<tr><td>`+v.id+`</td>`;
+						t += `<tr><td>`+v.created_at+`</td>`;
+						t += `<td>`+(v.account ? v.account.google_account : '')+`</td>`;
 						t += `<td>`+v.user.name+`</td>`;
 						t += `<td>`+v.message+`</td>`; 
 					});

@@ -1241,6 +1241,10 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('review.index') }}">Reviews
                                     </a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('google-scrapper.index') }}">Google Py Scrapper
+                                    </a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Bloggers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

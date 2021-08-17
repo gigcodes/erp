@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GoogleScrapperKeyword;
+use App\GoogleScrapperContent;
 use Illuminate\Http\Request;
 use DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -11,9 +12,9 @@ class GoogleScrapperController extends Controller
 {
     public function index()
     {
-        // $hashtags = Influencers::all();
+        $contents = GoogleScrapperContent::all();
         $keywords = GoogleScrapperKeyword::all();
-        return view('google-scrapper.index', compact('keywords') );
+        return view('google-scrapper.index', compact('keywords','contents') );
     }
 
 

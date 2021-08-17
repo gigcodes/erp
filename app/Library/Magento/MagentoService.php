@@ -13,6 +13,9 @@ use App\Product_translation;
 use App\StoreWebsite;
 use App\StoreWebsiteAttributes;
 use App\Supplier;
+use App\CharityCountry;
+use App\CustomerCharity;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Get Magento service request
@@ -816,7 +819,7 @@ class MagentoService
         $product   = $this->product;
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
-            foreach ($webStores as $webStore) {
+            foreach ($webStores as $key => $webStore) {
                 if ($webStore->is_price_ovveride || 1 == 1) {
                     $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
                     $dutyPrice = 0;
@@ -853,6 +856,12 @@ class MagentoService
                     }
 
                     foreach ($countries as $c) {
+                        $cc = CustomerCharity::where('product_id', $product->id)->first();
+                        if($product->isCharity()){
+                            $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
+                            $price = $c_raw != null ? $c_raw->price : 1;
+                            $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
+                        }
                         $pricesArr[$c] = [
                             "price"         => $price,
                             "special_price" => $specialPrice,
@@ -861,6 +870,7 @@ class MagentoService
                 }
             }
         }
+        Log::info("pricesArr " . json_encode($pricesArr));
 
         // start to matching price fix
         $samePrice    = [];
@@ -905,30 +915,26 @@ class MagentoService
                     continue;
                 }
 
-                /** need to focus on this
-
                 $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
-                new GoogleTranslate(),
-                $translation->locale,
-                [$this->meta["meta_title"]],
-                ','
+                    new GoogleTranslate(),
+                    $translation->locale,
+                    [$this->meta["meta_title"]],
+                    ','
                 );
 
                 $translatetSeoDescription = \App\Http\Controllers\GoogleTranslateController::translateProducts(
-                new GoogleTranslate(),
-                $translation->locale,
-                [$this->meta["meta_description"]],
-                ','
+                    new GoogleTranslate(),
+                    $translation->locale,
+                    [$this->meta["meta_description"]],
+                    ','
                 );
 
                 $translatetSeoKeywords = \App\Http\Controllers\GoogleTranslateController::translateProducts(
-                new GoogleTranslate(),
-                $translation->locale,
-                [$this->meta["meta_keyword"]],
-                ','
+                    new GoogleTranslate(),
+                    $translation->locale,
+                    [$this->meta["meta_keyword"]],
+                    ','
                 );
-
-                 **/
 
                 $tdata[$translation->locale] = [
                     "title"                  => $translation->title,

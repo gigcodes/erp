@@ -374,12 +374,7 @@ $(document).on('click', '.load-communication-modal', function () {
     var feedback_status_id = null;
 
     if ($(this).data('feedback_cat_id')) {
-        var feedback_status_id = $(this).parents('tr').find('.user_feedback_status').val();
-        if (feedback_status_id.length === 0) {
-            var feedback_status_id = null;
-        }
         var feedback_category_id = $(this).data('feedback_cat_id');
-        
     }
 
     var thiss = $(this);
@@ -416,7 +411,6 @@ $(document).on('click', '.load-communication-modal', function () {
             load_attached: load_attached,
             load_type: load_type,
             feedback_category_id: feedback_category_id,
-            feedback_status_id: feedback_status_id,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');
