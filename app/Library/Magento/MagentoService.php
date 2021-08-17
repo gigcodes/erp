@@ -16,6 +16,7 @@ use App\Supplier;
 use App\CharityCountry;
 use App\CustomerCharity;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 /**
  * Get Magento service request
@@ -533,7 +534,7 @@ class MagentoService
                         $httpcode = $functionResponse['httpcode'];
 
                         if ($httpcode == 200) {
-                            $this->languagecode = $t;
+                            $this->languagecode[] = $t;
                         }
 
                         $res = json_decode($functionResponse['res']);
@@ -915,7 +916,7 @@ class MagentoService
                     continue;
                 }
 
-                $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+               /* $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                     new GoogleTranslate(),
                     $translation->locale,
                     [$this->meta["meta_title"]],
@@ -934,7 +935,7 @@ class MagentoService
                     $translation->locale,
                     [$this->meta["meta_keyword"]],
                     ','
-                );
+                );*/
 
                 $tdata[$translation->locale] = [
                     "title"                  => $translation->title,
