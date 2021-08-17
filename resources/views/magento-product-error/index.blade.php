@@ -151,7 +151,8 @@
                             <thead>
                                 <tr>
                                     <th class="th-sm" style="width:20%">Count</th>
-                                    <th class="th-sm" style="width:80%">Message</th>
+                                    <th class="th-sm" style="width:20%">Status</th>
+                                    <th class="th-sm" style="width:60%">Message</th>
                                 </tr>
                             </thead>
                             <tbody class="table_data">
@@ -296,6 +297,7 @@
 
                                 html_content += '<tr>';
                                 html_content +=  '<td>' +value.count + '</td>';
+                                html_content +=  '<td>' +value.status + '</td>';
                                 html_content +=  '<td class="data">';
                                 var myContent = value.message;
                                 html_content +=   myContent.replace(/(<([^>]+)>)/ig,"");
@@ -338,6 +340,7 @@
                                 // console.log(response.data, 'response')
                                 html_content += '<tr>';
                                 html_content +=  '<td>' +value.count + '</td>';
+                                html_content +=  '<td>' +value.status + '</td>';
                                 html_content +=  '<td class="data">';
                                 var myContent = value.message;
                                 html_content +=   myContent.replace(/(<([^>]+)>)/ig,"");
@@ -397,8 +400,17 @@
                         type: $(this).val(),
                         _token: "{{ csrf_token() }}"
                     },
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
                     success: function() {
-
+                        $("#loading-image").hide();
+                        toastr['success']('Status Change Successfully');
+                        
+                        setTimeout(function(){ location.reload(); }, 2000);
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
                     }
                 })
 
