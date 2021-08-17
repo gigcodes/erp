@@ -417,9 +417,9 @@ class BrandController extends Controller
 
 
             $needDeleteRequest = [];
-            if(!empty($noneedTodelete)) {
-                foreach($noneedTodelete as $nrei) {
-                    if(!in_array($nrei,$mangetoIds)) {
+            if(!empty($mangetoIds)) {
+                foreach($mangetoIds as $nrei) {
+                    if(!in_array($nrei,$noneedTodelete)) {
                         $needDeleteRequest[] = $nrei;
                     }
                 }
