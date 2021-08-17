@@ -430,7 +430,7 @@ class BrandController extends Controller
             \Log::info(print_r(["Delete request IDS",$needDeleteRequest],true));
 
             // go for delete brands
-            $userId = auth()->user()->id;
+            $userId = (auth()->user()) ? auth()->user()->id : 6;
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
                     \Log::info("Request started for ".$ndr);
