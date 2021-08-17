@@ -698,7 +698,7 @@ class StoreWebsiteController extends Controller
             return false;
         }
         $username = str_replace(" ", "_", $user->name);
-       $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-reindex.sh -u '.$username.' -f add -s '.$server.' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-reindex.sh -f reindex -s '.$server.' 2>&1';
 
         $allOutput   = array();
         $allOutput[] = $cmd;
@@ -706,23 +706,9 @@ class StoreWebsiteController extends Controller
 
         \Log::info(print_r($allOutput,true));
 
-        $string  = [];
-        if(!empty($allOutput)) {
-            $continuetoFill = false;
-            foreach($allOutput as $ao) {
-                if($ao == "-----BEGIN RSA PRIVATE KEY-----" || $continuetoFill) {
-                   $string[] = $ao;
-                   $continuetoFill = true; 
-                }
-            }
-        }
-
-        $content = implode("\n",$string);
-
         //$nameF = $server.".sh";
-        $nameF = "magento-reindex.sh";
-
-
+        $nameF = "magento-reindex.txt";
+        
         StoreReIndexHistory::create([
             'user_id' => $user->id, 
             'server_name' => $server,
@@ -736,9 +722,9 @@ class StoreWebsiteController extends Controller
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        header("Content-Type: application/x-pem-file");
+        header("Content-Type: text/plain");
 
-        echo $content;
+        echo $result;
         die;
     }
 
