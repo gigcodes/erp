@@ -401,16 +401,18 @@ class BrandController extends Controller
             ->where("store_website_id",$storeWebsite->id)
             ->where("magento_value",">",0)
             ->groupBy("store_website_brands.magento_value")
-            ->select(["store_website_brands.*"])
+            ->select(["store_website_brands.*","b.deleted_at"])
             ->get();
 
             $assingedBrands = [];
             $noneedTodelete = [];
             if(!$rightBrand->isEmpty()) {
                 foreach($rightBrand as $rb) {
-                    $noneedTodelete[] = $rb->magento_value;
-                    if($rb->magento_value > 0) {
-                        $assingedBrands[$rb->magento_value] = $rb;
+                    if(is_null($rb->deleted_at)) {
+                        $noneedTodelete[] = $rb->magento_value;
+                        if($rb->magento_value > 0) {
+                            $assingedBrands[$rb->magento_value] = $rb;
+                        }
                     }
                 }
             }
