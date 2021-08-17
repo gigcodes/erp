@@ -274,6 +274,31 @@
             </div>
         </div>
     </div>
+    <div id="charity-country" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Charity Countries</h4>
+                </div>
+                <div class="row m-3">
+                    <div class="col-md-6">
+                        <input type="text" name="search_by_country" placeholder="search by country"  class="form-control"  style="width: 200px;">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" name="global_price" placeholder="global price"  class="form-control" placeholder="Search Email" style="width: 200px;">
+                    </div>
+                </div>
+                <form>
+                    <div class="modal-body" style="background-color: #999999;">
+                    </div>
+                </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary charity-country-submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+    </div>
     @include('customers.zoomMeeting')
     <div id="forwardModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -1326,5 +1351,66 @@
             toastr['error'](error.responseJSON.message);
           });
       });
+
+      $(document).on('click', '.add-charity-country', function () {
+        $('#charity-country .modal-body').html('');
+        $('#charity-country input[name="search_by_country"]').val('');
+        $('#charity-country input[name="global_price"]').val('');
+        $('#charity-country .charity-country-submit').attr('data-id', $(this).data('id')).attr('data-product-id', $(this).data('product-id'));
+        $.ajax({
+            url: "/customer-charity/get-websites/"+$(this).data('id'),  
+        }).done(function(response) {
+            var html = '';
+            response.forEach(function(value, key){
+                html += `<div class="form-group">
+                            <strong>${value.name}</strong>
+                            <input type="number" name="${value.code}" value="${value.price}" class="form-control">
+                        </div>`;
+            });
+            $('#charity-country .modal-body').append(html);
+            $('#charity-country').modal('show');
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+    });
+
+    $(document).on('click', '.charity-country-submit', function () {
+        var formData = $('#charity-country').find('form').serialize();
+        $.ajax({
+            url: "/customer-charity/get-websites/"+$(this).data('id'), 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'data': formData
+            }
+        }).done(function(response) {
+            toastr['success'](response);
+            $('#charity-country').modal('hide');
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+    });
+
+    $(document).on('change', 'input[name="global_price"]', function(){
+        $('#charity-country .modal-body input').val($(this).val());
+    });
+
+    $(document).on('keyup', 'input[name="search_by_country"]', function(){
+        var input, filter, ul, li, a, i, txtValue;
+        input = $(this).val();
+        filter = input.toUpperCase(); 
+        var inputs = $('#charity-country .modal-body .form-group');
+        console.log(inputs);
+        for (i = 0; i < inputs.length; i++) {
+            a = inputs[i].getElementsByTagName("strong")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                inputs[i].style.display = "";
+            } else {
+                inputs[i].style.display = "none";
+            }
+        }
+
+    });
     </script>
 @endsection

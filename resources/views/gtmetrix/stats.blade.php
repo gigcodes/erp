@@ -15,11 +15,14 @@
             </thead>
             <tbody class="show-list-records" >
               @if(!empty($data))
-                @foreach ($data as $statsdata)
+              <?php $price = array_column($data, 'score');
+          array_multisort($price, SORT_ASC, $data);
+              ?>
+                @foreach ($data  as $statsdata)
                   <tr>
                     <td class="w-100">{{$statsdata['name']}}</td>
                     <td class="w-100"> 
-                 
+                    @php $color="white" @endphp
                     @if($statsdata['score'] >= 89)
                     @php $color = 'bg-success' ; @endphp
                     @endif

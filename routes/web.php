@@ -281,6 +281,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
     Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
     Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
+    Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
+    Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -419,6 +421,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
    // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
    Route::get('sop/permission-data', 'SopController@sopPermissionData')->name('sop.permission-data');
    Route::get('sop/permission-list', 'SopController@sopPermissionList')->name('sop.permission-list');
+   Route::get('sop/permission/user-list', 'SopController@sopPermissionUserList')->name('sop.permission.user-list');
+   Route::get('sop/remove-permission', 'SopController@sopRemovePermission')->name('sop.remove.permission');
 
   
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
@@ -2311,10 +2315,13 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');
 
     //Simple Duty Country
+    Route::get('duty/segment', 'SimplyDutySegmentController@index');
+    Route::get('duty/segment/add', 'SimplyDutySegmentController@segment_add');
+    Route::get('duty/segment/delete', 'SimplyDutySegmentController@segment_delete');
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
     Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
-
+    Route::get('duty/country/addsegment', 'SimplyDutyCountryController@addsegment');
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
     Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
@@ -3238,6 +3245,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
+Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.history');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');

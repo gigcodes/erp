@@ -102,9 +102,9 @@
                                 <td>{{ $key->pagespeed_score }}</td>
                                 <td>{{ $key->yslow_score }}</td>
                                 <td>
-                                    @if ( $key->resources && $key->resources )
+                                    @if (!empty($key->resources) && is_array($key->resources))
                                         <ul style="display: inline-block;">
-                                            @foreach (json_decode($key->resources) as $item => $value)
+                                            @foreach ($key->resources as $item => $value)
                                                     <li> <a href="{{ $value }}" target="_blank" rel="noopener noreferrer"> {{ $item }} </a> </li>
                                             @endforeach
                                         </ul>
@@ -115,7 +115,7 @@
                                 <td>{{ $key->created_at }}</td>
                                 <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
                                 <td>  
-                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-id="{{ $key->store_view_id }}">
+                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.history',[ 'id'=>$key->store_view_id ])}}">
                                         <i class="fa fa-history"></i>
                                     </button>
                                     <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
@@ -150,7 +150,16 @@
         </div>
     </div>
 </div>
-@include('gtmetrix.history')
+
+<div class="modal fade" id="gtmetrix-history-modal" role="dialog">
+    <div class="modal-dialog modal-xl model-width w-100">
+      <!-- Modal content-->
+        <div class="modal-content message-modal" style="width: 100%;">
+            
+        </div>
+    </div>
+</div>
+
 @include('gtmetrix.setSchedule')
 @endsection
     
@@ -178,56 +187,43 @@
             $('#loading-image').hide();
         });
     });
-    $(document).on('click','.show-history', function () {
-        var btn = $(this);
-        var id = $(this).data("id");
-		$.ajax({
-			url: "{{ route('gtmetrix.hitstory') }}",
-			type: 'POST',
-			data : { _token: "{{ csrf_token() }}", id : id },
-			dataType: 'json',
-			beforeSend: function () {
-				btn.prop('disabled',true);
-			},
-			success: function(result){
-				if(result.code == 200) {
-					var t = '';
-					$.each(result.data,function(k,v) {
-                        var re = '';
-                        if(v.resources){
 
-                            $.each(v.resources, function (indexInArray, valueOfElement) { 
-                                re += `<li> <a href="`+valueOfElement+`" target="_blank" > `+indexInArray+` </a> </li>`;
-                            });
-                        }
-						t += `<tr><td>`+v.store_view_id+`</td>`;
-						t += `<td>`+v.test_id+`</td>`;
-						t += `<td>`+v.status+`</td>`;
-						t += `<td>`+v.error+`</td>`;
-						t += `<td><a href="`+v.website_url+`" target="_blank" title="Goto website"> Website </a></td>`;
-						t += `<td> <a href="`+v.report_url+`" target="_blank" title="Show report"> Report </a></td>`;
-						t += `<td>`+v.html_load_time+`</td>`;
-						t += `<td>`+v.html_bytes+`</td>`;
-						t += `<td>`+v.page_load_time+`</td>`;
-						t += `<td>`+v.page_bytes+`</td>`;
-						t += `<td>`+v.page_elements+`</td>`;
-						t += `<td>`+v.pagespeed_score+`</td>`;
-						t += `<td>`+v.yslow_score+`</td>`;
-						t += `<td>`+re+`</td>`;
-						t += `<td>`+v.created_at+`</td></tr>`;
-					});
-					if( t == '' ){
-						t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
-					}
-				}
-				$("#gtmetrix-history-modal").find(".show-list-records").html(t);
-				$("#gtmetrix-history-modal").modal("show");
-                btn.prop('disabled',false);
-			},
-			error: function (){
-                btn.prop('disabled',false);
-			}
-		});
+    const showHistory = (url) => {
+        $('.message-modal').html(''); 
+        $('#loading-image').show();     
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'html'
+        })
+        .done(function(data){
+            $('#gtmetrix-history-modal .message-modal').html('');    
+            $('#gtmetrix-history-modal .message-modal').html(data); // load response 
+            $("#gtmetrix-history-modal").modal("show");
+
+            $('#loading-image').hide();        // hide ajax loader 
+            pageClick();
+        })
+        .fail(function(){
+            toastr["error"]("Something went wrong please check log file");
+            $('#loading-image').hide();
+        });
+    }
+
+    const pageClick = () => {
+        $('#gtmetrix-history-modal .pagination a.page-link').click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            let href = $(this).attr('href');
+            showHistory(href);
+            return false;
+        });
+    }
+
+    $(document).on('click', '.show-history', function(e){
+        e.preventDefault();
+        var url = $(this).data('url');
+        showHistory(url);
     });
 
     $(document).on("click",".run-test",function(e) {

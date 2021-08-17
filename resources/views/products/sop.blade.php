@@ -118,7 +118,7 @@
                                         <td><input type="checkbox" name="sop[]" value="{{ $sop->id }}"></td>
                                         <td>{{ $sop->name }}</td>
                                     </tr>
-                                @endforeach        
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -128,6 +128,32 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </form>
+        </div>
+    
+        </div>
+    </div>
+    
+    <!-- Sop-User Perission Modal -->
+    <div id="Sop-User-Permission-Modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Sop Users Permissions</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <select class="sop-permission-user" name="states[]" multiple="multiple">
+                    {{-- @foreach ($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach --}}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default sop-permission-submit">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     
         </div>
@@ -255,7 +281,7 @@
                                             </a>
 
                                             <button type="button" class="btn send-email-common-btn" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
-                                       
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}" style="font-size:15px; margin-left:-17px;"><i class="fa fa-user-o"></i></button>   
                                 </td>
                         @endforeach
 
@@ -846,6 +872,57 @@ $(document).on('click', '.send-message-open', function (event) {
             $('#sopDataPermissionForm')[0].reset();
         });
 
+        $("#Sop-User-Permission-Modal").on("hidden.bs.modal", function (e) {
+            $(this).find('.sop-permission-user').text('');
+        });
+
+        $(document).on('click','.sop-user-list',function(){
+            var sop_id = $(this).data('sop_id');
+            $('#Sop-User-Permission-Modal').find('.sop-permission-submit').attr('data-sop_id',sop_id);
+
+            $.ajax({
+                type: 'get',
+                url: "{{ route('sop.permission.user-list') }}",
+                data: {sop_id:sop_id},
+                success: function(response){
+
+                    $('#Sop-User-Permission-Modal').find('.modal-title').text(response.sop.name+' Permission');
+
+                    for (let j = 0; j < response.user.length; j++) {
+                        var html = '<option value="'+response.user[j].id+'">'+response.user[j].name+'</option>';
+                            $('#Sop-User-Permission-Modal').find('.sop-permission-user').append(html);
+                    }
+
+                    var vals = response.user_list;
+
+                    let s2 = $('.sop-permission-user').select2()
+
+                    // vals.forEach(function(e){
+                    //     if(!s2.find('option:contains(' + e + ')').length) {
+                    //             console.log('aaaaaa')
+                    //     }
+                    // });
+
+                    s2.val(vals).trigger("change");
+                }
+            })
+        })
+
+        $(document).on('click','.sop-permission-submit',function(){
+            var sop_id = $(this).attr('data-sop_id');
+            var user_id = $('#Sop-User-Permission-Modal').find('.sop-permission-user').val();
+            $.ajax({
+                type: 'get',
+                url: "{{ route('sop.remove.permission') }}",
+                data: {sop_id:sop_id,user_id:user_id},
+                success: function(response){
+                    toastr.success(response.message);
+                }
+            })
+        })
+        $(document).ready(function() {
+            $('.sop-permission-user').select2();
+        });
     </script>
 
 @endsection
