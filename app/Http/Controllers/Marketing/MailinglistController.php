@@ -23,63 +23,6 @@ class MailinglistController extends Controller
      */
     public function index()
     {		
-		/*$mailinglist = Mailinglist::find(43);
-		$mailing_item = (new MailinglistTemplate)->getWelcomeTemplate($mailinglist->website_id);
-		if(!empty($mailing_item['static_template'])) { 
-			$htmlContent = $mailing_item->static_template;
-                $data = [
-                    "to" => [0=>["email"=>$mailinglist->email]],
-                    "sender" => [
-                        //"id" => 1,
-                        "email" => 'Info@theluxuryunlimited.com'
-                    ],
-                    "subject" => $mailing_item->subject,
-                  //  "htmlContent" => $htmlContent, 
-                    "textContent" => $htmlContent, 
-					"tags" => [
-						"Welcome message"
-					]
-                ]; //dd($data);
-                $curl = curl_init();
-                curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
-
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($data),
-                CURLOPT_HTTPHEADER => array(
-                    "api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
-                    "Content-Type: application/json"
-                    ),
-                ));
-				$response = curl_exec($curl);
-				$response = json_decode($response);
-                curl_close($curl); //dd($response);
-		}*/
-			
-	   /* $curl = curl_init();
-                curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.sendinblue.com/v3/webhooks?type=marketing&sort=desc",
-
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_HTTPHEADER => array(
-                    "api-key:".config('env.SEND_IN_BLUE_API'),
-                    "Content-Type: application/json"
-                    ),
-                ));
-				$response = curl_exec($curl);
-				$response = json_decode($response);
-                curl_close($curl); dd($response);*/
-				
-		
 		$services = Service::all();
         $list = Mailinglist::paginate(15);
         $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
