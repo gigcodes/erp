@@ -916,7 +916,7 @@ class MagentoService
                     continue;
                 }
 
-               /* $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                     new GoogleTranslate(),
                     $translation->locale,
                     [$this->meta["meta_title"]],
@@ -935,7 +935,7 @@ class MagentoService
                     $translation->locale,
                     [$this->meta["meta_keyword"]],
                     ','
-                );*/
+                );
 
                 $tdata[$translation->locale] = [
                     "title"                  => $translation->title,
