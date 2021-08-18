@@ -2,12 +2,20 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Manage Twilio Accounts</h2>
+            <h2 class="page-heading">Manage Twilio Accounts
+
+                    <div class="pull-right">
+                        
+                        <button type="button" class="btn btn-secondary mr-2 twilio_user_data" data-toggle="modal" data-target="#twilio_user_data" style="background: #fff !important;
+                        border: 1px solid #ddd !important;
+                        color: #757575 !important;">Twilio Agent</button>
+                    </div>
+            </h2>
         </div>
     </div>
     @include('partials.flash_messages')
-    <div class="row mb-3">
-        <div class="col-md-10 col-sm-12">
+    <div class="row ml-3 mr-3">
+        <div class="col-md-12 margin-tb">
             <div class="row">
                 <button class="btn btn-secondary" data-target="#addAccount" data-toggle="modal">+</button>
             </div>
@@ -128,6 +136,46 @@
 
     </div>
 
+
+    <div class="modal fade" id="twilio_user_data" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Twilio User List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form name="twlio_user_form" class="twlio_user_form">
+            @csrf
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                <strong>User:</strong>
+                        <input type="text" id="myInputTwilioUser" placeholder="Search User .." class="form-control search-role mb-3">
+                        <div class="overflow-auto" id="collapse1" style="height:400px;overflow-y:scroll;">
+                        
+                        <ul id="myRole" class="padding-left-zero">
+                        @foreach($twilio_user_list as $key => $user)
+                           <li style="list-style-type: none;">
+                           <!-- (in_array($value, $userRole)) ? "checked" : '') -->
+                            <a>
+                            <input type="checkbox" name="user_rec[]" value="{{$user->id}}" {{ $user->status == 1 ? 'checked' : '' }} >
+                            <strong>{{$user->name}}</strong></a>
+                            </li>
+                       @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                <button type="button" class="btn btn-secondary add_twilio_user">Save changes</button>
+            </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
 <script type="text/javascript">
     $(document).ready(function(){
        $('.edit_account').on("click", function(){
@@ -137,6 +185,52 @@
             $('#auth_token').val($(this).data('auth-token'));
             $('#updateAccount').modal('show');
        }) ;
+    });
+
+
+    $('#myInputTwilioUser').on("keyup", function(){
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInputTwilioUser");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myRole");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    });
+
+    $('.add_twilio_user').on("click", function(e){
+        // var form_data = $('.twlio_user_form').serialize();
+        var val = [];
+        $(':checkbox:checked').each(function(i){
+          val[i] = $(this).val();
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('twilio.add_user') }}",  
+            data: {
+                form_data:val
+            },
+            beforeSend : function() {
+                
+            },
+            success: function (response) {
+                if(response.status == 1){
+                    toastr['success'](response.message);
+                    setTimeout(function(){ location.reload(); }, 2000);
+                }
+            },
+            error: function (response) { 
+               
+            }
+        });
     });
 </script>
 @endsection

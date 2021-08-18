@@ -1646,4 +1646,10 @@ class Product extends Model
         ->get();
         return $records;
     }
+
+
+    public function isCharity()
+    {
+        return CustomerCharity::where('product_id', $this->id)->first() ? true : false;
+    }
 }

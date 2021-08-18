@@ -21,7 +21,7 @@ class EmailAddressesController extends Controller
     public function index(Request $request)
     {
         $query = EmailAddress::query();
-        
+              
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
 
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
@@ -80,9 +80,26 @@ class EmailAddressesController extends Controller
             'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
 
-        EmailAddress::create($data);
+        $data = $request->except('_token','signature_logo','signature_image');
+
+        $id=EmailAddress::insertGetId($data);
+
+        $signature_logo = $request->file('signature_logo');
+        $signature_image = $request->file('signature_image');
+        $destinationPath = public_path('uploads');
+         
+       if ($signature_logo!='')
+          {
+             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
+             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
+          }   
+        if ($signature_image!='')
+           {
+            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
+            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
+           }
+        
 
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully saved a Email Address!');
     }
@@ -107,6 +124,7 @@ class EmailAddressesController extends Controller
      */
     public function update(Request $request, $id)
     {
+       
         $this->validate($request, [
             'from_name'      => 'required|string|max:255',
             'from_address'   => 'required|string|max:255',
@@ -120,9 +138,26 @@ class EmailAddressesController extends Controller
             'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
+        $data = $request->except('_token','signature_logo','signature_image');
 
         EmailAddress::find($id)->update($data);
+
+        $signature_logo = $request->file('signature_logo');
+        $signature_image = $request->file('signature_image');
+        $destinationPath = public_path('uploads');
+         
+       if ($signature_logo!='')
+          {
+             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
+             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
+          }   
+        if ($signature_image!='')
+           {
+            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
+            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
+           }
+                 
+
 
         return redirect()->back()->withSuccess('You have successfully updated a Email Address!');
     }

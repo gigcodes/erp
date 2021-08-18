@@ -291,6 +291,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
     Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
     Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
+    Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
+    Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -3017,6 +3019,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
     Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+    Route::post('twilio/add_user', 'TwilioController@manageUsers')->name('twilio.add_user');
 
 
     /**
