@@ -119,7 +119,7 @@
                             @endif
                         </td>
                         <td>{{$callBusyMessage['to']}}</td>
-                        <td>{{$callBusyMessage['agent']}}</td>
+                        <td>{{(isset($callBusyMessage['agent']) ? $callBusyMessage['agent'] : '' )}}</td>
                         <td>
                             <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
                             <p>Alas, your browser doesn't support html5 audio.</p>
