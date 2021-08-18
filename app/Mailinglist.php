@@ -77,7 +77,6 @@ class Mailinglist extends Model
 				$response = curl_exec($curl);
 				$response = json_decode($response);
 				curl_close($curl);
-							 dd($response);
 				
 			}
 		
