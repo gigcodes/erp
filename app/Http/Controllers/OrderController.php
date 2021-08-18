@@ -2244,7 +2244,9 @@ class OrderController extends Controller
         }])
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
             ->leftjoin("call_recordings as cr", "cr.twilio_call_sid", "call_busy_messages.caller_sid")
-            ->select('call_busy_messages.*','cr.recording_url')
+            ->leftjoin("twilio_call_data as tcd", "tcd.call_sid", "call_busy_messages.caller_sid")
+            ->select('call_busy_messages.*','cr.recording_url','tcd.aget_user_id','tcd.from','tcd.to')
+            ->groupby('call_busy_messages.caller_sid')
             ->orderBy('call_busy_messages.id', 'DESC');
 
             if(!empty($request->filterStatus)){
@@ -2260,8 +2262,8 @@ class OrderController extends Controller
             }
 
         
-            
-            $callBusyMessages=    $callBusyMessages->paginate(20)->toArray();
+            $callBusyMessages_pagination =    $callBusyMessages->paginate(Setting::get('pagination'));
+            $callBusyMessages=    $callBusyMessages->paginate(Setting::get('pagination'))->toArray();
 
 // dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
@@ -2271,11 +2273,23 @@ class OrderController extends Controller
                 $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
                 $customer_array  = Customer::with('storeWebsite','orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
 
+                if($value['aget_user_id'] != '')
+                {
+                    $user_data = User::where('id',$value['aget_user_id'])->first();
+                    $agent_name = $user_data->name;
+                }
+                else
+                    $agent_name = '';
+
                 // dd($customer_array);
                 if (!empty($customer_array)) {
                     $callBusyMessages['data'][$key]['customerid']    = $customer_array[0]['id'];
                     $callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
                     $callBusyMessages['data'][$key]['store_website_id'] = $customer_array[0]['store_website_id'];
+
+                    $callBusyMessages['data'][$key]['agent']    = $agent_name;
+                    $callBusyMessages['data'][$key]['from']    = $value['from'];
+                    $callBusyMessages['data'][$key]['to']    = $value['to'];
 
                     if(isset($customer_array[0]['store_website']) && count($customer_array[0]['store_website'])){
                         $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];
@@ -2302,7 +2316,7 @@ class OrderController extends Controller
         $selectedStatus = $request->filterStatus;
         $selectedWebsite = $request->filterWebsite;
         $allStatuses = CallBusyMessageStatus::get();
-        return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite'));
+        return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite','callBusyMessages_pagination'));
 
     }
 
