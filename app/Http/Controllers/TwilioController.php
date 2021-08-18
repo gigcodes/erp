@@ -627,6 +627,9 @@ class TwilioController extends FindByNumberController
         //Change Agent Call Status - END
 
         //Call History - START
+        Log::channel('customerDnd')->info('outgoingCall :: TwilioCallData Added' );	
+        Log::channel('customerDnd')->info($request->get("CallSid").' | '.$request->get("AccountSid").' | '.$callFrom.' | '.$number.' | '.$request->get("AuthId"));	
+
         $call_history_params = [
             'call_sid' => $request->get("CallSid"),
             'account_sid' => $request->get("AccountSid"),
