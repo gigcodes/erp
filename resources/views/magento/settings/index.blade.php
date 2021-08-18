@@ -320,7 +320,7 @@
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            // location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -359,16 +359,11 @@
         }
         $('.websites').trigger('change.select2');
 
-        $('#edit-setting-popup').modal('show');
+        $('#edit-setting-popup').attr('data-setting-id', data.id).modal('show');
     });
     
     $(document).on('submit', '[name="edit-magento-setting-form"]', function(e) {
         e.preventDefault();
-
-        if($('#edit-setting-popup .websites').val() == ''){
-            toastr['error']('please select the website.');
-            return false;
-        };
 
         if($('#edit-setting-popup input[name="name"]').val() == ''){
             toastr['error']('please add the name.');
@@ -388,6 +383,7 @@
         let formData = new FormData(this);
 
         formData.append('_token', "{{ csrf_token() }}");
+        formData.append('id', $('#edit-setting-popup').attr('data-setting-id'));
 
         $.ajax({
             url: $(this).attr('action'),
@@ -402,7 +398,7 @@
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            // location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
