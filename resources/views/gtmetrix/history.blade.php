@@ -46,7 +46,7 @@
                     <td>{{$data['pagespeed_score']}}</td>
                     <td>{{$data['yslow_score']}}</td>
                     <td>
-                    @if(!empty($data['resources']))
+                    @if(!empty($data['resources']) && is_array($data['resources']))
                       @foreach ($data['resources'] as $keyresource => $resource)
                       <li> <a href="{{$resource}}" target="_blank" > {{$keyresource}} </a> </li>
                       @endforeach
