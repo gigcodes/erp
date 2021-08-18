@@ -980,7 +980,7 @@ let r_s = jQuery('input[name="start_date"]').val();
             var id = $this.data("id");
 
             $.ajax({
-                url: "{{ route('hubstaff-acitivtity.addtocashflow') }}",
+                url: "{{ url('hubstaff-acitivtity.addtocashflow') }}",
                 type: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
