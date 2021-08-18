@@ -146,7 +146,12 @@ class MagentoSettingsController extends Controller
         $is_live = isset($request->live);
         $is_development = isset($request->development);
         $website_ids = $request->websites;
-        if ($scope === 'default') {
+        MagentoSetting::where('id', $request->id)->update([
+            'name' => $name,
+            'path' => $path,
+            'value' => $value
+        ]);
+        if ($scope === 'default' && $website_ids != null) {
 
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids)->get();
 
@@ -184,7 +189,7 @@ class MagentoSettingsController extends Controller
                   
                 }
             }
-        }else if($scope === 'websites'){
+        }else if($scope === 'websites' && $website_ids != null){
 
             $store = $request->store;
             $website = $request->website;
@@ -228,7 +233,7 @@ class MagentoSettingsController extends Controller
 
             }
             
-        }else if($scope === 'stores'){
+        }else if($scope === 'stores' && $website_ids != null){
 
             $store = $request->store;
             $store_view = $request->store_view; 
