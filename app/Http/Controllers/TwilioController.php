@@ -642,6 +642,13 @@ class TwilioController extends FindByNumberController
         $call_history = TwilioCallData::create($call_history_params);
         //Call History - END
 
+        $params = [
+            'twilio_call_sid' => $number,
+            'message' => 'Missed Call',
+            'caller_sid' => $request->get("CallSid")
+        ];
+        CallBusyMessage::create($params);
+
         // $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
         $recordurl = 'https://'.$request->getHost() . "/twilio/storetranscript";
         Log::channel('customerDnd')->info('Trasncript Call back url ' . $recordurl);

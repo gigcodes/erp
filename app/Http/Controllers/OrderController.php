@@ -2245,7 +2245,7 @@ class OrderController extends Controller
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
             ->leftjoin("call_recordings as cr", "cr.twilio_call_sid", "call_busy_messages.caller_sid")
             ->leftjoin("twilio_call_data as tcd", "tcd.call_sid", "call_busy_messages.caller_sid")
-            ->select('call_busy_messages.*','cr.recording_url','tcd.aget_user_id','tcd.from','tcd.to')
+            ->select('call_busy_messages.*','cr.recording_url','tcd.aget_user_id','tcd.from','tcd.to','tcd.call_data')
             ->groupby('call_busy_messages.caller_sid')
             ->orderBy('call_busy_messages.id', 'DESC');
 
@@ -2290,6 +2290,7 @@ class OrderController extends Controller
                     $callBusyMessages['data'][$key]['agent']    = $agent_name;
                     $callBusyMessages['data'][$key]['from']    = $value['from'];
                     $callBusyMessages['data'][$key]['to']    = $value['to'];
+                    $callBusyMessages['data'][$key]['call_data']    = $value['call_data'];
 
                     if(isset($customer_array[0]['store_website']) && count($customer_array[0]['store_website'])){
                         $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];

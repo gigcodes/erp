@@ -111,9 +111,15 @@
                         <td>{{ $callBusyMessage['message'] }}</td>
                         <td>{{ !empty($callBusyMessage['store_website_name']) ? $callBusyMessage['store_website_name'] : ' ' }}
                         </td>
-                        <td>{{$callBusyMessage['from']}}</td>
+                        <td>{{$callBusyMessage['from']}} 
+                            @if($callBusyMessage['call_data'] == 'client') 
+                                <i class="fa fa-user" aria-hidden="true" title="Call From Customer"></i> 
+                            @elseif($callBusyMessage['call_data'] == 'agent') 
+                                <i class="fa fa-desktop" aria-hidden="true" title="Call From Agent"></i> 
+                            @endif
+                        </td>
                         <td>{{$callBusyMessage['to']}}</td>
-                        <td>{{ ($callBusyMessage['agent'] ?? '')}}</td>
+                        <td>{{$callBusyMessage['agent']}}</td>
                         <td>
                             <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
                             <p>Alas, your browser doesn't support html5 audio.</p>
