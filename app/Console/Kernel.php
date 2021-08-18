@@ -320,11 +320,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
 		$schedule->call(function () {
-            MailinglistController::sendIntroEmail2();
+            MailinglistController::sendAutoEmails();
         })->hourly();
-		$schedule->call(function () {
-            MailinglistController::sendIntroEmail3();
-        })->hourly();
+		
 
         // Store unknown categories on a daily basis
         //$schedule->command('category:missing-references')->daily();

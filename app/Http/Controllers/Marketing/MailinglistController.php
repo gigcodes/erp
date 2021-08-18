@@ -694,122 +694,39 @@ class MailinglistController extends Controller
 			$update = ["delivered"=>1];
 		}else if($request->event == "opened") {
 			$update = ["opened"=>1];
-		}else if($request->event == "blocked" || $request->event == "unsubscribed") {
+		}else if($request->event == "blocked" || $request->event == "unsubscribed" || $request->event == "spam") {
 			$update = ["spam"=>1, 'spam_date'=>Carbon::now()->format('Y-m-d H:i:s')];
 		}
 		if(count($update) > 0) {
-			EmailEvent::where(['list_contact_id'=>$request->tag['list_contact_id'], 'intro_email'=>$request->tag['intro_email']])
-			->update($update);
-		} 	
+			EmailEvent::where(['id'=>$request->tag])->update($update);
+		}
+		//EmailEvent::where(['id'=>66])->update(['intro_email'=>$request->tag]);
 	}
 	
-	public function sendIntroEmail2() {
-		$mailing_item = MailinglistTemplate::template("Intro Email 2"); 
-		$now = Carbon::now();
-		if($mailing_item) {
-			if($mailing_item->duration_in == "hours") {
-				$last_email_sent_at = $now->subHours($mailing_item['duration'])->format('Y-m-d H:i:s');
-			} else{
-				$last_email_sent_at = $now->subDays($mailing_item['duration'])->format('Y-m-d H:i:s');
-			}
-			$mailingLists = EmailEvent::leftJoin('list_contacts', 'list_contacts.id', '=', 'email_events.list_contact_id')
-			->leftJoin('mailinglists', 'mailinglists.id', '=', 'list_contacts.list_id')
-			->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')->where('intro_email',2)
-			->where('email_events.created_at', '<',  Carbon::parse($last_email_sent_at)->addMinutes(60))
-			->where('email_events.created_at', '>=', $last_email_sent_at)->where('email_events.spam', 0)
-			->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'list_contacts.id as list_contact_id')->get();
-			
-			foreach($mailingLists as $mailingList) {
-				if(!empty($mailing_item['static_template'])) { 
-					$htmlContent = $mailing_item->static_template;
-					$data = [
-						"to" => [0=>["email"=>$mailingList->email]],
-						"sender" => [
-							"email" => 'Info@theluxuryunlimited.com'
-						],
-						"subject" => $mailing_item->subject,
-						"htmlContent" => $htmlContent, 
-						"tags" => [
-							"intro_email"=>2,
-							"list_contact_id"=>$mailingList->list_contact_id
-						]
-					];
-					$curl = curl_init();
-					curl_setopt_array($curl, array(
-					CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
-
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => "",
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 30,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => "POST",
-					CURLOPT_POSTFIELDS => json_encode($data),
-					CURLOPT_HTTPHEADER => array(
-						"api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
-										"Content-Type: application/json"
-						),
-					));
-					curl_close($curl);
-								
-					EmailEvent::create(["list_contact_id"=>$mailingList->list_contact_id,"intro_email"=>2]);
+	public function sendAutoEmails() {
+		$mailing_templates = MailinglistTemplate::where('auto_send', 1)->where('duration', '>', 0)->get();
+		foreach($mailing_templates as $mailing_item) { 
+			$now = Carbon::now();
+			if($mailing_item) {
+				if($mailing_item->duration_in == "hours") {
+					$customer_created_at = $now->subHours($mailing_item['duration'])->format('Y-m-d H:i:s');
+				} else{
+					$customer_created_at = $now->subDays($mailing_item['duration'])->format('Y-m-d H:i:s');
+				}
+				$spamedListContactIds = EmailEvent::where('spam',1)->pluck('id')->toArray();
+				
+				$mailingLists = MailingList::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
+				->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')
+				->where('mailinglists.created_at', '<',  Carbon::parse($customer_created_at)->addMinutes(60))
+				->where('mailinglists.created_at', '>=', $customer_created_at)
+				->whereNotIn('list_contacts.id', $spamedListContactIds)->whereNotNull('list_contacts.id')
+				->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'customers.name', 'list_contacts.id as list_contact_id')->get();
+				foreach($mailingLists as $mailingList) {
+					(new Mailinglist)->sendAutoEmails($mailingList, $mailing_item);
 				}
 			}
 		}
 	}
 	
-	public function sendIntroEmail3() {
-		$mailing_item = MailinglistTemplate::template("Intro Email 3"); 
-		$now = Carbon::now();
-		if($mailing_item) {
-			if($mailing_item->duration_in == "hours") {
-				$last_email_sent_at = $now->subHours($mailing_item['duration'])->format('Y-m-d H:i:s');
-			} else{
-				$last_email_sent_at = $now->subDays($mailing_item['duration'])->format('Y-m-d H:i:s');
-			}
-			$mailingLists = EmailEvent::leftJoin('list_contacts', 'list_contacts.id', '=', 'email_events.list_contact_id')
-			->leftJoin('mailinglists', 'mailinglists.id', '=', 'list_contacts.list_id')
-			->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')->where('intro_email',2)
-			->where('email_events.created_at', '<', Carbon::parse($last_email_sent_at)->addMinutes(60))
-			->where('email_events.created_at', '>=', $last_email_sent_at)->where('email_events.spam', 0)
-			->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'list_contacts.id as list_contact_id')->get();
-			
-			foreach($mailingLists as $mailingList) {
-				if(!empty($mailing_item['static_template'])) { 
-					$htmlContent = $mailing_item->static_template;
-					$data = [
-						"to" => [0=>["email"=>$mailingList->email]],
-						"sender" => [
-							"email" => 'Info@theluxuryunlimited.com'
-						],
-						"subject" => $mailing_item->subject,
-						"htmlContent" => $htmlContent, 
-						"tags" => [
-							"intro_email"=>2,
-							"list_contact_id"=>$mailingList->list_contact_id
-						]
-					];
-					$curl = curl_init();
-					curl_setopt_array($curl, array(
-					CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
-
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => "",
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 30,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => "POST",
-					CURLOPT_POSTFIELDS => json_encode($data),
-					CURLOPT_HTTPHEADER => array(
-						"api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
-										"Content-Type: application/json"
-						),
-					));
-					curl_close($curl);
-								
-					EmailEvent::create(["list_contact_id"=>$mailingList->list_contact_id,"intro_email"=>2]);
-				}
-			}
-		}
-	}
+	
 }
