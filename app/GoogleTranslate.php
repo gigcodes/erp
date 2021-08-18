@@ -54,9 +54,11 @@ class GoogleTranslate
             $result = $translate->translate($text, [
                 'target' => $target
             ]);
+            \Log::info(print_r(["REsult of google",$result],true));
             
             return $result['text'];
         } catch (\Exception $e) {
+            \Log::error($e);
             if (!empty($lastFileId)) {
                 $googleTraslationSettings = new googleTraslationSettings;
                 $googleTraslationSettings->where('id', $lastFileId)
