@@ -190,13 +190,7 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
-                    </div>
-                    <div class="form-group">
-                        <input type="checkbox" name="development" id="development" checked>
-                        <label for="development">Devlopment</label><br>
-                        <input type="checkbox" name="live" id="live" checked>
-                        <label for="live">Live</label>
-                    </div>
+                    </div> 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -326,7 +320,7 @@
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            location.reload();
+            // location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -408,7 +402,7 @@
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            location.reload();
+            // location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
