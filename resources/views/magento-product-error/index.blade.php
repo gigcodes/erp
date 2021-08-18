@@ -287,8 +287,11 @@
                     type: 'GET',
                     url: "{{ route('magento_product_today_common_err_report') }}" + '?startDate=' + jQuery('input[name="range_start"]').val()+ '&&endDate='+ jQuery('input[name="range_end"]').val() ,
                     dataType: "json",
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
                     success: function(response) {
-
+                        $("#loading-image").hide();
                         if (response.code == 200) {
                             var html_content = '';
 
@@ -317,10 +320,11 @@
                             $('#today_common_error_report_modal').modal('show');
                         }
 
-                        },
-                        error: function() {
-                            toastr['error']('Could not change module!');
-                        }
+                    },
+                    error: function() {
+                        $("#loading-image").hide();
+                        toastr['error']('Could not change module!');
+                    }
                   });
 
                 });
@@ -332,8 +336,11 @@
                     type: 'GET',
                     url: "{{ route('magento_product_today_common_err_report') }}",
                     dataType: "json",
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
                     success: function(response) {
-
+                        $("#loading-image").hide();
                         if (response.code == 200) {
                             var html_content = '';
                             $.each(response.data, function(key, value) {
@@ -355,6 +362,7 @@
 
                     },
                     error: function() {
+                        $("#loading-image").hide();
                         toastr['error']('Could not change module!');
                     }
                 });
