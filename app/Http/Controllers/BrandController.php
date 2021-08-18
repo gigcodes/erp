@@ -687,19 +687,22 @@ class BrandController extends Controller
 
     public function assignDefaultValue(Request $request)
     {
-        $segments = CategorySegment::where('status', 1)->get();
-        $brands = \App\Brand::all();
-        if(!$brands->isEmpty()) {
+        $category_segments=$request->category_segments;
+        $brand_segment=$request->brand_segment;
+        $segments = CategorySegment::where('id', $category_segments)->get();
+        $brands = \App\Brand::where('brand_segment',$brand_segment)->get();
+        if(!$brands->isEmpty()) { 
             foreach($brands as $b) {
-                if(!$segments->isEmpty()) {
-                    foreach($segments as $segment) {
+                if(!$segments->isEmpty()) { 
+                    foreach($segments as $segment) { 
                         $catDiscount = \App\CategorySegmentDiscount::where("brand_id",$b->id)->where("category_segment_id",$segment->id)->first();
                         if($catDiscount) {
-                            if($catDiscount->amount <= 0) {
+                           
+                            
                                $catDiscount->amount = $request->value;
                                $catDiscount->save();
-                            }
-                        }else{
+                           
+                        }else{ 
                             \App\CategorySegmentDiscount::create([
                                 "brand_id" => $b->id,
                                 "category_segment_id" => $segment->id,

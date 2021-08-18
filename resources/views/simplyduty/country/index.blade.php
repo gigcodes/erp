@@ -10,6 +10,38 @@
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SimplyDuty Country</h2>
+            <div class="pull-left">
+            <form class="form-inline" action="{{ route('blogger.index') }}" method="GET">
+            <div class="form-group">
+              <input name="term" type="text" class="form-control"
+                     value="{{ isset($term) ? $term : '' }}"
+                     placeholder="Search">
+            </div>
+
+            {{-- <div class="form-group ml-3">
+              <select class="form-control" name="type">
+                <option value="">Select Type</option>
+                ndr<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+              </select>
+            </div> --}}
+
+              <div class="form-group">
+                  <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                  <label for="with_archived">Archived</label>
+              </div>
+
+            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+          </form>
+       
+         
+
+        
+         
+            
+            
+            </div>
+
+       
             <div class="pull-right">
             <a  class="btn btn-secondary" onclick="opensegment();" >Segment</a>
                 <button type="button" class="btn btn-secondary" onclick="getCategoryData()">Load from SimplyDuty</button>
@@ -34,6 +66,8 @@
             </ul>
         </div>
     @endif
+
+    
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="category-table">
