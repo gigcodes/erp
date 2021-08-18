@@ -15,9 +15,9 @@ class CreateEmailEventsTable extends Migration
     {
         Schema::create('email_events', function (Blueprint $table) {
             $table->increments('id');
-            $table->int('customer_id');
-            $table->int('list_contact_id');
-            $table->int('template_id');
+            $table->integer('customer_id');
+            $table->integer('list_contact_id');
+            $table->integer('template_id');
             $table->boolean('sent')->default(0);
             $table->boolean('delivered')->default(0);
             $table->boolean('opened')->default(0);
