@@ -207,22 +207,22 @@ class GoogleTranslateController extends Controller
                     //check in table is field is empty and then translate
                     if ($product_translation->title == '') {
                         $title = self::translateProducts($googleTranslate, $language, $productNames);
-                        \Log::info("TP_{$product->id} : Translation for title " . $title);
+                        \Log::info("TP_{$product->id} : Translation for title " . $title." => ".json_encode($productNames));
                         $product_translation->title = $title;
                     }
                     if ($product_translation->description == '') {
                         $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
-                        \Log::info("TP_{$product->id} : Translation for title " . $description);
+                        \Log::info("TP_{$product->id} : Translation for description " . $description." => ".json_encode($productShortDescription));
                         $product_translation->description = $description;
                     }
                     if ($product_translation->composition == '') {
                         $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
-                        \Log::info("TP_{$product->id} : Translation for title " . $composition);
+                        \Log::info("TP_{$product->id} : Translation for composition " . $composition." => ".json_encode([$product->composition]));
                         $product_translation->composition = $composition;
                     }
                     if ($product_translation->color == '') {
                         $color = self::translateProducts($googleTranslate, $language, [$product->color]);
-                        \Log::info("TP_{$product->id} : Translation for title " . $color);
+                        \Log::info("TP_{$product->id} : Translation for color " . $color." => ".json_encode([$product->color]));
                         $product_translation->color = $color;
                     }
                     /*if(!$checkdata || $checkdata->size==''){
@@ -231,12 +231,12 @@ class GoogleTranslateController extends Controller
                     }*/
                     if ($product_translation->country_of_manufacture == '') {
                         $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
-                        \Log::info("TP_{$product->id} : Translation for title " . $country_of_manufacture);
+                        \Log::info("TP_{$product->id} : Translation for country_of_manufacture " . $country_of_manufacture." => ".json_encode([$product->made_in]));
                         $product_translation->country_of_manufacture = $country_of_manufacture;
                     }
                     if ($product_translation->dimension == '') {
                         $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
-                        \Log::info("TP_{$product->id} : Translation for title " . $dimension);
+                        \Log::info("TP_{$product->id} : Translation for dimension " . $dimension." => ".json_encode([$measurement]));
                         $product_translation->dimension = $dimension;
                     }
                     $product_translation->product_id = $product->id;
