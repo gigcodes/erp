@@ -3009,6 +3009,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
     Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+    Route::post('twilio/add_user', 'TwilioController@manageUsers')->name('twilio.add_user');
 
 
     /**
