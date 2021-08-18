@@ -3965,6 +3965,8 @@ class WhatsAppController extends FindByNumberController
                         $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
                     }
 
+                    $toemail=$customer->email;
+
                     if ($message->email_id>0)
                       {
                            $email=\App\Email::where('id',$message->email_id);
@@ -3972,6 +3974,7 @@ class WhatsAppController extends FindByNumberController
                            {
                               $subject=$email->subject;
                               $from_address=$email->to;
+                              $toemail==$email->from;
 
                            }
                       }
@@ -3983,7 +3986,7 @@ class WhatsAppController extends FindByNumberController
                         'model_id'         => $customer->id,
                         'model_type'       => \App\Customer::class,
                         'from'             => $from_address ?? '',
-                        'to'               => $customer->email,
+                        'to'               => $toemail,
                         'subject'          => $subject,
                         'message'          => $message_body,
                         'template'         => 'customer-simple',
