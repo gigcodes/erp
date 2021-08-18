@@ -165,24 +165,19 @@ class MagentoSettingsController extends Controller
                             'path' => $path,
                             'value' => $value
                         ]);
-                        $postData = [
-                                'path' => $path,
-                                'value' => $value,
-                                'scope' => $scope,
-                                'scopeID' => 0
-                            ];
+                        $scopeID = 0;
                         if($is_live){
                             $token = $storeWebsite->api_token;
                             \Cache::forever('key', $token);
-                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set';
-                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                             \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         }
                         if($is_development){
                             $token = $storeWebsite->dev_api_token;
                             \Cache::forever('key', $token);
-                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set';
-                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                             \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         }
                     }
@@ -213,24 +208,18 @@ class MagentoSettingsController extends Controller
                             'value' => $request->value
                         ]);
                         $scopeID = $websiteStore->id;
-                        $postData = [
-                                'path' => $path,
-                                'value' => $value,
-                                'scope' => $scope,
-                                'scopeID' => $scopeID
-                            ];
                         if($is_live){
                             $token = $websiteStore->website->storeWebsite->api_token;
                             \Cache::forever('key', $token); 
-                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set'. $scopeID;
-                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                             \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         }
                         if($is_development){
                             $token = $websiteStore->website->storeWebsite->dev_api_token;
                             \Cache::forever('key', $token); 
-                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set'. $scopeID;
-                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                             \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         }
                     } 
@@ -264,24 +253,18 @@ class MagentoSettingsController extends Controller
                             'value' => $request->value
                         ]);
                         $scopeID = $websiteStoresView->id;
-                        $postData = [
-                                'path' => $path,
-                                'value' => $value,
-                                'scope' => $scope,
-                                'scopeID' => $scopeID
-                            ];
                         if($is_live){
                             $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
                             \Cache::forever('key', $token);
-                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set'. $scopeID;
-                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                             \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         }
                         if($is_development){
                             $token = $websiteStoresView->websiteStore->website->storeWebsite->dev_api_token;
                             \Cache::forever('key', $token);
-                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set'. $scopeID;
-                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                             \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         }
                     } 
