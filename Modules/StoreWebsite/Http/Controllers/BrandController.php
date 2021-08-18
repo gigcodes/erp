@@ -401,14 +401,16 @@ class BrandController extends Controller
             ->where("store_website_id",$storeWebsite->id)
             ->where("magento_value",">",0)
             ->groupBy("store_website_brands.magento_value")
-            ->select(["store_website_brands.*"])
+            ->select(["store_website_brands.*","b.deleted_at"])
             ->get();
 
             $assingedBrands = [];
             $noneedTodelete = [];
             if(!$rightBrand->isEmpty()) {
                 foreach($rightBrand as $rb) {
-                    $noneedTodelete[] = $rb->magento_value;
+                    if(is_null($rb->deleted_at)) {
+                        $noneedTodelete[] = $rb->magento_value;
+                    }
                     if($rb->magento_value > 0) {
                         $assingedBrands[$rb->magento_value] = $rb;
                     }
@@ -417,9 +419,9 @@ class BrandController extends Controller
 
 
             $needDeleteRequest = [];
-            if(!empty($noneedTodelete)) {
-                foreach($noneedTodelete as $nrei) {
-                    if(!in_array($nrei,$mangetoIds)) {
+            if(!empty($mangetoIds)) {
+                foreach($mangetoIds as $nrei) {
+                    if(!in_array($nrei,$noneedTodelete)) {
                         $needDeleteRequest[] = $nrei;
                     }
                 }
@@ -428,7 +430,7 @@ class BrandController extends Controller
             \Log::info(print_r(["Delete request IDS",$needDeleteRequest],true));
 
             // go for delete brands
-            $userId = auth()->user()->id;
+            $userId = (auth()->user()) ? auth()->user()->id : 6;
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
                     \Log::info("Request started for ".$ndr);
