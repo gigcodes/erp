@@ -276,7 +276,12 @@ class TwilioController extends FindByNumberController
             // } else {
 
                 if($count < 1)
-                    $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
+                { 
+                    if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_not_available != '')
+                        $response->say($storewebsitetwiliono_data->message_available);
+                    else
+                        $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
+                }
 
                 if($count == 2)
                 {
@@ -335,8 +340,6 @@ class TwilioController extends FindByNumberController
                     $user_details = User::find($client['agent_id']);
                     $is_online = $user_details->isOnline();
                     // dd($is_online);
-
-
 
                     if($is_available == 0 && $is_online)
                     {
@@ -647,6 +650,7 @@ class TwilioController extends FindByNumberController
             'message' => 'Missed Call',
             'caller_sid' => $request->get("CallSid")
         ];
+        Log::channel('customerDnd')->info('-----33333----- ');
         CallBusyMessage::create($params);
 
         // $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
@@ -1178,6 +1182,7 @@ class TwilioController extends FindByNumberController
 
                 Customer::create($add_customer);
             }
+            Log::channel('customerDnd')->info('-----222222----- ');
             CallBusyMessage::create($params);
 
 
@@ -1283,28 +1288,54 @@ class TwilioController extends FindByNumberController
     {
 
         Log::channel('customerDnd')->info('storeRecording ' );
+        
+        $url = $request->get("RecordingUrl");
+        $sid = $request->get("CallSid");
         $params = [
-            'recording_url' => $request->input('RecordingUrl'),
-            'twilio_call_sid' => $request->input('Caller'),
-            'message' => $request->input('TranscriptionText')
+            'recording_url' => $url,
+            'twilio_call_sid' => $sid,
+            'callsid' => $sid
         ];
 
-        Log::channel('customerDnd')->info('storeRecording params : '.$params );
+        CallRecording::create($params);
 
-        $exist_call = CallBusyMessage::where('caller_sid', '=', $request->input('CallSid'))->first();
-        if ($exist_call) {
-            CallBusyMessage::where('caller_sid', $request->input('CallSid'))
-                ->first()
-                ->update($params);
-            Log::channel('customerDnd')->info('update call busy recording table');
-        } else {
+        Log::channel('customerDnd')->info('outgoingCall :: TwilioCallData Added' );	
+        Log::channel('customerDnd')->info($request->get("CallSid").' | '.$request->get("AccountSid").' | '.$request->get("Caller").' | '.$request->get("Called").' | '.$request->get("AuthId"));
 
-            Log::channel('customerDnd')->info('Recording URL' . $request->input('RecordingUrl'));
-            Log::channel('customerDnd')->info('Caller NAME ' . $request->input('From'));
-            Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
-            CallBusyMessage::create($params);
-            Log::channel('customerDnd')->info('insert new call busy recording table');
-        }
+        $call_history_params = [
+            'call_sid' => $request->get("CallSid"),
+            'account_sid' => $request->get("AccountSid"),
+            'from' => $request->get("Caller"),
+            'to' => $request->get("Called"),
+            'call_data' => 'leave_message',
+            'aget_user_id' => null
+        ];
+
+        $call_history = TwilioCallData::create($call_history_params);
+
+        // $params = [
+        //     'recording_url' => $request->input('RecordingUrl'),
+        //     'twilio_call_sid' => $request->input('Caller'),
+        //     'message' => $request->input('TranscriptionText')
+        // ];
+
+        // Log::channel('customerDnd')->info('storeRecording params : '.$params );
+
+        // $exist_call = CallBusyMessage::where('caller_sid', '=', $request->input('CallSid'))->first();
+        // if ($exist_call) {
+        //     CallBusyMessage::where('caller_sid', $request->input('CallSid'))
+        //         ->first()
+        //         ->update($params);
+        //     Log::channel('customerDnd')->info('update call busy recording table');
+        // } else {
+
+        //     Log::channel('customerDnd')->info('Recording URL' . $request->input('RecordingUrl'));
+        //     Log::channel('customerDnd')->info('Caller NAME ' . $request->input('From'));
+        //     Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
+        //     Log::channel('customerDnd')->info('-----11111----- ');
+        //     CallBusyMessage::create($params);
+        //     Log::channel('customerDnd')->info('insert new call busy recording table');
+        // }
     }
 
     /**

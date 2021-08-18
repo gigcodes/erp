@@ -116,6 +116,8 @@
                                 <i class="fa fa-user" aria-hidden="true" title="Call From Customer"></i> 
                             @elseif($callBusyMessage['call_data'] == 'agent') 
                                 <i class="fa fa-desktop" aria-hidden="true" title="Call From Agent"></i> 
+                            @elseif($callBusyMessage['call_data'] == 'leave_message') 
+                                <i class="fa fa-envelope" aria-hidden="true" title="Message From Customer"></i> 
                             @endif
                         </td>
                         <td>{{$callBusyMessage['to']}}</td>

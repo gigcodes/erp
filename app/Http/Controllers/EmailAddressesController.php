@@ -10,6 +10,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Exports\EmailFailedReport;
 use Maatwebsite\Excel\Facades\Excel;
+use Mail;
 
 class EmailAddressesController extends Controller
 {
@@ -20,7 +21,7 @@ class EmailAddressesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EmailAddress::query();
+        $query = EmailAddress::query(); 
               
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
 
