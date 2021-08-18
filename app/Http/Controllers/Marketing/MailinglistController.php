@@ -688,6 +688,8 @@ class MailinglistController extends Controller
 	
 	public function notifyUrl(Request $request) {
 		$update = [];
+		$id = str_replace('["', '',$request->tag);
+		$id = str_replace('"]', '',$id);
 		if($request->event == "sent") {
 			$update = ["sent"=>1];
 		}else if($request->event == "delivered") {
@@ -698,9 +700,10 @@ class MailinglistController extends Controller
 			$update = ["spam"=>1, 'spam_date'=>Carbon::now()->format('Y-m-d H:i:s')];
 		}
 		if(count($update) > 0) {
-			EmailEvent::where(['id'=>$request->tag])->update($update);
+			EmailEvent::where(['id'=>$id])->update($update);
 		}
-		//EmailEvent::where(['id'=>66])->update(['intro_email'=>$request->tag]);
+		
+		
 	}
 	
 	public function sendAutoEmails() {
