@@ -30,6 +30,7 @@ class MessageController extends Controller
      */
     public function index()
     {
+        
         $messages = Message::with(['user'])->get();
 
         return response()->json($messages);

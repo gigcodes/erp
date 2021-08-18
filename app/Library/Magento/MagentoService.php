@@ -16,6 +16,7 @@ use App\Supplier;
 use App\CharityCountry;
 use App\CustomerCharity;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 /**
  * Get Magento service request
@@ -533,7 +534,7 @@ class MagentoService
                         $httpcode = $functionResponse['httpcode'];
 
                         if ($httpcode == 200) {
-                            $this->languagecode = $t;
+                            $this->languagecode[] = $t;
                         }
 
                         $res = json_decode($functionResponse['res']);

@@ -2042,11 +2042,12 @@ class WhatsAppController extends FindByNumberController
                 }
             }
             if(Auth::user()->isAdmin()){
-                $u_id = Auth::id();
+                $u_id =  $request->user_id;
             }
-            $data['user_id'] = $u_id;
+            $data['user_id'] = Auth::id();
+            $data['sent_to_user_id'] = $u_id;
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
-            $module_id = $request->user_id;
+            $module_id = $u_id;
         }elseif ($context == 'hubstuff') {
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
@@ -3964,11 +3965,28 @@ class WhatsAppController extends FindByNumberController
                         $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
                     }
 
+                    $toemail=$customer->email;
+
+                    if ($message->email_id>0)
+                      {
+                           $email=\App\Email::where('id',$message->email_id);
+                           if ($email)
+                           {
+                              $subject=$email->subject;
+                              $from_address=$email->to;
+                              $toemail==$email->from;
+
+                           }
+                      }
+
+                   
+
+
                     $email             = \App\Email::create([
                         'model_id'         => $customer->id,
                         'model_type'       => \App\Customer::class,
                         'from'             => $from_address ?? '',
-                        'to'               => $customer->email,
+                        'to'               => $toemail,
                         'subject'          => $subject,
                         'message'          => $message_body,
                         'template'         => 'customer-simple',

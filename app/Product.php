@@ -1116,7 +1116,14 @@ class Product extends Model
         $countryCode = \App\SimplyDutyCountry::where("country_code", $countryCode)->first();
 
         if ($countryCode) {
-            return (float) $countryCode->default_duty;
+            if ($countryCode->default_duty>0)
+                return (float) $countryCode->default_duty;
+            else
+            {
+                $segment = \App\SimplyDutySegment::where("id", $countryCode->segment_id)->first();
+                if ($segment)
+                   return (float) $segment->price;
+            }    
         }
 
         /*$hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
