@@ -30,6 +30,7 @@
             @if(!empty($history))
             
                 @foreach ($history as $data)
+                @if(!empty($data['test_id']))
                   <tr>
                     <td>{{$data['store_view_id']}}</td>
                     <td>{{$data['test_id']}}</td>
@@ -45,7 +46,7 @@
                     <td>{{$data['pagespeed_score']}}</td>
                     <td>{{$data['yslow_score']}}</td>
                     <td>
-                    @if(!empty($data['resources']))
+                    @if(!empty($data['resources']) && is_array($data['resources']))
                       @foreach ($data['resources'] as $keyresource => $resource)
                       <li> <a href="{{$resource}}" target="_blank" > {{$keyresource}} </a> </li>
                       @endforeach
@@ -58,6 +59,7 @@
                     
                     <td>{{$data['created_at']}}</td>
                 </tr>
+                @endif
                 @endforeach
               @else
                 <tr><td colspan=2>No Results found !!</td></tr>
