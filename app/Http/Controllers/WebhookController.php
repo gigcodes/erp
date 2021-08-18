@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Antiques\LaravelSendgridEvents\Enums\EventEnum;
+use App\Enums\EventEnum;
 use App\Events\SendgridEventCreated;
 use App\SendgridEvent;
-use Antiques\LaravelSendgridEvents\Repositories\SendgridEventRepositoryInterface;
+use App\Email;
+use App\Repositories\SendgridEventRepositoryInterface;
 use Psr\Log\LogLevel;
 
 /**
@@ -81,6 +82,8 @@ class WebhookController extends Controller
      */
     private function processEvent(array $event): void
     {
+        
+
         if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
             $this->logDuplicateEvent($event);
             return;

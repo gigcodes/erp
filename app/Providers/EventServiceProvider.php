@@ -121,7 +121,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\SendgridEventCreatedListner',
         ],
         'Illuminate\Mail\Events\MessageSent' => [
-            'App\Handlers\Events\MessageIdTranscript',
+            'App\Events\MessageIdTranscript',
         ],
     ];
 
