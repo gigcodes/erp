@@ -137,13 +137,13 @@ class GoogleTranslateController extends Controller
                 } else {
                     try {
                         $translationString = $googleTranslate->translate($language, $name);
-
                         // Devtask-2893 : Added model to save individual line translation
-                        Translations::addTranslation($name, $translationString, 'en', $language);
-                        $response[] = $translationString;
-
+                        if(!empty($translationString)) {
+                            Translations::addTranslation($name, $translationString, 'en', $language);
+                            $response[] = $translationString;
+                        }
                     } catch (\Exception $e) {
-                        \Log::channel('errorlog')->error($e);
+                        \Log::error($e);
                     }
                 }
             }
