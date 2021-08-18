@@ -57,7 +57,7 @@
                             <tr>
                                 <th style="width: 22%">Directory Name</th>
                                 <th style="width: 17%">Parent Directory</th>
-                                <th style="width: 10%">Size</th>
+                                <th style="width: 12%">Size</th>
                                 <th style="width: 20%">Expected Size</th>
                                 <th style="width: 12%">Created</th>
                                 <th style="width: 12%">Updated</th>
@@ -69,7 +69,7 @@
 								<tr>
 									<td class="expand-row"  style="word-break: break-all">
                                     <span class="td-mini-container">
-                                        {{ strlen($data->name) > 37 ? substr($data->name, 0, 37).'...' :  $data->name }}
+                                        {{ strlen($data->name) > 33 ? substr($data->name, 0, 33).'...' :  $data->name }}
                                    </span>
 
                                                                     <span class="td-full-container hidden">
@@ -80,7 +80,7 @@
 									<td class="expand-row" style="word-break: break-all">
 
                                         <span class="td-mini-container">
-                                        {{ strlen($data->parent) > 28 ? substr($data->parent, 0, 28).'...' :  $data->parent }}
+                                        {{ strlen($data->parent) > 24 ? substr($data->parent, 0, 26).'...' :  $data->parent }}
                                    </span>
 
                                         <span class="td-full-container hidden">
