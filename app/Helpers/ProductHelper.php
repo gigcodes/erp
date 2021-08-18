@@ -14,7 +14,6 @@ use App\StoreWebsiteBrand;
 use App\ProductPushErrorLog;
 use App\SystemSizeManager;
 use App\Helpers\ProductHelper;
-
         
 class ProductHelper extends Model
 {
@@ -712,7 +711,7 @@ class ProductHelper extends Model
 
         if($product) {
             $categorym = $product->categories;
-            if($categorym) {
+            if($categorym && !$product->isCharity()) {
                 $categoryparent = $categorym->parent;
                 if(!$categoryparent) {
                     if(!$log) {
@@ -731,7 +730,7 @@ class ProductHelper extends Model
         }
 
         // Check for price range
-        if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
+        if (((int)$product->price < 62.5 || (int)$product->price > 5000) && !$product->isCharity()) {
             // Log info
             //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
             if(!$log) {

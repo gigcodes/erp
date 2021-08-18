@@ -21,6 +21,9 @@
     </style>
 
     <style>
+        #chat-list-history {
+            z-index: 9999;
+        }
         #payment-table_filter {
             text-align: right;
         }
@@ -206,6 +209,7 @@
                                     <th width="20%">Status</th>
                                     <th width="10%">History</th>
                                 </tr>
+                                @if (Auth::user()->isAdmin())
                                 <tr>
                                     <td>
                                         <input type="text" style="width:calc(100% - 25px)" class="quick_feedback" id="addcategory" name="category">
@@ -217,6 +221,7 @@
                                         <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button></td>
                                     <td></td>
                                 </tr>
+                                @endif
                             </thead>
                             
                             <tbody class="show-list-records user-feedback-data">
@@ -1546,6 +1551,20 @@ $(document).on('click','.statusChange',function(event){
             });
         })
 
+        $(document).on('change','.user_feedback_status',function(){
+            var status_id = $(this).val();
+            var user_id = $(this).closest('tr').data('user_id');
+            var cat_id = $(this).closest('tr').data('cat_id');
+            $.ajax({
+                type: "get",
+                url: '{{ route("user.feedback-status.update") }}',
+                data: {status_id:status_id,user_id:user_id,cat_id:cat_id},
+                success:function(response){
+                    toastr.success(response.message);
+                }
+            });
+        })
+
         $(document).on('click','.user-feedback-modal', function(){
           var user_id = $(this).data('user_id');
             $('.user-feedback-data').data('user_id',user_id);
@@ -1581,8 +1600,12 @@ $(document).on('click','.statusChange',function(event){
                     },
                     cashe:false,
                     success:function(response){
-                        $('#addcategory').val('');
-                        $(document).find('.user-feedback-data').append(response);
+                        if (response.message) {
+                            toastr.error(response.message);
+                        }else{
+                            $('#addcategory').val('');
+                            $(document).find('.user-feedback-data').append(response);
+                        }
                     }
                 });
             }else{

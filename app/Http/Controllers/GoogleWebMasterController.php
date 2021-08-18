@@ -13,9 +13,8 @@ use App\Setting;
 use Spatie\Activitylog\Models\Activity;
 use App\GoogleClientAccount;
 use App\GoogleClientNotification;
-
-
-
+use App\GoogleClientAccountMail;
+use Google_Service_Oauth2;
 use Http;
 
 class GoogleWebMasterController extends Controller
@@ -132,31 +131,23 @@ class GoogleWebMasterController extends Controller
 		$this->client->setScopes(array(
 			'https://www.googleapis.com/auth/webmasters',
 		));  
+		$this->client->addScope(Google_Service_Oauth2::USERINFO_PROFILE);
 		$this->client->setAccessType('offline');
 		$access_token = $this->client->authenticate($request->code);
-		if($GoogleClientAccount->is_active){ 
-			$d = $this->client->revokeToken($access_token['access_token']);
-			if($d){
-				$GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = null;
-				$GoogleClientAccount->is_active = 0;
-				$GoogleClientAccount->save(); 
-				return redirect()->route('googlewebmaster.index')->with('success', 'Account disconnected successfully!');          
-			}else{
-				return redirect()->route('googlewebmaster.index')->with('error', 'Something went wrong!');          
-			}
-		}
+        $oauth2 = new Google_Service_Oauth2($this->client);
+        $accountInfo = $oauth2->userinfo->get();
+
+		$mail_acc = new GoogleClientAccountMail();
+		GoogleClientAccountMail::where('google_account', $accountInfo->name)->delete();
+		$mail_acc->google_account = $accountInfo->name;  
+		$mail_acc->google_client_account_id = $id; 
+		$mail_acc->GOOGLE_CLIENT_ACCESS_TOKEN = $access_token['access_token'];
 		if(!empty($access_token['refresh_token'])){
-			$GoogleClientAccount->GOOGLE_CLIENT_ACCESS_TOKEN = $access_token['access_token'];
-			$GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $access_token['refresh_token'];
-			$GoogleClientAccount->expires_in = $access_token['expires_in'];
-			$GoogleClientAccount->is_active = 1;
-			$GoogleClientAccount->save(); 
-		}else{
-			$GoogleClientAccount->GOOGLE_CLIENT_ACCESS_TOKEN = $access_token['access_token'];
-			$GoogleClientAccount->expires_in = $access_token['expires_in'];
-			$GoogleClientAccount->is_active = 1;
-			$GoogleClientAccount->save(); 
+			$mail_acc->GOOGLE_CLIENT_REFRESH_TOKEN = $access_token['refresh_token'];
 		}
+		$mail_acc->expires_in = $access_token['expires_in'];
+		$mail_acc->save(); 
+
 		return redirect()->route('googlewebmaster.index')->with('success', 'Account connected successfully!');          
 			
         }
@@ -499,12 +490,12 @@ class GoogleWebMasterController extends Controller
 
 	
 	public function getAccounts(){
-		$GoogleClientAccounts = GoogleClientAccount::orderBy("id","desc")->get();
+		$GoogleClientAccounts = GoogleClientAccount::with('mails')->orderBy("id","desc")->get();
 		return response()->json( ["code" => 200 , "data" => $GoogleClientAccounts] );
 	}
 	
 	public function getAccountNotifications(){
-		$notifications = GoogleClientNotification::with('user')->orderBy("id","desc")->get();
+		$notifications = GoogleClientNotification::with('user', 'account')->orderBy("id","desc")->get();
 		return response()->json( ["code" => 200 , "data" => $notifications] );
 	}
 	
@@ -631,34 +622,44 @@ class GoogleWebMasterController extends Controller
 
 	}
  	
-	public function statusAccount(Request $request, $id){
+	public function connectAccount(Request $request, $id){
 
 		$GoogleClientAccount = GoogleClientAccount::find($id);
         $google_redirect_url = route('googlewebmaster.get-access-token');
 		\Cache::forever('google_client_account_id', $id);
 		$this->client = new \Google_Client();
-
-		// $this->client->setApplicationName($GoogleClientAccount->GOOGLE_CLIENT_APPLICATION_NAME);
-
 		$this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
-
 		$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
-
-		// $this->client->setDeveloperKey($GoogleClientAccount->GOOGLE_CLIENT_KEY);
-
 		$this->client->setRedirectUri($google_redirect_url);
-		// $this->client->setAccessToken('c3FIOG9vSGV4VHo4QzAyg5T1JvNnJoZ3ExaVNyQWw6WjRsanRKZG5lQk9qUE1BVQ');
-
         $this->client->setAccessType('offline');
-		$this->client->setIncludeGrantedScopes(true);
-
 		$this->client->setScopes(array(
 			'https://www.googleapis.com/auth/webmasters',
 		));  
-
+		$this->client->addScope(Google_Service_Oauth2::USERINFO_PROFILE);
 		$authUrl = $this->client->createAuthUrl();
-       
 		return redirect($authUrl);
-	}
+	} 
+ 	
+	public function disconnectAccount(Request $request, $id){
+
+		$mail_acc = GoogleClientAccountMail::find($id);
+		$GoogleClientAccount = GoogleClientAccount::find($mail_acc->google_client_account_id);
+        $google_redirect_url = route('googlewebmaster.get-access-token');
+		$this->client = new \Google_Client();
+		$this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+		$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+		$this->client->refreshToken($mail_acc->GOOGLE_CLIENT_REFRESH_TOKEN);
+		$access_token = $this->client->getAccessToken();
+
+		if($access_token){
+			$this->client->revokeToken($access_token['access_token']);
+		}
+		
+		$mail_acc->delete();
+
+		return redirect()->route('googlewebmaster.index')->with('success', 'Account disconnected successfully!');          
+		
+		
+	} 
 
 }

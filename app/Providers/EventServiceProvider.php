@@ -123,6 +123,10 @@ class EventServiceProvider extends ServiceProvider
         'Illuminate\Mail\Events\MessageSent' => [
             'App\Events\MessageIdTranscript',
         ],
+        'Illuminate\Mail\Events\MessageSending' => [
+            'App\Listeners\AddSignatureToMail',
+        ]
+
     ];
 
     /**

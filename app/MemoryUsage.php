@@ -18,13 +18,13 @@ class MemoryUsage extends Model
             
             $updatedData = $memory->getDirty();
             
-            if(($updatedData['used']/ $updatedData['total'])*100 > $thresold_limit_for_memory_uses){
+            if(($updatedData['used']/ $updatedData['total'])*100 > $thresold_limit_for_memory_uses->val){
 
             
 
                 foreach($allUsers as $user){
                     if($user->isAdmin() && $user->phone && $user->whatsapp_number){
-                        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone , $user->whatsapp_number, 'Uses of memory is increse from give limit of ' . $thresold_limit_for_memory_uses);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone , $user->whatsapp_number, 'Uses of memory is increse from give limit of ' . $thresold_limit_for_memory_uses->val);
 
 
                     }

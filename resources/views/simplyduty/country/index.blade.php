@@ -10,7 +10,40 @@
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SimplyDuty Country</h2>
+            <div class="pull-left">
+            <form class="form-inline" action="{{ route('blogger.index') }}" method="GET">
+            <div class="form-group">
+              <input name="term" type="text" class="form-control"
+                     value="{{ isset($term) ? $term : '' }}"
+                     placeholder="Search">
+            </div>
+
+            {{-- <div class="form-group ml-3">
+              <select class="form-control" name="type">
+                <option value="">Select Type</option>
+                ndr<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+              </select>
+            </div> --}}
+
+              <div class="form-group">
+                  <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                  <label for="with_archived">Archived</label>
+              </div>
+
+            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+          </form>
+       
+         
+
+        
+         
+            
+            
+            </div>
+
+       
             <div class="pull-right">
+            <a  class="btn btn-secondary" onclick="opensegment();" >Segment</a>
                 <button type="button" class="btn btn-secondary" onclick="getCategoryData()">Load from SimplyDuty</button>
                 <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/resend2.png"/></button>
             </div>
@@ -34,12 +67,15 @@
         </div>
     @endif
 
+    
+
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="category-table">
             <thead>
             <tr>
                 <th style="width:10%">Country Code</th>
                 <th style="width:60%">Country</th>
+                <th>Segment</th>
                 <th>Default Duty</th>
                 <th>Created At</th>
                 <th>Updated At</th>
@@ -60,6 +96,23 @@
     {!! $countries->appends(Request::except('page'))->links() !!}
 
 @endsection
+
+
+<div id="segment" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-body" id="segment_data">
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
 @section('scripts')
 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -169,6 +222,102 @@
                 alert('No response from server');
             });
            
+       }
+
+       function addsegment(cid,sid)
+       {
+        $.ajax({
+                url: "{{url('duty/country/addsegment')}}",
+                dataType: "json",
+                data: {
+                    cid : cid,
+                    sid : sid
+                },
+                beforeSend: function() {
+                        $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                    $("#loading-image").hide();
+                console.log(data);
+                alert('Segment updated');
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+       }
+
+       function opensegment()
+       {
+           src = "{{ url('duty/segment') }}";
+            reset = '';
+            $.ajax({
+                url: src,
+                data: {
+                    reset : reset,
+                },
+                beforeSend: function() {
+                        $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                  
+                $('#segment_data').html(data);
+                $("#segment").modal("show"); 
+                
+            })
+       }
+
+       function savesegment(id)
+       {
+           src = "{{ url('duty/segment/add') }}";
+           segment=$('#segment_txt').val();
+           segment_id=$('#segment_id').val();
+           price=$('#price').val();
+
+            $.ajax({
+                url: src,
+                data: {
+                    segment_id : segment_id,
+                    segment:segment,
+                    price:price
+                },
+                beforeSend: function() {
+                        $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                  
+                $("#segmentadd").modal("hide");  
+                $("#segment").modal("hide");
+                opensegment();
+               
+                
+            })
+       }
+
+       function deletesegment(segment_id)
+       {
+           src = "{{ url('duty/segment/delete') }}";
+           
+            $.ajax({
+                url: src,
+                data: {
+                    segment_id : segment_id,
+                   
+                },
+                beforeSend: function() {
+                        $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                  
+                $("#segmentadd").modal("hide");  
+                $("#segment").modal("hide");
+                opensegment();
+               
+                
+            })
        }
         </script>
 @endsection

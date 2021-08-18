@@ -118,7 +118,7 @@
                 <form class="form-inline" action="{{ route('customer.charity') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Name</label>
-                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                        <select name="term" type="text" class="form-control" placeholder="Search" id="charity-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
@@ -128,7 +128,7 @@
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Email</label>
-                        <select name="email" type="text" class="form-control" placeholder="Search" id="vendor-email" data-allow-clear="true">
+                        <select name="email" type="text" class="form-control" placeholder="Search" id="charity-email" data-allow-clear="true">
                             <?php
                                 if (request()->get('email')) {
                                     echo '<option value="'.request()->get('email').'" selected>'.request()->get('email').'</option>';
@@ -138,7 +138,7 @@
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Phone Number</label>
-                        <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
+                        <select name="phone" type="text" class="form-control" placeholder="Search" id="charity-phone-number" data-allow-clear="true">
                             <?php
                                 if (request()->get('phone')) {
                                     echo '<option value="'.request()->get('phone').'" selected>'.request()->get('phone').'</option>';
@@ -157,19 +157,7 @@
                             "0" => "De-Active",
                             "1" => "Active"
                         ],request('status'),["class"=> "form-control"]) ?>
-                    </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_updated_by">Updated by</label>
-                        <?php echo Form::select("updated_by",
-                            ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
-                            request('updated_by'),
-                            ["class"=> "form-control"]
-                        ); ?>
-                    </div>
-                    <div class="form-group ml-3 cls_filter_checkbox">
-                    <label for="with_archived">Archived</label>
-                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                    </div>
+                    </div> 
                     <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
@@ -286,6 +274,31 @@
             </div>
         </div>
     </div>
+    <div id="charity-country" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Charity Countries</h4>
+                </div>
+                <div class="row m-3">
+                    <div class="col-md-6">
+                        <input type="text" name="search_by_country" placeholder="search by country"  class="form-control"  style="width: 200px;">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" name="global_price" placeholder="global price"  class="form-control" placeholder="Search Email" style="width: 200px;">
+                    </div>
+                </div>
+                <form>
+                    <div class="modal-body" style="background-color: #999999;">
+                    </div>
+                </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary charity-country-submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+    </div>
     @include('customers.zoomMeeting')
     <div id="forwardModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -365,6 +378,21 @@
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
     <script type="text/javascript">
 
+        $(document).on('click', '.send-email-common-btn', function () {
+            $('#commonEmailModal .getTemplateData').parent().remove();
+        });
+
+        $(document).on('submit', '#commonEmailModal', function () {
+            if($('#commonEmailModal input[name="subject"]').val() == ''){
+                toastr['error']('please add subject.', 'error');
+                return false;
+            }
+            if($('#commonEmailModal textarea[name="message"]').val() == ''){
+                toastr['error']('please add subject.', 'error');
+                return false;
+            }
+        });
+
         $(document).on('click', '.upload-single', function () {
             $(self).hide();
             $this = $(this);
@@ -435,11 +463,11 @@
             templateSelection: (customer) => customer.text || customer.name,
         });
         var vendorToRemind = null;
-        $('#vendor-search').select2({
+        $('#charity-search').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'/vendor-search',
+                url: BASE_URL+'/customer-charity-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -474,11 +502,11 @@
             templateSelection: (customer) => customer.text || customer.name,
         });
         var vendorToRemind = null;
-        $('#vendor-phone-number').select2({
+        $('#charity-phone-number').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'/vendor-search-phone',
+                url: BASE_URL+'/customer-charity-phone-number',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -511,11 +539,11 @@
             },
             templateSelection: (customer) => customer.text || customer.phone,
         });
-        $('#vendor-email').select2({
+        $('#charity-email').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'/vendor-search-email',
+                url: BASE_URL+'/customer-charity-email',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -640,13 +668,18 @@
             $('#vendor_phone').val(vendor.phone);
             $('#vendor_email').val(vendor.email);
             $('#vendor_social_handle').val(vendor.social_handle);
-            $('#vendor_website').val(vendor.website);
-            $('#vendor_login').val(vendor.login);
-            $('#vendor_password').val(vendor.password);
+            $('#vendor_website').val(vendor.website); 
             $('#vendor_gst').val(vendor.gst);
             $('#vendor_account_name').val(vendor.account_name);
             $('#vendor_account_iban').val(vendor.account_iban);
             $('#vendor_account_swift').val(vendor.account_swift);
+            $('#frequency_of_payment').val(vendor.frequency_of_payment);
+            $('#bank_name').val(vendor.bank_name);
+            $('#bank_address').val(vendor.bank_address);
+            $('#city').val(vendor.city);
+            $('#country').val(vendor.country);
+            $('#ifsc_code').val(vendor.ifsc_code);
+            $('#remark').val(vendor.remark);
         });
         $(document).on('click', '.create-agent', function () {
             var id = $(this).data('id');
@@ -803,7 +836,6 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
@@ -839,7 +871,6 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         url: BASE_URL+'/whatsapp/sendMessage/charity',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
@@ -1320,5 +1351,66 @@
             toastr['error'](error.responseJSON.message);
           });
       });
+
+      $(document).on('click', '.add-charity-country', function () {
+        $('#charity-country .modal-body').html('');
+        $('#charity-country input[name="search_by_country"]').val('');
+        $('#charity-country input[name="global_price"]').val('');
+        $('#charity-country .charity-country-submit').attr('data-id', $(this).data('id')).attr('data-product-id', $(this).data('product-id'));
+        $.ajax({
+            url: "/customer-charity/get-websites/"+$(this).data('id'),  
+        }).done(function(response) {
+            var html = '';
+            response.forEach(function(value, key){
+                html += `<div class="form-group">
+                            <strong>${value.name}</strong>
+                            <input type="number" name="${value.code}" value="${value.price}" class="form-control">
+                        </div>`;
+            });
+            $('#charity-country .modal-body').append(html);
+            $('#charity-country').modal('show');
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+    });
+
+    $(document).on('click', '.charity-country-submit', function () {
+        var formData = $('#charity-country').find('form').serialize();
+        $.ajax({
+            url: "/customer-charity/get-websites/"+$(this).data('id'), 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'data': formData
+            }
+        }).done(function(response) {
+            toastr['success'](response);
+            $('#charity-country').modal('hide');
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+    });
+
+    $(document).on('change', 'input[name="global_price"]', function(){
+        $('#charity-country .modal-body input').val($(this).val());
+    });
+
+    $(document).on('keyup', 'input[name="search_by_country"]', function(){
+        var input, filter, ul, li, a, i, txtValue;
+        input = $(this).val();
+        filter = input.toUpperCase(); 
+        var inputs = $('#charity-country .modal-body .form-group');
+        console.log(inputs);
+        for (i = 0; i < inputs.length; i++) {
+            a = inputs[i].getElementsByTagName("strong")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                inputs[i].style.display = "";
+            } else {
+                inputs[i].style.display = "none";
+            }
+        }
+
+    });
     </script>
 @endsection

@@ -75,7 +75,8 @@ class ProductPriceController extends Controller
                 store_websites.id as store_websites_id,
                 store_websites.website as product_website'
             ));
-            
+            $products = $products->whereNull('products.deleted_at');
+        
             if (isset($filter_data['country_code'])) {
                 $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']); 
             }
@@ -106,8 +107,9 @@ class ProductPriceController extends Controller
             
             // $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
             
-            $products = $products->skip($skip * Setting::get('pagination'))
-            ->limit(Setting::get('pagination'))->get();
+         /*   $products = $products->skip($skip * Setting::get('pagination'))
+            ->limit(Setting::get('pagination'))->get();*/
+            $products = $products->get();
             $product_list = [];
             if(count($products)){
                 foreach($products as $p){
