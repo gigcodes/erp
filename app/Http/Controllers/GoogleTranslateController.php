@@ -125,6 +125,12 @@ class GoogleTranslateController extends Controller
             foreach ($names as $name) {
                 // Check translation SEPARATE LINE exists or not
                 $checkTranslationTable = Translations::select('text')->where('to', $language)->where('text_original', $name)->first();
+                if($checkTranslationTable) {
+                    if(empty($checkTranslationTable->text)) {
+                        $checkTranslationTable->delete();
+                        $checkTranslationTable = false;
+                    }
+                }
                 // If translation exists then USE it else do GOOGLE call
                 if ($checkTranslationTable) {
                     $response[] = $checkTranslationTable->text;
