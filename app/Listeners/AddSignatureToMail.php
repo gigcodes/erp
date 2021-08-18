@@ -7,7 +7,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\EmailAddress;
 
-class AddSignaturreToMail
+class AddSignatureToMail
 {
     /**
      * Create the event listener.
@@ -28,10 +28,15 @@ class AddSignaturreToMail
     public function handle($event)
     {
         $message = $event->message;
-        $fromemail->getHeaders()->get('From') ;  
+        $fromemail=$message->getFrom('email');  
+        foreach( $fromemail as $key=>$val)
+        {
+           $femail=$key;
+        }   
+       
         $body=$message->getBody(); 
         $signature='';
-        $email= EmailAddress::where('email',$fromemail)->first(); 
+        $email= EmailAddress::where('from_address', $femail)->first(); 
         if ($email) 
         {
             if($email->signature_name!='')
@@ -58,8 +63,8 @@ class AddSignaturreToMail
          if($email->signature_image!='')
                  $signature.="<br><img src='".url('/')."/uploads/".$email->signature_image."'>" ;
           
-         if($email->social!='')
-                    $signature.="<br>".$email->social ;
+         if($email->signature_social!='')
+                    $signature.="<br>".$email->signature_social ;
           
         }
 

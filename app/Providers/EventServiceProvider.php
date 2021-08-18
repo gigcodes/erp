@@ -118,7 +118,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\MonetaryAccountHistoryUpdate',
         ],
         'Illuminate\Mail\Events\MessageSending' => [
-            'App\Listeners\AddSignaturreToMail',
+            'App\Listeners\AddSignatureToMail',
         ]
     ];
 
