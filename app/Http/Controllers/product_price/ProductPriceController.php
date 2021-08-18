@@ -107,8 +107,9 @@ class ProductPriceController extends Controller
             
             // $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
             
-            $products = $products->skip($skip * Setting::get('pagination'))
-            ->limit(Setting::get('pagination'))->get();
+         /*   $products = $products->skip($skip * Setting::get('pagination'))
+            ->limit(Setting::get('pagination'))->get();*/
+            $products = $products->get();
             $product_list = [];
             if(count($products)){
                 foreach($products as $p){
