@@ -20,6 +20,8 @@ use App\Helpers\ProductHelper;
 use App\StoreWebsite; 
 use App\Website; 
 use App\CharityCountry; 
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Media;
 
 class CustomerCharityController extends Controller
 {
@@ -322,10 +324,24 @@ class CustomerCharityController extends Controller
               'product_id' => $product->id
           ]);
           Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
+          $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
+          foreach($storeWebsites as $w){
+            $tag = 'gallery_' . $w->cropper_color; 
+            $is_image_exist = false;
+            while(!$is_image_exist){
+                $image = Media::inRandomOrder()->first();
+                if(file_exists($image->getAbsolutePath())){
+                    $is_image_exist = true;
+                    $image = $image->getAbsolutePath();
+                }
+            }
+            $jpg = \Image::make($image)->encode('jpg');
+            $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($product->name . '_' . $product->id)->onDuplicateIncrement()->upload();
+            $t = $product->attachMedia($media, $tag);
+          }
       }else{ 
           CustomerCharity::where('id', $id)->update($data);
       }   
-  
       return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }
 
