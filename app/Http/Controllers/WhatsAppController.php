@@ -3965,11 +3965,28 @@ class WhatsAppController extends FindByNumberController
                         $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
                     }
 
+                    $toemail=$customer->email;
+
+                    if ($message->email_id>0)
+                      {
+                           $email=\App\Email::where('id',$message->email_id);
+                           if ($email)
+                           {
+                              $subject=$email->subject;
+                              $from_address=$email->to;
+                              $toemail==$email->from;
+
+                           }
+                      }
+
+                   
+
+
                     $email             = \App\Email::create([
                         'model_id'         => $customer->id,
                         'model_type'       => \App\Customer::class,
                         'from'             => $from_address ?? '',
-                        'to'               => $customer->email,
+                        'to'               => $toemail,
                         'subject'          => $subject,
                         'message'          => $message_body,
                         'template'         => 'customer-simple',
