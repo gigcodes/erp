@@ -247,25 +247,11 @@ class MessageController extends Controller
                 $customer = $chatMessage->customer;
                 if ($customer) {
                     $params = $chatMessage->getAttributes();
-                    if ($chatMessage->is_email=='1')
-                    {
-                      $email= \App\Email::where('id',$chatMessage->email_id);
-                      if ($email)
-                        {
-                            $email->message=$request->message;
-                            $email->from=$email->to;
-                            $email->to=$chatMessage->email_id;
-                            \App\Jobs\SendMessageToCustomer::dispatch($email);
-                            return response()->json(["code" => 200, "data" => [], "message" => "Email sent Successfully"]);
-                   
-                        }
-                      }
-                    else
-                    {
+                    
                     \App\Helpers\MessageHelper::whatsAppSend($customer, $chatMessage->message, null, $chatMessage);
                     \App\Helpers\MessageHelper::sendwatson($customer, $chatMessage->message, null, $chatMessage, $params, false, 'customer');
                     return response()->json(["code" => 200, "data" => [], "message" => "Message sent Successfully"]);
-                    }
+                    
                 }
             }
         }

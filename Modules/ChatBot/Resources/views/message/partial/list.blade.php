@@ -457,13 +457,12 @@ padding: 3px 2px;
 
     $(document).on("click",".resend-to-bot",function () {
         let chatID = $(this).data("id");
-        message=$('#quick-message-field ').val(); 
-        $.ajax({
+         $.ajax({
             type: "GET",
             url: "/chatbot/messages/resend-to-bot",
             data: {
-                chat_id : chatID,
-                message : message
+                chat_id : chatID
+               
             },
             dataType : "json",
             success: function (response) {
