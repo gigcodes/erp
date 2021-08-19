@@ -73,7 +73,8 @@ class ProductPriceController extends Controller
                 simply_duty_countries.country_code as product_country_code,
                 simply_duty_countries.country_name as product_country_name,
                 store_websites.id as store_websites_id,
-                store_websites.website as product_website'
+                store_websites.website as product_website,
+                products.brand'
             ));
             $products = $products->whereNull('products.deleted_at');
         
@@ -125,6 +126,7 @@ class ProductPriceController extends Controller
                         'id'                   => $product->id,
                         'sku'                  => $product->sku, 
                         'brand'                => isset($p->brand_name) ? $p->brand_name : "-" , 
+                        'brand_id'              => isset($p->brand) ? $p->brand : "0" , 
                         'segment'              => $category_segment,
                         'website'              => $p->product_website,
                         'eur_price'            => $productPrice,
@@ -176,7 +178,8 @@ class ProductPriceController extends Controller
     		$view = view('product_price.index_ajax',compact('product_list', 'count'))->render();
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
-        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites'));
+        $category_segments = \App\CategorySegment::where('status',1)->get();
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments'));
     }
 
     public function update_product(Request $request){

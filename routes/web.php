@@ -2335,6 +2335,9 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
     Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
     Route::get('duty/country/addsegment', 'SimplyDutyCountryController@addsegment');
+    Route::post('duty/country/assign-default-value', 'SimplyDutyCountryController@assignDefaultValue');
+   
+   
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
     Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
