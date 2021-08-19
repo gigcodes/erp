@@ -497,6 +497,18 @@ class TwilioController extends FindByNumberController
                 {
                     $count++;
 
+                    $call_history_params = [
+                        'call_sid' => ($request->get("CallSid") ?? 0),
+                        'account_sid' => ($request->get("AccountSid") ?? 0),
+                        'from' => ($request->get("Caller") ?? 0 ),
+                        'to' => ($request->get("Called") ?? 0),
+                        'call_data' => 'time_close',
+                        'aget_user_id' => ''
+                    ];
+    
+                    $call_history = TwilioCallData::create($call_history_params);
+                    //Call History - END
+
                     if(isset($storewebsitetwiliono_data->message_busy) && $storewebsitetwiliono_data->message_busy != '')
                         $response->Say($storewebsitetwiliono_data->message_busy);
                     else
