@@ -5674,5 +5674,12 @@ class ProductController extends Controller
         }
     }
 
+    public function getTranslationProduct(Request $request,$id)
+    {
+        $translation = \App\Product_translation::where("product_id",$id)->get();
+        return view("products.partials.translation-product",compact('translation'));
+
+    }
+
 }
 

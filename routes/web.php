@@ -339,6 +339,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
     Route::post('products/{id}/addListingRemarkToProduct', 'ProductController@addListingRemarkToProduct');
+    Route::get('products/{id}/get-translation-product', 'ProductController@getTranslationProduct');
     Route::post('products/{id}/
     ', 'ProductController@updateApprovedBy');
     //    Route::get('products/{id}/color-historyproducts/{id}/color-history', 'ProductColorController@history');
@@ -3356,6 +3357,8 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
 Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
+
+
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');

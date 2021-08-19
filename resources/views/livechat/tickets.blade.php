@@ -87,6 +87,9 @@
     .row.tickets{
         font-size: 13px !important;
     }
+    td{
+        padding: 5px !important;
+    }
 </style>
 @extends('layouts.app')
 
@@ -195,8 +198,35 @@
     </div>
 
     <div class="space-right">
-   
-    @include('livechat.partials.ticket-list')
+        <div class="table-responsive">
+            <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+                <thead>
+                <tr>
+                    <th style="width: 2%;"></th>
+                    <th style="width: 3%;">#</th>
+                    <th style="width: 5%;">Tickit Id</th>
+                    <th style="width: 5%;">Source</th>
+                    <th style="width: 7%;">Name</th>
+                    <th style="width: 7%;">Email</th>
+                    <th style="width: 6%;">Subject</th>
+                    <th style="width: 7%;">Message</th>
+                    <th style="width: 6%;">Assigned name</th>
+                    <th style="width: 5%;">Brand</th>
+                    <th style="width: 5%;">Country</th>
+                    <th style="width: 6%;">Order no</th>
+                    <th style="width: 8%;">Phone no</th>
+                    <th style="width: 13%;">Message Box</th>
+                    <th style="width: 7%;">Status</th>
+                    <th style="width: 8%;">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @include('livechat.partials.ticket-list')
+                </tbody>
+            </table>
+        </div>
+
+
     </div>
     
 
