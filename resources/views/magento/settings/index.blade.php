@@ -190,13 +190,7 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
-                    </div>
-                    <div class="form-group">
-                        <input type="checkbox" name="development" id="development" checked>
-                        <label for="development">Devlopment</label><br>
-                        <input type="checkbox" name="live" id="live" checked>
-                        <label for="live">Live</label>
-                    </div>
+                    </div> 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -365,16 +359,11 @@
         }
         $('.websites').trigger('change.select2');
 
-        $('#edit-setting-popup').modal('show');
+        $('#edit-setting-popup').attr('data-setting-id', data.id).modal('show');
     });
     
     $(document).on('submit', '[name="edit-magento-setting-form"]', function(e) {
         e.preventDefault();
-
-        if($('#edit-setting-popup .websites').val() == ''){
-            toastr['error']('please select the website.');
-            return false;
-        };
 
         if($('#edit-setting-popup input[name="name"]').val() == ''){
             toastr['error']('please add the name.');
@@ -394,6 +383,7 @@
         let formData = new FormData(this);
 
         formData.append('_token', "{{ csrf_token() }}");
+        formData.append('id', $('#edit-setting-popup').attr('data-setting-id'));
 
         $.ajax({
             url: $(this).attr('action'),

@@ -206,7 +206,7 @@ class MagentoProductPushErrors extends Controller
 
                 if (array_key_exists("Failed_readiness_".$row->response_status,$recordsArr))
                 {
-                    $recordsArr['Failed_readiness_'.$row->response_status]['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness_'.$row->response_status]['count'] = $recordsArr['Failed_readiness_'.$row->response_status]['count'] + 1;
                     $recordsArr['Failed_readiness_'.$row->response_status]['message'] = 'Failed readiness';
                 }else{
                     $recordsArr['Failed_readiness_'.$row->response_status] = [

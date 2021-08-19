@@ -65,6 +65,12 @@
                          <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
                       </div>
 		        </div>
+		        <div class="col-md-4">
+                      <div class="form-group">
+                         <label for="api_token">Api Token (for dev)</label>
+                         <input type="text" name="dev_api_token" value="{{if data}}{{:data.dev_api_token}}{{/if}}" class="form-control" id="dev_api_token" placeholder="Enter Dev Api token">
+                      </div>
+		        </div>
 		      </div>
 
 		      <div class="row">

@@ -139,10 +139,6 @@ class MagentoSettingsController extends Controller
 
     public function update(Request $request)
     {
-        // dd($request->all());
-        // $postURL = 'https://sololuxury.com/rest/V1/store/storeViews';
-        // $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-        // dd($postURL, $result);
         $scope = $request->scope;
         $name = $request->name;
         $path = $request->path;
@@ -150,37 +146,50 @@ class MagentoSettingsController extends Controller
         $is_live = isset($request->live);
         $is_development = isset($request->development);
         $website_ids = $request->websites;
-        if ($scope === 'default') {
+        MagentoSetting::where('id', $request->id)->update([
+            'name' => $name,
+            'path' => $path,
+            'value' => $value
+        ]);
+        if ($scope === 'default' && $website_ids != null) {
 
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids)->get();
 
             foreach($storeWebsites as $storeWebsite){
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
-                if(!$m_setting){
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $storeWebsite->id,
-                        'name' => $name,
-                        'path' => $path,
-                        'value' => $value
-                    ]);
+                $magento_url = $storeWebsite->magento_url;
+                if($magento_url != null){
+                    $magento_url = explode('//', $magento_url); 
+                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
+                    if(!$m_setting){
+                        $m_setting = MagentoSetting::Create([
+                            'scope' => $scope,
+                            'scope_id' => $storeWebsite->id,
+                            'name' => $name,
+                            'path' => $path,
+                            'value' => $value
+                        ]);
+                        $scopeID = 0;
+                        if($is_live){
+                            $token = $storeWebsite->api_token;
+                            \Cache::forever('key', $token);
+                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
+                            \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        }
+                        if($is_development){
+                            $token = $storeWebsite->dev_api_token;
+                            \Cache::forever('key', $token);
+                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
+                            \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        }
+                    }
+                  
                 }
-                $token = $storeWebsite->api_token;
-                \Cache::forever('key', $token);
-                if($is_live){
-                    $postURL = 'https://dev.sololuxury.com/rest/V1/configvalue/set?path=' . $path . '&value=' . $path . '&scope=' . $scope . '&scopeID=0';
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-                    \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
-                }
-                if($is_development){
-                    $postURL = 'https://dev.sololuxury.com/rest/V1/configvalue/set?path=' . $path . '&value=' . $path . '&scope=' . $scope . '&scopeID=0';
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-                    \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
-                }
-
             }
-        }else if($scope === 'websites'){
+        }else if($scope === 'websites' && $website_ids != null){
 
             $store = $request->store;
             $website = $request->website;
@@ -190,65 +199,81 @@ class MagentoSettingsController extends Controller
 
             foreach($websiteStores as $websiteStore){
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStore->id)->where('path', $path)->first();
-                if(!$m_setting){
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $websiteStore->id,
-                        'name' => $request->name,
-                        'path' => $request->path,
-                        'value' => $request->value
-                    ]);
-                } 
-                $token = $websiteStore->website->storeWebsite->api_token;
-                $scopeID = $websiteStore->id;
-                \Cache::forever('key', $token); 
-                if($is_live){
-                    $postURL = 'https://dev.sololuxury.com/rest/V1/configvalue/set?path=' . $path . '&value=' . $path . '&scope=' . $scope . '&scopeID=' . $scopeID;
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-                    \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
-                }
-                if($is_development){
-                    $postURL = 'https://dev.sololuxury.com/rest/V1/configvalue/set?path=' . $path . '&value=' . $path . '&scope=' . $scope . '&scopeID=' . $scopeID;
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-                    \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                $magento_url = $websiteStore->website->storeWebsite->magento_url;
+                if($magento_url != null){
+                    $magento_url = explode('//', $magento_url); 
+                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStore->website->storeWebsite->magento_url;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStore->id)->where('path', $path)->first();
+                    if(!$m_setting){
+                        $m_setting = MagentoSetting::Create([
+                            'scope' => $scope,
+                            'scope_id' => $websiteStore->id,
+                            'name' => $request->name,
+                            'path' => $request->path,
+                            'value' => $request->value
+                        ]);
+                        $scopeID = $websiteStore->id;
+                        if($is_live){
+                            $token = $websiteStore->website->storeWebsite->api_token;
+                            \Cache::forever('key', $token); 
+                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
+                            \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        }
+                        if($is_development){
+                            $token = $websiteStore->website->storeWebsite->dev_api_token;
+                            \Cache::forever('key', $token); 
+                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
+                            \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        }
+                    } 
+                   
                 }
 
             }
             
-        }else if($scope === 'stores'){
+        }else if($scope === 'stores' && $website_ids != null){
 
             $store = $request->store;
             $store_view = $request->store_view; 
-
+            
             $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function($q) use ($store, $website_ids){
                 $q->where('name', $store)->whereIn('store_website_id', $website_ids);
             })->where('code', $store_view)->get();
 
             foreach($websiteStoresViews as $websiteStoresView){
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStoresView->id)->where('path', $path)->first();
-                if(!$m_setting){
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $websiteStoresView->id,
-                        'name' => $request->name,
-                        'path' => $request->path,
-                        'value' => $request->value
-                    ]);
-                } 
-                $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
-                $scopeID = $websiteStoresView->id;
-                \Cache::forever('key', $token);
-                if($is_live){
-                    $postURL = 'https://dev.sololuxury.com/rest/V1/configvalue/set?path=' . $path . '&value=' . $path . '&scope=' . $scope . '&scopeID=' . $scopeID;
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-                    \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
-                }
-                if($is_development){
-                    $postURL = 'https://dev.sololuxury.com/rest/V1/configvalue/set?path=' . $path . '&value=' . $path . '&scope=' . $scope . '&scopeID=' . $scopeID;
-                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
-                    \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                $magento_url = $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
+                if($magento_url != null){
+                    $magento_url = explode('//', $magento_url); 
+                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStoresView->id)->where('path', $path)->first();
+                    if(!$m_setting){
+                        $m_setting = MagentoSetting::Create([
+                            'scope' => $scope,
+                            'scope_id' => $websiteStoresView->id,
+                            'name' => $request->name,
+                            'path' => $request->path,
+                            'value' => $request->value
+                        ]);
+                        $scopeID = $websiteStoresView->id;
+                        if($is_live){
+                            $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
+                            \Cache::forever('key', $token);
+                            $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
+                            \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        }
+                        if($is_development){
+                            $token = $websiteStoresView->websiteStore->website->storeWebsite->dev_api_token;
+                            \Cache::forever('key', $token);
+                            $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeID='.$scopeID;
+                            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
+                            \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        }
+                    } 
+                  
                 }
 
             }

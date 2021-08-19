@@ -46,7 +46,7 @@ class BrandController extends Controller
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
         ->groupBy("brands.id")
-        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at')->whereNull('sw.id');
+        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at')->whereNotNull('sw.id');
 
         $keyword = request('keyword');
         if(!empty($keyword)) {
@@ -687,19 +687,22 @@ class BrandController extends Controller
 
     public function assignDefaultValue(Request $request)
     {
-        $segments = CategorySegment::where('status', 1)->get();
-        $brands = \App\Brand::all();
-        if(!$brands->isEmpty()) {
+        $category_segments=$request->category_segments;
+        $brand_segment=$request->brand_segment;
+        $segments = CategorySegment::where('id', $category_segments)->get();
+        $brands = \App\Brand::where('brand_segment',$brand_segment)->get();
+        if(!$brands->isEmpty()) { 
             foreach($brands as $b) {
-                if(!$segments->isEmpty()) {
-                    foreach($segments as $segment) {
+                if(!$segments->isEmpty()) { 
+                    foreach($segments as $segment) { 
                         $catDiscount = \App\CategorySegmentDiscount::where("brand_id",$b->id)->where("category_segment_id",$segment->id)->first();
                         if($catDiscount) {
-                            if($catDiscount->amount <= 0) {
+                           
+                            
                                $catDiscount->amount = $request->value;
                                $catDiscount->save();
-                            }
-                        }else{
+                           
+                        }else{ 
                             \App\CategorySegmentDiscount::create([
                                 "brand_id" => $b->id,
                                 "category_segment_id" => $segment->id,
