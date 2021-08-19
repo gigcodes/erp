@@ -84,6 +84,7 @@
                                      "onchange" => "resolveIssue(this,".$ticket->id.")",
                            ]); ?>
     </td>
+    <td>{{ $ticket->created_at }}</td>
     <td>
         <div class=" d-flex">
           <button type="button"
