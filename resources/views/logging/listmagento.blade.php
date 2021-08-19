@@ -587,8 +587,8 @@
   </div>
 
   <div id="product-translation-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg" style="margin:0; padding: 0;">
+        <div class="modal-content" style="width: 1500px;">
             <div class="modal-header">
               <h4 class="modal-title">Product Translation</h4>
             </div>
