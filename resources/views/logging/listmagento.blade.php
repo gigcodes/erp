@@ -128,6 +128,7 @@
                       <option value="started_push" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'started_push' ? 'selected' : '' }}>Sync Status</option>
                       <option value="size_chart_needed" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'size_chart_needed' ? 'selected' : '' }}>Size chart needed</option>
                       <option value="image_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'image_not_found' ? 'selected' : '' }}>Image not found</option>
+                      <option value="translation_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'translation_not_found' ? 'selected' : '' }}>Translation not found</option>
                   </select>
               </div>
               <div class="col-md-1 pl-0">
@@ -585,6 +586,22 @@
       </div>
   </div>
 
+  <div id="product-translation-modal" class="modal fade" role="dialog" style="margin: 0; padding: 0;">
+    <div class="modal-dialog modal-lg" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Product Translation</h4>
+            </div>
+           <div class="modal-body">
+              
+           </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+  </div>
+
   
 
 @endsection
@@ -941,6 +958,33 @@
           //alert('Could not update product on magento');
       })
   });
+
+  $(document).on('click', '.get-translation-product', function () {
+      $this = $(this);
+      var id = $(this).data('id');
+      var thiss = $(this);
+      url = "{{ url('products') }}/" + id + '/get-translation-product';
+      $.ajax({
+          type: 'GET',
+          url: url,
+          data: {
+              _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function () {
+              $("#loading-image").show();
+          }
+      }).done(function (response) {
+          $("#loading-image").hide();
+          $("#product-translation-modal").find(".modal-body").html(response);
+          $("#product-translation-modal").modal("show");
+      }).fail(function (response) {
+          $("#loading-image").hide();
+      })
+  });
+
+
+
+
   /** infinite loader **/
 	var isLoading = false;
 	var page = 1;
