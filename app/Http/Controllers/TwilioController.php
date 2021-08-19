@@ -327,15 +327,6 @@ class TwilioController extends FindByNumberController
         // $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
         // $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-
-        Log::channel('customerDnd')->info(' Start morning :: >> '.$morning);
-        Log::channel('customerDnd')->info(' End evening :: >> '.$evening);
-        if(!$time->between($morning, $evening, true)) {
-            Log::channel('customerDnd')->info(' end working ');
-          } else {
-            Log::channel('customerDnd')->info(' start working');
-          }
-
         if (($context == "customers" && $object && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
             $response = $response->reject();
         } else {
