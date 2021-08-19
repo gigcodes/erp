@@ -269,9 +269,15 @@
         // var form_data = $('.twlio_user_form').serialize();
         var website_id = $('.store_website_user').val();
         var val = [];
-        $(':checkbox:checked').each(function(i){
+        $('.check_box:checkbox:checked').each(function(i){
           val[i] = $(this).val();
         });
+
+        if(val.length == 0)
+        {
+            toastr['error']('Please Select Agent');
+            return false;
+        }
 
         $.ajax({
             type: "POST",
@@ -367,11 +373,11 @@
                             user_html += ' <a>';
 
                             if(value.status == 1 && value.website == website_id)
-                                user_html += ' <input type="checkbox" name="user_rec[]" value="'+value.id+'" checked  >';
+                                user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'" checked  >';
                             else if(value.status == 1 && value.website != website_id)
-                                user_html += ' <input type="checkbox" name="user_rec[]" value="'+value.id+'" disabled checked  >';
+                                user_html += ' <input type="checkbox" value="'+value.id+'" disabled checked  >';
                             else
-                                user_html += ' <input type="checkbox" name="user_rec[]" value="'+value.id+'"  >';
+                                user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'"  >';
 
                             user_html += '<strong>'+value.name+'</strong></a>';
                             user_html += ' </a>';

@@ -774,16 +774,22 @@ class TwilioController extends FindByNumberController
 
     public function change_agent_call_status(Request $request)
     {
+        $user = \Auth::user();
+        $user_id = $user->id;
         Log::channel('customerDnd')->info('change_agent_call_status  >>' );
-        $user_id = $request->get("authid");
+        // $user_id = $request->get("authid");
         $current_status = ($request->get("status") == 1 ? 0 : 1);
         $status = $request->get("status");
         $agent_name_id = 'customer_call_agent_'.$user_id;
+        Log::channel('customerDnd')->info('agent_id >>> '.$user_id);
+        Log::channel('customerDnd')->info('agent_name_id >>> '.$agent_name_id);
         $check_agent = AgentCallStatus::where('agent_id',$user_id)->where('agent_name_id',$agent_name_id)->first();
+        Log::channel('customerDnd')->info('check_agent >>> '.$check_agent);
         if ($check_agent != null) {
+            Log::channel('customerDnd')->info('id >>> '.$check_agent->id);
             AgentCallStatus::where('agent_id', $user_id)
             ->where('agent_name_id', $agent_name_id)
-            ->where('status', $current_status)
+            // ->where('status', $current_status)
             ->update(['status' => $status]);
         }
     }
@@ -1913,16 +1919,19 @@ class TwilioController extends FindByNumberController
         $website_id = $request->website_id ;
         TwilioAgent::where('status','1')->where('store_website_id',$website_id)->update(['status'=> 0]);
 
-        foreach($request->form_data as $key => $value){
+        if($request->form_data)
+        {
+            foreach($request->form_data as $key => $value){
 
-            $storeWebsiteProduct = TwilioAgent::updateOrCreate([
-                "user_id" => $value,
-                "store_website_id" => $website_id,
-            ], [
-                "user_id" => $value,
-                "store_website_id" => $website_id,
-                "status"  => 1
-            ]);
+                $storeWebsiteProduct = TwilioAgent::updateOrCreate([
+                    "user_id" => $value,
+                    "store_website_id" => $website_id,
+                ], [
+                    "user_id" => $value,
+                    "store_website_id" => $website_id,
+                    "status"  => 1
+                ]);
+            }
         }
         return new JsonResponse(['status' => 1, 'message' => 'Twilio Agent Added Successfully']);
 
