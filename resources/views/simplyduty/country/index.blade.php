@@ -11,27 +11,26 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SimplyDuty Country</h2>
             <div class="pull-left">
-            <form class="form-inline" action="{{ route('blogger.index') }}" method="GET">
-            <div class="form-group">
-              <input name="term" type="text" class="form-control"
-                     value="{{ isset($term) ? $term : '' }}"
-                     placeholder="Search">
-            </div>
+           
+            
 
-            {{-- <div class="form-group ml-3">
-              <select class="form-control" name="type">
-                <option value="">Select Type</option>
-                ndr<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-              </select>
-            </div> --}}
-
-              <div class="form-group">
-                  <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                  <label for="with_archived">Archived</label>
-              </div>
-
-            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-          </form>
+            <div class="form-inline ml-5 pl-5">
+            <form>
+                <div class="form-group">
+                   
+                <select id="segment_1" style="width:200px !important" >   
+           
+        @foreach($segments as $s)
+            
+                <option value="{{$s->id}}">{{$s->segment}}</option>
+             @endforeach   
+       </select>      
+        <input type="text" value="{{ request('default_value') }}" name="default_value" id="default_value_segment" class="form-control" placeholder="Setup Default value for segment">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-assign-default-val ml-3">Assign</button>
+            </form>
+        </div>
+          
        
          
 
@@ -319,5 +318,34 @@
                 
             })
        }
+
+
+       $(document).on("click",".btn-assign-default-val",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            method : "POST",
+            url: "{{url('/duty/country/assign-default-value')}}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                value: $("#default_value_segment").val(),
+                segment: $("#segment_1").val()
+                
+            },
+            dataType: "json",
+            beforeSend : function(){
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                if(response.code == 200) {
+                    toastr["success"]("Default value assigned!", "Message")
+                    location.reload();
+                }else{
+                    toastr["error"](response.message, "Message");
+                }
+            }
+        });
+    });
         </script>
 @endsection
