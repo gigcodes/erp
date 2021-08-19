@@ -21,7 +21,7 @@ class StoreWebsiteTwilioNumber extends Model
     protected $table = 'store_website_twilio_numbers';
 
     protected $fillable = [
-        'store_website_id', 'twilio_active_number_id','message_available','message_not_available','message_busy','twilio_credentials_id'
+        'store_website_id', 'twilio_active_number_id','message_available','message_not_available','message_busy','twilio_credentials_id','end_work_message'
     ];
 
     public function store_website()

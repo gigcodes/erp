@@ -339,7 +339,10 @@ class TwilioController extends FindByNumberController
             if($morning != '' && $evening != '' && !$time->between($morning, $evening, true))  
             {
                 Log::channel('customerDnd')->info(' End work >> ');
-                $response->play('https://'.$request->getHost() . "/end_work_ring.mp3");
+                if(isset($storewebsitetwiliono_data->end_work_message) && $storewebsitetwiliono_data->end_work_message != '')
+                    $response->say($storewebsitetwiliono_data->end_work_message);
+                else
+                    $response->play('https://'.$request->getHost() . "/end_work_ring.mp3");
                 
                 // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
             }else
@@ -347,9 +350,9 @@ class TwilioController extends FindByNumberController
                 Log::channel('customerDnd')->info(' working Hours >> ');
                 if($count < 1)
                 { 
-                    // if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_not_available != '')
-                    //     $response->say($storewebsitetwiliono_data->message_available);
-                    // else
+                    if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_available != '')
+                        $response->say($storewebsitetwiliono_data->message_available);
+                    else
                         $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
                 }
 
@@ -1653,6 +1656,7 @@ class TwilioController extends FindByNumberController
                 "twilio_credentials_id"  => $request->credential_id,
                 'message_available' => $request->message_available,
                 'message_not_available' => $request->message_not_available,
+                'end_work_message' => $request->end_work_message,
                 'message_busy' => $request->message_busy
             ]);
 

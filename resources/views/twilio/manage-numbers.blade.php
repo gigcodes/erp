@@ -83,17 +83,21 @@
                                             </select>
                                         </div>
                                     </td>
-                                    <td colspan="3">
+                                    <td colspan="1">
                                         <label>Message when agent available</label>
                                         <input type="text" class="form-control" name="message_available" id="message_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_available }}"/>
                                     </td>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <label>Message when agent not available</label>
                                         <input type="text" class="form-control" name="message_not_available" id="message_not_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_not_available }}"/>
                                     </td>
                                     <td colspan="3">
                                         <label>Message when agent is busy</label>
                                         <input type="text" class="form-control" name="message_busy" id="message_busy_{{ $number->id }}" value="{{ @ $number->assigned_stores->message_busy }}"/>
+                                    </td>
+                                    <td colspan="4">
+                                        <label>Message when Working Hours is Over</label>
+                                        <input type="text" class="form-control" name="end_work_message" id="end_work_message_{{ $number->id }}" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
                                     <td colspan="3">
                                         <button class="btn btn-sm btn-image save-number-to-store" id="save_{{ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
@@ -162,6 +166,7 @@
                         'message_available' : $('#message_available_'+num_id).val(),
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
                         'message_busy' : $('#message_busy_'+num_id).val(),
+                        'end_work_message' : $('#end_work_message_'+num_id).val(),
                         'credential_id' : credential_id
                     }
                 }).done(function(response){
