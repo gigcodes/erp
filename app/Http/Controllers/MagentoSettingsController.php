@@ -36,31 +36,19 @@ class MagentoSettingsController extends Controller
                 });
             }else{
                 if($request->scope == 'default'){
-                    $magentoSettings->where('scope_id', $request->website);
-                }else if($request->scope == 'wesbites'){
-                    $magentoSettings->WhereHas('store.website.storeWebsite', function($q) use ($request){
-                        $q->where('id', $request->website);
-                    });
+                    $website_ids = StoreWebsite::where('id', $request->website)->get()->pluck('id')->toArray();
+                    $magentoSettings->whereIn('scope_id', $website_ids ?? []);
+                }else if($request->scope == 'websites'){
+                    $website_ids = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
+                    $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                    $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
                 }else if($request->scope == 'stores'){
-                    $magentoSettings->WhereHas('storeview.websiteStore.website.storeWebsite', function($q) use ($request){
-                        $q->where('id', $request->website);
-                    });
+                    $website_ids = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
+                    $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                    $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
+                    $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
                 }
-            }
-        } 
-
-        if($request->store){
-            $magentoSettings->whereHas('storeview.websiteStore', function($q) use ($request){
-                $q->where('name', $request->store);
-            })->orWhereHas('store', function($q) use ($request){
-                $q->where('name', $request->store);
-            });
-        }
-
-        if($request->store_view){
-            $magentoSettings->whereHas('storeview', function($q) use ($request){
-                $q->where('code', $request->store_view);
-            });
+            } 
         }
 
         $magentoSettings = $magentoSettings->orderBy('created_at', 'DESC')->paginate(25);    
@@ -226,7 +214,7 @@ class MagentoSettingsController extends Controller
 
             foreach($websiteStores as $websiteStore){
 
-                $magento_url = $websiteStore->website->storeWebsite->magento_url;
+                $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStore->website->storeWebsite->magento_url;
@@ -241,7 +229,7 @@ class MagentoSettingsController extends Controller
                                 'value' => $request->value
                             ]);
                         }
-                        $scopeID = $websiteStore->id;
+                        $scopeID = $websiteStore->platform_id;
                         $magento_url = str_replace('www.', '', $magento_url);
                         if($is_live){
                             $token = $websiteStore->website->storeWebsite->api_token;
@@ -280,7 +268,7 @@ class MagentoSettingsController extends Controller
             })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
 
             foreach($websiteStoresViews as $websiteStoresView){
-                $magento_url = $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
+                $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
@@ -295,7 +283,7 @@ class MagentoSettingsController extends Controller
                                 'value' => $request->value
                             ]);
                         }
-                        $scopeID = $websiteStoresView->id;
+                        $scopeID = $websiteStoresView->platform_id;
                         $magento_url = str_replace('www.', '', $magento_url);
                         if($is_live){
                             $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
