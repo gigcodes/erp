@@ -888,7 +888,7 @@ class LogListMagentoController extends Controller
         }
 
         $products = $logListMagento->where(function($q) {
-            $q->where("sync_status","error")->orWhereNull("queue_id");
+            $q->whereIn("sync_status",["error","size_chart_needed","image_not_found","translation_not_found"])->orWhereNull("queue_id");
         })->groupBy('store_website_id','product_id')->get();
 
 
