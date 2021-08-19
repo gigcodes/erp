@@ -77,17 +77,6 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
         <div class="form-inline ml-5 pl-5">
            
-                <div class="form-group">
-                <select id="category_segments_1">
-                @foreach($category_segments as $category_segment)
-                    <option value="{{ $category_segment->id }}">{{ $category_segment->name }}</option>
-                @endforeach
-                </select>  </div>
-              
-        </div>
-
-        <div class="form-inline ml-5 pl-5">
-           
            <div class="form-group">
            <?php
                         echo Form::select(
@@ -101,6 +90,19 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         </div>
          
       </div>
+
+        <div class="form-inline ml-5 pl-5">
+           
+                <div class="form-group">
+                <select id="category_segments_1">
+                @foreach($category_segments as $category_segment)
+                    <option value="{{ $category_segment->id }}">{{ $category_segment->name }}</option>
+                @endforeach
+                </select>  </div>
+              
+        </div>
+
+      
 
         <div class="form-inline ml-5 pl-5">
             <form>
@@ -226,9 +228,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @endphp
 
                         @if($category_segment_discount)
-                            <input type="text" class="form-control" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input type="text" class="form-control1" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @else
-                            <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input type="text" class="form-control1" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
 

@@ -177,7 +177,6 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'YSlow';
                 if(!empty($value['yslow_json'])){
                     $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
-                    dd($yslowdata);exit;
                     $jsondata = json_decode($yslowdata, true);
                     $i=0;
                     foreach ($jsondata['g'] as $key=>$yslow) {
@@ -193,6 +192,58 @@ class WebsiteStoreViewGTMetrixController extends Controller
             }
         }
         return view('gtmetrix.stats', compact('data','title'));
+        //return response()->json(["code" => 200, "data" => $data]);
+    }
+
+    public function getstatsComparison($id)
+    {
+        $page_data = array();
+        $yslow_data = array();
+        $PageResourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->where('pagespeed_json','!=', null)->orderBy("created_at", "desc")->limit(5)->get();
+        $YslowResourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->where('yslow_json','!=', null)->orderBy("created_at", "desc")->limit(5)->get();
+        
+            if($PageResourcedata){
+                foreach ($PageResourcedata as $value) {
+                    if(!empty($value['pagespeed_json'])){
+                        $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
+                        $jsondata = json_decode($pagespeeddata, true);
+                        foreach ($jsondata['rules'] as $key=>$pagespeed) {
+                            if(!isset($page_data[$pagespeed['name']])){
+                                $page_data[$pagespeed['name']] = [];
+                            }
+                            if(isset($pagespeed['score'])){
+                                $page_data[$pagespeed['name']][] = $pagespeed['score'];
+                            }else{
+                                $page_data[$pagespeed['name']][] = 'NA';
+                            } 
+                        }
+                    }
+                }
+                
+            }
+            if($YslowResourcedata){
+                foreach ($PageResourcedata as $value) {
+                    if(!empty($value['yslow_json'])){
+                        $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
+                        $jsondata = json_decode($yslowdata, true);
+                        $i=0;
+                        foreach ($jsondata['g'] as $key=>$yslow) {
+                            if(!isset($yslow_data[trans('lang.'.$key)])){
+                                $yslow_data[trans('lang.'.$key)] = [];
+                            }
+                            if(isset($yslow['score'])){
+                                $yslow_data[trans('lang.'.$key)][] = $yslow['score'];
+                            }else{
+                                $yslow_data[trans('lang.'.$key)][] = 'NA';
+                            }               
+                        }
+                    }
+                }
+            }
+            $Colname = [
+                'First', 'Second', 'Third', 'Fourth', 'Fifth'
+            ];
+        return view('gtmetrix.comparison', compact('yslow_data','page_data', 'Colname'));
         //return response()->json(["code" => 200, "data" => $data]);
     }
 }
