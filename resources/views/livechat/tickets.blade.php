@@ -197,7 +197,9 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right">
+    <div class="space-right infinite-scroll">
+                    {!! $data->appends(request()->query())->links() !!}
+
         <div class="table-responsive">
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
                 <thead>
@@ -307,14 +309,28 @@
               50% 50% no-repeat;display:none;">
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <script type="text/javascript">
+
+    $(function() {
+        $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').remove();
+            }
+        });
+    });
 
     $(document).on('click', '.row-ticket', function () {
         $('#viewmore #contentview').html($(this).data('content'));
