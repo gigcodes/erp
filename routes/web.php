@@ -3021,8 +3021,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
     Route::post('twilio/add_user', 'TwilioController@manageUsers')->name('twilio.add_user');
-
-
+    Route::post('twilio/set_website_time', 'TwilioController@setWebsiteTime')->name('twilio.set_website_time');
+    Route::get('twilio/get_website_agent', 'TwilioController@getWebsiteAgent')->name('twilio.get_website_agent');
+    
     /**
      * Watson account management
      */

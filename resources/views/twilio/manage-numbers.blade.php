@@ -144,6 +144,11 @@
             });
 
             $('.save-number-to-store').on("click", function(){
+                var pathname = window.location.pathname;
+
+                path_arr = pathname.split('/');
+                var credential_id = path_arr[path_arr.length-1];
+
                 var selected_no = $(this).attr('id');
                 selected_no = selected_no.split('_');
                 var num_id = selected_no[1];
@@ -156,7 +161,8 @@
                         'store_website_id' : $('#store_website_'+num_id).val(),
                         'message_available' : $('#message_available_'+num_id).val(),
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
-                        'message_busy' : $('#message_busy_'+num_id).val()
+                        'message_busy' : $('#message_busy_'+num_id).val(),
+                        'credential_id' : credential_id
                     }
                 }).done(function(response){
                     if(response.status == 1){
