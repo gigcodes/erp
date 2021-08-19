@@ -156,7 +156,7 @@
 </div>
 
 <div class="modal fade" id="gtmetrix-comparison-modal" role="dialog">
-    <div class="modal-dialog modal-md model-width">
+    <div class="modal-dialog modal-lg model-width">
       <!-- Modal content-->
         <div class="modal-content message-modal" style="width: 100%;">
             
@@ -193,19 +193,6 @@
 
             }
         };
-
-// $('ul.nav-tabs li a').click(function (e) {
-//   $('ul.nav-tabs li.active').removeClass('active')
-// //   $('ul.nav-pills li.active').removeClass('active')
-// // //   $(this).parent('li').addClass('active')
-//   $(this).parent('li').addClass('active')
-// })
-
-// function activaTab(tab){
-//     $('.nav-tabs a[href="#' + tab + '"]').tab('show');
-// };
-
-// activaTab('PageSpeed');
 
 
     $(document).on('click', '.show-pagespeed', function(e){

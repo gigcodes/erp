@@ -27,7 +27,21 @@
                         <tr>
                             <td>{{$k}}</td>
                             @foreach ($data as $d)
-                            <td>{{$d}}</td>
+
+                            @php $color="white" @endphp
+                            @if($d >= 89)
+                            @php $color = 'bg-success' ; @endphp
+                            @endif
+                            @if($d <= 48)
+                            @php $color = 'bg-danger' ; @endphp
+                            @endif
+                            @if($d <= 60 && $d >= 48 )
+                            @php $color = 'bg-warning' ; @endphp
+                            @endif
+                            <td><div class="progress">
+                                <div class="progress-bar {{$color}} progress-bar-striped " role="progressbar" style="width: {{$d}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{$d}}%</div>
+                                </div>
+                            </td>
                             @endforeach
                         </tr>
                         @endforeach
@@ -45,7 +59,20 @@
                         <tr>
                             <td>{{$k}}</td>
                             @foreach ($data as $d)
-                            <td>{{$d}}</td>
+                            @php $color="white" @endphp
+                            @if($d >= 89)
+                            @php $color = 'bg-success' ; @endphp
+                            @endif
+                            @if($d <= 48)
+                            @php $color = 'bg-danger' ; @endphp
+                            @endif
+                            @if($d <= 60 && $d >= 48 )
+                            @php $color = 'bg-warning' ; @endphp
+                            @endif
+                            <td><div class="progress">
+                                <div class="progress-bar {{$color}} progress-bar-striped " role="progressbar" style="width: {{$d}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{$d}}%</div>
+                                </div>
+                            </td>
                             @endforeach
                         </tr>
                         @endforeach
