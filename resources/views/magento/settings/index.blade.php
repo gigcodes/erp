@@ -256,6 +256,8 @@
                     <div class="form-group">
                         <input type="checkbox" name="development" id="development" checked>
                         <label for="development">Devlopment</label><br>
+                        <input type="checkbox" name="stage" id="stage" checked>
+                        <label for="stage">Stage</label>
                         <input type="checkbox" name="live" id="live" checked>
                         <label for="live">Live</label>
                     </div>
@@ -359,7 +361,7 @@
         }
         $('.websites').trigger('change.select2');
 
-        $('#edit-setting-popup').attr('data-setting-id', data.id).modal('show');
+        $('#edit-setting-popup').attr('data-id', data.id).modal('show');
     });
     
     $(document).on('submit', '[name="edit-magento-setting-form"]', function(e) {
@@ -383,7 +385,7 @@
         let formData = new FormData(this);
 
         formData.append('_token', "{{ csrf_token() }}");
-        formData.append('id', $('#edit-setting-popup').attr('data-setting-id'));
+        formData.append('id', $('#edit-setting-popup').attr('data-id'));
 
         $.ajax({
             url: $(this).attr('action'),
