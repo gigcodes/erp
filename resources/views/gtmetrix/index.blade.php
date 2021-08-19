@@ -3,6 +3,7 @@
 @section('title','GT Metrix')
 
 @section('content')
+
 <style>
     .model-width{
         max-width: 1250px !important;
@@ -122,11 +123,14 @@
                                         <i class="fa fa-play"></i>
                                     </button>
                                     @if ($key->status == "completed")
-                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"pagespeed",'id'=>$key->test_id])}}" data-type="pagespeed">
+                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'pagespeed','id'=>$key->test_id])}}" data-type="pagespeed">
                                             <i class="fa fa-tachometer"></i>
                                         </button>
-                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>"yslow",'id'=>$key->test_id])}}">
+                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'yslow','id'=>$key->test_id])}}">
                                             <i class="fa fa-compass"></i>
+                                        </button>
+                                        <button class="btn btn-secondary show-comparison btn-xs" title="Show comparison" data-url="{{ route('gtmetrix.getstatsCmp',['id'=>$key->test_id])}}">
+                                        <i class="fa fa-balance-scale"></i>
                                         </button>
                                     @endif
                                 </td>
@@ -151,6 +155,15 @@
     </div>
 </div>
 
+<div class="modal fade" id="gtmetrix-comparison-modal" role="dialog">
+    <div class="modal-dialog modal-md model-width">
+      <!-- Modal content-->
+        <div class="modal-content message-modal" style="width: 100%;">
+            
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="gtmetrix-history-modal" role="dialog">
     <div class="modal-dialog modal-xl model-width w-100">
       <!-- Modal content-->
@@ -164,8 +177,37 @@
 @endsection
     
 @section('scripts')
-
 <script>
+    function setactive(id){
+//   $(".nav-tabs li.nav-item a.nav-link").removeClass('active');
+
+        if(id =="a_tab"){
+            $("#PageSpeed").addClass("active");
+            $("#YSlow").removeClass("active");
+            console.log(id);
+            
+            }else{
+            $("#YSlow").addClass("active");
+            $("#PageSpeed").removeClass("active");
+            console.log(id);
+
+            }
+        };
+
+// $('ul.nav-tabs li a').click(function (e) {
+//   $('ul.nav-tabs li.active').removeClass('active')
+// //   $('ul.nav-pills li.active').removeClass('active')
+// // //   $(this).parent('li').addClass('active')
+//   $(this).parent('li').addClass('active')
+// })
+
+// function activaTab(tab){
+//     $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+// };
+
+// activaTab('PageSpeed');
+
+
     $(document).on('click', '.show-pagespeed', function(e){
         e.preventDefault();
         var url = $(this).data('url');
@@ -180,6 +222,28 @@
             $('.message-modal').html('');    
             $('.message-modal').html(data); // load response 
             $("#gtmetrix-stats-modal").modal("show");
+            $('#loading-image').hide();        // hide ajax loader 
+        })
+        .fail(function(){
+            toastr["error"]("Something went wrong please check log file");
+            $('#loading-image').hide();
+        });
+    });
+
+    $(document).on('click', '.show-comparison', function(e){
+        e.preventDefault();
+        var url = $(this).data('url');
+        $('#gtmetrix-comparison-modal .message-modal').html(''); 
+        $('#loading-image').show();     
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'html'
+        })
+        .done(function(data){
+            $('#gtmetrix-comparison-modal .message-modal').html('');    
+            $('#gtmetrix-comparison-modal .message-modal').html(data); // load response 
+            $("#gtmetrix-comparison-modal").modal("show");
             $('#loading-image').hide();        // hide ajax loader 
         })
         .fail(function(){
