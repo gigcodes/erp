@@ -182,4 +182,20 @@ class SimplyDutyCountryController extends Controller
        return response()->json(['success' => true, 'message' => "Segment Updated Successfully"]);
 
    }
+
+   public function assignDefaultValue(Request $request)
+   {
+       $value=$request->value;
+       $segment=$request->segment;
+       if ($value>0 && $segment>0 )
+       {
+           SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value]);
+           return response()->json(["code" => 200 , "message" => "Default Duty assigned"]);
+       }
+       else
+       {
+          return response()->json(["code" => 100 , "message" => "somethings wrong"]);
+       }    
+   }
+
 }
