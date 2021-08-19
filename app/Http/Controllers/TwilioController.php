@@ -301,7 +301,9 @@ class TwilioController extends FindByNumberController
         // $response = new Twiml();
         //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
-        $sitewise_time = TwilioSitewiseTime::where('store_website_id',$store_website_id)->first();
+        $time_store_web_id = $storewebsitetwiliono_data->store_website_id;
+
+        $sitewise_time = TwilioSitewiseTime::where('store_website_id',$time_store_web_id)->first();
 
         $time = Carbon::now();
         if($sitewise_time){
@@ -339,6 +341,18 @@ class TwilioController extends FindByNumberController
             if($morning != '' && $evening != '' && !$time->between($morning, $evening, true))  
             {
                 Log::channel('customerDnd')->info(' End work >> ');
+                $call_history_params = [
+                    'call_sid' => ($request->get("CallSid") ?? 0),
+                    'account_sid' => ($request->get("AccountSid") ?? 0),
+                    'from' => ($request->get("Caller") ?? 0 ),
+                    'to' => ($request->get("Called") ?? 0),
+                    'call_data' => 'time_close',
+                    'aget_user_id' => ''
+                ];
+
+                $call_history = TwilioCallData::create($call_history_params);
+                //Call History - END
+
                 if(isset($storewebsitetwiliono_data->end_work_message) && $storewebsitetwiliono_data->end_work_message != '')
                     $response->say($storewebsitetwiliono_data->end_work_message);
                 else
