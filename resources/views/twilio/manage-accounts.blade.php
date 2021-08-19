@@ -5,7 +5,12 @@
             <h2 class="page-heading">Manage Twilio Accounts
 
                     <div class="pull-right">
-                        
+                        <button type="button" class="btn btn-secondary mr-2 twilio_working_hours" data-toggle="modal" data-target="#twilio_working_hours" style="background: #fff !important;
+                        border: 1px solid #ddd !important;
+                        color: #757575 !important;">Set Working Hours</button>
+                    </div>
+
+                    <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_user_data" data-toggle="modal" data-target="#twilio_user_data" style="background: #fff !important;
                         border: 1px solid #ddd !important;
                         color: #757575 !important;">Twilio Agent</button>
@@ -137,6 +142,51 @@
     </div>
 
 
+    <div class="modal fade" id="twilio_working_hours" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Twilio Working Hours</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form name="twlio_user_form" class="twlio_user_form">
+            @csrf
+            <div class="modal-body">
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                        <thead>
+                        <tr>
+                            <th scope="col" width="40%">Website</th>
+                            <th scope="col" width="20%">Start Time</th>
+                            <th scope="col" width="20%">End Time</th>
+                            <th scope="col" width="10%"></th>
+                        </tr>
+                        </thead>
+                        <tbody class="">
+                            @foreach($store_websites as $key => $value)
+                            <tr>
+                                <td style="word-break: break-all;">{{$value->website}}</td>
+                                <td><input type="time" name="start_time" class="start_time_{{$value->id}}" style="width: -webkit-fill-available;" value="{{$value->start_time}}" /> </td>
+                                <td><input type="time" name="end_time" class="end_time_{{$value->id}}" style="width: -webkit-fill-available;" value="{{$value->end_time}}" /></td>
+                                <td><button type="button" data-id="{{$value->id}}" class="btn btn-secondary set_twilio_storewebsite_time">Save</button></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                
+            </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="twilio_user_data" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -150,24 +200,34 @@
             @csrf
             <div class="modal-body">
                 <div class="col-xs-12 col-sm-12 col-md-12">
-                <strong>User:</strong>
+                    <strong>Store Website:</strong>
+                    <select class="form-control store_website_user mb-5" name="store_website_user">
+                        <option value="">Select</option>
+                        @foreach($store_websites as $key => $value)
+                            <option value="{{$value->id}}" >{{$value->website}}</option>
+                        @endforeach
+                    </select>
+
+                    <div class="user_list_data d-none">
+                        <strong>User:</strong>
                         <input type="text" id="myInputTwilioUser" placeholder="Search User .." class="form-control search-role mb-3">
+
                         <div class="overflow-auto" id="collapse1" style="height:400px;overflow-y:scroll;">
                         
-                        <ul id="myRole" class="padding-left-zero">
-                        @foreach($twilio_user_list as $key => $user)
-                           <li style="list-style-type: none;">
-                           <!-- (in_array($value, $userRole)) ? "checked" : '') -->
-                            <a>
-                            <input type="checkbox" name="user_rec[]" value="{{$user->id}}" {{ $user->status == 1 ? 'checked' : '' }} >
-                            <strong>{{$user->name}}</strong></a>
-                            </li>
-                       @endforeach
-                        </ul>
+                            <!-- <ul id="myRole" class="padding-left-zero">
+                            @foreach($twilio_user_list as $key => $user)
+                            <li style="list-style-type: none;">
+                                <a>
+                                <input type="checkbox" name="user_rec[]" value="{{$user->id}}" {{ $user->status == 1 ? 'checked' : '' }} >
+                                <strong>{{$user->name}}</strong></a>
+                                </li>
+                            @endforeach
+                            </ul> -->
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer user_list_data d-none">
                 <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
                 <button type="button" class="btn btn-secondary add_twilio_user">Save changes</button>
             </div>
@@ -207,16 +267,24 @@
 
     $('.add_twilio_user').on("click", function(e){
         // var form_data = $('.twlio_user_form').serialize();
+        var website_id = $('.store_website_user').val();
         var val = [];
-        $(':checkbox:checked').each(function(i){
+        $('.check_box:checkbox:checked').each(function(i){
           val[i] = $(this).val();
         });
+
+        if(val.length == 0)
+        {
+            toastr['error']('Please Select Agent');
+            return false;
+        }
 
         $.ajax({
             type: "POST",
             url: "{{ route('twilio.add_user') }}",  
             data: {
-                form_data:val
+                form_data:val,
+                website_id:website_id
             },
             beforeSend : function() {
                 
@@ -229,6 +297,101 @@
             },
             error: function (response) { 
                
+            }
+        });
+    });
+
+    
+    $('.set_twilio_storewebsite_time').on("click", function(e){
+       var id = $(this).data("id");
+
+       var start_time = $('.start_time_'+id).val();
+       var end_time = $('.end_time_'+id).val();
+       if(start_time == ''){
+            toastr['error']('Please Set Start Time');
+            return false;
+       }
+
+       if(end_time == ''){
+            toastr['error']('Please Set End Time');
+            return false;
+       }
+
+       $.ajax({
+            type: "POST",
+            url: "{{ route('twilio.set_website_time') }}",  
+            data: {
+                _token: "{{csrf_token()}}",
+                site_id:id,
+                start_time:start_time,
+                end_time:end_time
+            },
+            beforeSend : function() {
+                
+            },
+            success: function (response) {
+                if(response.status == 1){
+                    toastr['success'](response.message);
+                    setTimeout(function(){ location.reload(); }, 2000);
+                }
+            },
+            error: function (response) { 
+                
+            }
+        });
+       
+    });
+
+    $('#twilio_user_data').on('hidden.bs.modal', function () {
+        location.reload();
+    });
+
+
+    
+    $('.store_website_user').on("change", function(e){
+        
+        $(".user_list_data").removeClass("d-none");
+
+        var website_id = $('.store_website_user').val();
+        var user_html = '<ul id="myRole" class="padding-left-zero">';
+        $.ajax({
+            type: "GET",
+            url: "{{ route('twilio.get_website_agent') }}",  
+            data: {
+                website_id:website_id,
+            },
+            beforeSend : function() {
+                
+            },
+            success: function (response) {
+                if(response.status == 1){
+                    $.each( response.twilio_user_list, function( key, value ) {
+                     
+                        // if(value.store_website_id == null)
+                        // {
+                            user_html += ' <li style="list-style-type: none;">';
+                            user_html += ' <a>';
+
+                            if(value.status == 1 && value.website == website_id)
+                                user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'" checked  >';
+                            else if(value.status == 1 && value.website != website_id)
+                                user_html += ' <input type="checkbox" value="'+value.id+'" disabled checked  >';
+                            else
+                                user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'"  >';
+
+                            user_html += '<strong>'+value.name+'</strong></a>';
+                            user_html += ' </a>';
+                            user_html += ' </li>'
+                        // }
+                    });
+                }
+
+                user_html += '</ul>'
+
+                $('#collapse1').html(user_html);
+            },
+            error: function (response) { 
+                
             }
         });
     });

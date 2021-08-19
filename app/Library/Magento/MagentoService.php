@@ -53,6 +53,8 @@ class MagentoService
     public $productType;
     public $imageIds;
     public $languagecode = [];
+    public $aclanguagecode = [];
+    public $activeLanguages = [];
 
     const SKU_SEPERATOR = "-";
 
@@ -108,6 +110,15 @@ class MagentoService
         $this->meta = $this->getMeta();
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
         $this->translations = $this->getTranslations();
+
+        // after the translation that validate translation from her
+        $this->activeLanguages = $this->getActiveLanguages();
+        if (!$this->validateTranslation()) {
+            return false;
+        }
+
+
+
         \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
         $this->totalRequest += count($this->translations);
         \Log::info($this->product->id . " #7 => " . date("Y-m-d H:i:s"));
@@ -140,6 +151,11 @@ class MagentoService
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
 
+    }
+
+    private function getActiveLanguages()
+    {
+        return \App\Language::where("status",1)->pluck("code","code")->toArray();
     }
 
     private function getStoreColor()
@@ -905,6 +921,12 @@ class MagentoService
             ->where('w.store_website_id', $this->storeWebsite->id)
             ->where('l.locale', "!=", "en")
             ->where('product_translations.title', "!=", "")
+            ->where('product_translations.description', "!=", "")
+            ->where('product_translations.composition', "!=", "")
+            ->where('product_translations.color', "!=", "")
+            ->where('product_translations.size', "!=", "")
+            ->where('product_translations.country_of_manufacture', "!=", "")
+            ->where('product_translations.dimension', "!=", "")
             ->groupBy("l.locale")
             ->select(["product_translations.*", "l.locale", "l.name as local_name", \DB::raw("group_concat(wsv.code) as store_codes")])
             ->get();
@@ -915,6 +937,8 @@ class MagentoService
                 if (empty($translation->local_name)) {
                     continue;
                 }
+
+                $this->aclanguagecode[] = $translation->locale;
 
                 $translatetSeoTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                     new GoogleTranslate(),
@@ -969,6 +993,17 @@ class MagentoService
     private function getWebsiteIds()
     {
         return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
+    }
+
+    private function validateTranslation()
+    {
+        if(count($this->activeLanguages) != count($this->translations)) {
+            $this->storeLog("translation_not_found", "No translations found for the product total translation ".count($this->activeLanguages)." and total found ".count($this->translations),null, null , [
+                "languages" =>json_encode($this->aclanguagecode)
+            ]);
+            return false;
+        }
+        return true;
     }
 
     private function validateProductCategory()
@@ -1070,7 +1105,7 @@ class MagentoService
         }
     }
 
-    public function storeLog($type, $message, $request = null, $response = null)
+    public function storeLog($type, $message, $request = null, $response = null, $extraFiels = [])
     {
         $product      = $this->product;
         $storeWebsite = $this->storeWebsite;
@@ -1078,6 +1113,11 @@ class MagentoService
         if ($this->log) {
             $this->log->message     = $message;
             $this->log->sync_status = $type;
+            if(!empty($extraFiels)) {
+                foreach($extraFiels as $k => $ext) {
+                    $this->log->{$k} = $ext;
+                }
+            }
             $this->log->save();
         } else {
             $this->log = LogListMagento::log($product->id, $message, $type, $storeWebsite->id, $type);

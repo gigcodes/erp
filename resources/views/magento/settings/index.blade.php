@@ -7,14 +7,16 @@
 <div class="row">
     <div class="col-12">
         <h2 class="page-heading">Magento Settings</h2>
-        <button class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
     </div>
 
      <div class="row">
-         <div class="col-lg-12 margin-tb">
+         <div class="col-lg-12 margin-tb mb-3 ml-4">
              <?php $base_url = URL::to('/');?> 
              <div class="pull-left cls_filter_box">
                  <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET"> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
+                    </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <select class="form-control select2" name="scope" data-placeholder="scope">
                            <option value="">All</option> 
@@ -30,23 +32,7 @@
                                <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
                            @endforeach
                        </select>
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control select2" name="store" data-placeholder="store">
-                           <option value=""></option>
-                           @foreach($websitesStores as $w)
-                               <option value="{{ $w }}" {{ request('store') && request('store') == $w ? 'selected' : '' }}>{{ $w }}</option>
-                           @endforeach
-                       </select>
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control select2" name="store_view" data-placeholder="store view">
-                           <option value=""></option>
-                           @foreach($websiteStoreViews as $w)
-                               <option value="{{ $w }}" {{ request('store_view') && request('store_view') == $w ? 'selected' : '' }}>{{ $w }}</option>
-                           @endforeach
-                       </select>
-                    </div> 
+                    </div>  
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -105,6 +91,7 @@
                                 <td>{{ $magentoSetting->value }}</td>
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -256,6 +243,8 @@
                     <div class="form-group">
                         <input type="checkbox" name="development" id="development" checked>
                         <label for="development">Devlopment</label><br>
+                        <input type="checkbox" name="stage" id="stage" checked>
+                        <label for="stage">Stage</label><br>
                         <input type="checkbox" name="live" id="live" checked>
                         <label for="live">Live</label>
                     </div>
@@ -320,7 +309,7 @@
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            // location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -359,16 +348,11 @@
         }
         $('.websites').trigger('change.select2');
 
-        $('#edit-setting-popup').modal('show');
+        $('#edit-setting-popup').attr('data-id', data.id).modal('show');
     });
     
     $(document).on('submit', '[name="edit-magento-setting-form"]', function(e) {
         e.preventDefault();
-
-        if($('#edit-setting-popup .websites').val() == ''){
-            toastr['error']('please select the website.');
-            return false;
-        };
 
         if($('#edit-setting-popup input[name="name"]').val() == ''){
             toastr['error']('please add the name.');
@@ -388,6 +372,7 @@
         let formData = new FormData(this);
 
         formData.append('_token', "{{ csrf_token() }}");
+        formData.append('id', $('#edit-setting-popup').attr('data-id'));
 
         $.ajax({
             url: $(this).attr('action'),
@@ -402,7 +387,7 @@
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            // location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -494,6 +479,21 @@
         }).fail(function() {
             console.log("error");
         });
+    });
+
+
+    $(document).on('click', '.delete-setting', function(){
+        var id = $(this).data('id'); 
+        if(confirm('Do you really want to delete this magento-setting?')){
+            $.ajax({
+            url: '/magento-admin-settings/delete/'+id,   
+            }).done(function(response) {
+                $("#loading-image").hide(); 
+                location.reload();  
+            }).fail(function() {
+                console.log("error");
+            });
+        } 
     });
 </script>
 @endsection

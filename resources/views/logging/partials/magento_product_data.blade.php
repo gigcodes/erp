@@ -33,19 +33,18 @@
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
-                  <td> {{$item->sync_status}} </td>
+                  <td>
+                    {{$item->sync_status}} 
+                    @if($item->sync_status == "translation_not_found")
+                      <i data-id="{{$item->product_id}}" class="fa fa-info get-translation-product"></i>
+                    @endif
+                  </td>
 
-                    <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
+                  <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
                         <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->job_start_time, 10, '...')}}</span>
                         <span style="word-break:break-all;" class="show-full-brand_name-{{$item->id}} hidden">{{$item->job_start_time}}</span>
-                    </td>
-
-
-{{--                    <td class="expand-row-msg" data-id="{{$item->id}}">--}}
-{{--                        <span class="show-short-message-{{$item->job_start_time}}">{{ str_limit($item->job_start_time, 6, '...')}}</span>--}}
-{{--                        <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->job_start_time}}</span>--}}
-{{--                    </td>--}}
-                    <td>{{$item->job_end_time}} </td>
+                  </td>
+                  <td>{{$item->job_end_time}} </td>
                   <td>{{$item->total_request_assigned}} </td>
                   <td>{{$item->total_success}} </td>
                   <td> {{$item->total_error}}</td>

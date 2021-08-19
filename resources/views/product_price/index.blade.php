@@ -149,7 +149,10 @@
                            <th style="width: 4%;word-break: break-all">Segment</th>
                            <th style="width: 15%">Main Website</th>
                            <th style="width: 7%">EURO Price</th>
-                           <th style="width: 10%">Seg Discount</th>
+                           <!--<th style="width: 10%">Seg Discount</th>!-->
+                           @foreach($category_segments as $category_segment)
+                    <th width="3%">{{ $category_segment->name }}</th>
+                @endforeach
                            <th style="width: 5%">Less IVA</th>
                            <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
@@ -208,15 +211,31 @@
                                             </span>
                                </td>
                                <td>{{ $key['eur_price'] }}</td>
-                               <td>
-                                   <div style="align-items: center">
+                               
+                                <!--   <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
                                        <div class="ml-2" style="float: right;">%</div>
                                        <div style="float: right;width:50%;">
                                             <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
                                        </div>
-                                   </div>
-                               </td>
+                                   </div> !-->
+                                   @foreach($category_segments as $category_segment)
+                                    <td>
+                                        @php
+                                            $category_segment_discount = \DB::table('category_segment_discounts')->where('brand_id', $key['brand_id'])->where('category_segment_id', $category_segment->id)->first();
+                                        @endphp
+
+                                        @if($category_segment_discount)
+                                            <input type="text" class="form-control" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{$key['brand_id'] }}, {{ $category_segment->id }})"></th>
+                                        @else
+                                            <input type="text" class="form-control" value="" onchange="store_amount({{ $key['brand_id']}}, {{ $category_segment->id }})"></th>
+                                        @endif
+                                    {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $key['brand_id'] }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
+
+
+                                    </td>
+                                @endforeach 
+                               
                                <td>{{ $key['iva'] }}</td>
                                <td>{{ $key['net_price'] }}</td>
                                <td>

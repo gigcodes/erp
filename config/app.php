@@ -195,6 +195,8 @@ return [
         Webklex\IMAP\Providers\LaravelServiceProvider::class,
         Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
         //LaravelFCM\FCMServiceProvider::class,
+
+        App\Providers\EmailServiceProvider::class,
     ],
 
     /*

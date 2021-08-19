@@ -76,8 +76,39 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         </div>
 
         <div class="form-inline ml-5 pl-5">
+           
+           <div class="form-group">
+           <?php
+                        echo Form::select(
+                            "brand_segment_1",
+                            ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
+                            $brand->brand_segment,
+                            ['id'=>'brand_segment_1',"class" => "form-control ", "data-brand-id" => $brand->id,'data-placeholder'=>'-- Select Brand --']
+                        ); ?>
+
+        
+        </div>
+         
+      </div>
+
+        <div class="form-inline ml-5 pl-5">
+           
+                <div class="form-group">
+                <select id="category_segments_1">
+                @foreach($category_segments as $category_segment)
+                    <option value="{{ $category_segment->id }}">{{ $category_segment->name }}</option>
+                @endforeach
+                </select>  </div>
+              
+        </div>
+
+      
+
+        <div class="form-inline ml-5 pl-5">
             <form>
                 <div class="form-group">
+                   
+               
                     <input type="text" value="{{ request('default_value') }}" name="default_value" id="default_value_segment" class="form-control" placeholder="Setup Default value for segment">
                 </div>
                 <button type="submit" class="btn btn-secondary btn-assign-default-val ml-3">Assign</button>
@@ -197,9 +228,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @endphp
 
                         @if($category_segment_discount)
-                            <input type="text" class="form-control" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input type="text" class="form-control1" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @else
-                            <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input type="text" class="form-control1" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
 
@@ -431,7 +462,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             website = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/attach-website",
+            url: "{{url('/brand/attach-website')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 website: website,
@@ -452,7 +483,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         var reference = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/update-reference",
+            url: "{{url('/brand/update-reference')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 reference: reference,
@@ -506,7 +537,7 @@ $('.select2-selection__clear').remove()
             segment = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/change-segment",
+            url: "{{url('/brand/change-segment')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 segment: segment,
@@ -527,7 +558,7 @@ $('.select2-selection__clear').remove()
             next_step = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/next-step",
+            url: "{{url('/brand/next-step')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 next_step: next_step,
@@ -554,7 +585,7 @@ $('.select2-selection__clear').remove()
             var brandId = $(this).data("id");
             $.ajax({
                 type: 'GET',
-                url: "/brand/" + brandId + "/create-remote-id",
+                url: "{{url('/brand/')}}" + brandId + "/create-remote-id",
             }).done(function(response) {
                 if (response.code == 200) {
                     $this.closest("tr").find(".remote-td").html(response.data.magento_id);
@@ -651,10 +682,13 @@ $('.select2-selection__clear').remove()
         var $this = $(this);
         $.ajax({
             method : "POST",
-            url: "/brand/assign-default-value",
+            url: "{{url('/brand/assign-default-value')}}",
             data: {
                 _token: "{{ csrf_token() }}",
-                value: $("#default_value_segment").val()
+                value: $("#default_value_segment").val(),
+                category_segments: $("#category_segments_1").val(),
+                brand_segment: $("#brand_segment_1").val()
+
             },
             dataType: "json",
             beforeSend : function(){

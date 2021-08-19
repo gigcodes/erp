@@ -51,6 +51,7 @@ use App\Helpers\TwilioHelper;
 use Twilio\TwiML\VoiceResponse;
 use App\TwilioAgent;
 use App\TwilioCallData;
+use App\TwilioSitewiseTime;
 
 /**
  * Class TwilioController - active record
@@ -103,26 +104,68 @@ class TwilioController extends FindByNumberController
             // $agent = str_replace('-', '_', str_slug($user->name));
             // $agent = 'yogesh';
 
-            $agent = 'customer_call_agent_'.$user_id;
-            // $agent = 'customer_call_agent_6';
-            
-            $devices = TwilioCredential::where('status',1)->where('twiml_app_sid','!=',null)->get();
-            if ($devices->count()){
-                $tokens=[];
-                foreach ($devices as $device){
-                    $capability = new ClientToken($device->account_id, $device->auth_token);
-                    // $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
-                    $capability->allowClientOutgoing($device->twiml_app_sid);
-                    
-                    $capability->allowClientIncoming($agent);
-                    $expiresIn = (3600 * 1);
-                    $token = $capability->generateToken();
-                    $tokens[]=$token;
-                }
-                return response()->json(['twilio_tokens' => $tokens, 'agent' => $agent]);
+            $check_is_agent = TwilioAgent::where('user_id', $user_id)->first();
 
+            if($check_is_agent)
+            {
+
+                $twilio_active_credential = StoreWebsiteTwilioNumber::join('twilio_active_numbers','twilio_active_numbers.id','store_website_twilio_numbers.twilio_active_number_id')
+                ->where('store_website_twilio_numbers.store_website_id',$check_is_agent->store_website_id)
+                ->select('twilio_active_numbers.twilio_credential_id')
+                ->first();
+
+                Log::channel('customerDnd')->info('twilio_active_credential ==> '.$twilio_active_credential->twilio_credential_id);
+
+                $devices = TwilioCredential::where('status',1)->whereNotNull('twiml_app_sid')->where('id',$twilio_active_credential->twilio_credential_id)->get();
+
+                if($devices)
+                {
+                    $agent = 'customer_call_agent_'.$user_id;
+
+                    if ($devices->count()){
+                        $tokens=[];
+                        foreach ($devices as $device){
+                            $capability = new ClientToken($device->account_id, $device->auth_token);
+                            // $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+                            $capability->allowClientOutgoing($device->twiml_app_sid);
+                            
+                            $capability->allowClientIncoming($agent);
+                            $expiresIn = (3600 * 1);
+                            $token = $capability->generateToken();
+                            $tokens[]=$token;
+                        }
+                        return response()->json(['twilio_tokens' => $tokens, 'agent' => $agent]);
+        
+                    }
+                    return response()->json(['empty' => true]);
+                }
+                return response()->json(['empty' => true]);
+            }else{
+                return response()->json(['empty' => true]);
             }
-            return response()->json(['empty' => true]);
+
+            // $agent = 'customer_call_agent_'.$user_id;
+            // // $agent = 'customer_call_agent_6';
+            
+            // $devices = TwilioCredential::where('status',1)->where('twiml_app_sid','!=',null)->get();
+            // if ($devices->count()){
+            //     $tokens=[];
+            //     foreach ($devices as $device){
+            //         $capability = new ClientToken($device->account_id, $device->auth_token);
+            //         // $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+            //         $capability->allowClientOutgoing($device->twiml_app_sid);
+                    
+            //         $capability->allowClientIncoming($agent);
+            //         $expiresIn = (3600 * 1);
+            //         $token = $capability->generateToken();
+            //         $tokens[]=$token;
+            //     }
+            //     return response()->json(['twilio_tokens' => $tokens, 'agent' => $agent]);
+
+            // }
+            // return response()->json(['empty' => true]);
+
+
 
 //            $capability = new ClientToken(\Config::get("twilio.account_sid"), \Config::get("twilio.auth_token"));
 //            $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
@@ -258,13 +301,33 @@ class TwilioController extends FindByNumberController
         // $response = new Twiml();
         //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
-        $response = new VoiceResponse();
+        $time_store_web_id = $storewebsitetwiliono_data->store_website_id;
+
+        $sitewise_time = TwilioSitewiseTime::where('store_website_id',$time_store_web_id)->first();
 
         $time = Carbon::now();
-        $saturday = Carbon::now()->endOfWeek()->subDay();
-        $sunday = Carbon::now()->endOfWeek();
-        $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
-        $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
+        if($sitewise_time){
+            $start_time = $sitewise_time->start_time;
+            $start_hrs = explode(":",$start_time);
+            $end_time = $sitewise_time->end_time;
+            $end_hrs = explode(":",$end_time);
+
+           
+            $saturday = Carbon::now()->endOfWeek()->subDay();
+            $sunday = Carbon::now()->endOfWeek();
+            $morning = Carbon::create($time->year, $time->month, $time->day, $start_hrs[0], $start_hrs[1], 0);
+            $evening = Carbon::create($time->year, $time->month, $time->day, $end_hrs[0], $end_hrs[1], 0);
+        }else{
+            $morning = '';
+            $evening = '';
+        }
+
+        $response = new VoiceResponse();
+
+        // $saturday = Carbon::now()->endOfWeek()->subDay();
+        // $sunday = Carbon::now()->endOfWeek();
+        // $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
+        // $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
         if (($context == "customers" && $object && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
             $response = $response->reject();
@@ -275,9 +338,33 @@ class TwilioController extends FindByNumberController
             //     $response->play(\Config::get("app.url") . "end_work_ring.mp3");
             // } else {
 
+            if($morning != '' && $evening != '' && !$time->between($morning, $evening, true))  
+            {
+                Log::channel('customerDnd')->info(' End work >> ');
+                $call_history_params = [
+                    'call_sid' => ($request->get("CallSid") ?? 0),
+                    'account_sid' => ($request->get("AccountSid") ?? 0),
+                    'from' => ($request->get("Caller") ?? 0 ),
+                    'to' => ($request->get("Called") ?? 0),
+                    'call_data' => 'time_close',
+                    'aget_user_id' => ''
+                ];
+
+                $call_history = TwilioCallData::create($call_history_params);
+                //Call History - END
+
+                if(isset($storewebsitetwiliono_data->end_work_message) && $storewebsitetwiliono_data->end_work_message != '')
+                    $response->say($storewebsitetwiliono_data->end_work_message);
+                else
+                    $response->play('https://'.$request->getHost() . "/end_work_ring.mp3");
+                
+                // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
+            }else
+            {
+                Log::channel('customerDnd')->info(' working Hours >> ');
                 if($count < 1)
                 { 
-                    if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_not_available != '')
+                    if(isset($storewebsitetwiliono_data->message_available) && $storewebsitetwiliono_data->message_available != '')
                         $response->say($storewebsitetwiliono_data->message_available);
                     else
                         $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
@@ -410,6 +497,18 @@ class TwilioController extends FindByNumberController
                 {
                     $count++;
 
+                    $call_history_params = [
+                        'call_sid' => ($request->get("CallSid") ?? 0),
+                        'account_sid' => ($request->get("AccountSid") ?? 0),
+                        'from' => ($request->get("Caller") ?? 0 ),
+                        'to' => ($request->get("Called") ?? 0),
+                        'call_data' => 'time_close',
+                        'aget_user_id' => ''
+                    ];
+    
+                    $call_history = TwilioCallData::create($call_history_params);
+                    //Call History - END
+
                     if(isset($storewebsitetwiliono_data->message_busy) && $storewebsitetwiliono_data->message_busy != '')
                         $response->Say($storewebsitetwiliono_data->message_busy);
                     else
@@ -418,7 +517,7 @@ class TwilioController extends FindByNumberController
                     $response->redirect(route('ivr', ['count'=>$count], false));
 
                 }
-            // }
+            }
         }
 
 
@@ -701,16 +800,22 @@ class TwilioController extends FindByNumberController
 
     public function change_agent_call_status(Request $request)
     {
+        $user = \Auth::user();
+        $user_id = $user->id;
         Log::channel('customerDnd')->info('change_agent_call_status  >>' );
-        $user_id = $request->get("authid");
+        // $user_id = $request->get("authid");
         $current_status = ($request->get("status") == 1 ? 0 : 1);
         $status = $request->get("status");
         $agent_name_id = 'customer_call_agent_'.$user_id;
+        Log::channel('customerDnd')->info('agent_id >>> '.$user_id);
+        Log::channel('customerDnd')->info('agent_name_id >>> '.$agent_name_id);
         $check_agent = AgentCallStatus::where('agent_id',$user_id)->where('agent_name_id',$agent_name_id)->first();
+        Log::channel('customerDnd')->info('check_agent >>> '.$check_agent);
         if ($check_agent != null) {
+            Log::channel('customerDnd')->info('id >>> '.$check_agent->id);
             AgentCallStatus::where('agent_id', $user_id)
             ->where('agent_name_id', $agent_name_id)
-            ->where('status', $current_status)
+            // ->where('status', $current_status)
             ->update(['status' => $status]);
         }
     }
@@ -1363,7 +1468,9 @@ class TwilioController extends FindByNumberController
 
         $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')->select('users.*','twilio_agents.status')->orderBy('users.name', 'ASC')->get();
 
-        return view('twilio.manage-accounts', compact('all_accounts','twilio_user_list'));
+        $store_websites = StoreWebsite::LeftJoin('twilio_sitewise_times as tst','tst.store_website_id','store_websites.id')->select('store_websites.*','tst.start_time','tst.end_time')->orderBy('store_websites.website', 'ASC')->get();
+
+        return view('twilio.manage-accounts', compact('all_accounts','twilio_user_list','store_websites'));
     }
 
     public function addAccount(Request $request)
@@ -1547,9 +1654,23 @@ class TwilioController extends FindByNumberController
     {
         //check if same no. assigned to some store website
         try {
-            StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $request->twilio_number_id)
-                                    ->where('store_website_id','!=',$request->store_website_id)->firstOrFail();
-            return new JsonResponse(['status' => 0, 'message' => 'Number already assigned to another site']);
+            // StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $request->twilio_number_id)
+            //                         ->where('store_website_id','!=',$request->store_website_id)->firstOrFail();
+
+            // return new JsonResponse(['status' => 0, 'message' => 'Number already assigned to another site']);
+
+            $check_rec = StoreWebsiteTwilioNumber::where('store_website_id','=',$request->store_website_id)
+                                    // ->where('twilio_credentials_id','=',$request->credential_id)
+                                    ->first();
+
+            if($check_rec)
+            {
+                if($check_rec->store_website_id == $request->store_website_id && $check_rec->twilio_credentials_id != $request->credential_id )
+                {
+                    return new JsonResponse(['status' => 0, 'message' => 'Site already assigned to another Twilio Account']);
+                }
+            }
+            
         } catch (\Exception $e) {
             //do nothing
         }
@@ -1558,13 +1679,16 @@ class TwilioController extends FindByNumberController
             //create new record
 
             $storeWebsiteProduct = StoreWebsiteTwilioNumber::updateOrCreate([
-                "store_website_id" => $request->store_website_id,
+                // "store_website_id" => $request->store_website_id,
                 "twilio_active_number_id"  => $request->twilio_number_id,
+                "twilio_credentials_id"  => $request->credential_id,
             ], [
                 "store_website_id" => $request->store_website_id,
                 "twilio_active_number_id"  => $request->twilio_number_id,
+                "twilio_credentials_id"  => $request->credential_id,
                 'message_available' => $request->message_available,
                 'message_not_available' => $request->message_not_available,
+                'end_work_message' => $request->end_work_message,
                 'message_busy' => $request->message_busy
             ]);
 
@@ -1818,19 +1942,85 @@ class TwilioController extends FindByNumberController
 
     public function manageUsers(Request $request)
     {
-        TwilioAgent::where('status','1')->update(['status'=> 0]);
+        $website_id = $request->website_id ;
+        TwilioAgent::where('status','1')->where('store_website_id',$website_id)->update(['status'=> 0]);
 
-        foreach($request->form_data as $key => $value){
+        if($request->form_data)
+        {
+            foreach($request->form_data as $key => $value){
 
-            $storeWebsiteProduct = TwilioAgent::updateOrCreate([
-                "user_id" => $value,
-            ], [
-                "user_id" => $value,
-                "status"  => 1
-            ]);
+                $storeWebsiteProduct = TwilioAgent::updateOrCreate([
+                    "user_id" => $value,
+                    "store_website_id" => $website_id,
+                ], [
+                    "user_id" => $value,
+                    "store_website_id" => $website_id,
+                    "status"  => 1
+                ]);
+            }
         }
         return new JsonResponse(['status' => 1, 'message' => 'Twilio Agent Added Successfully']);
 
+    }
+
+    public function setWebsiteTime(Request $request){
+
+        $storeWebsiteProduct = TwilioSitewiseTime::updateOrCreate([
+            "store_website_id" => $request->site_id,
+        ], [
+            "store_website_id" => $request->site_id,
+            "start_time" => $request->start_time,
+            "end_time" => $request->end_time,
+        ]);
+        return new JsonResponse(['status' => 1, 'message' => 'Time Set Successfully']);
+    }
+
+
+    public function getWebsiteAgent(Request $request){
+        
+        // $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')
+        // //->where('twilio_agents.store_website_id',$request->website_id)
+        // ->select('users.*','twilio_agents.status',  'twilio_agents.store_website_id')
+        // ->orderBy('users.name', 'ASC')->get();
+
+
+        $twilio_user = User::orderBy('name')->get();
+
+        // $twilio_agent = TwilioAgent::where('store_website_id',$request->website_id)->get();
+        $twilio_agent = TwilioAgent::get();
+
+        $twilio_agent_arr = array();
+        $twilio_user_list = array();
+
+        foreach($twilio_agent as $key => $val)
+        {
+            $twilio_agent_arr[$val->user_id]['status'] = $val->status;
+            $twilio_agent_arr[$val->user_id]['website'] = $val->store_website_id;
+        }
+
+        foreach($twilio_user as $key => $val){
+
+            if (array_key_exists($val->id,$twilio_agent_arr))
+            {
+                $twilio_user_list[$key] =  $val;
+                $twilio_user_list[$key]['status'] =  $twilio_agent_arr[$val->id]['status'];
+                $twilio_user_list[$key]['website'] =  $twilio_agent_arr[$val->id]['website'];
+            }
+            else
+            {
+                $twilio_user_list[$key] =  $val;
+            }
+
+        }
+
+        // $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')->select('users.*','twilio_agents.status')->orderBy('users.name', 'ASC')->get();
+
+        // $twilio_user_list = User::LeftJoin('twilio_agents','user_id','users.id')
+        // //->where('twilio_agents.store_website_id',$request->website_id)
+        // ->select('users.*','twilio_agents.status', DB::raw('IF(twilio_agents.store_website_id = '. $request->website_id .', "YES", "NO") as website'))
+        // ->orderBy('users.name', 'ASC')->get();
+
+        return new JsonResponse(['status' => 1, 'twilio_user_list' => $twilio_user_list]);
     }
 
 } 

@@ -10,6 +10,37 @@
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SimplyDuty Country</h2>
+            <div class="pull-left">
+           
+            
+
+            <div class="form-inline ml-5 pl-5">
+            <form>
+                <div class="form-group">
+                   
+                <select id="segment_1" style="width:200px !important" >   
+           
+        @foreach($segments as $s)
+            
+                <option value="{{$s->id}}">{{$s->segment}}</option>
+             @endforeach   
+       </select>      
+        <input type="text" value="{{ request('default_value') }}" name="default_value" id="default_value_segment" class="form-control" placeholder="Setup Default value for segment">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-assign-default-val ml-3">Assign</button>
+            </form>
+        </div>
+          
+       
+         
+
+        
+         
+            
+            
+            </div>
+
+       
             <div class="pull-right">
             <a  class="btn btn-secondary" onclick="opensegment();" >Segment</a>
                 <button type="button" class="btn btn-secondary" onclick="getCategoryData()">Load from SimplyDuty</button>
@@ -34,6 +65,8 @@
             </ul>
         </div>
     @endif
+
+    
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="category-table">
@@ -285,5 +318,34 @@
                 
             })
        }
+
+
+       $(document).on("click",".btn-assign-default-val",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            method : "POST",
+            url: "{{url('/duty/country/assign-default-value')}}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                value: $("#default_value_segment").val(),
+                segment: $("#segment_1").val()
+                
+            },
+            dataType: "json",
+            beforeSend : function(){
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                if(response.code == 200) {
+                    toastr["success"]("Default value assigned!", "Message")
+                    location.reload();
+                }else{
+                    toastr["error"](response.message, "Message");
+                }
+            }
+        });
+    });
         </script>
 @endsection
