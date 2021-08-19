@@ -7,14 +7,16 @@
 <div class="row">
     <div class="col-12">
         <h2 class="page-heading">Magento Settings</h2>
-        <button class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
     </div>
 
      <div class="row">
-         <div class="col-lg-12 margin-tb">
+         <div class="col-lg-12 margin-tb mb-3 ml-4">
              <?php $base_url = URL::to('/');?> 
              <div class="pull-left cls_filter_box">
                  <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET"> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
+                    </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <select class="form-control select2" name="scope" data-placeholder="scope">
                            <option value="">All</option> 
@@ -30,23 +32,7 @@
                                <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
                            @endforeach
                        </select>
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control select2" name="store" data-placeholder="store">
-                           <option value=""></option>
-                           @foreach($websitesStores as $w)
-                               <option value="{{ $w }}" {{ request('store') && request('store') == $w ? 'selected' : '' }}>{{ $w }}</option>
-                           @endforeach
-                       </select>
-                    </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control select2" name="store_view" data-placeholder="store view">
-                           <option value=""></option>
-                           @foreach($websiteStoreViews as $w)
-                               <option value="{{ $w }}" {{ request('store_view') && request('store_view') == $w ? 'selected' : '' }}>{{ $w }}</option>
-                           @endforeach
-                       </select>
-                    </div> 
+                    </div>  
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -257,7 +243,7 @@
                         <input type="checkbox" name="development" id="development" checked>
                         <label for="development">Devlopment</label><br>
                         <input type="checkbox" name="stage" id="stage" checked>
-                        <label for="stage">Stage</label>
+                        <label for="stage">Stage</label><br>
                         <input type="checkbox" name="live" id="live" checked>
                         <label for="live">Live</label>
                     </div>
