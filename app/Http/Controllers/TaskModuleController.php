@@ -734,16 +734,7 @@ class TaskModuleController extends Controller
         $payment_receipt->user_id = $task->assign_to;
         $payment_receipt->save();
 
-        \App\CashFlow::create([
-            'user_id' => $task->assign_to,
-            'date' =>  date('Y-m-d'),
-            'amount' => $totalCost,
-            'cash_flow_able_id'=>$payment_receipt->id,
-            'cash_flow_able_type '=> '\App\PaymentReceipt',
-            'type'=>'Pending',
-            'description'=>'Receipt created'
-
-        ]);
+        
         
         return response()->json([
             'status' => 'success'
@@ -1463,16 +1454,7 @@ class TaskModuleController extends Controller
                             $payment_receipt->task_id = $task->id;
                             $payment_receipt->user_id = $task->assign_to;
                             $payment_receipt->save();
-                            \App\CashFlow::create([
-                                'user_id' => $task->assign_to,
-                                'date' =>  date('Y-m-d'),
-                                'amount' => $totalCost,
-                                'cash_flow_able_id'=>$payment_receipt->id,
-                                'cash_flow_able_type '=> '\App\PaymentReceipt',
-                                'type'=>'Pending',
-                                'description'=>'Receipt created'
-                    
-                            ]);
+                            
                         }
                     }
                 }
@@ -2979,7 +2961,7 @@ class TaskModuleController extends Controller
 							],500);
 						}
                     }
-					$receipt_id=PaymentReceipt::insertGetId([
+					$receipt_id=PaymentReceipt::create([
 						'status'            => 'Pending',
 						'rate_estimated'    => $rate_estimated,
 						'date'              => date('Y-m-d'),
@@ -2988,16 +2970,7 @@ class TaskModuleController extends Controller
 						'by_command'        => 4,
 						'task_id'           => $task->id,
 					]);
-                    \App\CashFlow::create([
-                        'user_id' => $task_user_for_payment->id,
-                        'date' =>  date('Y-m-d'),
-                        'amount' => $rate_estimated,
-                        'cash_flow_able_id'=>$receipt_id,
-                        'cash_flow_able_type '=> '\App\PaymentReceipt',
-                        'type'=>'Pending',
-                        'description'=>'Receipt created'
-            
-                    ]);
+                   
 				} 
 				
 			}
