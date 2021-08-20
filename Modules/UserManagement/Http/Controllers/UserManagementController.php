@@ -84,10 +84,11 @@ class UserManagementController extends Controller
         }
         
 
-
-        $usersystemips = UserSysyemIp::with('user')->get();
+        // $usersystemips = UserSysyemIp::with('user')->get();
+        $usersystemips = array();
         
-        $userlist = User::orderBy('name')->where('is_active',1)->get();
+        // $userlist = User::orderBy('name')->where('is_active',1)->get();
+        $userlist = array();
 
         // $user = new feedback_table;
         // $user->catagory=$req->input('catagory');
@@ -98,6 +99,14 @@ class UserManagementController extends Controller
         // $user->save();
 
         return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+    }
+
+    public function getUserList(Request $request){
+
+        $userlist = User::orderBy('name')->where('is_active',1)->pluck('name','id');
+        $usersystemips = UserSysyemIp::with('user')->get();
+
+        return response()->json( ["code" => 200 , "data" => $userlist , "usersystemips"=>$usersystemips] );
     }
 
 
