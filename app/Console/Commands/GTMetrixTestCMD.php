@@ -144,7 +144,7 @@ class GTMetrixTestCMD extends Command
                                                         
                                 'store_view_id' =>$value['id'],
                                 'status' =>'not_queued',
-                                'website_url' =>$webiteUrl
+                                'website_url' =>$webiteUrl.'/'.$value['code']
                             );
 
                             $create[] = $siteData;
@@ -162,7 +162,7 @@ class GTMetrixTestCMD extends Command
                                                         
                                         'store_view_id' =>$value['id'],
                                         'status' =>'not_queued',
-                                        'website_url' =>$webiteUrl
+                                        'website_url' =>$webiteUrl.'/'.$value['code']
                                     );
                                     $create[] = $siteData;
                                     foreach ($finalArray['url'] as $key => $value) {
@@ -181,7 +181,7 @@ class GTMetrixTestCMD extends Command
                                                         
                                                     'store_view_id' =>1234,
                                                     'status' =>'not_queued',
-                                                    'website_url' =>$url
+                                                    'website_url' =>$url.'/'.$value['code']
                                                 );
                     
                                                 $create[] = $siteData;
