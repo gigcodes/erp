@@ -1314,6 +1314,8 @@ class TwilioController extends FindByNumberController
 
             if(!$check_customer)
             {
+                $get_twilio_active_number = TwilioActiveNumber::where('phone_number',$request->input('Called'))->first();
+                $store_web_twilio_no = StoreWebsiteTwilioNumber::where('twilio_active_number_id',$get_twilio_active_number->id)->first();
 
                 $defaultWhatapp =     $task_info = \DB::table('whatsapp_configs')
                 ->select('*')
@@ -1325,6 +1327,7 @@ class TwilioController extends FindByNumberController
                     'name' => str_replace('+', '', $request->input('Caller')), 
                     'phone' => str_replace('+', '', $request->input('Caller')), 
                     'whatsapp_number' => $defaultNo,
+                    'store_website_id' => $store_web_twilio_no->store_website_id,
                 ];
 
                 Customer::create($add_customer);
