@@ -198,7 +198,6 @@
     </div>
 
     <div class="space-right infinite-scroll">
-                    {!! $data->appends(request()->query())->links() !!}
 
         <div class="table-responsive">
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
@@ -222,7 +221,7 @@
                     <th style="width: 8%;">Action</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="content_data" class="infinite-scroll-pending-inner">
                 @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
@@ -319,18 +318,50 @@
 
 <script type="text/javascript">
 
-    $(function() {
-        $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').remove();
-            }
-        });
-    });
+        var page = 1;
+        function getScrollTop() {
+            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+        }
+        window.onscroll = function() {
+            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+            loadMore(++page);
+        };
+
+        function getDocumentHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+        };
+
+
+        function loadMore(page) {
+
+            var url = "/livechat/tickets?page="+page;
+
+            page = page + 1;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                beforeSend:function(){
+                        $('.infinite-scroll-products-loader').show();
+                },
+                success: function (data) {
+                    if (data == '') {
+                        $('.infinite-scroll-products-loader').hide();
+                    }
+                    $('.infinite-scroll-products-loader').hide();
+                    $('.infinite-scroll-pending-inner').append(data);
+                },
+                error: function () {
+                    $('.infinite-scroll-products-loader').hide();
+                }
+            });
+        }
 
     $(document).on('click', '.row-ticket', function () {
         $('#viewmore #contentview').html($(this).data('content'));
