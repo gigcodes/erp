@@ -218,6 +218,7 @@
                     <th style="width: 8%;">Phone no</th>
                     <th style="width: 13%;">Message Box</th>
                     <th style="width: 7%;">Status</th>
+                    <th style="width: 8%;">Created</th>
                     <th style="width: 8%;">Action</th>
                 </tr>
                 </thead>
