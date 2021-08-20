@@ -110,7 +110,7 @@ class ProductPriceController extends Controller
             
          /*   $products = $products->skip($skip * Setting::get('pagination'))
             ->limit(Setting::get('pagination'))->get();*/
-            $products = $products->limit(5)->get();
+            $products = $products->limit(10)->get();
             $product_list = [];
             if(count($products)){
                 foreach($products as $p){
