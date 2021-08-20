@@ -1572,7 +1572,7 @@ $(document).on('click','.statusChange',function(event){
                         ip += '<tr>';
                         ip += '<td> '+ v.index_txt+' </td>';
                         ip += '<td> '+ v.ip +'</td>';
-                        ip += '<td>'+ v.other_user_name +'</td>';
+                        ip += '<td>'+ v.user_id ? v.user.name : v.other_user_name +'</td>';
                         ip += '<td>'+ v.notes +'</td>';
                         ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="'+ v.id +'">Delete</button></td>';
                         ip += '</tr>';
