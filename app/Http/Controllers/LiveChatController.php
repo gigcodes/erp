@@ -20,6 +20,7 @@ use App\Tickets;
 use App\TicketStatuses;
 use App\Email;
 use Google\Cloud\Translate\TranslateClient;
+use App\Setting;
 
 class LiveChatController extends Controller
 {
@@ -1345,21 +1346,24 @@ class LiveChatController extends Controller
 			$query = $query->whereDate('date', $request->date);
         }
         
-        $pageSize = 10;
+        $pageSize = Setting::get('pagination');
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
         
-		if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
-                'links' => (string)$data->render(),
-                'count' => $data->total(),
-            ], 200);
+        $page = $request->page;
+        if ($page == null) {
+            $page = 1;
+        }
+
+        if ($request->ajax()) {
+            $page = $request->page - 1; 
+
+            return view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
         }
          return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
-        
       
         
+
     }
 
     
