@@ -43,6 +43,7 @@
        
             <div class="pull-right">
             <a  class="btn btn-secondary" onclick="opensegment();" >Segment</a>
+                <button type="button" class="btn btn-secondary" onclick="approve()">Approve</button>
                 <button type="button" class="btn btn-secondary" onclick="getCategoryData()">Load from SimplyDuty</button>
                 <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/resend2.png"/></button>
             </div>
@@ -72,14 +73,17 @@
         <table class="table table-bordered" id="category-table">
             <thead>
             <tr>
+                 <th ><input id="checkAll" type="checkbox" ></th>
                 <th style="width:10%">Country Code</th>
                 <th style="width:60%">Country</th>
                 <th>Segment</th>
                 <th>Default Duty</th>
+                <th>Status</th>
                 <th>Created At</th>
                 <th>Updated At</th>
             </tr>
             <tr>
+                 <th></th>
             <th><input type="text" id="code" class="search form-control"></th>    
             <th><input type="text" id="country" class="search form-control"></th>
             <th></th>
@@ -346,6 +350,52 @@
                 }
             }
         });
+    });
+
+
+
+    function approve()
+    {
+            str='';
+            $(".checkboxClass:checked").each(function(){
+               
+                if (str=='')
+                   str=$(this).val();
+                else
+                   str= str + "," + $(this).val();  
+            });
+            if (str=='')
+              alert('First Select Country')
+            else
+            {
+                    $.ajax({
+                        method : "POST",
+                        url: "{{url('/duty/country/approve')}}",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            ids: str,
+                         },
+                        dataType: "json",
+                        beforeSend : function(){
+                            $("#loading-image").show();
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            if(response.code == 200) {
+                                toastr["success"]("approved successfully", "Message")
+                                location.reload();
+                            }else{
+                                toastr["error"](response.message, "Message");
+                            }
+                        }
+                    });
+            }
+            
+        
+    }
+
+    $("#checkAll").click(function(){
+         $('input:checkbox').not(this).prop('checked', this.checked);
     });
         </script>
 @endsection

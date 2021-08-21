@@ -6,7 +6,7 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 
-class SimplyDutyCountry extends Model
+class SimplyDutyCountryHistory extends Model
 {
       /**
      * @var string
@@ -14,7 +14,7 @@ class SimplyDutyCountry extends Model
      * @SWG\Property(property="country_name",type="string")
      * @SWG\Property(property="default_duty",type="string")
      */
-    protected $fillable = ['country_code','country_name', 'default_duty','status'];
+    protected $fillable = ['simple_duty_country_id','old_segment','new_segment', 'old_duty', 'new_duty'];
 
     public static function getSelectList()
     {

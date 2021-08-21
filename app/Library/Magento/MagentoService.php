@@ -885,6 +885,29 @@ class MagentoService
                         ];
                     }
                 }
+                $d=  \App\StoreWebsiteProductPrice::where('product_id',$product->id)->where('web_store_id',$webStore->id)->where('store_website_id',$website->id)->first();
+               if ($d)
+               {    
+                      $d->default_price=$magentoPrice;
+                      $d->duty_price=$duty_price;
+                      $d->override_price=$ovverridePrice;
+                      $d-save();
+               } 
+               else
+               { 
+               $data=[
+                    'product_id'=> $product->id, 
+                    'default_price'=>$magentoPrice, 
+                    'segment_discount'=>'0', 
+                    'duty_price'=>$dutyPrice, 
+                    'override_price'=>$ovverridePrice ,
+                    'status'=>'1',
+                    'web_store_id'=>$webStore->id,
+                    'store_website_id'=>$website->id
+                ];
+                      \App\StoreWebsiteProductPrice::insert($data);
+                     
+               }
             }
         }
         Log::info("pricesArr " . json_encode($pricesArr));

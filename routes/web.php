@@ -470,6 +470,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::get('brand/{id}/activities', 'BrandController@activites')->name('brand.activities');
     Route::get('brand/fetch-new', 'BrandController@fetchNewBrands')->name('brand.fetchnew');
+    Route::post('brand/approve', 'BrandController@approve');
+
     Route::resource('brand', 'BrandController');
 
    Route::put('brand/priority/{id}', 'BrandController@priority');
@@ -2336,6 +2338,8 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
     Route::get('duty/country/addsegment', 'SimplyDutyCountryController@addsegment');
     Route::post('duty/country/assign-default-value', 'SimplyDutyCountryController@assignDefaultValue');
+    Route::post('duty/country/approve', 'SimplyDutyCountryController@approve');
+
    
    
     //Simple Duty Calculation
@@ -3272,6 +3276,7 @@ Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetri
 
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
+Route::get('store-website-product-prices', 'product_price\ProductPriceController@store_website_product_prices')->name('store-website-product-prices');
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
 Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
 Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_duty');

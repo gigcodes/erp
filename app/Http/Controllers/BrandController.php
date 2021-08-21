@@ -412,6 +412,7 @@ class BrandController extends Controller
 
         if($brand) {
            $brand->brand_segment = $segment;
+           $brand->status=0;
            $brand->save();
            return response()->json(["code" => 200 , "data" => []]);
         }
@@ -427,6 +428,7 @@ class BrandController extends Controller
 
         if($brand) {
            $brand->next_step = $next_step;
+           $brand->status=0;
            $brand->save();
            return response()->json(["code" => 200 , "data" => []]);
         }
@@ -716,6 +718,19 @@ class BrandController extends Controller
         }
 
         return response()->json(["code" => 200 , "message" => "Default segment discount assigned"]);
+    }
+
+    public function approve(Request $request)
+    {
+         $ids=$request->ids;
+         $ids=explode(",", $ids);
+         for($i=0;$i<count($ids);$i++)
+         {
+             if ($ids[$i]>0)
+             \App\Brand::where('id',$ids[$i])->update(['status'=> 1]);
+                
+         }
+         return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
     }
 
     //END - DEVTASK-4278

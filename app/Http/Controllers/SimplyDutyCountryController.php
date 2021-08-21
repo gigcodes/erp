@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\SimplyDutyCountry;
+use App\SimplyDutyCountryHistory;
 use Illuminate\Http\Request;
 use App\Setting;
 use Response;
 use App\SimplyDutySegment;
+use Illuminate\Support\Facades\Auth;
 
 class SimplyDutyCountryController extends Controller
 {
@@ -167,7 +169,18 @@ class SimplyDutyCountryController extends Controller
             return response()->json(['success' => false, 'message' => "Something went wrong!"]);
         }
         $country = SimplyDutyCountry::find($request->input('id'));
+        $data=[
+            'simply_duty_countries_id'=>$country->id,
+            'old_segment'=>$country->segment_id, 
+            'new_segment'=>$country->segment_id,
+            'old_duty'=>$country->default_duty,
+            'new_duty'=>$request->input('duty'),
+            'updated_by'=>Auth::user()->id
+    
+        ];
         $country->default_duty = $request->input('duty');
+        $country->status=0;
+        SimplyDutyCountryHistory::insert($data);
         if ($country->save()) {
             return response()->json(['success' => true, 'message' => "Default duty update successfully"]);
         }
@@ -178,7 +191,19 @@ class SimplyDutyCountryController extends Controller
    {
        $cid=$request->cid;
        $sid=$request->sid;
-       SimplyDutyCountry::where('id',$cid)->update(['segment_id'=>$sid]);
+       $duty=SimplyDutyCountry::where('id',$cid)->first();
+       $data=[
+        'simply_duty_countries_id'=>$duty->id,
+        'old_segment'=>$duty->segment_id, 
+        'new_segment'=>$sid,
+        'old_duty'=>$duty->default_duty,
+        'new_duty'=>$duty->default_duty,
+        'updated_by'=>Auth::user()->id  
+       ];
+       $duty->segment_id=$sid;
+       $duty->status=0;
+       $duty->save();
+       SimplyDutyCountryHistory::insert($data);
        return response()->json(['success' => true, 'message' => "Segment Updated Successfully"]);
 
    }
@@ -189,13 +214,43 @@ class SimplyDutyCountryController extends Controller
        $segment=$request->segment;
        if ($value>0 && $segment>0 )
        {
-           SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value]);
+           //SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value,'status'=>0]);
+           $duty=SimplyDutyCountry::where('segment_id',$segment)->get();
+           foreach($duty as $d)
+             {
+                $data=[
+                    'simply_duty_countries_id'=>$d->id,
+                    'old_segment'=>$d->segment_id, 
+                    'new_segment'=>$d->segment_id,
+                    'old_duty'=>$d->default_duty,
+                    'new_duty'=>$value,
+                    'updated_by'=>Auth::user()->id
+            
+                ];
+                $d->default_duty=$value;
+                $d->status=0;
+                $d->save();
+                SimplyDutyCountryHistory::insert($data);
+            }   
            return response()->json(["code" => 200 , "message" => "Default Duty assigned"]);
        }
        else
        {
           return response()->json(["code" => 100 , "message" => "somethings wrong"]);
        }    
+   }
+
+   public function approve(Request $request)
+   {
+        $ids=$request->ids;
+        $ids=explode(",", $ids);
+        for($i=0;$i<count($ids);$i++)
+        {
+            if ($ids[$i]>0)
+               SimplyDutyCountry::where('id',$ids[$i])->update(['status'=> 1]);
+               
+        }
+        return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
    }
 
 }
