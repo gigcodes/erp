@@ -341,16 +341,28 @@ class TwilioController extends FindByNumberController
             if($morning != '' && $evening != '' && !$time->between($morning, $evening, true))  
             {
                 Log::channel('customerDnd')->info(' End work >> ');
-                $call_history_params = [
+                // $call_history_params = [
+                //     'call_sid' => ($request->get("CallSid") ?? 0),
+                //     'account_sid' => ($request->get("AccountSid") ?? 0),
+                //     'from' => ($request->get("Caller") ?? 0 ),
+                //     'to' => ($request->get("Called") ?? 0),
+                //     'call_data' => 'time_close',
+                //     'aget_user_id' => ''
+                // ];
+
+                // $call_history = TwilioCallData::create($call_history_params);
+
+                $call_history = TwilioCallData::updateOrCreate([
+                    'call_sid' => ($request->get("CallSid") ?? 0),
+                ], [
                     'call_sid' => ($request->get("CallSid") ?? 0),
                     'account_sid' => ($request->get("AccountSid") ?? 0),
                     'from' => ($request->get("Caller") ?? 0 ),
                     'to' => ($request->get("Called") ?? 0),
                     'call_data' => 'time_close',
                     'aget_user_id' => ''
-                ];
-
-                $call_history = TwilioCallData::create($call_history_params);
+                ]);
+                
                 //Call History - END
 
                 if(isset($storewebsitetwiliono_data->end_work_message) && $storewebsitetwiliono_data->end_work_message != '')
@@ -478,16 +490,26 @@ class TwilioController extends FindByNumberController
                             ->update(['status' => '1']);
 
                             //Call History - START
-                            $call_history_params = [
+                            // $call_history_params = [
+                            //     'call_sid' => ($request->get("CallSid") ?? 0),
+                            //     'account_sid' => ($request->get("AccountSid") ?? 0),
+                            //     'from' => ($request->get("Caller") ?? 0 ),
+                            //     'to' => ($request->get("Called") ?? 0),
+                            //     'call_data' => 'client',
+                            //     'aget_user_id' => $client['agent_id']
+                            // ];
+
+                            // $call_history = TwilioCallData::create($call_history_params);
+                            $call_history = TwilioCallData::updateOrCreate([
+                                'call_sid' => ($request->get("CallSid") ?? 0),
+                            ], [
                                 'call_sid' => ($request->get("CallSid") ?? 0),
                                 'account_sid' => ($request->get("AccountSid") ?? 0),
                                 'from' => ($request->get("Caller") ?? 0 ),
                                 'to' => ($request->get("Called") ?? 0),
                                 'call_data' => 'client',
                                 'aget_user_id' => $client['agent_id']
-                            ];
-
-                            $call_history = TwilioCallData::create($call_history_params);
+                            ]);
                             //Call History - END
                         }
                     }
@@ -497,16 +519,26 @@ class TwilioController extends FindByNumberController
                 {
                     $count++;
 
-                    $call_history_params = [
+                    // $call_history_params = [
+                    //     'call_sid' => ($request->get("CallSid") ?? 0),
+                    //     'account_sid' => ($request->get("AccountSid") ?? 0),
+                    //     'from' => ($request->get("Caller") ?? 0 ),
+                    //     'to' => ($request->get("Called") ?? 0),
+                    //     'call_data' => 'time_close',
+                    //     'aget_user_id' => ''
+                    // ];
+    
+                    // $call_history = TwilioCallData::create($call_history_params);
+                    $call_history = TwilioCallData::updateOrCreate([
+                        'call_sid' => ($request->get("CallSid") ?? 0),
+                    ], [
                         'call_sid' => ($request->get("CallSid") ?? 0),
                         'account_sid' => ($request->get("AccountSid") ?? 0),
                         'from' => ($request->get("Caller") ?? 0 ),
                         'to' => ($request->get("Called") ?? 0),
                         'call_data' => 'time_close',
                         'aget_user_id' => ''
-                    ];
-    
-                    $call_history = TwilioCallData::create($call_history_params);
+                    ]);
                     //Call History - END
 
                     if(isset($storewebsitetwiliono_data->message_busy) && $storewebsitetwiliono_data->message_busy != '')
@@ -732,16 +764,26 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info('outgoingCall :: TwilioCallData Added' );	
         Log::channel('customerDnd')->info($request->get("CallSid").' | '.$request->get("AccountSid").' | '.$callFrom.' | '.$number.' | '.$request->get("AuthId"));	
 
-        $call_history_params = [
-            'call_sid' => $request->get("CallSid"),
-            'account_sid' => $request->get("AccountSid"),
+        // $call_history_params = [
+        //     'call_sid' => $request->get("CallSid"),
+        //     'account_sid' => $request->get("AccountSid"),
+        //     'from' => ($callFrom ?? 0),
+        //     'to' => ($number ?? 0 ),
+        //     'call_data' => 'agent',
+        //     'aget_user_id' => $request->get("AuthId")
+        // ];
+
+        // $call_history = TwilioCallData::create($call_history_params);
+        $call_history = TwilioCallData::updateOrCreate([
+            'call_sid' => ($request->get("CallSid") ?? 0),
+        ], [
+            'call_sid' => ($request->get("CallSid") ?? 0),
+            'account_sid' => ($request->get("AccountSid") ?? 0),
             'from' => ($callFrom ?? 0),
             'to' => ($number ?? 0 ),
             'call_data' => 'agent',
             'aget_user_id' => $request->get("AuthId")
-        ];
-
-        $call_history = TwilioCallData::create($call_history_params);
+        ]);
         //Call History - END
 
         $params = [
@@ -1272,6 +1314,8 @@ class TwilioController extends FindByNumberController
 
             if(!$check_customer)
             {
+                $get_twilio_active_number = TwilioActiveNumber::where('phone_number',$request->input('Called'))->first();
+                $store_web_twilio_no = StoreWebsiteTwilioNumber::where('twilio_active_number_id',$get_twilio_active_number->id)->first();
 
                 $defaultWhatapp =     $task_info = \DB::table('whatsapp_configs')
                 ->select('*')
@@ -1283,6 +1327,7 @@ class TwilioController extends FindByNumberController
                     'name' => str_replace('+', '', $request->input('Caller')), 
                     'phone' => str_replace('+', '', $request->input('Caller')), 
                     'whatsapp_number' => $defaultNo,
+                    'store_website_id' => $store_web_twilio_no->store_website_id,
                 ];
 
                 Customer::create($add_customer);
@@ -1407,16 +1452,27 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info('outgoingCall :: TwilioCallData Added' );	
         Log::channel('customerDnd')->info($request->get("CallSid").' | '.$request->get("AccountSid").' | '.$request->get("Caller").' | '.$request->get("Called").' | '.$request->get("AuthId"));
 
-        $call_history_params = [
-            'call_sid' => $request->get("CallSid"),
-            'account_sid' => $request->get("AccountSid"),
+        // $call_history_params = [
+        //     'call_sid' => $request->get("CallSid"),
+        //     'account_sid' => $request->get("AccountSid"),
+        //     'from' => $request->get("Caller"),
+        //     'to' => $request->get("Called"),
+        //     'call_data' => 'leave_message',
+        //     'aget_user_id' => null
+        // ];
+
+        // $call_history = TwilioCallData::create($call_history_params);
+
+        $call_history = TwilioCallData::updateOrCreate([
+            'call_sid' => ($request->get("CallSid") ?? 0),
+        ], [
+            'call_sid' => ($request->get("CallSid") ?? 0),
+            'account_sid' => ($request->get("AccountSid") ?? 0),
             'from' => $request->get("Caller"),
             'to' => $request->get("Called"),
             'call_data' => 'leave_message',
             'aget_user_id' => null
-        ];
-
-        $call_history = TwilioCallData::create($call_history_params);
+        ]);
 
         // $params = [
         //     'recording_url' => $request->input('RecordingUrl'),
@@ -1983,8 +2039,16 @@ class TwilioController extends FindByNumberController
         // ->select('users.*','twilio_agents.status',  'twilio_agents.store_website_id')
         // ->orderBy('users.name', 'ASC')->get();
 
-
         $twilio_user = User::orderBy('name')->get();
+        $store_website_list = array();
+        $website_credentials = StoreWebsiteTwilioNumber::where('store_website_id',$request->website_id)->select('twilio_credentials_id')->first();
+        if($website_credentials)
+        {   
+            $twilio_credentials_id = $website_credentials->twilio_credentials_id;
+            $website_credentials = StoreWebsiteTwilioNumber::where('twilio_credentials_id',$twilio_credentials_id)->get()->toArray();
+            $store_website_list = array_unique(array_column($website_credentials,'store_website_id'));
+        }
+
 
         // $twilio_agent = TwilioAgent::where('store_website_id',$request->website_id)->get();
         $twilio_agent = TwilioAgent::get();
@@ -1994,6 +2058,11 @@ class TwilioController extends FindByNumberController
 
         foreach($twilio_agent as $key => $val)
         {
+            if (in_array($val->store_website_id, $store_website_list))
+            {
+                $twilio_agent_arr[$val->user_id]['is_same_website'] = 1;
+            }
+
             $twilio_agent_arr[$val->user_id]['status'] = $val->status;
             $twilio_agent_arr[$val->user_id]['website'] = $val->store_website_id;
         }
@@ -2005,6 +2074,7 @@ class TwilioController extends FindByNumberController
                 $twilio_user_list[$key] =  $val;
                 $twilio_user_list[$key]['status'] =  $twilio_agent_arr[$val->id]['status'];
                 $twilio_user_list[$key]['website'] =  $twilio_agent_arr[$val->id]['website'];
+                $twilio_user_list[$key]['is_same_website'] =  ($twilio_agent_arr[$val->id]['is_same_website'] ?? 0);
             }
             else
             {

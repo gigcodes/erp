@@ -374,6 +374,8 @@
 
                             if(value.status == 1 && value.website == website_id)
                                 user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'" checked  >';
+                            else if(value.is_same_website == 1)
+                                user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'"  >';
                             else if(value.status == 1 && value.website != website_id)
                                 user_html += ' <input type="checkbox" value="'+value.id+'" disabled checked  >';
                             else
