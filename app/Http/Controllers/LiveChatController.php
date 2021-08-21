@@ -273,10 +273,17 @@ class LiveChatController extends Controller
                 $chatId = $chat->id;
 
                 //Getting user
-                if(isset($chat->users[1]->email))
-                    $userEmail = $chat->users[1]->email;
+                // if(isset($chat->users[1]->email))
+                //     $userEmail = $chat->users[1]->email;
+                // else
+                //     $userEmail = $chat->users[0]->email;
+
+                if(isset($chat->thread->events[0]->fields[0]->value)) 
+                    $userEmail  = $chat->thread->events[0]->fields[0]->value;
+                else if(isset($chat->thread->events[2]->fields[0]->value)) 
+                    $userEmail  = $chat->thread->events[2]->fields[0]->value;
                 else
-                    $userEmail = $chat->users[0]->email;
+                    $userEmail  = null;
                 
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
@@ -317,7 +324,7 @@ class LiveChatController extends Controller
 
                 \Log::channel('chatapi')->debug(': ChatApi'."\Customer :".$customer);
 
-                if ($customer != null) {
+                if ($customer != null && $customer != '') {
                     
                     \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Not Null');
 
