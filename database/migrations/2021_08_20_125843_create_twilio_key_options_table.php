@@ -18,6 +18,7 @@ class CreateTwilioKeyOptionsTable extends Migration
             $table->integer('key')->nullable();
             $table->string('description')->nullable();
             $table->text('details')->nullable();
+            $table->integer('website_store_id')->nullable();
             $table->timestamps();
         });
     }

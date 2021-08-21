@@ -2138,13 +2138,21 @@ class TwilioController extends FindByNumberController
     {
         $call_history = TwilioKeyOption::updateOrCreate([
             'key' => $request->get("key_no"),
+            'website_store_id' => $request->get("website_store_id"),
         ], [
             'key' => $request->get("key_no"),
             'description' => $request->get("option"),
-            'details' => $request->get("description")
+            'details' => $request->get("description"),
+            'website_store_id' => $request->get("website_store_id"),
         ]);
 
         return new JsonResponse(['status' => 1, 'message' => 'Option Set Successfully']);
+    }
+
+    public function getTwilioKeyData(Request $request) {
+
+        dd($request->all());
+
     }
 
 } 

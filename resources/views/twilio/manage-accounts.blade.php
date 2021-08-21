@@ -256,7 +256,15 @@
             @csrf
             <div class="modal-body">
 
-                <div class="table-responsive">
+                <strong>Store Website:</strong>
+                <select class="form-control store_website_twilio_key mb-5" name="store_website_twilio_key">
+                    <option value="">Select</option>
+                    @foreach($store_websites as $key => $value)
+                        <option value="{{$value->id}}" >{{$value->website}}</option>
+                    @endforeach
+                </select>
+
+                <div class="table-responsive store_website_twilio_key_data d-none">
                     <table class="table table-bordered table-hover" style="table-layout:fixed;">
                         <thead>
                         <tr>
@@ -594,6 +602,7 @@
         var key_no = $(this).data("id");
         var option = $('.option_menu_'+key_no).val();
         var desc = $('.key_description_'+key_no).val();
+        var website_id = $('.store_website_twilio_key').val();
 
         if(option == '')
         {
@@ -613,7 +622,8 @@
                 _token: "{{csrf_token()}}",
                 key_no:key_no,
                 option:option,
-                description:desc
+                description:desc,
+                website_store_id:website_id,
             },
             beforeSend : function() {
                 
@@ -628,6 +638,37 @@
             }
         });
         
+    });
+
+
+    $('.store_website_twilio_key').on("change", function(e){
+        
+        $(".store_website_twilio_key_data").removeClass("d-none");
+        var website_id = $('.store_website_twilio_key').val();
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('twilio.get_website_wise_key_data') }}",  
+            data: {
+                _token: "{{csrf_token()}}",
+                website_store_id:website_id,
+            },
+            beforeSend : function() {
+                
+            },
+            success: function (response) {
+                if(response.status == 1){
+                    toastr['success'](response.message);
+                }
+            },
+            error: function (response) { 
+                
+            }
+        });
+    });
+
+    $('#twilio_key_option_modal').on('hidden.bs.modal', function () {
+        $(".store_website_twilio_key_data").addClass("d-none");
     });
 </script>
 @endsection
