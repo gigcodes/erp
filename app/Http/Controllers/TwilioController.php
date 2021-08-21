@@ -2151,8 +2151,21 @@ class TwilioController extends FindByNumberController
 
     public function getTwilioKeyData(Request $request) {
 
-        dd($request->all());
+        $keydata = TwilioKeyOption::where('website_store_id',$request->website_store_id)->get();
+        $web_id = $request->website_store_id;
 
+        $twilio_key_arr = array();
+
+        if($keydata)
+        {
+            foreach($keydata as $key => $value){
+                $twilio_key_arr[$value->key]['option'] = $value->description;
+                $twilio_key_arr[$value->key]['desc'] = $value->details;
+            }
+            
+       
+            return view('twilio.twilio_key_data', compact('twilio_key_arr','web_id'));
+        }
     }
 
 } 
