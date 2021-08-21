@@ -52,6 +52,8 @@ use Twilio\TwiML\VoiceResponse;
 use App\TwilioAgent;
 use App\TwilioCallData;
 use App\TwilioSitewiseTime;
+use App\TwilioCallWaiting;
+use App\TwilioKeyOption;
 
 /**
  * Class TwilioController - active record
@@ -517,8 +519,8 @@ class TwilioController extends FindByNumberController
 
                 if($is_available == 0)
                 {
-                    $count++;
-
+                   
+                    Log::channel('customerDnd')->info(' Not Available ---- >> ');
                     // $call_history_params = [
                     //     'call_sid' => ($request->get("CallSid") ?? 0),
                     //     'account_sid' => ($request->get("AccountSid") ?? 0),
@@ -541,10 +543,37 @@ class TwilioController extends FindByNumberController
                     ]);
                     //Call History - END
 
+                    //Call waiting - START
+                    TwilioCallWaiting::updateOrCreate([
+                        'call_sid' => ($request->get("CallSid") ?? 0),
+                    ], [
+                        'call_sid' => ($request->get("CallSid") ?? 0),
+                        'account_sid' => ($request->get("AccountSid") ?? 0),
+                        'from' => ($request->get("Caller") ?? 0 ),
+                        'to' => ($request->get("Called") ?? 0),
+                        'store_website_id' => $store_website_id,
+                        'status'    => 0
+                    ]);
+                    //Call waiting - END
+
+                    
+
                     if(isset($storewebsitetwiliono_data->message_busy) && $storewebsitetwiliono_data->message_busy != '')
                         $response->Say($storewebsitetwiliono_data->message_busy);
                     else
                         $response->Say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
+
+                    // $dial = $response->dial('',[
+                    //     'record' => 'true',
+                    //     'recordingStatusCallback' => $url,
+                    //     'action' => $actionurl,
+                    //     'timeout' => '60'
+                    // ]);
+
+                    // $dial->client($client['agent_name_id']);
+
+                    $count++;
+                    Log::channel('customerDnd')->info('count >> '.$count);
 
                     $response->redirect(route('ivr', ['count'=>$count], false));
 
@@ -1526,7 +1555,19 @@ class TwilioController extends FindByNumberController
 
         $store_websites = StoreWebsite::LeftJoin('twilio_sitewise_times as tst','tst.store_website_id','store_websites.id')->select('store_websites.*','tst.start_time','tst.end_time')->orderBy('store_websites.website', 'ASC')->get();
 
-        return view('twilio.manage-accounts', compact('all_accounts','twilio_user_list','store_websites'));
+        $twilio_key_options_data = TwilioKeyOption::get();
+        $twilio_key_arr = array();
+
+        if($twilio_key_options_data)
+        {
+            foreach($twilio_key_options_data as $key => $value){
+                $twilio_key_arr[$value->key]['option'] = $value->description;
+                $twilio_key_arr[$value->key]['desc'] = $value->details;
+            }
+        }
+
+
+        return view('twilio.manage-accounts', compact('all_accounts','twilio_user_list','store_websites','twilio_key_arr'));
     }
 
     public function addAccount(Request $request)
@@ -2091,6 +2132,19 @@ class TwilioController extends FindByNumberController
         // ->orderBy('users.name', 'ASC')->get();
 
         return new JsonResponse(['status' => 1, 'twilio_user_list' => $twilio_user_list]);
+    }
+
+    public function setTwilioKey(Request $request)
+    {
+        $call_history = TwilioKeyOption::updateOrCreate([
+            'key' => $request->get("key_no"),
+        ], [
+            'key' => $request->get("key_no"),
+            'description' => $request->get("option"),
+            'details' => $request->get("description")
+        ]);
+
+        return new JsonResponse(['status' => 1, 'message' => 'Option Set Successfully']);
     }
 
 } 
