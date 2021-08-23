@@ -112,6 +112,12 @@ class ProductController extends Controller
                             $result_input["iscanceled"] = false;
                             $result_input["isreturn"]   = false;
                         }
+                       
+                        if ($getOrder->shipment_date !=''  && !is_null($getOrder->shipment_date)) {
+                            $result_input["iscanceled"] = false;
+                            
+                        }
+
 
                         $message = $this->generate_erp_response("order.cancel.success", 0, $default = "Success", request('lang_code'));
                         return response()->json(["code" => 200, "message" => $message, "data" => $result_input]);
