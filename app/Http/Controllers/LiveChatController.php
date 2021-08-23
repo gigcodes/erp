@@ -1102,6 +1102,7 @@ class LiveChatController extends Controller
             //     "Content-Type: " . $contentType
             // );
             array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+            array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
         if ($data) {
             $curlData[CURLOPT_POSTFIELDS] = $data;
