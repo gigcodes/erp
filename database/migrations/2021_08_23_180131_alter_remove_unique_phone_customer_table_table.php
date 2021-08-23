@@ -15,6 +15,7 @@ class AlterRemoveUniquePhoneCustomerTableTable extends Migration
     {
         //
         DB::select("ALTER TABLE `customers` DROP INDEX `customers_phone_index`;");
+        DB::select("ALTER TABLE `customers` ADD INDEX(`customers_phone_index`);");
     }
 
     /**
