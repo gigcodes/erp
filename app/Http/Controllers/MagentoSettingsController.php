@@ -298,7 +298,7 @@ class MagentoSettingsController extends Controller
                     if($is_live){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
                         \Cache::forever('key', $token);
-                        $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/sets?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
+                        $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                     }
