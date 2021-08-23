@@ -123,6 +123,14 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::get('/', 'SeoToolController@index')->name('seo-tool');
+    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
+    Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('domain-report/{id}', 'SeoToolController@domainDetails')->name('domain-details');
+    Route::get('domain-report/{id}/{type}', 'SeoToolController@domainDetails');
+});
+
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
