@@ -2546,7 +2546,31 @@ class ProductInventoryController extends Controller
 					
 					if($brand)
 					{
-						
+						if ($row[$condition_from_retail_index]!='')
+						{
+								$segments = CategorySegment::where('status', 1)->get();
+								if(!$segments->isEmpty())
+								 { 
+									foreach($segments as $segment) 
+									{ 
+										$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+										if ($csd)
+										{
+                                           $csd->amount= $row[$condition_from_retail_index];
+										   $csd->save();
+										}
+										else
+										{
+										\App\CategorySegmentDiscount::create([
+											"brand_id" => $brand->id,
+											"category_segment_id" => $segment->id,
+											"amount" => $row[$condition_from_retail_index],
+											"amount_type" => "percentage",
+										]);
+									   }
+									}
+								 }
+					   }
 						$discount = new SupplierBrandDiscount();
 						
 						$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->first();
