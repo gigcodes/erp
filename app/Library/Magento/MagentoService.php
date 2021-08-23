@@ -876,7 +876,7 @@ class MagentoService
                         $cc = CustomerCharity::where('product_id', $product->id)->first();
                         if($product->isCharity()){
                             $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
-                            $price = $c_raw != null ? $c_raw->price : 1;
+                            $price = $specialPrice = $c_raw != null ? $c_raw->price : 1;
                             $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
                         }
                         $pricesArr[$c] = [
