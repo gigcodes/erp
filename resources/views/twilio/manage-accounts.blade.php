@@ -455,47 +455,47 @@
     });
 
 
-    $('.save_key_option').on("click", function(e){
-        var key_no = $(this).data("id");
-        var option = $('.option_menu_'+key_no).val();
-        var desc = $('.key_description_'+key_no).val();
-        var website_id = $('.store_website_twilio_key').val();
+    // $('.save_key_option').on("click", function(e){
+    //     var key_no = $(this).data("id");
+    //     var option = $('.option_menu_'+key_no).val();
+    //     var desc = $('.key_description_'+key_no).val();
+    //     var website_id = $('.store_website_twilio_key').val();
 
-        if(option == '')
-        {
-            toastr['error']('Please select Option');
-            return false;
-        }
-        if(desc == '')
-        {
-            toastr['error']('Please Enter Description');
-            return false;
-        }
+    //     if(option == '')
+    //     {
+    //         toastr['error']('Please select Option');
+    //         return false;
+    //     }
+    //     if(desc == '')
+    //     {
+    //         toastr['error']('Please Enter Description');
+    //         return false;
+    //     }
 
-        $.ajax({
-            type: "POST",
-            url: "{{ route('twilio.set_twilio_key_options') }}",  
-            data: {
-                _token: "{{csrf_token()}}",
-                key_no:key_no,
-                option:option,
-                description:desc,
-                website_store_id:website_id,
-            },
-            beforeSend : function() {
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "{{ route('twilio.set_twilio_key_options') }}",  
+    //         data: {
+    //             _token: "{{csrf_token()}}",
+    //             key_no:key_no,
+    //             option:option,
+    //             description:desc,
+    //             website_store_id:website_id,
+    //         },
+    //         beforeSend : function() {
                 
-            },
-            success: function (response) {
-                if(response.status == 1){
-                    toastr['success'](response.message);
-                }
-            },
-            error: function (response) { 
+    //         },
+    //         success: function (response) {
+    //             if(response.status == 1){
+    //                 toastr['success'](response.message);
+    //             }
+    //         },
+    //         error: function (response) { 
                 
-            }
-        });
+    //         }
+    //     });
         
-    });
+    // });
 
 
     $('.store_website_twilio_key').on("change", function(e){

@@ -15,6 +15,7 @@
 namespace App\Http\Controllers;
 
 use App\Order;
+use App\OrderStatus;
 use App\RoleUser;
 use App\StoreWebsite;
 use App\StoreWebsiteTwilioNumber;
@@ -252,7 +253,7 @@ class TwilioController extends FindByNumberController
 
         // Log::channel('customerDnd')->info('object:: '.$object);
         
-        $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 1 );
+        $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
 
         Log::channel('customerDnd')->info('store_website_id: '.$store_website_id);
 
@@ -303,7 +304,10 @@ class TwilioController extends FindByNumberController
         // $response = new Twiml();
         //Log::channel('customerDnd')->info(' context >> '.$object->is_blocked);
 
-        $time_store_web_id = $storewebsitetwiliono_data->store_website_id;
+        if($store_website_id != 0)
+            $time_store_web_id = $store_website_id;
+        else
+            $time_store_web_id = $storewebsitetwiliono_data->store_website_id;
 
         $sitewise_time = TwilioSitewiseTime::where('store_website_id',$time_store_web_id)->first();
 
@@ -323,6 +327,20 @@ class TwilioController extends FindByNumberController
             $morning = '';
             $evening = '';
         }
+
+        Log::channel('customerDnd')->info(' time_store_web_id :: >> '.$time_store_web_id);
+        $key_data = TwilioKeyOption::where('website_store_id',$time_store_web_id)->orderBy('key', 'ASC')->get();
+
+        $key_wise_option = array();
+
+        if($key_data){
+            foreach($key_data as $kk => $vv){
+                $key_wise_option[$vv->description]['key'] = $vv['key'];
+                $key_wise_option[$vv->description]['description'] = $vv['description'];
+            }
+        }
+
+        Log::channel('customerDnd')->info(' key_wise_option :: >> '.json_encode($key_wise_option));
 
         $response = new VoiceResponse();
 
@@ -382,6 +400,30 @@ class TwilioController extends FindByNumberController
                         $response->say($storewebsitetwiliono_data->message_available);
                     else
                         $response->play('https://'.$request->getHost() . "/intro_ring.mp3");//$response->play(\Config::get("app.url") . "/intro_ring.mp3");
+
+
+                    $gather = $response->gather(
+                        [
+                            'numDigits' => 1,
+                            'action' => route('twilio_call_menu_response', [], false)
+                        ]
+                    );
+
+                    $in_message = '';
+                    if($key_data){
+                        
+                        foreach($key_data as $kk => $vv){
+                           $in_message .= 'Please Press '.$vv['key'].' for a '.$vv['details'];
+                        }
+                    }
+
+
+                    Log::channel('customerDnd')->info(' in message >> '.$in_message);
+            
+                    $gather->say(
+                        $in_message,
+                        ['loop' => 3]
+                    );
                 }
 
                 if($count == 2)
@@ -649,6 +691,153 @@ class TwilioController extends FindByNumberController
         $response->redirect(route('ivr', [], false));
 
         return $response;
+    }
+
+
+
+
+    public function twilio_call_menu_response(Request $request)
+    {
+        $selectedOption = $request->input('Digits');
+        $response = new VoiceResponse();
+        Log::channel('customerDnd')->info('twilio_call_menu_response...'.$selectedOption);
+        // Log::channel('customerDnd')->info($request->all());
+
+        $number = $request->get("From");
+        $to = $request->get("To");
+        $AccountSid = $request->get("AccountSid");
+        $CallSid = $request->get("CallSid");
+
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+
+        $store_website_id = (isset($object->store_website_id) ? $object->store_website_id : 0 );
+
+        
+
+        $call_from = TwilioActiveNumber::where('phone_number',$request->get("Called"))->first();
+
+        if($call_from)
+        {
+            $storewebsitetwiliono_data = StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $call_from->id)->first();
+        }else{
+            $storewebsitetwiliono_data = [];
+        }
+
+        if($store_website_id != 0)
+            $time_store_web_id = $store_website_id;
+        else
+            $time_store_web_id = $storewebsitetwiliono_data->store_website_id;
+
+        Log::channel('customerDnd')->info('time_store_web_id: '.$time_store_web_id);
+
+        $key_data = TwilioKeyOption::where('website_store_id',$time_store_web_id)->orderBy('key', 'ASC')->get();
+
+        $key_wise_option = array();
+
+        if($key_data){
+            foreach($key_data as $kk => $vv){
+                $key_wise_option[$vv->key]['key'] = $vv['key'];
+                $key_wise_option[$vv->key]['description'] = $vv['description'];
+            }
+        }
+
+        if (array_key_exists($selectedOption,$key_wise_option))
+        {
+            Log::channel('customerDnd')->info('key Description ::'.$key_wise_option[$selectedOption]['description']);
+
+            if($key_wise_option[$selectedOption]['description'] == 'order')
+            {
+                Log::channel('customerDnd')->info('twilio_call_menu_response >>> order');
+
+                $gather = $response->gather(
+                    [
+                        'numDigits' => 30,
+                        // 'timeout' => 2,
+                        'action' => route('twilio_order_status_and_information_on_call', [], false)
+                    ]
+                );
+        
+                $gather->say(
+                    'Please Enter Last 4 Digits of Your Order Number',
+                    ['loop' => 3]
+                );
+
+            }else{
+                Log::channel('customerDnd')->info('else >>>');
+
+                $response->say('Invalid Input.');
+
+                $response->redirect(route('ivr', ['count'=>2], false));
+        
+                return $response;
+            }
+        }
+        else
+        {
+            Log::channel('customerDnd')->info('else >>>');
+
+            $response->say('Invalid Input.');
+
+            $response->redirect(route('ivr', ['count'=>2], false));
+    
+            return $response;
+        }
+
+       
+        $response->say(
+            'Returning to the main menu',
+            ['voice' => 'Alice', 'language' => 'en-GB']
+        );
+        $response->redirect(route('ivr', [], false));
+
+        return $response;
+
+    }
+
+
+    public function twilio_order_status_and_information_on_call(Request $request)
+    {
+        $selectedOption = $request->input('Digits');
+        $response = new VoiceResponse();
+        Log::channel('customerDnd')->info('twilio_order_status_and_information_on_call Order Id = '.$selectedOption);
+
+        // $order_data = Customer::where('phone', '=', $number)->first();
+
+        $order_data = Order::where('id', $selectedOption)->first();
+
+
+        if($order_data){
+            Log::channel('customerDnd')->info('Order Data Match'.json_encode($order_data));
+            $order_status = '';
+            if($order_data->order_status_id != null)
+            {
+                $orderStatusList = OrderStatus::where('id',$order_data->order_status_id)->first();
+
+                Log::channel('customerDnd')->info('Order Status = '.$orderStatusList->status);
+                $order_status = $orderStatusList->status;
+            }
+            else if($order_data->order_status != null)
+            {
+                $order_status = $order_data->order_status;
+            }
+
+            $response->say('Your Order Status is '.$order_status);
+
+
+            $response->say('Thank you.');
+
+        }else{
+            Log::channel('customerDnd')->info('Not Match Any Record from your Input');
+
+            $response->say('Not Match Any Record from your Input');
+
+            // $response->redirect(route('ivr', ['count'=>2], false));
+        }
+
+        $response->hangup();
+        
+        return $response;
+
     }
     // IVR Menu key input Action - END
 
@@ -2136,17 +2325,26 @@ class TwilioController extends FindByNumberController
 
     public function setTwilioKey(Request $request)
     {
-        $call_history = TwilioKeyOption::updateOrCreate([
-            'key' => $request->get("key_no"),
-            'website_store_id' => $request->get("website_store_id"),
-        ], [
-            'key' => $request->get("key_no"),
-            'description' => $request->get("option"),
-            'details' => $request->get("description"),
-            'website_store_id' => $request->get("website_store_id"),
-        ]);
+        $check_this_action = TwilioKeyOption::where('website_store_id',$request->get("website_store_id"))
+        ->where('description',$request->get("option"))
+        ->first();
 
-        return new JsonResponse(['status' => 1, 'message' => 'Option Set Successfully']);
+        if($check_this_action){
+            return new JsonResponse(['status' => 0, 'message' => 'This Option Alreday Set in Another Key']);
+        }else{
+            $call_history = TwilioKeyOption::updateOrCreate([
+                'key' => $request->get("key_no"),
+                'website_store_id' => $request->get("website_store_id"),
+            ], [
+                'key' => $request->get("key_no"),
+                'description' => $request->get("option"),
+                'details' => $request->get("description"),
+                'website_store_id' => $request->get("website_store_id"),
+            ]);
+    
+            return new JsonResponse(['status' => 1, 'message' => 'Option Set Successfully']);
+
+        }
     }
 
     public function getTwilioKeyData(Request $request) {

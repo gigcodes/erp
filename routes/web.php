@@ -1855,6 +1855,10 @@ Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
 
 Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
+Route::post('twilio/twilio_order_status_and_information_on_call', 'TwilioController@twilio_order_status_and_information_on_call')->name('twilio_order_status_and_information_on_call');
+
+
 Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status')->name('change_agent_status');
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
