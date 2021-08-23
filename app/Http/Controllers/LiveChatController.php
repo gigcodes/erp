@@ -857,7 +857,7 @@ class LiveChatController extends Controller
     }
 
     public function getLiveChats()
-    {
+    {  
         if (session()->has('chat_customer_id')) {
             $chatId       = session()->get('chat_customer_id');
             $chat_message = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy("id","desc")->get();
