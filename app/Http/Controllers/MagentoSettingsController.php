@@ -191,13 +191,33 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
+                        }
                     }
                     if($is_stage){
-                        $token = $storeWebsite->dev_api_token;
+                        $token = $storeWebsite->stage_api_token;
                         \Cache::forever('key', $token);
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                        }
                     }
                     if($is_development){
                         $token = $storeWebsite->dev_api_token;
@@ -205,6 +225,16 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on dev server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on dev server please check laravel log"]);
+                        }
                     }                  
                 }
             }
@@ -245,13 +275,33 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
+                        }
                     }
                     if($is_stage){
-                        $token = $websiteStore->website->storeWebsite->dev_api_token;
+                        $token = $websiteStore->website->storeWebsite->stage_api_token;
                         \Cache::forever('key', $token); 
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                        }
                     }
                     if($is_development){
                         $token = $websiteStore->website->storeWebsite->dev_api_token;
@@ -259,6 +309,16 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on dev server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on dev server please check laravel log"]);
+                        }
                     }                   
                 }
 
@@ -301,6 +361,16 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
+                        }
                     }
                     if($is_stage){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->stage_api_token;
@@ -308,6 +378,16 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                        }
                     }
                     if($is_development){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->dev_api_token;
@@ -315,10 +395,22 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        if(isset($result['response'])) {
+                            $response = json_decode($result['response']);
+                            if(isset($response[0]) && $response[0] == 1) {
+
+                            }else{
+                                return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                            }
+                        }else{
+                            return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
+                        }
                     }
                 }
 
             }
+
+            return response()->json(["code" => 200 , "message" => "Request pushed on website successfully"]);
             
         }
         

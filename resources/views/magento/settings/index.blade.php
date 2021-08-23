@@ -380,14 +380,19 @@
             data: formData,
             processData: false,
         contentType: false,
-        enctype: 'multipart/form-data',
-        //     dataType: 'json',
+        //enctype: 'multipart/form-data',
+         dataType: 'json',
         beforeSend: function() {
             $("#loading-image").show();
         }
         }).done(function(response) {
             $("#loading-image").hide();
-            location.reload();
+            if(response.code == 200) {
+                toastr['success'](response.message);
+            }else{
+                toastr['error'](response.message);
+            }
+            //location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
