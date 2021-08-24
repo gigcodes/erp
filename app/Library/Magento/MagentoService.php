@@ -832,7 +832,12 @@ class MagentoService
     private function getPricing()
     {
         $website   = $this->storeWebsite;
-        $webStores = \App\Website::where("store_website_id", $website->id)->get();
+        $id = $this->product->id; 
+        $p=\App\CustomerCharity::where('product_id',$id)->first();
+        if ($p)
+          $webStores= \App\CharityProductStoreWebsite::join('websites','charity_product_store_websites.website_id','websites.id')->where('charity_id',$p->id)->get();
+        else
+          $webStores = \App\Website::where("store_website_id", $website->id)->get();
         $product   = $this->product;
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
@@ -992,7 +997,12 @@ class MagentoService
 
     private function getWebsiteIds()
     {
-        return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
+        $id = $this->product->id; 
+        $p=\App\CustomerCharity::where('product_id',$id)->first();
+        if ($p)
+           return \App\CharityProductStoreWebsite::join('websites','charity_product_store_websites.website_id','websites.id')->where('charity_id',$p->id)->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
+        else
+          return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
     }
 
     private function validateTranslation()
