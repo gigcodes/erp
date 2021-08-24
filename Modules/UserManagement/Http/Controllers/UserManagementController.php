@@ -48,40 +48,39 @@ class UserManagementController extends Controller
         $permissionRequest = PermissionRequest::count();
         $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
 
-
-        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
-        $final_array = [];
-        if($shell_list != ''){
-            $lines=explode(PHP_EOL,$shell_list);
-            $final_array = [];
-            foreach($lines as $line){
-                $values = [];
-                $values=explode(' ',$line);
-                array_push($final_array,$values);
-            }
-        }
+        // $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+        // $final_array = [];
+        // if($shell_list != ''){
+        //     $lines=explode(PHP_EOL,$shell_list);
+        //     $final_array = [];
+        //     foreach($lines as $line){
+        //         $values = [];
+        //         $values=explode(' ',$line);
+        //         array_push($final_array,$values);
+        //     }
+        // }
         
         
-        if(!empty($final_array))
-        {
-            foreach(array_reverse($final_array) as $values){
+        // if(!empty($final_array))
+        // {
+        //     foreach(array_reverse($final_array) as $values){
                 
-                $index   = $values[0]??0;
-                $ip      = $values[1]??0;
-                $comment = $values[2]??0;
+        //         $index   = $values[0]??0;
+        //         $ip      = $values[1]??0;
+        //         $comment = $values[2]??0;
                 
-                $where = ['ip' => $ip];
+        //         $where = ['ip' => $ip];
 
-                $insert = [
-                    'index_txt'       => $index??'-',
-                    'ip'              => $ip??'-',
-                    'notes'           => $comment??'-',
-                    // 'user_id'         => Auth::id(),
-                    // 'other_user_name' => $comment,
-                ];
-                $userips = UserSysyemIp::updateOrCreate($where,$insert);   
-            }    
-        }
+        //         $insert = [
+        //             'index_txt'       => $index??'-',
+        //             'ip'              => $ip??'-',
+        //             'notes'           => $comment??'-',
+        //             // 'user_id'         => Auth::id(),
+        //             // 'other_user_name' => $comment,
+        //         ];
+        //         $userips = UserSysyemIp::updateOrCreate($where,$insert);   
+        //     }    
+        // }
         
 
         // $usersystemips = UserSysyemIp::with('user')->get();
@@ -105,6 +104,37 @@ class UserManagementController extends Controller
 
         $userlist = User::orderBy('name')->where('is_active',1)->pluck('name','id');
         $usersystemips = UserSysyemIp::with('user')->get();
+
+
+        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+        $final_array = [];
+        if($shell_list != ''){
+            $lines=explode(PHP_EOL,$shell_list);
+            $final_array = [];
+            foreach($lines as $line){
+                $values = [];
+                $values=explode(' ',$line);
+                array_push($final_array,$values);
+            }
+        }
+        
+        
+        if(!empty($final_array)){
+            foreach(array_reverse($final_array) as $values){
+                $index   = $values[0]??0;
+                $ip      = $values[1]??0;
+                $comment = $values[2]??0;
+                $where = ['ip' => $ip];
+                $insert = [
+                    'index_txt'       => $index??'-',
+                    'ip'              => $ip??'-',
+                    'notes'           => $comment??'-',
+                    // 'user_id'         => Auth::id(),
+                    // 'other_user_name' => $comment,
+                ];
+                $userips = UserSysyemIp::updateOrCreate($where,$insert);   
+            }    
+        }
 
         return response()->json( ["code" => 200 , "data" => $userlist , "usersystemips"=>$usersystemips] );
     }
