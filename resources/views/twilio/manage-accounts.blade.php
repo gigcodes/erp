@@ -268,9 +268,10 @@
                     <table class="table table-bordered table-hover" style="table-layout:fixed;">
                         <thead>
                         <tr>
-                            <th scope="col" width="20%" class="text-center">Key</th>
+                            <th scope="col" width="10%" class="text-center">Key</th>
                             <th scope="col" width="20%">Option</th>
-                            <th scope="col" width="50%">Description</th>
+                            <th scope="col" width="30%">Description</th>
+                            <th scope="col" width="30%">Message</th>
                             <th scope="col" width="10%"></th>
                         </tr>
                         </thead>
