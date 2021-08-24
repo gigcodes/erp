@@ -30,6 +30,12 @@
 .brand-list .form-group{
     margin-bottom: 0 !important;
 }
+    .form-control1{
+    border: 1px solid #ccc;
+    height: 30px;
+    max-width: -webkit-fill-available;
+    border-radius: 4px;
+}
 </style>
 @endsection
 
@@ -46,11 +52,23 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             @endfor
     </select>
 </div>
-<div class="row brand-header-row">
-<div class="col-md-12 pl-0">
-    <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>) </h2>
+<div class="row brand-header-row m-0" >
+<div class="col-md-12 pl-0 pr-0">
+    <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>)
+
+        <div class="col-lg-4 margin-tb align-right pull-right">
+
+            <div class="pull-left">
+            </div>
+            <div>
+                <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
+                <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
+                <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
+            </div>
+        </div>
+    </h2>
 </div>
-    <div class="col-8 flex pl-0">
+    <div class="col-12 flex pl-3 pr-3">
         <div class="form-inline">
             <div class="form-group">
                 <input type="number" id="product_price" step="0.01" class="form-control" placeholder="Product price">
@@ -66,8 +84,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
             <button type="button" id="calculatePriceButton" class="btn btn-secondary ml-3">Calculate</button>
         </div>
-        <div class="form-inline ml-5 pl-5">
-            <form>
+        <div class="form-inline pl-3">
+            <form style="display: flex">
                 <div class="form-group">
                     <input type="text" value="{{ request('keyword') }}" name="keyword" id="search_text" class="form-control" placeholder="Enter keyword for search">
                 </div>
@@ -75,7 +93,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </form>
         </div>
 
-        <div class="form-inline ml-5 pl-5">
+        <div class="form-inline pl-3">
            
            <div class="form-group">
            <?php
@@ -91,10 +109,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
          
       </div>
 
-        <div class="form-inline ml-5 pl-5">
+        <div class="form-inline pl-3">
            
                 <div class="form-group">
-                <select id="category_segments_1">
+                <select class="globalSelect2" id="category_segments_1">
                 @foreach($category_segments as $category_segment)
                     <option value="{{ $category_segment->id }}">{{ $category_segment->name }}</option>
                 @endforeach
@@ -104,7 +122,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
       
 
-        <div class="form-inline ml-5 pl-5">
+        <div class="form-inline pl-3">
             <form>
                 <div class="form-group">
                    
@@ -129,16 +147,16 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 {{--            </form>--}}
 {{--        </div>--}}
 {{--    </div>--}}
-    <div class="col-lg-4 margin-tb align-right">
+{{--    <div class="col-lg-4 margin-tb align-right">--}}
 
-        <div class="pull-left">
-        </div>
-        <div>
-            <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
-            <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
-            <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
-        </div>
-    </div>
+{{--        <div class="pull-left">--}}
+{{--        </div>--}}
+{{--        <div>--}}
+{{--            <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>--}}
+{{--            <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>--}}
+{{--            <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>--}}
+{{--        </div>--}}
+{{--    </div>--}}
 </div>
 
 @if ($message = Session::get('success'))
@@ -147,33 +165,33 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 </div>
 @endif
 
-<div class="row">
+<div class="row m-0 pl-3 pr-3">
 
-<br>
+
 <?php 
     $bList = \App\Brand::pluck('name','id')->toArray();
 ?>
-<div class="infinite-scroll">
+<div class="infinite-scroll" >
     {!! $brands->links() !!}
     <div class="table-responsive mt-3">
-        <table class="table table-bordered brand-list">
+        <table class="table table-bordered brand-list" style="table-layout: fixed;font-size: 13px">
             <tr>
-                <th width="2%">ID</th>
-                <th width="3%">Name</th>
-                <th width="5%">Image</th>
+                <th width="4%">ID</th>
+                <th width="5%">Name</th>
+                <th width="4%">Image</th>
                 <th width="8%">Similar Brands</th>
-                <th width="10%">Merge Brands</th>
+                <th width="7%">Merge Brands</th>
                 <th width="4%">Magento ID</th>
                 <th width="4%">Euro to Inr</th>
-                <th width="6%" style="word-break:break-all">Deduction%</th>
-                <th width="15%">Segment</th>
+                <th width="4%" style="word-break:break-all">Deduction%</th>
+                <th width="6%">Segment</th>
                 @foreach($category_segments as $category_segment)
-                    <th width="3%">{{ $category_segment->name }}</th>
+                    <th width="4%">{{ $category_segment->name }}</th>
                 @endforeach
-                <th width="12%">Selling on</th>
-                <th width="5%">Priority</th>
-                <th width="10%">Next Step</th>
-                <th width="10%">Action</th>
+                <th width="9%">Selling on</th>
+                <th width="7%">Priority</th>
+                <th width="7%">Next Step</th>
+                <th width="8%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
@@ -228,9 +246,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @endphp
 
                         @if($category_segment_discount)
-                            <input type="text" class="form-control1" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input  type="text" class="form-control1 1" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @else
-                            <input type="text" class="form-control1" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input  type="text" class="form-control1 1" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
 
@@ -240,7 +258,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <td class="show_brand" data-id="{{$brand->id}}" style="max-width: 150px;cursor: pointer; ">
                     <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? (strlen($storeWebsite[explode(",", $brand->selling_on)[0]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[0]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[0]]) : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[0]))
-                    <br>
+
                     @endif
                     <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? (strlen($storeWebsite[explode(",", $brand->selling_on)[1]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[1]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[1]]) : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[1]))
@@ -334,7 +352,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
       <form id="upload-barnd-logos">
           <div class="modal-body">
               @csrf
-              <div class="row">
+              <div class="row m-0">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="row">
                         <div class="col-md-12">
@@ -364,6 +382,20 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="/js/bootstrap-multiselect.min.js"></script>
 <script src="/js/bootstrap-filestyle.min.js"></script>
 <script type="text/javascript">
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
+
+
+
+
+
     function store_amount(brand_id, category_segment_id) {
         var amount = $(this.event.target).val();
         $.ajax({
