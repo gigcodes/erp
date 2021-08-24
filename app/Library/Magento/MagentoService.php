@@ -884,9 +884,10 @@ class MagentoService
                             $price = $c_raw != null ? $c_raw->price : 1;
                             $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
                         }
+                        
                         $pricesArr[$c] = [
-                            "price"         => $price,
-                            "special_price" => $specialPrice,
+                            "price"         => round($price,-1 * (strlen($price)-1),PHP_ROUND_HALF_UP),
+                            "special_price" => round($specialPrice,-1 * (strlen($specialPrice)-1),PHP_ROUND_HALF_UP)
                         ];
                     }
                 }
