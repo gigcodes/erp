@@ -2709,6 +2709,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::post('/getWebsiteByStore','CouponController@getWebsiteByStore')->name('getWebsiteByStore');
     Route::post('/delete-coupon','CouponController@deleteCouponByCode')->name('deleteCouponByCode');
     Route::any('/delete-rules/{id}','CouponController@deleteCouponCodeRuleById')->name('delete-rules');
+    
+    Route::post('/quick-coupon-code-rules','CouponController@shortCutFroCreateCoupn')->name('quick.couponcode.store');
 });
 
 Route::middleware('auth')->group(function()
