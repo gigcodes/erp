@@ -164,7 +164,7 @@
         </div>
         <div class="col-lg-12 margin-tb">
             <div class="pull-right mt-3"> 
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
+                <button type="button" class="btn btn-secondary create-charity" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
             </div>
         </div>   
     </div>
@@ -377,6 +377,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
     <script type="text/javascript">
+
+
+
+        $(document).on('submit', '.create-charity', function () {
+            $('select[name="website_stores[]"]').html('');
+            $('select[name="website_stores[]"]').select2();
+            $('select[name="websites[]"]').html('');
+            $('select[name="websites[]"]').select2();
+        });
 
         $(document).on('click', '.send-email-common-btn', function () {
             $('#commonEmailModal .getTemplateData').parent().remove();
@@ -659,6 +668,12 @@
             });
         });
         $(document).on('click', '.edit-vendor', function () {
+
+            $('select[name="website_stores[]"]').html('');
+            $('select[name="website_stores[]"]').select2();
+            $('select[name="websites[]"]').html('');
+            $('select[name="websites[]"]').select2();
+
             var vendor = $(this).data('vendor');
             var url = "/products/customer/charity/" + vendor.id; 
             $('#charityEditModal form').attr('action', url);
@@ -680,6 +695,43 @@
             $('#country').val(vendor.country);
             $('#ifsc_code').val(vendor.ifsc_code);
             $('#remark').val(vendor.remark);
+            var website_store_id = $(this).val();
+            $.ajax({
+                url: '/customer-charity/get-website-store/'+vendor.id,
+                method: 'GET', 
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done(function(response) {
+                $("#loading-image").hide();
+
+                var store_website_ids = [];
+                response.website_stores.forEach(function(value, index){
+                    store_website_ids[index] = value.website_store.website.store_website.id;
+                }) 
+
+                var website_store_ids = [];
+                response.website_stores.forEach(function(value, index){
+                    website_store_ids[index] = value.website_store.id;
+                }) 
+
+                var html = ''; 
+                response.all_stores.forEach(function(value, index){
+                    html += `<option value="${value.id}" ${website_store_ids.includes(value.id) ? 'selected' : ''}>${value.name}</option>`
+                }) 
+                $('select[name="website_stores[]"]').append(html);
+                $('select[name="website_stores[]"]').select2();
+                
+                var html = ''; 
+                response.all_websites.forEach(function(value, index){
+                    html += `<option value="${value.id}" ${store_website_ids.includes(value.id) ? 'selected' : ''}>${value.website}</option>`
+                }) 
+                $('select[name="websites[]"]').append(html);
+                $('select[name="websites[]"]').trigger('change');
+                
+            }).fail(function() {
+                console.log("error");
+            });
         });
         $(document).on('click', '.create-agent', function () {
             var id = $(this).data('id');
@@ -1412,5 +1464,31 @@
         }
 
     });
+
+    $(document).on('change', 'select[name="websites[]"]', function(){
+        var website_id = $(this).val();
+        $.ajax({
+            url: '/magento-admin-settings/website/stores',
+            method: 'POST',
+            data: {
+                _token : '{{ csrf_token() }}',
+                website_id : website_id
+                },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            var html = '';
+            response.data.forEach(function(value, index){
+                html += `<option value="${value.id}">${value.name}</option>`
+            }) 
+            $('.website_stores').append(html);
+            $('.website_stores').select2();
+        }).fail(function() {
+            console.log("error");
+        });
+    });
+
     </script>
 @endsection

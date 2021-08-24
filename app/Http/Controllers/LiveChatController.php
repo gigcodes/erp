@@ -278,10 +278,10 @@ class LiveChatController extends Controller
                 // else
                 //     $userEmail = $chat->users[0]->email;
 
-                if(isset($chat->thread->events[0]->fields[0]->value)) 
-                    $userEmail  = $chat->thread->events[0]->fields[0]->value;
-                else if(isset($chat->thread->events[2]->fields[0]->value)) 
-                    $userEmail  = $chat->thread->events[2]->fields[0]->value;
+                if(isset($chat->thread->events[0]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[0]->fields[1]->value;
+                else if(isset($chat->thread->events[2]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[2]->fields[1]->value;
                 else
                     $userEmail  = null;
                 
@@ -1102,6 +1102,7 @@ class LiveChatController extends Controller
             //     "Content-Type: " . $contentType
             // );
             array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+            array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
         if ($data) {
             $curlData[CURLOPT_POSTFIELDS] = $data;

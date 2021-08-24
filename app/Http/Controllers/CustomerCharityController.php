@@ -19,9 +19,11 @@ use App\Role;
 use App\Helpers\ProductHelper; 
 use App\StoreWebsite; 
 use App\Website; 
-use App\CharityCountry; 
+use App\CharityCountry;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
+use App\WebsiteStore;
+use App\CustomerCharityWebsiteStore;
 
 class CustomerCharityController extends Controller
 {
@@ -271,6 +273,8 @@ class CustomerCharityController extends Controller
             'address'       => 'sometimes|nullable|string',
             'phone'         => 'required|nullable|numeric',
             'email'         => 'sometimes|nullable|email',
+            'websites'      => 'required',
+            'website_stores'=> 'required',
             'social_handle' => 'sometimes|nullable',
             'website'       => 'sometimes|nullable',
             'login'         => 'sometimes|nullable',
@@ -308,7 +312,9 @@ class CustomerCharityController extends Controller
       if(!empty($source)) {
          $data["status"] = 0;
       }  
-  
+      
+      unset($data['websites']);
+      unset($data['website_stores']);
       if($id == null){
           $charity = CustomerCharity::create($data); 
           $charity_category = Category::where('title', 'charity')->first();
@@ -319,12 +325,28 @@ class CustomerCharityController extends Controller
           $product->short_description = $charity->name;
           $product->brand = $charity_brand->id;
           $product->category = $charity_category->id;
+          $product->price = 1;
           $product->save(); 
           CustomerCharity::where('id', $charity->id)->update([
               'product_id' => $product->id
           ]);
           Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
           $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
+
+          $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
+          $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
+          $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
+          $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+          foreach($website_stores as $store){
+            CustomerCharityWebsiteStore::updateOrCreate([
+                'customer_charity_id' => $charity->id,
+                'website_store_id' => $store->id
+            ],[
+                'customer_charity_id' => $charity->id,
+                'website_store_id' => $store->id
+            ]);
+          }
+
           foreach($storeWebsites as $w){
             $tag = 'gallery_' . $w->cropper_color; 
             $is_image_exist = false;
@@ -341,6 +363,20 @@ class CustomerCharityController extends Controller
           }
       }else{ 
           CustomerCharity::where('id', $id)->update($data);
+
+          $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('store_website_id')->toArray();
+          $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
+          $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
+          $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+          foreach($website_stores as $store){
+            CustomerCharityWebsiteStore::updateOrCreate([
+                'customer_charity_id' => $id,
+                'website_store_id' => $store->id
+            ],[
+                'customer_charity_id' => $id,
+                'website_store_id' => $store->id
+            ]);
+          }
       }   
       return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }
@@ -444,5 +480,24 @@ class CustomerCharityController extends Controller
         return response()->json('Charity Updated Successfully!');
     }
 
+
+    public function getCharityWebsiteStores($id)
+    {
+        $website_stores = CustomerCharityWebsiteStore::with('websiteStore.website.storeWebsite')->where('customer_charity_id', $id)->get();
+        $website_store_ids = $website_stores->pluck('website_store_id')->toArray();
+        $website_ids = WebsiteStore::whereIn('id', $website_store_ids)->pluck('website_id')->toArray();
+        $store_website_ids = Website::whereIn('id', $website_ids)->pluck('store_website_id')->toArray();
+        $website_ids = Website::whereIn('store_website_id', $store_website_ids)->pluck('id')->toArray();
+        $all_stores = WebsiteStore::whereIn('website_id', $website_ids)->get();
+        $all_websites = StoreWebsite::get();
+        return response()->json([
+            'website_stores' => $website_stores, 
+            'all_stores' => $all_stores, 
+            'all_websites' => $all_websites, 
+        ]);
+
+    }
+
     
 }
+ 

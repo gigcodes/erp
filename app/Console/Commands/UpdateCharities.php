@@ -61,6 +61,7 @@ class UpdateCharities extends Command
                 $product->short_description = $charity->name;
                 $product->brand = $charity_brand->id;
                 $product->category = $charity_category->id;
+                $product->price = 1;
                 $product->save();
                 CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
                 Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
