@@ -129,6 +129,9 @@ Route::prefix('seo')->middleware('auth')->group(function () {
     Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
     Route::get('domain-report/{id}', 'SeoToolController@domainDetails')->name('domain-details');
     Route::get('domain-report/{id}/{type}', 'SeoToolController@domainDetails');
+	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+	Route::get('project-list', 'SeoToolController@projectList');
+	Route::post('save-keyword', 'SeoToolController@saveKeyword');
 });
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {

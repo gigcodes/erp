@@ -7,6 +7,12 @@ use App\SeoTool;
 use App\StoreWebsite;
 use App\DomainSearchKeyword;
 use App\DomainOverview;
+use App\ProjectKeyword;
+use App\SemrushKeyword;
+use App\SemrushTag;
+use App\KeywordTag;
+use App\SiteAudit;
+use Carbon\Carbon;
 
 class SeoToolController extends Controller
 {
@@ -110,6 +116,92 @@ class SeoToolController extends Controller
 		}
 		return json_encode($final);
 	}
+	
+	
+	public function siteAudit($projectId) {
+		$websiteId = 2;
+		$now = Carbon::now()->format('Y-m-d');
+
+		$auditLaunchApi = (new SiteAudit)->semrushApis('site_audit');
+		$auditInfoApi = (new SiteAudit)->semrushApis('site_audit_info');	
+		$auditInfoResponse = (new SiteAudit)->semrushApiResponses('site_audit_info');
+		
+		$siteAudit = SiteAudit::where('project_id', $projectId)->where('created_at', 'like', '%'.$now.'%')->first();
+		
+
+		if($siteAudit == null) {
+			$data =  json_decode($auditInfoResponse, true);	
+			$data = ['project_id'=>$data['id'], 'store_website_id'=>$websiteId] + $data; unset($data['id']);
+			$data['defects'] = json_encode($data['defects']); 
+			$data['depths'] = json_encode($data['depths']); 
+			$data['markups'] = json_encode($data['markups']); 
+			$data['depths'] = json_encode($data['depths']); 
+			$data['mask_allow'] = json_encode($data['mask_allow']); 
+			$data['mask_disallow'] = json_encode($data['mask_disallow']); 
+			$data['removedParameters'] = json_encode($data['removedParameters']); 
+			$siteAudit = SiteAudit::create($data);
+		}
+		return view('seo-tools.partials.audit-detail', compact('siteAudit'))->render();
+	}
+
+	public function saveKeyword(Request $request) { 
+		$response = '{
+			"url": "mysite.com",
+			"keywords": [
+			{
+			"keyword": "search tool",
+			"tags": ["search"],
+			"timestamp": 1391517755
+			},
+			{
+			"keyword": "search engine",
+			"tags": ["search"],
+			"timestamp": 1391517755
+			},
+			{
+			"keyword": "seo",
+			"tags": ["seo"],
+			"timestamp": 1491517755
+			},
+			{
+			"keyword": "seotool",
+			"tags": ["seo"],
+			"timestamp": 1491517755
+			}
+			],
+			"competitors": ["google.com","ebay.com","bing.com"],
+			"tools": [],
+			"project_id": 643526670283248,
+			"project_name": "my old project"
+			}';
+		$result = json_decode($response, true);
+		foreach($result['keywords'] as $keywordDetail) { 
+			$keywordDetailNew = SemrushKeyword::firstOrCreate(['keyword'=> $keywordDetail['keyword']], ['keyword'=> $keywordDetail['keyword']]);	
+			foreach($keywordDetail['tags'] as $tag) {
+				$tagDetail = SemrushTag::firstOrCreate(['tag'=>$tag], ['tag'=>$tag]);
+				KeywordTag::firstOrCreate(['keyword_id'=>$keywordDetailNew['id'], 'tag_id'=>$tagDetail['id']], 
+				['keyword_id'=>$keywordDetailNew['id'], 'tag_id'=>$tagDetail['id']]);
+			}
+
+			ProjectKeyword::firstOrCreate(['keyword_id'=>$keywordDetailNew['id'], 'project_id'=>$request->projectId], ['keyword_id'=>$keywordDetailNew['id'], 'project_id'=>$request->projectId]);
+		}
+		return redirect(url('seo/project-list'));
+		//SemrushKeyword::create(['keyword'=>]);
+	}
+
+	public function projectList() { 
+		$projectListApi = (new SiteAudit)->semrushApis('project_list');
+		$auditInfoResponse = (new SiteAudit)->semrushApiResponses('project_list');
+		$project = json_decode($auditInfoResponse, true);
+		return view('seo-tools.projects', compact('project')); 
+	}
+	
+	public function semrushApis($api_type, $projectId) {
+		$apis = [
+			'site_audit'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+		];
+	}
+	
 	
 	
 }
