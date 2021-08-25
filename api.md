@@ -1405,3 +1405,29 @@ POST https://erp.theluxuryunlimited.com/api/product-live-status
     "message": "Error message"
 }
 ```
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
+{
+   "email":"test@gmail.com",
+   "product_id":"297569"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Subscribed successfully."
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Failed"
+}
+```
