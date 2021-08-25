@@ -354,7 +354,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 try {
 
                     if(!empty($gtmatrix->account_id)){
-                        $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
+                        $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->where('status', 'active')->first();
 
                         $curl = curl_init();
 
@@ -393,7 +393,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         }
                     }
                     else{
-                        $AccountData = $gtmatrixAccount->orderBy('id','desc')->get();
+                        $AccountData = $gtmatrixAccount->where('status', 'active')->orderBy('id','desc')->get();
 
                         foreach ($AccountData as $key => $value) {
                             $curl = curl_init();

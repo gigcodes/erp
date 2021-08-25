@@ -59,7 +59,7 @@ class GTMetrixTestCMDGetReport extends Command
 
         foreach ($storeViewList as $value) {
             if(!empty($value->account_id)){
-                $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->first();
+                $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->where('status', 'active')->first();
                 $username = $gtmatrix->email;
                 $password = $gtmatrix->password;
                 $curl = curl_init();
@@ -93,7 +93,7 @@ class GTMetrixTestCMDGetReport extends Command
                     }
                     else{
                         $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
-                        $AccountData = $gtmatrixAccount->orderBy('id','desc')->get();
+                        $AccountData = $gtmatrixAccount->where('status', 'active')->orderBy('id','desc')->get();
 
                         foreach ($AccountData as $key => $value) {
                             $curl = curl_init();
