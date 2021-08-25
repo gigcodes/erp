@@ -842,37 +842,40 @@ class MagentoService
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
             foreach ($webStores as $key => $webStore) {
-                if ($webStore->is_price_ovveride || 1 == 1) {
-                    $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
-                    $dutyPrice = 0;
-                    if (!empty($countries)) {
-                        foreach ($countries as $cnt) {
-                            $dutyPrice = $product->getDuty($cnt);
-                            if ($dutyPrice > 0) {
-                                break;
-                            }
-                        }
-                    }
-                    // pricing check for the discount case
-                    $ovverridePrice = 0;
-                    if (!empty($countries)) {
-                        foreach ($countries as $cnt) {
-                            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
-                            if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
-                                $ovverridePrice = $discountPrice['total'];
-                                break;
-                            }
-                        }
-                    }
-                    if ($p)
+                if ($p) //CharityProduct
                     {
-                        $magentoPrice=round($webStore->price,-1 * (strlen($price)-1),PHP_ROUND_HALF_UP);
+                        $countries=CharityCountry::where('charity_id', $p->id)->get();
+                        $magentoPrice=round($webStore->price,-1 * (strlen($webStore->price)-1),PHP_ROUND_HALF_UP);
                         $price = $magentoPrice;
                         $specialPrice =0;
                         $totalAmount=0;
-                    }
-                    else
-                    {
+                    }  
+                else
+                 {    
+                if ($webStore->is_price_ovveride || 1 == 1) {
+                        $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
+                        $dutyPrice = 0;
+                        if (!empty($countries)) {
+                            foreach ($countries as $cnt) {
+                                $dutyPrice = $product->getDuty($cnt);
+                                if ($dutyPrice > 0) {
+                                    break;
+                                }
+                            }
+                        }
+                    // pricing check for the discount case
+                        $ovverridePrice = 0;
+                        if (!empty($countries)) {
+                            foreach ($countries as $cnt) {
+                                $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
+                                if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+                                    $ovverridePrice = $discountPrice['total'];
+                                    break;
+                                }
+                            }
+                        }
+                    
+                    
                         $magentoPrice = \App\Product::getIvaPrice($product->price);
                         if ($magentoPrice > 0) {
                             $totalAmount  = $magentoPrice * $dutyPrice / 100;
@@ -886,23 +889,27 @@ class MagentoService
                             $price = $magentoPrice;
                         }
 
-                    }
                    
-
-                    foreach ($countries as $c) {
-                        $cc = CustomerCharity::where('product_id', $product->id)->first();
+                    }
+                }
+                  foreach ($countries as $c) {
+                       /* $cc = CustomerCharity::where('product_id', $product->id)->first();
                         if($product->isCharity()){
                             $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
                             $price = $webStore->price;
                             $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
-                        }
+                        }*/
+
+                        if (isset($c->price) && $c->price>0)
+                            $price=round($c->price,-1 * (strlen($c->price)-1),PHP_ROUND_HALF_UP);
                         
                         $pricesArr[$c] = [
-                            "price"         => round($price,-1 * (strlen($price)-1),PHP_ROUND_HALF_UP),
-                            "special_price" => round($specialPrice,-1 * (strlen($specialPrice)-1),PHP_ROUND_HALF_UP)
+                            "price"         => $price,
+                            "special_price" => $specialPrice
                         ];
-                    }
-                }
+                   
+                
+              }  
             }
         }
         Log::info("pricesArr " . json_encode($pricesArr));
