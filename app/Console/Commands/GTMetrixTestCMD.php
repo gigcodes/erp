@@ -115,7 +115,6 @@ class GTMetrixTestCMD extends Command
                 foreach ($storeViewList as $value) {
 
                     $webiteUrl = $value['magento_url'];
-
                     $curl = curl_init();
 
                     curl_setopt_array($curl, array(
@@ -179,7 +178,7 @@ class GTMetrixTestCMD extends Command
                                             if($key === false){
                                                 $siteData= array(
                                                         
-                                                    'store_view_id' =>1234,
+                                                    'store_view_id' =>$value['id'],
                                                     'status' =>'not_queued',
                                                     'website_url' =>$url.'/'.$value['code']
                                                 );
