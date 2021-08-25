@@ -864,24 +864,36 @@ class MagentoService
                             }
                         }
                     }
-                    $magentoPrice = \App\Product::getIvaPrice($product->price);
-                    if ($magentoPrice > 0) {
-                        $totalAmount  = $magentoPrice * $dutyPrice / 100;
-                        $magentoPrice = $magentoPrice + $totalAmount;
-                    }
-                    $specialPrice = 0;
-                    if ($magentoPrice > $ovverridePrice) {
-                        $price        = $magentoPrice;
-                        $specialPrice = $ovverridePrice;
-                    } else {
+                    if ($p)
+                    {
+                        $magentoPrice=round($webStore->price,-1 * (strlen($price)-1),PHP_ROUND_HALF_UP);
                         $price = $magentoPrice;
+                        $specialPrice =0;
+                        $totalAmount=0;
                     }
+                    else
+                    {
+                        $magentoPrice = \App\Product::getIvaPrice($product->price);
+                        if ($magentoPrice > 0) {
+                            $totalAmount  = $magentoPrice * $dutyPrice / 100;
+                            $magentoPrice = $magentoPrice + $totalAmount;
+                        }
+                        $specialPrice = 0;
+                        if ($magentoPrice > $ovverridePrice) {
+                            $price        = $magentoPrice;
+                            $specialPrice = $ovverridePrice;
+                        } else {
+                            $price = $magentoPrice;
+                        }
+
+                    }
+                   
 
                     foreach ($countries as $c) {
                         $cc = CustomerCharity::where('product_id', $product->id)->first();
                         if($product->isCharity()){
                             $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
-                            $price = $c_raw != null ? $c_raw->price : 1;
+                            $price = $webStore->price;
                             $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
                         }
                         
