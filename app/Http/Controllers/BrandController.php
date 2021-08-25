@@ -712,6 +712,8 @@ class BrandController extends Controller
                                 "amount_type" => "percentage",
                             ]);
                         }
+
+                        $this->update_store_website_product_prices($b->id,$segment->id,$request->value);
                     }
                 }
             }
@@ -732,6 +734,23 @@ class BrandController extends Controller
          }
          return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
     }
+
+    public function update_store_website_product_prices($brand,$segment,$amount)
+        {
+                $p= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.segment_discount')
+                ->join('products','store_website_product_prices.product_id','products.id')
+                ->join('categories','products.category','categories.id' )
+                ->join('category_segments','categories.category_segment_id','category_segments.id' )
+                ->where('products.brand',$brand)
+                ->where('categories.category_segment_id',$segment)
+                ->first();
+                if ($p)
+                {
+                    \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$amount,'status'=>0]) ;
+                    $note="Segment Discount Changed from ".$p->segment_discount." To ".$amount;
+                    \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+                }
+        }
 
     //END - DEVTASK-4278
 }

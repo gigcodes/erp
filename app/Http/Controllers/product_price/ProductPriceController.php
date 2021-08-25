@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProductPriceController extends Controller
 {
@@ -194,6 +195,7 @@ class ProductPriceController extends Controller
             ->crossJoin('products')
             ->crossJoin('simply_duty_countries')
             ->join('store_website_product_prices','store_website_product_prices.product_id','products.id')
+            
             ->leftJoin("brands as b", function ($q) {
                 $q->on("b.id", "products.brand");
             })
@@ -236,10 +238,13 @@ class ProductPriceController extends Controller
                 store_websites.id as store_websites_id,
                 store_websites.website as product_website,
                 products.brand,
+                store_website_product_prices.id as store_website_product_prices_id,
                 store_website_product_prices.default_price,
                 store_website_product_prices.segment_discount,
                 store_website_product_prices.duty_price ,
-                store_website_product_prices.override_price '
+                store_website_product_prices.override_price,
+                store_website_product_prices.status ,
+                simply_duty_countries.default_duty '
                 
             ));
             $products = $products->whereNull('products.deleted_at');
@@ -309,7 +314,10 @@ class ProductPriceController extends Controller
                         'default_price'         => $p->default_price,
                         'segment_discount'         => $p->segment_discount,
                         'duty_price'         => $p->duty_price,
-                        'override_price'         => $p->override_price
+                        'override_price'         => $p->override_price,
+                        'store_website_product_prices_id'=>$p->store_website_product_prices_id,
+                        'status'=>$p->status,
+                        'default_duty'=>$p->default_duty,
 
                     ];
                 }
@@ -398,6 +406,22 @@ class ProductPriceController extends Controller
             $response_array[] = $arr;
         }
         return response()->json(['data' => $response_array, 'status' => true]);
+    }
+
+    public function approve(Request $request)
+    {
+         $ids=$request->ids;
+         $ids=explode(",", $ids);
+         for($i=0;$i<count($ids);$i++)
+         {
+             if ($ids[$i]>0)
+             {
+             \App\StoreWebsiteProductPrice::where('id',$ids[$i])->update(['status'=> 1]);
+            
+             }
+                
+         }
+         return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
     }
 
 }

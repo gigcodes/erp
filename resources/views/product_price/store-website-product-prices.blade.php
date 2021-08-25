@@ -128,6 +128,9 @@
                 <div class="form-group mr-3">
                     <a href="{{url('/store-website-product-prices')}}" class="fa fa-refresh form-control" aria-hidden="true" ></a>
                 </div>
+                <div class="form-group mr-3">
+                <button type="button" class="btn btn-secondary" onclick="approve()">Approve</button>
+                </div>
             </form> 
         </div>
     </div>  
@@ -142,6 +145,7 @@
                    <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed">
                        <thead>
                        <tr>
+                           <th style="width: 3%"><input id="checkAll" type="checkbox" ></th>
                            <th style="width: 9%">SKU</th>
                            <th style="width: 5%">Product ID</th>
                            <th style="width: 7%">Country</th>
@@ -152,6 +156,7 @@
                            <th  style="width: 5%">Segment Discount</th>
                            <th  style="width: 5%">Duty Price</th>
                            <th  style="width: 5%">Override price</th>
+                           <th  style="width: 5%">Status</th>
                         <!--   <th style="width: 7%">EURO Price</th>
                           
                            @foreach($category_segments as $category_segment)
@@ -168,7 +173,7 @@
                        @php $i=1; @endphp
                        @forelse ($product_list as $key)
                            <tr data-storeWebsitesID="{{$key['storeWebsitesID']}}" data-id="{{$i}}" data-country_code="{{$key['country_code']}}" class="tr_{{$i++}}">
-
+                           <td><input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $key["store_website_product_prices_id"] }}'></td> 
                                <td class="expand-row" style="word-break: break-all">
 {{--                                   {{ $key['sku'] }}--}}
 
@@ -217,8 +222,14 @@
 
                                <td>{{ $key['default_price'] }}</td>
                                <td>{{ $key['segment_discount'] }}</td>
-                               <td>{{ $key['duty_price'] }}</td>
+                               <td>{{ $key['default_duty'] }}</td>
                                <td>{{ $key['override_price'] }}</td>
+                               <td> @if($key["status"]==1)
+               approved
+             @else
+               pending 
+             @endif     
+        </td>
                               <!-- <td>{{ $key['eur_price'] }}</td>
                                
                                
@@ -477,6 +488,52 @@
         });
 
     }); 
+
+
+
+    function approve()
+    {
+            str='';
+            $(".checkboxClass:checked").each(function(){
+               
+                if (str=='')
+                   str=$(this).val();
+                else
+                   str= str + "," + $(this).val();  
+            });
+            if (str=='')
+              alert('First Select Product')
+            else
+            {
+                    $.ajax({
+                        method : "POST",
+                        url: "{{url('/store-website-product-prices/approve')}}",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            ids: str,
+                         },
+                        dataType: "json",
+                        beforeSend : function(){
+                            $("#loading-image").show();
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            if(response.code == 200) {
+                                toastr["success"]("approved successfully", "Message")
+                                location.reload();
+                            }else{
+                                toastr["error"](response.message, "Message");
+                            }
+                        }
+                    });
+            }
+            
+        
+    }
+
+    $("#checkAll").click(function(){
+         $('input:checkbox').not(this).prop('checked', this.checked);
+    });
 </script>
 
 @endsection

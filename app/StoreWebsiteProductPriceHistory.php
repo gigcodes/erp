@@ -6,7 +6,7 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 
-class StoreWebsiteProductHistory extends Model
+class StoreWebsiteProductPriceHistory extends Model
 {
 	/**
      * @var string

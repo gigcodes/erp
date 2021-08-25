@@ -247,10 +247,12 @@ class SimplyDutyCountryController extends Controller
         for($i=0;$i<count($ids);$i++)
         {
             if ($ids[$i]>0)
-               SimplyDutyCountry::where('id',$ids[$i])->update(['status'=> 1]);
+            \App\StoreWebsiteProductPrice::where('id',$ids[$i])->update(['status'=> 1]);
                
         }
         return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
    }
+
+   
 
 }
