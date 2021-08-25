@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\OutOfStockSubscribe;
 use App\Customer;
 use App\StoreWebsite;
+use App\WebsiteProduct;
 use App\Product;
 
 class OutOfStockSubscribeController extends Controller
@@ -19,17 +20,16 @@ class OutOfStockSubscribeController extends Controller
         $validator = Validator::make($params, [
            'email' => 'required',
            'product_id' => 'required',
-           'website'=>'required'
-        ]);
+       ]);
 
 		if ($validator->fails()) {
-            return response()->json(["code" => 0, "errors" => $validator->messages()]);
+            return response()->json(["code" => 500, "data" => $validator->messages(), "message"=>"Failed"]);
         }
 
 		$website = $request->website;
-        $website_data = StoreWebsite::where('website',$website)->first();
+        $website_data = WebsiteProduct::where('product_id',$request->product_id)->first();
         if($website_data)
-            $website_id = $website_data->id;
+            $website_id = $website_data->store_website_id;
         else
            $website_id = '';
 
@@ -45,6 +45,6 @@ class OutOfStockSubscribeController extends Controller
         $arrayToStore = ['customer_id'=>$customer['id'], 'product_id'=>$data['product_id'], 'status'=>$status];
         OutOfStockSubscribe::updateOrCreate( ['customer_id'=>$customer['id'], 'product_id'=>$data['product_id']], $arrayToStore);
 
-        return response()->json(["code" => 1, "message" => "Done"]);
+        return response()->json(["code" => 'success', "message" => "Subscribed successfully."]);
    }
 }
