@@ -353,18 +353,20 @@ class MagentoService
 		/*update product name code starts*/
 			$productNamelength = strlen($this->product->name);
 			if($productNamelength < 50) {
-				if($this->product->brand_name != null) {
-					$brandProductMatch = similar_text($this->product->name, $this->product->brand_name, $percent);
+				if(isset($this->product->brands->name) and $this->product->brands->name != null) {
+					$brandName = $this->product->brands->name;
+					similar_text($this->product->name, $brandName, $brandProductMatch);
 					if($brandProductMatch < 70) {
-						$this->product->name = $this->product->brand_name.' '.$this->product->name;
+						$this->product->name = $brandName.' '.$this->product->name;
 						$productNamelength = strlen($this->product->name);
 					}
 				}
-				if($this->product->cat_name != null and $this->product->cat_name != "Select Category") {
+				if(isset($this->product->categories->title) and $this->product->categories->title != "Select Category") {
+					$catName = $this->product->categories->title;
 					if($productNamelength < 50) {
-						$categoryProductMatch = similar_text($this->product->name, $this->product->cat_name, $percent);
+						similar_text($this->product->name, $catName, $categoryProductMatch);
 						if($categoryProductMatch < 70) {
-							$this->product->name = $this->product->cat_name.' '.$this->product->name;
+							$this->product->name = $catName.' '.$this->product->name;
 						}						
 					}
 				}
