@@ -350,6 +350,27 @@ class MagentoService
 
     private function defaultData($data)
     {
+		/*update product name code starts*/
+			$productNamelength = strlen($this->product->name);
+			if($productNamelength < 50) {
+				if($this->product->brand_name != null) {
+					$brandProductMatch = similar_text($this->product->name, $this->product->brand_name, $percent);
+					if($brandProductMatch < 70) {
+						$this->product->name = $this->product->brand_name.' '.$this->product->name;
+						$productNamelength = strlen($this->product->name);
+					}
+				}
+				if($this->product->cat_name != null and $this->product->cat_name != "Select Category") {
+					if($productNamelength < 50) {
+						$categoryProductMatch = similar_text($this->product->name, $this->product->cat_name, $percent);
+						if($categoryProductMatch < 70) {
+							$this->product->name = $this->product->cat_name.' '.$this->product->name;
+						}						
+					}
+				}
+			}	
+		/*update product name code ends*/
+		
         $e = [
             'product' => array(
                 'sku'                  => $data['sku'], // Simple products to associate
