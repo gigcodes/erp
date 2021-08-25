@@ -4553,12 +4553,15 @@ class ProductController extends Controller
         $limit =  $request->get("no_of_product",100);
 
 
-        $products = Product::select('*')->where("short_description", "!=", "")->where("name", "!=", "")->where("status_id", StatusHelper::$finalApproval)
+        $products = Product::select('*')
+		->where("short_description", "!=", "")->where("name", "!=", "")
+		->where("status_id", StatusHelper::$finalApproval)
         ->groupBy("brand", "category")
         ->limit($limit)
         ->get();
 
         foreach ($products as $key => $product) {
+			
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if(!empty($websiteArrays)) {
                 $i = 1;
