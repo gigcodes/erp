@@ -150,7 +150,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     if($credits!= 0){
                         $client = new GTMetrixClient();
                         $client->setUsername($gtmatrixAccountData->email);
-                        $client->setAPIKey($gtmatrixAccountData->password);
+                        $client->setAPIKey($gtmatrixAccountData->account_id);
                         $client->getLocations();
                         $client->getBrowsers();  
                         $test   = $client->startTest($gtmetrix->website_url);
@@ -189,14 +189,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         if($credits!= 0){
                             $client = new GTMetrixClient();
                             $client->setUsername($value['email']);
-                            $client->setAPIKey($value['password']);
+                            $client->setAPIKey($value['account_id']);
                             $client->getLocations();
                             $client->getBrowsers();  
                             $test   = $client->startTest($gtmetrix->website_url);
                             $update = [
                                 'test_id' => $test->getId(),
                                 'status'  => 'queued',
-                                'account_id'  => $value['password'],
+                                'account_id'  => $value['account_id'],
                             ];
                             $gtmetrix->update($update);
                             break;
@@ -380,7 +380,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         if($credits!= 0){
                             $client = new GTMetrixClient();
                             $client->setUsername($gtmatrixAccountData->email);
-                            $client->setAPIKey($gtmatrixAccountData->password);
+                            $client->setAPIKey($gtmatrixAccountData->account_id);
                             $client->getLocations();
                             $client->getBrowsers();  
                             $test   = $client->startTest($gtmetrix->website_url);
@@ -419,14 +419,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             if($credits!= 0){
                                 $client = new GTMetrixClient();
                                 $client->setUsername($value['email']);
-                                $client->setAPIKey($value['password']);
+                                $client->setAPIKey($value['account_id']);
                                 $client->getLocations();
                                 $client->getBrowsers();  
                                 $test   = $client->startTest($gtmetrix->website_url);
                                 $update = [
                                     'test_id' => $test->getId(),
                                     'status'  => 'queued',
-                                    'account_id'  => $value['password'],
+                                    'account_id'  => $value['account_id'],
                                 ];
                                 $gtmetrix->update($update);
                                 break;

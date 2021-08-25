@@ -2,7 +2,7 @@
 
 
 @section('content')
-<div class="row">
+<div class="row m-4">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
             <h2><strong>Create New GT Metrix Account</strong></h2>
@@ -28,7 +28,7 @@
 
 
 {!! Form::open(array('route' => 'account.store','method'=>'POST')) !!}
-<div class="row">
+<div class="row m-4">
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
             <strong>Email:</strong>
@@ -49,7 +49,7 @@
     </div>
     
     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-        <button type="submit" class="btn btn-secondary">+</button>
+        <button type="submit" class="btn btn-success">+</button>
     </div>
     
 </div>
