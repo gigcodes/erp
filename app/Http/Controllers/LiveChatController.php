@@ -276,7 +276,18 @@ class LiveChatController extends Controller
                 $chatId = $chat->id;
 
                 //Getting user
-                $userEmail = $chat->users[0]->email;
+                // if(isset($chat->users[1]->email))
+                //     $userEmail = $chat->users[1]->email;
+                // else
+                //     $userEmail = $chat->users[0]->email;
+
+                if(isset($chat->thread->events[0]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[0]->fields[1]->value;
+                else if(isset($chat->thread->events[2]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[2]->fields[1]->value;
+                else
+                    $userEmail  = null;
+                
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
                 /*$translate = new TranslateClient([
@@ -1081,6 +1092,7 @@ class LiveChatController extends Controller
             //     "Content-Type: " . $contentType
             // );
             array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+            array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
         if ($data) {
             $curlData[CURLOPT_POSTFIELDS] = $data;
