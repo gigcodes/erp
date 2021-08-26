@@ -20,6 +20,7 @@ Route::post('customer/add_customer_address', 'CustomerController@add_customer_ad
 //Route::get('unused_category', 'TestingController@Demo');
 
 Route::get('/test/dummydata', 'TestingController@testingFunction');
+Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
@@ -69,7 +70,18 @@ Route::resource('courier', 'CourierController');
 Route::resource('product-location', 'ProductLocationController');
 });
 
+/** Magento Settings */
+Route::middleware('auth')->group(function () {
 
+    Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
+    Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
+    Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
+
+    Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
+    Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
+    Route::get('magento-admin-settings/delete/{id}', 'MagentoSettingsController@deleteSetting')->name('delete.setting');
+
+});
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     
@@ -81,7 +93,8 @@ Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
     Route::get('/get-accounts', 'GoogleWebMasterController@getAccounts')->name('googlewebmaster.get.accounts');
     Route::post('/add-account', 'GoogleWebMasterController@addAccount')->name('googlewebmaster.account.add');
-    Route::get('/accounts/status/{id}', 'GoogleWebMasterController@statusAccount')->name('googlewebmaster.account.status');
+    Route::get('/accounts/connect/{id}', 'GoogleWebMasterController@connectAccount')->name('googlewebmaster.account.connect');
+    Route::get('/accounts/disconnect/{id}', 'GoogleWebMasterController@disconnectAccount')->name('googlewebmaster.account.disconnect');
     Route::get('/get-account-notifications', 'GoogleWebMasterController@getAccountNotifications')->name('googlewebmaster.get.account.notifications');
     Route::get('/all-records', 'GoogleWebMasterController@allRecords')->name('googlewebmaster.get.records');
    
@@ -272,15 +285,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
-    Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
-
-    Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
-    Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
+    Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue'); 
     
-
     Route::get('products/customer/charity', 'CustomerCharityController@index')->name('customer.charity');
     Route::post('products/customer/charity/{id?}', 'CustomerCharityController@store')->name('customer.charity.post');
     Route::delete('products/customer/charity/{id?}', 'CustomerCharityController@delete')->name('customer.charity.delete');
+    Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
+    Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
+    Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
+    Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
+    Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
+    Route::get('customer-charity/get-website-store/{charity_id}', 'CustomerCharityController@getCharityWebsiteStores')->name('charity.website.stores');
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -326,6 +341,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
     Route::post('products/{id}/addListingRemarkToProduct', 'ProductController@addListingRemarkToProduct');
+    Route::get('products/{id}/get-translation-product', 'ProductController@getTranslationProduct');
     Route::post('products/{id}/
     ', 'ProductController@updateApprovedBy');
     //    Route::get('products/{id}/color-historyproducts/{id}/color-history', 'ProductColorController@history');
@@ -367,6 +383,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/discount/files','ProductInventoryController@supplierDiscountFiles')->name('supplier.discount.files');
     Route::post('product/discount/files','ProductInventoryController@exportExcel')->name('supplier.discount.files.post');
     Route::get('product/discount/excel/files','ProductInventoryController@download_excel')->name('excel.files');
+    Route::post('product/mapping/excel','ProductInventoryController@mapping_excel')->name('product.mapping.excel');
+    Route::post('product/export/mapping/excel','ProductInventoryController@export_mapping_excel')->name('product.mapping.export.excel');
 
     Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
 
@@ -417,6 +435,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
    // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
    Route::get('sop/permission-data', 'SopController@sopPermissionData')->name('sop.permission-data');
    Route::get('sop/permission-list', 'SopController@sopPermissionList')->name('sop.permission-list');
+   Route::get('sop/permission/user-list', 'SopController@sopPermissionUserList')->name('sop.permission.user-list');
+   Route::get('sop/remove-permission', 'SopController@sopRemovePermission')->name('sop.remove.permission');
 
   
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
@@ -702,7 +722,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('order/permanentDelete/{order}', 'OrderController@permanentDelete')->name('order.permanentDelete');
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
+    Route::get('order/missed-calls/orders/{id}', 'OrderController@getOrdersFromMissedCalls')->name('order.getOrdersFromMissedCalls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+    Route::post('order/calls/add-status', 'OrderController@addStatus')->name('order.store.add-status');
+    Route::post('order/calls/store-status/{id}', 'OrderController@storeStatus')->name('order.store.store-status');
+    Route::post('order/calls/send-message', 'OrderController@sendWhatappMessageOrEmail')->name('order.send-message.whatsapp-or-email');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
@@ -713,7 +737,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
-
+    Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
     Route::post('order/create-product', 'OrderController@createProduct')->name('order.create.product');
@@ -1602,7 +1626,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/payment_data', 'HubstaffActivitiesController@activityPaymentData')->name('hubstaff-acitivtity.payment_data');
         Route::post('/command_execution_manually', 'HubstaffActivitiesController@HubstaffActivityCommandExecution')->name('hubstaff-acitivtity.command_execution_manually');
         Route::get('/hubstaff-payment-download', 'HubstaffActivitiesController@HubstaffPaymentReportDownload')->name('hubstaff-payment-report.download');
-
+        Route::get('/addtocashflow', 'HubstaffActivitiesController@addtocashflow');
+        
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
             Route::post('/download', 'HubstaffActivitiesController@downloadNotification')->name('hubstaff-acitivties.notification.download');
@@ -1831,6 +1856,11 @@ Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
 
 Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
+Route::post('twilio/twilio_order_status_and_information_on_call', 'TwilioController@twilio_order_status_and_information_on_call')->name('twilio_order_status_and_information_on_call');
+Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@twilio_return_refund_exchange_on_call')->name('twilio_return_refund_exchange_on_call');
+
+
 Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status')->name('change_agent_status');
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
@@ -1885,8 +1915,6 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
-Route::get('whatsapp/pollTicketsCustomer', 'WhatsAppController@pollTicketCustomer');
-Route::get('whatsapp/pollTickets/{context}', 'WhatsAppController@pollMessages');
 Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
@@ -2307,10 +2335,16 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');
 
     //Simple Duty Country
+    Route::get('duty/segment', 'SimplyDutySegmentController@index');
+    Route::get('duty/segment/add', 'SimplyDutySegmentController@segment_add');
+    Route::get('duty/segment/delete', 'SimplyDutySegmentController@segment_delete');
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
     Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
-
+    Route::get('duty/country/addsegment', 'SimplyDutyCountryController@addsegment');
+    Route::post('duty/country/assign-default-value', 'SimplyDutyCountryController@assignDefaultValue');
+   
+   
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
     Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
@@ -2998,8 +3032,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
     Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
-
-
+    Route::post('twilio/add_user', 'TwilioController@manageUsers')->name('twilio.add_user');
+    Route::post('twilio/set_website_time', 'TwilioController@setWebsiteTime')->name('twilio.set_website_time');
+    Route::get('twilio/get_website_agent', 'TwilioController@getWebsiteAgent')->name('twilio.get_website_agent');
+    Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
+    Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
+    
     /**
      * Watson account management
      */
@@ -3055,6 +3093,9 @@ Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.
 Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
 Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
 Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
+Route::get('charity-search', 'CharityController@charitySearch')->name('charity-search');
+Route::get('charity-email', 'CharityController@charityEmail')->name('charity-email');
+Route::get('charity-phone-number', 'CharityController@charityPhoneNumber')->name('charity-phone-number');
 
 });
 
@@ -3227,13 +3268,26 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
 });
-
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
+Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');
+Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.history');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
+
+// Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
+Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
+Route::get('gtmetrixAccount/edit-info/{id}', 'StoreGTMetrixAccountController@edit')->name('account.edit');
+Route::get('gtmetrixAccount/create', 'StoreGTMetrixAccountController@create')->name('account.create');
+Route::DELETE('gtmetrixAccount/delete/{id?}', 'StoreGTMetrixAccountController@destroy')->name('account.destroy');
+Route::get('gtmetrixAccount/show', 'StoreGTMetrixAccountController@show')->name('account.show');
+Route::post('gtmetrixAccount/update', 'StoreGTMetrixAccountController@update')->name('account.update');
+Route::post('gtmetrixAccount/store', 'StoreGTMetrixAccountController@store')->name('account.store');
+
+
 
 
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
@@ -3268,6 +3322,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/delete', 'DBQueryController@delete')->name('admin.databse.menu.direct.dbquery.delete');
     Route::post('/admin-menu/db-query/command_execution', 'DBQueryController@command_execution')->name('admin.command_execution');//Purpose : Add Route for Command Exicute - DEVTASK-19941
     Route::get('/admin-menu/db-query/command_execution_history', 'DBQueryController@command_execution_history')->name('admin.command_execution_history');//Purpose : Add Route for Command Exicution History data - DEVTASK-19941
+    Route::get('/admin-menu/db-query/report-download', 'DBQueryController@ReportDownload')->name('admin.db-query.download');
 });
 
 Route::middleware('auth')->prefix('totem')->group(function() {
@@ -3327,6 +3382,9 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
 Route::prefix('lead-order')->middleware('auth')->group(static function(){
     Route::get('/', 'LeadOrderController@index')->name('lead-order.index');
 });
+
+
 // Google Scrapper Keyword
-Route::get('/google-scrapper', 'GoogleScrapperController@index');
+Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+

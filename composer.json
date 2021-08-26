@@ -98,7 +98,7 @@
         "psr-4": {
             "App\\": "app/",
             "Modules\\": "Modules/",
-<<<<<<< HEAD
+
             "InstagramAPI\\": "app/Library/mgp25/src",
             "seo2websites\\ErpCustomer\\": "vendor/seo2websites/erp-customer/src",
             "seo2websites\\ErpExcelImporter\\": "vendor/seo2websites/erp-excel-importer/src",
@@ -107,9 +107,8 @@
             "seo2websites\\MagentoHelper\\": "vendor/seo2websites/magento-helper/src",
             "seo2websites\\PriceComparisonScraper\\": "vendor/seo2websites/price-comparison-scraper/src"
 
-=======
-            "InstagramAPI\\": "vendors/mgp25/instagram-php/src"
->>>>>>> 30388129cf82e0a009f6a7a717c1f9ef8652ffac
+
+
         },
         "files": [
             "Modules/BookStack/helpers.php",

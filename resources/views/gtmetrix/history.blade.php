@@ -1,8 +1,8 @@
-<div id="gtmetrix-history-modal" class="modal fade" >
+<!-- <div id="gtmetrix-history-modal" class="modal fade" >
     <div class="modal-dialog modal-xl model-width w-100">
-      <div class="modal-content" style="width: 100%;">
+      <div class="modal-content" style="width: 100%;"> -->
         <div class="modal-header">
-          <h4 class="modal-title">History</span></h4>
+          <h4 class="modal-title">history</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -27,10 +27,50 @@
               </tr>
             </thead>
             <tbody class="show-list-records" >
-
+            @if(!empty($history))
+            
+                @foreach ($history as $data)
+                @if(!empty($data['test_id']))
+                  <tr>
+                    <td>{{$data['store_view_id']}}</td>
+                    <td>{{$data['test_id']}}</td>
+                    <td>{{$data['status']}}</td>
+                    <td>{{$data['error']}}</td>
+                    <td><a href="{{$data['website_url']}}" target="_blank" title="Goto website"> Website </a></td>
+                    <td><a href="{{$data['report_url']}}" target="_blank" title="Show report"></td>
+                    <td>{{$data['html_load_time']}}</td>
+                    <td>{{$data['html_bytes']}}</td>
+                    <td>{{$data['page_load_time']}}</td>
+                    <td>{{$data['page_bytes']}}</td>
+                    <td>{{$data['page_elements']}}</td>
+                    <td>{{$data['pagespeed_score']}}</td>
+                    <td>{{$data['yslow_score']}}</td>
+                    <td>
+                    @if(!empty($data['resources']) && is_array($data['resources']))
+                      @foreach ($data['resources'] as $keyresource => $resource)
+                      <li> <a href="{{$resource}}" target="_blank" > {{$keyresource}} </a> </li>
+                      @endforeach
+                      @else
+                      
+                    @endif
+                    </td>
+                    
+                  
+                    
+                    <td>{{$data['created_at']}}</td>
+                </tr>
+                @endif
+                @endforeach
+              @else
+                <tr><td colspan=2>No Results found !!</td></tr>
+              @endif
             </tbody>
           </table>
+          @if(!empty($history))
+        {{ $history->links() }}
+        @endif
         </div>
-      </div>
+        
+      <!-- </div>
     </div>
-</div>
+</div> -->

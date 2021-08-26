@@ -107,14 +107,27 @@
     <!-- START - Purpose : Command List - DEVTASK-19941 -->
     <div class="col-md-8 select_per" style="display:flex;justify-content:flex-end;">
        <div class=" pl-3 pr-0 " >
-            <div class="form-group">
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control manual_command" style="width:350px;" placeholder="Command">
+                </div>
+                <div class="col">
+                    <select name="artisan_command" class="form-control artisan_command globalSelect2" id="artisan_command" style="max-width:400px;">
+                        <option value>Select Command</option>
+                        @foreach($command_list_arr as $key => $val)
+                            <option value="{{$val['Name']}}" >{{$val['Name']}}  ==> {{$val['Description']}} </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <!-- <div class="form-group">
                 <select name="artisan_command" class="form-control artisan_command globalSelect2" id="artisan_command" style="max-width:400px;">
                     <option value>Select Command</option>
                     @foreach($command_list_arr as $key => $val)
                         <option value="{{$val['Name']}}" >{{$val['Name']}}  ==> {{$val['Description']}} </option>
                     @endforeach
                 </select>
-            </div>
+            </div> -->
         </div>
 
         <div class="pl-3 text-left">
@@ -318,6 +331,9 @@ $('.delete_btn').click(function(){
 
     // START - Purpose : Command Execute - DEVTASK-19941 START - Purpose : Command List - DEVTASK-19941 
     $(document).on("click",".execute_command",function() {
+
+        var manual_command_name = $('.manual_command').val();
+    
         var command_name = $('#artisan_command').find(":selected").val();
 
         $.ajax({
@@ -326,6 +342,7 @@ $('.delete_btn').click(function(){
             data: {
                 _token: "{{ csrf_token() }}",
                 command_name: command_name,
+                manual_command_name: manual_command_name,
             },
             dataType: 'json',
             beforeSend: function() {

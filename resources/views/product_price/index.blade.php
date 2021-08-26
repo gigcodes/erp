@@ -149,7 +149,10 @@
                            <th style="width: 4%;word-break: break-all">Segment</th>
                            <th style="width: 15%">Main Website</th>
                            <th style="width: 7%">EURO Price</th>
-                           <th style="width: 10%">Seg Discount</th>
+                           <!--<th style="width: 10%">Seg Discount</th>!-->
+                           @foreach($category_segments as $category_segment)
+                    <th width="3%">{{ $category_segment->name }}</th>
+                @endforeach
                            <th style="width: 5%">Less IVA</th>
                            <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
@@ -208,15 +211,31 @@
                                             </span>
                                </td>
                                <td>{{ $key['eur_price'] }}</td>
-                               <td>
-                                   <div style="align-items: center">
+                               
+                                <!--   <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
                                        <div class="ml-2" style="float: right;">%</div>
                                        <div style="float: right;width:50%;">
                                             <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
                                        </div>
-                                   </div>
-                               </td>
+                                   </div> !-->
+                                   @foreach($category_segments as $category_segment)
+                                    <td>
+                                        @php
+                                            $category_segment_discount = \DB::table('category_segment_discounts')->where('brand_id', $key['brand_id'])->where('category_segment_id', $category_segment->id)->first();
+                                        @endphp
+
+                                        @if($category_segment_discount)
+                                            <input type="text" class="form-control seg_discount" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{$key['brand_id'] }}, {{ $category_segment->id }})" data-ref="{{ $category_segment->id }}"></th>
+                                        @else
+                                            <input type="text" class="form-control seg_discount" value="" onchange="store_amount({{ $key['brand_id']}}, {{ $category_segment->id }})" data-ref="{{ $category_segment->id }}"></th>
+                                        @endif
+                                    {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $key['brand_id'] }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
+
+
+                                    </td>
+                                @endforeach 
+                               
                                <td>{{ $key['iva'] }}</td>
                                <td>{{ $key['net_price'] }}</td>
                                <td>
@@ -245,7 +264,7 @@
                        @endforelse
                        </tbody>
                    </table>
-
+                   <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
               </div>
         </div>
     </div>
@@ -260,40 +279,87 @@
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script>
  
-    var page = 1;
-	$(window).scroll(function() {
-	    if($(window).scrollTop() + $(window).height() >= $(document).height()) {
-	        page++;
-	        loadMoreData(page);
-	    }
-	});
+   /* var page = 1;
+  $(window).scroll(function() {
+      if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 0 ) ) {
+          loadMoreData();
+      }
+  });
 
-    let data = $('.filter_form').serialize();
-	function loadMoreData(page){
-	  $.ajax(
-	        {
-	            url: '?page=' + page + '&count=' + {{$i}} + '&' + data,
-	            type: "get",
-	            beforeSend: function()
-	            {
-	                $('#loading-image').show();
-	            }
-	        })
-	        .done(function(data)
-	        {
+    let data = $('.filter_form').serialize();*/
+  /*function loadMoreData(){
+    if (isLoading)
+        return;
+    isLoading = true;
+    page = page + 1;
+    $.ajax(
+          {
+              url: '?page=' + page + '&count=' + {{$i}} + '&' + data,
+              type: "get",
+              beforeSend: function()
+              {
+                  $('#loading-image').show();
+              }
+          })
+          console.log("Hello world!"); 
+          .done(function(data)
+          {
+            alert(url);
                 $('#loading-image').hide();
-	            if(data.html == " "){
-	                $('.ajax-load').html("No more records found");
-	                return;
-	            }
-	            $('.ajax-load').hide();
-	            $("tbody").append(data.html);
-	        })
-	        .fail(function(jqXHR, ajaxOptions, thrownError)
-	        {
-	              alert('server not responding...');
-	        });
-	}
+              if(data.html == " "){
+                  $('.ajax-load').html("No more records found");
+                  return;
+              }
+              $('.ajax-load').hide();
+              $("tbody").append(data.html);
+              isLoading = false;
+          })
+          .fail(function(jqXHR, ajaxOptions, thrownError)
+          {
+                alert('server not responding...');
+          });
+  }*/
+
+    var isLoading = false;
+    var page = 1;
+    $(document).ready(function () {
+        
+        $(window).scroll(function() {
+            if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                loadMore();
+            }
+        });
+
+        let data = $('.filter_form').serialize();
+
+        function loadMore() {
+            if (isLoading)
+                return;
+            isLoading = true;
+
+            var $loader = $('.infinite-scroll-products-loader');
+            page = page + 1;
+            $.ajax({
+                url: "/product-pricing?page="+ page + '&count=' + {{$i}} + '&' + data,
+                type: 'GET',
+                data: $('.filter_form').serialize(),
+                beforeSend: function() {
+                    $loader.show();
+                },
+                success: function (data) {
+                    console.log(data);
+                    $loader.hide();
+                    $('tbody').append($.trim(data['html']));
+                    isLoading = false;
+                },
+                error: function () {
+                    $loader.hide();
+                    isLoading = false;
+                }
+            });
+        }            
+    });
+
 
     // $(".select-multiple").multiselect();
     $(".select-multiple2").select2();
@@ -321,9 +387,9 @@
     // } );
 
     $(document).on('keyup', '.seg_discount', function () {
-        if (event.keyCode != 13) {
+        /*if (event.keyCode != 13) {
             return;
-        }
+        }*/
         let seg_discount = $(this).val();
         let ref_name = $(this).data('ref');
         let rows = $('.'+ref_name).closest('tr');
@@ -345,6 +411,7 @@
                 product_array: JSON.stringify(product_array),
                 seg_discount: seg_discount,
                 row_id: $(this).closest('tr').attr('data-id'),
+                seg_id: $(this).attr('data-ref'),
             },
             beforeSend: function () {
                 $("#loading-image").show();

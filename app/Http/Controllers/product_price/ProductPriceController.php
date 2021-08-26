@@ -28,7 +28,7 @@ class ProductPriceController extends Controller
     public function index(Request $request)
     {
         ini_set("memory_limit", -1);
-    	$filter_data = $request->input();
+        $filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
         $products = \App\StoreWebsite::where('store_websites.is_published', 1)
             ->crossJoin('products')
@@ -73,9 +73,11 @@ class ProductPriceController extends Controller
                 simply_duty_countries.country_code as product_country_code,
                 simply_duty_countries.country_name as product_country_name,
                 store_websites.id as store_websites_id,
-                store_websites.website as product_website'
+                store_websites.website as product_website,
+                products.brand'
             ));
-            
+            $products = $products->whereNull('products.deleted_at');
+        
             if (isset($filter_data['country_code'])) {
                 $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']); 
             }
@@ -106,8 +108,8 @@ class ProductPriceController extends Controller
             
             // $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
             
-            $products = $products->skip($skip * Setting::get('pagination'))
-            ->limit(Setting::get('pagination'))->get();
+            $products = $products->skip($skip * Setting::get('pagination'))->limit('25')->get();
+            //$products = $products->limit(100)->get();
             $product_list = [];
             if(count($products)){
                 foreach($products as $p){
@@ -123,6 +125,7 @@ class ProductPriceController extends Controller
                         'id'                   => $product->id,
                         'sku'                  => $product->sku, 
                         'brand'                => isset($p->brand_name) ? $p->brand_name : "-" , 
+                        'brand_id'              => isset($p->brand) ? $p->brand : "0" , 
                         'segment'              => $category_segment,
                         'website'              => $p->product_website,
                         'eur_price'            => $productPrice,
@@ -149,32 +152,36 @@ class ProductPriceController extends Controller
         $brands = [];
         $websites = StoreWebsite::where("is_published","1")->get()->pluck('title', 'id')->toArray();
         $storeWebsites = StoreWebsite::select('title', 'id','website')->where("is_published","1");
+
+        $category_segments = \App\CategorySegment::where('status',1)->get();
+
         if($request->websites && !empty($request->websites)){
             $storeWebsites = $storeWebsites->whereIn('id', $request->websites);
         } 
         $storeWebsites = $storeWebsites->get()->toArray(); 
-    	  
+          
         $selected_brands = null;
-		if($request->brand_names){
+        if($request->brand_names){
             $selected_brands = Brand::select('id','name')->whereIn('id',$request->brand_names)->get();
-		}
+        }
         
-		$selected_suppliers = null;
-		if($request->supplier){
+        $selected_suppliers = null;
+        if($request->supplier){
             $selected_suppliers = Supplier::select('id','supplier')->whereIn('id',$request->supplier)->get();
-		}
+        }
         
-		$selected_websites = null;
-		if($request->websites){
+        $selected_websites = null;
+        if($request->websites){
             $selected_websites = StoreWebsite::select('id','title')->whereIn('id',$request->websites)->get();
-		}
+        }
   
         if ($request->ajax()) {
             $count = $request->count;
-    		$view = view('product_price.index_ajax',compact('product_list', 'count'))->render();
+            $view = view('product_price.index_ajax',compact('product_list', 'count', 'category_segments'))->render();
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
-        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites'));
+        
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments'));
     }
 
     public function update_product(Request $request){
@@ -219,6 +226,7 @@ class ProductPriceController extends Controller
             $arr['add_duty']             = empty($add_duty) ? $p->add_duty : $add_duty . '%';
             $response_array[] = $arr;
         }
+        DB::table('category_segment_discounts')->where('id', $request->seg_id)->update(['amount' => $request->seg_discount]);
         return response()->json(['data' => $response_array, 'status' => true]);
     }
 

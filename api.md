@@ -1405,3 +1405,30 @@ POST https://erp.theluxuryunlimited.com/api/product-live-status
     "message": "Error message"
 }
 ```
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
+{
+   "email":"test@gmail.com",
+   "sku" : "2EG286W08F0C6D",
+   "website" : "WWW.SOLOLUXURY.COM"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Subscribed successfully."
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Failed"
+}
+```

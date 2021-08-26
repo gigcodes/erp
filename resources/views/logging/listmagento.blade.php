@@ -43,6 +43,10 @@
 	div#Export_popup .col-xs-12{padding:0;}
 	.export_btn{margin:10px 0 0 0;}
 }
+    .ac-btns button{
+      height: 20px;
+        width: auto;
+    }
 </style>
 @endsection
 
@@ -124,6 +128,7 @@
                       <option value="started_push" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'started_push' ? 'selected' : '' }}>Sync Status</option>
                       <option value="size_chart_needed" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'size_chart_needed' ? 'selected' : '' }}>Size chart needed</option>
                       <option value="image_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'image_not_found' ? 'selected' : '' }}>Image not found</option>
+                      <option value="translation_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'translation_not_found' ? 'selected' : '' }}>Translation not found</option>
                   </select>
               </div>
               <div class="col-md-1 pl-0">
@@ -156,24 +161,31 @@
             </select>
           </div>
 
-          <div class="col-md-2 pl-0">
-            <label for="sku">Crop Image Date</label>
-              <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
-              <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
-              <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
-                  <!-- <i class="fa fa-calendar"></i>&nbsp;
-                  <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
-                  <i class="fa fa-calendar"></i>&nbsp;
-                  <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
-              </div>
-          </div>
-
-          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">
-            <button class="btn btn-primary" id="submit">
+          <div class="col-md-4 pl-0 pr-0 d-flex" style="align-items: flex-end;justify-content: space-between;">
+           <div>
+             <label for="sku">Crop Image Date</label>
+             <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
+             <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
+             <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+               <!-- <i class="fa fa-calendar"></i>&nbsp;
+               <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+               <i class="fa fa-calendar"></i>&nbsp;
+               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+             </div>
+           </div>
+            <button class="btn btn-primary " style="height: 34px" id="submit">
               <span class="fa fa-filter"></span> Filter Results
             </button>
-            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
+            <button class="btn btn-primary "  style="height: 34px" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
+
           </div>
+
+{{--          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">--}}
+{{--            <button class="btn btn-primary" id="submit">--}}
+{{--              <span class="fa fa-filter"></span> Filter Results--}}
+{{--            </button>--}}
+{{--            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>--}}
+{{--          </div>--}}
 
                 </div>
 
@@ -191,23 +203,24 @@
             <thead>
               <th style="width:5%">Product ID</th>
               <th style="width:5%">SKU</th>
-              <th style="width:7%">Brand</th>
+              <th style="width:5%">Brand</th>
               <th style="width:6%">Category</th>
               <th style="width:5%">Price</th>
               <th style="width:6%">Message</th>
               <th style="width:6%">Date/  Time</th>
-              <th style="width:5%">Website</th>
-              <th style="width:6%">Status</th>
+              <th style="width:6%">Website</th>
+              <th style="width:5%">Status</th>
               <th style="width:4%">Lang. Id</th>
               <th style="width:8%">Sync Status</th>
-              <th style="width:4%">Job Start</th>
+              <th style="width:6%">Job Start</th>
               <th style="width:4%">Job End</th>
-              <th style="width:5%;padding-left: 0">Success</th>
+              <th style="width:4%;word-break: break-all">Total Assigned</th>
+              <th style="width:4%;padding-left: 0;word-break: break-all">Success</th>
               <th style="width:5%">Failure</th>
               <th style="width:3%;padding-left: 0">User</th>
               <th style="width:5%;">Time</th>
               <th style="width:4%;padding-left: 5px">Size</th>
-              <th style="width:7%;padding-left: 2px">Queue</th>
+              <th style="width:8%;padding-left: 2px">Queue</th>
               <th style="width:4%">Try</th>
               <th style="width:8%">Action</th>
             </thead>
@@ -573,6 +586,22 @@
       </div>
   </div>
 
+  <div id="product-translation-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="margin:0; padding: 0;">
+        <div class="modal-content" style="width: 1500px;">
+            <div class="modal-header">
+              <h4 class="modal-title">Product Translation</h4>
+            </div>
+           <div class="modal-body">
+              
+           </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+  </div>
+
   
 
 @endsection
@@ -929,6 +958,33 @@
           //alert('Could not update product on magento');
       })
   });
+
+  $(document).on('click', '.get-translation-product', function () {
+      $this = $(this);
+      var id = $(this).data('id');
+      var thiss = $(this);
+      url = "{{ url('products') }}/" + id + '/get-translation-product';
+      $.ajax({
+          type: 'GET',
+          url: url,
+          data: {
+              _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function () {
+              $("#loading-image").show();
+          }
+      }).done(function (response) {
+          $("#loading-image").hide();
+          $("#product-translation-modal").find(".modal-body").html(response);
+          $("#product-translation-modal").modal("show");
+      }).fail(function (response) {
+          $("#loading-image").hide();
+      })
+  });
+
+
+
+
   /** infinite loader **/
 	var isLoading = false;
 	var page = 1;

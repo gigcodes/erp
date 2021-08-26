@@ -598,11 +598,18 @@ class LeadsController extends Controller
 
         $params['customer_id'] = $customer->id;
         \Log::channel('customer')->info("Lead send price started : " . $customer->id);
+        $cnt = "IN";
+        $website = \App\StoreWebsite::find(15);
         foreach ($request->selected_product as $product_id) {
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
+            $dutyPrice = $product->getDuty($cnt);
+            $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+            if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+                $special_price = $discountPrice['total'];
+            }
 
             if ($request->has('dimension')) {
 

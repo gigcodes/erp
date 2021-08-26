@@ -26,4 +26,9 @@ class CustomerCharity extends Model
 
         return $this->hasMany('App\ChatMessage', 'charity_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
+
+    public function storeWebsites()
+    { 
+        return $this->hasMany('App\CustomerCharityWebsiteStore', 'customer_charity_id', 'id');
+    }
 }

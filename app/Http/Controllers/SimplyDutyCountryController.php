@@ -6,6 +6,7 @@ use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
 use App\Setting;
 use Response;
+use App\SimplyDutySegment;
 
 class SimplyDutyCountryController extends Controller
 {
@@ -16,6 +17,7 @@ class SimplyDutyCountryController extends Controller
      */
     public function index(Request $request)
     {
+       
         if($request->code || $request->country){
            $query = SimplyDutyCountry::query();
 
@@ -36,8 +38,8 @@ class SimplyDutyCountryController extends Controller
                 'links' => (string)$countries->render()
             ], 200);
             }
-
-        return view('simplyduty.country.index',compact('countries'));
+        $segments = SimplyDutySegment::get(); 
+        return view('simplyduty.country.index',compact('countries'),compact('segments'));
     }
 
     /**
@@ -45,10 +47,7 @@ class SimplyDutyCountryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
      * Store a newly created resource in storage.
@@ -56,10 +55,7 @@ class SimplyDutyCountryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
-    }
+  
 
     /**
      * Display the specified resource.
@@ -177,4 +173,29 @@ class SimplyDutyCountryController extends Controller
         }
         return response()->json(['success' => false, 'message' => "Something went wrong!"]);
     }
+
+   public function addsegment(Request $request) 
+   {
+       $cid=$request->cid;
+       $sid=$request->sid;
+       SimplyDutyCountry::where('id',$cid)->update(['segment_id'=>$sid]);
+       return response()->json(['success' => true, 'message' => "Segment Updated Successfully"]);
+
+   }
+
+   public function assignDefaultValue(Request $request)
+   {
+       $value=$request->value;
+       $segment=$request->segment;
+       if ($value>0 && $segment>0 )
+       {
+           SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value]);
+           return response()->json(["code" => 200 , "message" => "Default Duty assigned"]);
+       }
+       else
+       {
+          return response()->json(["code" => 100 , "message" => "somethings wrong"]);
+       }    
+   }
+
 }

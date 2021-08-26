@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\StoreViewsGTMetrix;
+use App\StoreGTMetrixAccount;
 use Carbon\Carbon;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 use Illuminate\Console\Command;
@@ -54,121 +55,191 @@ class GTMetrixTestCMDGetReport extends Command
             ->whereNotIn('status', ['completed','error', 'not_queued'])
             ->get();
 
-        $client = new GTMetrixClient();
-        $client->setUsername(env('GTMETRIX_USERNAME'));
-        $client->setAPIKey(env('GTMETRIX_API_KEY'));
-        $client->getLocations();
-        $client->getBrowsers();
+       
 
         foreach ($storeViewList as $value) {
-            try{
-                $test   = $client->getTestStatus($value->test_id);
-                $model = $value->update([
-                    'status'          => $test->getState(),
-                    'error'           => $test->getError(),
-                    'report_url'      => $test->getReportUrl(),
-                    'html_load_time'  => $test->getHtmlLoadTime(),
-                    'html_bytes'      => $test->getHtmlBytes(),
-                    'page_load_time'  => $test->getPageLoadTime(),
-                    'page_bytes'      => $test->getPageBytes(),
-                    'page_elements'   => $test->getPageElements(),
-                    'pagespeed_score' => $test->getPagespeedScore(),
-                    'yslow_score'     => $test->getYslowScore(),
-                    'resources'       => json_encode($test->getResources()),
-                    //'pdf_file'        => $fileName,
-                ]);
+            if(!empty($value->account_id)){
+                $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->where('status', 'active')->first();
+                $username = $gtmatrix->email;
+                $password = $gtmatrix->password;
+                $curl = curl_init();
 
-                $resources = $test->getResources();
+                    curl_setopt_array($curl, array(
+                    CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_USERPWD => $gtmatrix->account_id . ":" . '',
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'GET',
+                    ));
 
-                \Log::info(print_r(["Resource started",$resources],true));
+                    $response = curl_exec($curl);
 
-                if (!empty($resources['report_pdf'])) {
-                    $ch = curl_init($resources['report_pdf']);
-                    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                    curl_setopt($ch, CURLOPT_USERPWD, env('GTMETRIX_USERNAME') . ':' . env('GTMETRIX_API_KEY'));
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($ch, CURLOPT_POST, 0);
-                    //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
-                    $result     = curl_exec($ch);
-                    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    $curlErrNo  = curl_errno($ch);
-                    $curlError  = curl_error($ch);
-                    curl_close($ch);
+                    curl_close($curl);
+                   // $stdClass = json_decode(json_encode($response));
+                    $data = json_decode($response);
+                   $credits = $data->data->attributes->api_credits;
+                   // print_r($data->data->attributes->api_credits);
+                    if($credits!= 0){
 
-                    \Log::info(print_r(["Result started to fetch"],true));
-
-                    $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
-                    $file     = public_path() . $fileName;
-                    file_put_contents($file, $result);
-                    $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
-
-                    \Log::info(print_r(["Store view found",$storeview],true));
-
-                    if ($storeview) {
-                        $storeview->pdf_file = $fileName;
-                        $storeview->save();
+                        $client = new GTMetrixClient();
+                        $client->setUsername($username);
+                        $client->setAPIKey($password);
+                        $client->getLocations();
+                        $client->getBrowsers();
                     }
-                }
-                if (!empty($resources['pagespeed'])) {
-                    $ch = curl_init($resources['pagespeed']);
-                    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                    curl_setopt($ch, CURLOPT_USERPWD, env('GTMETRIX_USERNAME') . ':' . env('GTMETRIX_API_KEY'));
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($ch, CURLOPT_POST, 0);
-                    //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
-                    $result     = curl_exec($ch);
-                    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    $curlErrNo  = curl_errno($ch);
-                    $curlError  = curl_error($ch);
-                    curl_close($ch);
+                    else{
+                        $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
+                        $AccountData = $gtmatrixAccount->where('status', 'active')->orderBy('id','desc')->get();
 
-                    \Log::info(print_r(["Result started to fetch pagespeed json"],true));
+                        foreach ($AccountData as $key => $value) {
+                            $curl = curl_init();
 
-                    $fileName = '/uploads/gt-matrix/' . $value->test_id . '_pagespeed.json';
-                    $file     = public_path() . $fileName;
-                    file_put_contents($file, $result);
-                    $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+                            curl_setopt_array($curl, array(
+                            CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_USERPWD => $value['account_id'] . ":" . '',
+                            CURLOPT_ENCODING => '',
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 0,
+                            CURLOPT_FOLLOWLOCATION => true,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => 'GET',
+                            ));
 
-                    \Log::info(print_r(["Store view found",$storeview],true));
+                            $response = curl_exec($curl);
 
-                    if ($storeview) {
-                        $storeview->pagespeed_json = $fileName;
-                        $storeview->save();
+                            curl_close($curl);
+                            // decode the response 
+                            $data = json_decode($response);
+                            $credits = $data->data->attributes->api_credits;
+                            if($credits!= 0){
+                                $username = $value['email'];
+                                $password = $value['password'];
+                                $client = new GTMetrixClient();
+                                $client->setUsername($username);
+                                $client->setAPIKey($password);
+                                $client->getLocations();
+                                $client->getBrowsers();
+                            }
+                            
+                        }
                     }
-                }
-                if (!empty($resources['yslow'])) {
-                    $ch = curl_init($resources['yslow']);
-                    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                    curl_setopt($ch, CURLOPT_USERPWD, env('GTMETRIX_USERNAME') . ':' . env('GTMETRIX_API_KEY'));
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($ch, CURLOPT_POST, 0);
-                    //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
-                    $result     = strip_tags(curl_exec($ch));
-                    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    $curlErrNo  = curl_errno($ch);
-                    $curlError  = curl_error($ch);
-                    curl_close($ch);
-
-                    \Log::info(print_r(["Result started to fetch yslow json"],true));
-
-                    $fileName = '/uploads/gt-matrix/' . $value->test_id . '_yslow.json';
-                    $file     = public_path() . $fileName;
-                    file_put_contents($file, $result);
-                    $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
-
-                    \Log::info(print_r(["Store view found",$storeview],true));
-
-                    if ($storeview) {
-                        $storeview->yslow_json = $fileName;
-                        $storeview->save();
+                    
+                    try{
+                        $test   = $client->getTestStatus($value->test_id);
+                        $model = $value->update([
+                            'status'          => $test->getState(),
+                            'error'           => $test->getError(),
+                            'report_url'      => $test->getReportUrl(),
+                            'html_load_time'  => $test->getHtmlLoadTime(),
+                            'html_bytes'      => $test->getHtmlBytes(),
+                            'page_load_time'  => $test->getPageLoadTime(),
+                            'page_bytes'      => $test->getPageBytes(),
+                            'page_elements'   => $test->getPageElements(),
+                            'pagespeed_score' => $test->getPagespeedScore(),
+                            'yslow_score'     => $test->getYslowScore(),
+                            'resources'       => json_encode($test->getResources()),
+                            //'pdf_file'        => $fileName,
+                        ]);
+        
+                        $resources = $test->getResources();
+        
+                        \Log::info(print_r(["Resource started",$resources],true));
+        
+                        if (!empty($resources['report_pdf'])) {
+                            $ch = curl_init($resources['report_pdf']);
+                            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                            curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                            curl_setopt($ch, CURLOPT_POST, 0);
+                            //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
+                            $result     = curl_exec($ch);
+                            $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $curlErrNo  = curl_errno($ch);
+                            $curlError  = curl_error($ch);
+                            curl_close($ch);
+        
+                            \Log::info(print_r(["Result started to fetch"],true));
+        
+                            $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
+                            $file     = public_path() . $fileName;
+                            file_put_contents($file, $result);
+                            $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+        
+                            \Log::info(print_r(["Store view found",$storeview],true));
+        
+                            if ($storeview) {
+                                $storeview->pdf_file = $fileName;
+                                $storeview->save();
+                            }
+                        }
+                        if (!empty($resources['pagespeed'])) {
+                            $ch = curl_init($resources['pagespeed']);
+                            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                            curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                            curl_setopt($ch, CURLOPT_POST, 0);
+                            //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
+                            $result     = curl_exec($ch);
+                            $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $curlErrNo  = curl_errno($ch);
+                            $curlError  = curl_error($ch);
+                            curl_close($ch);
+        
+                            \Log::info(print_r(["Result started to fetch pagespeed json"],true));
+        
+                            $fileName = '/uploads/gt-matrix/' . $value->test_id . '_pagespeed.json';
+                            $file     = public_path() . $fileName;
+                            file_put_contents($file, $result);
+                            $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+        
+                            \Log::info(print_r(["Store view found",$storeview],true));
+        
+                            if ($storeview) {
+                                $storeview->pagespeed_json = $fileName;
+                                $storeview->save();
+                            }
+                        }
+                        if (!empty($resources['yslow'])) {
+                            $ch = curl_init($resources['yslow']);
+                            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                            curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                            curl_setopt($ch, CURLOPT_POST, 0);
+                            //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
+                            $result     = strip_tags(curl_exec($ch));
+                            $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            $curlErrNo  = curl_errno($ch);
+                            $curlError  = curl_error($ch);
+                            curl_close($ch);
+        
+                            \Log::info(print_r(["Result started to fetch yslow json"],true));
+        
+                            $fileName = '/uploads/gt-matrix/' . $value->test_id . '_yslow.json';
+                            $file     = public_path() . $fileName;
+                            file_put_contents($file, $result);
+                            $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+        
+                            \Log::info(print_r(["Store view found",$storeview],true));
+        
+                            if ($storeview) {
+                                $storeview->yslow_json = $fileName;
+                                $storeview->save();
+                            }
+                        }
+        
+                    }catch(\Exception $e) {
+                        $value->status = "error";
+                        $value->error = $e->getMessage();
+                        $value->save();
                     }
-                }
 
-            }catch(\Exception $e) {
-                $value->status = "error";
-                $value->error = $e->getMessage();
-                $value->save();
             }
+           
             
         }
 

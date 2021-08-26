@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Auth;
 use App\ApiResponseMessage;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use App\Setting;
+use App\ApiResponseMessageValueHistory;
 
 class ApiResponseMessageController extends Controller
 {
 
-    public function index(Request $request){
+    public function index(Request $request){ 
         $api=ApiResponseMessage::with(['storeWebsite']);
         if ($request->store_website_id!='')
             $api->where('store_website_id',$request->store_website_id);
@@ -54,17 +55,27 @@ class ApiResponseMessageController extends Controller
         $id = $request->id;
         $store_websites = StoreWebsite::orderBy('created_at','desc')->get();
         $data = ApiResponseMessage::where('id',$id)->first();
-        $returnHTML = view('apiResponse/ajaxEdit')->with('data', $data)->with('store_websites',$store_websites)->render();
+        $history=ApiResponseMessageValueHistory::where('api_response_message_id',$id)->orderBy('created_at','desc')->first();
+        $returnHTML = view('apiResponse/ajaxEdit')->with('data', $data)->with('store_websites',$store_websites)->with('history',$history)->render();
 
         return response()->json(['data' => $returnHTML,'type' => 'success'],200);
     }
 
     public function update(Request $request){
+        $old_value='';
         $response =  ApiResponseMessage::where('id',$request->id)->first();
+        $old_value=$response->value;
         $response->store_website_id = $request->store_website_id;
         $response->key = $request->key;
         $response->value = $request->value;
         if($response->save()){
+            $data=[
+              'user_id'=>Auth::User()->id,
+              'api_response_message_id'=>$response->id,
+              'old_value'=>$old_value,
+              'new_value'=>$request->value
+            ];
+            \App\ApiResponseMessageValueHistory::insert($data);
             \Session::flash('message', 'Updated successfully'); 
             \Session::flash('alert-class', 'alert-success'); 
             return response()->json(['type' => 'success'],200);

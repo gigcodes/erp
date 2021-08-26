@@ -381,6 +381,8 @@ class BrandController extends Controller
 
     public function reconsileBrands(Request $request)
     {
+        set_time_limit(0);
+        ini_set("memory_limit","-1");
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
         if($storeWebsite) {
             $client   = new Client();
@@ -399,24 +401,60 @@ class BrandController extends Controller
 
             $rightBrand = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
             ->where("store_website_id",$storeWebsite->id)
-            ->whereIn("magento_value",$mangetoIds)
+            ->where("magento_value",">",0)
             ->groupBy("store_website_brands.magento_value")
-            ->select(["store_website_brands.*"])
+            ->select(["store_website_brands.*","b.deleted_at"])
             ->get();
 
+            $assingedBrands = [];
             $noneedTodelete = [];
             if(!$rightBrand->isEmpty()) {
                 foreach($rightBrand as $rb) {
-                    $noneedTodelete[] = $rb->magento_value;
+                    //if(is_null($rb->deleted_at)) {
+                        $noneedTodelete[] = $rb->magento_value;
+                    //}
+                    if($rb->magento_value > 0) {
+                        $assingedBrands[$rb->magento_value] = $rb;
+                    }
                 }
             }
 
-            $needDeleteRequest = array_diff($mangetoIds, $noneedTodelete);
+
+            $needDeleteRequest = [];
+            if(!empty($mangetoIds)) {
+                foreach($mangetoIds as $nrei) {
+                    if(!in_array($nrei,$noneedTodelete)) {
+                        $needDeleteRequest[] = $nrei;
+                    }
+                }
+            }
+            
+            \Log::info(print_r(["Delete request IDS",$needDeleteRequest],true));
 
             // go for delete brands
+            $userId = (auth()->user()) ? auth()->user()->id : 6;
             if(!empty($needDeleteRequest)) {
                 foreach($needDeleteRequest as $ndr) {
-                    $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    \Log::info("Request started for ".$ndr);
+                    try{
+                        \Log::info("Brand started for delete ".$ndr);
+                        $status = MagentoHelper::deleteBrand($ndr,$storeWebsite);
+                    }catch(Exception $e) {
+                        \Log::info("Brand delete has error with id $ndr =>".$e->getMessage());
+                    }
+                    \Log::info("Brand check for delete ".$ndr);
+                    if(isset($assingedBrands[$ndr])) {
+                        \Log::info("Brand find for delete ".$ndr);
+                        $brandStore = $assingedBrands[$ndr];
+                        $brandStore->delete();
+                        StoreWebsiteBrandHistory::create([
+                            'brand_id' => $brandStore->brand_id,
+                            'store_website_id' => $brandStore->store_website_id,
+                            'type' => "remove",
+                            'created_by' => $userId,
+                            'message' => "{$brandStore->name} removed from {$storeWebsite->title} store."
+                        ]);
+                    }
                 }
             }
 

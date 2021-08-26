@@ -43,6 +43,18 @@
                      <input type="text" name="magento_url" value="{{if data}}{{:data.magento_url}}{{/if}}" class="form-control" id="magento_url" placeholder="Enter magento url">
                   </div>
 		        </div>
+		        <div class="col-md-4">
+		            <div class="form-group">
+                     <label for="magento_url">Magento Url (for DEV)</label>
+                     <input type="text" name="dev_magento_url" value="{{if data}}{{:data.dev_magento_url}}{{/if}}" class="form-control" id="dev_magento_url" placeholder="Enter dev magento url">
+                  </div>
+		        </div>
+		        <div class="col-md-4">
+		            <div class="form-group">
+                     <label for="magento_url">Magento Url (for Stage)</label>
+                     <input type="text" name="stage_magento_url" value="{{if data}}{{:data.stage_magento_url}}{{/if}}" class="form-control" id="stage_magento_url" placeholder="Enter stage magento url">
+                  </div>
+		        </div>
 		      </div>
 
 		      <div class="row">
@@ -63,6 +75,18 @@
                       <div class="form-group">
                          <label for="api_token">Api Token</label>
                          <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
+                      </div>
+		        </div>
+		        <div class="col-md-4">
+                      <div class="form-group">
+                         <label for="dev_api_token">Api Token (for dev)</label>
+                         <input type="text" name="dev_api_token" value="{{if data}}{{:data.dev_api_token}}{{/if}}" class="form-control" id="dev_api_token" placeholder="Enter Dev Api token">
+                      </div>
+		        </div>
+		        <div class="col-md-4">
+                      <div class="form-group">
+                         <label for="api_token">Api Token (for stage)</label>
+                         <input type="text" name="stage_api_token" value="{{if data}}{{:data.stage_api_token}}{{/if}}" class="form-control" id="stage_api_token" placeholder="Enter Stage Api token">
                       </div>
 		        </div>
 		      </div>
