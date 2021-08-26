@@ -381,6 +381,8 @@ class BrandController extends Controller
 
     public function reconsileBrands(Request $request)
     {
+        set_time_limit(0);
+        ini_set("memory_limit","-1");
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
         if($storeWebsite) {
             $client   = new Client();
