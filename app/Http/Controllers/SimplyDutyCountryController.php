@@ -257,16 +257,19 @@ class SimplyDutyCountryController extends Controller
 
    public function update_store_website_product_prices($code,$amount)
    {
-           $p= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price')
+           $ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price')
            ->join('websites','store_website_product_prices.store_website_id','websites.id' )
            ->where('websites.countries',$code)
-           ->first();
-           if ($p)
+           ->get();
+           if ($ps)
            {
-               \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
+            foreach($ps as $p)
+            { 
+              \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
                $note="Country Duty change  from ".$p->duty_price." To ".$amount;
                \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
            }
+        }
    }
 
    
