@@ -157,6 +157,7 @@
                            <th  style="width: 5%">Duty Price</th>
                            <th  style="width: 5%">Override price</th>
                            <th  style="width: 5%">Status</th>
+                           <th  style="width: 5%"></th>
                         <!--   <th style="width: 7%">EURO Price</th>
                           
                            @foreach($category_segments as $category_segment)
@@ -192,11 +193,11 @@
                                <td class="product_id">{{ $key['id'] }}</td>
                                <td class="expand-row" style="word-break: break-all">
                                       <span class="td-mini-container">
-                                                {{ strlen( $key['country_name']) > 9 ? substr( $key['country_name'], 0, 8).'...' :  $key['country_name'] }}
+                                                {{ strlen( $key['countries']) > 9 ? substr( $key['countries'], 0, 8).'...' :  $key['countries'] }}
                                             </span>
 
                                    <span class="td-full-container hidden">
-                                               {{ $key['country_name'] }}
+                                               {{ $key['countries'] }}
                                             </span>
                                    </td>
                                <td class="expand-row" style="word-break: break-all">
@@ -222,13 +223,16 @@
 
                                <td>{{ $key['default_price'] }}</td>
                                <td>{{ $key['segment_discount'] }}</td>
-                               <td>{{ $key['default_duty'] }}</td>
+                               <td>{{ $key['duty_price'] }}</td>
                                <td>{{ $key['override_price'] }}</td>
                                <td> @if($key["status"]==1)
                approved
              @else
                pending 
              @endif     
+        </td>
+        <td>
+        <a  class="btn btn-secondary" onclick="openhistory({{ $key['store_website_product_prices_id'] }});" >Histrory</a>   
         </td>
                               <!-- <td>{{ $key['eur_price'] }}</td>
                                
@@ -283,6 +287,21 @@
               </div>
         </div>
     </div>
+</div>
+
+<div id="history" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-body" id="history_data">
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
@@ -534,6 +553,27 @@
     $("#checkAll").click(function(){
          $('input:checkbox').not(this).prop('checked', this.checked);
     });
+
+    function openhistory(id)
+       {
+           src = "{{ url('store-website-product-prices/history') }}";
+            reset = '';
+            $.ajax({
+                url: src,
+                data: {
+                    id : id,
+                },
+                beforeSend: function() {
+                       
+                },
+            
+            }).done(function (data) {
+                 
+                $('#history_data').html(data);
+                $("#history").modal("show"); 
+                
+            })
+       }
 </script>
 
 @endsection

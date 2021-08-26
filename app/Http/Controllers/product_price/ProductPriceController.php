@@ -31,6 +31,7 @@ class ProductPriceController extends Controller
         ini_set("memory_limit", -1);
     	$filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
+        
         $products = \App\StoreWebsite::where('store_websites.is_published', 1)
             ->crossJoin('products')
             ->crossJoin('simply_duty_countries')
@@ -191,27 +192,25 @@ class ProductPriceController extends Controller
         ini_set("memory_limit", -1);
     	$filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
-        $products = \App\StoreWebsite::where('store_websites.is_published', 1)
-            ->crossJoin('products')
-            ->crossJoin('simply_duty_countries')
-            ->join('store_website_product_prices','store_website_product_prices.product_id','products.id')
-            
-            ->leftJoin("brands as b", function ($q) {
-                $q->on("b.id", "products.brand");
-            })
-            ->leftJoin("categories as c", function ($q) {
-                $q->on("c.id", "products.category");
-            })
-            ->leftJoin("category_segments as cs", function ($q) {
-                $q->on("c.category_segment_id", "cs.id");
-            })
-            ->leftJoin("scraped_products as sp", function ($q) {
-                $q->on("sp.product_id", "products.id");
-            })
-            ->Join("product_suppliers as psu", function ($q) {
-                $q->on("psu.product_id", "products.id");
-            })
-            ->select(DB::raw('
+        $products= \App\StoreWebsiteProductPrice::join('products','store_website_product_prices.product_id','products.id')
+        ->leftJoin("brands as b", function ($q) {
+            $q->on("b.id", "products.brand");
+        })
+        ->leftJoin("categories as c", function ($q) {
+            $q->on("c.id", "products.category");
+        })
+        ->leftJoin("category_segments as cs", function ($q) {
+            $q->on("c.category_segment_id", "cs.id");
+        })
+        ->leftJoin("scraped_products as sp", function ($q) {
+            $q->on("sp.product_id", "products.id");
+        })
+        ->Join("product_suppliers as psu", function ($q) {
+            $q->on("psu.product_id", "products.id");
+        })
+        ->join('store_websites','store_websites.id','store_website_product_prices.web_store_id')
+        ->join('websites','store_website_product_prices.store_website_id','websites.id' )
+        ->select(DB::raw('
                 products.id as pid, 
                 products.name as product_name,
                 b.name as brand_name,
@@ -233,8 +232,7 @@ class ProductPriceController extends Controller
                 sub_status_id,
                 products.created_at,
                 products.id as pid,
-                simply_duty_countries.country_code as product_country_code,
-                simply_duty_countries.country_name as product_country_name,
+                
                 store_websites.id as store_websites_id,
                 store_websites.website as product_website,
                 products.brand,
@@ -243,13 +241,15 @@ class ProductPriceController extends Controller
                 store_website_product_prices.segment_discount,
                 store_website_product_prices.duty_price ,
                 store_website_product_prices.override_price,
-                store_website_product_prices.status ,
-                simply_duty_countries.default_duty '
+                store_website_product_prices.status,
+                websites.countries as countries
+                '
+               
                 
             ));
             $products = $products->whereNull('products.deleted_at');
         
-            if (isset($filter_data['country_code'])) {
+          /*  if (isset($filter_data['country_code'])) {
                 $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']); 
             }
             
@@ -318,6 +318,7 @@ class ProductPriceController extends Controller
                         'store_website_product_prices_id'=>$p->store_website_product_prices_id,
                         'status'=>$p->status,
                         'default_duty'=>$p->default_duty,
+                        'countries'=>$p->countries
 
                     ];
                 }
@@ -423,5 +424,22 @@ class ProductPriceController extends Controller
          }
          return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
     }
+
+    public function storewebsiteproductpriceshistory(Request $request)
+    {
+          $id=$request->id;
+          $history=\App\StoreWebsiteProductPriceHistory::where('sw_product_prices_id',$id)->orderBy('created_at','desc')->get();
+          $html="<table class='table table-bordered table-striped'> <thead><tr><th>Date</th><th>Notes</th></thead> <tbody>";
+          foreach ($history as $h)
+          {
+            $html.="<tr><td>".$h->created_at."</td>";  
+            $html.="<td>".$h->notes."</td></tr>";
+
+          }
+          $html.=" </tbody> </table>";
+
+          echo $html;
+
+    }  
 
 }

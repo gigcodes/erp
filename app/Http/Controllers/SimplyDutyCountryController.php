@@ -182,6 +182,7 @@ class SimplyDutyCountryController extends Controller
         $country->status=0;
         SimplyDutyCountryHistory::insert($data);
         if ($country->save()) {
+            $this->update_store_website_product_prices($country->country_code,$request->input('duty'));
             return response()->json(['success' => true, 'message' => "Default duty update successfully"]);
         }
         return response()->json(['success' => false, 'message' => "Something went wrong!"]);
@@ -231,6 +232,7 @@ class SimplyDutyCountryController extends Controller
                 $d->status=0;
                 $d->save();
                 SimplyDutyCountryHistory::insert($data);
+                $this->update_store_website_product_prices($d->country_code,$value);
             }   
            return response()->json(["code" => 200 , "message" => "Default Duty assigned"]);
        }
@@ -251,6 +253,20 @@ class SimplyDutyCountryController extends Controller
                
         }
         return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
+   }
+
+   public function update_store_website_product_prices($code,$amount)
+   {
+           $p= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price')
+           ->join('websites','store_website_product_prices.store_website_id','websites.id' )
+           ->where('websites.countries',$code)
+           ->first();
+           if ($p)
+           {
+               \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
+               $note="Country Duty change  from ".$p->duty_price." To ".$amount;
+               \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+           }
    }
 
    

@@ -78,9 +78,9 @@ class MagentoService
         }
 
         // started to check the product rediness test
-        if (!$this->validateReadiness()) {
+       /* if (!$this->validateReadiness()) {
             return false;
-        }
+        }*/
 
         if (!$this->validateBrand()) {
             return false;
@@ -113,9 +113,9 @@ class MagentoService
 
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
-        if (!$this->validateTranslation()) {
+      /*  if (!$this->validateTranslation()) {
             return false;
-        }
+        }*/
 
 
 
@@ -872,7 +872,11 @@ class MagentoService
                         $price = $magentoPrice;
                     }
 
+                   
+
+                   
                     foreach ($countries as $c) {
+                       
                         $cc = CustomerCharity::where('product_id', $product->id)->first();
                         if($product->isCharity()){
                             $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
@@ -883,31 +887,39 @@ class MagentoService
                             "price"         => $price,
                             "special_price" => $specialPrice,
                         ];
+
+
                     }
+
+                    $d=  \App\StoreWebsiteProductPrice::where('product_id',$product->id)->where('web_store_id',$webStore->id)->where('store_website_id',$website->id)->first();
+                    if ($d)
+                    {    
+                           $d->default_price=$magentoPrice;
+                           $d->duty_price=$dutyPrice;
+                           $d->override_price=$ovverridePrice;
+                          
+                           $d->save();
+                    } 
+                    else
+                    { 
+                    $data=[
+                         'product_id'=> $product->id, 
+                         'default_price'=>$magentoPrice, 
+                         'segment_discount'=>'0', 
+                         'duty_price'=>$dutyPrice, 
+                         'override_price'=>$ovverridePrice ,
+                         'status'=>'1',
+                         'web_store_id'=>$webStore->id,
+                         'store_website_id'=>$website->id
+                         
+                     ];
+                           \App\StoreWebsiteProductPrice::insert($data);
+                          
+                    }
+                   
+                  
                 }
-                $d=  \App\StoreWebsiteProductPrice::where('product_id',$product->id)->where('web_store_id',$webStore->id)->where('store_website_id',$website->id)->first();
-               if ($d)
-               {    
-                      $d->default_price=$magentoPrice;
-                      $d->duty_price=$duty_price;
-                      $d->override_price=$ovverridePrice;
-                      $d-save();
-               } 
-               else
-               { 
-               $data=[
-                    'product_id'=> $product->id, 
-                    'default_price'=>$magentoPrice, 
-                    'segment_discount'=>'0', 
-                    'duty_price'=>$dutyPrice, 
-                    'override_price'=>$ovverridePrice ,
-                    'status'=>'1',
-                    'web_store_id'=>$webStore->id,
-                    'store_website_id'=>$website->id
-                ];
-                      \App\StoreWebsiteProductPrice::insert($data);
-                     
-               }
+               
             }
         }
         Log::info("pricesArr " . json_encode($pricesArr));
