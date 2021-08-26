@@ -60,14 +60,14 @@ class GTMetrixTestCMDGetReport extends Command
         foreach ($storeViewList as $value) {
             if(!empty($value->account_id)){
                 $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->where('status', 'active')->first();
-                $username = $gtmatrix->email;
-                $password = $gtmatrix->password;
+                $username = $gtmatrix['email'];
+                $password = $gtmatrix['account_id'];
                 $curl = curl_init();
 
                     curl_setopt_array($curl, array(
                     CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_USERPWD => $gtmatrix->account_id . ":" . '',
+                    CURLOPT_USERPWD => $value->account_id . ":" . '',
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
                     CURLOPT_TIMEOUT => 0,
@@ -95,13 +95,13 @@ class GTMetrixTestCMDGetReport extends Command
                         $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
                         $AccountData = $gtmatrixAccount->where('status', 'active')->orderBy('id','desc')->get();
 
-                        foreach ($AccountData as $key => $value) {
+                        foreach ($AccountData as $key => $ValueData) {
                             $curl = curl_init();
 
                             curl_setopt_array($curl, array(
                             CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $value['account_id'] . ":" . '',
+                            CURLOPT_USERPWD => $ValueData['account_id'] . ":" . '',
                             CURLOPT_ENCODING => '',
                             CURLOPT_MAXREDIRS => 10,
                             CURLOPT_TIMEOUT => 0,
@@ -117,8 +117,8 @@ class GTMetrixTestCMDGetReport extends Command
                             $data = json_decode($response);
                             $credits = $data->data->attributes->api_credits;
                             if($credits!= 0){
-                                $username = $value['email'];
-                                $password = $value['password'];
+                                $username = $ValueData['email'];
+                                $password = $ValueData['account_id'];
                                 $client = new GTMetrixClient();
                                 $client->setUsername($username);
                                 $client->setAPIKey($password);
