@@ -210,7 +210,7 @@
                                                 {{  $key['website'] }}
                                             </span>
                                </td>
-                               <td>{{ $key['eur_price'] }} | {{ $key['brand_id'] }}</td>
+                               <td>{{ $key['eur_price'] }}</td>
                                
                                 <!--   <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
