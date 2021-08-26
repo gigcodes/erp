@@ -6,6 +6,7 @@ use App\MagentoSetting;
 use App\StoreWebsite;
 use App\Website;
 use App\WebsiteStore; 
+use App\MagentoSettingLog;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request; 
 
@@ -69,72 +70,93 @@ class MagentoSettingsController extends Controller
         $name = $request->name;
         $path = $request->path;
         $value = $request->value;
-        foreach ($request->scope as $scope) {
+        $scope = "default";
+        foreach ($request->scope as $scope) :
+            $scope = $scope;
+        endforeach;
+        
+        if ($scope === 'default') {
+            
+            $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
+            foreach($storeWebsites as $storeWebsite){
 
-            if ($scope === 'default') {
-
-                $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
-
-                foreach($storeWebsites as $storeWebsite){
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
-                    if(!$m_setting){
-                        $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $storeWebsite->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
-                        ]);
-                    }
-
+                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
+                if(!$m_setting){
+                    $m_setting = MagentoSetting::Create([
+                        'scope' => $scope,
+                        'scope_id' => $storeWebsite->id,
+                        'store_website_id' => $storeWebsite->id,
+                        'website_store_id' => 0,
+                        'website_store_view_id' => 0,
+                        'name' => $name,
+                        'path' => $path,
+                        'value' => $value
+                    ]);
                 }
+
             }
+        }
 
-            if($scope === 'websites'){
+        if($scope === 'websites'){
 
+            $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
+            foreach($storeWebsites as $storeWebsite):
+            
                 $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
-
                 foreach($websiteStores as $websiteStore){
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStore->id)->where('path', $path)->first();
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStore->id)->where('store_website_id',$storeWebsite->id)->where('website_store_id',$websiteStore->id)->where('path', $path)->first();
                     if(!$m_setting){
                         $m_setting = MagentoSetting::Create([
                             'scope' => $scope,
                             'scope_id' => $websiteStore->id,
+                            'store_website_id' => $storeWebsite->id,
+                            'website_store_id' => $websiteStore->id,
+                            'website_store_view_id' => 0,
                             'name' => $name,
                             'path' => $path,
                             'value' => $value
                         ]);
                     }
-
                 }
                 
-            }
-
-            if($scope === 'stores'){
-
-                $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();
-
-                foreach($websiteStoresViews as $websiteStoresView){
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStoresView->id)->where('path', $path)->first();
-                    if(!$m_setting){
-                        $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStoresView->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
-                        ]);
-                    }
-
-                }
-                
-            }
+            endforeach;    
 
         }
 
+        if($scope === 'stores'){
+            
+            $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
+            foreach($storeWebsites as $storeWebsite):
+                
+                $websiteStores = $request->website_store;
+                $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();
+                $i = 0;
+                foreach($websiteStoresViews as $websiteStoresView){
+
+                    $websiteStore = $websiteStores[0];
+
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStoresView->id)->where('path', $path)->where('store_website_id', $storeWebsite->id)->where('website_store_id', $websiteStore)->where('website_store_view_id', $websiteStoresView->id)->first();
+                    if(!$m_setting){                    
+                        $m_setting = MagentoSetting::Create([
+                            'scope' => $scope,
+                            'scope_id' => $websiteStoresView->id,
+                            'store_website_id' => $storeWebsite->id,
+                            'website_store_id' => $websiteStore,
+                            'website_store_view_id' => $websiteStoresView->id,
+                            'name' => $name,
+                            'path' => $path,
+                            'value' => $value
+                        ]);
+                    }
+                    $i++;
+                }
+                
+            endforeach;
+                
+
+        }
+
+        
         return response()->json(['status' => true]);
 
     }
@@ -275,6 +297,9 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
