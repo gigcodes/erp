@@ -20,31 +20,28 @@ class OutOfStockSubscribeController extends Controller
         $validator = Validator::make($params, [
            'email' => 'required',
            'product_id' => 'required',
+		   'website' => 'required'
        ]);
 
 		if ($validator->fails()) {
             return response()->json(["code" => 500, "data" => $validator->messages(), "message"=>"Failed"]);
         }
 
-		$website = $request->website;
-        $website_data = WebsiteProduct::where('product_id',$request->product_id)->first();
-        if($website_data)
-            $website_id = $website_data->store_website_id;
-        else
-           $website_id = '';
+		$storeWebsite = StoreWebsite::where("website","like",$request->website)->select('id')->first();      
 
+		if($storeWebsite) {
+			 $website_id = $storeWebsite->id;
+			$data=$params;
 
-        $data=$params;
-
-		$customer = Customer::where('email', $data['email'])->first();
-		if($customer == null) {
-			$customer = Customer::create(['name'=>$data['email'], 'email'=>$data['email'], 'store_website_id'=> $website_id]);
+			$customer = Customer::where('email', $data['email'])->first();
+			if($customer == null) {
+				$customer = Customer::create(['name'=>$data['email'], 'email'=>$data['email'], 'store_website_id'=> $website_id]);
+			}
+			$status=0;
+			\App\ErpLeads::create(['customer_id' => $customer->id,'lead_status_id' => 1,'product_id' => $data['product_id']]);
+			$arrayToStore = ['customer_id'=>$customer['id'], 'product_id'=>$data['product_id'], 'status'=>$status];
+			OutOfStockSubscribe::updateOrCreate( ['customer_id'=>$customer['id'], 'product_id'=>$data['product_id']], $arrayToStore);
 		}
-        $status=0;
-        \App\ErpLeads::create(['customer_id' => $customer->id,'lead_status_id' => 1,'product_id' => $data['product_id']]);
-        $arrayToStore = ['customer_id'=>$customer['id'], 'product_id'=>$data['product_id'], 'status'=>$status];
-        OutOfStockSubscribe::updateOrCreate( ['customer_id'=>$customer['id'], 'product_id'=>$data['product_id']], $arrayToStore);
-
         return response()->json(["code" => 'success', "message" => "Subscribed successfully."]);
    }
 }

@@ -1412,7 +1412,8 @@ POST https://erp.theluxuryunlimited.com/api/product-live-status
 POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
 {
    "email":"test@gmail.com",
-   "product_id":"297569"
+   "product_id":"297569",
+   "website" : "WWW.SOLOLUXURY.COM"
 }
 ```
 
