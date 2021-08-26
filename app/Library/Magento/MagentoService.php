@@ -68,6 +68,7 @@ class MagentoService
     public function pushProduct()
     {
         // start to send request if there is token
+       
         if (!$this->validateToken()) {
             return false;
         }
@@ -98,6 +99,7 @@ class MagentoService
 
     private function assignOperation()
     {
+       
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
         $this->websiteIds = $this->getWebsiteIds();
@@ -106,29 +108,36 @@ class MagentoService
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
         $this->startTranslation();
+        
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
         $this->meta = $this->getMeta();
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
+        
         $this->translations = $this->getTranslations();
-
+       
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         if (!$this->validateTranslation()) {
             return false;
         }
 
-
+        
 
         \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
+       
         $this->totalRequest += count($this->translations);
+       
         \Log::info($this->product->id . " #7 => " . date("Y-m-d H:i:s"));
         $this->sizes = $this->getSizes();
         \Log::info($this->product->id . " #8 => " . date("Y-m-d H:i:s"));
         $this->sku = $this->getSku();
         \Log::info($this->product->id . " #9 => " . date("Y-m-d H:i:s"));
+        
         $this->description = $this->getDescription();
         \Log::info($this->product->id . " #10 => " . date("Y-m-d H:i:s"));
+        
         $this->magentoBrand = $this->getMagentoBrand();
+       
         \Log::info($this->product->id . " #11 => " . date("Y-m-d H:i:s"));
         $this->images = $this->getImages();
         \Log::info($this->product->id . " #12 => " . date("Y-m-d H:i:s"));
@@ -144,10 +153,12 @@ class MagentoService
         \Log::info($this->product->id . " #17 => " . date("Y-m-d H:i:s"));
         $this->storeColor = $this->getStoreColor();
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
-
+       
         // get normal and special prices
+       
         $this->getPricing();
-
+       
+       
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
 
@@ -834,6 +845,7 @@ class MagentoService
         $website   = $this->storeWebsite;
         $id = $this->product->id; 
         $p=\App\CustomerCharity::where('product_id',$id)->first();
+       
         if ($p)
           $webStores= \App\CharityProductStoreWebsite::join('websites','charity_product_store_websites.website_id','websites.id')->where('charity_id',$p->id)->get();
         else
@@ -842,6 +854,7 @@ class MagentoService
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
             foreach ($webStores as $key => $webStore) {
+                
                 if ($p) //CharityProduct
                     {
                         $countries=CharityCountry::where('charity_id', $p->id)->get();
@@ -849,6 +862,22 @@ class MagentoService
                         $price = $magentoPrice;
                         $specialPrice =0;
                         $totalAmount=0;
+                       
+                        foreach ($countries as $c) {
+                       
+                            if (isset($c->price) && $c->price>0)
+                               {
+                                $price=round($c->price,-1 * (strlen($c->price)-1),PHP_ROUND_HALF_UP);
+    
+                               } 
+                            
+                            $pricesArr[$c->country_code] = [
+                                "price"         => $price,
+                                "special_price" => $specialPrice
+                            ];
+                       
+                            
+                  }  
                     }  
                 else
                  {    
@@ -891,25 +920,19 @@ class MagentoService
 
                    
                     }
-                }
-                  foreach ($countries as $c) {
-                       /* $cc = CustomerCharity::where('product_id', $product->id)->first();
-                        if($product->isCharity()){
-                            $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
-                            $price = $webStore->price;
-                            $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
-                        }*/
-
-                        if (isset($c->price) && $c->price>0)
-                            $price=round($c->price,-1 * (strlen($c->price)-1),PHP_ROUND_HALF_UP);
+                   
+                    foreach ($countries as $c) {
+                       
                         
                         $pricesArr[$c] = [
                             "price"         => $price,
                             "special_price" => $specialPrice
                         ];
                    
-                
-              }  
+                        
+                   }  
+                }
+                  
             }
         }
         Log::info("pricesArr " . json_encode($pricesArr));
@@ -926,7 +949,8 @@ class MagentoService
                 }
             }
         }
-
+        $this->storeLog("message", var_dump($samePrice)." 1specialPrice" );
+        $this->storeLog("message", var_dump($specialPrice)." 2specialPrice" );
         $this->prices['samePrice'] = $samePrice;
         $this->totalRequest += count($samePrice);
         $this->prices['specialPrice'] = $specialPrice;
