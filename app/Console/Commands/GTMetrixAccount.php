@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 use Illuminate\Console\Command;
 
-class GTMetrixTestCMDGetReport extends Command
+class GTMetrixAccount extends Command
 {
     /**
      * The name and signature of the console command.
