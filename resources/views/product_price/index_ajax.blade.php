@@ -32,7 +32,7 @@
                                             </span>
                                </td>
                                <td>{{ $key['eur_price'] }}</td>
-                               <td>
+                               <!-- <td>
                                    <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
                                        <div class="ml-2" style="float: right;">%</div>
@@ -40,7 +40,23 @@
                                             <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
                                        </div>
                                    </div>
-                               </td>
+                               </td> -->
+
+                               @foreach($category_segments as $category_segment)
+                                    <td>
+                                        @php
+                                            $category_segment_discount = \DB::table('category_segment_discounts')->where('brand_id', $key['brand_id'])->where('category_segment_id', $category_segment->id)->first();
+                                        @endphp
+
+                                        @if($category_segment_discount)
+                                            <input type="text" class="form-control seg_discount" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{$key['brand_id'] }}, {{ $category_segment->id }})" data-ref="{{ $category_segment->id }}"></th>
+                                        @else
+                                            <input type="text" class="form-control seg_discount" value="" onchange="store_amount({{ $key['brand_id']}}, {{ $category_segment->id }})" data-ref="{{ $category_segment->id }}"></th>
+                                        @endif
+                                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $key['brand_id'] }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
+                                    </td>
+                                @endforeach 
+
                                <td>{{ $key['iva'] }}</td>
                                <td>{{ $key['net_price'] }}</td>
                                <td>
