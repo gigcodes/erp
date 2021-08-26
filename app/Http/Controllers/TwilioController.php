@@ -1012,7 +1012,7 @@ class TwilioController extends FindByNumberController
                     );
             
                     $gather->say(
-                        'Please Enter Last 4 Digits of Your Order Number',
+                        'Please Enter Your Order Id',
                         ['loop' => 3]
                     );
 
@@ -1171,7 +1171,7 @@ class TwilioController extends FindByNumberController
 
         // $order_data = Customer::where('phone', '=', $number)->first();
 
-        $order_data = Order::where('id', $selectedOption)->first();
+        $order_data = Order::where('order_id', $selectedOption)->first();
 
         $option = ($request->get("sel_option") != null ? 1 : 0);
 
@@ -1279,6 +1279,8 @@ class TwilioController extends FindByNumberController
             $response->say('Not Match Any Record from your Input');
 
             $response->redirect(route('ivr', ['count'=>0], false));
+
+            return $response;
         }
         
 
@@ -1311,7 +1313,7 @@ class TwilioController extends FindByNumberController
             );
     
             $gather->say(
-                'Please Enter Last 4 Digits of Your Order Number',
+                'Please Enter Your Order Id',
                 ['loop' => 3]
             );
 
@@ -1328,7 +1330,7 @@ class TwilioController extends FindByNumberController
             );
     
             $gather->say(
-                'Please Enter Last 4 Digits of Your Order Number',
+                'Please Enter Your Order Id',
                 ['loop' => 3]
             );
 
@@ -1345,7 +1347,7 @@ class TwilioController extends FindByNumberController
             );
     
             $gather->say(
-                'Please Enter Last 4 Digits of Your Order Number',
+                'Please Enter Your Order Id',
                 ['loop' => 3]
             );
 
