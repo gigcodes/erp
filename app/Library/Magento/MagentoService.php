@@ -361,6 +361,29 @@ class MagentoService
 
     private function defaultData($data)
     {
+		/*update product name code starts*/
+			$productNamelength = strlen($this->product->name);
+			if($productNamelength < 50) {
+				if(isset($this->product->brands->name) and $this->product->brands->name != null) {
+					$brandName = $this->product->brands->name;
+					similar_text($this->product->name, $brandName, $brandProductMatch);
+					if($brandProductMatch < 70) {
+						$this->product->name = $brandName.' '.$this->product->name;
+						$productNamelength = strlen($this->product->name);
+					}
+				}
+				if(isset($this->product->categories->title) and $this->product->categories->title != "Select Category") {
+					$catName = $this->product->categories->title;
+					if($productNamelength < 50) {
+						similar_text($this->product->name, $catName, $categoryProductMatch);
+						if($categoryProductMatch < 70) {
+							$this->product->name = $catName.' '.$this->product->name;
+						}						
+					}
+				}
+			}	
+		/*update product name code ends*/
+		
         $e = [
             'product' => array(
                 'sku'                  => $data['sku'], // Simple products to associate
@@ -922,8 +945,7 @@ class MagentoService
                     }
                    
                     foreach ($countries as $c) {
-                       
-                        
+                      
                         $pricesArr[$c] = [
                             "price"         => $price,
                             "special_price" => $specialPrice

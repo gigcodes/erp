@@ -53,6 +53,26 @@
             @endif
           </div>
           <div class="form-group">
+            <strong>Websites (to upload)</strong>
+            <div class="form-group mr-3">
+              <select class="form-control globalSelect2" data-placeholder="Select Websites" data-ajax="{{ route('select2.websites',['sort'=>true]) }}" name="websites[]" multiple>
+                <option value=""></option> 
+              </select>
+              @if ($errors->has('websites'))
+                <div class="alert alert-danger">{{$errors->first('websites')}}</div>
+              @endif
+          </div> 
+          </div>
+          <div class="form-group">
+            <strong>Website Stores</strong>
+            <select class="form-control globalSelect2 website_stores" data-placeholder="Select Website Stores" name="website_stores[]" multiple>
+                <option value=""></option> 
+              </select>
+              @if ($errors->has('website_stores'))
+                <div class="alert alert-danger">{{$errors->first('website_stores')}}</div>
+              @endif
+          </div>     
+          <div class="form-group">
             <strong>Social Handle:</strong>
             <input type="text" name="social_handle" class="form-control" value="{{ old('social_handle') }}">
             @if ($errors->has('social_handle'))
@@ -205,6 +225,18 @@
               <div class="alert alert-danger">{{$errors->first('email')}}</div>
             @endif
           </div>
+          <div class="form-group">
+              <strong>Websites (for upload)</strong>
+              <select class="form-control globalSelect2 websites" data-placeholder="Select Websites" name="websites[]" multiple>
+                <option value=""></option> 
+              </select>
+          </div>  
+          <div class="form-group">
+              <strong>Website Stores</strong>
+              <select class="form-control globalSelect2 website_stores" data-placeholder="Select Website Stores" name="website_stores[]" multiple>
+                <option value=""></option> 
+              </select>
+          </div>     
           <div class="form-group">
             <strong>Social Handle:</strong>
             <input type="text" name="social_handle" class="form-control" value="{{ old('social_handle') }}" id="vendor_social_handle">

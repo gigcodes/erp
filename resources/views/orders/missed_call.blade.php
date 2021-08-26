@@ -182,6 +182,10 @@
                                         src="/images/view.png" /></a> -->
                             @endif
 
+                            @if (isset($callBusyMessage['customerid']))
+                            <i class="fa fa-ticket create-customer-ticket-modal" onclick="showticket('{{ $callBusyMessage['customerid'] }}');" data-customer_id="{{ $callBusyMessage['customerid'] }}" style="cursor: pointer;" title="Create Ticket" aria-hidden="true"></i>
+                            @endif
+
                         </td>
                     </tr>
                 @endforeach
@@ -192,7 +196,7 @@
     <div class="col-md-12">
         {{ $callBusyMessages_pagination->links() }}
     </div>
-
+    @include("partials.customer-new-ticket")
     <!-- Customer Detail Modal -->
     <div class="modal fade" id="customer-information" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -591,6 +595,13 @@ const formData = $(this).serialize()
         $('#customer-information').modal('show')
 
     })
+
+    function showticket(c)
+    {
+        $('#ticket_customer_id').val(c);
+        $('#create-customer-ticket-modal').modal('show');
+       
+    }
     </script>
 
 @endsection

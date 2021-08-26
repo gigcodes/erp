@@ -16,7 +16,7 @@
     <style type="text/css">
         .preview-category input.form-control {
             width: auto;
-        }
+        } 
 
     </style>
 
