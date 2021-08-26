@@ -3268,15 +3268,25 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
 });
-
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
+Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');
 Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.history');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
+
+// Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
+Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
+Route::get('gtmetrixAccount/edit-info/{id}', 'StoreGTMetrixAccountController@edit')->name('account.edit');
+Route::get('gtmetrixAccount/create', 'StoreGTMetrixAccountController@create')->name('account.create');
+Route::DELETE('gtmetrixAccount/delete/{id?}', 'StoreGTMetrixAccountController@destroy')->name('account.destroy');
+Route::get('gtmetrixAccount/show', 'StoreGTMetrixAccountController@show')->name('account.show');
+Route::post('gtmetrixAccount/update', 'StoreGTMetrixAccountController@update')->name('account.update');
+Route::post('gtmetrixAccount/store', 'StoreGTMetrixAccountController@store')->name('account.store');
+
 
 
 

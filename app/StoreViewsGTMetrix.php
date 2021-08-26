@@ -19,7 +19,8 @@ class StoreViewsGTMetrix extends Model
     protected $table = 'store_views_gt_metrix';
 
     protected $fillable = [
-        'store_view_id', 
+        'store_view_id',
+        'account_id', 
         'test_id',
         'status',
         'error',

@@ -98,15 +98,110 @@ class GTMetrixTestCMD extends Command
 
             $request_too_many_pending = false;
 
-            foreach ($storeViewList as $value) {
-                $webite = $value['magento_url'].'/'.$value['code'];
-                $create = [
-                    'store_view_id' => $value['id'],
-                    'status'        => 'not_queued',
-                    'website_url'   => $webite,
-                ];
-                StoreViewsGTMetrix::create( $create );
+
+            // foreach ($storeViewList as $value) {
+            //     $webite = $value['magento_url'].'/'.$value['code'];
+            // $webiteUrl = "https://venmo.com";
+            //     $create = [
+            //         'store_view_id' => $value['id'],
+            //         'status'        => 'not_queued',
+            //         'website_url'   =>  $webiteUrl,
+            //     ];
+            //     \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully" );
+            //    StoreViewsGTMetrix::create( $create );
+            // }
+
+            if (!empty($storeViewList)) {
+                foreach ($storeViewList as $value) {
+
+                    $webiteUrl = $value['magento_url'];
+                    $curl = curl_init();
+
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL => "$webiteUrl/sitemap.xml",
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_TIMEOUT => 30000,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => "GET",
+                        CURLOPT_HTTPHEADER => array(
+                            // Set Here Your Requesred Headers
+                            'Content-Type: application/json',
+                        ),
+                    ));
+                    $response = curl_exec($curl);
+                    $err = curl_error($curl);
+                    curl_close($curl);
+                    //$create = array();
+                    if ($err) {
+                        \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err );
+                        echo "cURL Error #:" . $err;
+                    } else {
+                        if( preg_match('/<html[^>]*>/', $response) ) {
+                            
+                            $siteData= array(
+                                                        
+                                'store_view_id' =>$value['id'],
+                                'status' =>'not_queued',
+                                'website_url' =>$webiteUrl.'/'.$value['code']
+                            );
+
+                            $create[] = $siteData;
+                            \Log::info("\nMessage:  Not found sitemap data" );
+                            } else if( preg_match('/<\?xml[^?]*\?>/', $response) ) {
+                                \Log::info("\nMessage: Site map data fetch succesfully" );
+                                $xml=simplexml_load_string($response);
+                                //Convert into json
+                                $xmlToJson = json_encode($xml);
+                                // Convert into associative array
+                                $finalArray = json_decode($xmlToJson, true);
+                                $create =[];
+                                if($finalArray){
+                                    $siteData= array(
+                                                        
+                                        'store_view_id' =>$value['id'],
+                                        'status' =>'not_queued',
+                                        'website_url' =>$webiteUrl.'/'.$value['code']
+                                    );
+                                    $create[] = $siteData;
+                                    foreach ($finalArray['url'] as $key => $value) {
+
+                                        $sitemapUrl = parse_url($value['loc']);
+                                        $path =  $sitemapUrl['path'];
+                                        $pathArray = explode('/',$path);
+                                    
+                                        if(!empty($pathArray[1])){
+
+                                            $url = $webiteUrl.'/'.$pathArray[1];
+                                            $key = array_search( $url, array_column($create, 'website_url'));
+                                            
+                                            if($key === false){
+                                                $siteData= array(
+                                                        
+                                                    'store_view_id' =>$value['id'],
+                                                    'status' =>'not_queued',
+                                                    'website_url' =>$url.'/'.$value['code']
+                                                );
+                    
+                                                $create[] = $siteData;
+                                            }
+                                        }
+                                    
+                                    
+                                    }
+                                }
+                                foreach ($create as $key => $value) {
+                                    StoreViewsGTMetrix::create( $value );
+                                }
+                                
+                            }
+                        \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully");
+
+                    }
+                   
+                }  
             }
+                
 
             // Get tested site report 
             // \Artisan::call('GT-metrix-test-get-report');
