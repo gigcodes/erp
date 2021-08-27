@@ -914,12 +914,13 @@ class MagentoService
                             }
                         }
                         // pricing check for the discount case
-                        $ovverridePrice = 0;
+                        $ovverridePrice = 0;$segmentDiscount=0;
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
                                 $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
                                 if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                                     $ovverridePrice = $discountPrice['total'];
+                                    $segmentDiscount = $discountPrice['segment_discount'];
                                     break;
                                 }
                             }
@@ -954,13 +955,14 @@ class MagentoService
                         $d->default_price  = $magentoPrice;
                         $d->duty_price     = $dutyPrice;
                         $d->override_price = $ovverridePrice;
+                        $d->segment_discount = $segmentDiscount;
 
                         $d->save();
                     } else {
                         $data = [
                             'product_id'       => $product->id,
                             'default_price'    => $magentoPrice,
-                            'segment_discount' => '0',
+                            'segment_discount' => $segmentDiscount,
                             'duty_price'       => $dutyPrice,
                             'override_price'   => $ovverridePrice,
                             'status'           => '1',

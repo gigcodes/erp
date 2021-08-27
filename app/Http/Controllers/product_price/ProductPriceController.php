@@ -207,11 +207,12 @@ class ProductPriceController extends Controller
         ->leftJoin("scraped_products as sp", function ($q) {
             $q->on("sp.product_id", "products.id");
         })
-        ->Join("product_suppliers as psu", function ($q) {
+        ->leftJoin("product_suppliers as psu", function ($q) {
             $q->on("psu.product_id", "products.id");
         })
-        ->join('store_websites','store_websites.id','store_website_product_prices.web_store_id')
-        ->join('websites','store_website_product_prices.store_website_id','websites.id' )
+        ->leftJoin('store_websites','store_websites.id','store_website_product_prices.store_website_id')
+       ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+       // ->leftJoin('websites','store_website_product_prices.store_website_id','websites.store_website_id' )
         ->select(DB::raw('
                 products.id as pid, 
                 products.name as product_name,
@@ -244,16 +245,18 @@ class ProductPriceController extends Controller
                 store_website_product_prices.duty_price ,
                 store_website_product_prices.override_price,
                 store_website_product_prices.status,
-                websites.countries as countries
-                '
-               
-                
-            ));
+                websites.name as countries'                
+            )); 
+			if (isset($filter_data['websites']) && is_array($filter_data['websites']) && $filter_data['websites'][0] != null) {
+               $products = $products->whereIn('store_websites.id', $filter_data['websites']);
+            }
+			if (isset($filter_data['country_code'])) {
+                $products = $products->where('websites.code', strtolower($filter_data['country_code'])); 
+            }
+			
             $products = $products->whereNull('products.deleted_at');
         
-          /*  if (isset($filter_data['country_code'])) {
-                $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']); 
-            }
+          /*  
             
             if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
                 $suppliers_list = implode(',', $filter_data['supplier']);
@@ -264,9 +267,7 @@ class ProductPriceController extends Controller
                 $products = $products->whereIn('brand_id', $filter_data['brand_names']);
             }
             
-            if (isset($filter_data['websites']) && is_array($filter_data['websites']) && $filter_data['websites'][0] != null) {
-                $products = $products->whereIn('store_websites.id', $filter_data['websites']);
-            }
+           
 
             if (isset($filter_data['term'])) {
                 $term  = $filter_data['term'];
@@ -283,10 +284,10 @@ class ProductPriceController extends Controller
             
          /*   $products = $products->skip($skip * Setting::get('pagination'))
             ->limit(Setting::get('pagination'))->get();*/
-            $products = $products->get();
+            $products = $products->paginate(50);
             $product_list = [];
+                foreach($products as $p){ 
             if(count($products)){
-                foreach($products as $p){
                     $product = Product::find($p->pid);
                     $dutyPrice = $product->getDuty( $p->product_country_code );
                     $category_segment = $p->category_segment != null ? $p->category_segment : $p->brand_segment;
@@ -354,13 +355,13 @@ class ProductPriceController extends Controller
 		if($request->websites){
             $selected_websites = StoreWebsite::select('id','title')->whereIn('id',$request->websites)->get();
 		}
-  
+  $category_segments = \App\CategorySegment::where('status',1)->get();
+        
         if ($request->ajax()) {
             $count = $request->count;
-    		$view = view('product_price.index_ajax',compact('product_list', 'count'))->render();
+    		$view = view('product_price.index_ajax',compact('product_list', 'count','category_segments'))->render();
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
-        $category_segments = \App\CategorySegment::where('status',1)->get();
         return view('product_price.store-website-product-prices',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments'));
     }
 

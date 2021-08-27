@@ -156,6 +156,7 @@
                            <th  style="width: 5%">Segment Discount</th>
                            <th  style="width: 5%">Duty Price</th>
                            <th  style="width: 5%">Override price</th>
+                           <th  style="width: 5%">Final price</th>
                            <th  style="width: 5%">Status</th>
                            <th  style="width: 5%"></th>
                         <!--   <th style="width: 7%">EURO Price</th>
@@ -225,6 +226,7 @@
                                <td>{{ $key['segment_discount'] }}</td>
                                <td>{{ $key['duty_price'] }}</td>
                                <td>{{ $key['override_price'] }}</td>
+                               <td>{{ $key['final_price'] }}</td>
                                <td> @if($key["status"]==1)
                approved
              @else
@@ -322,7 +324,7 @@
 	});
 
     let data = $('.filter_form').serialize();
-	function loadMoreData(page){
+	function loadMoreData(page){ 
 	  $.ajax(
 	        {
 	            url: '?page=' + page + '&count=' + {{$i}} + '&' + data,

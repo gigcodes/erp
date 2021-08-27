@@ -533,16 +533,30 @@ class BrandController extends Controller
 
     }
 
-    public function storeCategorySegmentDiscount(Request $request) {
-        $category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
+    public function storeCategorySegmentDiscount(Request $request) {   
+		$ps = \App\StoreWebsiteProductPrice::join('products','store_website_product_prices.product_id','products.id')
+		->select('store_website_product_prices.id','store_website_product_prices.duty_price',
+		   'store_website_product_prices.product_id','store_website_product_prices.store_website_id','websites.code')
+           ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+		   ->leftJoin('category_segment_discounts','store_website_product_prices.web_store_id','websites.id' )
+           ->where('category_segment_discounts.brand_id', $request->brand_id)->where('category_segment_discounts.category_segment_id', $request->category_segment_id)
+           ->get(); //dd($ps);
+           if ($ps)
+           {
+				foreach($ps as $p)
+				{ 
+				  \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['status'=>0]) ;
+				}
+			}
+			$category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
         if($category_segment) {
-            return DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
+             return $catSegment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
                 'amount' => $request->amount,
                 'amount_type' => 'percentage',
                 'updated_at' => now() 
             ]);
         } else {
-            return DB::table('category_segment_discounts')->insert([
+            return $catSegment = DB::table('category_segment_discounts')->insert([
                 ['brand_id' => $request->brand_id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
             ]);
         }

@@ -9,6 +9,10 @@ use App\Setting;
 use Response;
 use App\SimplyDutySegment;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\PushToMagento;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
+use App\Loggers\LogListMagento;
 
 class SimplyDutyCountryController extends Controller
 {
@@ -205,6 +209,12 @@ class SimplyDutyCountryController extends Controller
        $duty->status=0;
        $duty->save();
        SimplyDutyCountryHistory::insert($data);
+	   
+	    if ($duty->save()) { 
+			$segementDetail = SimplyDutySegment::where('id', $duty->segment_id)->first();
+            $this->update_store_website_product_segment($duty->country_code,$segementDetail['price']);
+            return response()->json(['success' => true, 'message' => "segment update successfully"]);
+        }
        return response()->json(['success' => true, 'message' => "Segment Updated Successfully"]);
 
    }
@@ -257,21 +267,72 @@ class SimplyDutyCountryController extends Controller
 
    public function update_store_website_product_prices($code,$amount)
    {
-           $ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price')
-           ->join('websites','store_website_product_prices.store_website_id','websites.id' )
-           ->where('websites.countries',$code)
-           ->get();
+           $ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price',
+		   'store_website_product_prices.product_id','store_website_product_prices.store_website_id','websites.code')
+           ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+           ->where('websites.code',strtolower($code))
+           ->get(); //dd($ps);
            if ($ps)
            {
             foreach($ps as $p)
             { 
               \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
-               $note="Country Duty change  from ".$p->duty_price." To ".$amount;
+               $note="Country Duty changed  from ".$p->duty_price." To ".$amount;
+			   $this->pushToMagento($p->product_id, $p->store_website_id);
                \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
            }
         }
    }
 
-   
+
+   public function update_store_website_product_segment($code, $segmentDiscount)
+   {
+           $ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price','websites.code')
+           ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+           ->where('websites.code',strtolower($code))
+           ->get(); //dd($ps);
+           if ($ps)
+           {
+            foreach($ps as $p)
+            { 
+              \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$segmentDiscount,'status'=>0]) ;
+               //$note="Country Duty change  from ".$p->duty_price." To ".$amount;
+               //\App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+           }
+        }
+   }
+
+   public function pushToMagento($productId, $websiteId) {
+	    $product = \App\Product::find($productId);
+	  
+	   if ($product) {
+            $website = StoreWebsite::where('id', $websiteId)->first();
+            if ($website == null) {
+                \Log::channel('productUpdates')->info("Product started " . $product->id . " No website found");
+                $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
+                //ProductPushErrorLog::log($product->id, $msg, 'error');
+                //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                echo $msg;die;
+            } else {
+                $i = 1;
+                
+                    if ($website) {
+                        // testing 
+                        \Log::channel('productUpdates')->info("Product started website found For website" . $website->website);
+                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id);
+                        //currently we have 3 queues assigned for this task.
+                        if ($i > 3) {
+                            $i = 1;
+                        }
+                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->save();
+                        PushToMagento::dispatch($product,$website , $log)->onQueue($log->queue);
+                        //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
+                        $i++;
+                    }
+                
+            }
+        }
+   }
 
 }

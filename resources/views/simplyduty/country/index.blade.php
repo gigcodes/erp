@@ -125,7 +125,8 @@
             let id = $(this).data('id');
             let duty = $(this).val();
 
-            if (duty != '0' && duty != 0 && duty != null && duty != undefined){
+          //  if (duty != '0' && duty != 0 && duty != null && duty != undefined){
+            if (duty != undefined){
                 $.ajax({
                     url:'{{route("simplyduty.country.updateduty")}}',
                     dataType:'json',
