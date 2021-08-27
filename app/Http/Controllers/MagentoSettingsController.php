@@ -68,96 +68,130 @@ class MagentoSettingsController extends Controller
     }
 
     public function create(Request $request)
-    { 
-        $name = $request->name;
-        $path = $request->path;
-        $value = $request->value;
-        $scope = "default";
-        foreach ($request->scope as $scope) :
-            $scope = $scope;
-        endforeach;
-        
-        if ($scope === 'default') {
-            
-            $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
-            foreach($storeWebsites as $storeWebsite){
+    {
+        $name         = $request->name;
+        $path         = $request->path;
+        $value        = $request->value;
+        $copyWebsites = (!empty($request->websites)) ? $request->websites : array() ;
 
-                $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
-                if(!$m_setting){
-                    $m_setting = MagentoSetting::Create([
-                        'scope' => $scope,
-                        'scope_id' => $storeWebsite->id,
-                        'store_website_id' => $storeWebsite->id,
-                        'website_store_id' => 0,
-                        'website_store_view_id' => 0,
-                        'name' => $name,
-                        'path' => $path,
-                        'value' => $value
-                    ]);
-                }
+        foreach ($request->scope as $scope) {
 
-            }
-        }
+            if ($scope === 'default') {
+                
+                $totalWebsites = array_merge($request->website, $copyWebsites);
+                $storeWebsites = StoreWebsite::whereIn('id', $totalWebsites)->get();
+                
+                 foreach ($storeWebsites as $storeWebsite) {
 
-        if($scope === 'websites'){
-
-            $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
-            foreach($storeWebsites as $storeWebsite):
-            
-                $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
-                foreach($websiteStores as $websiteStore){
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStore->id)->where('store_website_id',$storeWebsite->id)->where('website_store_id',$websiteStore->id)->where('path', $path)->first();
-                    if(!$m_setting){
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
+                    if (!$m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStore->id,
+                            'scope'    => $scope,
+                            'scope_id' => $storeWebsite->id,
                             'store_website_id' => $storeWebsite->id,
+                            'website_store_id' => 0,
+                            'website_store_view_id' => 0,
+                            'name'     => $name,
+                            'path'     => $path,
+                            'value'    => $value,
+                        ]);
+                    }
+                }
+            }
+            
+            if ($scope === 'websites') {
+
+                $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
+                $stores        = [];
+                foreach ($websiteStores as $websiteStore) {
+                    $stores[]  = $websiteStore->code;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+                    if (!$m_setting) {
+                        $m_setting = MagentoSetting::Create([
+                            'scope'    => $scope,
+                            'scope_id' => $websiteStore->id,
+                            'store_website_id' => $request->single_website,
                             'website_store_id' => $websiteStore->id,
                             'website_store_view_id' => 0,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
+                            'name'     => $name,
+                            'path'     => $path,
+                            'value'    => $value,
                         ]);
                     }
                 }
                 
-            endforeach;    
+                if (!empty($copyWebsites)) {
+                    foreach ($copyWebsites as $cw) {
+                        $websiteStores = WebsiteStore::join("websites as w","w.id","website_stores.website_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_stores.id', $request->website_store)->get();
+                        foreach ($websiteStores as $websiteStore) {
+                            $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+                            if (!$m_setting) {                                  
+                                $m_setting = MagentoSetting::Create([
+                                    'scope'    => $scope,
+                                    'scope_id' => $websiteStore->id,
+                                    'store_website_id' => $cw,
+                                    'website_store_id' => $websiteStore->id,
+                                    'website_store_view_id' => 0,
+                                    'name'     => $name,
+                                    'path'     => $path,
+                                    'value'    => $value,
+                                ]);
+                            }                            
+                        }
+                    }
+                }                
+               
+            }                
 
-        }
+            if ($scope === 'stores') {
 
-        if($scope === 'stores'){
-            
-            $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
-            foreach($storeWebsites as $storeWebsite):
-                
-                $websiteStores = $request->website_store;
                 $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();
-                $i = 0;
-                foreach($websiteStoresViews as $websiteStoresView){
-
-                    $websiteStore = $websiteStores[0];
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStoresView->id)->where('path', $path)->where('store_website_id', $storeWebsite->id)->where('website_store_id', $websiteStore)->where('website_store_view_id', $websiteStoresView->id)->first();
-                    if(!$m_setting){                    
+                $stores        = [];
+                foreach ($websiteStoresViews as $websiteStoresView) {
+                    $stores[]  = $websiteStoresView->code;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+                    if (!$m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
+                            'scope'    => $scope,
                             'scope_id' => $websiteStoresView->id,
-                            'store_website_id' => $storeWebsite->id,
-                            'website_store_id' => $websiteStore,
+                            'store_website_id' => $request->single_website,
+                            'website_store_id' => $websiteStoresView->website_store_id,
                             'website_store_view_id' => $websiteStoresView->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
+                            'name'     => $name,
+                            'path'     => $path,
+                            'value'    => $value,
                         ]);
                     }
-                    $i++;
                 }
                 
-            endforeach;
+                if (!empty($copyWebsites)) {
+                    foreach ($copyWebsites as $cw) {
+                        
+                        //$websiteStoresViews = WebsiteStoreView::join("websites as w","w.id","website_store_views.website_store_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_store_id.id', $request->website_store_view)->get();
+                        $websiteStoresViews = WebsiteStoreView::join("websites as w","w.id","website_store_views.website_store_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores);
+                        
+                        foreach ($websiteStoresViews as $websiteStoresView) {
+                            $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+                            if (!$m_setting) {                                  
+                                $m_setting = MagentoSetting::Create([
+                                    'scope'    => $scope,
+                                    'scope_id' => $websiteStoresView->id,
+                                    'store_website_id' => $cw,
+                                    'website_store_id' => $websiteStoresView->website_store_id,
+                                    'website_store_view_id' => $websiteStoresView->id,
+                                    'name'     => $name,
+                                    'path'     => $path,
+                                    'value'    => $value,
+                                ]);
+                            }                            
+                        }
+                    }
+                }
                 
 
+            }
+            
         }
-
         
         return response()->json(['status' => true]);
 

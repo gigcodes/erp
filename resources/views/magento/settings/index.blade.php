@@ -75,10 +75,11 @@
                                         <td>-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
-                                        
+                                
                                         <td>{{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }}</td>
                                         <td>{{ $magentoSetting->store->website->name }}</td>
                                         <td>-</td>
+                                        
                                 @else
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-' }}</td>
@@ -178,7 +179,7 @@
                         
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
-                        <select class="form-control website select2" name="website[]" multiple data-placeholder="Select setting websites" style="width: 100%">
+                        <select class="form-control website select2" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
                             <option value=""></option>
                             @foreach($storeWebsites as $w)
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
@@ -405,7 +406,7 @@
             }else{
                 toastr['error'](response.message);
             }
-            //location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -507,7 +508,7 @@
             url: '/magento-admin-settings/delete/'+id,   
             }).done(function(response) {
                 $("#loading-image").hide(); 
-                location.reload();  
+                location.reload();
             }).fail(function() {
                 console.log("error");
             });
