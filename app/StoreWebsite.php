@@ -105,7 +105,7 @@ class StoreWebsite extends Model
     // Append attributes
     protected $appends = ['website_url'];
 
-    function list() {
+    public static function list() {
         return self::pluck("website", "id")->toArray();
     }
 
