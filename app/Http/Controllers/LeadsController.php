@@ -609,6 +609,14 @@ class LeadsController extends Controller
             $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
             if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                 $special_price = $discountPrice['total'];
+                $brand = $product->brands;
+                if($brand) {
+                    if (!empty($brand->euro_to_inr)) {
+                        $special_price = (float)$brand->euro_to_inr * (float)trim($discountPrice['total']);
+                    } else {
+                        $special_price = (float)Setting::get('euro_to_inr') * (float)trim($discountPrice['total']);
+                    }
+                }
             }
 
             if ($request->has('dimension')) {
