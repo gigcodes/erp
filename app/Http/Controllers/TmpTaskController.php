@@ -108,6 +108,15 @@ class TmpTaskController extends Controller
 
     public function testEmail(Request $request)
     {
+
+        $product = \App\Product::find($request->get("product_id"));
+        $dutyPrice = $product->getDuty($cnt);
+        $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+
+        \Log::info(print_r($discountPrice,true));
+        die;
+
+
         $suggestion = \App\SuggestedProduct::first();
         echo "<pre>"; print_r($suggestion);  echo "</pre>";die;
 
