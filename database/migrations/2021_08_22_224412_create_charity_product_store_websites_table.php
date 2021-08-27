@@ -16,7 +16,7 @@ class CreateCharityProductStoreWebsitesTable extends Migration
         Schema::create('charity_product_store_websites', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('website_id');
-            $table->integer('charity_id ');
+            $table->integer('charity_id');
             $table->double('price',8,2);
             $table->timestamps();
         });
