@@ -10,6 +10,7 @@ use App\MagentoSettingLog;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request; 
 
+use Carbon\Carbon;
 
 class MagentoSettingsController extends Controller
 {
@@ -21,12 +22,13 @@ class MagentoSettingsController extends Controller
             'storeview.websiteStore.website.storeWebsite', 
             'store.website.storeWebsite',
             'website');
-
+        
         if($request->scope){
             $magentoSettings->where('scope', $request->scope);
         }
 
         if($request->website){
+            
             if(empty($request->scope)){
                 $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function($q) use ($request){
                     $q->where('id', $request->website);
@@ -163,7 +165,6 @@ class MagentoSettingsController extends Controller
 
     public function update(Request $request)
     {
-
         $entity_id = $request->id;
         $scope = $request->scope;
         $name = $request->name;
@@ -213,6 +214,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -230,6 +236,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -247,6 +258,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -298,7 +314,9 @@ class MagentoSettingsController extends Controller
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
                         
-                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
                         
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
@@ -317,6 +335,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -334,6 +357,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -386,6 +414,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -403,6 +436,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -420,6 +458,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -458,6 +501,9 @@ class MagentoSettingsController extends Controller
         $m_setting = MagentoSetting::find($id);
         if($m_setting){
             $m_setting->delete();
+            $log = $id." Id Deleted successfully";
+            $formData = [ 'event'=>"delete", 'log'=>$log ];
+            MagentoSettingLog::create($formData);
         }
         return redirect()->route('magento.setting.index');        
     }
