@@ -6,9 +6,11 @@ use App\MagentoSetting;
 use App\StoreWebsite;
 use App\Website;
 use App\WebsiteStore; 
+use App\MagentoSettingLog;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request; 
 
+use Carbon\Carbon;
 
 class MagentoSettingsController extends Controller
 {
@@ -20,12 +22,13 @@ class MagentoSettingsController extends Controller
             'storeview.websiteStore.website.storeWebsite', 
             'store.website.storeWebsite',
             'website');
-
+        
         if($request->scope){
             $magentoSettings->where('scope', $request->scope);
         }
 
         if($request->website){
+            
             if(empty($request->scope)){
                 $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function($q) use ($request){
                     $q->where('id', $request->website);
@@ -65,83 +68,137 @@ class MagentoSettingsController extends Controller
     }
 
     public function create(Request $request)
-    { 
-        $name = $request->name;
-        $path = $request->path;
-        $value = $request->value;
+    {
+        $name         = $request->name;
+        $path         = $request->path;
+        $value        = $request->value;
+        $copyWebsites = (!empty($request->websites)) ? $request->websites : array() ;
+
         foreach ($request->scope as $scope) {
 
             if ($scope === 'default') {
+                
+                $totalWebsites = array_merge($request->website, $copyWebsites);
+                $storeWebsites = StoreWebsite::whereIn('id', $totalWebsites)->get();
+                
+                 foreach ($storeWebsites as $storeWebsite) {
 
-                $storeWebsites = StoreWebsite::whereIn('id', $request->website)->get();
-
-                foreach($storeWebsites as $storeWebsite){
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
-                    if(!$m_setting){
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
+                    if (!$m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
+                            'scope'    => $scope,
                             'scope_id' => $storeWebsite->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
+                            'store_website_id' => $storeWebsite->id,
+                            'website_store_id' => 0,
+                            'website_store_view_id' => 0,
+                            'name'     => $name,
+                            'path'     => $path,
+                            'value'    => $value,
                         ]);
                     }
-
                 }
             }
-
-            if($scope === 'websites'){
+            
+            if ($scope === 'websites') {
 
                 $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
-
-                foreach($websiteStores as $websiteStore){
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStore->id)->where('path', $path)->first();
-                    if(!$m_setting){
+                $stores        = [];
+                foreach ($websiteStores as $websiteStore) {
+                    $stores[]  = $websiteStore->code;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+                    if (!$m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
+                            'scope'    => $scope,
                             'scope_id' => $websiteStore->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
+                            'store_website_id' => $request->single_website,
+                            'website_store_id' => $websiteStore->id,
+                            'website_store_view_id' => 0,
+                            'name'     => $name,
+                            'path'     => $path,
+                            'value'    => $value,
                         ]);
                     }
-
                 }
                 
-            }
+                if (!empty($copyWebsites)) {
+                    foreach ($copyWebsites as $cw) {
+                        $websiteStores = WebsiteStore::join("websites as w","w.id","website_stores.website_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_stores.id', $request->website_store)->get();
+                        foreach ($websiteStores as $websiteStore) {
+                            $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+                            if (!$m_setting) {                                  
+                                $m_setting = MagentoSetting::Create([
+                                    'scope'    => $scope,
+                                    'scope_id' => $websiteStore->id,
+                                    'store_website_id' => $cw,
+                                    'website_store_id' => $websiteStore->id,
+                                    'website_store_view_id' => 0,
+                                    'name'     => $name,
+                                    'path'     => $path,
+                                    'value'    => $value,
+                                ]);
+                            }                            
+                        }
+                    }
+                }                
+               
+            }                
 
-            if($scope === 'stores'){
+            if ($scope === 'stores') {
 
                 $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();
-
-                foreach($websiteStoresViews as $websiteStoresView){
-
-                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$websiteStoresView->id)->where('path', $path)->first();
-                    if(!$m_setting){
+                $stores        = [];
+                foreach ($websiteStoresViews as $websiteStoresView) {
+                    $stores[]  = $websiteStoresView->code;
+                    $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+                    if (!$m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
+                            'scope'    => $scope,
                             'scope_id' => $websiteStoresView->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value
+                            'store_website_id' => $request->single_website,
+                            'website_store_id' => $websiteStoresView->website_store_id,
+                            'website_store_view_id' => $websiteStoresView->id,
+                            'name'     => $name,
+                            'path'     => $path,
+                            'value'    => $value,
                         ]);
                     }
-
                 }
                 
+                if (!empty($copyWebsites)) {
+                    foreach ($copyWebsites as $cw) {
+                        
+                        //$websiteStoresViews = WebsiteStoreView::join("websites as w","w.id","website_store_views.website_store_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_store_id.id', $request->website_store_view)->get();
+                        $websiteStoresViews = WebsiteStoreView::join("websites as w","w.id","website_store_views.website_store_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores);
+                        
+                        foreach ($websiteStoresViews as $websiteStoresView) {
+                            $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+                            if (!$m_setting) {                                  
+                                $m_setting = MagentoSetting::Create([
+                                    'scope'    => $scope,
+                                    'scope_id' => $websiteStoresView->id,
+                                    'store_website_id' => $cw,
+                                    'website_store_id' => $websiteStoresView->website_store_id,
+                                    'website_store_view_id' => $websiteStoresView->id,
+                                    'name'     => $name,
+                                    'path'     => $path,
+                                    'value'    => $value,
+                                ]);
+                            }                            
+                        }
+                    }
+                }
+                
+
             }
-
+            
         }
-
+        
         return response()->json(['status' => true]);
 
     }
 
     public function update(Request $request)
     {
-
         $entity_id = $request->id;
         $scope = $request->scope;
         $name = $request->name;
@@ -184,13 +241,17 @@ class MagentoSettingsController extends Controller
                         $m_setting->save();
                     }
                     $scopeID = 0;
-                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_live){
                         $token = $storeWebsite->api_token;
                         \Cache::forever('key', $token);
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -202,12 +263,18 @@ class MagentoSettingsController extends Controller
                             return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
                         }
                     }
+                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_stage){
                         $token = $storeWebsite->stage_api_token;
                         \Cache::forever('key', $token);
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -225,6 +292,11 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
                             $response = json_decode($result['response']);
                             if(isset($response[0]) && $response[0] == 1) {
@@ -268,15 +340,19 @@ class MagentoSettingsController extends Controller
                         $m_setting->save();
                     }
                     $scopeID = $websiteStore->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_live){
                         $token = $websiteStore->website->storeWebsite->api_token;
                         \Cache::forever('key', $token); 
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -286,14 +362,20 @@ class MagentoSettingsController extends Controller
                             return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
                         }
                     }
+                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_stage){
                         $token = $websiteStore->website->storeWebsite->stage_api_token;
                         \Cache::forever('key', $token); 
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -309,8 +391,13 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -354,15 +441,19 @@ class MagentoSettingsController extends Controller
                         $m_setting->save();
                     }
                     $scopeID = $websiteStoresView->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_live){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
                         \Cache::forever('key', $token);
                         $postURL = 'https://' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -372,14 +463,19 @@ class MagentoSettingsController extends Controller
                             return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
                         }
                     }
+                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_stage){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->stage_api_token;
                         \Cache::forever('key', $token);
                         $postURL = 'https://stage.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -395,8 +491,13 @@ class MagentoSettingsController extends Controller
                         $postURL = 'https://dev.' . $magento_url . '/rest/V1/configvalue/set?path='.$path.'&value='.$value.'&scope='.$scope.'&scopeId='.$scopeID;
                         $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, [], 'application/json', true, 'POST');
                         \Log::info("postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result) );
+                        
+                        $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
+                        $formData = [ 'event'=>"edit", 'log'=>$log ];
+                        MagentoSettingLog::create($formData);
+                        
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -433,6 +534,9 @@ class MagentoSettingsController extends Controller
         $m_setting = MagentoSetting::find($id);
         if($m_setting){
             $m_setting->delete();
+            $log = $id." Id Deleted successfully";
+            $formData = [ 'event'=>"delete", 'log'=>$log ];
+            MagentoSettingLog::create($formData);
         }
         return redirect()->route('magento.setting.index');        
     }

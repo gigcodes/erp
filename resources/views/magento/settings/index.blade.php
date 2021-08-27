@@ -75,10 +75,11 @@
                                         <td>-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
-                                        
+                                
                                         <td>{{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }}</td>
                                         <td>{{ $magentoSetting->store->website->name }}</td>
                                         <td>-</td>
+                                        
                                 @else
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-' }}</td>
@@ -138,29 +139,26 @@
                               </div>
                         
 
-
-                        
                     <div class="form-group">
-                        <label for="">Websites</label><br>
-                        <select class="form-control website select2" name="website[]" multiple data-placeholder="Select setting websites" style="width: 100%">
-                            <option value=""></option>
+                        <label for="single_website">Website</label><br>
+                        <select class="form-control website" name="single_website" data-placeholder="Select setting website" style="width: 100%">
+                            <option value="">Select Website</option>
                             @foreach($storeWebsites as $w)
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
                             @endforeach
                         </select>
-                    </div>     
-
+                        <input type="hidden" id="single_website" name="website[]" value="" />
+                    </div>
+                    
                     <div class="form-group d-none website_store_form">
                         <label for="">Website Store </label><br>
                         <select class="form-control website_store select2" name="website_store[]" data-placeholder="Select setting website store" style="width: 100%">
-                            <option value=""></option> 
                         </select>
                     </div>       
 
                     <div class="form-group d-none website_store_view_form">
                         <label for="">Website Store View</label><br>
                         <select class="form-control website_store_view select2" name="website_store_view[]" data-placeholder="Select setting website store view" style="width: 100%">
-                            <option value=""></option> 
                         </select>
                     </div>                       
                     
@@ -177,7 +175,18 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
-                    </div> 
+                    </div>
+                        
+                    <div class="form-group">
+                        <label for="">Websites (This setting will apply to following websites)</label><br>
+                        <select class="form-control website select2" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
+                            <option value=""></option>
+                            @foreach($storeWebsites as $w)
+                                <option value="{{ $w->id }}">{{ $w->website }}</option>
+                            @endforeach
+                        </select>
+                    </div>    
+                        
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -265,6 +274,11 @@
 @section('scripts')
 
 <script type="text/javascript">
+    
+    $(document).on('change', '[name="single_website"]', function(e) {
+        //$('#add-setting-popup [name="website[]"]').select2("val", this.value);
+        $('#single_website').val(this.value);
+    });
 
     $(".select2").select2();
 
@@ -392,7 +406,7 @@
             }else{
                 toastr['error'](response.message);
             }
-            //location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -409,14 +423,14 @@
             $('#add-setting-popup .website_store_form').addClass('d-none');
             return false;
         }else if(scope == 'websites'){
-            $('#add-setting-popup .website').attr('multiple', false).val('');
+            //$('#add-setting-popup .website').attr('multiple', false).val('');
             $('#add-setting-popup .website').trigger('change'); 
             $('#add-setting-popup .website_store').attr('multiple', true);
             $('#add-setting-popup .website_store').trigger('change'); 
             $('#add-setting-popup .website_store_form').removeClass('d-none');
             $('#add-setting-popup .website_store_view_form').addClass('d-none');
         }else if(scope == 'stores'){
-            $('#add-setting-popup .website').attr('multiple', false).val('');
+            //$('#add-setting-popup .website').attr('multiple', false).val('');
             $('#add-setting-popup .website').trigger('change'); 
             $('#add-setting-popup .website_store').attr('multiple', false).val('');
             $('#add-setting-popup .website_store').trigger('change'); 
@@ -494,7 +508,7 @@
             url: '/magento-admin-settings/delete/'+id,   
             }).done(function(response) {
                 $("#loading-image").hide(); 
-                location.reload();  
+                location.reload();
             }).fail(function() {
                 console.log("error");
             });
