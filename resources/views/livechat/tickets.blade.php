@@ -90,6 +90,12 @@
     td{
         padding: 5px !important;
     }
+    td a{
+        color: #2f2f2f;
+    }
+    tbody td{
+        background: #ddd3;
+    }
 </style>
 @extends('layouts.app')
 
@@ -214,8 +220,8 @@
                     <th style="width: 6%;">Assigned name</th>
                     <th style="width: 5%;">Brand</th>
                     <th style="width: 5%;">Country</th>
-                    <th style="width: 6%;">Order no</th>
-                    <th style="width: 8%;">Phone no</th>
+                    <th style="width: 5%;">Order no</th>
+                    <th style="width: 9%;">Phone no</th>
                     <th style="width: 13%;">Message Box</th>
                     <th style="width: 7%;">Status</th>
                     <th style="width: 8%;">Created</th>

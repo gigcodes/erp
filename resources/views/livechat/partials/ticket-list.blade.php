@@ -23,7 +23,7 @@
     </td>
     <td class="pr-1">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">
-            {{ str_limit($ticket->subject,7)}}
+            {{ str_limit($ticket->subject,6)}}
         </a>
     </td>
     <td>
@@ -51,10 +51,10 @@
         </a>
     </td>
 
-    <td class="table-hover-cell pr-0 pb0">
+    <td class="table-hover-cell pr-0 pb-0">
         <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between">
             <div style="flex-grow: 1">
-                <textarea  style="height:37px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+                <textarea  style="height:34px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
             </div>
             <div style="width: min-content">
 
@@ -84,7 +84,11 @@
                                      "onchange" => "resolveIssue(this,".$ticket->id.")",
                            ]); ?>
     </td>
-    <td>{{ $ticket->created_at }}</td>
+    <td>
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
+            {{ str_limit($ticket->created_at,10)}}
+        </a>
+        </td>
     <td>
         <div class=" d-flex">
           <button type="button"
@@ -114,7 +118,7 @@
             </button>
 
             <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
-                <img width="15px" ml="5" src="/images/delete.png" style="margin-left:-12px;"></button>
+                <i class="fa fa-trash" style="margin-left: -10px"></i></button>
 
         </div>
     </td>
