@@ -1,6 +1,8 @@
 <div id="charityCreateModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
-
+    @php
+    $storewebsite = \App\StoreWebsite::all()
+    @endphp
     <!-- Modal content-->
     <div class="modal-content"> 
       <form action="{{ route('customer.charity.post') }}" method="POST">
