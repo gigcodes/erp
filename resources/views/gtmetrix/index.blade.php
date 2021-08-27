@@ -152,7 +152,7 @@
    50% 50% no-repeat;display:none;">
 </div>
 <div class="modal fade" id="gtmetrix-stats-modal" role="dialog">
-    <div class="modal-dialog modal-md model-width">
+    <div class="modal-dialog modal-lg model-width">
       <!-- Modal content-->
         <div class="modal-content message-modal" style="width: 100%;">
             

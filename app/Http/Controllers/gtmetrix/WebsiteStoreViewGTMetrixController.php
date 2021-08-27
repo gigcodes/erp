@@ -244,11 +244,15 @@ class WebsiteStoreViewGTMetrixController extends Controller
      */
     public function getstats($type = null, $id)
     {
+        $Insightdata = array();
+        $InsightTypeData = array();
         $data = array();
-        $resourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->orderBy("created_at", "desc")->get();
+        $typeData = array();
+        $resourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', $id)->orderBy("created_at", "desc")->get();
         foreach ($resourcedata as $value) {
             if($type == 'pagespeed' && $id){
                 $title = 'PageSpeed';
+                $typeData['type'] = 'GT Metrix';
                 if(!empty($value['pagespeed_json'])){
                     $pagespeeddata = strip_tags(file_get_contents(public_path().$value['pagespeed_json']));
                     $jsondata = json_decode($pagespeeddata, true);
@@ -263,9 +267,28 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 }
                 
             }
+            if($type == 'pagespeed' && $id){
+                $title = 'PageSpeed';
+                $InsightTypeData['type'] = 'PageSpeed Insight';
+                if(!empty($value['pagespeed_insight_json'])){
+                    $pagespeedInsightdata = strip_tags(file_get_contents(public_path().$value['pagespeed_insight_json']));
+                    $jsondata = json_decode($pagespeedInsightdata, true);
+                    foreach ($jsondata['lighthouseResult']['audits'] as $key=>$pagespeed) {
+                        $Insightdata[$key]['name'] = $pagespeed['id'];
+                        if(isset($pagespeed['score'])){
+                            $Insightdata[$key]['score'] = $pagespeed['score']; 
+                        }else{
+                            $Insightdata[$key]['score'] = 'n/a';
+                        }  
+                    }
+                }
+                
+            }
+
             if($type == 'yslow' && $id){
                 $title = 'YSlow';
                 if(!empty($value['yslow_json'])){
+                    $typeData['type'] = 'YSlow';
                     $yslowdata = strip_tags(file_get_contents(public_path().$value['yslow_json']));
                     $jsondata = json_decode($yslowdata, true);
                     $i=0;
@@ -281,7 +304,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 }
             }
         }
-        return view('gtmetrix.stats', compact('data','title'));
+        return view('gtmetrix.stats', compact('data','title','typeData','Insightdata','InsightTypeData','Insightdata'));
         //return response()->json(["code" => 200, "data" => $data]);
     }
 
