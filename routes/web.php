@@ -22,7 +22,7 @@ Route::post('customer/add_customer_address', 'CustomerController@add_customer_ad
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/translation', 'GoogleTranslateController@testTranslation');
 
-Route::get('/test/test', 'OrderController@testEmail');
+Route::get('/test/test', 'TmpTaskController@testEmail');
 Route::get('/memory', 'MemoryUsesController@index')->name('memory.index');
 Route::post('/memory/thresold-update', 'MemoryUsesController@updateThresoldLimit')->name('update.thresold-limit');
 
