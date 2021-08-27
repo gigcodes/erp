@@ -733,6 +733,8 @@ class TaskModuleController extends Controller
         $payment_receipt->task_id = $task->id;
         $payment_receipt->user_id = $task->assign_to;
         $payment_receipt->save();
+
+        
         
         return response()->json([
             'status' => 'success'
@@ -1452,6 +1454,7 @@ class TaskModuleController extends Controller
                             $payment_receipt->task_id = $task->id;
                             $payment_receipt->user_id = $task->assign_to;
                             $payment_receipt->save();
+                            
                         }
                     }
                 }
@@ -2958,7 +2961,7 @@ class TaskModuleController extends Controller
 							],500);
 						}
                     }
-					PaymentReceipt::create([
+					$receipt_id=PaymentReceipt::create([
 						'status'            => 'Pending',
 						'rate_estimated'    => $rate_estimated,
 						'date'              => date('Y-m-d'),
@@ -2967,6 +2970,7 @@ class TaskModuleController extends Controller
 						'by_command'        => 4,
 						'task_id'           => $task->id,
 					]);
+                   
 				} 
 				
 			}

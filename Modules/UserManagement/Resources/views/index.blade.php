@@ -16,7 +16,7 @@
     <style type="text/css">
         .preview-category input.form-control {
             width: auto;
-        }
+        } 
 
     </style>
 
@@ -366,11 +366,11 @@
 
                         <div>
                             <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
-                                <option>Select user</option>
+                                <!-- <option>Select user</option>
                                 @foreach ($userlist as $user)
                                     <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
-                                <option value="other">Other</option>
+                                <option value="other">Other</option> -->
                             </select>
 
                             <input type="text" name="other_user_name" id="other_user_name"
@@ -382,7 +382,7 @@
 
                         <button class="btn-success btn addIp ml-3 mb-5">Add</button>
 
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="userAllIps">
                             <tr>
                                 <th>Index</th>
                                 <th>IP</th>
@@ -398,23 +398,8 @@
                                         <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0] }}">Delete</button></td>
                                     </tr> @endforeach
                             @endif -->
+                            
 
-                            @foreach ($usersystemips as $row)
-                                <tr>
-                                    <td>{{ $row->index_txt }}</td>
-
-                                    <td>{{ $row->ip }}</td>
-
-                                    <td>{{ $row->user_id ? $row->user->name : $row->other_user_name }}</td>
-
-                                    <td>{{ $row->notes }}</td>
-
-                                    <td>
-                                        <button class="btn-warning btn deleteIp"
-                                            data-usersystemid="{{ $row->id }}">Delete</button>
-                                    </td>
-                                </tr>
-                            @endforeach
 
                         </table>
                     </div>
@@ -611,7 +596,7 @@
     <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
     <script src="/js/jquery-ui.js"></script>
     <script type="text/javascript" src="/js/common-helper.js"></script>
-    <script type="text/javascript" src="/js/user-management-list.js"></script>
+    <script type="text/javascript" src="/js/user-management-list.js?v=1"></script>
 
 
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
@@ -1551,13 +1536,71 @@ $(document).on('click','.statusChange',function(event){
             });
         })
 
+
+
+        // $("#page-view-result").on('load', function () {
+          
+        // });
+
+        function loadUsersList(){
+
+            var t = "";
+            var ip = "";
+            $.ajax({
+                url: '{{ route("get-user-list") }}',
+                type: 'GET',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                dataType: 'json',
+                
+                success: function(result) {
+                    // console.log(result.data);
+                    t += '<option>Select user</option>';
+
+                    $.each(result.data, function(i, j) {
+                        t += '<option value="'+ i +'">'+j+'</option>'
+                    });
+                    t += '<option value="other">Other</option>';
+
+                    // console.log(t);
+                    $("#ipusers").html(t);
+
+                    console.log(result.usersystemips);
+
+                    $.each(result.usersystemips, function(k, v) {
+                        ip += '<tr>';
+                        ip += '<td> '+ v.index_txt+' </td>';
+                        ip += '<td> '+ v.ip +'</td>';
+                        ip += '<td>'+ v.user_id ? v.user.name : v.other_user_name +'</td>';
+                        ip += '<td>'+ v.notes +'</td>';
+                        ip += '<td><button class="btn-warning btn deleteIp" data-usersystemid="'+ v.id +'">Delete</button></td>';
+                        ip += '</tr>';
+                    });
+
+                    $("#userAllIps").html(ip);
+
+                },
+                error: function() {
+                    // alert('fail');
+                }
+            });
+
+        }
+
+        $(window).on('load', function(){
+            
+        });
+      
+
         $(document).on('change','.user_feedback_status',function(){
             var status_id = $(this).val();
             var user_id = $(this).closest('tr').data('user_id');
             var cat_id = $(this).closest('tr').data('cat_id');
             $.ajax({
                 type: "get",
-                url: '{{ route("user.feedback-status.update") }}',
+                url: '{{ route("user.feedback-status") }}',
+                
                 data: {status_id:status_id,user_id:user_id,cat_id:cat_id},
                 success:function(response){
                     toastr.success(response.message);

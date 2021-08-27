@@ -197,7 +197,8 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right">
+    <div class="space-right infinite-scroll">
+
         <div class="table-responsive">
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
                 <thead>
@@ -221,7 +222,7 @@
                     <th style="width: 8%;">Action</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="content_data" class="infinite-scroll-pending-inner">
                 @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
@@ -308,14 +309,60 @@
               50% 50% no-repeat;display:none;">
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <script type="text/javascript">
+
+        var page = 1;
+        function getScrollTop() {
+            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+        }
+        window.onscroll = function() {
+            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+            loadMore(++page);
+        };
+
+        function getDocumentHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+        };
+
+
+        function loadMore(page) {
+
+            var url = "/livechat/tickets?page="+page;
+
+            page = page + 1;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                beforeSend:function(){
+                        $('.infinite-scroll-products-loader').show();
+                },
+                success: function (data) {
+                    if (data == '') {
+                        $('.infinite-scroll-products-loader').hide();
+                    }
+                    $('.infinite-scroll-products-loader').hide();
+                    $('.infinite-scroll-pending-inner').append(data);
+                },
+                error: function () {
+                    $('.infinite-scroll-products-loader').hide();
+                }
+            });
+        }
 
     $(document).on('click', '.row-ticket', function () {
         $('#viewmore #contentview').html($(this).data('content'));

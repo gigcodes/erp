@@ -80,7 +80,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
     </style>
         <div class="row">
             <div class="col-lg-12 margin-tb p-0">
-                <h2 class="page-heading">Live Chat</h2>
+                <h2 class="page-heading">Live Chat </h2>
                 <div class="pull-right">
                 </div>
             </div>
@@ -216,6 +216,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             <a href="javascript:;" class="btn btn-image cls_addition_info" title="Additional info" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" ><img src="{{asset('images/remark.png')}}"/></a>
                                             &nbsp;
                                             <a href="javascript:;" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" ><i class="fa fa-lightbulb-o" aria-hidden="true"></i></a>
+                                            <i class="fa fa-ticket create-customer-ticket-modal" onclick="showticket('{{ $chatId->customer_id }}');" data-customer_id="{{ $chatId->customer_id }}" style="cursor: pointer;" title="Create Ticket" aria-hidden="true"></i>
 
 
                                             
@@ -303,7 +304,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         </div>
 
 
-
+        @include("partials.customer-new-ticket")
         <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -509,5 +510,13 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 
                 $(this).closest('td').find('.message_textarea').text($(this).val())
             });
+
+            function showticket(c)
+                {
+                  
+                    $('#ticket_customer_id').val(c);
+                    $('#create-customer-ticket-modal').modal('show');
+                
+                }
     </script>
 @endsection

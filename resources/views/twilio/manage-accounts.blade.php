@@ -5,6 +5,12 @@
             <h2 class="page-heading">Manage Twilio Accounts
 
                     <div class="pull-right">
+                        <button type="button" class="btn btn-secondary mr-2 twilio_key_option" data-toggle="modal" data-target="#twilio_key_option_modal" style="background: #fff !important;
+                        border: 1px solid #ddd !important;
+                        color: #757575 !important;">Twilio Key Options</button>
+                    </div>
+
+                    <div class="pull-right">
                         <button type="button" class="btn btn-secondary mr-2 twilio_working_hours" data-toggle="modal" data-target="#twilio_working_hours" style="background: #fff !important;
                         border: 1px solid #ddd !important;
                         color: #757575 !important;">Set Working Hours</button>
@@ -236,6 +242,57 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="twilio_key_option_modal" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Twilio Key Options</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form name="twlio_key_option_form" class="twlio_key_option_form">
+            @csrf
+            <div class="modal-body">
+
+                <strong>Store Website:</strong>
+                <select class="form-control store_website_twilio_key mb-5" name="store_website_twilio_key">
+                    <option value="">Select</option>
+                    @foreach($store_websites as $key => $value)
+                        <option value="{{$value->id}}" >{{$value->website}}</option>
+                    @endforeach
+                </select>
+
+                <div class="table-responsive store_website_twilio_key_data d-none">
+                    <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                        <thead>
+                        <tr>
+                            <th scope="col" width="10%" class="text-center">Key</th>
+                            <th scope="col" width="20%">Option</th>
+                            <th scope="col" width="30%">Description</th>
+                            <th scope="col" width="30%">Message</th>
+                            <th scope="col" width="10%"></th>
+                        </tr>
+                        </thead>
+                        <tbody class="twilio_key_ajax_data">
+                            
+                           
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary add_twilio_user">Save</button>
+            </div> -->
+            </form>
+            </div>
+        </div>
+    </div>
+
 <script type="text/javascript">
     $(document).ready(function(){
        $('.edit_account').on("click", function(){
@@ -374,6 +431,8 @@
 
                             if(value.status == 1 && value.website == website_id)
                                 user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'" checked  >';
+                            else if(value.is_same_website == 1)
+                                user_html += ' <input type="checkbox" class="check_box" name="user_rec[]" value="'+value.id+'"  >';
                             else if(value.status == 1 && value.website != website_id)
                                 user_html += ' <input type="checkbox" value="'+value.id+'" disabled checked  >';
                             else
@@ -394,6 +453,79 @@
                 
             }
         });
+    });
+
+
+    // $('.save_key_option').on("click", function(e){
+    //     var key_no = $(this).data("id");
+    //     var option = $('.option_menu_'+key_no).val();
+    //     var desc = $('.key_description_'+key_no).val();
+    //     var website_id = $('.store_website_twilio_key').val();
+
+    //     if(option == '')
+    //     {
+    //         toastr['error']('Please select Option');
+    //         return false;
+    //     }
+    //     if(desc == '')
+    //     {
+    //         toastr['error']('Please Enter Description');
+    //         return false;
+    //     }
+
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "{{ route('twilio.set_twilio_key_options') }}",  
+    //         data: {
+    //             _token: "{{csrf_token()}}",
+    //             key_no:key_no,
+    //             option:option,
+    //             description:desc,
+    //             website_store_id:website_id,
+    //         },
+    //         beforeSend : function() {
+                
+    //         },
+    //         success: function (response) {
+    //             if(response.status == 1){
+    //                 toastr['success'](response.message);
+    //             }
+    //         },
+    //         error: function (response) { 
+                
+    //         }
+    //     });
+        
+    // });
+
+
+    $('.store_website_twilio_key').on("change", function(e){
+        
+        $(".store_website_twilio_key_data").removeClass("d-none");
+        var website_id = $('.store_website_twilio_key').val();
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('twilio.get_website_wise_key_data') }}",  
+            data: {
+                _token: "{{csrf_token()}}",
+                website_store_id:website_id,
+            },
+            beforeSend : function() {
+                
+            },
+            success: function (response) {
+               $('.twilio_key_ajax_data').html('');
+               $('.twilio_key_ajax_data').html(response);
+            },
+            error: function (response) { 
+                
+            }
+        });
+    });
+
+    $('#twilio_key_option_modal').on('hidden.bs.modal', function () {
+        $(".store_website_twilio_key_data").addClass("d-none");
     });
 </script>
 @endsection

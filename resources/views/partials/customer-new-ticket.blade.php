@@ -131,7 +131,8 @@ $statuses = \App\TicketStatuses::all();
 
             $.ajax({
                 type: "POST",
-                url: window.location.origin + '/livechat/create-ticket',
+               // url: window.location.origin + '/livechat/create-ticket',
+               url: "{{url('/livechat/create-ticket')}}",
                 data: $('#ticket_form').serialize(), // serializes the form's elements.
                 success: function (data)
                 {

@@ -246,3 +246,6 @@ Route::post('scraper-images-save','scrapperPhyhon@imageSave');
 Route::get('review/get','\App\Http\Controllers\Api\v1\BrandReviewController@getAllBrandReview');
 Route::post('review/scrap' ,'\App\Http\Controllers\Api\v1\BrandReviewController@storeReview');
 Route::post('google-scrapper-data', '\App\Http\Controllers\Api\v1\GoogleScrapperController@extractedData');
+
+//Out Of Stock Subscribe
+Route::post('out-of-stock-subscription' ,'Api\v1\OutOfStockSubscribeController@Subscribe');

@@ -20,6 +20,18 @@
             @endif
           </div>
           <div class="form-group">
+            <strong>Store Website:</strong>
+            <select name="store_website_id" class="form-control" required>
+              @foreach($storewebsite as $w)
+              <option value="{{$w->id}}">{{$w->title}}</option>
+              @endforeach
+            </select>  
+           
+            @if ($errors->has('store_website_id'))
+              <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
             <strong>Address:</strong>
             <input type="text" name="address" class="form-control" value="{{ old('address') }}">
             @if ($errors->has('address'))
@@ -40,6 +52,26 @@
               <div class="alert alert-danger">{{$errors->first('email')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Websites (to upload)</strong>
+            <div class="form-group mr-3">
+              <select class="form-control globalSelect2" data-placeholder="Select Websites" data-ajax="{{ route('select2.websites',['sort'=>true]) }}" name="websites[]" multiple>
+                <option value=""></option> 
+              </select>
+              @if ($errors->has('websites'))
+                <div class="alert alert-danger">{{$errors->first('websites')}}</div>
+              @endif
+          </div> 
+          </div>
+          <div class="form-group">
+            <strong>Website Stores</strong>
+            <select class="form-control globalSelect2 website_stores" data-placeholder="Select Website Stores" name="website_stores[]" multiple>
+                <option value=""></option> 
+              </select>
+              @if ($errors->has('website_stores'))
+                <div class="alert alert-danger">{{$errors->first('website_stores')}}</div>
+              @endif
+          </div>     
           <div class="form-group">
             <strong>Social Handle:</strong>
             <input type="text" name="social_handle" class="form-control" value="{{ old('social_handle') }}">
@@ -161,6 +193,18 @@
             @endif
           </div>
           <div class="form-group">
+            <strong>Store Website:</strong>
+            <select name="store_website_id" id="vendor_store_website_id" class="form-control" required>
+              @foreach($storewebsite as $w)
+              <option value="{{$w->id}}">{{$w->title}}</option>
+              @endforeach
+            </select>  
+           
+            @if ($errors->has('store_website_id'))
+              <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
             <strong>Address:</strong>
             <input type="text" name="address" class="form-control" value="{{ old('address') }}" id="vendor_address">
             @if ($errors->has('address'))
@@ -181,6 +225,18 @@
               <div class="alert alert-danger">{{$errors->first('email')}}</div>
             @endif
           </div>
+          <div class="form-group">
+              <strong>Websites (for upload)</strong>
+              <select class="form-control globalSelect2 websites" data-placeholder="Select Websites" name="websites[]" multiple>
+                <option value=""></option> 
+              </select>
+          </div>  
+          <div class="form-group">
+              <strong>Website Stores</strong>
+              <select class="form-control globalSelect2 website_stores" data-placeholder="Select Website Stores" name="website_stores[]" multiple>
+                <option value=""></option> 
+              </select>
+          </div>     
           <div class="form-group">
             <strong>Social Handle:</strong>
             <input type="text" name="social_handle" class="form-control" value="{{ old('social_handle') }}" id="vendor_social_handle">

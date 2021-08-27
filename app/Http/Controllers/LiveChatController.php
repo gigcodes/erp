@@ -20,6 +20,7 @@ use App\Tickets;
 use App\TicketStatuses;
 use App\Email;
 use Google\Cloud\Translate\TranslateClient;
+use App\Setting;
 
 class LiveChatController extends Controller
 {
@@ -272,17 +273,31 @@ class LiveChatController extends Controller
                 $chatId = $chat->id;
 
                 //Getting user
-                $userEmail = $chat->users[0]->email;
+                // if(isset($chat->users[1]->email))
+                //     $userEmail = $chat->users[1]->email;
+                // else
+                //     $userEmail = $chat->users[0]->email;
+
+                if(isset($chat->thread->events[0]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[0]->fields[1]->value;
+                else if(isset($chat->thread->events[2]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[2]->fields[1]->value;
+                else
+                    $userEmail  = null;
+                
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
-
+                \Log::channel('chatapi')->debug(': ChatApi'."\Customer  userEmail:".$userEmail);
                 
-
+        
                 if(isset($chat->thread->events[0]->fields[2]->value)) 
                     $userPhone  = $chat->thread->events[0]->fields[2]->value;
+                else if(isset($chat->thread->events[2]->fields[2]->value)) 
+                    $userPhone  = $chat->thread->events[2]->fields[2]->value;
                 else
                     $userPhone  = null;
 
+                \Log::channel('chatapi')->debug(': ChatApi'."\Customer  userPhone:".$userPhone);
                 /*$translate = new TranslateClient([
                     'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
                 ]);*/
@@ -298,6 +313,8 @@ class LiveChatController extends Controller
                 } catch (\Exception $e) {
                     $websiteURL = '';
                 }
+                \Log::channel('chatapi')->debug(': ChatApi'."\Customer  websiteId:".$websiteId);
+
                 //dd($websiteURL);
                 $customer = Customer::where('email', $userEmail);
                 if($websiteId > 0) {
@@ -305,9 +322,11 @@ class LiveChatController extends Controller
                 }
                 $customer = $customer->first();
 
-                if ($customer != null) {
+                \Log::channel('chatapi')->debug(': ChatApi'."\Customer :".$customer);
+
+                if ($customer != null && $customer != '') {
                     
-                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Null');
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Not Null');
 
                     //Find if its has ID
                     $chatID = CustomerLiveChat::where('customer_id', $customer->id)->where('thread', $chatId)->first();
@@ -344,7 +363,7 @@ class LiveChatController extends Controller
                     }
                 } else {
                     
-                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Not Null');
+                    \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".'-- Customer Null');
 
                     //check if only thread exist and make it null
                     $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
@@ -838,7 +857,7 @@ class LiveChatController extends Controller
     }
 
     public function getLiveChats()
-    {
+    {  
         if (session()->has('chat_customer_id')) {
             $chatId       = session()->get('chat_customer_id');
             $chat_message = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy("id","desc")->get();
@@ -1083,6 +1102,7 @@ class LiveChatController extends Controller
             //     "Content-Type: " . $contentType
             // );
             array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+            array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
         if ($data) {
             $curlData[CURLOPT_POSTFIELDS] = $data;
@@ -1345,21 +1365,24 @@ class LiveChatController extends Controller
 			$query = $query->whereDate('date', $request->date);
         }
         
-        $pageSize = 10;
+        $pageSize = Setting::get('pagination');
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
         
-		if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
-                'links' => (string)$data->render(),
-                'count' => $data->total(),
-            ], 200);
+        $page = $request->page;
+        if ($page == null) {
+            $page = 1;
+        }
+
+        if ($request->ajax()) {
+            $page = $request->page - 1; 
+
+            return view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
         }
          return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
-        
       
         
+
     }
 
     
