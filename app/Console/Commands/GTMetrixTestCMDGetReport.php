@@ -45,19 +45,66 @@ class GTMetrixTestCMDGetReport extends Command
 
         //try {
         \Log::info('GTMetrix :: Report cron start ');
+      
         $report = CronJobReport::create([
             'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
+        //exit;
 
         // Get site report
         $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
             ->whereNotIn('status', ['completed','error', 'not_queued'])
             ->get();
 
-       
+       $Api_key = env('Api_Key');
 
         foreach ($storeViewList as $value) {
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url='.$value->website_url.'&key='.$Api_key,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Accept: application/json'
+            ),
+            ));
+
+            $response = curl_exec($curl);
+              // Get possible error
+            $err = curl_error($curl);
+
+            curl_close($curl);
+            if ($err) {
+                \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result' . $err );
+                echo "cURL Error #:" . $err;
+            } else {
+                //echo $response;
+                    \Log::info(print_r(["Pagespeed Insight Result started to fetch"],true));
+    
+                        // $pdfFileName = '/uploads/speed-insight/' . $value->test_id . '.pdf';
+                        // $pdfFile     = public_path() . $pdfFileName;
+                        // file_put_contents($pdfFile,$response);
+
+                        $JsonfileName = '/uploads/speed-insight/' . $value->test_id . '_pagespeedInsight.json';
+                        $Jsonfile     = public_path() . $JsonfileName;
+                        file_put_contents($Jsonfile,$response);
+                        $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
+    
+                        \Log::info(print_r(["Store view found"],true));
+    
+                        if ($storeview) {
+                            $storeview->pagespeed_insight_json = $JsonfileName;
+                            $storeview->save();
+                        }
+            }
+           
             if(!empty($value->account_id)){
                 $gtmatrix = StoreGTMetrixAccount::where('account_id', $value->account_id)->where('status', 'active')->first();
                 $username = $gtmatrix['email'];
@@ -167,7 +214,7 @@ class GTMetrixTestCMDGetReport extends Command
         
                             $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
                             $file     = public_path() . $fileName;
-                            file_put_contents($file, $result);
+                            file_put_contents($file,$result);
                             $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
         
                             \Log::info(print_r(["Store view found",$storeview],true));
@@ -194,7 +241,7 @@ class GTMetrixTestCMDGetReport extends Command
         
                             $fileName = '/uploads/gt-matrix/' . $value->test_id . '_pagespeed.json';
                             $file     = public_path() . $fileName;
-                            file_put_contents($file, $result);
+                            file_put_contents($file,$result);
                             $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
         
                             \Log::info(print_r(["Store view found",$storeview],true));
