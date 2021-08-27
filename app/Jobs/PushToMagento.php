@@ -105,6 +105,7 @@ class PushToMagento implements ShouldQueue
 
             // check the product has images or not and then if no image for push then assign error it
             $images = $product->getImages("gallery_" . $website->cropper_color);
+          
             if (empty($images)) {   
                 ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'error', $website->id, null, null, $this->log->id);
                 $this->log->message      = "Image(s) is needed for push product";

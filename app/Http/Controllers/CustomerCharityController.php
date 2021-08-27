@@ -22,6 +22,7 @@ use App\Website;
 use App\CharityCountry;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
+use App\CharityProductStoreWebsite;
 use App\WebsiteStore;
 use App\CustomerCharityWebsiteStore;
 
@@ -30,7 +31,8 @@ class CustomerCharityController extends Controller
     CONST DEFAULT_FOR = 2; //For Vendor
 
     public function index(Request $request){ 
-     	
+
+    	
         $term = $request->term ?? '';
         $sortByClause = '';
         $orderby = 'DESC';
@@ -192,11 +194,14 @@ class CustomerCharityController extends Controller
                         customer_charities.reminder_from,
                         customer_charities.reminder_last_reply,
                         customer_charities.status, 
+                        customer_charities.store_website_id, 
+                        store_websites.title as store_websites_name,
                     chat_messages.message_id 
                     FROM customer_charities 
-
+                    LEFT JOIN store_websites on store_websites.id=customer_charities.store_website_id   
                     LEFT JOIN (SELECT MAX(id) as message_id, charity_id FROM chat_messages GROUP BY charity_id ORDER BY created_at DESC) AS chat_messages
                     ON customer_charities.id = chat_messages.charity_id
+                   
                     )
                     AS customer_charities
  
@@ -251,7 +256,8 @@ class CustomerCharityController extends Controller
         ->groupBy("customer_charities.updated_by")
         ->select([\DB::raw("count(u.id) as total_records"),"u.name"])
         ->get();
-
+        $storewebsite=StoreWebsite::all();
+        $website1=Website::all();
         return view('vendors.charity', [
         'vendors' => $customer_charities,
         'vendor_categories' => $vendor_categories,
@@ -261,6 +267,9 @@ class CustomerCharityController extends Controller
         'replies' => $replies,
         'updatedProducts' => $updatedProducts,
         'totalVendor' => $totalVendor,
+        'storewebsite'=>$storewebsite,
+        'website1'=> $website1
+
         ]);
 
     }
@@ -273,8 +282,6 @@ class CustomerCharityController extends Controller
             'address'       => 'sometimes|nullable|string',
             'phone'         => 'required|nullable|numeric',
             'email'         => 'sometimes|nullable|email',
-            'websites'      => 'required',
-            'website_stores'=> 'required',
             'social_handle' => 'sometimes|nullable',
             'website'       => 'sometimes|nullable',
             'login'         => 'sometimes|nullable',
@@ -321,6 +328,7 @@ class CustomerCharityController extends Controller
           $charity_brand = Brand::where('name', 'charity')->first();
           $product = new Product(); 
           $product->sku = '';
+          $product->status_id = '115';
           $product->name = $charity->name;
           $product->short_description = $charity->name;
           $product->brand = $charity_brand->id;
@@ -337,7 +345,7 @@ class CustomerCharityController extends Controller
           $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
           $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
           $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
-          foreach($website_stores as $store){
+         /* foreach($website_stores as $store){
             CustomerCharityWebsiteStore::updateOrCreate([
                 'customer_charity_id' => $charity->id,
                 'website_store_id' => $store->id
@@ -345,14 +353,14 @@ class CustomerCharityController extends Controller
                 'customer_charity_id' => $charity->id,
                 'website_store_id' => $store->id
             ]);
-          }
+          }*/
 
-          foreach($storeWebsites as $w){
+          /*foreach($storeWebsites as $w){
             $tag = 'gallery_' . $w->cropper_color; 
             $is_image_exist = false;
             while(!$is_image_exist){
                 $image = Media::inRandomOrder()->first();
-                if(file_exists($image->getAbsolutePath())){
+               if(file_exists($image->getAbsolutePath())){
                     $is_image_exist = true;
                     $image = $image->getAbsolutePath();
                 }
@@ -360,7 +368,7 @@ class CustomerCharityController extends Controller
             $jpg = \Image::make($image)->encode('jpg');
             $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($product->name . '_' . $product->id)->onDuplicateIncrement()->upload();
             $t = $product->attachMedia($media, $tag);
-          }
+          } */
       }else{ 
           CustomerCharity::where('id', $id)->update($data);
 
@@ -368,7 +376,7 @@ class CustomerCharityController extends Controller
           $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
           $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
           $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
-          foreach($website_stores as $store){
+         /* foreach($website_stores as $store){
             CustomerCharityWebsiteStore::updateOrCreate([
                 'customer_charity_id' => $id,
                 'website_store_id' => $store->id
@@ -376,7 +384,7 @@ class CustomerCharityController extends Controller
                 'customer_charity_id' => $id,
                 'website_store_id' => $store->id
             ]);
-          }
+          }*/
       }   
       return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }
@@ -480,6 +488,80 @@ class CustomerCharityController extends Controller
         return response()->json('Charity Updated Successfully!');
     }
 
+    public function savewebsite(Request $request)
+    {
+       
+       $c= CharityProductStoreWebsite::where('charity_id',$request->charity_id)->where('website_id',$request->website_id)->first();
+       $data=[
+        'charity_id'=> $request->charity_id,
+        'website_id'=>  $request->website_id,
+        'price'=>  $request->price,
+    ];
+       if ($c)
+       {
+          
+           CharityProductStoreWebsite::where('charity_id',$request->charity_id)->where('website_id',$request->website_id)->update($data);
+
+       }
+       else
+       {
+       
+        CharityProductStoreWebsite::insert($data);
+       }
+       return response()->json('Charity Website Updated Successfully!');
+
+    }
+    
+     
+    function deletewebsite(Request $request)
+    {
+        CharityProductStoreWebsite::where('id',$request->id)->delete();
+        return response()->json('Charity Website deleted Successfully!');
+
+    }    
+   function getwebsite(Request $request)
+   {
+       $charity_id=  $request->charity_id;
+       $charity=CustomerCharity::where('id',$charity_id)->first();
+       //var_dump($charity);
+       $website=Website::where('store_website_id',$charity->store_website_id)->get();
+       $Website=CharityProductStoreWebsite::select('charity_product_store_websites.id','charity_product_store_websites.price','websites.name')->join('websites','charity_product_store_websites.website_id','websites.id')->where('charity_id',$charity_id)->get();
+       $html='';
+       foreach($Website as $w)
+       {
+           $html.="<tr><td>".$w->name.'</td>';
+           $html.="<td>".$w->price.'</td>';
+           $html.='<td><button onclick="delwebsite('.$w->id.')" type="button" class="btn btn-default">Delete</button></td></tr>';
+          
+       }
+
+      echo  $html=" <table class='table table-bordered' >
+      <thead><tr><th>Website</th><th>Price</th></tr> </thead>
+      <tbody>".$html."</tbody></table";    
+     
+       /* if ($c)
+        {
+            $data=[
+                'website'=> $website,
+                'charity_id'=>$charity_id,
+                'website_id'=>$c->website_id,
+                'price'=>$c->price
+            ];
+        }
+        else
+        {
+            $data=[
+                'website'=> $website,
+                'charity_id'=>$charity_id,
+                'website_id'=>'',
+                'price'=>''
+            ];
+        }
+
+        return response()->json($data);*/
+
+   }
+     
 
     public function getCharityWebsiteStores($id)
     {

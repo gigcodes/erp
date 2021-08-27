@@ -3,6 +3,8 @@
 namespace App\Library\Magento;
 
 use App\Category;
+use App\CharityCountry;
+use App\CustomerCharity;
 use App\GoogleTranslate;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
@@ -13,10 +15,8 @@ use App\Product_translation;
 use App\StoreWebsite;
 use App\StoreWebsiteAttributes;
 use App\Supplier;
-use App\CharityCountry;
-use App\CustomerCharity;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Get Magento service request
@@ -52,8 +52,8 @@ class MagentoService
     public $storeColor;
     public $productType;
     public $imageIds;
-    public $languagecode = [];
-    public $aclanguagecode = [];
+    public $languagecode    = [];
+    public $aclanguagecode  = [];
     public $activeLanguages = [];
 
     const SKU_SEPERATOR = "-";
@@ -68,6 +68,7 @@ class MagentoService
     public function pushProduct()
     {
         // start to send request if there is token
+
         if (!$this->validateToken()) {
             return false;
         }
@@ -98,6 +99,7 @@ class MagentoService
 
     private function assignOperation()
     {
+
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
         $this->websiteIds = $this->getWebsiteIds();
@@ -106,9 +108,11 @@ class MagentoService
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
         $this->startTranslation();
+
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
         $this->meta = $this->getMeta();
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
+
         $this->translations = $this->getTranslations();
 
         // after the translation that validate translation from her
@@ -117,18 +121,21 @@ class MagentoService
             return false;
         }
 
-
-
         \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
+
         $this->totalRequest += count($this->translations);
+
         \Log::info($this->product->id . " #7 => " . date("Y-m-d H:i:s"));
         $this->sizes = $this->getSizes();
         \Log::info($this->product->id . " #8 => " . date("Y-m-d H:i:s"));
         $this->sku = $this->getSku();
         \Log::info($this->product->id . " #9 => " . date("Y-m-d H:i:s"));
+
         $this->description = $this->getDescription();
         \Log::info($this->product->id . " #10 => " . date("Y-m-d H:i:s"));
+
         $this->magentoBrand = $this->getMagentoBrand();
+
         \Log::info($this->product->id . " #11 => " . date("Y-m-d H:i:s"));
         $this->images = $this->getImages();
         \Log::info($this->product->id . " #12 => " . date("Y-m-d H:i:s"));
@@ -146,6 +153,7 @@ class MagentoService
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
+
         $this->getPricing();
 
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
@@ -155,7 +163,7 @@ class MagentoService
 
     private function getActiveLanguages()
     {
-        return \App\Language::where("status",1)->pluck("code","code")->toArray();
+        return \App\Language::where("status", 1)->pluck("code", "code")->toArray();
     }
 
     private function getStoreColor()
@@ -719,6 +727,11 @@ class MagentoService
         $d['attribute_set_id'] = 4;
         $d['status']           = 1;
         $d['type_id']          = 'simple';
+        $p       = \App\CustomerCharity::where('product_id', $this->product->id)->first();
+        if($p) {
+            $d['type_id']          = 'donation';
+        }
+
         $d['website_ids']      = $this->websiteIds;
         $d['stock_item']       = [
             'use_config_manage_stock' => 1,
@@ -854,60 +867,89 @@ class MagentoService
 
     private function getPricing()
     {
-        $website   = $this->storeWebsite;
-        $webStores = \App\Website::where("store_website_id", $website->id)->get();
+        $website = $this->storeWebsite;
+        $id      = $this->product->id;
+        $p       = \App\CustomerCharity::where('product_id', $id)->first();
+        if ($p) {
+            $webStores = \App\CharityProductStoreWebsite::join('websites', 'charity_product_store_websites.website_id', 'websites.id')->where('charity_id', $p->id)->get();
+        } else {
+            $webStores = \App\Website::where("store_website_id", $website->id)->get();
+        }
+
         $product   = $this->product;
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
             foreach ($webStores as $key => $webStore) {
-                if ($webStore->is_price_ovveride || 1 == 1) {
-                    $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
-                    $dutyPrice = 0;
-                    if (!empty($countries)) {
-                        foreach ($countries as $cnt) {
-                            $dutyPrice = $product->getDuty($cnt);
-                            if ($dutyPrice > 0) {
-                                break;
-                            }
-                        }
-                    }
-                    // pricing check for the discount case
-                    $ovverridePrice = 0;
-                    if (!empty($countries)) {
-                        foreach ($countries as $cnt) {
-                            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
-                            if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
-                                $ovverridePrice = $discountPrice['total'];
-                                break;
-                            }
-                        }
-                    }
-                    $magentoPrice = \App\Product::getIvaPrice($product->price);
-                    if ($magentoPrice > 0) {
-                        $totalAmount  = $magentoPrice * $dutyPrice / 100;
-                        $magentoPrice = $magentoPrice + $totalAmount;
-                    }
+
+                if ($p) {
+                    $countries    = CharityCountry::where('charity_id', $p->id)->get();
+                    $magentoPrice = round($webStore->price, -1 * (strlen($webStore->price) - 1), PHP_ROUND_HALF_UP);
+                    $price        = $magentoPrice;
                     $specialPrice = 0;
-                    if ($magentoPrice > $ovverridePrice) {
-                        $price        = $magentoPrice;
-                        $specialPrice = $ovverridePrice;
-                    } else {
-                        $price = $magentoPrice;
+                    $totalAmount  = 0;
+
+                    foreach ($countries as $c) {
+
+                        if (isset($c->price) && $c->price > 0) {
+                            $price = round($c->price, -1 * (strlen($c->price) - 1), PHP_ROUND_HALF_UP);
+
+                        }
+
+                        $pricesArr[$c->country_code] = [
+                            "price"         => $price,
+                            "special_price" => $specialPrice,
+                        ];
+
+                    }
+                } else {
+                    if ($webStore->is_price_ovveride || 1 == 1) {
+                        $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
+                        $dutyPrice = 0;
+                        if (!empty($countries)) {
+                            foreach ($countries as $cnt) {
+                                $dutyPrice = $product->getDuty($cnt);
+                                if ($dutyPrice > 0) {
+                                    break;
+                                }
+                            }
+                        }
+                        // pricing check for the discount case
+                        $ovverridePrice = 0;
+                        if (!empty($countries)) {
+                            foreach ($countries as $cnt) {
+                                $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
+                                if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+                                    $ovverridePrice = $discountPrice['total'];
+                                    break;
+                                }
+                            }
+                        }
+
+                        $magentoPrice = \App\Product::getIvaPrice($product->price);
+                        if ($magentoPrice > 0) {
+                            $totalAmount  = $magentoPrice * $dutyPrice / 100;
+                            $magentoPrice = $magentoPrice + $totalAmount;
+                        }
+                        $specialPrice = 0;
+                        if ($magentoPrice > $ovverridePrice) {
+                            $price        = $magentoPrice;
+                            $specialPrice = $ovverridePrice;
+                        } else {
+                            $price = $magentoPrice;
+                        }
+
                     }
 
                     foreach ($countries as $c) {
-                        $cc = CustomerCharity::where('product_id', $product->id)->first();
-                        if($product->isCharity()){
-                            $c_raw = CharityCountry::where('charity_id', $cc->id)->where('country_code', strtolower($c))->first();
-                            $price = $specialPrice = $c_raw != null ? $c_raw->price : 1;
-                            $key == 0 ? Log::info("product_id " . $product->id . 'as charity in loop') : '';
-                        }
+                      
                         $pricesArr[$c] = [
                             "price"         => $price,
                             "special_price" => $specialPrice,
                         ];
+
                     }
                 }
+
             }
         }
         Log::info("pricesArr " . json_encode($pricesArr));
@@ -1015,14 +1057,21 @@ class MagentoService
 
     private function getWebsiteIds()
     {
-        return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
+        $id = $this->product->id;
+        $p  = \App\CustomerCharity::where('product_id', $id)->first();
+        if ($p) {
+            return \App\CharityProductStoreWebsite::join('websites', 'charity_product_store_websites.website_id', 'websites.id')->where('charity_id', $p->id)->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
+        } else {
+            return $this->storeWebsite->websites()->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
+        }
+
     }
 
     private function validateTranslation()
     {
-        if(count($this->activeLanguages) != count($this->translations)) {
-            $this->storeLog("translation_not_found", "No translations found for the product total translation ".count($this->activeLanguages)." and total found ".count($this->translations),null, null , [
-                "languages" =>json_encode($this->aclanguagecode)
+        if (count($this->activeLanguages) != count($this->translations)) {
+            $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->activeLanguages) . " and total found " . count($this->translations), null, null, [
+                "languages" => json_encode($this->aclanguagecode),
             ]);
             return false;
         }
@@ -1136,8 +1185,8 @@ class MagentoService
         if ($this->log) {
             $this->log->message     = $message;
             $this->log->sync_status = $type;
-            if(!empty($extraFiels)) {
-                foreach($extraFiels as $k => $ext) {
+            if (!empty($extraFiels)) {
+                foreach ($extraFiels as $k => $ext) {
                     $this->log->{$k} = $ext;
                 }
             }
