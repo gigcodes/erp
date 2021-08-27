@@ -241,7 +241,6 @@ class MagentoSettingsController extends Controller
                         $m_setting->save();
                     }
                     $scopeID = 0;
-                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_live){
                         $token = $storeWebsite->api_token;
                         \Cache::forever('key', $token);
@@ -264,6 +263,7 @@ class MagentoSettingsController extends Controller
                             return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
                         }
                     }
+                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_stage){
                         $token = $storeWebsite->stage_api_token;
                         \Cache::forever('key', $token);
@@ -340,7 +340,6 @@ class MagentoSettingsController extends Controller
                         $m_setting->save();
                     }
                     $scopeID = $websiteStore->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_live){
                         $token = $websiteStore->website->storeWebsite->api_token;
                         \Cache::forever('key', $token); 
@@ -353,7 +352,7 @@ class MagentoSettingsController extends Controller
                         MagentoSettingLog::create($formData);
                         
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -363,6 +362,7 @@ class MagentoSettingsController extends Controller
                             return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
                         }
                     }
+                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_stage){
                         $token = $websiteStore->website->storeWebsite->stage_api_token;
                         \Cache::forever('key', $token); 
@@ -375,7 +375,7 @@ class MagentoSettingsController extends Controller
                         MagentoSettingLog::create($formData);
                         
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -397,7 +397,7 @@ class MagentoSettingsController extends Controller
                         MagentoSettingLog::create($formData);
                         
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -441,7 +441,6 @@ class MagentoSettingsController extends Controller
                         $m_setting->save();
                     }
                     $scopeID = $websiteStoresView->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_live){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->api_token;
                         \Cache::forever('key', $token);
@@ -454,7 +453,7 @@ class MagentoSettingsController extends Controller
                         MagentoSettingLog::create($formData);
                         
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -464,6 +463,7 @@ class MagentoSettingsController extends Controller
                             return response()->json(["code" => 500 , "message" => "Request has been failed on live server please check laravel log"]);
                         }
                     }
+                    $magento_url = str_replace('www.', '', $magento_url);
                     if($is_stage){
                         $token = $websiteStoresView->websiteStore->website->storeWebsite->stage_api_token;
                         \Cache::forever('key', $token);
@@ -474,9 +474,8 @@ class MagentoSettingsController extends Controller
                         $log = "postURL : " . $postURL . " | magento_setting : " . json_encode($m_setting) . ' | response : ' . json_encode($result);
                         $formData = [ 'event'=>"edit", 'log'=>$log ];
                         MagentoSettingLog::create($formData);
-                        
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
@@ -498,7 +497,7 @@ class MagentoSettingsController extends Controller
                         MagentoSettingLog::create($formData);
                         
                         if(isset($result['response'])) {
-                            $response = json_decode($result['response']);
+                            $response = json_decode($result['response'],true);
                             if(isset($response[0]) && $response[0] == 1) {
 
                             }else{
