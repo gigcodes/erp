@@ -50,7 +50,6 @@ class GTMetrixTestCMDGetReport extends Command
             'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
-        //exit;
 
         // Get site report
         $storeViewList = StoreViewsGTMetrix::whereNotNull('test_id')
