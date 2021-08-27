@@ -114,7 +114,6 @@ class TmpTaskController extends Controller
         $product = \App\Product::find($request->get("product_id"));
         $dutyPrice = $product->getDuty($cnt);
         $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
-        echo "<pre>"; print_r($discountPrice);  echo "</pre>";die;
 
         \Log::info(print_r($discountPrice,true));
         die;
