@@ -79,8 +79,8 @@ class MagentoService
         }
 
         // started to check the product rediness test
-        if (!$this->validateReadiness()) {
-            return false;
+         if (!$this->validateReadiness()) {
+        return false;
         }
 
         if (!$this->validateBrand()) {
@@ -117,9 +117,9 @@ class MagentoService
 
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
-        if (!$this->validateTranslation()) {
-            return false;
-        }
+        /*  if (!$this->validateTranslation()) {
+        return false;
+        }*/
 
         \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
 
@@ -358,29 +358,29 @@ class MagentoService
 
     private function defaultData($data)
     {
-		/*update product name code starts*/
-			$productNamelength = strlen($this->product->name);
-			if($productNamelength < 50) {
-				if(isset($this->product->brands->name) and $this->product->brands->name != null) {
-					$brandName = $this->product->brands->name;
-					similar_text($this->product->name, $brandName, $brandProductMatch);
-					if($brandProductMatch < 70) {
-						$this->product->name = $brandName.' '.$this->product->name;
-						$productNamelength = strlen($this->product->name);
-					}
-				}
-				if(isset($this->product->categories->title) and $this->product->categories->title != "Select Category") {
-					$catName = $this->product->categories->title;
-					if($productNamelength < 50) {
-						similar_text($this->product->name, $catName, $categoryProductMatch);
-						if($categoryProductMatch < 70) {
-							$this->product->name = $catName.' '.$this->product->name;
-						}						
-					}
-				}
-			}	
-		/*update product name code ends*/
-		
+        /*update product name code starts*/
+        $productNamelength = strlen($this->product->name);
+        if ($productNamelength < 50) {
+            if (isset($this->product->brands->name) and $this->product->brands->name != null) {
+                $brandName = $this->product->brands->name;
+                similar_text($this->product->name, $brandName, $brandProductMatch);
+                if ($brandProductMatch < 70) {
+                    $this->product->name = $brandName . ' ' . $this->product->name;
+                    $productNamelength   = strlen($this->product->name);
+                }
+            }
+            if (isset($this->product->categories->title) and $this->product->categories->title != "Select Category") {
+                $catName = $this->product->categories->title;
+                if ($productNamelength < 50) {
+                    similar_text($this->product->name, $catName, $categoryProductMatch);
+                    if ($categoryProductMatch < 70) {
+                        $this->product->name = $catName . ' ' . $this->product->name;
+                    }
+                }
+            }
+        }
+        /*update product name code ends*/
+
         $e = [
             'product' => array(
                 'sku'                  => $data['sku'], // Simple products to associate
@@ -727,13 +727,13 @@ class MagentoService
         $d['attribute_set_id'] = 4;
         $d['status']           = 1;
         $d['type_id']          = 'simple';
-        $p       = \App\CustomerCharity::where('product_id', $this->product->id)->first();
-        if($p) {
-            $d['type_id']          = 'donation';
+        $p                     = \App\CustomerCharity::where('product_id', $this->product->id)->first();
+        if ($p) {
+            $d['type_id'] = 'donation';
         }
 
-        $d['website_ids']      = $this->websiteIds;
-        $d['stock_item']       = [
+        $d['website_ids'] = $this->websiteIds;
+        $d['stock_item']  = [
             'use_config_manage_stock' => 1,
             'manage_stock'            => 1,
             'qty'                     => 1,
@@ -914,12 +914,13 @@ class MagentoService
                             }
                         }
                         // pricing check for the discount case
-                        $ovverridePrice = 0;
+                        $ovverridePrice = 0;$segmentDiscount=0;
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
                                 $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
                                 if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                                     $ovverridePrice = $discountPrice['total'];
+                                    $segmentDiscount = $discountPrice['segment_discount'];
                                     break;
                                 }
                             }
@@ -941,15 +942,39 @@ class MagentoService
                     }
 
                     foreach ($countries as $c) {
-                      
+
                         $pricesArr[$c] = [
                             "price"         => $price,
                             "special_price" => $specialPrice,
                         ];
 
                     }
-                }
 
+                    $d = \App\StoreWebsiteProductPrice::where('product_id', $product->id)->where('web_store_id', $webStore->id)->where('store_website_id', $website->id)->first();
+                    if ($d) {
+                        $d->default_price  = $magentoPrice;
+                        $d->duty_price     = $dutyPrice;
+                        $d->override_price = $ovverridePrice;
+                        $d->segment_discount = $segmentDiscount;
+
+                        $d->save();
+                    } else {
+                        $data = [
+                            'product_id'       => $product->id,
+                            'default_price'    => $magentoPrice,
+                            'segment_discount' => $segmentDiscount,
+                            'duty_price'       => $dutyPrice,
+                            'override_price'   => $ovverridePrice,
+                            'status'           => '1',
+                            'web_store_id'     => $webStore->id,
+                            'store_website_id' => $website->id,
+
+                        ];
+                        \App\StoreWebsiteProductPrice::insert($data);
+
+                    }
+
+                }
             }
         }
         Log::info("pricesArr " . json_encode($pricesArr));

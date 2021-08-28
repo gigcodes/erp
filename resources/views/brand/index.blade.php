@@ -148,7 +148,6 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 {{--        </div>--}}
 {{--    </div>--}}
 {{--    <div class="col-lg-4 margin-tb align-right">--}}
-
 {{--        <div class="pull-left">--}}
 {{--        </div>--}}
 {{--        <div>--}}
@@ -176,9 +175,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     <div class="table-responsive mt-3">
         <table class="table table-bordered brand-list" style="table-layout: fixed;font-size: 13px">
             <tr>
+                <th width="2%"><input id="checkAll" type="checkbox" ></th>
                 <th width="4%">ID</th>
                 <th width="5%">Name</th>
-                <th width="4%">Image</th>
+                <th width="5%">Image</th>
                 <th width="8%">Similar Brands</th>
                 <th width="7%">Merge Brands</th>
                 <th width="4%">Magento ID</th>
@@ -191,11 +191,13 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <th width="9%">Selling on</th>
                 <th width="7%">Priority</th>
                 <th width="7%">Next Step</th>
+                <th width="5%">Status</th>
                 <th width="8%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
-                <td>{{ $brand->id }}</td>
+            <td><input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $brand->id }}'></td>    
+            <td>{{ $brand->id }}</td>
                 <td>{{ $brand->name }}</td>
                 <td>
                     @if($brand->brand_image)
@@ -282,6 +284,12 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         {!!Form::select('next_step',[null => "--Select--"] + \App\Helpers\StatusHelper::getStatus(),$brand->next_step??'',array('class'=>'form-control input-sm mb-3 brand-next-step','data-id'=>$brand->id))!!}
                     </div>       
                 </td>
+                <td> @if($brand->status==1)
+               approved
+             @else
+               pending 
+             @endif     
+        </td>
                 <td>
                     <a style="padding:1px;" class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['brand.destroy',$brand->id],'style'=>'display:inline']) !!}
@@ -738,5 +746,49 @@ $('.select2-selection__clear').remove()
         });
     });
  
+
+    function approve()
+    {
+            str='';
+            $(".checkboxClass:checked").each(function(){
+               
+                if (str=='')
+                   str=$(this).val();
+                else
+                   str= str + "," + $(this).val();  
+            });
+            if (str=='')
+              alert('First Select Brand')
+            else
+            {
+                    $.ajax({
+                        method : "POST",
+                        url: "{{url('/brand/approve')}}",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            ids: str,
+                         },
+                        dataType: "json",
+                        beforeSend : function(){
+                            $("#loading-image").show();
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            if(response.code == 200) {
+                                toastr["success"]("approved successfully", "Message")
+                                location.reload();
+                            }else{
+                                toastr["error"](response.message, "Message");
+                            }
+                        }
+                    });
+            }
+            
+        
+    }
+
+    $("#checkAll").click(function(){
+         $('input:checkbox').not(this).prop('checked', this.checked);
+    });
 </script>
 @endsection
