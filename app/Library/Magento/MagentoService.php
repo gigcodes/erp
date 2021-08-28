@@ -79,9 +79,9 @@ class MagentoService
         }
 
         // started to check the product rediness test
-        /* if (!$this->validateReadiness()) {
+         if (!$this->validateReadiness()) {
         return false;
-        }*/
+        }
 
         if (!$this->validateBrand()) {
             return false;
