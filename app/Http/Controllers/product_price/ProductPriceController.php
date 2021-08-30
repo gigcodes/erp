@@ -267,7 +267,7 @@ class ProductPriceController extends Controller
 			$catSegDiscount = CategorySegmentDiscount::where(['brand_id'=>$request->brandId])->first();
 			$catSegDiscount->update(['category_segment_id'=>$request->segmentId, 'amount'=>$request->price]);
 		}
-		return json_encode('status'=>true);
+		return json_encode(['status'=>true]);
 	}
 
 }
