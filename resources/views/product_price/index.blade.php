@@ -57,12 +57,7 @@
     </div>
 </div>
 
-{{--<div class="col-md-2 margin-tb">--}}
-{{--    <div class="pull-right mt-3">--}}
-{{--        --}}{{-- <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time</button> --}}
 
-{{--    </div>--}}
-{{--</div>--}}
 @include('partials.flash_messages')
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
@@ -128,6 +123,9 @@
                 <div class="form-group mr-3">
                     <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
                 </div>
+                <div class="form-group mr-3">
+                    <a onClick="showModal()" class="btn btn-secondary">Show Generic Prices</a>
+                </div>
             </form> 
         </div>
     </div>  
@@ -151,8 +149,8 @@
                            <th style="width: 7%">EURO Price</th>
                            <!--<th style="width: 10%">Seg Discount</th>!-->
                            @foreach($category_segments as $category_segment)
-                    <th width="3%">{{ $category_segment->name }}</th>
-                @endforeach
+								<th width="3%">{{ $category_segment->name }}</th>
+							@endforeach
                            <th style="width: 5%">Less IVA</th>
                            <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
@@ -273,6 +271,24 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
             50% 50% no-repeat;display:none;">
 </div>
+
+<div class="modal fade bd-example-modal-lg" id="genericModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Generic Prices</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="genericModalContent">
+        
+      </div>
+    
+    </div>
+  </div>
+</div>
+
 @endsection
     
 @section('scripts')
@@ -521,6 +537,60 @@
         });
 
     }); 
+	
+	function showModal () {
+		$.get("product-generic-pricing", function(data, status){
+			$('#genericModalContent').html(data);
+			$('#genericModal').modal('show');
+		});
+	}
+	
+	function updateDutyPrice(countryId, dutyPrice) {		
+		 $.ajax({
+            url: "{{route('updateDutyPrice')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                countryId: countryId,
+                dutyPrice: dutyPrice.value
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                 toastr["error"]("Something went wrong, Please try again.");
+            }else{
+                toastr["success"]("Product updated successfully!", "Message");
+            }
+        });
+	}
+	
+	function updateSegmentPrice(segmentId, brandId, price) {		
+		 $.ajax({
+            url: "{{route('updateSegmentPrice')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                segmentId: segmentId,
+                brandId: brandId,
+                price: price.value
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                toastr["error"]("Something went wrong, Please try again.");
+            }else{
+                toastr["success"]("Product updated successfully!", "Message");
+            }
+        });
+	}
+	
+	
 </script>
 
 @endsection

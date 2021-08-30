@@ -4,12 +4,14 @@ namespace App\Http\Controllers\product_price;
 
 use App\Http\Controllers\Controller;
 use App\CountryGroup;
+use App\Category;
 use App\StoreWebsite;
 use App\WebsiteStore;
 use App\Product;
 use App\Setting;
 use App\Brand;
 use App\Supplier;
+use App\CategorySegmentDiscount;
 use App\SimplyDutyCountry;
 use App\Helpers\StatusHelper;
 use Illuminate\Http\Request;
@@ -180,7 +182,7 @@ class ProductPriceController extends Controller
             $view = view('product_price.index_ajax',compact('product_list', 'count', 'category_segments'))->render();
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
-        
+      
         return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments'));
     }
 
@@ -229,5 +231,43 @@ class ProductPriceController extends Controller
         DB::table('category_segment_discounts')->where('id', $request->seg_id)->update(['amount' => $request->seg_discount]);
         return response()->json(['data' => $response_array, 'status' => true]);
     }
+	
+	public function genericPricing() {
+		ini_set('memory_limit', -1);
+		$product_list = [];
+		$countries = SimplyDutyCountry::select('*')->limit(10)->get()->toArray();
+		$categoryIds = Category::pluck('id')->toArray(); 
+		$categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->limit(10)->select('id', 'title')->get()->toArray();
+		$brands = Brand::select('id', 'name')->limit(10)->get()->toArray();
+		$i = 0;
+		$countriesCount = count($countries);
+		foreach($categories as $category) {
+			foreach($brands as $brand) {
+				$country = $countries[$i];
+				$product_list[] = ['catId'=>$category['id'], 'categoryName'=>$category['title'], 'product'=>'Product For Brand', 
+					'brandId'=>$brand['id'], 'brandName'=>$brand['name'], 'country'=>$country
+				];
+				if($i< $countriesCount-1) {
+					$i++;
+				} else {
+					$i = 0;
+				}
+			}		
+		} 
+		$category_segments = \App\CategorySegment::where('status',1)->get();
+		return view('product_price.generic_price', compact('product_list', 'category_segments'));
+	}
+	
+	public function updateProductPrice(Request $request) {
+		if($request->route()->getName() == 'updateDutyPrice'){ 
+		   $duty = SimplyDutyCountry::find($request->countryId);
+           $duty->default_duty = $request->dutyPrice;
+           $duty->save();
+		} else if($request->route()->getName() == 'updateSegmentPrice') {
+			$catSegDiscount = CategorySegmentDiscount::where(['brand_id'=>$request->brandId])->first();
+			$catSegDiscount->update(['category_segment_id'=>$request->segmentId, 'amount'=>$request->price]);
+		}
+		return json_encode('status'=>true);
+	}
 
 }
