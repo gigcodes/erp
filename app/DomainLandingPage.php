@@ -35,8 +35,7 @@ http://www.wayfair.com/gateway.php?refid=GX87595254316.Fixtures~&position=none&n
 http://www.wayfair.com/gateway.php?refid=GX62899178682.www.antiquesnavigator.com~&position=none&network=d&pcrid=62899178682&device=t&placement=www.antiquesnavigator.com&image=14557927;1459987200000;1471824000000;33808;1
 http://www.wayfair.com/gateway.php?refid=GX87595254316.Fixtures~&position=none&network=d&pcrid=87595254316&device=t&placement=gotitans.com&image=27571844;1462320000000;1471910400000;32005;1
 http://www.wayfair.com/gateway.php?refid=GX87595254316.Fixtures~&position=none&network=d&pcrid=87595254316&device=t&placement=www.celticslife.com&image=27571844;1468281600000;1471910400000;31344;1
-http://www.wayfair.com/gateway.php?refid=GX60014892162.www.antiquesnavigator.com~&position=none&network=d&pcrid=60014892162&device=t&placement=www.antiquesnavigator.com&image=14982740;1460073600000;1471824000000;28714;1
-',
+http://www.wayfair.com/gateway.php?refid=GX60014892162.www.antiquesnavigator.com~&position=none&network=d&pcrid=60014892162&device=t&placement=www.antiquesnavigator.com&image=14982740;1460073600000;1471824000000;28714;1',
 		
 		];
 		return $apisResponse[$column];

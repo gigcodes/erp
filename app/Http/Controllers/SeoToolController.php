@@ -16,7 +16,6 @@ use App\SiteIssue;
 use App\SiteAudit;
 use App\DomainOrganicPage;
 use App\BacklinkIndexedPage;
-
 use App\ProjectKeyword;
 use App\SemrushKeyword;
 use App\SemrushTag;
@@ -71,14 +70,12 @@ class SeoToolController extends Controller
 		}
 	}
 	
-    public function fetchDetails(Request $request, $websiteId=null) {
+    public function fetchDetails() {
 		//fetch domain reports
-		$inputs = $request->input(); 
-		if(isset($inputs['websiteId'])) {
-			$websiteId = $inputs['websiteId'];
-		}
-		$inputs['website'] = StoreWebsite::where('id', $websiteId)->pluck('website')->first();
-		$inputs['websiteId'] = $websiteId;
+		$storeWebsites = StoreWebsite::select('id', 'website')->get();
+		foreach($storeWebsites as $storeWebsite) {
+		$inputs['website'] = $websiteId = $storeWebsite['website'];
+		$inputs['websiteId'] = $storeWebsite['id'];
 		$database = 'us';
 		$toolId = 1;
 		$now = Carbon::now()->format('Y-m-d');
@@ -189,8 +186,8 @@ class SeoToolController extends Controller
         $semrushLandingPageApi = (new DomainLandingPage)->landingPageSemrushApi($inputs['website'], $database, 'landing_page');   
 		$semrushLandingPageResponse = $this->semrushCurlRequests('landing_page','landing_page', $semrushLandingPageApi, 1);
 		$LandingPageData = DomainLandingPage::where(['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 'database'=>$database])->where('created_at', 'like', '%'.$now.'%')->first(); 
-		if($LandingPageData == null){
-			foreach(json_decode($semrushLandingPageResponse, true) as $value) {
+		if($LandingPageData == null){ 
+			foreach(json_decode($semrushLandingPageResponse, true) as $value) { 
 				$dataToInsert = ['store_website_id'=>$inputs['websiteId'], 'tool_id'=>$toolId, 
 				'database'=>$database,'target_url'=>$value['target_url'], 'first_seen'=>$value['first_seen'], 
 				'last_seen'=>$value['last_seen'], 'times_seen'=>$value['times_seen'], 
@@ -235,7 +232,8 @@ class SeoToolController extends Controller
 				SiteIssue::create($dataToSave);
 			}
 		}
-		return redirect();
+		}
+		return redirect('seo');
 	}
 	
 	public function semrushCurlRequests($type, $column, $api, $keyValuePair=0,$env="test") {
