@@ -15,6 +15,7 @@ class SiteAudit extends Model
 			'site_audit'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
 			'site_audit_info'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/info?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
 			'add_keywords'=>'https://api.semrush.com/management/v1/projects/{id}/keywords?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+			'site_issues'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 		];
 		return $apis[$apiName];
 	}
@@ -68,6 +69,21 @@ class SiteAudit extends Model
 						"mask_disallow":[],
 						"removedParameters":["rr","r","p"],
 						"excluded_checks":null
+					}',
+			'site_issues'=>'{
+					"issues":[
+					{
+					"id":1,
+					"title":"HTTP 5XX server errors",
+					"desc":"5xx errors happen on the server’s side. (500 – an internal server error; 503 – a server is unavailable; 507 – a server is running out of memory, etc.) \n\nHaving a lot of error pages negatively affects both User Experience and a search engine robot’s crawlability, which can lead to less traffic to your website.",
+					"title_page":"##count## pages returned 5XX status code upon request",
+					"title_detailed":"This page returned 5XX status code on request",
+					"info_column":"Code",
+					"count_description":"This page returned 5XX status code on request",
+					"multidata":false,
+					"other_problem_link":"##count## more page on this site has 500 status code",
+					"desc_with_link":" ##count## pages  returned 5XX status code upon request"
+					}]
 					}'
 		];
 		return $responses[$apiResponse];

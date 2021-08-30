@@ -127,8 +127,13 @@ Route::prefix('seo')->middleware('auth')->group(function () {
     Route::get('/', 'SeoToolController@index')->name('seo-tool');
     Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
     Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
-    Route::get('domain-report/{id}', 'SeoToolController@domainDetails')->name('domain-details');
-    Route::get('domain-report/{id}/{type}', 'SeoToolController@domainDetails');
+    Route::get('fetch-details/{websiteId}', 'SeoToolController@fetchDetails');
+    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
+	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
+	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
+	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
+	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
 	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
 	Route::get('project-list', 'SeoToolController@projectList');
 	Route::post('save-keyword', 'SeoToolController@saveKeyword');

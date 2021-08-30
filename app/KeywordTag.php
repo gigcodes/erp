@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class KeywordTag extends Model
 {
-    protected $fillable = ['keyword'];
+    protected $fillable = ['keyword_id','tag_id'];
 }
