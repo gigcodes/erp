@@ -40,7 +40,41 @@
 	  
 	</table>
 </div>
-	 
+<div class="table-responsive" >	
+	<table class="table table-striped table-bordered"> 
+		<thead>
+			<tr>
+			  <th style="width:7%">Domain Organic Page report</th>       
+			  <th style="width:7%">Url</th>       
+			  <th style="width:7%">Number_of_Keywords</th>       
+			  <th style="width:7%">Traffic</th>       
+			  <th style="width:7%">Traffic (%)</th>           
+		   </tr>
+	   </thead>
+	   <tbody id="keywordData">
+		@include('seo-tools.partials.domain-organic-page')
+	   </tbody>
+	  
+	</table>
+</div>
+<div class="table-responsive" >	
+	<table class="table table-striped table-bordered"> 
+		<thead>
+			<tr>
+			  <th style="width:7%">Domain Landing Page report</th>       
+			  <th style="width:7%">target_url</th>       
+			  <th style="width:7%">first_seen</th>       
+			  <th style="width:7%">last_seen</th>       
+			  <th style="width:7%">times_seen</th>
+              <th style="width:7%">ads_count</th>			  
+		   </tr>
+	   </thead>
+	   <tbody id="keywordData">
+		@include('seo-tools.partials.domain-landing-page')
+	   </tbody>
+	  
+	</table>
+</div>	 
 <!-- Model Add Seo tool START -->
     <div id="compModal" class="modal fade in" role="dialog">
         <div class="modal-dialog">
@@ -50,27 +84,19 @@
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <div class="table-responsive" >	
-					@php $result = json_decode($response); @endphp
 					<table class="table table-striped table-bordered"> 
 						<thead>
 							<tr>
-								@foreach($result[0] as $heading)
-									<th>{{$heading}}</th>
-								@endforeach
+						     <th>Domain</th>
+							 <th>Common Keywords</th>
+							 <th>Organic Keywords</th>
+							 <th>Organic Traffic</th>
 							</tr>
 						</thead>
 						<tbody>
-							@foreach($result as $key=>$data)
-								@if($key > 0)
-								<tr>
-									@foreach( $data as $record)
-										<td>{{ $record }}</td>
-									@endforeach
-								</tr>
-								@endif
-							@endforeach
+						 @include('seo-tools.partials.compitetors-analysis-page')
 						</tbody>
-					</table>
+				    </table>		
 				</div>
             </div>
         </div>

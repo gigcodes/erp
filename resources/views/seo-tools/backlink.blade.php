@@ -17,7 +17,7 @@
 		.seo_content .seo_content_inner .seo_text {     padding: 0 30px;     border-right: 2px solid #bfbfbf; }
 		.seo_content .seo_content_inner .seo_text:last-child {     border-right: none; }
 		.seo_content .seo_content_inner .seo_text_inner {     width: 100%;     float: left; }
-		.seo_content .seo_content_inner .seo_text_inner h6 {     width: 100%;     float: left;     margin: 0; text-transform:capitalize;    font-size: 18px;     line-height: 28px;     font-weight: normal;     color: #000;     padding: 0 0 4px 0; font-family: 'Poppins', sans-serif;}
+		.seo_content .seo_content_inner .seo_text_inner h6 {     width: 100%;     float: left;     margin: 0; text-transform:capitalize;    font-size: 24px;     line-height: 32px;     font-weight: normal;     color: #000;     padding: 0 0 4px 0; font-family: 'Poppins', sans-serif;}
 		.seo_content .seo_content_inner .seo_text_inner span {     width: 100%;     float: left;     font-size: 24px;     font-weight: 600;     line-height: 32px; font-family: 'Poppins', sans-serif; position:relative;}
 		.seo_content .seo_content_inner .seo_text_inner span::after {     position: absolute;     content: '';     width: 100px;     height: 2px;     background: red;     left: 0;     bottom: -10px; }
 		.seo_content .seo_content_inner sub {     width: auto;     color: #d23636;     font-weight: 600;     font-size: 12px;     line-height: 24px; font-family: 'Poppins', sans-serif;}
@@ -58,22 +58,6 @@
 		.seo_content .seo_content_inner{text-align:center;}
 		}
 		
-		/******/
-.short_report >* { padding: 0 !important; float: left; width: 100%; margin: 0; }
-.short_report { padding: 0 0 50px; float: left; width: 100%; border-bottom: 1px solid #efefef69; border-radius: 3px; }
-.short_report h4 { font-size: 22px; font-weight: 500; margin: 30px 0 20px; }
-.short_report .seo_content .container { box-shadow: -2px 0px 9px #00000029; padding: 10px 20px 30px; border-radius: 10px; }
-.short_report h3 {
-    font-size: 24px;
-    line-height: 36px;
-    font-weight: 600;
-    /* padding: 10px 15px; */
-    color: #000;
-    margin: 30px 0 0;
-    display: inline-block;
-    /* box-shadow: -4px -3px 9px #00000029; */
-}
-		/******/
     </style>
 @endsection
 @section('content')
@@ -117,155 +101,15 @@
         </div>
     </div>
     <!-- Model Add Seo tool END -->
-<div class="form-group col-md-12" style="display:none;">
-				<div class="seo_select_inner col-md-4 ">
-					<label for="with_archived">Select Website</label>
-					{{ Form::select('search', $websites, null, array('class'=>'search select2', 'placeholder'=>'Seletc Website', 'id'=>'search')) }}
-				</div>
-			</div>
+
 
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
 	
-@foreach($websites as $websiteId=>$website) 
-	<!--20-08-2021-->
-	
-	@if(isset($domainOverview[$websiteId]) || isset($backlinkreports[$websiteId]) || isset($siteAudits[$websiteId]))
-		<div class="short_report">
-			<div class="row seo_select" >
-				<div class="container">
-					<h3>{{$website}}</h3>
-				</div>
-			</div>
-	@if(isset($siteAudits[$websiteId]))
-	@php $siteAudit = $siteAudits[$websiteId]; @endphp
-	<div class="row seo_select" >
-		<div class="container">
-			<h4>Site Audit</h4>			
-		</div>
-	</div>
-	
-	<div class="seo_content">
-		<div class="container">
-			<div class="seo_content_inner">
-				@if(isset($siteAudit['pages_crawled']))
-				<div class="seo_text seo_fir col-md-4">
-					<div class="seo_text_inner">
-						<h6>Pages Crawled</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['pages_crawled']}}</span></a>
-					</div>
-				</div>
-				@endif
-				@if(isset($siteAudit['errors']))
-				<div class="seo_text col-md-4">
-					<div class="seo_text_inner">
-						<h6>Errors</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span> {{$siteAudit['errors']}}</span></a>
-					</div>
-				</div>
-				@endif
-				@if(isset($siteAudit['warnings']))
-				<div class="seo_text col-md-4">
-					<div class="seo_text_inner">
-						<h6>Warnings</h6>
-						<a href="{{route('site-audit-details', $websiteId)}}"><span>{{$siteAudit['warnings']}}</span></a>
-					</div>
-				</div>
-				@endif
-			</div>
-		</div>
-	</div>
-	@endif
-	
-	@if(isset($domainOverview[$websiteId]))
-	@php $overview = $domainOverview[$websiteId]; @endphp
-	<div class="row seo_select" >
-		<div class="container">
-			<h4>Domain Report</h4>			
-		</div>
-	</div>
-	
-	<div class="seo_content">
-		<div class="container">
-			<div class="seo_content_inner">
-				@if(isset($overview['organic_keywords']))
-				<div class="seo_text seo_fir col-md-4">
-					<div class="seo_text_inner">
-						<h6>Keywords</h6>
-						<a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_keywords']}}</span></a>
-					</div>
-				</div>
-				@endif
-				@if(isset($overview['organic_traffic']))
-				<div class="seo_text col-md-4">
-					<div class="seo_text_inner">
-						<h6>Traffic</h6>
-						<a href="{{route('domain-details', $websiteId)}}"><span> {{$overview['organic_traffic']}}</span></a>
-					</div>
-				</div>
-				@endif
-				@if(isset($overview['organic_cost']))
-				<div class="seo_text col-md-4">
-					<div class="seo_text_inner">
-						<h6>Traffic cost</h6>
-						<a href="{{route('domain-details', $websiteId)}}"><span>{{$overview['organic_cost']}}</span></a>
-					</div>
-				</div>
-				@endif
-			</div>
-		</div>
-	</div>
-	@endif
-	<!--end-->
-	@if(isset($backlinkreports[$websiteId]))
-		@php $backlinkreport = $backlinkreports[$websiteId]; @endphp
-		<div class="row seo_select" >
-			<div class="container">
-				 <h4>Backlink Report</h4>
-			</div>
-		</div>
-			
-		<div class="seo_content">
-			<div class="container">
-				<div class="seo_content_inner">
-					@if(isset($backlinkreport['ascore']))
-					<div class="seo_text seo_fir col-md-4">
-						<div class="seo_text_inner">
-							<h6>Ascore</h6>
-							<a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['ascore']}}</span></a>
-						</div>
-					</div>
-					@endif
-					@if(isset($backlinkreport['follows_num']))
-					<div class="seo_text col-md-4">
-						<div class="seo_text_inner">
-							<h6>Follows</h6>
-							<a href="{{route('backlink-details', $websiteId)}}"><span> {{$backlinkreport['follows_num']}}</span></a>
-						</div>
-					</div>
-					@endif
-					@if(isset($backlinkreport['nofollows_num']))
-					<div class="seo_text col-md-4">
-						<div class="seo_text_inner">
-							<h6>No Follows</h6>
-							<a href="{{route('backlink-details', $websiteId)}}"><span>{{$backlinkreport['nofollows_num']}}</span></a>
-						</div>
-					</div>
-					@endif
-				</div>
-			</div>
-		</div>
-	@endif
-	</div>
-	@endif
-@endforeach
-	
-	
-	
 	<div class="row seo_select" >
 				<div class="container">
-					<h3>Compitetors Report</h3>
+					<h3>Backlink Report</h3>
 					<div class="form-group col-md-12" style="display:none;">
 						<div class="seo_select_inner col-md-4 ">
 							<label for="with_archived">Select Website</label>
@@ -282,13 +126,26 @@
 			<div class="seo_content_inner">
 				<div class="seo_text seo_fir col-md-4">
 					<div class="seo_text_inner">
-						<h6>Compitetors</h6>
-						<a href="{{route('compitetors-details', 2)}}"><span>View Data</span></a>
+						<h6>Ascore</h6>
+						<a href="{{route('domain-details', 2)}}"><span>{{$overview['ascore']}}</span></a>
+					</div>
+				</div>
+				<div class="seo_text col-md-4">
+					<div class="seo_text_inner">
+						<h6>Follows</h6>
+						<a href="{{route('domain-details', 2)}}"><span> {{$overview['follows_num']}}</span></a>
+					</div>
+				</div>
+				<div class="seo_text col-md-4">
+					<div class="seo_text_inner">
+						<h6>No Follows</h6>
+						<a href="{{route('domain-details', 2)}}"><span>{{$overview['nofollows_num']}}</span></a>
 					</div>
 				</div>
 			</div>
 	    </div>
 	</div>
+	
 	
 	<div class="tab-content" id="myTabContent">
 	</div>
