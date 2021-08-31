@@ -24,6 +24,7 @@ use App\StoreWebsite;
 use App\Website;
 use App\WebsiteStore;
 use App\WebsiteStoreViewValue;
+use App\Setting;
 
 class LiveChatController extends Controller
 {
@@ -1356,7 +1357,7 @@ class LiveChatController extends Controller
 			$query = $query->whereDate('date', $request->date);
         }
 
-        $pageSize = 10;
+        $pageSize = Setting::get('pagination');
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
         
