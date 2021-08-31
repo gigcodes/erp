@@ -33,6 +33,14 @@
                            @endforeach
                        </select>
                     </div>  
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}">
+                          
+                    </div>  
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}">
+                          
+                    </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -63,7 +71,7 @@
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($magentoSettings as $magentoSetting)
                             <tr>
                                 <td>{{ $magentoSetting->id }}</td>
@@ -104,6 +112,8 @@
     </div>
 
 </div>
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
 
 <div id="add-setting-popup" class="modal fade" role="dialog">
     <div class="modal-dialog" role="document">
@@ -514,5 +524,49 @@
             });
         } 
     });
+
+
+   
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('magento-admin-settings')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
 </script>
 @endsection
