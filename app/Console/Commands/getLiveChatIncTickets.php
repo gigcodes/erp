@@ -119,6 +119,31 @@ class getLiveChatIncTickets extends Command
 
                     } else {
                         Tickets::create($Tickets_data);
+                        $template = \App\MailinglistTemplate::getMailTemplate('Ticket ACK');
+                        $subject="Ticket ACK";
+                        $message="Ticket ACK";
+
+                        if ($template)
+                           {
+                            $subject =$template->$subject;
+                            $message=$template->static_template;
+                           }
+                             $email = \App\Email::create([
+                            'model_id'        => $customer_id,
+                            'model_type'      => \App\Customer::class,
+                            'from'            =>  $email,
+                            'to'              => $email,
+                            'subject'         => $subject,
+                            'message'         => $message,
+                            'template'        => 'Ticket ACK',
+                            'additional_data' => '',
+                            'status'          => 'pre-send',
+                            'is_draft'        => 1,
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($email);
+
+                        
 
                     }
                 }
