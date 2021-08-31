@@ -361,8 +361,11 @@
                     if (data == '') {
                         $('.infinite-scroll-products-loader').hide();
                     }
+                    $('.globalSelect2').select2();
+                    
                     $('.infinite-scroll-products-loader').hide();
-                    $('.infinite-scroll-pending-inner').append(data);
+                  
+                    $('.infinite-scroll-pending-inner').append(data.tbody);
                 },
                 error: function () {
                     $('.infinite-scroll-products-loader').hide();
