@@ -235,10 +235,10 @@ class ProductPriceController extends Controller
 	public function genericPricing() {
 		ini_set('memory_limit', -1);
 		$product_list = [];
-		$countries = SimplyDutyCountry::select('*')->limit(10)->get()->toArray();
+		$countries = SimplyDutyCountry::select('*')->get()->toArray();
 		$categoryIds = Category::pluck('id')->toArray(); 
-		$categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->limit(10)->select('id', 'title')->get()->toArray();
-		$brands = Brand::select('id', 'name')->limit(10)->get()->toArray();
+		$categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+		$brands = Brand::select('id', 'name')->get()->toArray();
 		$i = 0;
 		$countriesCount = count($countries);
 		foreach($categories as $category) {
