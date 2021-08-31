@@ -12,12 +12,13 @@ use Illuminate\Http\Request;
 
 use Carbon\Carbon;
 
+
 class MagentoSettingsController extends Controller
 {
 
     public function index(Request $request)
     {
-
+     
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite', 
             'store.website.storeWebsite',
@@ -53,11 +54,29 @@ class MagentoSettingsController extends Controller
                 }
             } 
         }
-
+        if ($request->name!='')
+        {
+            $magentoSettings->where('name', $request->name); 
+        }
+        if ($request->path!='')
+        {
+            $magentoSettings->where('path', $request->path); 
+        }
         $magentoSettings = $magentoSettings->orderBy('created_at', 'DESC')->paginate(25);    
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
+
+        if ($request->ajax()) {
+            return view('magento.settings.index_ajax', [
+                'magentoSettings' => $magentoSettings,
+                'storeWebsites' => $storeWebsites,
+                'websitesStores' => $websitesStores ,
+                'websiteStoreViews' => $websiteStoreViews,
+            ]);
+        }
+        else
+        {
         
         return view('magento.settings.index', [
             'magentoSettings' => $magentoSettings,
@@ -65,6 +84,7 @@ class MagentoSettingsController extends Controller
             'websitesStores' => $websitesStores ,
             'websiteStoreViews' => $websiteStoreViews,
         ]);
+       }
     }
 
     public function create(Request $request)
