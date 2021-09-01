@@ -31,7 +31,7 @@ class GoogleTranslate
             $file = googleTraslationSettings::select('id','account_json')
             ->where('status','1')
             ->orderBy('id')
-            ->first();
+            ->first(); ;
 
             // on production site it will return the original text
             // if(env("IS_SITE","local") != "production") {
@@ -52,10 +52,10 @@ class GoogleTranslate
             }
             // echo $target." ".$text;
             $result = $translate->translate($text, [
-                'target' => $target
-            ]);
+                'target' => $result
+            ]);dd($translate);
             \Log::info(print_r(["REsult of google",$result],true));
-            
+            dd($result);
             return $result['text'];
         } catch (\Exception $e) {
             \Log::error($e);
