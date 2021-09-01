@@ -32,8 +32,9 @@
     <td>{{$record['created_at']}}</td>
     <td>
     <a class="btn-secondary" href="{{$record['url']}}" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;
-    <a class="btn-secondary send-to-sop-page" data-id="{{$record['id']}}" data-media-id="{{$record['media_id']}}"><i style="margin-left: 5px; margin-right:5px;" title="Add To Sop">+</i></a>
-    
+    <a class="btn-secondary send-to-sop-page" data-id="{{$record['id']}}" data-media-id="{{$record['media_id']}}"><i style="margin-left: 5px; margin-right:5px;" title="Add To Sop">+</i></a>&nbsp;
+    <a class="btn-secondary previewDoc" data-type="@if($record['isImage']) image @else doc @endif" data-docUrl="{{$record['url']}}" ><i class="fa fa-eye" aria-hidden="true"></i></a>
+   
     
     {{-- &nbsp;<a class="btn-secondary link-send-document" title="forward to" data-id="{{$record['id']}}" href="_blank"><i class="fa fa-forward" aria-hidden="true"></i></a> --}}
     </td>
