@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\Customer;
+use App\Mails\Manual\TicketAck;
 use App\Tickets;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\Mails\Manual\TicketAck;
 
 class getLiveChatIncTickets extends Command
 {
@@ -119,15 +119,14 @@ class getLiveChatIncTickets extends Command
                     if (isset($ticketObj->id) && $ticketObj->id > 0) {
 
                     } else {
-                        $ticketObj=Tickets::create($Tickets_data);
+                        $ticketObj  = Tickets::create($Tickets_data);
                         $emailClass = (new TicketAck($ticketObj))->build();
-                        
-                        if ($template)
-                           {
+
+                        if ($ticketObj) {
                             $email = \App\Email::create([
                                 'model_id'        => $customer_id,
                                 'model_type'      => \App\Customer::class,
-                                'from'            =>  $emailClass->fromMailer,
+                                'from'            => $emailClass->fromMailer,
                                 'to'              => $email,
                                 'subject'         => $emailClass->subject,
                                 'message'         => $emailClass->render(),
@@ -137,14 +136,7 @@ class getLiveChatIncTickets extends Command
                                 'is_draft'        => 1,
                             ]);
                             \App\Jobs\SendEmail::dispatch($email);
-                           }
-                             
-                            
-
-                       
-
-                        
-
+                        }
                     }
                 }
 
