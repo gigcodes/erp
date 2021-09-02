@@ -2494,6 +2494,11 @@ class TaskModuleController extends Controller
                     ->toDirectory('task-files/' . floor($task->id / config('constants.image_per_folder')))
                     ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
+
+                $task->attachMedia($media, config('constants.media_tags'));
+                if(!empty($media->filename)){
+                    DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+                }
                 
                 $message .= "\n" . $file;
             }
@@ -2516,6 +2521,8 @@ class TaskModuleController extends Controller
         if ($task) {
             $userList = User::pluck('name', 'id')->all();
             $task = Task::find($id);
+            $userName = '';
+            $mediaDetail = array();
             // $usrSelectBox = "";
             // if (!empty($userList)) {
             // 	$usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
@@ -2531,6 +2538,14 @@ class TaskModuleController extends Controller
                     } else {
                         $isImage = false;
                     }
+
+                    $mediaDetail = DB::table('media')->where('id',$media->id)->first();
+                    if($mediaDetail){
+                        $userName = User::where('id',$mediaDetail->user_id)->pluck('name')->first();    
+                    }else{
+                        $userName = '';
+                    }
+
                     $records[] = [
                             "media_id"  => $id,
                             "id"        => $media->id,
@@ -2538,6 +2553,7 @@ class TaskModuleController extends Controller
                             'task_id'   => $task->id,
                             'isImage'   => $isImage,
                             'userList'  => $userList,
+                            'userName'  => $userName,
                             'created_at'  => $media->created_at
                         ];
                 }
