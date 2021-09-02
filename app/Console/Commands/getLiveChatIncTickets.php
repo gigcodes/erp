@@ -7,6 +7,7 @@ use App\Customer;
 use App\Tickets;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Mails\Manual\TicketAck;
 
 class getLiveChatIncTickets extends Command
 {
@@ -118,30 +119,29 @@ class getLiveChatIncTickets extends Command
                     if (isset($ticketObj->id) && $ticketObj->id > 0) {
 
                     } else {
-                        Tickets::create($Tickets_data);
-                        $template = \App\MailinglistTemplate::getMailTemplate('Ticket ACK');
-                        $subject="Ticket ACK";
-                        $message="Ticket ACK";
-
+                        $ticketObj=Tickets::create($Tickets_data);
+                        $emailClass = (new TicketAck($ticketObj))->build();
+                        
                         if ($template)
                            {
-                            $subject =$template->$subject;
-                            $message=$template->static_template;
+                            $email = \App\Email::create([
+                                'model_id'        => $customer_id,
+                                'model_type'      => \App\Customer::class,
+                                'from'            =>  $emailClass->fromMailer,
+                                'to'              => $email,
+                                'subject'         => $emailClass->subject,
+                                'message'         => $emailClass->render(),
+                                'template'        => 'Ticket ACK',
+                                'additional_data' => '',
+                                'status'          => 'pre-send',
+                                'is_draft'        => 1,
+                            ]);
+                            \App\Jobs\SendEmail::dispatch($email);
                            }
-                             $email = \App\Email::create([
-                            'model_id'        => $customer_id,
-                            'model_type'      => \App\Customer::class,
-                            'from'            =>  $email,
-                            'to'              => $email,
-                            'subject'         => $subject,
-                            'message'         => $message,
-                            'template'        => 'Ticket ACK',
-                            'additional_data' => '',
-                            'status'          => 'pre-send',
-                            'is_draft'        => 1,
-                        ]);
+                             
+                            
 
-                        \App\Jobs\SendEmail::dispatch($email);
+                       
 
                         
 
