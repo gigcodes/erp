@@ -2495,7 +2495,6 @@ class TaskModuleController extends Controller
                     ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
 
-                $task->attachMedia($media, config('constants.media_tags'));
                 if(!empty($media->filename)){
                     DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
                 }
