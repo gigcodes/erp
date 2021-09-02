@@ -2094,5 +2094,24 @@
             });
 
         });
+
+        function changeordervalue(mid,v)
+        {
+            $.ajax({
+                type: 'POST',
+                url: "/product/image/order/change",
+                data: {
+                    mid : mid,
+                    val:v
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'Success')
+                }
+            }).fail(function (response) {
+                alert('Could not update Order');
+            });
+
+        }
 	</script>
 @endsection
