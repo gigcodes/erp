@@ -29,8 +29,8 @@
     </span>
 
     </td>
-   <td>{{$record['created_at']}}</td>
     <td>{{$record['userName']}}</td>
+   <td>{{$record['created_at']}}</td>
      <td>
     <a class="btn-secondary" href="{{$record['url']}}" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;
     <a class="btn-secondary send-to-sop-page" data-id="{{$record['id']}}" data-media-id="{{$record['media_id']}}"><i style="margin-left: 5px; margin-right:5px;" title="Add To Sop">+</i></a>&nbsp;
