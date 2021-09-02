@@ -88,11 +88,12 @@
                                                                     <i class="fa fa-crop" aria-hidden="true"></i>
                                                                 </a>
                                                                 @php 
-                                                                   $md=\App\Mediables::where('media_id',$media->id)->first();
+                                                                  
+                                                                   $md=\App\Mediables::where('mediable_type','App\Product')->where('mediable_id',$product->id)->where('media_id',$media->id)->first();
 
                                                                 @endphp
                                                                 @if($md)
-                                                                <input type="text" value="{{$md->order}}" onchange="changeordervalue('{{$md->order}}',this.value);">
+                                                                <input type="text" value="{{$md->order}}" onchange="changeordervalue('{{$md->media_id}}','{{$md->mediable_id}}',this.value);">
                                                                 @endif 
                                                             </div>
                                                           </div>

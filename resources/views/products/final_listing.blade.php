@@ -2095,13 +2095,14 @@
 
         });
 
-        function changeordervalue(mid,v)
+        function changeordervalue(mid,pid,v)
         {
             $.ajax({
                 type: 'POST',
                 url: "/product/image/order/change",
                 data: {
                     mid : mid,
+                    pid : pid,
                     val:v
                 }
             }).done(function (response) {
