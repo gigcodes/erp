@@ -276,49 +276,29 @@ class ReferaFriend extends Controller
         if($data){
             
             $to = $data['referee_email'];
-            
-            if(!empty($data['store_website_id'])):
-                
-                $emailClass = (new SendReferralMail($data))->build();
-                $email             = \App\Email::create([
-                    'model_id'         => $data['model_id'],
-                    'model_type'       => $data['model_type'],
-                    'from'             => 'customercare@sololuxury.co.in',
-                    'to'               => $to,
-                    'subject'          => $emailClass->subject,
-                    'message'          => $emailClass->render(),
-                    'template'         => 'referr-coupon',
-                    'additional_data'  => '',
-                    'status'           => 'pre-send',
-                    'store_website_id' => $data['store_website_id'],
-                    'is_draft'         => 1
-                ]);
+            $storeweb = StoreWebsite::where('id',$data['store_website_id'])->first(); 
+            $data['title'] = !empty($storeweb->title) ? $storeweb->title : "";
+            $data['website'] = !empty($storeweb->website) ? $storeweb->website : "";
+           
+            $emailClass = (new SendReferralMail($data))->build();
+            $email             = \App\Email::create([
+                'model_id'         => $data['model_id'],
+                'model_type'       => $data['model_type'],
+                'from'             => 'customercare@sololuxury.co.in',
+                'to'               => $to,
+                'subject'          => $emailClass->subject,
+                'message'          => $emailClass->render(),
+                'template'         => 'referr-coupon',
+                'additional_data'  => '',
+                'status'           => 'pre-send',
+                'store_website_id' => null,
+                'is_draft'         => 1
+            ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
-                                
-            else:
-                
-                $emailClass = (new SendReferralMail($data))->build();
-                $email             = \App\Email::create([
-                    'model_id'         => $data['model_id'],
-                    'model_type'       => $data['model_type'],
-                    'from'             => 'customercare@sololuxury.co.in',
-                    'to'               => $to,
-                    'subject'          => $emailClass->subject,
-                    'message'          => $emailClass->render(),
-                    'template'         => 'referr-coupon',
-                    'additional_data'  => '',
-                    'status'           => 'pre-send',
-                    'store_website_id' => null,
-                    'is_draft'         => 1
-                ]);
-
-                \App\Jobs\SendEmail::dispatch($email);
-                
-            endif;
+            \App\Jobs\SendEmail::dispatch($email);
             
         }
-
+        
         return true;
     }
 }
