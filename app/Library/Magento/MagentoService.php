@@ -114,7 +114,9 @@ class MagentoService
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
 
         $this->translations = $this->getTranslations();
-dd('magento service'. $this->translations);
+		if(!$this->translations) {
+			 return false;
+		}
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         if (!$this->validateTranslation()) {
