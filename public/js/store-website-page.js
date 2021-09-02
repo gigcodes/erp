@@ -4,13 +4,12 @@ var page = {
         page.config = {
             bodyView: settings.bodyView
         };
-
-        settings.baseUrl += "/store-website";
+		settings.baseUrl += "/store-website";
 
         $.extend(page.config, settings);
 
         this.getResults();
-
+		
         //initialize pagination
         page.config.bodyView.on("click",".page-link",function(e) {
             e.preventDefault();
@@ -36,7 +35,7 @@ var page = {
             }
         });
 
-        page.config.bodyView.on("click",".btn-edit-template",function(e) {
+        page.config.bodyView.on("click",".btn-edit-template",function(e) { 
             page.editRecord($(this));
         });
 
@@ -114,7 +113,7 @@ var page = {
         this.sendAjax(_z, "showResults");
     },
     getResults: function(href) {
-        var _z = {
+		 var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/records",
             method: "get",
             data : $(".message-search-handler").serialize(),
@@ -124,15 +123,14 @@ var page = {
         }
         this.sendAjax(_z, "showResults");
     },
-    showResults : function(response) {
+    showResults : function(response) { 
         $("#loading-image").hide();
         var addProductTpl = $.templates("#template-result-block");
         var tplHtml       = addProductTpl.render(response);
 
-        $(".count-text").html("("+response.total+")");
-
-        page.config.bodyView.find("#page-view-result").html(tplHtml);
-    }
+        $(".count-text").html("("+response.total+")"); 
+		page.config.bodyView.find("#page-view-result").html(tplHtml);
+	}
     ,
     deleteRecord : function(ele) {
         var _z = {

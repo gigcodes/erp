@@ -41,7 +41,29 @@ class PageController extends Controller
             'languagesList' => $languagesList,
         ]);
     }
+	
+	public function pageMetaTitleKeywords() {
+		 $title = "Pages | Store Website";
 
+        $storeWebsites = StoreWebsite::all()->pluck("website", "id");
+        $pages         = StoreWebsitePage::join("store_websites as  sw", "sw.id", "store_website_pages.store_website_id")
+            ->select([\DB::raw("concat(store_website_pages.title,'-',sw.title) as page_name"), "store_website_pages.id"])
+            ->pluck('page_name', 'id');
+
+        $languages = Language::pluck('locale', 'code')->toArray(); //
+
+        $languagesList = Language::pluck('name', 'name')->toArray(); //
+
+        return view('storewebsite::page.keywords', [
+            'title'         => $title,
+            'storeWebsites' => $storeWebsites,
+            'pages'         => $pages,
+            'languages'     => $languages,
+            'languagesList' => $languagesList,
+        ]);
+	}
+	
+	
     public function records(Request $request)
     {
         $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id');
@@ -72,10 +94,10 @@ class PageController extends Controller
             $attributes['stores_small'] = strlen($attributes['stores']) > 15 ? substr($attributes['stores'],0,15) : $attributes['stores'];
             $attributes['stores'] = $attributes['stores'];
             $recItems[] = $attributes;
-        }
+		}
+		
 
-
-        return response()->json(["code" => 200, "data" => $recItems, "total" => $pages->total(),
+        return response()->json(["code" => 200, "pageUrl"=> $request->page_url, "data" => $recItems, "total" => $pages->total(),
             "pagination"                    => (string) $pages->links(),
         ]);
     }
