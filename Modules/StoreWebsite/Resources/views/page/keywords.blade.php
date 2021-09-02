@@ -64,7 +64,8 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="button">&nbsp;</label>
+                                    <input type="hidden" name="page_url" value="store-website.page.keywords">
+							  		<label for="button">&nbsp;</label>
                                     <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
                                         <img src="/images/search.png" style="cursor: default;">
                                     </button>
@@ -185,7 +186,27 @@
         </div>
     </div>
 </div>
-
+<!--
+<div class="table-responsive mt-3" >
+   <table class="table table-bordered">
+      <thead>
+         <tr>
+            <th width='6%'>Title</th>
+            <th width='8%'>Url</th>
+            <th width='5%'>Store View</th>
+            <th width='8%'>Site</th>
+            <th width='8%'>Meta Title</th>
+            <th width='8%'>Meta Keyword</th>
+            <th width='8%'>Meta Description</th>
+            <th width='22%'>Keywords</th>
+            <th width='17%'>Actions</th>
+          </tr>
+       </thead>
+       <tbody class="infinite-scroll-pending-inner">
+	   
+	   </tbody>
+   </table>
+</div>-->
 @include("storewebsite::page.templates.list-template")
 @include("storewebsite::page.templates.create-website-template")
 <script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
@@ -195,7 +216,8 @@
 <script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/store-website-page.js') }}"></script>
 <script type="text/javascript">
-    page.init({
+
+   page.init({
         bodyView : $("#common-page-layout"),
         baseUrl : "<?php echo url("/"); ?>"
     });
@@ -213,5 +235,57 @@
     }
 	
 	
+	jQuery( '.keywordRecords' ).ready(function() {
+	   fetchKeywords()
+	});
+	function fetchKeywords() {
+		$( ".row_keywords" ).each(function( index ) {
+			if($(this).html() == '') {
+				var title = $(this).data('title');
+				var id = $(this).data('id');
+				getGoogleKeyWords(title, id);
+				return false; 
+			}
+		});
+	}
+	
+	function getGoogleKeyWords(title, rowId) {
+		 $(document).find('.suggestList-table').empty();
+    var lan = $('.website-language-change').val();
+
+    var words = $('#keyword_'+rowId).html();
+    words = words.split(',');
+    $.ajax({     
+        type: 'get',
+        url: '/google-keyword-search-v6',
+        data: { keyword: title, google_search: 'true' },
+        beforeSend: function () {
+           // $("#loading-image").show();
+        },
+        success: function (response) {
+            if (response.length > 0) {
+                //var t = '<div class="col-md-12"><div class="col-md-3">Keywords</div><div class="col-md-3">Avg. monthly</div><div class="col-md-3">Competition</div><div class="col-md-3">Translation</div></div>';
+                var t = '<table class="table table-bordered"><thead class="thead-dark"><tr><th>Keyw</th><th>Avg. monthly</th><th>Comp.</th>'+
+							'<th>Trans.</th></tr></thead><tbody>';
+                $.each(response, function (index, data) {
+                    if ($.inArray(data.keyword, words) > -1) {
+                        t += '<tr"><td" data-avg="' + data.avg_monthly_searches +'">'+data.keyword+'<i class="fa fa-remove pl-2"></i></div>';
+                    }else{
+                        t += '<tr><td data-avg="' + data.avg_monthly_searches +'" >'+data.keyword+'</div>';
+                    }
+                    t += '<td>' + data.avg_monthly_searches + '</td>';
+                    t += '<td>' + data.competition + '</td>';
+                    t += '<td>' + data.translate_text + '</td></tr>';
+                }); 
+				t+="</tbody></table>";
+				console.log(t);
+                $('#col_'+rowId).html(t);
+            } 
+        },
+        complete: function () {
+            fetchKeywords();
+        },
+    });
+}
 </script>
 @endsection 
