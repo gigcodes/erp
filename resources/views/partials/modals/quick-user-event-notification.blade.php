@@ -100,6 +100,24 @@
                             <option value="learning">For Learning</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="type">Cost</label>
+                        <input id="cost" name="cost" class="form-control" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Currency</label>
+                        @php
+                              $currency=\App\Currency::all();
+                        @endphp
+                        <select name="currency" class="form-control">
+                             @foreach($currency as $c)
+                            <option value="{{$c->code}}">{{$c->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
                     <div class="form-group">
                         <input id="notification-submit" class="btn btn-secondary" type="submit">
                     </div>
