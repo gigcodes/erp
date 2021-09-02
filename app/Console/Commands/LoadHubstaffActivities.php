@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffMember;
 use Carbon\Carbon;
@@ -14,7 +14,7 @@ use Illuminate\Console\Command;
 
 class LoadHubstaffActivities extends Command
 {
-    use hubstaffTrait;
+    use HubstaffTrait;
 
     private $client;
     /**
