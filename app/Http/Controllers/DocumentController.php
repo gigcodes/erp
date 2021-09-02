@@ -18,6 +18,7 @@ use App\Mails\Manual\DocumentEmail;
 use App\DocumentRemark;
 use App\DocumentHistory;
 use Mail;
+use finfo;
 
 class DocumentController extends Controller
 {
@@ -130,8 +131,9 @@ class DocumentController extends Controller
        // dd($data);
         foreach ($request->file('file') as $file) {
             $data[ 'filename' ] = $file->getClientOriginalName();
+            $data[ 'file_contents' ] = $file->openFile()->fread($file->getSize());
 
-            $file->storeAs("documents", $data[ 'filename' ], 'files');
+            //$file->storeAs("documents", $data[ 'filename' ], 'files');
 
             Document::create($data);
         }

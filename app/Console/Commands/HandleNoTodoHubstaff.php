@@ -39,7 +39,8 @@ class HandleNoTodoHubstaff extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->client = new Client;
     }
 
@@ -53,7 +54,9 @@ class HandleNoTodoHubstaff extends Command
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) {
-                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/last_activities';
+                    // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/last_activities';
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/last_activities';
+
                     echo $url . PHP_EOL;
                     return $this->client->get(
                         $url,

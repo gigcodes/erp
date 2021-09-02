@@ -1,3 +1,5 @@
+{{-- {{ dd($selectedBrands) }} --}}
+
 @extends('layouts.app')
 
 @section('favicon' , 'supplierlist.png')
@@ -83,20 +85,25 @@
 						</div>
 					</div> --}}
 					<div class="form-group">
-							<select class="form-control select-multiple2" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
-								@foreach($suppliers_all as $supplier)
-									<option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
-								@endforeach
-							</select>
+                        
+                        <select class="form-control globalSelect2" data-ajax="{{ route('select2.suppliers') }}" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple >
+                            @if ($suppliers_all)        
+                                @foreach($suppliers_all as $supplier)
+                                <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                                @endforeach
+                            @endif
+                            <option ></option>
+                                 
+                                </select>
 					</div>
 					<div class="form-group">
 							<select class="form-control" name="type">
-							<option value="">Select Type</option>
-							<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-							<option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
-							<option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
+                                <option value="">Select Type</option>
+                                <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+                                <option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
+                                <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
 							</select>
-          </div>
+                    </div>
 
                     <div class="form-group">
                         {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
@@ -132,6 +139,12 @@
 							request('updated_by'),
 							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
 						); ?>
+ {{-- <select class="form-control globalSelect2" data-ajax="{{ route('select2.updatedby_users') }}" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple >
+    @foreach($suppliers_all as $supplier)
+        <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
+    @endforeach
+</select> --}}
+
                     </div>
 					<div class="form-group">
 							<select class="form-control" name="scrappertype">
@@ -179,6 +192,8 @@
 
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
+    @include('suppliers.partials.history-model')
+
     <div class="row">
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-responsive table-striped">
@@ -202,8 +217,8 @@
           @foreach ($suppliers as $supplier)
 			<tr>
 				<td>{{ $supplier->id }}
-            <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
-        </td>
+                    <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
+                </td>
 				<td>
 					{{ $supplier->supplier }}
          
@@ -332,6 +347,7 @@
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image show-translate-history"  data-id="{{$supplier->id}}"  title="Show history"><img src="/images/history.svg" alt=""></a>
 				</td>
 					<!--td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
@@ -531,9 +547,17 @@
                         <tr>
                           <td>
                             <div style="overflow-y: scroll; height: 250px; width: 465px">
-                              @foreach ($scrapedBrands as $key => $value)
-                               <input type="checkbox" class="newBrandSelection wrapword" name="scrapedBrands[]" value="{{$value}}" style="margin-right:10px" {{ in_array($value, $selectedBrands) ? 'checked' : ''}}>{{ $value }}<br>
-                              @endforeach
+                                <select class="form-control globalSelect2 newBrandSelection" name="scrapedBrands[]" data-ajax="{{ route('select2.scraped-brand')}}" multiple>
+                                    <option value="">Select Suppliers</option>
+
+
+                                    @foreach ($selectedBrands as $key => $value)
+                                     {{-- <input type="checkbox" class="newBrandSelection wrapword" name="scrapedBrands[]" value="{{$value}}" style="margin-right:10px" {{ in_array($value, $selectedBrands) ? 'checked' : ''}}>{{ $value }}<br> --}}
+                                               <option value="{{ $value }}" selected>{{ $value }}</option>
+                                    @endforeach
+
+                                  </select>
+
                             </div>
                           </td>
                         </tr>
@@ -621,6 +645,42 @@
              includeSelectAllOption: true
            });
         });
+
+    $(document).on("click",".show-translate-history",function(e) {
+        e.preventDefault();
+        var supplier = $(this).data('id');
+        $.ajax({
+            url: '/supplier/trasnlate/history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", supplier: supplier},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.id+`</td>`;
+                        t += `<td>`+v.original_msg+`</td>`;
+                        t += `<td>`+v.translate_msg+`</td>`;
+                        t += `<td>`+v.error_log+`</td>`;
+                        t += `<td>`+v.created_at+`</td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#category-history-modal").find(".show-list-records").html(t);
+                $("#category-history-modal").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
     $(document).on('click', '.set-reminder', function() {
         let supplierId = $(this).data('id');
         let frequency = $(this).data('frequency');
@@ -1118,16 +1178,17 @@
       });
 
       $('.manageScrapedBrandsSave').on('click', function() {
+console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
+
+
+
         if(confirm("Are you sure you want to perform this operation?")){
             $('#manageScrapedBrandsRaw').modal('toggle');
             $.ajax({
                 url: "{{ route('manageScrapedBrands') }}",
                 type: 'POST',
                 data: {
-                    selectedBrands: $('.newBrandSelection:checked').serializeArray
-                    ().map(function(obj) {
-                      return obj.value;
-                    }),
+                    selectedBrands: $('.newBrandSelection').val(),
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(data) {
@@ -1135,6 +1196,21 @@
                    location.reload();
                 }
             });
+            // $.ajax({
+            //     url: "{{ route('manageScrapedBrands') }}",
+            //     type: 'POST',
+            //     data: {
+            //         selectedBrands: $('.newBrandSelection:checked').serializeArray
+            //         ().map(function(obj) {
+            //           return obj.value;
+            //         }),
+            //         _token: "{{ csrf_token() }}"
+            //     },
+            //     success: function(data) {
+            //        alert(data);
+            //        location.reload();
+            //     }
+            // });
           }
       });
 

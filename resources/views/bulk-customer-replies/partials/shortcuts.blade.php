@@ -7,7 +7,7 @@
             </div>
             <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
                 <div style="float: left; width: 86%">
-                    <select name="quickCategory" class="form-control mb-3 quickCategory">
+                    <select name="quickCategory" class="form-control mb-3 quickCategory select-child">
                         <option value="">Select Category</option>
                         @foreach($reply_categories as $category)
                             <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>

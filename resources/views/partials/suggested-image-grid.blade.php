@@ -192,7 +192,7 @@
                 </tbody>
             </table>
         </div>
-        {{$suggestedProducts->appends(request()->except("page"))->links()}}
+{{--        {{$suggestedProducts->appends(request()->except("page"))->links()}}--}}
     </div>
     @include('partials.image-load-category-count')
     <!-- <div class="productGrid" id="productGrid">
@@ -307,25 +307,48 @@
         // };
 
 
-        $(window).scroll(function() {
-                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-                    loadMore();
-                }
-            });
+            var page = 1;
+
+            function getDocumentHeight() {
+                const body = document.body;
+                const html = document.documentElement;
+
+                return Math.max(
+                    body.scrollHeight, body.offsetHeight,
+                    html.clientHeight, html.scrollHeight, html.offsetHeight
+                );
+            };
+
+            function getScrollTop() {
+                return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+            }
 
 
 
+
+
+
+        // $(window).scroll(function() {
+        //         if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+        //
+        //             console.log('nvb nvb mvcnb vcnmbcvb mcnvb');
+        //             loadMore();
+        //         }
+        //     });
+        //
+        //
+        //
             var isLoading;
-            function loadMore() {
+            function loadMore(url) {
                 if (isLoading)
                     return;
                     isLoading = true;
-                if(!$('.pagination li.active + li a').attr('href'))
-                return;
+                // if(!$('.pagination li.active + li a').attr('href'))
+                // return;
 
                 var $loader = $('.infinite-scroll-products-loader');
                 $.ajax({
-                    url: $('.pagination li.active + li a').attr('href'),
+                    url: url,
                     type: 'GET',
                     beforeSend: function() {
                         $loader.show();
@@ -349,7 +372,16 @@
             }
 
 
-        var categoryChange = function() 
+            window.onscroll = function() {
+                if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+                page++;
+                loadMore(window.location.href + '?page='+page)
+                console.log(page, 'page');
+            };
+
+
+
+            var categoryChange = function()
         {   
 
             $("select.select-multiple-cat-list:not(.select2-hidden-accessible)").select2();

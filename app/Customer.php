@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\CustomerMarketingPlatform;
 use App\ImQueue;
-
+use App\CustomerAddressData;
 class Customer extends Model
 {
 
@@ -36,6 +36,7 @@ class Customer extends Model
     // protected $appends = ['communication'];
     protected $fillable = [
         'name',
+        'email',
         'phone',
         'city',
         'whatsapp_number',
@@ -80,6 +81,14 @@ class Customer extends Model
     public function leads()
     {
         return $this->hasMany('App\ErpLeads')->orderBy('created_at', 'DESC');
+    }
+    public function customerAddress()
+    {
+        return $this->hasMany(CustomerAddressData::class, 'customer_id', 'id');
+    }
+    public function dnd()
+    {
+        return $this->hasMany('App\CustomerBulkMessageDND', 'customer_id', 'id')->where('filter', app('request')->keyword_filter);
     }
 
     public function orders()

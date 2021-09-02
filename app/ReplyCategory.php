@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class ReplyCategory extends Model
 {
   public function approval_leads() {
-    return $this->hasMany('App\Reply', 'category_id')->where('model', 'Approval Lead')->orderby('id', 'DESC');
+    return $this->hasMany('App\Reply', 'category_id')->where('model', 'Approval Lead')->orderby('reply');
   }
 
   public function internal_leads() {

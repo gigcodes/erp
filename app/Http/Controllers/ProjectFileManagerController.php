@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\ProjectFileManager;
 use DB;
+use App\User;
+use App\ProjectFileManagerHistory;
+use App\Setting;
+use Carbon\Carbon;
+use File;
 
 class ProjectFileManagerController extends Controller
 {
@@ -18,16 +23,52 @@ class ProjectFileManagerController extends Controller
 	
 	public function index(Request $request)
 	{
+
+		$totalSizeq = ProjectFileManager::whereNull("parent")->get();
+
+		$totalSize = 0;
+
+		if(!$totalSizeq->isEmpty()) {
+			foreach($totalSizeq as $tSq) {
+				$size = preg_replace('/[^0-9.]+/', '', $tSq->size);
+				$totalSize += $size;
+			}
+		}
+
 		$query = ProjectFileManager::query();
 		if($request->search){
 			$query = $query->where('name', 'LIKE','%'.$request->search.'%')->orWhere('parent', 'LIKE', '%'.$request->search.'%');
 		}
-		$projectDirectoryData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
-		return view('project_directory_manager.index', compact('projectDirectoryData'))
+		$projectDirectoryData = $query->orderByRaw('CAST(size AS DECIMAL(10,2)) DESC')->paginate(25)->appends(request()->except(['page']));
+
+		$limit_data = Setting::get('project_file_managers');
+		
+		if($limit_data)
+			$limit_rec = $limit_data;
+		else	
+			$limit_rec = 10;
+
+
+		return view('project_directory_manager.index', compact('projectDirectoryData','totalSize','limit_rec'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 		
 	}
-	
+
+	public function insertsize(Request $request){
+		
+		$data = [ 'val' => $request->size,
+		'name' => 'project_file_managers',
+		'type' => 'int'
+		];
+		
+		Setting::updateOrCreate(
+			[
+				'name' => 'project_file_managers',
+			],
+			$data
+		);
+	}
+
 	public function update(Request $request)
 	{
 		if($request->post('id') && $request->post('size'))
@@ -46,12 +87,12 @@ class ProjectFileManagerController extends Controller
 	public function listTree()
 	{
 		$directory = base_path();
-		
+		\Log::info("PROJECT_MANAGER => started to scan file directory");
 		$this->listFolderFiles($directory);
 		
 		ProjectFileManager::insert($this->dumpData);
 		
-		foreach($this->updateData as $key->$value)
+		foreach($this->updateData as $key => $value)
 		{
 			DB::table('project_file_managers')
                 ->where('id', $value['id'])
@@ -64,11 +105,23 @@ class ProjectFileManagerController extends Controller
 	{
 		//for replace base path
 		$basePath = base_path();
-		
 		foreach(new \DirectoryIterator($dir) as $fileInfo) {
 			if (!$fileInfo->isDot()) {
 				
 				if ($fileInfo->isDir()) {
+					 $exePath = [".git","vendor"];
+					 $yes = false;
+					 foreach($exePath as $exe) {
+						 if(stripos($fileInfo->getPathname(),$exe) !== false) {
+						 	$yes = true;
+						 }
+					 }
+
+					 if($yes) {
+					 	continue;
+					 }
+
+					//\Log::info("PROJECT_MANAGER => started to scan file directory ".$fileInfo->getPathname());
 					$batchPathReplace = str_replace($basePath,'',$fileInfo->getPathname());
 					$parentPath = str_replace($fileInfo->getFilename(),'',$batchPathReplace);
 					$parentPath = str_replace('\\','/',$parentPath);
@@ -115,6 +168,146 @@ class ProjectFileManagerController extends Controller
 		}
 
 		return $size;
+	}
+
+	public function getLatestSize(Request $request)
+	{
+		
+		ini_set("memory_limt", -1);
+		$id = $request->get("id");
+		$fileManager = \App\ProjectFileManager::find($id);
+		if($fileManager) {
+			$path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $fileManager->name));
+			$file_size = 0;
+			$old_size = $fileManager->size;
+
+			$limit_data = Setting::get('project_file_managers');
+		
+			if($limit_data)
+				$limit_rec = $limit_data;
+			else	
+				$limit_rec = 10;
+	
+			$increase_size = (($old_size*$limit_rec)/100);
+			
+
+			if(is_dir($path)) {
+				$io = popen ( '/usr/bin/du -sk ' . $path, 'r' );
+			    $size = fgets ( $io, 4096);
+			    $new_size = substr ( $size, 0, strpos ( $size, "\t" ) );
+			    pclose ( $io );
+			}else{
+				$new_size = filesize ($path) / 1024;
+				$new_size = round($new_size, 2);
+			}
+			
+			if(is_numeric($new_size)) {
+				$size =  number_format($new_size / 1024 ,2,".","");
+			}
+
+			$fileManager->size  = $new_size;
+			$fileManager->save();
+
+            if ($old_size != $new_size) {
+                $param = [
+                'project_id' => $id,
+                'name' => $fileManager->name,
+                'old_size' => $old_size . 'MB',
+                'new_size' => $new_size . 'MB',
+                'user_id' => \Auth::user()->id
+            ];
+                      
+                ProjectFileManagerHistory::create($param);
+            }
+			
+			$both_size = ($old_size + $increase_size);
+			
+			if($new_size >= $both_size)
+			{
+                                   
+				$message =  'Project Directory Size increase in Path = ' . $fileManager->name . ',' . ' OldSize = ' . $old_size. 'MB' . ' And ' . 'NewSize = ' . $new_size . 'MB' ;
+				
+				$users = User::get();
+				foreach($users as $user){
+					if($user->isAdmin()){
+						app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($user->phone, $user->whatsapp_number,$message );
+					}
+				}
+				$updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 1]);
+            }else{
+                $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['display_dev_master' => 0]);
+            }
+		
+
+			return response()->json(["code" => 200 , "message" => "Current size is : ". $new_size,'size' => $new_size."(MB)"]);
+		}
+
+		return response()->json(["code" => 500 , "message" => "Current size is : ". $new_size]);
+	}
+
+	public function sizelogHistory(Request $request){
+		// dd($request->all());
+		$users = User::get();
+       $id = $request->id;
+	   
+	   $past_date = date('Y-m-d', strtotime('-7 days'));
+
+	    $size_log = ProjectFileManagerHistory::Leftjoin('users','users.id','project_file_managers_history.user_id')
+		->where('project_id', $id)
+		->whereDate('project_file_managers_history.created_at', '>=', $past_date)
+		->select('project_file_managers_history.*','users.name')->get();
+
+        if($size_log) {
+            return $size_log;
+        }
+        return 'error';
+    }
+	
+
+	public function deleteFile(Request $request)
+	{
+		$id = $request->get("id");
+		$fileManager = \App\ProjectFileManager::find($id);
+		if($fileManager) {
+			$path  = base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $fileManager->name));
+			if(!is_dir($path)) {
+				if(!is_writable($path)) {
+					return response()->json(["code" => 500 , "message" => "{$path} is not writeable"]);
+				}else{
+					unlink($path);
+					$fileManager->delete();
+					return response()->json(["code" => 200 , "message" => "{$path} has been deleted"]);
+				}
+			}else{
+				return response()->json(["code" => 500 , "message" => "can not delete {$path} is directory"]);
+			}
+
+		}
+
+		return response()->json(["code" => 500 , "message" => "{$path} has been not found in record"]);
+	}
+	public function getfilenameandsize(Request $request){
+
+		$name = $request->get('name');
+		
+		$path =  base_path().DIRECTORY_SEPARATOR.(str_replace("./", "", $name));
+		$files = File::files($path);
+
+		$file_size_arr = array();
+
+		foreach($files as $key => $value)
+		{			
+			$file_size_arr[$key]['file_name'] = $value->getfilename();
+		
+			$base = log($value->getSize()) / log(1024);
+			$suffix = array("", "k", "M", "G", "T")[floor($base)];
+			$size = pow(1024, $base - floor($base)) . $suffix;
+			$File_size = round($size, 2) . ' ' . $suffix;
+						
+			$file_size_arr[$key]['file_size'] = $File_size;
+			// dd($File_size);
+		}
+		return response()->json(['file_size_arr' => $file_size_arr, 'path' => $path, 'files' => $files]);
 	}
 	
 }

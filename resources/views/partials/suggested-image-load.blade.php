@@ -1,4 +1,4 @@
-
+<?php //dd($suggestedProducts); ?>
 @foreach ($suggestedProducts as $sp => $suggested)
     <tr>
     <td>
@@ -49,5 +49,5 @@
     </tr>
 @endforeach
 
-{{$suggestedProducts->appends(request()->except("page"))->links()}}
+{{--{{$suggestedProducts->appends(request()->except("page"))->links()}}--}}
 

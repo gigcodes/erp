@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DatabaseTableHistoricalRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseTableController extends Controller
 {
@@ -14,6 +15,7 @@ class DatabaseTableController extends Controller
      */
     public function index(Request $request, $id)
     {
+        
         if($id){
             $databaseHis = DatabaseTableHistoricalRecord::where('database_id',$id)
                 ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
@@ -39,5 +41,14 @@ class DatabaseTableController extends Controller
         }
 
         return view('database.tables', compact('databaseHis','page'));
+    }
+    public function viewList(Request $request){
+        if($request->table_name){
+            //table_name
+            $date = \Carbon\Carbon::today()->subDays(7);
+            $history = DB::table('database_table_historical_records')->where('database_name',$request->table_name)->where('created_at', '>=', $date)->get();
+            return response()->json(['code' => 200 , 'data' => $history]);
+        }
+        return response()->json(["code" => 500, "message"=> 'No records found!']);
     }
 }

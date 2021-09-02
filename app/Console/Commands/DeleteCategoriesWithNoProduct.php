@@ -38,27 +38,36 @@ class DeleteCategoriesWithNoProduct extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
+        
+        ini_set("memory_limit", "-1");
+        
         $unKnownCategory  = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        $neededCategories = [];
         if ($unKnownCategory) {
-            $unKnownCategories = explode(',', $unKnownCategory->references);
-            $unKnownCategories = array_unique($unKnownCategories);
-            if (!empty($unKnownCategories)) {
-                foreach ($unKnownCategories as $unKnownC) {
-                    $count = \App\Category::ScrapedProducts($unKnownC);
-                    if ($count > 1) {
-                        //$neededCategories[] = $unKnownC;
-                        echo "Added in  {$unKnownC} categories";
-                        echo  PHP_EOL;
-                    }else{
-                        $key = array_search ($unKnownC, $unKnownCategories);
-                        unset($unKnownCategories[$key]);
-                        echo "removed from  {$unKnownC} categories";
-                        echo  PHP_EOL;
-                    }
-                    $unKnownCategory->references = implode(",",array_filter($unKnownCategories));
+            $unKnownCatArr   = array_unique(explode(',', $unKnownCategory->references));
+            $fixedCategories = array_unique(explode(',', $unKnownCategory->ignore_category));
+            $deltaCategories = $fixedCategories;
+            if (!empty($unKnownCatArr)) {
+                $storeUnUserCategory = [];
+                foreach ($unKnownCatArr as $key => $unKnownC) {
+                    $this->info("Started for category :" . $unKnownC);
+                    $deltaCategories[] = $unKnownC;
+                    $unKnownCategory->ignore_category = implode(',',array_filter($deltaCategories));
                     $unKnownCategory->save();
+                    if(!in_array($unKnownC,$fixedCategories)) {
+                       $count = \App\Category::ScrapedProducts($unKnownC);
+                       $this->info("Product count match ({$count}) :" . $unKnownC);
+                       if ($count <= 0) {
+                           $storeUnUserCategory[] = $unKnownC;
+                           unset($unKnownCatArr[$key]);
+                           $unKnownCategory->references      = implode(',',array_filter($unKnownCatArr));
+                           $unKnownCategory->save();
+                       } 
+                    }else{
+                        $this->info("Already fetched record :" . $unKnownC);
+                    }
                 }
+                
             }
         }
     }

@@ -58,9 +58,11 @@ class SendIssueCredit extends Mailable
                             'customer'
                         ));
                 }
+                
+                return false;
             }
+            return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
         }
 
-        return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
     }
 }

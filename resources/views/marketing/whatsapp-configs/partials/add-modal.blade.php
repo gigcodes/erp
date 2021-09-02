@@ -21,14 +21,14 @@
     						@endif
     					</div>
 
-    					<div class="form-group">
+    					<!-- <div class="form-group">
     						<strong>Password:</strong>
     						<input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
     						@if ($errors->has('password'))
     						<div class="alert alert-danger">{{$errors->first('password')}}</div>
     						@endif
-    					</div>
+    					</div> -->
 
     					<div class="form-group">
     						<strong>Number:</strong>
@@ -259,6 +259,16 @@
                              </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Use own:</strong>
+                             <select class="form-control" name="is_use_own">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                             </select>
+                            @if ($errors->has('is_use_own'))
+                            <div class="alert alert-danger">{{$errors->first('is_use_own')}}</div>
                             @endif
                         </div>
     				</div>

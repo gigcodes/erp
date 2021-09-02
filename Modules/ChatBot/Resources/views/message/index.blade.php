@@ -4,6 +4,7 @@
 @section('title', 'Message List | Chatbot')
 
 @section('content')
+
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
     <style type="text/css">
@@ -19,26 +20,40 @@
             width: 15px;
             height: 15px;
         }
+        form.chatbot .col{
+            flex-grow: unset !important;
+        }
     </style>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Message List | Chatbot</h2>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
             <div class="pull-left">
                 <div class="form-inline">
-                    <form method="get">
+                    <form method="get" class="chatbot">
                         <div class="row">
 
 
-                            <div class="col">
+                            <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
                             <div class="col">
-                                <select name="status" class="chatboat-message-status form-control">
+                                <select style="width: 130px !important" name="search_type" class="chatboat-message-status form-control">
+                                    <option value="">Select Search Type</option>
+                                    <option value="customer" {{request()->get('search_type') == 'customer' ? 'selected' : ''}}>Customer</option>
+                                    <option value="vendor" {{request()->get('search_type') == 'vendor' ? 'selected' : ''}}>Vendor</option>
+                                    <option value="supplier" {{request()->get('search_type') == 'supplier' ? 'selected' : ''}}>Supplier</option>
+                                    <option value="task" {{request()->get('search_type') == 'task' ? 'selected' : ''}}>Task</option>
+                                    <option value="dev_task" {{request()->get('search_type') == 'dev_task' ? 'selected' : ''}}>DEV Task</option>
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
                                         Approved
@@ -48,7 +63,30 @@
                                     </option>
                                 </select>
                             </div>
-                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+
+                            <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
+                            <div style="display: flex;align-items: center">
+                                
+                                    @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
+                                        @php $check_status = 'checked'; @endphp
+                                    @else
+                                        @php $check_status = ''; @endphp
+                                    @endif
+                               
+                                <input class="mt-0 mr-2" type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
+                            </div>
+                            <div style="margin-left: 20px;display: flex;align-items: center">
+                                    @if(request("unread_message") == "true")
+                                        @php $check_status = 'checked'; @endphp
+                                    @else
+                                        @php $check_status = ''; @endphp
+                                    @endif
+                               
+                                <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
+                            </div>
+                            <!-- END - DEVATSK=4350 -->
+
+                            <button type="submit" style="display: inline-block;width: auto" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
                         </div>
@@ -72,8 +110,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row m-0">
+        <div class="col-md-12 pl-3 pr-3">
             <div class="table-responsive-lg" id="page-view-result">
                 @include("chatbot::message.partial.list")
             </div>
@@ -97,12 +135,84 @@
             </div>
         </div>
     </div>
+    @include("partials.customer-new-ticket")
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
     </div>
     <script src="/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="/js/jsrender.min.js"></script>
+    <script type="text/javascript" src="/js/common-helper.js"></script>
     <script type="text/javascript">
+
+        var callQuickCategory = function () {
+            $(".select-quick-category").select2({tags:true,"width" : 200}).on("change",function(e){
+                var $this = $(this);
+                var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
+                if(id == undefined) {
+                    //siteHelpers.quickCategoryAdd($this);
+                    var params = {
+                        method : 'post',
+                        data : {
+                            _token : $('meta[name="csrf-token"]').attr('content'),
+                            name : $this.val()
+                        },
+                        url: "/add-reply-category"
+                    };
+                    siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+                }else{
+                    var replies = JSON.parse($this.val());
+                        $this.closest(".communication").find('.quickComment').empty();
+                        $this.closest(".communication").find('.quickComment').append($('<option>', {
+                            value: '',
+                            text: 'Quick Reply'
+                        }));
+                        replies.forEach(function (reply) {
+                            $this.closest(".communication").find('.quickComment').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                }
+            });
+        }
+
+
+        var callCategoryComment = function () {
+            $(".select-quick-reply").select2({tags:true,"width" : 200}).on("change",function(e){
+                var $this = $(this);
+                var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
+                if(id == undefined) {
+                    var quickCategory = $this.closest(".communication").find(".quickCategory");
+                    
+                    if (quickCategory.val() == "") {
+                        alert("Please Select Category!!");
+                        return false;
+                    }
+                    var quickCategoryId = quickCategory.children("option:selected").data('id');
+                    var formData = new FormData();
+                    formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+                    formData.append("reply", $this.val());
+                    formData.append("category_id", quickCategoryId);
+                    formData.append("model", 'Approval Lead');
+                    var params = {
+                        method : 'post',
+                        data : formData,
+                        url: "/reply"
+                    };
+                    siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+                    $this.closest('.customer-raw-line').find('.quick-message-field').val($this.val());
+
+                }else{
+                    $this.closest('.customer-raw-line').find('.quick-message-field').val($this.val());
+                }
+            });
+        }
+
+        callQuickCategory();
+        callCategoryComment();
+
+
         $(document).on("click", ".approve-message", function () {
             var $this = $(this);
             $.ajax({
@@ -269,23 +379,96 @@
         });
 
         $(document).on('click', '.send-message1', function () {
+            console.log('*****************************');
             var thiss = $(this);
             var data = new FormData();
-            var type = "customer";
+            
             var field = "customer_id";
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
+            var chatMessageReplyId = tr.data('chat-message-reply-id')
+            var type = tr.data("context");
+            var data_chatbot_id = tr.data('chatbot-id');
+
+            console.log(type);
+
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
                 field = "vendor_id";
+
+                //START - Purpose : Add vendor content - DEVTASK-4203
+                var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
+                data.append("vendor_id", typeId);
+                data.append("message", message);
+                data.append("status", 2);
+                data.append("sendTo", 'to_developer');
+                data.append("chat_reply_message_id", chatMessageReplyId)
+                //END - DEVTASK-4203
             }
-            console.log("Field is as per this",[type,typeId,field,tr]);
+            
             var customer_id = typeId;
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-            data.append(field, typeId);
-            data.append("message", message);
-            data.append("status", 1);
+
+            if(type === 'customer'){
+
+                data.append("customer_id", typeId);
+                data.append("message", message);
+                data.append("status", 1);
+
+            }else if(type === 'issue'){
+
+                data.append('issue_id', typeId);
+                data.append("message", message);
+                data.append("sendTo", 'to_developer');
+                data.append("status", 2)
+                data.append("chat_reply_message_id", chatMessageReplyId)
+
+            }else if(type === 'issue'){
+                data.append('issue_id', typeId);
+                data.append("message", message);
+                data.append("status", 1)
+                data.append("chat_reply_message_id", chatMessageReplyId)
+            }
+            //START - Purpose : Task message - DEVTASK-4203
+            else if(type === 'task'){
+                data.append('task_id', typeId);
+                data.append("message", message);
+                data.append("status", 2)
+                data.append("sendTo", 'to_developer');
+                data.append("chat_reply_message_id", chatMessageReplyId)
+            }
+            //END - DEVTASK-4203
+
+             //STRAT - Purpose : send message - DEVTASK-18280
+            else if(type === 'chatbot'){
+                data.append('customer_id', typeId);
+                data.append("message", message);
+                data.append("status", 1)
+                data.append("chat_reply_message_id", data_chatbot_id)
+
+                id = typeId;
+                var scrolled=0;
+                $.ajax({
+                    url: "{{ route('livechat.send.message') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { id : id ,
+                        message : message,
+                        from:'chatbot_replay',
+                    _token: "{{ csrf_token() }}" 
+                    },
+                })
+                .done(function(data) {
+                    // thiss.closest(".cls_textarea_subbox").find("textarea").val("");
+                    // toastr['success']("Message sent successfully", 'success');
+                })
+            }
+            //END - DEVTASK-18280
+            
+
+            var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
+            data.append("add_autocomplete", add_autocomplete);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
@@ -313,6 +496,147 @@
             } else {
                 alert('Please enter a message first');
             }
+        });
+
+        var siteHelpers = {
+            quickCategoryAdd : function(ele) {
+                var textBox = ele.closest("div").find(".quick_category");
+                if (textBox.val() == "") {
+                    alert("Please Enter Category!!");
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        name : textBox.val()
+                    },
+                    url: "/add-reply-category"
+                };
+                siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+            },
+            afterQuickCategoryAdd : function(response) {
+                callQuickCategory();
+            },
+            deleteQuickCategory : function(ele) {
+                var quickCategory = ele.closest(".communication").find(".quickCategory");
+                if (quickCategory.val() == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete category?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        id : quickCategoryId
+                    },
+                    url: "/destroy-reply-category"
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            deleteQuickComment : function(ele) {
+                var quickComment = ele.closest(".communication").find(".quickComment");
+                if (quickComment.val() == "") {
+                    alert("Please Select Quick Comment!!");
+                    return false;
+                }
+                var quickCommentId = quickComment.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete comment?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'DELETE',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "/reply/" + quickCommentId,
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            quickCommentAdd : function(ele) {
+                var textBox = ele.closest("div").find(".quick_comment");
+                var quickCategory = ele.closest(".communication").find(".quickCategory");
+                if (textBox.val() == "") {
+                    alert("Please Enter New Quick Comment!!");
+                    return false;
+                }
+                if (quickCategory.val() == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                var formData = new FormData();
+                formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+                formData.append("reply", textBox.val());
+                formData.append("category_id", quickCategoryId);
+                formData.append("model", 'Approval Lead');
+                var params = {
+                    method : 'post',
+                    data : formData,
+                    url: "/reply"
+                };
+                siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+            },
+            afterQuickCommentAdd : function(reply) {
+                /*$(".quick_comment").val('');
+                $('.quickComment').append($('<option>', {
+                    value: reply,
+                    text: reply
+                }));*/
+                callCategoryComment();
+            },
+            changeQuickCategory : function (ele) {
+                if (ele.val() != "") {
+                    var replies = JSON.parse(ele.val());
+                    ele.closest(".communication").find('.quickComment').empty();
+                    ele.closest(".communication").find('.quickComment').append($('<option>', {
+                        value: '',
+                        text: 'Quick Reply'
+                    }));
+                    replies.forEach(function (reply) {
+                        ele.closest(".communication").find('.quickComment').append($('<option>', {
+                            value: reply.reply,
+                            text: reply.reply,
+                            'data-id': reply.id
+                        }));
+                    });
+                }
+            },
+            changeQuickComment : function (ele) {
+                ele.closest('.customer-raw-line').find('.quick-message-field').val(ele.val());
+            },
+            pageReload : function() {
+                location.reload();
+            }
+
+        };
+        $.extend(siteHelpers, common)
+
+        $(document).on('click', '.quick_category_add', function () {
+            siteHelpers.quickCategoryAdd($(this));
+        });
+        $(document).on('click', '.delete_category', function () {
+            siteHelpers.deleteQuickCategory($(this));
+        });
+        $(document).on('click', '.delete_quick_comment', function () {
+            siteHelpers.deleteQuickComment($(this));
+        });
+        $(document).on('click', '.quick_comment_add', function () {
+            siteHelpers.quickCommentAdd($(this));
+        });
+        /*$(document).on('change', '.quickCategory', function () {
+            siteHelpers.changeQuickCategory($(this));
+        });*/
+        /*$(document).on('change', '.quickComment', function () {
+            siteHelpers.changeQuickComment($(this));
+        });*/
+
+        $('document').on('click', '.create-customer-ticket-modal', function () {
+            $('#ticket_customer_id').val($(this).attr('data-customer_id'));
         });
 
     </script>

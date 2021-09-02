@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AutoReply;
 use App\CallBusyMessage;
+use App\CallBusyMessageStatus;
 use App\CallHistory;
 use App\CallRecording;
 use App\Category;
@@ -66,6 +67,8 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 use Session;
 use Storage;
 use \SoapClient;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class OrderController extends Controller
 {
@@ -333,9 +336,37 @@ class OrderController extends Controller
             ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
         $totalOrders  = sizeOf($orders->get());
         $orders_array = $orders->paginate(10);
+        
         $quickreply   = Reply::where('model', 'Order')->get();
+
+        $duty_shipping = array();
+        foreach($orders_array as $key => $order){
+            $duty_shipping[$order->id]['id'] = $order->id;
+
+            $website_code_data = $order->duty_tax;
+            if($website_code_data != null)
+            {
+                $product_qty = count($order->order_product);
+
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);
+
+                $duty_shipping[$order->id]['shipping'] = $duty_amount;
+                $duty_shipping[$order->id]['duty'] = $shipping_amount;
+            }else{
+                $duty_shipping[$order->id]['shipping'] = 0;
+                $duty_shipping[$order->id]['duty'] = 0;
+            }
+
+        }
+        $orderStatusList = OrderStatus::all();
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault'));
+        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
     }
 
     public function addProduct(Request $request)
@@ -753,6 +784,9 @@ class OrderController extends Controller
         if (isset($data['date_of_delivery'])) {
             $data['estimated_delivery_date'] = $data['date_of_delivery'];
         }
+        
+        $currency = $request->get("currency","INR");
+        $data['store_currency_code'] = $currency;
 
         $order = Order::create($data);
 
@@ -767,6 +801,8 @@ class OrderController extends Controller
             'order_id' => $order->id,
         );
         OrderCustomerAddress::insert( $customerShippingAddress );
+
+        $currency = $request->get("currency","INR");
 
         if (!empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
@@ -783,8 +819,16 @@ class OrderController extends Controller
                         $nw_order_product->{$k} = $v;
                     }
 
-                    $nw_order_product->order_id = $order->id;
+                    $nw_order_product->currency  = $currency;
+                    $nw_order_product->eur_price = \App\Currency::convert($order_product->product_price,"EUR",$currency);
+                    $nw_order_product->order_id  = $order->id;
                     $nw_order_product->save();
+                }else{
+                    if($order_product) {
+                       $order_product->currency  = $currency;
+                       $order_product->eur_price = \App\Currency::convert($order_product->product_price,"EUR",$currency);
+                       $order_product->save();
+                    }
                 }
             }
         }
@@ -2193,32 +2237,102 @@ class OrderController extends Controller
         //      return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
     }
 
-    public function missedCalls()
-    {
-
-        $callBusyMessages = CallBusyMessage::select('call_busy_messages.id', 'twilio_call_sid', 'message', 'recording_url', 'call_busy_messages.created_at')
+    public function missedCalls(Request $request)
+    {  
+        $callBusyMessages = CallBusyMessage::with(['status'=>function($q){
+          return   $q->select('id','name','label');
+        }])
         // ->join("leads", "leads.id", "call_busy_messages.lead_id")
-            ->orderBy('id', 'DESC')->paginate(20)->toArray();
+            ->leftjoin("call_recordings as cr", "cr.twilio_call_sid", "call_busy_messages.caller_sid")
+            ->leftjoin("twilio_call_data as tcd", "tcd.call_sid", "call_busy_messages.caller_sid")
+            ->select('call_busy_messages.*','cr.recording_url','tcd.aget_user_id','tcd.from','tcd.to','tcd.call_data')
+            ->groupby('call_busy_messages.caller_sid')
+            ->orderBy('call_busy_messages.id', 'DESC');
 
+            if(!empty($request->filterStatus)){
+
+                $callBusyMessages->where('call_busy_message_statuses_id',$request->filterStatus);
+
+            }
+
+            if(!empty($request->filterWebsite)){
+                $callBusyMessages->whereHas('customer.storeWebsite',function(Builder $query) use ($request){
+                    $query->where('id',$request->filterWebsite);
+                });
+            }
+
+        
+            $callBusyMessages_pagination =    $callBusyMessages->paginate(Setting::get('pagination'));
+            $callBusyMessages=    $callBusyMessages->paginate(Setting::get('pagination'))->toArray();
+
+// dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
 
             if (is_numeric($value['twilio_call_sid'])) {
                 # code...
                 $formatted_phone = str_replace('+91', '', $value['twilio_call_sid']);
-                $customer_array  = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+                $customer_array  = Customer::with('storeWebsite','orders')->where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
+
+                if($value['aget_user_id'] != '')
+                {
+                    $user_data = User::where('id',$value['aget_user_id'])->first();
+                    $agent_name = $user_data->name;
+                }
+                else
+                    $agent_name = '';
+
+                // dd($customer_array);
                 if (!empty($customer_array)) {
                     $callBusyMessages['data'][$key]['customerid']    = $customer_array[0]['id'];
                     $callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
+                    $callBusyMessages['data'][$key]['store_website_id'] = $customer_array[0]['store_website_id'];
+
+                    $callBusyMessages['data'][$key]['agent']    = $agent_name;
+                    $callBusyMessages['data'][$key]['from']    = $value['from'];
+                    $callBusyMessages['data'][$key]['to']    = $value['to'];
+                    $callBusyMessages['data'][$key]['call_data']    = $value['call_data'];
+
+                    if(isset($customer_array[0]['store_website']) && count($customer_array[0]['store_website'])){
+                        $callBusyMessages['data'][$key]['store_website_name'] = $customer_array[0]['store_website']['title'];
+                    }
+
                     if (!empty($customer_array[0]['lead'])) {
                         $callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
                     }
                 }
+                
+                // dd($callBusyMessages['data']['customerid']);
 
             }
         }
-        return view('orders.missed_call', compact('callBusyMessages'));
+
+        
+        // $callBusyMessages =  collect($callBusyMessages)->filter(function($qqq) use ($request){
+        //     return $qqq->store_website_id == $request->filterWebsite;
+            
+        // });
+
+
+        $storeWebsite = StoreWebsite::pluck('title','id');
+        $selectedStatus = $request->filterStatus;
+        $selectedWebsite = $request->filterWebsite;
+        $allStatuses = CallBusyMessageStatus::get();
+        return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite','callBusyMessages_pagination'));
 
     }
+
+    public function getOrdersFromMissedCalls(Request $request)
+    {
+            $callBusyMessages = CallBusyMessage::findOrFail($request->id);
+
+            $formatted_phone = str_replace('+91', '', $callBusyMessages->twilio_call_sid);
+
+            $customer_array  = Customer::with('orders')->where('phone', 'LIKE', "%$formatted_phone%")->first();
+            return response()->json($customer_array->orders);   
+    }
+
+
+
 
     public function callsHistory()
     {
@@ -2399,7 +2513,6 @@ class OrderController extends Controller
                                 'template'         => 'order-status-update',
                                 'additional_data'  => $order->id,
                                 'status'           => 'pre-send',
-                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                                 'is_draft'         => 0,
                             ]);
 
@@ -2541,7 +2654,7 @@ class OrderController extends Controller
 //TODO downloadInvoice - added by jammer
     public function downloadInvoice(Request $request, $id)
     {
-        $invoice = Invoice::where("id", $id)->first();
+        $invoice = Invoice::with('orders.duty_tax')->where("id", $id)->first();
         if ($invoice) {
             $data["invoice"]      = $invoice;
             $data["orders"]       = $invoice->orders;
@@ -2780,8 +2893,39 @@ class OrderController extends Controller
     {   
         // error_reporting(0);
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
-        //dd($invoices);
-        return view('orders.invoices.index', compact('invoices'));
+        
+        $invoice_array = $invoices->toArray();
+        $invoice_id = array_column($invoice_array['data'], 'id');
+
+        $orders_array = Order::whereIn('invoice_id', $invoice_id)->get();
+
+        $duty_shipping = array();
+        foreach($orders_array as $key => $order){
+            $duty_shipping[$order->id]['id'] = $order->id;
+
+            $website_code_data = $order->duty_tax;
+            if($website_code_data != null)
+            {
+                $product_qty = count($order->order_product);
+
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);
+
+                $duty_shipping[$order->invoice_id]['shipping'] = $duty_amount;
+                $duty_shipping[$order->invoice_id]['duty'] = $shipping_amount;
+            }else{
+                $duty_shipping[$order->invoice_id]['shipping'] = 0;
+                $duty_shipping[$order->invoice_id]['duty'] = 0;
+            }
+
+        }
+        
+        return view('orders.invoices.index', compact('invoices','duty_shipping'));
     }
 
     public function addInvoice($id)
@@ -3419,6 +3563,13 @@ class OrderController extends Controller
 
     public function testEmail(Request $request)
     {
+
+        Mail::raw('Hi, welcome user!', function ($message) {
+          $message->to("webreak.pravin@gmail.com")->subject("Welcome Message");
+        });
+
+        die;
+
         $order = \App\Order::find(2032);
 
         $emailClass = (new OrderConfirmation($order))->build();
@@ -3517,6 +3668,136 @@ class OrderController extends Controller
             }
         }
          return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
+    }
+
+    public function addStatus(Request $request)
+    {
+        $label=preg_replace('/[^A-Za-z0-9-]+/', '-', $request->name);
+
+        $newStatus =   CallBusyMessageStatus::create([
+                'label'=>$label,
+                'name'=>$request->name
+            ]);
+
+        return response()->json(['data'=>  $newStatus,'message'=>$newStatus->name . ' status added successfully.']);
+
+    }
+
+    public function storeStatus(Request $request,$id)
+    {
+        $callBusyMessage = CallBusyMessage::find($id);
+        $callBusyMessage->call_busy_message_statuses_id = $request->select_id;
+        $callBusyMessage->save();
+
+        return response()->json(['message'=> ' Status updated successfuly.']);
+
+
+    }
+
+
+    public function sendWhatappMessageOrEmail(Request $request)
+    {
+        $newValue =  array();
+        parse_str($request->formData, $newValue);
+
+
+        $defaultWhatapp =     $task_info = \DB::table('whatsapp_configs')
+        ->select('*')
+            ->whereRaw("find_in_set(" . CustomerController::DEFAULT_FOR . ",default_for)")
+            ->first();
+        $defaultNo = $defaultWhatapp->number;
+
+
+        $newArr = $request->except(['_token', 'formData']);
+        $addRequestData = array_merge($newValue, $newArr);
+
+
+            if(empty($addRequestData['message'])){
+                return response()->json(['error'=>'Please type message']);
+            }
+
+            if(empty($addRequestData['whatsapp'] ) && empty($addRequestData['email']) ){
+                return response()->json(['error'=>'Please select atleast one checkbox']);
+            }
+
+
+        $customer = null;
+        $shouldSaveInChatMessage = false;
+
+        if ($addRequestData['customerId'] && !empty($addRequestData['whatsapp'])) {
+            $customer = Customer::find($addRequestData['customerId']);
+
+
+            if (!empty($customer) && !empty($customer->phone) && !empty($customer->whatsapp_number)) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $addRequestData['message']);
+                $shouldSaveInChatMessage = true;
+
+            }
+        } else if (!$addRequestData['customerId'] &&  !empty($addRequestData['whatsapp'])) {
+            $formatted_phone = str_replace('+91', '', $addRequestData['fullNumber']);
+            $sendTo =  str_replace('+', '', $addRequestData['fullNumber']);
+            $sendFrom = $defaultNo;
+            if (!empty($addRequestData['whatsapp']) &&  !empty($sendTo) && !empty($sendFrom)) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($sendTo, $sendFrom, $addRequestData['message']);
+                $shouldSaveInChatMessage = true;
+
+            }
+            // $customer= Customer::where('')
+        }
+
+        
+        if ($addRequestData['customerId'] && !empty($addRequestData['email'])) {
+            $customer = Customer::find($addRequestData['customerId']);
+            
+            $subject = 'Ordered miss-called';
+
+            if (!empty($customer) && !empty($customer->email) && !empty($addRequestData['message'])) {
+                // dump('send customer email final');
+
+                $email             = Email::create([
+                    'model_id'         => $customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'customercare@sololuxury.co.in',
+                    'to'               => $customer->email,
+                    'subject'          => $subject,
+                    'message'          => $addRequestData['message'],
+                    'template'         => 'customer-simple',
+                    'additional_data'  => '',
+                    'status'           => 'pre-send',
+                    'is_draft'         => 0,
+                ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+
+                $shouldSaveInChatMessage = true;
+
+                // Mail::send('order-misscall.communication', $data, function($message)use($data,$customer) {
+                //     $message->to($customer->email)
+                //     ->subject($data["title"]);
+                // });
+
+               
+            }
+        }
+
+      if($shouldSaveInChatMessage ){
+          $params = [
+              'customer_id' => $customer->id,
+              'number' => $customer->phone,
+              'message' =>$addRequestData['message'],
+              'user_id' => Auth::id(),
+              'approve' => 0,
+              'status' => 1
+          ];
+    
+          ChatMessage::create($params);
+
+
+          return response()->json(['message'=>'Message send successfully']);
+      }
+
+
+
     }
 
 }

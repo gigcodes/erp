@@ -8,6 +8,9 @@ use App\StoreWebsite;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use App\Exports\EmailFailedReport;
+use Maatwebsite\Excel\Facades\Excel;
+use Mail;
 
 class EmailAddressesController extends Controller
 {
@@ -18,8 +21,10 @@ class EmailAddressesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EmailAddress::query();
+        $query = EmailAddress::query(); 
+              
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
+
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
 
         if ($request->keyword) {
@@ -30,10 +35,18 @@ class EmailAddressesController extends Controller
 
         $emailAddress = $query->paginate();
         $allStores    = StoreWebsite::all();
+        $allDriver    = EmailAddress::pluck('driver')->unique();
+        $allPort      = EmailAddress::pluck('port')->unique();
+        $allEncryption= EmailAddress::pluck('encryption')->unique();
+
+        //dd($allDriver);
 
         return view('email-addresses.index', [
             'emailAddress' => $emailAddress,
             'allStores'    => $allStores,
+            'allDriver'    => $allDriver,
+            'allPort'      => $allPort,
+            'allEncryption'=> $allEncryption,
         ]);
     }
 
@@ -56,19 +69,38 @@ class EmailAddressesController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'from_name'    => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
-            'driver'       => 'required|string|max:255',
-            'host'         => 'required|string|max:255',
-            'port'         => 'required|string|max:255',
-            'encryption'   => 'required|string|max:255',
-            'username'     => 'required|string|max:255',
-            'password'     => 'required|string|max:255',
+            'from_name'      => 'required|string|max:255',
+            'from_address'   => 'required|string|max:255',
+            'driver'         => 'required|string|max:255',
+            'host'           => 'required|string|max:255',
+            'port'           => 'required|string|max:255',
+            'encryption'     => 'required|string|max:255',
+            'username'       => 'required|string|max:255',
+            'password'       => 'required|string|max:255',
+            'recovery_phone' => 'required|string|max:255',
+            'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
 
-        EmailAddress::create($data);
+        $data = $request->except('_token','signature_logo','signature_image');
+
+        $id=EmailAddress::insertGetId($data);
+
+        $signature_logo = $request->file('signature_logo');
+        $signature_image = $request->file('signature_image');
+        $destinationPath = public_path('uploads');
+         
+       if ($signature_logo!='')
+          {
+             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
+             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
+          }   
+        if ($signature_image!='')
+           {
+            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
+            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
+           }
+        
 
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully saved a Email Address!');
     }
@@ -93,20 +125,40 @@ class EmailAddressesController extends Controller
      */
     public function update(Request $request, $id)
     {
+       
         $this->validate($request, [
-            'from_name'    => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
-            'driver'       => 'required|string|max:255',
-            'host'         => 'required|string|max:255',
-            'port'         => 'required|string|max:255',
-            'encryption'   => 'required|string|max:255',
-            'username'     => 'required|string|max:255',
-            'password'     => 'required|string|max:255',
+            'from_name'      => 'required|string|max:255',
+            'from_address'   => 'required|string|max:255',
+            'driver'         => 'required|string|max:255',
+            'host'           => 'required|string|max:255',
+            'port'           => 'required|string|max:255',
+            'encryption'     => 'required|string|max:255',
+            'username'       => 'required|string|max:255',
+            'password'       => 'required|string|max:255',
+            'recovery_phone' => 'required|string|max:255',
+            'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
+        $data = $request->except('_token','signature_logo','signature_image');
 
         EmailAddress::find($id)->update($data);
+
+        $signature_logo = $request->file('signature_logo');
+        $signature_image = $request->file('signature_image');
+        $destinationPath = public_path('uploads');
+         
+       if ($signature_logo!='')
+          {
+             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
+             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
+          }   
+        if ($signature_image!='')
+           {
+            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
+            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
+           }
+                 
+
 
         return redirect()->back()->withSuccess('You have successfully updated a Email Address!');
     }
@@ -131,7 +183,10 @@ class EmailAddressesController extends Controller
         $EmailHistory = EmailRunHistories::where('email_run_histories.email_address_id', $request->id)
             ->whereDate('email_run_histories.created_at', Carbon::today())
             ->join('email_addresses', 'email_addresses.id', 'email_run_histories.email_address_id')
-            ->select(['email_run_histories.*', 'email_addresses.from_name'])->get();
+            ->select(['email_run_histories.*', 'email_addresses.from_name'])
+            ->latest()
+            ->get();
+
         $history = '';
         if (sizeof($EmailHistory) > 0) {
             foreach ($EmailHistory as $runHistory) {
@@ -155,6 +210,7 @@ class EmailAddressesController extends Controller
 
         return response()->json(['data' => $history]);
     }
+
 
     public function getRelatedAccount(Request $request)
     {
@@ -211,5 +267,71 @@ class EmailAddressesController extends Controller
 
         return view("email-addresses.partials.task", compact('accounts'));
 
+    }
+
+    public function getErrorEmailHistory(Request $request)
+    {
+        ini_set("memory_limit", -1);
+
+        $histories = EmailAddress::whereHas('history_last_message',function($query){
+                $query->where('is_success', 0);
+            })
+            ->with(['history_last_message' => function($q) {
+                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-10 day")));
+            }])
+            ->get();
+
+        $history = '';
+        
+        if($histories) {
+            foreach ($histories as $row) {
+                if($row->history_last_message) {
+                    $status  = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
+                    $message = $row->history_last_message->message??'-';
+                    $history .= '<tr>
+                    <td>' . $row->history_last_message->id . '</td>
+                    <td>' . $row->from_name . '</td>
+                    <td>' . $status . '</td>
+                    <td>' . $message . '</td>
+                    <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
+                    </tr>';
+                }
+            }
+        } else {
+            $history .= '<tr>
+                    <td colspan="5">
+                        No Result Found
+                    </td>
+                </tr>';
+        }
+
+        return response()->json(['data' => $history]);
+    }
+
+    public function downloadFailedHistory(Request $request){
+
+        
+        $histories = EmailAddress::whereHas('history_last_message',function($query){
+                $query->where('is_success', 0);
+            })
+            ->with(['history_last_message' => function($q) {
+                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-1 day")));
+            }])
+            ->get();
+
+        $recordsArr = []; 
+        foreach($histories as $row){
+            if($row->history_last_message) {
+                $recordsArr[] = [
+                    'id'         => $row->history_last_message->id,
+                    'from_name'  => $row->from_name,
+                    'status'     => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
+                    'message'    => $row->history_last_message->message??'-',
+                    'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
+                ];
+            }
+        }
+        $filename = 'Report-Email-failed'.'.csv';
+        return Excel::download(new EmailFailedReport($recordsArr),$filename);
     }
 }

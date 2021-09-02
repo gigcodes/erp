@@ -15,6 +15,7 @@
                         <input id="notification-date" name="date" class="form-control" type="text">
                         <span id="date_error" class="text-danger"></span>
                     </div>
+                    
                     <div class="form-group">
                         <label for="notification-time">Time</label>
                         <input id="notification-time" name="time" class="form-control" type="text">
@@ -72,6 +73,32 @@
                         <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
                             "id" => "vendors" , "class" => "form-control selectx-vendor", "multiple" => true , "style" => "width:100%"
                         ]); ?>
+                        <span id="vendor_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="notification-participants">Provider(user)</label>
+                        <?php echo Form::select("users[]",\App\User::all()->pluck("name","id")->toArray(),null,[
+                            "id" => "users" , "class" => "form-control selectx-users", "multiple" => true , "style" => "width:100%"
+                        ]); ?>
+                        <span id="user_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="timezone">Participants Time zone</label>
+                        <select name="timezone" id="timezone" class="form-control">
+                            <option value="">Select option</option>
+                            @foreach (timezone_identifiers_list() as $zone) 
+                                <option value="{{$zone}}">{{$zone}}</option>
+                            @endforeach
+                        </select>
+                        <span id="timezone_error" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type">Select Type</label>
+                        <select name="type" class="form-control">
+                            <option value="event">For Event</option>
+                            <option value="learning">For Learning</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <input id="notification-submit" class="btn btn-secondary" type="submit">

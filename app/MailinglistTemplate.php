@@ -61,15 +61,18 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public static function getOrderStatusChangeTemplate($store = null)
+    public static function getOrderStatusChangeTemplate($order_status,$store = null)
     {
-        $category = \App\MailinglistTemplateCategory::where('title', 'Order Status Change')->first();
+        $category = \App\MailinglistTemplateCategory::where('title', $order_status)->first();
 
         if ($category) {
             return self::getTemplate($category, $store);
+        } else {
+            
+        $category_default = \App\MailinglistTemplateCategory::where('title', 'Order Status Change')->first();
+        return self::getTemplate($category_default, $store);
+            
         }
-
-        return false;
     }
 
     public static function getOrderCancellationTemplate($store = null)

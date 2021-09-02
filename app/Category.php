@@ -16,10 +16,15 @@ class Category extends Model
 {
 
     CONST UNKNOWN_CATEGORIES = 143;
+    CONST PUSH_TYPE = [
+        "0" => "Simple",
+        "1" => "Configurable"
+    ];
 
     use NestableTrait;
     
     protected $parent = 'parent_id';
+    protected static $categories_with_childs = null;
     /**
      * @var string
      * @SWG\Property(property="id",type="integer")
@@ -31,7 +36,7 @@ class Category extends Model
 
      */
   
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id' ];
+    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type','category_segment_id'];
 
     /**
      * Get the index name for the model.
@@ -42,8 +47,22 @@ class Category extends Model
     {
         return $this->hasMany( __CLASS__, 'parent_id', 'id' );
     }
+    public function childsOrderByTitle()
+    {
+        return $this->hasMany( __CLASS__, 'parent_id', 'id' )->orderBy('title');
+    }
+
+    public function childLevelSencond()
+    {
+        return $this->hasMany( __CLASS__, 'parent_id', 'id' );
+    }
 
     public function parent()
+    {
+        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+    }
+
+    public function parentC()
     {
         return $this->hasOne( 'App\Category', 'id', 'parent_id' );
     }
@@ -64,6 +83,16 @@ class Category extends Model
     }
 
 
+    public static function website_name( $name )
+    {
+        $name = '"' . $name . '"';
+        $products = \App\ScrapedProducts::where("properties", "like", '%' . $name . '%')->select('website')->distinct()->get()->pluck('website')->toArray();
+        $web_name = implode(", ",$products);
+
+        return $web_name ? $web_name : '-';
+    }
+
+
     public static function hasProducts( $id )
     {
 
@@ -75,7 +104,13 @@ class Category extends Model
 
     }
 
-     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+
+        public function categorySegmentId()
+        {
+            return $this->hasOne(CategorySegment::class,'id','category_segment_id');
+        }
+
+        public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {
@@ -802,7 +837,12 @@ class Category extends Model
 
         $mainCategory = false;
 
+    // // dd($categoryy[0]);
+    // foreach($categoryy as $key=> $cat){
 
+    //     self::$categories_with_childs[$cat->title] = $cat;
+    // }
+// dd(self::$categories_with_childs);
         if(!empty($expression)) {
             foreach($expression as $exr) {
                 foreach($liForMen as $li){
@@ -823,21 +863,34 @@ class Category extends Model
                     }
                 }
 
-                $category = self::where("title","LIKE",$exr);
+                if(self::$categories_with_childs === null){
+                    
+                    self::$categories_with_childs = self::with('parentC.parentM')->get();
+                }
 
-                $category = $category->get();
+                $category = [];
 
-                 if(!$category->isEmpty()) {
+                foreach(self::$categories_with_childs as $index => $single_category){
+                    
+                    if(strtolower($single_category->title) == strtolower($exr)){
+                        $category[] = $single_category;
+                    }
+
+                }
+   
+                 if(!empty($category)) {
                     $matched = $category;
                  }
             }
         }
 
         // now check that last matched has more then three leavle
-        if($matched && !$matched->isEmpty()) { 
+        if($matched) { 
             foreach($matched as $match) {
-                $levelone = $match->parentM;
+                $levelone = $match->parentC;
+                
                 if($levelone) {
+                    
                     $leveltwo =  $levelone->parentM;
                     if($leveltwo) {
                         if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
@@ -949,6 +1002,109 @@ class Category extends Model
         }
 
         return false;
+    }
+
+
+    public function getSizeChart($websiteId = 0)
+    {
+        $sizeCharts = null;
+        if($this->id == 5) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-men-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-men-shoes-size-chart.jpg"; 
+           }
+        }
+
+        if($this->id == 41) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-women-shoes-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-women-shoes-size-chart.jpg"; 
+           }
+        }
+
+        if($this->id == 40) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-womenswear-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-womenswear-size-chart.jpg"; 
+           }
+        }
+
+        if($this->id == 12) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-menswear-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-menswear-size-chart.jpg"; 
+           }
+
+        }
+
+        if($this->id == 180) {
+           if($websiteId == 5) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 9) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 17) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 1) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-kids-size-chart.jpg"; 
+           }
+           if($websiteId == 3) {
+               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-kids-size-chart.jpg"; 
+           }
+        }
+
+        return $sizeCharts;
+    }
+
+    public function products()
+    {
+        return $this->hasMany( Product::class, 'category', 'id' );
     }
 
 }

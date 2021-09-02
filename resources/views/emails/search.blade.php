@@ -6,7 +6,7 @@
                 @endif
             </td>
             
-            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y') }}</td>
+            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
             
             <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
             {{ substr($email->from, 0,  10) }} {{strlen($email->from) > 10 ? '...' : '' }}
@@ -77,6 +77,7 @@
                 <a class="btn btn-image btn-ht" href="{{route('order.generate.order-mail.pdf', ['order_id' => 'empty', 'email_id' => $email->id])}}">
                   <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
                 </a>
+                <button style="padding:3px;" type="button" class="btn btn-image make-label d-inline" data-toggle="modal" data-target="#labelingModal" data-id="{{ $email->id }}"><i class="fa fa-tags" aria-hidden="true"></i></button>
             </td>
         </tr>
     @endforeach

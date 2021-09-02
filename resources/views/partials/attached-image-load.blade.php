@@ -2,8 +2,8 @@
     <tr>
     <td>{{ \Carbon\Carbon::parse($suggested->last_attached)->format('d-m-y') }} </td>
     <td>{{$suggested->id}}</td>
-    <td>{{$suggested->customer->name}}</td>
-    <td>{{$suggested->customer->phone}}</td>
+    <td>{{$suggested->customer->name ?? ''}}</td>
+    <td>{{$suggested->customer->phone ?? ''}}</td>
     <td class="expand-row-msg" data-name="brand" data-id="{{$suggested->id}}">
     @php 
      $brandList = '';
@@ -27,6 +27,7 @@
         <span class="show-short-category-{{$suggested->id}}">{{ str_limit($catList, 30, '...')}}</span>
             <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
     </td>
+    <td>{{$suggested->platform ?? ''}}</td>
     <td>
 
     <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}">
@@ -34,6 +35,7 @@
 	</button>
     <button title="Select all products" type="button" class="btn btn-xs btn-secondary select-customer-all-products btn-image no-pd" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}">
     <img src="/images/completed.png" style="cursor: default;"></button>
+    <button title="Move to template" type="button" class="btn btn-xs btn-secondary move-to-tmpl mr-3" data-id="{{$suggested->id}}" data-suggestedproductid="{{$suggested->id}}" data-toggle="modal" data-target="#exampleModal" ><i class="fa fa-file" aria-hidden="true"></i></button>
 
     <button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-products mr-3" data-id="{{$suggested->id}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
 

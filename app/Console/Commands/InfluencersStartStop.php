@@ -105,7 +105,7 @@ class InfluencersStartStop extends Command
         $phoneList = curl_exec($cURLConnection);
         curl_close($cURLConnection);
         $jsonArrayResponse = json_decode($phoneList);
-        $b64 = $jsonArrayResponse->status;
+        $b64 = isset($jsonArrayResponse->status) ? $jsonArrayResponse->status : "";
         return $b64;
     }
 }

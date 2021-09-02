@@ -52,9 +52,10 @@ class ReturnExchange extends Model
         'date_of_request',
         'credited',
         'est_completion_date',
-        'send_email'
+        'send_email',
+        'website_id'
     ];
-	
+    
     const STATUS = [
         1 => 'Return request received from customer',
         2 => 'Return request sent to courier',
@@ -63,7 +64,7 @@ class ReturnExchange extends Model
         5 => 'Return accepted',
         6 => 'Return rejected',
     ];
-	
+    
     public function notifyToUser()
     {
         if ($this->type == "refund") {
@@ -80,8 +81,8 @@ class ReturnExchange extends Model
     {
         return $this->hasMany(\App\ReturnExchangeHistory::class, "return_exchange_id", "id");
     }
-	
-	public function returnExchangeStatus()
+    
+    public function returnExchangeStatus()
     {
         return $this->hasOne(\App\ReturnExchangeStatus::class, "id", "status");
     }

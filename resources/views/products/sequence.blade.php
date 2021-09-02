@@ -8,7 +8,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Order Cropped Images ({{$total}}) <a href="{{ action('ProductController@showSOP') }}?type=Sequence" class="pull-right">SOP</a></h2>
+            <h2 class="page-heading">Order Cropped Images ({{$total}}) <a href="{{ route('sop.index') }}?type=Sequence" class="pull-right">SOP</a></h2>
             <p style="font-size: 18px">Total Sequenced : <strong>{{ $count }}</strong></p>
             <p>Approved By: {{ $product->cropOrderer ? $product->cropOrderer->name : 'N/A' }}</p>
         </div>

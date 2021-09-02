@@ -32,6 +32,7 @@ Route::prefix('message-queue')->middleware('auth')->group(function() {
 
 	Route::prefix('setting')->group(function() {
 		Route::post('update-limit','MessageQueueController@updateLimit');
+		Route::post('update-time','MessageQueueController@updateTime');
 		Route::get('recall','MessageQueueController@recall');
 	});
 });

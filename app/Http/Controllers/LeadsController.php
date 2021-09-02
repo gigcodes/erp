@@ -19,6 +19,8 @@ use App\Reply;
 use App\Customer;
 use App\StatusChange;
 use App\CallRecording;
+use App\ErpLeads;
+use App\ErpLeadStatus;
 use App\CommunicationHistory;
 use App\ReplyCategory;
 use Illuminate\Http\Request;
@@ -584,17 +586,38 @@ class LeadsController extends Controller
         if($request->lead_id){
             $params['lead_id']= $request->lead_id;
         }
+        $isQueue = false;
+        if($request->is_queue > 0) {
+          $isQueue = true;
+          $params['is_queue']= 1;
+        }
+
         $customer = Customer::find($request->customer_id);
         //$lead = Customer::find($request->lead_id);
         $product_names = '';
 
         $params['customer_id'] = $customer->id;
         \Log::channel('customer')->info("Lead send price started : " . $customer->id);
+        $cnt = "IN";
+        $website = \App\StoreWebsite::find(15);
         foreach ($request->selected_product as $product_id) {
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
+            $dutyPrice = $product->getDuty($cnt);
+            $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+            if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+                $special_price = $discountPrice['total'];
+                $brand = $product->brands;
+                if($brand) {
+                    if (!empty($brand->euro_to_inr)) {
+                        $special_price = (float)$brand->euro_to_inr * (float)trim($discountPrice['total']);
+                    } else {
+                        $special_price = (float)Setting::get('euro_to_inr') * (float)trim($discountPrice['total']);
+                    }
+                }
+            }
 
             if ($request->has('dimension')) {
 
@@ -645,25 +668,31 @@ class LeadsController extends Controller
                     }
                     // send message now
                     // uncomment this one to send message immidiatly
-                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
+                    if(!$isQueue) {
+                        app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
+                    }
                 }
             }
 
-            $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-            \Log::channel('customer')->info("Send price started : " . $chat_message->id);
+            if(!$isQueue) {
+                $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+                \Log::channel('customer')->info("Send price started : " . $chat_message->id);
 
-            if ($autoApprove && !empty($chat_message->id)) {
-                // send request if auto approve
-                $approveRequest = new Request();
-                $approveRequest->setMethod('GET');
-                $approveRequest->request->add(['messageId' => $chat_message->id]);
+                if ($autoApprove && !empty($chat_message->id)) {
+                    // send request if auto approve
+                    $approveRequest = new Request();
+                    $approveRequest->setMethod('GET');
+                    $approveRequest->request->add(['messageId' => $chat_message->id]);
 
-                app(WhatsAppController::class)->approveMessage("customer", $approveRequest);
+                    app(WhatsAppController::class)->approveMessage("customer", $approveRequest);
+                }
             }
         }
 
         if ($request->has('dimension') || $request->has('detailed')) {
-            app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+            if(!$isQueue) {
+                app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+            }
         }
 
 
@@ -843,7 +872,7 @@ class LeadsController extends Controller
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-            ->select(["erp_leads.*", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id"]);
+            ->select(["erp_leads.*", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number"]);
 
 
         /*$term = $request->get('term');
@@ -1372,5 +1401,103 @@ class LeadsController extends Controller
             'sourceData' => $source,
             'erpLeadStatus' => $erpLeadStatus
         ]);
+    }
+
+    public function erpLeadsStatusCreate(Request $request){
+        $status = new ErpLeadStatus;
+        $status->name = $request->add_status;
+        $status->save();
+        return redirect()->back()->with('success','Status Added Successsfully');
+    }
+    public function erpLeadsStatusUpdate(Request $request){
+        $statusModal = ErpLeadStatus::where("id", $request->status_id)->first()->name;
+        
+        $template = "Greetings from Solo Luxury Ref: order number $request->id we have updated your order with status : $statusModal.";
+        $erp_leads = ErpLeads::find($request->id);
+
+            $history = new \App\ErpLeadStatusHistory;
+            $history->lead_id = $request->id;
+            $history->old_status = $erp_leads->lead_status_id;
+            $history->new_status = $request->status_id;
+            $history->user_id = Auth::id();
+            $history->save();
+        
+        $erp_leads->lead_status_id = $request->status_id;
+        $erp_leads->save();
+
+        // $user = Auth::user();
+        // $watsapp_number = $user->whatsapp_number;
+        // $params['message'] = "Status Updated Successsfully";
+
+        // if($watsapp_number !== null){
+        //     app('App\Http\Controllers\WhatsAppController')
+        //                         ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false);
+        // }
+
+        return response()->json(['code' => 200,'message' => "Status Updated Successsfully", 'template' => $template]);
+    }
+
+    public function erpLeadStatusChange(Request $request)
+    {
+        $id     = $request->get("id");
+        $status = $request->get("status");
+
+        if (!empty($id) && !empty($status)) {
+            $order   = \App\ErpLeads::find($id);
+            $statuss = ErpLeadStatus::find($status);
+
+            if ($order->customer->email) {
+                if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                    //Sending Mail on changing of order status
+                    try {
+                            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+
+                            $email             = \App\Email::create([
+                                'model_id'         => $order->id,
+                                'model_type'       => ErpLeads::class,
+                                'from'             => $emailClass->fromMailer,
+                                'to'               => $order->customer->email,
+                                'subject'          => $emailClass->subject,
+                                'message'          => $emailClass->render(),
+                                'template'         => 'erp-lead-status-update',
+                                'additional_data'  => $order->id,
+                                'status'           => 'pre-send',
+                                'is_draft'         => 0,
+                            ]);
+
+                            \App\Jobs\SendEmail::dispatch($email);
+
+                    } catch (\Exception $e) {
+                        \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                    }
+
+                } else {
+                    $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+
+                    $email             = \App\Email::create([
+                        'model_id'         => $order->id,
+                        'model_type'       => ErpLeads::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $order->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'erp-lead-status-update',
+                        'additional_data'  => $order->id,
+                        'status'           => 'pre-send',
+                        'is_draft'         => 0,
+                    ]);
+
+                    \App\Jobs\SendEmail::dispatch($email);
+
+                }
+
+                // }catch(\Exception $e) {
+                //   \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                // }
+            }
+           
+        }
+        return response()->json('Sucess', 200);
+
     }
 }

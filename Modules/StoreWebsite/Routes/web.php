@@ -13,6 +13,10 @@
 
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
+    Route::post('generate-reindex', 'StoreWebsiteController@generateReIndexfile');
+    
+    Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name("store-website.user-list");
+
     Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
@@ -23,10 +27,17 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
 
     Route::prefix('{id}')->group(function () {
+        
+        Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
+
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+        
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
+        
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
+        
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
+        
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
 
         Route::prefix('social-strategy')->group(function () {
@@ -88,6 +99,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
         Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
         Route::get('history','BrandController@history')->name("store-website.brand.history");
+        Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
+        Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
+        Route::post('reconsile-brand','BrandController@reconsileBrands')->name("store-website.brand.reconsile-brands");
     });
 
     Route::prefix('price-override')->group(function () {
@@ -157,6 +171,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteStoreViewController@edit')->name("store-website.website-store-views.edit");
         Route::get('/{id}/delete', 'WebsiteStoreViewController@delete')->name("store-website.website-store-views.delete");
         Route::get('/{id}/push', 'WebsiteStoreViewController@push')->name("store-website.website-store-views.push");
+        Route::get('/group/{id}/edit/{store_group_id}', 'WebsiteStoreViewController@editGroup')->name("store-website.website-store-views.group.edit");
+        Route::post('/group/save', 'WebsiteStoreViewController@storeGroup')->name("store-website.website-store-views.group.save");
+        Route::get('/group/{id}/delete/{store_group_id}', 'WebsiteStoreViewController@deleteGroup')->name("store-website.website-store-views.group.delete");
+        Route::get('/agents', 'WebsiteStoreViewController@agents')->name("store-website.website-store-views.group.agents");
+        Route::get('/groups', 'WebsiteStoreViewController@groups')->name("store-website.website-store-views.group.groups");
     });
     
     Route::prefix('page')->group(function () {
@@ -212,7 +231,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {
-    
+
+    Route::get('status/update', 'SiteDevelopmentController@siteDevlopmentStatusUpdate')->name('site_devlopment.status.update');
+    Route::post('remark/user_flag', 'SiteDevelopmentController@userRemarkFlag')->name('remark.flag.user');
+    Route::post('remark/admin_flag', 'SiteDevelopmentController@adminRemarkFlag')->name('remark.flag.admin');
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
@@ -226,6 +248,9 @@ Route::middleware('auth')->group(function()
     Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     Route::get('/preview-img/{site_id}', 'SiteDevelopmentController@previewImage')->name("site-development.preview-image");
     Route::get('/artwork-history/{site_id}', 'SiteDevelopmentController@getArtworkHistory')->name("site-development.artwork-history");
+    Route::get('/status-history/{site_id}', 'SiteDevelopmentController@statusHistory')->name("site-development.status-history");
+
+
     Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
     Route::get('/artwork-history/all-histories/{website_id}', 'SiteDevelopmentController@allartworkHistory')->name("site-development.artwork-history.all-histories");
     Route::prefix('{id}')->group(function () {

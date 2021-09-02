@@ -39,7 +39,8 @@ class SendHubstaffReport extends Command
     {
         parent::__construct();
         $this->client = new Client();
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
     /**
@@ -114,7 +115,8 @@ class SendHubstaffReport extends Command
         $hubstaff        = Hubstaff::getInstance();
         $hubstaff        = $hubstaff->authenticate();
         $organizationAct = $hubstaff->getRepository('organization')->getActivity(
-            env("HUBSTAFF_ORG_ID"),
+            // env("HUBSTAFF_ORG_ID"),
+            config('env.HUBSTAFF_ORG_ID'),
             $startTime,
             $endTime
         );

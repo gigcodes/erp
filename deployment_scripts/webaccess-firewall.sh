@@ -1,11 +1,11 @@
 #!/bin/bash
 
 function Add {
-	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw insert 1 allow proto tcp from $IP to any port '80,443'"
+	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw insert 1 allow proto tcp from $IP to any port '80,443' comment '$comment'"
 }
 
 function List {
-	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1,\$5}'"
+	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1,\$5,\$7}'"
 }
 
 function Delete {
@@ -25,6 +25,7 @@ function HELP {
 		(list - List of ips who have access to erp)"
 	echo "-n|--number: Number in list of ips which need to delete for web access"
 	echo "-i|--ip: Ip address to add in whitelist for erp access"
+	echo "-c|--comment: Comment to show ip belongs to which user/system for whitelist for erp access"
 }
 
 args=("$@")
@@ -42,6 +43,10 @@ do
 	        ;;
 	        -i|--ip)
 	        IP="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -c|--comment)
+	        comment="${args[$((idx+1))]}"
 	        idx=$((idx+2))
 	        ;;
                 -h|--help)

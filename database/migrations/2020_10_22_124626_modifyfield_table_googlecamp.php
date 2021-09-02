@@ -13,9 +13,10 @@ class ModifyfieldTableGooglecamp extends Migration
      */
     public function up()
     {
-        Schema::table('googlecampaigns', function (Blueprint $table) {
+        /*Schema::table('googlecampaigns', function (Blueprint $table) {
             $table->string('status')->nullable()->comment('UNKNOWN, ENABLED,PAUSED,REMOVED')->change();
-        });
+        });*/
+        \DB::statement("ALTER TABLE `googlecampaigns` CHANGE `status` `status` VARCHAR(255) NULL DEFAULT NULL COMMENT 'UNKNOWN, ENABLED,PAUSED,REMOVED';");
     }
 
     /**

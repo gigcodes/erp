@@ -373,4 +373,64 @@ class Helpers
         return $extravars;
     }
 
+    public static function getFacebookVars($name)
+    {
+        $keyword   = \App\InfluencerKeyword::where("name", $name)->first();
+        $extravars = "";
+        if ($keyword) {
+            // check keyword account
+            $instagram = $keyword->instagramAccount;
+            if ($instagram) {
+                $extravars = "?fb_uname={$instagram->first_name}&fb_pswd={$instagram->password}";
+            }
+        }
+        return $extravars;
+    }
+
+    public static function createQueueName($name) 
+    {
+        $name = str_replace([' ', "-"], '_', $name); // Replaces all spaces with hyphens.
+
+        return preg_replace('/[^A-Za-z0-9\-]/', '', strtolower($name)); // Removes special chars.
+    }
+
+    public static function getQueueName($flip = false)
+    {
+        $webpushQueue = [
+            "sololuxury",
+            "lussolicious",
+            "suvnat",
+            "veralusso",
+            "avoirchic",
+            "farfetch",
+            "o_labels",
+            "brandslabels",
+            "luxuryspace",
+            "shadesshop",
+            "upeau",
+            "thefitedit",
+            "perfumeedit",
+            "luxuryunlimited",
+            "italybrandoutlets","demostore"
+        ];
+
+        $mainQueue = [
+            'product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search','command_execution','failed_magento_job'
+        ];
+
+        $queue = array_merge($webpushQueue,$mainQueue);
+
+        if($flip) {
+           $l = [];
+           foreach($queue as $p) {
+                $l[$p] = $p;
+           }
+
+           return $l;     
+        }
+
+        return $queue;
+    }
+
+
 }

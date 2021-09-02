@@ -3,9 +3,14 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Plank\Mediable\Mediable;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class StoreViewsGTMetrix extends Model
 {
+
+    use Mediable;
+
     /**
      * The table associated with the model.
      *
@@ -14,7 +19,8 @@ class StoreViewsGTMetrix extends Model
     protected $table = 'store_views_gt_metrix';
 
     protected $fillable = [
-        'store_view_id', 
+        'store_view_id',
+        'account_id', 
         'test_id',
         'status',
         'error',
@@ -27,7 +33,8 @@ class StoreViewsGTMetrix extends Model
         'page_elements',
         'pagespeed_score',
         'yslow_score',
-        'resources'
+        'resources',
+        'pdf_file'
     ];
 
      protected $casts = [

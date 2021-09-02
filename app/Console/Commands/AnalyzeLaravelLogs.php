@@ -37,7 +37,8 @@ class AnalyzeLaravelLogs extends Command
     {
         parent::__construct();
         $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 

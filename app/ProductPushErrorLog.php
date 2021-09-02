@@ -37,7 +37,7 @@ class ProductPushErrorLog extends Model
         $logListMagento->product_id       = $productId;
         $logListMagento->message          = $message;
         $logListMagento->store_website_id = $storeWebsiteId;
-        $logListMagento->response_status  = $status;
+        $logListMagento->response_status  = strpos($message, '.php') !== false ? 'php' : $status;
         $logListMagento->request_data     = json_encode($request_data);
         $logListMagento->response_data    = json_encode($response_data);
         if ($logId) {

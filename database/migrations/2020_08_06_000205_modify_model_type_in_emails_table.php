@@ -13,9 +13,10 @@ class ModifyModelTypeInEmailsTable extends Migration
      */
     public function up()
     {
-        Schema::table('emails', function (Blueprint $table) {
+        /*Schema::table('emails', function (Blueprint $table) {
             $table->string('model_type')->nullable()->change();
-        });
+        });*/
+        \DB::statement("ALTER TABLE `emails` CHANGE `model_type` `model_type` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;");
     }
 
     /**
@@ -25,8 +26,8 @@ class ModifyModelTypeInEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::table('emails', function (Blueprint $table) {
+        /*Schema::table('emails', function (Blueprint $table) {
             $table->string('model_type')->change();
-        });
+        });*/
     }
 }

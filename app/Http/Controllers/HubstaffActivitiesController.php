@@ -6,19 +6,33 @@ use App\DeveloperTask;
 use App\HubstaffTaskEfficiency;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffActivitySummary;
+use App\HubstaffActivityByPaymentFrequency;
 use App\Hubstaff\HubstaffMember; 
 use App\Hubstaff\HubstaffTaskNotes;
 use App\PaymentReceipt;
+use App\Payment;
 use App\Task;
 use App\Team;
 use App\User;
 use App\UserRate;
+use App\PayentMailData;
 use Artisan;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\HubstaffActivityReport;
+use App\DeveloperTaskHistory;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use App\Exports\HubstaffNotificationReport;
+use Mail;
+use App\Mails\Manual\HubstuffActivitySendMail;
+use App\Mails\Manual\DocumentEmail;
+
 
 class HubstaffActivitiesController extends Controller
 {
@@ -41,18 +55,27 @@ class HubstaffActivitiesController extends Controller
     public function notification()
     {
         $title = "Hubstaff Notification";
+        
+        $users = User::orderBy('name')->get();
 
-        return view("hubstaff.activities.notification.index", compact('title'));
+        return view("hubstaff.activities.notification.index", compact('title','users'));
     }
 
     public function notificationRecords(Request $request)
     {
         $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
+        
+        $records->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id");
+        
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where("u.name", "LIKE", "%$keyword%");
             });
+        }
+
+        if (!empty($request->user_id)) {
+            $records = $records->where('hubstaff_activity_notifications.user_id',$request->user_id);
         }
 
         if ($request->start_date != null) {
@@ -63,8 +86,169 @@ class HubstaffActivitiesController extends Controller
             $records = $records->whereDate("start_date", "<=", $request->end_date . " 23:59:59");
         }
 
-        $records = $records->select(["hubstaff_activity_notifications.*", "u.name as user_name"])->get();
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        $records = $records->select([
+            "hubstaff_activity_notifications.*", 
+            "u.name as user_name",
+            "av.minute as daily_working_hour",
+            "u.name as total_working_hour",
+        ])
+        ->orderBy('total_track','desc')->get();
+
+         $recordsArr = []; 
+
+         $totalUserTrack = 0;
+         $display_user_total_hour = 0;
+
+       foreach($records as $row){
+
+            $totalUserTrack = $totalUserTrack + $row->total_track;
+
+            $dwork = $row->daily_working_hour ? number_format($row->daily_working_hour,2,".","") : 0;
+
+            $thours = floor($row->total_track / 3600);
+            $tminutes = floor(($row->total_track / 60) % 60);
+            $twork = $thours.':'.sprintf("%02d", $tminutes);
+
+            $difference = ( ($row->daily_working_hour * 60 * 60 ) - $row->total_track);
+
+            $sing = '';
+            if($difference > 0){
+              $sign = '-';
+            }
+            elseif($difference < 0){
+              $sign = '+';
+            }else{
+                $sign = '';
+            }
+                $admin = null;
+            if (\Auth::user()->hasRole('Admin')) {
+                $admin = 1;
+            }
+
+            $hours = floor(abs($difference) / 3600);
+            $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
+
+            $latest_message = \App\ChatMessage::where('user_id',$row->user_id)->where('hubstuff_activity_user_id','!=', null)->orderBy('id', 'DESC')->first();
+            $latest_msg = null;
+            if($latest_message){
+                $latest_msg = $latest_message->message;
+                if(strlen($latest_message->message) > 20){
+                    $latest_msg = substr($latest_message->message, 0, 20).'...';
+                }
+            }
+            $recordsArr[] = [
+
+                'id' => $row->id,
+                'user_name' => $row->user_name,
+                'user_id' => $row->user_id,
+                'start_date' =>  Carbon::parse($row->start_date)->format('Y-m-d'),
+                'daily_working_hour' => $dwork,
+                'total_working_hour' => $twork,
+                'different' => $sign.$hours.':'.$minutes,
+                'min_percentage' => $row->min_percentage,
+                'actual_percentage' => $row->actual_percentage,
+                'reason' => $row->reason,
+                'status' => $row->status,
+                'is_admin' => $admin,
+                'is_hod_crm' => "user",
+                'latest_message' => $latest_msg,
+                
+            ];
+       }   
+
+       if($request->user_id){
+            $hrs = floor($totalUserTrack / 3600);
+            $mnts = floor(($totalUserTrack / 60) % 60);
+            $display_user_total_hour = $hrs.':'.sprintf("%02d", $mnts);
+        }
+
+        return response()->json([
+            "code"    => 200, 
+            "data"    => $recordsArr, 
+            "total"   => count($records),
+            "user_id" => $request->get('user_id')??0,
+            "sum"     => $display_user_total_hour,
+        ]);
+    }
+
+    public function downloadNotification(Request $request){
+
+        $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
+
+        $records->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id");
+
+        $keyword = request("keyword");
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("u.name", "LIKE", "%$keyword%");
+            });
+        }
+
+        if (!empty($request->user_id)) {
+            $records = $records->where('hubstaff_activity_notifications.user_id',$request->user_id);
+        }
+
+        if ($request->start_date != null) {
+            $records = $records->whereDate("start_date", ">=", $request->start_date . " 00:00:00");
+        }
+
+        if ($request->end_date != null) {
+            $records = $records->whereDate("start_date", "<=", $request->end_date . " 23:59:59");
+        }
+
+        $records = $records->select([
+            "hubstaff_activity_notifications.*", 
+            "u.name as user_name",
+            "av.minute as daily_working_hour",
+            "u.name as total_working_hour",
+        ])
+        ->latest()->get();
+
+        $recordsArr = []; 
+       foreach($records as $row){
+
+            $dwork = $row->daily_working_hour ? number_format($row->daily_working_hour,2,".","") : 0;
+
+            $thours = floor($row->total_track / 3600);
+            $tminutes = floor(($row->total_track / 60) % 60);
+            $twork = $thours.':'.sprintf("%02d", $tminutes);
+
+            $difference = ( ($row->daily_working_hour * 60 * 60 ) - $row->total_track);
+
+            $sing = '';
+            if($difference > 0){
+              $sign = '-';
+            }
+            elseif($difference < 0){
+              $sign = '+';
+            }else{
+                $sign = '';
+            }
+
+
+
+            $hours = floor(abs($difference) / 3600);
+            $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
+
+
+
+            $recordsArr[] = [
+                'user_name' => $row->user_name,
+                'start_date' =>  Carbon::parse($row->start_date)->format('Y-m-d'),
+                'daily_working_hour' => $dwork,
+                'total_working_hour' => $twork,
+                'different' => $sign.$hours.':'.$minutes,
+                'min_percentage' => $row->min_percentage,
+                'actual_percentage' => $row->actual_percentage,
+                'reason' => $row->reason,
+                'status' => $row->status,
+
+            ];
+       }
+
+
+        $filename = 'Report-'.request('start_date').'-To-'.request('end_date').'.csv';
+        return Excel::download(new HubstaffNotificationReport($recordsArr),$filename);
     }
 
     public function notificationReasonSave(Request $request)
@@ -94,250 +278,638 @@ class HubstaffActivitiesController extends Controller
                 return response()->json(["code" => 200, "data" => [], "message" => "changed succesfully"]);
             }
         }
-
+        
         return response()->json(["code" => 500, "data" => [], "message" => "Requested id is not in database"]);
     }
 
-    public function getActivityUsers(Request $request)
+    public function HubstaffActivityCommandExecution(Request $request)
     {
-        $title      = "Hubstaff Activities";
-        $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
-        $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
-        $user_id    = $request->user_id ? $request->user_id : null;
-        $task_id    = $request->task_id ? $request->task_id : null;
-        $task_status    = $request->task_status ? $request->task_status : null;
-        $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
+        $start_date    = $request->startDate ? $request->startDate : date('Y-m-d', strtotime("-1 days"));
+        $end_date      = $request->endDate ? $request->endDate : date('Y-m-d', strtotime("-1 days"));
+        $userid        = $request->user_id;
 
-        $taskIds = [];
-        if(!empty($developer_task_id)) {
-            $developer_tasks    = \App\DeveloperTask::find($developer_task_id);
-            if(!empty($developer_tasks)) {
-                if(!empty($developer_tasks->hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->hubstaff_task_id;
+        $users = User::where('id',$userid)->get();
+        $today = Carbon::now()->toDateTimeString();
+
+        foreach ($users as $key => $user) {
+            
+            $user_id = $user->id;
+
+            $data["email"] = $user->email;
+            $data["title"] = "Hubstuff Activities Report";
+
+            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+
+            foreach ($tasks as $task) {
+                $task->user;
+
+                $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
+                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
+                if ($totalPaid) {
+                    $task->paid_amount = number_format($totalPaid, 2);
+                    $task->balance     = $task->rate_estimated - $totalPaid;
+                    $task->balance     = number_format($task->balance, 2);
+                } else {
+                    $task->paid_amount = 0;
+                    $task->balance     = $task->rate_estimated;
+                    $task->balance     = number_format($task->balance, 2);
                 }
-                if(!empty($developer_tasks->lead_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->lead_hubstaff_task_id;
-                }
-                if(!empty($developer_tasks->team_lead_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->team_lead_hubstaff_task_id;
-                }
-                if(!empty($developer_tasks->tester_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->tester_hubstaff_task_id;
+                // $task->assignedUser;
+                if ($task->task_id) {
+                    $task->taskdetails      = Task::find($task->task_id);
+                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task_details;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->approximate;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        } 
+                    }
+                } else if ($task->developer_task_id) {
+                    $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
+                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        }
+                    }
+                } else {
+                    $task->details          = $task->remarks;
+                    $task->estimate_minutes = $task->worked_minutes;
                 }
             }
-        }
 
-        if( !empty( $task_status ) ){
-            $developer_tasks = \App\DeveloperTask::where('status',$task_status)->where('hubstaff_task_id','!=',0)->pluck('hubstaff_task_id');
-            if(!empty($developer_tasks)) {
-                 $taskIds = $developer_tasks;
+            $activityUsers = collect([]);
+
+            foreach($tasks  as $task)
+            {
+                $a['date']        = $task->date;
+                $a['details']  = $task->details;
+
+                if($task->task_id)
+                    $category =  'Task #'.$task->task_id;
+                elseif($task->developer_task_id) 
+                    $category =  'Devtask #'.$task->developer_task_id;
+                else 
+                    $category =  'Manual';
+
+                $a['category']     = $category;
+                $a['time_spent']   = $task->estimate_minutes;
+                $a['amount']       = $task->rate_estimated;
+                $a['currency']     = $task->currency;
+                $a['amount_paid']  = $task->paid_amount;
+                $a['balance']  = $task->balance;
+                $activityUsers->push($a);
             }
+
+
+            $total_amount = 0;
+            $total_amount_paid = 0;
+            $total_balance = 0;
+            foreach($activityUsers as $key => $value){
+                $total_amount += $value['amount'] ?? 0;
+                $total_amount_paid += $value['amount_paid'] ?? 0;
+                $total_balance += $value['balance'] ?? 0;
+            }
+
+            $path = '';
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $path = $file_data;
+           
+            
+            $today = Carbon::now()->toDateTimeString();
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+            $storage_path = $path;
+            
+            PayentMailData::create([
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'file_path' => $storage_path,
+                'total_amount' => round($total_amount,2),
+                'total_amount_paid' => round($total_amount_paid,2),
+                'total_balance' => round($total_balance,2),
+                'payment_date' => $payment_date,
+                'command_execution' => "Manually",
+            ]);
+
+           
+            
+            $file_paths[] = $path;
+
+            $emailClass = (new DocumentEmail('Hubstuff Activities Report', 'Hubstaff Payment Activity', $file_paths))->build();
+
+            $email = \App\Email::create([
+                'model_id'        => $user_id,
+                'model_type'      => \App\User::class,
+                'from'            => $emailClass->fromMailer,
+                'to'              => $user->email,
+                'subject'         => $emailClass->subject,
+                'message'         => $emailClass->render(),
+                'template'        => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'status'          => 'pre-send',
+                'is_draft'        => 1,
+                'cc'              => null,
+                'bcc'             => null,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+
+        }
+        
+        return response()->json(["code" => 200, "message" => "Command Execution Success"]);
+    }
+    
+    public function getActivityUsers(Request $request, $params = null, $where = null)
+    {  
+       
+       
+        if($params !== null){
+            $params = $params->request->all();
+            
+            $request->activity_command = $params['activity_command']; 
+            $request->user_id = $params['user_id']; 
+            $request->user = $params['user']; 
+            $request->developer_task_id = $params['developer_task_id']; 
+            $request->task_id = $params['task_id']; 
+            $request->task_status = $params['task_status']; 
+            $request->start_date = $params['start_date']; 
+            $request->end_date = $params['end_date']; 
+            $request->status = $params['status'];
+            $request->submit = $params['submit']; 
+            Auth::login($request->user);
         }
 
-        if(!empty($task_id)) {
-            $developer_tasks    = \App\Task::find($task_id);
-            if(!empty($developer_tasks)) {
-                if(!empty($developer_tasks->hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->hubstaff_task_id;
+        if($where == 'HubstuffActivityCommand')
+        {
+
+            $title      = "Hubstaff Activities";
+            $start_date    = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
+            $end_date      = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+            $task_status   = $request->task_status ? $request->task_status : null;
+            $user_id    = $request->user_id ? $request->user_id : null;
+            
+            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+
+            foreach ($tasks as $task) {
+                $task->user;
+
+                $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
+                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
+                if ($totalPaid) {
+                    $task->paid_amount = number_format($totalPaid, 2);
+                    $task->balance     = $task->rate_estimated - $totalPaid;
+                    $task->balance     = number_format($task->balance, 2);
+                } else {
+                    $task->paid_amount = 0;
+                    $task->balance     = $task->rate_estimated;
+                    $task->balance     = number_format($task->balance, 2);
                 }
-                if(!empty($developer_tasks->lead_hubstaff_task_id)) {
-                    $taskIds[] = $developer_tasks->lead_hubstaff_task_id;
+                // $task->assignedUser;
+                if ($task->task_id) {
+                    $task->taskdetails      = Task::find($task->task_id);
+                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task_details;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->approximate;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        } 
+                    }
+                } else if ($task->developer_task_id) {
+                    $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
+                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
+                    $task->estimate_minutes = 0;
+                    if ($task->taskdetails) {
+                        $task->details = $task->taskdetails->task;
+                        if ($task->worked_minutes == null) {
+                            $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                        }else{
+                            $task->estimate_minutes = $task->worked_minutes;
+                        }
+                    }
+                } else {
+                    $task->details          = $task->remarks;
+                    $task->estimate_minutes = $task->worked_minutes;
                 }
             }
-        }
 
-        if (!empty($taskIds) || !empty($task_id) || !empty($developer_task_id)) {
+            $activityUsers = collect([]);
 
-            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
-        } else {
-            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
-        }
+            foreach($tasks  as $task)
+            {
+                $a['date']        = $task->date;
+                $a['details']  = $task->details;
 
-        if (Auth::user()->isAdmin()) {
-            $query = $query;
-            $users = User::all()->pluck('name', 'id')->toArray();
-        } else {
-            $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
-            if (!count($members)) {
-                $members = [Auth::user()->id];
+                if($task->task_id)
+                    $category =  'Task #'.$task->task_id;
+                elseif($task->developer_task_id) 
+                    $category =  'Devtask #'.$task->developer_task_id;
+                else 
+                    $category =  'Manual';
+
+                $a['category']     = $category;
+                $a['time_spent']   = $task->estimate_minutes;
+                $a['amount']       = $task->rate_estimated;
+                $a['currency']     = $task->currency;
+                $a['amount_paid']  = $task->paid_amount;
+                $a['balance']  = $task->balance;
+                $activityUsers->push($a);
+            }
+        }else{
+
+            //START - Purpose : Comment code - DEVATSK-4300
+            // if( request('submit') ==  'report_download'){
+                //    return $this->downloadExcelReport();
+                
+                // }
+                //END - DEVATSK-4300
+                
+                
+                $title      = "Hubstaff Activities";
+                $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
+                $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
+                $user_id    = $request->user_id ? $request->user_id : null;
+                $task_id    = $request->task_id ? $request->task_id : null;
+                $task_status    = $request->task_status ? $request->task_status : null;
+                $developer_task_id    = $request->developer_task_id ? $request->developer_task_id : null;
+                
+                $taskIds = [];
+                if(!empty($developer_task_id)) {
+                    
+                    $developer_tasks    = \App\DeveloperTask::find($developer_task_id);
+                    if(!empty($developer_tasks)) {
+                        if(!empty($developer_tasks->hubstaff_task_id)) {
+                            $taskIds[] = $developer_tasks->hubstaff_task_id;
+                        }
+                        if(!empty($developer_tasks->lead_hubstaff_task_id)) {
+                            $taskIds[] = $developer_tasks->lead_hubstaff_task_id;
+                        }
+                        if(!empty($developer_tasks->team_lead_hubstaff_task_id)) {
+                            $taskIds[] = $developer_tasks->team_lead_hubstaff_task_id;
+                        }
+                        if(!empty($developer_tasks->tester_hubstaff_task_id)) {
+                            $taskIds[] = $developer_tasks->tester_hubstaff_task_id;
+                        }
+                    }
+                }
+                
+            if( !empty( $task_status ) ){
+                $developer_tasks = \App\DeveloperTask::where('status',$task_status)->where('hubstaff_task_id','!=',0)->pluck('hubstaff_task_id');
+                if(!empty($developer_tasks)) {
+                     $taskIds = $developer_tasks;
+                }
+
+            }
+
+            if(!empty($task_id)) {
+                $developer_tasks    = \App\Task::find($task_id);
+
+                if(!empty($developer_tasks)) {
+                    if(!empty($developer_tasks->hubstaff_task_id)) {
+                        $taskIds[] = $developer_tasks->hubstaff_task_id;
+                    }
+                    if(!empty($developer_tasks->lead_hubstaff_task_id)) {
+                        $taskIds[] = $developer_tasks->lead_hubstaff_task_id;
+                    }
+                }
+            }
+
+            if (!empty($taskIds) || !empty($task_id) || !empty($developer_task_id)) {
+
+                $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
             } else {
-                $members[] = Auth::user()->id;
+                //START - Purpose : Add Date Temporary Remove this code - DEVATSK-4300
+                // $start_date = '2020-09-01';
+                // $end_date = '2020-09-02';
+                //END - DEVATSK-4300
+                $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
+
             }
-            $query = $query->whereIn('hubstaff_members.user_id', $members);
-            $users = User::whereIn('id', $members)->pluck('name', 'id')->toArray();
-        }
 
-        if ($request->user_id) {
-            $query = $query->where('hubstaff_members.user_id', $request->user_id);
-        }
+            if (Auth::user()->isAdmin()) {
 
-        $activities = $query->select(DB::raw("
-        hubstaff_activities.user_id,
-        SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
-        )->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
-
-        $activityUsers = collect([]);
-
-        foreach ($activities as $activity) {
-            $a = [];
-
-            $efficiencyObj = HubstaffTaskEfficiency::where('user_id', $activity->user_id)->first();
-
-            // all activities
-
-            if (isset($efficiencyObj->id) && $efficiencyObj->id > 0) {
-                $a['admin_efficiency'] = $efficiencyObj->admin_input;
-                $a['user_efficiency']  = $efficiencyObj->user_input;
-                $a['efficiency']       = (Auth::user()->isAdmin()) ? $efficiencyObj->admin_input : $efficiencyObj->user_input;
-
+                $query = $query;
+                $users = User::all()->pluck('name', 'id')->toArray();
             } else {
-                $a['admin_efficiency'] = "";
-                $a['user_efficiency']  = "";
 
-                $a['efficiency'] = "";
+                $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
+
+
+                if (!count($members)) {
+                    $members = [Auth::user()->id];
+                } else {
+                    $members[] = Auth::user()->id;
+                }
+                $query = $query->whereIn('hubstaff_members.user_id', $members);
+
+                $users = User::whereIn('id', $members)->pluck('name', 'id')->toArray();
 
             }
 
-            if ($activity->system_user_id) {
-                $user = User::find($activity->system_user_id);
-                if ($user) {
-                    $activity->userName = $user->name;
+            if ($request->user_id) {
+                $query = $query->where('hubstaff_members.user_id', $request->user_id);
+            }
+
+            $activities = $query->select(DB::raw("
+            hubstaff_activities.user_id,
+            SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
+            )->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
+            $activityUsers = collect([]);
+
+            foreach ($activities as $activity) {
+                $a = [];
+
+                $efficiencyObj = HubstaffTaskEfficiency::where('user_id', $activity->user_id)->first();
+                // all activities
+
+                if (isset($efficiencyObj->id) && $efficiencyObj->id > 0) {
+                    $a['admin_efficiency'] = $efficiencyObj->admin_input;
+                    $a['user_efficiency']  = $efficiencyObj->user_input;
+                    $a['efficiency']       = (Auth::user()->isAdmin()) ? $efficiencyObj->admin_input : $efficiencyObj->user_input;
+
+                    Log::channel('hubstaff_activity_command')->info('check: hubstaff activity id > 0'.$efficiencyObj->id .' and ingormattion' .json_encode($a) );
+
+
+                } else {
+                    $a['admin_efficiency'] = "";
+                    $a['user_efficiency']  = "";
+
+                    $a['efficiency'] = "";
+
+                }
+
+                if ($activity->system_user_id) {
+                    $user = User::find($activity->system_user_id);
+                    if ($user) {
+                        $activity->userName = $user->name;
+                        $activity->payment_frequency = $user->payment_frequency;
+                        $activity->last_mail_sent_payment = $user->last_mail_sent_payment;
+                        $activity->fixed_price_user_or_job = $user->fixed_price_user_or_job;
+                        $activity->user_id_data = $user->id;
+                    } else {
+                        $activity->userName = '';
+                        $activity->payment_frequency = '';
+                        $activity->last_mail_sent_payment = '';
+                        $activity->fixed_price_user_or_job = '';
+                        $activity->user_id_data = '';
+                    }
                 } else {
                     $activity->userName = '';
+                    $activity->payment_frequency = '';
+                    $activity->last_mail_sent_payment = '';
+                    $activity->fixed_price_user_or_job = '';
+                    $activity->user_id_data = '';
                 }
-            } else {
-                $activity->userName = '';
-            }
 
-            // send hubstaff activities
-            $ac            = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and user_id = " . $activity->user_id));
-            $totalApproved = 0;
-            $totalPending = 0;
-            $isAllSelected = 0;
-            $a['tasks']    = [];
-            $lsTask        = [];
-            foreach ($ac as $ar) {
-                $taskSubject = '';
-                if ($ar->task_id) {
-                    if ($ar->is_manual) {
-                        $task = DeveloperTask::where('id', $ar->task_id)->first();
-                        if ($task) {
-                            $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
-                        } else {
-                            $task = Task::where('id', $ar->task_id)->first();
+                // send hubstaff activities
+                $ac  = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and hubstaff_activities.user_id = " . $activity->user_id));
+
+                $totalApproved = 0;
+                $totalPending = 0;
+                $isAllSelected = 0;
+                $a['tasks']    = [];
+                $lsTask        = [];
+                foreach ($ac as $ar) {
+                    $taskSubject = '';
+                    if ($ar->task_id) {
+                        if ($ar->is_manual) {
+                            $task = DeveloperTask::where('id', $ar->task_id)->first();
                             if ($task) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+                                $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
+                                Log::channel('hubstaff_activity_command')->info('task true ');
+
+                            } else {
+                                $task = Task::where('id', $ar->task_id)->first();
+                                if ($task) {
+                                    $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
+                                    $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+
+                                }
                             }
-                        }
-                    } else {
-                        $tracked = $ar->tracked;
-                        $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
-                        if ($task && empty( $task_id )) {
-                            $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
                         } else {
-                            $task = Task::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
-                            if ($task && empty( $developer_task_id )) {
+                            $tracked = $ar->tracked;
+                            $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
+                            if ($task && empty( $task_id )) {
+
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+                                $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
+                            } else {
+                                $task = Task::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
+                                if ($task && empty( $developer_task_id )) {
+                                    $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
+                                    $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+                                }
                             }
                         }
-                    }
+                    }   
+                    $lsTask[] = $taskSubject;
                 }
-                $lsTask[] = $taskSubject;
-            }
+                Log::channel('hubstaff_activity_command')->info('ls task array'.json_encode($lsTask));
+                $a['tasks'] = array_unique($lsTask);
+                $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
+                if ($request->status == 'approved') {
 
-            $a['tasks'] = array_unique($lsTask);
-            $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
-            if ($request->status == 'approved') {
-                if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
-                    if ($hubActivitySummery->forworded_person == 'admin') {
-                        $status         = 'Approved by admin';
-                        $totalApproved  = $hubActivitySummery->accepted;
-                        $totalPending  = $hubActivitySummery->pending;
-                        $totalUserRequest  = $hubActivitySummery->user_requested;
-                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
-                        $forworded_to   = $hubActivitySummery->receiver;
-                        $final_approval = 1;
+                    if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
 
-                        $a['user_id']        = $activity->user_id;
-                        $a['total_tracked']  = $activity->total_tracked;
-                        $a['date']           = $activity->date;
-                        $a['userName']       = $activity->userName;
-                        $a['forworded_to']   = $forworded_to;
-                        $a['status']         = $status;
-                        $a['totalApproved']  = $totalApproved;
-                        $a['totalPending']  = $totalPending;
-                        $a['totalUserRequest']   = $totalUserRequest;
-                        $a['totalNotPaid']   = $totalNotPaid;
-                        $a['final_approval'] = $final_approval;
-                        $a['note']           = $hubActivitySummery->rejection_note;
-                        $activityUsers->push($a);
+                        if ($hubActivitySummery->forworded_person == 'admin') {
+
+                            $status         = 'Approved by admin';
+                            $totalApproved  = $hubActivitySummery->accepted;
+                            $totalPending  = $hubActivitySummery->pending;
+                            $totalUserRequest  = $hubActivitySummery->user_requested;
+                            $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
+
+                            $forworded_to   = $hubActivitySummery->receiver;
+                            $final_approval = 1;
+
+                            $a['system_user_id'] = $activity->system_user_id;
+                            $a['user_id']        = $activity->user_id;
+                            $a['total_tracked']  = $activity->total_tracked;
+                            $a['date']           = $activity->date;
+                            $a['userName']       = $activity->userName;
+                            $a['forworded_to']   = $forworded_to;
+                            $a['status']         = $status;
+                            $a['totalApproved']  = $totalApproved;
+                            $a['totalPending']  = $totalPending;
+                            $a['totalUserRequest']   = $totalUserRequest;
+                            $a['totalNotPaid']   = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
+                            $activityUsers->push($a);
+                            Log::channel('hubstaff_activity_command')->info('end admin condition if forwarded and status approve');
+
+                        }
                     }
-                }
-            } else if ($request->status == 'pending') {
-                if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
-                    if ($hubActivitySummery->forworded_person == 'admin') {
-                        $status         = 'Pending by admin';
-                        $totalApproved  = $hubActivitySummery->accepted;
-                        $totalPending  = $hubActivitySummery->pending;
-                        $totalUserRequest  = $hubActivitySummery->user_requested;
-                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
-                        $forworded_to   = $hubActivitySummery->receiver;
-                        $final_approval = 1;
+                } else if ($request->status == 'pending') {
 
-                        $a['user_id']        = $activity->user_id;
-                        $a['total_tracked']  = $activity->total_tracked;
-                        $a['date']           = $activity->date;
-                        $a['userName']       = $activity->userName;
-                        $a['forworded_to']   = $forworded_to;
-                        $a['status']         = $status;
-                        $a['totalApproved']  = $totalApproved;
-                        $a['totalPending']  = $totalPending;
-                        $a['totalUserRequest']   = $totalUserRequest;
-                        $a['totalNotPaid']   = $totalNotPaid;
-                        $a['final_approval'] = $final_approval;
-                        $a['note']           = $hubActivitySummery->rejection_note;
-                        $activityUsers->push($a);
-                    }
-                }
-            } else if ($request->status == 'pending') {
-                if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
-                    if ($hubActivitySummery->forworded_person == 'admin') {
-                        $status         = 'Pending by admin';
-                        $totalApproved  = $hubActivitySummery->accepted;
-                        $totalUserRequest  = $hubActivitySummery->user_requested;
-                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
-                        $forworded_to   = $hubActivitySummery->receiver;
-                        $final_approval = 1;
+                    if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
 
-                        $a['user_id']        = $activity->user_id;
-                        $a['total_tracked']  = $activity->total_tracked;
-                        $a['date']           = $activity->date;
-                        $a['userName']       = $activity->userName;
-                        $a['forworded_to']   = $forworded_to;
-                        $a['status']         = $status;
-                        $a['totalApproved']  = $totalApproved;
-                        $a['totalUserRequest']   = $totalUserRequest;
-                        $a['totalNotPaid']   = $totalNotPaid;
-                        $a['final_approval'] = $final_approval;
-                        $a['note']           = $hubActivitySummery->rejection_note;
-                        $activityUsers->push($a);
+
+                        if ($hubActivitySummery->forworded_person == 'admin') {
+                            $status         = 'Pending by admin';
+                            $totalApproved  = $hubActivitySummery->accepted;
+                            $totalPending  = $hubActivitySummery->pending;
+                            $totalUserRequest  = $hubActivitySummery->user_requested;
+                            $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
+
+                            $forworded_to   = $hubActivitySummery->receiver;
+                            $final_approval = 1;
+
+                            $a['system_user_id'] = $activity->system_user_id;
+                            $a['user_id']        = $activity->user_id;
+                            $a['total_tracked']  = $activity->total_tracked;
+                            $a['date']           = $activity->date;
+                            $a['userName']       = $activity->userName;
+                            $a['forworded_to']   = $forworded_to;
+                            $a['status']         = $status;
+                            $a['totalApproved']  = $totalApproved;
+                            $a['totalPending']  = $totalPending;
+                            $a['totalUserRequest']   = $totalUserRequest;
+                            $a['totalNotPaid']   = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
+                            $activityUsers->push($a);
+                        }
+                        
                     }
-                }
-            } else if ($request->status == 'forwarded_to_lead') {
-                if ($hubActivitySummery) {
-                    if ($hubActivitySummery->forworded_person == 'team_lead' && $hubActivitySummery->final_approval == 0) {
-                        $status         = 'Pending for team lead approval';
-                        $totalApproved  = $hubActivitySummery->accepted;
-                        $totalPending  = $hubActivitySummery->pending;
-                        $totalUserRequest  = $hubActivitySummery->user_requested;
-                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
-                        $forworded_to   = $hubActivitySummery->receiver;
+                    Log::channel('hubstaff_activity_command')->info('end pending condition');
+                } else if ($request->status == 'pending') {
+
+                    if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
+
+                        if ($hubActivitySummery->forworded_person == 'admin') {
+
+                            $status         = 'Pending by admin';
+                            $totalApproved  = $hubActivitySummery->accepted;
+                            $totalUserRequest  = $hubActivitySummery->user_requested;
+                            $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
+
+                            $forworded_to   = $hubActivitySummery->receiver;
+                            $final_approval = 1;
+
+                            $a['system_user_id'] = $activity->system_user_id;
+                            $a['user_id']        = $activity->user_id;
+                            $a['total_tracked']  = $activity->total_tracked;
+                            $a['date']           = $activity->date;
+                            $a['userName']       = $activity->userName;
+                            $a['forworded_to']   = $forworded_to;
+                            $a['status']         = $status;
+                            $a['totalApproved']  = $totalApproved;
+                            $a['totalUserRequest']   = $totalUserRequest;
+                            $a['totalNotPaid']   = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
+                            $activityUsers->push($a);
+                        }
+                        
+                    }
+                    Log::channel('hubstaff_activity_command')->info('pending condition end');
+                } else if ($request->status == 'forwarded_to_lead') {
+
+                    if ($hubActivitySummery) {
+                        if ($hubActivitySummery->forworded_person == 'team_lead' && $hubActivitySummery->final_approval == 0) {
+
+                            $status         = 'Pending for team lead approval';
+                            $totalApproved  = $hubActivitySummery->accepted;
+                            $totalPending  = $hubActivitySummery->pending;
+                            $totalUserRequest  = $hubActivitySummery->user_requested;
+                            $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
+
+                            $forworded_to   = $hubActivitySummery->receiver;
+                            $final_approval = 0;
+
+                            $a['system_user_id'] = $activity->system_user_id;
+                            $a['user_id']        = $activity->user_id;
+                            $a['total_tracked']  = $activity->total_tracked;
+                            $a['date']           = $activity->date;
+                            $a['userName']       = $activity->userName;
+                            $a['forworded_to']   = $forworded_to;
+                            $a['status']         = $status;
+                            $a['totalApproved']  = $totalApproved;
+                            $a['totalPending']  = $totalPending;
+                            $a['totalUserRequest']   = $totalUserRequest;
+                            $a['totalNotPaid']   = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
+                            $activityUsers->push($a);
+                        }
+                    }
+                    Log::channel('hubstaff_activity_command')->info('forwarded to  condition end');
+
+                } else if ($request->status == 'forwarded_to_admin') {
+
+                    if ($hubActivitySummery) {
+                        if ($hubActivitySummery->forworded_person == 'admin' && $hubActivitySummery->final_approval == 0) {
+
+                            $status         = 'Pending for admin approval';
+                            $totalApproved  = $hubActivitySummery->accepted;
+                            $totalPending  = $hubActivitySummery->pending;
+                            $totalUserRequest  = $hubActivitySummery->user_requested;
+                            $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
+
+                            $forworded_to   = $hubActivitySummery->receiver;
+                            $final_approval = 0;
+
+                            $a['system_user_id'] = $activity->system_user_id;
+                            $a['user_id']        = $activity->user_id;
+                            $a['total_tracked']  = $activity->total_tracked;
+                            $a['date']           = $activity->date;
+                            $a['userName']       = $activity->userName;
+                            $a['forworded_to']   = $forworded_to;
+                            $a['status']         = $status;
+                            $a['totalApproved']  = $totalApproved;
+                            $a['totalPending']  = $totalPending;
+                            $a['totalUserRequest']   = $totalUserRequest;
+                            $a['totalNotPaid']   = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $a['note']           = $hubActivitySummery->rejection_note;
+                            $a['payment_frequency'] = $activity->payment_frequency;
+                            $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                            $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                            $a['user_id_data'] = $activity->user_id_data;
+                            $activityUsers->push($a);
+                        }
+                    }
+                    Log::channel('hubstaff_activity_command')->info('forward to admin is end');
+
+                } else if ($request->status == 'new') {
+                    if (!$hubActivitySummery) {
+                        $status         = 'New';
+                        $totalApproved  = 0;
+                        $totalPending  = 0;
+                        $totalNotPaid   = 0;
+                        $totalUserRequest   = 0;
+                        $forworded_to   = Auth::user()->id;
                         $final_approval = 0;
 
+                        $a['system_user_id'] = $activity->system_user_id;
                         $a['user_id']        = $activity->user_id;
                         $a['total_tracked']  = $activity->total_tracked;
                         $a['date']           = $activity->date;
@@ -346,49 +918,60 @@ class HubstaffActivitiesController extends Controller
                         $a['status']         = $status;
                         $a['totalApproved']  = $totalApproved;
                         $a['totalPending']  = $totalPending;
-                        $a['totalUserRequest']   = $totalUserRequest;
+                        $a['totalUserRequest'] = $totalUserRequest;
                         $a['totalNotPaid']   = $totalNotPaid;
                         $a['final_approval'] = $final_approval;
-                        $a['note']           = $hubActivitySummery->rejection_note;
+                        $a['note']           = '';
+                        $a['payment_frequency'] = $activity->payment_frequency;
+                        $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                        $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                        $a['user_id_data'] = $activity->user_id_data;
                         $activityUsers->push($a);
                     }
-                }
-            } else if ($request->status == 'forwarded_to_admin') {
-                if ($hubActivitySummery) {
-                    if ($hubActivitySummery->forworded_person == 'admin' && $hubActivitySummery->final_approval == 0) {
-                        $status         = 'Pending for admin approval';
-                        $totalApproved  = $hubActivitySummery->accepted;
-                        $totalPending  = $hubActivitySummery->pending;
+                    Log::channel('hubstaff_activity_command')->info('end status new condition');
+
+                } else {
+                    if ($hubActivitySummery) {
+                        if ($hubActivitySummery->forworded_person == 'admin') {
+                            if ($hubActivitySummery->final_approval == 1) {
+                                $status = 'Approved by admin';
+                            } else {
+                                $status = 'Pending for admin approval';
+                            }
+                        }
+                        if ($hubActivitySummery->forworded_person == 'team_lead') {
+                            $status = 'Pending for team lead approval';
+                        }
+                        if ($hubActivitySummery->forworded_person == 'user') {
+                            $status = 'Pending for approval';
+                        }
+
+                        $totalApproved = $hubActivitySummery->accepted;
+                        $totalPending = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
-                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
-                        $forworded_to   = $hubActivitySummery->receiver;
+                        $totalNotPaid  = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
+
+                        $forworded_to  = $hubActivitySummery->receiver;
+                        if ($hubActivitySummery->final_approval) {
+                            $final_approval = 1;
+                        } else {
+                            $final_approval = 0;
+                        }
+                        $note = $hubActivitySummery->rejection_note;
+
+
+                    } else {
+
+                        $forworded_to   = Auth::user()->id;
+                        $status         = 'New';
+                        $totalApproved  = 0;
+                        $totalPending  = 0;
+                        $totalNotPaid   = 0;
+                        $totalUserRequest  = 0;
                         $final_approval = 0;
-
-                        $a['user_id']        = $activity->user_id;
-                        $a['total_tracked']  = $activity->total_tracked;
-                        $a['date']           = $activity->date;
-                        $a['userName']       = $activity->userName;
-                        $a['forworded_to']   = $forworded_to;
-                        $a['status']         = $status;
-                        $a['totalApproved']  = $totalApproved;
-                        $a['totalPending']  = $totalPending;
-                        $a['totalUserRequest']   = $totalUserRequest;
-                        $a['totalNotPaid']   = $totalNotPaid;
-                        $a['final_approval'] = $final_approval;
-                        $a['note']           = $hubActivitySummery->rejection_note;
-                        $activityUsers->push($a);
+                        $note           = null;
                     }
-                }
-            } else if ($request->status == 'new') {
-                if (!$hubActivitySummery) {
-                    $status         = 'New';
-                    $totalApproved  = 0;
-                    $totalPending  = 0;
-                    $totalNotPaid   = 0;
-                    $totalUserRequest   = 0;
-                    $forworded_to   = Auth::user()->id;
-                    $final_approval = 0;
-
+                    $a['system_user_id'] = $activity->system_user_id;
                     $a['user_id']        = $activity->user_id;
                     $a['total_tracked']  = $activity->total_tracked;
                     $a['date']           = $activity->date;
@@ -400,66 +983,154 @@ class HubstaffActivitiesController extends Controller
                     $a['totalUserRequest'] = $totalUserRequest;
                     $a['totalNotPaid']   = $totalNotPaid;
                     $a['final_approval'] = $final_approval;
-                    $a['note']           = '';
+                    $a['note']           = $note;
+                    $a['payment_frequency'] = $activity->payment_frequency;
+                    $a['last_mail_sent_payment'] = $activity->last_mail_sent_payment;
+                    $a['fixed_price_user_or_job'] = $activity->fixed_price_user_or_job;
+                    $a['user_id_data'] = $activity->user_id_data;
                     $activityUsers->push($a);
-                }
-            } else {
-                if ($hubActivitySummery) {
-                    if ($hubActivitySummery->forworded_person == 'admin') {
-                        if ($hubActivitySummery->final_approval == 1) {
-                            $status = 'Approved by admin';
-                        } else {
-                            $status = 'Pending for admin approval';
-                        }
-                    }
-                    if ($hubActivitySummery->forworded_person == 'team_lead') {
-                        $status = 'Pending for team lead approval';
-                    }
-                    if ($hubActivitySummery->forworded_person == 'user') {
-                        $status = 'Pending for approval';
-                    }
 
-                    $totalApproved = $hubActivitySummery->accepted;
-                    $totalPending = $hubActivitySummery->pending;
-                    $totalUserRequest  = $hubActivitySummery->user_requested;
-                    $totalNotPaid  = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
-                    $forworded_to  = $hubActivitySummery->receiver;
-                    if ($hubActivitySummery->final_approval) {
-                        $final_approval = 1;
-                    } else {
-                        $final_approval = 0;
-                    }
-                    $note = $hubActivitySummery->rejection_note;
-                } else {
-                    $forworded_to   = Auth::user()->id;
-                    $status         = 'New';
-                    $totalApproved  = 0;
-                    $totalPending  = 0;
-                    $totalNotPaid   = 0;
-                    $totalUserRequest  = 0;
-                    $final_approval = 0;
-                    $note           = null;
                 }
-                $a['user_id']        = $activity->user_id;
-                $a['total_tracked']  = $activity->total_tracked;
-                $a['date']           = $activity->date;
-                $a['userName']       = $activity->userName;
-                $a['forworded_to']   = $forworded_to;
-                $a['status']         = $status;
-                $a['totalApproved']  = $totalApproved;
-                $a['totalPending']  = $totalPending;
-                $a['totalUserRequest'] = $totalUserRequest;
-                $a['totalNotPaid']   = $totalNotPaid;
-                $a['final_approval'] = $final_approval;
-                $a['note']           = $note;
-                $activityUsers->push($a);
-
             }
-        }
 
-        //dd($activityUsers);
+        }
+        
+
+        //START - Purpose : set data for download  - DEVATSK-4300
+        if( $request->submit ==  'report_download' ){
+
+            $total_amount = 0;
+            $total_amount_paid = 0;
+            $total_balance = 0;
+            foreach($activityUsers as $key => $value){
+                $total_amount += $value['amount'] ?? 0;
+                $total_amount_paid += $value['amount_paid'] ?? 0;
+                $total_balance += $value['balance'] ?? 0;
+            }
+
+            $file_data = $this->downloadExcelReport($activityUsers);
+            $path = $file_data;
+            // $z = (array) $file_data;
+            // $path = '';
+            // foreach($z as $zz){
+            //     if($path == null){
+
+            //         $path = $zz->getRealPath();
+
+            //     }
+            // }
+            
+            $today = Carbon::now()->toDateTimeString();
+            $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
+            // $storage_path = substr($path, strpos($path, 'framework'));
+            $storage_path = $path;
+            
+            PayentMailData::create([
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'file_path' => $storage_path,
+                'total_amount' => round($total_amount,2),
+                'total_amount_paid' => round($total_amount_paid,2),
+                'total_balance' => round($total_balance,2),
+                'payment_date' => $payment_date,
+            ]);
+
+            return $file_data;
+
+        }
+        //END - DEVATSK-4300
+        
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
+    }
+
+    //Purpose : Add activityUsers parameter - DEVATSK-4300
+     public function downloadExcelReport($activityUsers){
+
+        // $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
+        
+        // $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
+        
+        // $query = $query->where('hubstaff_members.user_id', request('user_id'));
+        
+        //  $activities = $query->select(DB::raw("
+        //  SUM(developer_tasks.estimate_minutes) as estimated_time, hubstaff_members.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
+        //         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
+        // )->groupBy('task_id')->orderBy('date', 'desc')->get();
+
+        // if(request('user_id')){
+        //     $user = User::where('id', request('user_id'))->first();
+        // }else{
+        //     $user = User::where('id', Auth::user()->id)->first();
+        // }
+
+        // $userid = Auth::id();
+        // $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+        // $test = DB::Select(
+        // '
+		// 	SELECT tasks.*
+
+		// 	FROM (
+		// 	  SELECT * FROM tasks
+		// 	  LEFT JOIN (
+		// 		  SELECT 
+		// 		  chat_messages.id as message_id, 
+		// 		  chat_messages.task_id, 
+		// 		  chat_messages.message, 
+		// 		  chat_messages.status as message_status, 
+		// 		  chat_messages.sent as message_type, 
+		// 		  chat_messages.created_at as message_created_at, 
+		// 		  chat_messages.is_reminder AS message_is_reminder,
+		// 		  chat_messages.user_id AS message_user_id
+		// 		  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+		// 	  ) as chat_messages  ON chat_messages.task_id = tasks.id
+		// 	) AS tasks
+		// 	WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$userquery  
+        // );
+        // // dd($test);
+        // $activities = $activities->toArray();
+        // foreach($test as $t){
+        //     // dump($t);
+        //     $a["type"] = "task";
+        //     $a["estimated_time"] = "N/A";
+        //     $a["user_id"] = $userid;
+        //     $a["task_id"] = $t->task_id;
+        //     $a["is_manual"] = 0;
+        //     $a["total_tracked"] = 0;
+        //     $a["date"] = $t->message_created_at;
+        //     $a["system_user_id"] = 'N/A';
+        //     $id = $t->id;
+		// 	$task_module = DeveloperTaskHistory::where('developer_task_id', $id)->select('developer_tasks_history.*')->latest()->first();
+		// 	if($task_module) {
+        //         $a["estimated_time"] = $task_module->estimate_minutes ?? 'N/A';
+        //     }
+        //     $activities[] = $a;
+        // }
+
+        //START - Purpose : Get User Data - DEVATSK-4300 
+        if(request('user_id')){
+            $user = User::where('id', request('user_id'))->first();
+        }else{
+            $user = User::where('id', Auth::user()->id)->first();
+        }
+        $activities[] = $activityUsers;
+
+        $path = "hubstaff_payment_activity/" . Carbon::now()->format('Y-m-d-H-m-s') . "_hubstaff_payment_activity.xlsx";
+        //END - DEVATSK-4300
+        Excel::store(new HubstaffActivityReport($activities), $path, 'files');
+        return $path;
+        // return Excel::download(new HubstaffActivityReport($activities), $user->name.'.xlsx');
+    }
+    public function downloadExcelReportOld($activityUsers, $users)
+    {   
+        if(request('user_id')){
+            $user = User::where('id', request('user_id'))->first();
+        }else{
+            $user = User::where('id', Auth::user()->id)->first();
+        }
+        
+        return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
 
     public function approveTime(Request $request)
@@ -748,6 +1419,15 @@ class HubstaffActivitiesController extends Controller
         $approved    = 0;
         $pending    = 0;
         $member      = HubstaffMember::where('hubstaff_user_id', $request->user_id)->first();
+        $user_rate = $user_payment_frequency= '';
+
+        $user = User::where('id', $member->user_id)->first();
+        if($user)
+        {
+            $userRate = UserRate::getRateForUser($user->id);
+            $user_rate = (isset($userRate) ? $userRate->hourly_rate: '');
+            $user_payment_frequency = (isset($userRate) ? $user->fixed_price_user_or_job : '');
+        }
 
         if (!$member) {
             return response()->json([
@@ -884,6 +1564,8 @@ class HubstaffActivitiesController extends Controller
                             $aprids = array_merge($approveIDs, $approvedArr);
                             $pendids = array_merge($pendingIds, $pendingArr);
 
+                            $payment_approved = $hubActivitySummery->accepted + $approved;
+
                             $hubActivitySummery->tracked      = $totalTracked;
                             $hubActivitySummery->accepted     = $hubActivitySummery->accepted + $approved;
                             $hubActivitySummery->pending      = $hubActivitySummery->pending + $pending;
@@ -909,6 +1591,56 @@ class HubstaffActivitiesController extends Controller
                             $hubActivitySummery->final_approval   = 1;
                             $hubActivitySummery->rejection_note = $rejection_note;
                             $hubActivitySummery->save();
+                        }
+
+                        if($user_rate && $user_rate != '' && $user_payment_frequency == 3)
+                        {
+                            $payment_receipt = PaymentReceipt::where('user_id', $user_id)->where('date', $dk)->first();
+
+                            if($payment_receipt)
+                            {
+                                $approved = ($payment_approved ?? 0 );
+                                $min     = $approved / 60;
+                                $min     = number_format($min, 2);
+    
+                                $hour_rate =  $user_rate / 160;
+                                $hours = $min / 60;
+    
+                                $rate_estimated = $hours * $hour_rate;
+                                $rate_estimated =  number_format($rate_estimated, 2);
+    
+                                PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s") ]);
+    
+                            }else{
+                                $min     = $approved / 60;
+                                $min     = number_format($min, 2);
+    
+                                $hour_rate =  $user_rate / 160;
+                                $hours = $min / 60;
+    
+                                $rate_estimated = $hours * $hour_rate;
+                                $rate_estimated =  number_format($rate_estimated, 2);
+    
+                                $payment_receipt = new PaymentReceipt;
+                                $payment_receipt->date = $dk;
+                                $payment_receipt->worked_minutes = $min;
+                                $payment_receipt->rate_estimated = $rate_estimated;
+                                $payment_receipt->status = 'Pending';
+                                $payment_receipt->currency = ($userRate->currency ?? 'USD');
+                                $payment_receipt->developer_task_id = '';
+                                $payment_receipt->user_id = $member->user_id;
+                                $payment_receipt->by_command = 2;
+                                $payment_receipt->save();
+    
+                                DeveloperTaskHistory::create([
+                                    'developer_task_id' => '',
+                                    'model' => 'App\Hubstaff\HubstaffActivitySummary',
+                                    'attribute' => "task_status",
+                                    'old_value' => '',
+                                    'new_value' => '',
+                                    'user_id' => Auth::id(),
+                                ]);
+                            }
                         }
                     }
                 }
@@ -1018,6 +1750,8 @@ class HubstaffActivitiesController extends Controller
                     $pendingJson = json_encode( array_values( $this->array_except( $pending_ids, json_decode($approvedJson) ) ) );
                 }
             // }
+
+            $payment_approved = $approved;
             
             $hubActivitySummery->tracked        = $totalTracked;
             $hubActivitySummery->accepted       = $approved;
@@ -1048,6 +1782,56 @@ class HubstaffActivitiesController extends Controller
             $hubActivitySummery->final_approval   = 1;
             $hubActivitySummery->rejection_note   = $rejection_note;
             $hubActivitySummery->save();
+        }
+
+        if($user_rate && $user_rate != '' && $user_payment_frequency == 3)
+        {
+            $payment_receipt = PaymentReceipt::where('user_id', $user_id)->where('date', $request->date)->first();
+
+            if($payment_receipt)
+            {
+                $approved = ($payment_approved ?? 0 );
+                $min     = $approved / 60;
+                $min     = number_format($min, 2);
+
+                $hour_rate =  $user_rate / 160;
+                $hours = $min / 60;
+
+                $rate_estimated = $hours * $hour_rate;
+                $rate_estimated =  number_format($rate_estimated, 2);
+
+                PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s") ]);
+
+            }else{
+                $min     = $approved / 60;
+                $min     = number_format($min, 2);
+
+                $hour_rate =  $user_rate / 160;
+                $hours = $min / 60;
+
+                $rate_estimated = $hours * $hour_rate;
+                $rate_estimated =  number_format($rate_estimated, 2);
+
+                $payment_receipt = new PaymentReceipt;
+                $payment_receipt->date = $request->date;
+                $payment_receipt->worked_minutes = $min;
+                $payment_receipt->rate_estimated = $rate_estimated;
+                $payment_receipt->status = 'Pending';
+                $payment_receipt->currency = ($userRate->currency ?? 'USD');
+                $payment_receipt->developer_task_id = '';
+                $payment_receipt->user_id = $member->user_id;
+                $payment_receipt->by_command = 2;
+                $payment_receipt->save();
+
+                DeveloperTaskHistory::create([
+                    'developer_task_id' => '',
+                    'model' => 'App\Hubstaff\HubstaffActivitySummary',
+                    'attribute' => "task_status",
+                    'old_value' => '',
+                    'new_value' => '',
+                    'user_id' => Auth::id(),
+                ]);
+            }
         }
 
         $requestData = new Request();
@@ -1497,5 +2281,50 @@ class HubstaffActivitiesController extends Controller
         $isTaskWise = true;
         return view("hubstaff.activities.activity-records", compact('activityrecords', 'user_id', 'date', 'hubActivitySummery', 'teamLeaders', 'admins', 'users', 'isAdmin', 'isTeamLeader', 'taskOwner', 'member','isTaskWise'));
 
+    }
+    
+    public function activityReport(Request $request)
+    {
+        $user_id = $request->user_id;
+        $activity = HubstaffActivityByPaymentFrequency::where('user_id',$user_id)->get();
+        return response()->json(['status' => true, 'data' => $activity]);
+    
+    }
+    public function activityReportDownload(Request $request)
+    {
+        $file_path = storage_path($request->file);
+        return response()->download($file_path);
+    }
+
+    public function HubstaffPaymentReportDownload(Request $request)
+    {
+        $file_path = storage_path('app/files').'/'.$request->file;
+        return response()->download($file_path);
+    }
+
+    public function activityPaymentData(Request $request){
+
+        $get_data = PayentMailData::where('user_id',$request->user_id)->get();
+        return response()->json(['status' => true, 'data' => $get_data]);
+
+    }
+
+    public function addtocashflow(Request $request)
+    {
+        $id=$request->id;
+        $PayentMailData=\App\PayentMailData::where('id',$id)->first();
+       
+        $receipt_id=\App\PaymentReceipt::insertGetId([
+            'user_id' => $PayentMailData->user_id,
+            'date' => $PayentMailData->payment_date,
+            'billing_start_date' => $PayentMailData->start_date,
+            'billing_end_date' => $PayentMailData->end_date,
+            'payment' => round($PayentMailData->total_amount_paid,2),
+            'billing_due_date' => $PayentMailData->payment_date,
+            
+        ]);
+       
+
+        return response()->json(["code" => 200, "data" => [], "message" => "cashflow added succesfully"]);
     }
 }

@@ -60,6 +60,41 @@ class SearchController extends Controller
             'nextPageLink' => $nextPageLink
         ]);
     }
+    public function searchGrid(Request $request)
+    {
+        $entityType = $request->type ?? [];
+        $searchTerm = $request->keywords ?? '';
+        $options = $request->options ?? [];
+        $tags = $request->tags ?? [];
+        $exact = $request->exact ?? [];
+        $date_filter = [];
+        if($request->updated_before){
+            $date_filter['updated_before'] = $request->updated_before;
+        }
+        if($request->created_before){
+            $date_filter['created_before'] = $request->created_before;
+        }
+        if($request->updated_after){
+            $date_filter['updated_after'] = $request->updated_after;
+        }
+        if($request->created_before){
+            $date_filter['created_before'] = $request->created_before;
+        }
+
+        $page = intval($request->get('page', '0')) ?: 1;
+        $nextPageLink = url('/searchGrid?' . urlencode(json_encode($request->all())) . '&page=' . ($page+1));
+
+        $results = $this->searchService->searchEntitiesGrid($searchTerm, $entityType, $options, $tags, $exact, $date_filter, $page, 20);
+
+        return view('bookstack::shelves.index_grid', [
+            'entities'   => $results['results'],
+            'totalResults' => $results['total'],
+            'searchTerm' => $searchTerm,
+            'hasNextPage' => $results['has_more'],
+            'nextPageLink' => $nextPageLink,
+            'request' => $request->all()
+        ]);
+    }
 
 
     /**

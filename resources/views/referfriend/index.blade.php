@@ -56,16 +56,18 @@
                 <th>Referee Email</th>
                 <th>Referee Phone</th>
                 <th>Website</th>
+                <th>Date</th>
                 <th>Action</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody class="infinite-scroll-pending-inner">
                 @include('referfriend.partials.list-referral')
             </tbody>
         </table>
     </div>
+    <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 
-    {!! $data->render() !!}
+  
 
 
 @endsection
@@ -136,6 +138,45 @@
             alert('No response from server');
         });
     }
+
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+        
+            $(window).scroll(function() {
+            if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                loadMore();
+            }
+        });
+
+        function loadMore() {
+            
+            if (isLoading)
+                return;
+            isLoading = true;
+            
+            var $loader = $('.infinite-scroll-products-loader');
+            page = page + 1;
+
+            $.ajax({
+                url: "/referfriend/list?page="+page,
+                type: 'GET',
+                beforeSend: function() {
+                    $loader.show();
+                },
+                success: function (data) {
+                    $loader.hide();
+                    console.log(page);
+                    $('.infinite-scroll-pending-inner').append($.trim(data['tbody']));
+                    isLoading = false;
+                },
+                error: function () {
+                    $loader.hide();
+                    isLoading = false;
+                }
+            });
+        }            
+    });
 </script>
 
 @endsection

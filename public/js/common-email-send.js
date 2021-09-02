@@ -1,6 +1,7 @@
 $(function() {
     $(document).on('click','.send-email-common-btn',function(e){
         e.preventDefault();
+       
         var mailtype = $(this).data('object');
         var id = $(this).data('id');
         var toemail = $(this).data('toemail');
@@ -26,6 +27,7 @@ $(function() {
             'type':'GET',
             dataType:'json',
             success:function(response){
+               
                 if(typeof response!=='undefined' && response.success==true){
                     ele.find('textarea[name="message"]').val(response.template);
                     ele.find('input[name="subject"]').val(response.subject);

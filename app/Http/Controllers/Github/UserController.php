@@ -20,7 +20,8 @@ class UserController extends Controller
     function __construct()
     {
         $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
@@ -109,7 +110,8 @@ class UserController extends Controller
         }
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
-        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repoName . "/collaborators/" . $userName;
+        // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repoName . "/collaborators/" . $userName;
+        $url = "https://api.github.com/repos/" . config('env.GITHUB_ORG_ID')  . "/" . $repoName . "/collaborators/" . $userName;
 
         // cannot update users access directly and hence need to remove and then add them explicitly
         $this->client->delete($url);
@@ -136,7 +138,9 @@ class UserController extends Controller
         $user = $repositoryUser->githubUser;
         $repository = $repositoryUser->githubRepository;
 
-        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
+        // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
+        $url = "https://api.github.com/repos/" . config('env.GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
+
         $this->client->delete($url);
 
         $repositoryUser->delete();
@@ -173,7 +177,9 @@ class UserController extends Controller
         $permission = Input::get('permission');
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
-        $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
+        // $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
+        $url = 'https://api.github.com/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
+
         $this->client->put(
             $url,
             [

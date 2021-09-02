@@ -18,7 +18,8 @@ class ScraperServerStatusHistory extends Model
         'total_memory',
         'used_memory',
         'in_percentage',
-        'pid'
+        'pid',
+        'duration'
     ];
 
     public static function runOnGiveTime($date, $time)

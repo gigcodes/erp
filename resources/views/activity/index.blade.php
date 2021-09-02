@@ -67,7 +67,7 @@
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$scrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$scrape] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$scrape}}" data-title="Scraping"></i></td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingScraped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingScraped] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$isBeingScraped}}" data-title="Is being scraped"></i></td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$AI]) ? (int) $productStats[\App\Helpers\StatusHelper::$AI] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$AI}}" data-title="Queued for AI"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$autoCrop]) ? (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$autoCrop}}" data-title="Queued for AI"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$autoCrop]) ? (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$autoCrop}}" data-title="Auto Crop"></i></td>
                     </tr>
                     <tr>
                         <th>Is being cropped</th>

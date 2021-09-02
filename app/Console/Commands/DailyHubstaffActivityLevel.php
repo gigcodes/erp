@@ -78,6 +78,8 @@ class DailyHubstaffActivityLevel extends Command
                     $hsn = new \App\Hubstaff\HubstaffActivityNotification;
                     $hsn->fill([
                         "user_id"           => $act->erp_user_id,
+                        "hubstaff_user_id"  => $act->hubstaff_user_id,
+                        "total_track"       => $act->total_track,
                         "start_date"        => $checkDate,
                         "end_date"          => $checkDate,
                         "min_percentage"    => (float) $act->min_activity_percentage,

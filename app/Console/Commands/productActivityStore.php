@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use Illuminate\Support\Facades\File;
 
-class productActivity extends Command
+class productActivityStore extends Command
 {
     //scrappersImagesDelete
     /**
@@ -17,7 +17,7 @@ class productActivity extends Command
      *
      * @var string
      */
-    protected $signature = 'productActivity';
+    protected $signature = 'productActivityStore';
 
     /**
      * The console command description.

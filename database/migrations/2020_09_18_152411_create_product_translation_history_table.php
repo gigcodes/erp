@@ -13,16 +13,17 @@ class CreateProductTranslationHistoryTable extends Migration
      */
     public function up()
     {
-        Schema::create('product_translation_histories', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_id');
-            $table->unsignedInteger('product_translation_id')->index();
-            $table->string('locale')->index();
-            $table->string('title',255)->nullable();
-            $table->text('description')->nullable();
-            $table->timestamps();
-        });
-
+        if(!Schema::hasTable('product_translation_histories')) {
+            Schema::create('product_translation_histories', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('user_id');
+                $table->unsignedInteger('product_translation_id')->index();
+                $table->string('locale')->index();
+                $table->string('title',255)->nullable();
+                $table->text('description')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

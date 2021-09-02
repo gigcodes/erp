@@ -30,7 +30,7 @@
                     </div>
                     <div class="form-group">
                         <label for="task_asssigned_to">Assigned to</label>
-                        <?php echo Form::select("task_asssigned_to",\App\User::all()->pluck("name","id")->toArray(),null,["class" => "form-control select2-vendor task_asssigned_to" ,"style" => "width:100%;"]); ?>
+                        <?php echo Form::select("task_asssigned_to",['' => ''],null,["class" => "form-control select2-vendor task_asssigned_to globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder' => 'Assign to']); ?>
                     </div>
                     <div class="form-group">
                         <button class="btn btn-secondary save-task-window">Save</button>

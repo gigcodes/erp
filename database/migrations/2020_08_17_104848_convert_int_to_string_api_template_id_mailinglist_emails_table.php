@@ -13,9 +13,11 @@ class ConvertIntToStringApiTemplateIdMailinglistEmailsTable extends Migration
      */
     public function up()
     {
-        Schema::table('mailinglist_emails', function (Blueprint $table) {
+        /*Schema::table('mailinglist_emails', function (Blueprint $table) {
             $table->string('api_template_id')->change();
         });
+        */
+        \DB::statement("ALTER TABLE `mailinglist_emails` CHANGE `api_template_id` `api_template_id` VARCHAR(255) NOT NULL;");
     }
 
     /**
@@ -25,8 +27,8 @@ class ConvertIntToStringApiTemplateIdMailinglistEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::table('mailinglist_emails', function (Blueprint $table) {
+        /*Schema::table('mailinglist_emails', function (Blueprint $table) {
             $table->int('api_template_id')->change();
-        });
+        });*/
     }
 }

@@ -132,7 +132,18 @@
 	});
 
 	$(document).ready(function()
-	{
+	{	
+		
+		$(document).on('change','#generate_image_from_input',function(){
+			var value =$(this).val();	
+			console.log( value );
+			if ( value == 'banner-bear' ) {
+				$('div.default').hide();
+			} else {
+				$('div.default').show();
+			}
+		});
+
 		$(document).on('change','.template-dropdown-function',function()
 		{
             var id=$(this).val();

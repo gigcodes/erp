@@ -37,8 +37,8 @@ class RefreshHubstaffUsers extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
-
+        // $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN       = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -69,7 +69,8 @@ class RefreshHubstaffUsers extends Command
         // start hubstaff section from here
         $hubstaff          = Hubstaff::getInstance();
         $hubstaff          = $hubstaff->authenticate();
-        $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
+        // $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
+        $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(config('env.HUBSTAFF_ORG_ID'),0,665240);
         
         if (!empty($organizationUsers->members)) {
             $record = count($organizationUsers->members);

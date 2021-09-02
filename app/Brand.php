@@ -34,7 +34,7 @@ class Brand extends Model
      * @SWG\Property(property="min_sale_price",type="integer")
      * @SWG\Property(property="max_sale_price",type="integer")
      */
-    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url','references','min_sale_price','max_sale_price'];
+    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url','references','min_sale_price','max_sale_price','next_step'];
     /**
      * @var string
      * @SWG\Property(property="deleted_at",type="datetime")
@@ -141,6 +141,11 @@ class Brand extends Model
         return self::pluck("name","id")->toArray();
     }
 
+    public function storewebbrand()
+    {
+        return $this->hasOne(StoreWebsiteBrand::class,'brand_id','id');
+    }
+
     public function storewebsitebrand($StoreID)
     {
         $record = $this->hasOne(StoreWebsiteBrand::class,'brand_id','id')->where('store_website_id',$StoreID)->first();
@@ -150,4 +155,10 @@ class Brand extends Model
             return '';
         }
     }
+
+    // public function categorySegment()
+    // {
+    //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
+    // }
+
 }

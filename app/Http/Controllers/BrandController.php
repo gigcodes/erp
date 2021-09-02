@@ -26,6 +26,10 @@ use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
 use Zend\Diactoros\Response\JsonResponse;
 use \Carbon\Carbon;
+use App\BrandLogo;
+use App\BrandWithLogo;
+use App\Category;
+use App\CategorySegmentDiscount;
 
 class BrandController extends Controller
 {
@@ -42,7 +46,7 @@ class BrandController extends Controller
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
         ->groupBy("brands.id")
-        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
+        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at')->whereNotNull('sw.id');
 
         $keyword = request('keyword');
         if(!empty($keyword)) {
@@ -169,7 +173,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
-
+    /*
     public function update(Request $request, Brand $brand)
     {
 
@@ -225,7 +229,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
     }
-
+    */
     public function destroy(Brand $brand)
     {
         $brand->scrapedProducts()->delete();
@@ -283,7 +287,7 @@ class BrandController extends Controller
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
         $sku = $product->sku . $product->color;
-//		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
+//      $result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
             'price' => $product->price_eur_special,
             'special_price' => $product->price_eur_discounted
@@ -366,6 +370,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
+    /*
     public function updateReference(Request $request)
     {
         $reference = $request->get("reference");
@@ -380,7 +385,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
-
+    */
     public function createRemoteId(Request $request, $id)
     {
         $brand = \App\Brand::where("id",$id)->first();
@@ -407,6 +412,23 @@ class BrandController extends Controller
 
         if($brand) {
            $brand->brand_segment = $segment;
+           $brand->status=0;
+           $brand->save();
+           return response()->json(["code" => 200 , "data" => []]);
+        }
+
+        return response()->json(["code" => 500 , "data" => []]);
+    }
+
+    public function changeNextStep(Request $request) 
+    {
+        $id = $request->get("brand_id",0);
+        $brand = \App\Brand::where("id",$id)->first();
+        $next_step = $request->get("next_step");
+
+        if($brand) {
+           $brand->next_step = $next_step;
+           $brand->status=0;
            $brand->save();
            return response()->json(["code" => 200 , "data" => []]);
         }
@@ -511,16 +533,30 @@ class BrandController extends Controller
 
     }
 
-    public function storeCategorySegmentDiscount(Request $request) {
-        $category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
+    public function storeCategorySegmentDiscount(Request $request) {   
+		$ps = \App\StoreWebsiteProductPrice::join('products','store_website_product_prices.product_id','products.id')
+		->select('store_website_product_prices.id','store_website_product_prices.duty_price',
+		   'store_website_product_prices.product_id','store_website_product_prices.store_website_id','websites.code')
+           ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+		   ->leftJoin('category_segment_discounts','store_website_product_prices.web_store_id','websites.id' )
+           ->where('category_segment_discounts.brand_id', $request->brand_id)->where('category_segment_discounts.category_segment_id', $request->category_segment_id)
+           ->get(); //dd($ps);
+           if ($ps)
+           {
+				foreach($ps as $p)
+				{ 
+				  \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['status'=>0]) ;
+				}
+			}
+			$category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
         if($category_segment) {
-            return DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
+             return $catSegment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
                 'amount' => $request->amount,
                 'amount_type' => 'percentage',
                 'updated_at' => now() 
             ]);
         } else {
-            return DB::table('category_segment_discounts')->insert([
+            return $catSegment = DB::table('category_segment_discounts')->insert([
                 ['brand_id' => $request->brand_id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
             ]);
         }
@@ -541,4 +577,198 @@ class BrandController extends Controller
       }
       
     }
+
+    public function fetchNewBrands(Request $request){
+        $path = public_path('brands');
+        $files = File::allFiles($path);
+        if ($request->hasfile('files')) {
+            foreach ($request->file('files') as $files) {
+                $image_name = $files->getClientOriginalName();
+                $brand_name = strtoupper(pathinfo($image_name, PATHINFO_FILENAME));
+                $brand_found = Brand::where('name',$brand_name)->get();
+                if(!$brand_found->isEmpty()){
+                    $media = MediaUploader::fromSource($files)
+                    ->toDirectory('brands')
+                    ->upload();
+                    // Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
+                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL').'/brands/'.$image_name]);
+                }
+            }
+            return response()->json(["code" => 200, "success" => "Brand images updated"]);
+        }else{
+            return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
+        }
+    }
+    
+    //START - Purpose : Fetch data - DEVTASK-4278
+    public function fetchlogos(Request $request)
+    {
+        try{
+            // $brand_data = Brand::paginate(Setting::get('pagination'));
+            $brand_data = Brand::leftjoin('brand_with_logos','brands.id','brand_with_logos.brand_id')
+            ->leftjoin('brand_logos','brand_with_logos.brand_logo_image_id','brand_logos.id')
+            ->select('brands.id as brands_id','brands.name as brands_name','brand_logos.logo_image_name as brand_logos_image')
+            ->orderBy('brands.name','asc');
+
+            if($request->brand_name)
+            {
+                $search='%'.$request->brand_name.'%';
+                $brand_data= $brand_data->where('brands.name','like',$search);
+            }
+            $brand_data = $brand_data->paginate(Setting::get('pagination'));
+            return view('brand.brand_logo', compact('brand_data'))->with('i', (request()->input('page', 1) - 1) * 10);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function uploadlogo(Request $request)
+    {
+        try{
+         
+            $files = $request->file('file');
+            $fileNameArray = array();
+            foreach($files as $key=>$file){
+                //echo $file->getClientOriginalName();
+                // $fileName = time().$key.'.'.$file->extension();
+                $fileName = $file->getClientOriginalName();
+                $fileNameArray[] = $fileName;
+
+                $params['logo_image_name'] = $fileName;
+                $params['user_id'] = Auth::id();
+
+                $log = BrandLogo::create($params);
+                
+                $file->move(public_path('brand_logo'), $fileName);
+            }
+            return response()->json(["code" => 200, "msg" => "files uploaded successfully","data"=>$fileNameArray]);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function get_all_images(Request $request)
+    {
+        try{
+            // $brand_data = BrandLogo::get();
+            $brand_data = BrandLogo::leftjoin('brand_with_logos','brand_logos.id','brand_with_logos.brand_logo_image_id')
+            ->select('brand_logos.id as brand_logos_id','brand_logos.logo_image_name as brand_logo_image_name','brand_with_logos.id as brand_with_logos_id','brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id','brand_with_logos.brand_id as brand_with_logos_brand_id')
+            ->where('brand_logos.logo_image_name','like','%'.$request->brand_name.'%')
+            ->get();
+            return response()->json(["code" => 200, "brand_logo_image"=>$brand_data]);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function set_logo_with_brand(Request $request){
+        try{
+            $brand_id = $request->logo_id;
+            $logo_image_id = $request->logo_image_id;
+
+            $brand_logo_data = BrandWithLogo::updateOrCreate(
+                [
+                    'brand_id' => $brand_id,
+                ],
+                [
+                    'brand_id'   => $brand_id,
+                    'brand_logo_image_id'   => $logo_image_id,
+                    'user_id' => Auth::id(),
+                ]
+            );
+
+            $brand_logo_image = BrandLogo::where('id',$brand_logo_data->brand_logo_image_id)->select('logo_image_name')->first();
+
+            return response()->json(["code" => 200, "message"=>'Logo Set Sucessfully for this Brand.',"brand_logo_image" => $brand_logo_image->logo_image_name]);
+
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function remove_logo(Request $request){
+        try{
+            $brand_id = $request->brand_id;
+
+            $record = BrandWithLogo::where('brand_id',$brand_id);
+            $record->delete();  
+
+            return response()->json(["code" => 200, "message"=>'Logo has been Removed Sucessfully.']);
+
+        }catch(\Exception $e){
+            
+        }
+    }
+
+
+    public function assignDefaultValue(Request $request)
+    {
+        $category_segments=$request->category_segments;
+        $brand_segment=$request->brand_segment;
+        $segments = CategorySegment::where('id', $category_segments)->get();
+        $brands = \App\Brand::where('brand_segment',$brand_segment)->get();
+        if(!$brands->isEmpty()) { 
+            foreach($brands as $b) {
+                if(!$segments->isEmpty()) { 
+                    foreach($segments as $segment) { 
+                        $catDiscount = \App\CategorySegmentDiscount::where("brand_id",$b->id)->where("category_segment_id",$segment->id)->first();
+                        if($catDiscount) {
+                           
+                            
+                               $catDiscount->amount = $request->value;
+                               $catDiscount->save();
+                           
+                        }else{ 
+                            \App\CategorySegmentDiscount::create([
+                                "brand_id" => $b->id,
+                                "category_segment_id" => $segment->id,
+                                "amount" => $request->value,
+                                "amount_type" => "percentage",
+                            ]);
+                        }
+
+                        $this->update_store_website_product_prices($b->id,$segment->id,$request->value);
+                    }
+                }
+            }
+        }
+
+        return response()->json(["code" => 200 , "message" => "Default segment discount assigned"]);
+    }
+
+    public function approve(Request $request)
+    {
+         $ids=$request->ids;
+         $ids=explode(",", $ids);
+         for($i=0;$i<count($ids);$i++)
+         {
+             if ($ids[$i]>0)
+             \App\Brand::where('id',$ids[$i])->update(['status'=> 1]);
+                
+         }
+         return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
+    }
+
+    public function update_store_website_product_prices($brand,$segment,$amount)
+        {
+                $ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.segment_discount')
+                ->join('products','store_website_product_prices.product_id','products.id')
+                ->join('categories','products.category','categories.id' )
+                ->join('category_segments','categories.category_segment_id','category_segments.id' )
+                ->where('products.brand',$brand)
+                ->where('categories.category_segment_id',$segment)
+                ->get();
+               
+                if ($ps)
+                {
+                    foreach($ps as $p)
+                    {
+                    \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$amount,'status'=>0]) ;
+                    $note="Segment Discount Changed from ".$p->segment_discount." To ".$amount;
+                    \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+                    }
+                }
+        }
+
+    //END - DEVTASK-4278
 }

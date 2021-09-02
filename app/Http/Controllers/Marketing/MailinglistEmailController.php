@@ -77,7 +77,8 @@ class MailinglistEmailController extends Controller
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                  CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => "",
                   CURLOPT_MAXREDIRS => 10,
@@ -117,7 +118,8 @@ class MailinglistEmailController extends Controller
                         CURLOPT_CUSTOMREQUEST => "POST",
                         CURLOPT_POSTFIELDS => json_encode($data),
                         CURLOPT_HTTPHEADER => array(
-                            "api-key: ".getenv('SEND_IN_BLUE_API'),
+                            // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                            "api-key: ".config('env.SEND_IN_BLUE_API'),
                             "Content-Type: application/json"
                         ),
                     ));

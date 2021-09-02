@@ -23,24 +23,46 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
+
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
-        $categories = SiteDevelopmentCategory::orderBy('id', 'desc');
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) as site_development_id'));
+
         if ($request->k != null) {
-            $categories = $categories->where("title", "like", "%" . $request->k . "%");
+            $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
         }
 
         $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
 
         if (request('status') == "ignored") {
-            $categories = $categories->whereIn('id', $ignoredCategory);
+            $categories = $categories->whereIn('site_development_categories.id', $ignoredCategory);
         } else {
-            $categories = $categories->whereNotIn('id', $ignoredCategory);
+            $categories = $categories->whereNotIn('site_development_categories.id', $ignoredCategory);
         }
-        $categories = $categories->paginate(Setting::get('pagination'));
 
-        //Getting Roles Developer
+        //$categories = $categories->paginate(Setting::get('pagination'));
+       // $categories = $categories->paginate(20);
+
+
+        $categories->join('site_developments', function($q) use($id){
+            $q->on('site_developments.site_development_category_id', '=', 'site_development_categories.id')
+            ->where('site_developments.website_id', $id);
+            
+        });
+        /* Status filter */
+        if($request->status){
+            //$categories->where('site_developments.status' , $request->status);
+            $categories->havingRaw('(SELECT status from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) = '. $request->status);
+        }
+        
+        $categories->groupBy('site_development_categories.id');
+        $categories->orderBy('title', 'asc');
+        $categories->orderBy('site_developments.id', 'DESC');
+       $categories = $categories->paginate(Setting::get('pagination'));
+       
+//   dd($categories);
+        //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
 
         //User Roles with Developers
@@ -56,11 +78,14 @@ class SiteDevelopmentController extends Controller
 
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
 
+//dd($allStatus);
 
         $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
         ->where("site_developments.website_id",$id)
+        ->where("site_developments.status",$request->status)
         ->groupBy("sds.id")
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
+        ->orderBy("name","desc")
         ->get();
 
         $allUsers = User::select('id', 'name')->get();
@@ -89,6 +114,15 @@ class SiteDevelopmentController extends Controller
                 $develop        = new SiteDevelopmentCategory;
                 $develop->title = $request->text;
                 $develop->save();
+
+                $all_website  = StoreWebsite::get();
+
+                foreach($all_website as $key => $value) {
+                    $site = new SiteDevelopment;
+                    $site->site_development_category_id = $develop->id;
+                    $site->website_id = $value->id;
+                    $site->save();
+                }
 
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
 
@@ -157,6 +191,13 @@ class SiteDevelopmentController extends Controller
             $id = $site->id;
             $siteDev =  SiteDevelopment::where('id',$id)->first();
             $status = ($siteDev) ? $siteDev->status : 0; 
+            if($siteDev && $status > 0) {
+                \App\SiteDevelopmentStatusHistory::create([
+                    "site_development_id" => $id,
+                    "status_id" => $siteDev->status,
+                    "user_id" => auth()->user()->id,
+                ]);
+            }
             if($status==3){
                 $html .= "<i class='fa fa-ban save-status' data-text='4' data-site=".$siteDev->id." data-category=".$siteDev->site_development_category_id."  data-type='status' aria-hidden='true' style='color:red;'' title='Deactivate'></i>";
             }elseif($status==4 || $status==0 ){
@@ -182,6 +223,26 @@ class SiteDevelopmentController extends Controller
         $histories = [];
         if($site) {
             $histories = SiteDevelopmentArtowrkHistory::where('site_development_id',$site->id)->get();
+        }
+        return response()->json(["code" => 200, "data" => $histories]);
+    }
+
+    public function statusHistory($site_id) {
+        $site = SiteDevelopment::find($site_id);
+        $histories = [];
+        if($site) {
+            $hist = $site->statusHistories()->latest()->get();
+            if(!$hist->isEmpty()) {
+                foreach($hist as $h) {
+                    $histories[] = [
+                        "id" => $h->id,
+                        "status_name" => $h->status->name,
+                        "user_name" => $h->user->name,
+                        "created_at" => (string)$h->created_at,
+                    ];
+                }
+            }
+
         }
         return response()->json(["code" => 200, "data" => $histories]);
     }
@@ -347,11 +408,21 @@ class SiteDevelopmentController extends Controller
 
     public function remarks(Request $request, $id)
     {
-        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
-        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
-        ->orderBy("store_development_remarks.created_at","desc")
-        ->get();
-        return response()->json(["code" => 200 , "data" => $response]);
+        // $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        // ->orderBy("store_development_remarks.created_at","desc")
+        // ->get();
+        $data = \App\SiteDevelopment::where('site_development_category_id',$request->cat_id)->where('website_id',$request->website_id)->get();
+        $response = [];
+        foreach ($data as $val) {
+
+            $remarks = \App\StoreDevelopmentRemark::join('users as usr','usr.id','store_development_remarks.user_id')
+                                                    ->where('store_development_remarks.store_development_id',$val->id)
+                                                    ->select('store_development_remarks.*','usr.name as created_by')
+                                                    ->get()->toArray();
+            array_push($response,$remarks);
+        }
+        return response()->json(["code" => 200 , "data" => $response, 'site_id' => $id]);
     }
 
     public function saveRemarks(Request $request, $id)
@@ -362,10 +433,13 @@ class SiteDevelopmentController extends Controller
             "user_id" => \Auth::user()->id,
         ]);
 
-        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
-        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
-        ->orderBy("store_development_remarks.created_at","desc")
-        ->get();
+        $site_devs = \App\SiteDevelopment::where('site_development_category_id', $request->cat_id)->where('website_id', $request->website_id)->get()->pluck('id')->toArray();
+        
+        $response = \App\StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->orderBy('id', 'DESC')->get();
+        // $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        // ->orderBy("store_development_remarks.remarks","asc")
+        // ->get();
         return response()->json(["code" => 200 , "data" => $response]);
 
     }
@@ -404,15 +478,37 @@ class SiteDevelopmentController extends Controller
         // return view('content-management.preview-website-images', compact('title','records'));
     }
 
-    public function latestRemarks($id) {
+    public function latestRemarks(Request $request,$id) {
 
-        $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, 
-            store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website
+        if($request->status != '')
+        {
+            $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
+            store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
             FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
             left join store_websites as sw on sw.id = site_developments.website_id
-            where site_developments.website_id = '.$id.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by store_development_remarks.created_at desc'));
+            join users on users.id = store_development_remarks.user_id
+            where site_developments.website_id = '.$id.' and status ='.$request->status.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
+        }else{
+            // $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
+            // store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
+            // FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
+            // left join store_websites as sw on sw.id = site_developments.website_id
+            // join users on users.id = store_development_remarks.user_id
+            // where site_developments.website_id = '.$id.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by title asc'));
 
-
+            $remarks = DB::select(DB::raw('select *,SDR.remarks As latest_remarks from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, users.name as username,
+            store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website,site_developments.status as status
+            FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
+            left join store_websites as sw on sw.id = site_developments.website_id
+            join users on users.id = store_development_remarks.user_id
+            where site_developments.website_id = '.$id.' group by category_id) as latest inner join store_development_remarks as SDR on SDR.id = latest.remark_id order by title asc'));
+        }
+        $username = [];
+        foreach ($remarks as $remark) {
+            $user = \App\User::find($remark->user_id);
+            array_push($username, $user->name);
+        }
+        $allStatus = \App\SiteDevelopmentStatus::get();
         // $remarks = \App\StoreDevelopmentRemark::join('site_developments','site_developments.id','store_development_remarks.store_development_id')
         // ->join('site_development_categories','site_development_categories.id','site_developments.site_development_category_id')
         // ->orderBy('store_development_remarks.created_at','DESC')
@@ -423,7 +519,7 @@ class SiteDevelopmentController extends Controller
         // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
         // ->orderBy("store_development_remarks.created_at","desc")
         // ->get();
-        return response()->json(["code" => 200 , "data" => $remarks]);
+        return response()->json(["code" => 200 , "data" => $remarks, "username" => $username, 'status' => $allStatus]);
     }
 
     public function allartworkHistory($website_id) {
@@ -470,4 +566,42 @@ class SiteDevelopmentController extends Controller
 		}
 
 	}
+    public function adminRemarkFlag(Request $request)
+    {
+        $remarks =  \App\StoreDevelopmentRemark::find($request->remark_id);
+
+        if ($remarks->admin_flagged == 0) {
+            $remarks->admin_flagged = 1;
+        } else {
+            $remarks->admin_flagged = 0;
+        }
+
+        $remarks->save();
+
+        return response()->json(['admin_flagged' => $remarks->admin_flagged]);
+    }
+
+    public function userRemarkFlag(Request $request)
+    {
+        $remarks_user =  \App\StoreDevelopmentRemark::find($request->remark_id);
+
+        if ($remarks_user->user_flagged == 0) {
+            $remarks_user->user_flagged = 1;
+        } else {
+            $remarks_user->user_flagged = 0;
+        }
+
+        $remarks_user->save();
+
+        return response()->json(['user_flagged' => $remarks_user->user_flagged]);
+    }
+
+    public function siteDevlopmentStatusUpdate(Request $request)
+    {
+        $allStatus = \App\SiteDevelopmentStatus::get();
+        $site = SiteDevelopment::find($request->site_id);
+        $site->status = $request->status;
+        $site->save();
+        return response()->json(['message' => "Status updated successfully",'status' => $allStatus,'site' => $site]);
+    }
 }

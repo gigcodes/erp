@@ -10,7 +10,12 @@ class scraperImags extends Model
     protected $fillable = [
         'website_id', 
         'img_name', 
+        'store_website',
         'img_url', 
+        'coordinates',
+        'height',
+        'width',
+        'device',
     ];
 
     // public function stores()

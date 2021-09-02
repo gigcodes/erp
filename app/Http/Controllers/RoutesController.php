@@ -81,9 +81,18 @@ class RoutesController extends Controller
 			Session::flash('message', 'Data Updated Successfully'); 
 			return redirect()->route('routes.update', [$id]);
 		}
+
+		if($request->post('status'))
+		{
+			$updateData = array('status'=>$request->post('status'));
+			Routes::whereId($id)->update($updateData);
+			return response()->json(["code" => 200 , "data" => [], "message" => "Status updated successfully"]);
+		}
 		return view ('routes.update',compact('routes'));
 		//return redirect('routes.update');
 		
 	}
+
+
 	
 }

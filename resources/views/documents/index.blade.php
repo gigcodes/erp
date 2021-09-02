@@ -74,17 +74,16 @@
     @endif
 
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="documents-table">
+        <table class="table table-bordered documnets-manager" id="documents-table">
             <thead>
             <tr>
-                <th>Date</th>
+                <th style="width:8%">Date</th>
                 <th>User</th>
                 <th>Department</th>
                 <th>Document Type</th>
                 <th>Category</th>
                 <th>Filename</th>
-                <th>Actions</th>
-                <th>Remarks</th>
+                <th style="width:15%">Actions</th>
             </tr>
             <tr>
             <th></th>    
@@ -93,7 +92,6 @@
             <th><input type="text" id="document_type" class="search form-control"></th>
             <th><input type="text" id="category" class="search form-control"></th>
             <th><input type="text" id="filename" class="search form-control"></th>
-            <th></th>
             <th></th>
           </tr>
             </thead>
@@ -188,6 +186,26 @@
         </div>
     </div>
 
+ {{-- show model  --}}
+ <div id="document_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title change-modal-title">Document type</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="word-break: break-word;"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    </div>
+</div>
     <!-- Modal To Add Category-->
     <div class="modal fade" id="myModal" role="dialog">
         <div class="modal-dialog">
@@ -616,6 +634,15 @@
        
         });
     });   
+
+
+
+        $(document).on('click','.log-message-popup',function(){
+            $('.change-modal-title').text($(this).data('modal-title'))
+            $('#document_modal').modal('show');
+            $('#document_modal p').text($(this).data('log_message'));
+        })
+
     </script>
 
 

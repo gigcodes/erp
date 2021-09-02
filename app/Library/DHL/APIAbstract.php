@@ -19,10 +19,14 @@ abstract class APIAbstract
 
     public function __construct()
     {
-        $this->username      = getenv('DHL_ID') ?: config('dhl.DHL_ID');
-        $this->password      = getenv('DHL_KEY') ?: config('dhl.DHL_KEY');
-        $this->_mode         = getenv('DHL_MODE') ?: config('app.env');
-        $this->accountNumber = getenv('DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
+        // $this->username      = getenv('DHL_ID') ?: config('dhl.DHL_ID');
+        // $this->password      = getenv('DHL_KEY') ?: config('dhl.DHL_KEY');
+        // $this->_mode         = getenv('DHL_MODE') ?: config('app.env');
+        // $this->accountNumber = getenv('DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
+        $this->username      = config('env.DHL_ID') ?: config('dhl.DHL_ID');
+        $this->password      = config('env.DHL_KEY') ?: config('dhl.DHL_KEY');
+        $this->_mode         = config('env.DHL_MODE') ?: config('app.env');
+        $this->accountNumber = config('env.DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
         $this->type          = "curl";
     }
 

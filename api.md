@@ -1338,3 +1338,97 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/remove
 }
 ```
 
+
+## Add address
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=www.brands-labels.com&email=test@gmail.com
+[{
+    "entity_id" : 12,
+    "address_type" : "shipping",
+    "region" : "EU",
+    "region_id" : "12",
+    "postcode" : "12",
+    "firstname" : "1ad",
+    "middlename" : "J",
+    "company" : "Test",
+    "country_id" :96,
+    "telephone" : "987542011",
+    "prefix" : "mr",
+    "street" : "test"
+}]
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 404
+}
+```
+
+
+## Store screenshot
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/product-live-status
+{
+    "website" : "https://sololuxury.com",
+    "sku" : "2EG286W08F0C6D",
+    "message" : "Success",
+    "image" : ""
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "Request has been stored successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
+{
+   "email":"test@gmail.com",
+   "sku" : "2EG286W08F0C6D",
+   "website" : "WWW.SOLOLUXURY.COM"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Subscribed successfully."
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Failed"
+}
+```

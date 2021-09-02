@@ -70,8 +70,10 @@ class LandingPageProduct extends Model
             $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsiteId);
             if (!empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
-                    $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
-                    $sizeC  = env("SHOPIFY_CDN").$sizeC;
+                    // $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
+                    $sizeC  = str_replace(config('env.APP_URL'), "", $sizeC);
+                    // $sizeC  = env("SHOPIFY_CDN").$sizeC;
+                    $sizeC  = config('env.SHOPIFY_CDN').$sizeC;
                     //$html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }

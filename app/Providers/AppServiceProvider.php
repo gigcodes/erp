@@ -8,6 +8,9 @@ use Facebook\Facebook;
 use Blade;
 use Studio\Totem\Totem;
 use App\ScrapedProducts;
+use App\CallBusyMessage;
+use Illuminate\Support\Facades\Validator;
+use App\Observers\CallBusyMessageObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +34,19 @@ class AppServiceProvider extends ServiceProvider
             return \Auth::check();
         });
 
+        if (in_array(app('request')->ip(),config('debugip.ips') )) {
+            config(['app.debug' => true]);
+            config(['debugbar.enabled' => true]);
+        }
+        
+        Validator::extend('valid_base', function ($attribute, $value, $parameters, $validator) { 
+            if (base64_decode($value, true) !== false){
+                return true;
+            } else {
+                return false;
+            }
+        }, 'image is not valid base64 encoded string.');
+		CallBusyMessage::observe(CallBusyMessageObserver::class);
     }
 
     /**

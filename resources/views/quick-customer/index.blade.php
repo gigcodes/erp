@@ -1612,7 +1612,9 @@
 
         $("#customerSendScrap").on('submit', function(e) {
                 e.preventDefault();
+                
                 var url = $('#customerSendScrap').attr('action');
+
                 $.ajax({
                     url: url,
                     type: 'GET',

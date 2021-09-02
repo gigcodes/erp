@@ -91,6 +91,12 @@ class MasterControlController extends Controller
         $latestRemarks = Cache::get('latestScrapRemarks');
         $latestRemarks = !empty($latestRemarks) ? $latestRemarks : [];
 
+        $todaytaskhistory = Cache::get('todaytaskhistory');
+        $todaytaskhistory = !empty($todaytaskhistory) ? $todaytaskhistory : [];
+
+        $hubstaff_notifications = Cache::get('hubstafftrackingnotiification');
+        $hubstaff_notifications = !empty($hubstaff_notifications) ? $hubstaff_notifications : [];
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -112,7 +118,9 @@ class MasterControlController extends Controller
                     'vendorReplier' => $vendorReplier,
                     'supplierReplier' => $supplierReplier,
                     'cronLastErrors' => $cronLastErrors,
-                    'latestRemarks' => $latestRemarks
+                    'latestRemarks' => $latestRemarks,
+                    'todaytaskhistory' => $todaytaskhistory,
+                    'hubstaffNotifications' => $hubstaff_notifications,
 
                 ])->render()
             ], 200);
@@ -135,7 +143,9 @@ class MasterControlController extends Controller
           'vendorReplier' => $vendorReplier,
           'supplierReplier' => $supplierReplier,
           'cronLastErrors' => $cronLastErrors,
-          'latestRemarks' => $latestRemarks
+          'latestRemarks' => $latestRemarks,
+          'todaytaskhistory' => $todaytaskhistory,
+          'hubstaffNotifications' => $hubstaff_notifications,
       ]);
     }
 

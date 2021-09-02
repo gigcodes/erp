@@ -41,9 +41,12 @@ class ZoomMeetingController extends Controller
      */
     public function __construct()
     {
-        $this->zoomkey = env('ZOOM_API_KEY');
-        $this->zoomsecret = env('ZOOM_API_SECRET');
-        $this->zoomuser = env('ZOOM_USER');
+        // $this->zoomkey = env('ZOOM_API_KEY');
+        // $this->zoomsecret = env('ZOOM_API_SECRET');
+        // $this->zoomuser = env('ZOOM_USER');
+        $this->zoomkey = config('env.ZOOM_API_KEY');
+        $this->zoomsecret = config('env.ZOOM_API_SECRET');
+        $this->zoomuser = config('env.ZOOM_USER');
     }
 
     /**

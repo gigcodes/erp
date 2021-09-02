@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use App\Setting;
+use App\InstagramKeyword;
 use Validator;
 use Crypt;
 use Response;
@@ -292,6 +293,33 @@ class InstagramConfigController extends Controller
             'success' => true,
             'message' => 'Instagram Configs Deleted'
         ));
+    }
+
+    public function keywordStore(Request $request)
+    {
+        $keyword = InstagramKeyword::where('keyword',$request->keyword);
+        if ($keyword->count() == 0) {
+            $keyword = new InstagramKeyword;
+            $keyword->keyword = $request->keyword;
+            $keyword->save();
+        }
+
+        return response()->json(['message' => 'Keyword Created Successfuly']);
+    }
+
+    public function keywordList(Request $request)
+    {
+		$allKeywords = InstagramKeyword::get();
+        return response()->json(['data' => $allKeywords]);
+    }
+
+    public function keywordDelete(Request $request)
+    {
+        $keyword = InstagramKeyword::find($request->id);
+        if ($keyword) {
+            $keyword->delete();
+        }
+        return response()->json(['id' => $request->id,'message' => "Keyword Deleted Successfully"]);
     }
 
    

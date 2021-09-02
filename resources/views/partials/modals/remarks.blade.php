@@ -1,4 +1,4 @@
-<div id="makeRemarkModal" class="modal fade" role="dialog">
+<div id="makeRemarkModal" class="modal fade" role="dialog" style="z-index: 1051;">
   <div class="modal-dialog <?php echo (!empty($type) && ($type == 'scrap' || $type == 'email')) ? 'modal-lg' : ''  ?>">
 
     <!-- Modal content-->

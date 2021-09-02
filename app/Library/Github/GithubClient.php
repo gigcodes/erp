@@ -14,7 +14,8 @@ class GithubClient
     {
     	$this->endpoint = "https://api.github.com";
         $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
@@ -25,7 +26,8 @@ class GithubClient
 
     public function getRepository()
     {
-    	$url = $this->endpoint."/orgs/".getenv('GITHUB_ORG_ID')."/repos";
+    	// $url = $this->endpoint."/orgs/".getenv('GITHUB_ORG_ID')."/repos";
+        $url = $this->endpoint."/orgs/".config('env.GITHUB_ORG_ID')."/repos";
         return self::getResponse($this->client->get($url));
     }
 
