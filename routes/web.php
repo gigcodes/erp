@@ -176,6 +176,22 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::get('/', 'SeoToolController@index')->name('seo-tool');
+    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
+   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
+    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
+	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
+	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
+	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
+	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
+	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+	Route::get('project-list', 'SeoToolController@projectList');
+	Route::post('save-keyword', 'SeoToolController@saveKeyword');
+});
+
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -668,6 +684,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/', 'ContentManagementController@viewAllContents')->name("content-management.contents");
         });
     });
+
+    //SEMrush Account Management
+    Route::get('semrush/manage-semrush-account', 'SemrushController@manageSemrushAccounts')->name('semrush-manage-accounts');
+
+    //SEMrush
+    Route::prefix('semrush')->middleware('auth')->group(static function () {
+        Route::get('/domain_report', 'SemrushController@index')->name('semrush.domain_report');
+        Route::get('/keyword_report', 'SemrushController@keyword_report')->name('semrush.keyword_report');
+        Route::get('/url_report', 'SemrushController@url_report')->name('semrush.url_report');
+        Route::get('/backlink_reffring_report', 'SemrushController@backlink_reffring_report')->name('semrush.backlink_reffring_report');
+        Route::get('/publisher_display_ad', 'SemrushController@publisher_display_ad')->name('semrush.publisher_display_ad');
+        Route::get('/traffic_analitics_report', 'SemrushController@traffic_analitics_report')->name('semrush.traffic_analitics_report');
+        Route::get('/competitor_analysis', 'SemrushController@competitor_analysis')->name('semrush.competitor_analysis');
+    });
+
 
     Route::prefix('content-management-status')->group(function () {
         Route::get('/', 'StoreSocialContentStatusController@index')->name('content-management-status.index');
