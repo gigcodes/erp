@@ -30,6 +30,10 @@ class ProductPriceController extends Controller
     public function index(Request $request)
     {
         ini_set("memory_limit", -1);
+        
+        $categoryIds = Category::pluck('id')->toArray(); 
+        $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+        
         $filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
         $products = \App\StoreWebsite::where('store_websites.is_published', 1)
@@ -183,7 +187,7 @@ class ProductPriceController extends Controller
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
       
-        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments'));
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments','categories'));
     }
 
     public function update_product(Request $request){
@@ -232,28 +236,41 @@ class ProductPriceController extends Controller
         return response()->json(['data' => $response_array, 'status' => true]);
     }
 	
-	public function genericPricing() {
+	public function genericPricing(Request $request) {
+
+        $ids = $request->all();
+        $cat_id = $ids['id'];
 		ini_set('memory_limit', -1);
 		$product_list = [];
 		$countries = SimplyDutyCountry::select('*')->get()->toArray();
 		$categoryIds = Category::pluck('id')->toArray(); 
-		$categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+		// $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+        $categoryDetail = Category::where('id',$cat_id)->select('id', 'title')->first();
+        
 		$brands = Brand::select('id', 'name')->get()->toArray();
 		$i = 0;
+
 		$countriesCount = count($countries);
-		foreach($categories as $category) {
+        
+		// foreach($categories as $category) {
+
 			foreach($brands as $brand) {
+
 				$country = $countries[$i];
-				$product_list[] = ['catId'=>$category['id'], 'categoryName'=>$category['title'], 'product'=>'Product For Brand', 
+				$product_list[] = ['catId'=>$categoryDetail->id, 'categoryName'=>$categoryDetail->title, 'product'=>'Product For Brand', 
 					'brandId'=>$brand['id'], 'brandName'=>$brand['name'], 'country'=>$country
 				];
+
 				if($i< $countriesCount-1) {
 					$i++;
 				} else {
 					$i = 0;
 				}
-			}		
-		} 
+
+			}
+
+		// }
+
 		$category_segments = \App\CategorySegment::where('status',1)->get();
 		return view('product_price.generic_price', compact('product_list', 'category_segments'));
 	}

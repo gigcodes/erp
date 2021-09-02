@@ -123,6 +123,18 @@
                 <div class="form-group mr-3">
                     <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
                 </div>
+
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
+                    <option value="">Select Websites</option>
+                        @if ($categories)
+                            @foreach($categories as $category)
+                                <option value="{{ $category['id'] }}" >{{ $category['title'] }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
                 <div class="form-group mr-3">
                     <a onClick="showModal()" class="btn btn-secondary">Show Generic Prices</a>
                 </div>
@@ -539,10 +551,18 @@
     }); 
 	
 	function showModal () {
-		$.get("product-generic-pricing", function(data, status){
-			$('#genericModalContent').html(data);
-			$('#genericModal').modal('show');
-		});
+
+    var catId = $('#categoryForGenericPrices').val();
+    if(catId==''){
+      alert('Select Category First');
+    }else{
+
+      $.get("product-generic-pricing?id="+catId, function(data,status){
+        $('#genericModalContent').html(data);
+        $('#genericModal').modal('show');
+      });
+
+    }
 	}
 	
 	function updateDutyPrice(countryId, dutyPrice) {		
@@ -569,7 +589,8 @@
 	
 	function updateSegmentPrice(segmentId, brandId, price) {		
 		 $.ajax({
-            url: "{{route('updateSegmentPrice')}}",
+            //updateSegmentPrice  real route
+            url: "{{route('updateDutyPrice')}}",
             type: 'post',
             data: {
                 _token: '{{csrf_token()}}',
