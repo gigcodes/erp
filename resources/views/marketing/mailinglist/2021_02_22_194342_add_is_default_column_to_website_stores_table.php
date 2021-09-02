@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddApiKeyInStoreWebsiteTable extends Migration
+class AddIsDefaultColumnToWebsiteStoresTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('api_token')->nullable()->after("magento_password");
-            
+        Schema::table('website_stores', function (Blueprint $table) {
+            $table->tinyInteger('is_default')->default(0)->after('website_id');
         });
     }
 
@@ -26,8 +25,8 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            //
+        Schema::table('website_stores', function (Blueprint $table) {
+            $table->dropColumn('is_default');
         });
     }
 }

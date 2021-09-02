@@ -34,6 +34,41 @@ class MailinglistController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
+
+    public function textcurl(){
+
+        $curl = curl_init();
+        $name = "newemail";
+        $email = "newemail@gmail.com";
+
+        // array('contact[company]' => '.','contact[state]' => 'afdf','name' => $name,'from_email' => $email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $email)
+        // getenv('ACELLE_MAIL_API_TOKEN')
+
+
+        $ch = curl_init();
+
+        //curl_setopt($ch, CURLOPT_URL, 'http://acelle.wsl/api/v1/lists');
+       // curl_setopt($ch, CURLOPT_URL, 'https://demo.acellemail.com/api/v1/lists');
+         curl_setopt($ch, CURLOPT_URL, 'http://165.232.42.174/api/v1/lists');
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, 
+        CURLOPT_POSTFIELDS, "api_token=".getenv('ACELLE_MAIL_API_TOKEN')."&name=List+1&from_email=admin@abccorp.org&from_name=ABC+Corp.&default_subject=Welcome+to+ABC+Corp.&contact[company]=ABC+Corp.&contact[state]=Armagh&contact[address_1]=14+Tottenham+Court+Road+London+England&contact[address_2]=44-46+Morningside+Road+Edinburgh+Scotland&contact[city]=Noname&contact[zip]=80000&contact[phone]=123+456+889&contact[country_id]=1&contact[email]=info@abccorp.org&contact[url]=http://www.abccorp.org&subscribe_confirmation=1&send_welcome_email=1&unsubscribe_notification=1");
+
+        $headers = array();
+        $headers[] = 'Accept: application/json';
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch); dd($result );
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+
+        
+    }
+
     public function create(Request $request)
     { 
         $website_id = $request->website_id;
@@ -101,7 +136,7 @@ class MailinglistController extends Controller
                 ));
 
                 $response = curl_exec($curl);
-
+                 
                 curl_close($curl);
                 $res = json_decode($response);
                 if($res->status == 1){

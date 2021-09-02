@@ -53,6 +53,7 @@ class StoreWebsite extends Model
         'title',
         'remote_software',
         'website',
+        'mailing_service_id',
         'description',
         'is_published',
         'disable_push',
@@ -162,10 +163,5 @@ class StoreWebsite extends Model
      function productCsvPath()
     {
         return $this->hasOne('App\WebsiteProductCsv','store_website_id','id');
-    }
-
-    public static function  listMagentoSite()
-    {
-        return self::where("website_source","magento")->pluck("website", "id")->toArray();
     }
 }

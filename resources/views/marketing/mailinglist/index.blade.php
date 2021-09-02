@@ -145,14 +145,14 @@
         </table>
     </div>
 @endsection
-@section('scripts')
+@section('scripts') 
 <script>
     jQuery(document).ready(function(){
         $(document).on("click",".save_list",function (e) {
             var _this = jQuery(this).parents(".modal-body").find("form");
             e.preventDefault();
             $.ajax({
-                url: jQuery(_this).attr("action"),
+                url: jQuery(_this).attr("action"), 
                 type: 'POST',
                 data: jQuery(_this).serialize(),
                 beforeSend: function (request) {

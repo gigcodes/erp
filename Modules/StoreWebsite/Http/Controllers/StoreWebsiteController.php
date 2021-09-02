@@ -7,6 +7,7 @@ use App\Http\Controllers\WhatsAppController;
 use App\StoreWebsite;
 use Auth;
 use Crypt;
+use App\Service;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -32,8 +33,9 @@ class StoreWebsiteController extends Controller
     public function index()
     {
         $title = "List | Store Website";
+        $services = Service::get();
 
-        return view('storewebsite::index', compact('title'));
+        return view('storewebsite::index', compact('title','services'));
     }
 
     public function cancellation()
@@ -300,7 +302,7 @@ class StoreWebsiteController extends Controller
     public function edit(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where("id", $id)->first();
-
+        $services = Service::get();
         //->where('is_deleted',0)
 
         $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->get();
@@ -310,6 +312,7 @@ class StoreWebsiteController extends Controller
                 "code" => 200, 
                 "data" => $storeWebsite,
                 "userdata" => $storewebsiteusers, 
+                "services" => $services,
                 "totaluser" => count($storewebsiteusers)]
             );
         }
