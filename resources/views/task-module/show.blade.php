@@ -1306,11 +1306,15 @@
 			var type = jQuery.trim(type);
 			if(type == "image") { 
 				$('#previewDocSource').attr('src', docUrl);
-			} else { console.log('else');
+			} else {
 				$('#previewDocSource').attr('src', "https://docs.google.com/gview?url="+docUrl+"&embedded=true");
 			}
 			$('#previewDoc').modal('show');
         });
+		
+		$("#previewDoc").on("hidden", function () {
+		   $('#previewDocSource').attr('src', '');
+		});
     </script>    
 
 
