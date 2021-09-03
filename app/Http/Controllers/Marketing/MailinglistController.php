@@ -39,13 +39,8 @@ class MailinglistController extends Controller
 
         $curl = curl_init();
         $name = "newemail";
-        $email = "newemail@gmail.com";
-
-        // array('contact[company]' => '.','contact[state]' => 'afdf','name' => $name,'from_email' => $email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $email)
-        // getenv('ACELLE_MAIL_API_TOKEN')
-
-
-        $ch = curl_init();
+        $email = "technodeviser05@gmail.com";
+		$ch = curl_init();
 
         //curl_setopt($ch, CURLOPT_URL, 'http://acelle.wsl/api/v1/lists');
        // curl_setopt($ch, CURLOPT_URL, 'https://demo.acellemail.com/api/v1/lists');
@@ -60,13 +55,11 @@ class MailinglistController extends Controller
         $headers[] = 'Content-Type: application/x-www-form-urlencoded';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        $result = curl_exec($ch); dd($result );
+        $result = curl_exec($ch); dd(json_decode($result));
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
-
-        
     }
 
     public function create(Request $request)

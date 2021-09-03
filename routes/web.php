@@ -20,6 +20,8 @@ Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('send_auto_emails', 'Marketing\MailinglistController@sendAutoEmails');
 
+Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
+
 
 //Route::get('unused_category', 'TestingController@Demo');
 
