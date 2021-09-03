@@ -13,6 +13,7 @@ class Mediables extends Model
      * @SWG\Property(property="mediables",type="string")
      */
     public $table = "mediables";
+    public $timestamps = false;
 
     public static function getMediasFromProductId($product_id)
     {
