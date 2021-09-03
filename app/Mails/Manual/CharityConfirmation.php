@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderConfirmation extends Mailable
+class CharityConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 

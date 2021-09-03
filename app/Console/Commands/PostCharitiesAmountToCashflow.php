@@ -57,7 +57,7 @@ class PostCharitiesAmountToCashflow extends Command
                 $date=date("Y-m-d");
                 $total = number_format($total,2);
                 $user_id = !empty(auth()->id()) ? auth()->id() : 6;
-                $cf=cashFlows::where('cash_flow_able_id',$o->id)->where('cash_flow_able_type','\App\Order::class')->where('user_id',$o->charity_id)->first();
+                $cf=cashFlows::where('cash_flow_able_id',$o->charity_id)->where('cash_flow_able_type','\App\CustomerCharity::class')->first();
                 if (!$cf)
                 {
                         cashFlows::create([
@@ -69,26 +69,26 @@ class PostCharitiesAmountToCashflow extends Command
                             'order_status'        => 'pending',
                             'user_id'             => $o->charity_id,
                             'updated_by'          => $user_id,
-                            'cash_flow_able_id'   => $o->id,
-                            'cash_flow_able_type' => \App\Order::class,
+                            'cash_flow_able_id'   => $o->charity_id,
+                            'cash_flow_able_type' => \App\CustomerCharity::class,
                             'description'         => 'charities payment',
                         ]);
+                       
                         $template = \App\MailinglistTemplate::getMailTemplate('Charity Confirmation');
-                        $order= \App\Order::where('id',$o->order_id)->first()
-                        $emailClass = (new TicketAck($order))->build();
+                        $order= \App\Order::where('id',$o->order_id)->first();
+                        $emailClass = (new CharityConfirmation($order))->build();
                         
                         if ($template)
                                 {
-                                    $subject =$template->$subject;
-                                    $message=$template->static_template;
+                                   
                                     $email = \App\Email::create([
-                                        'model_id'        => $$order->customer_id,
+                                        'model_id'        => $order->customer_id,
                                         'model_type'      => \App\Customer::class,
                                         'from'            =>  $emailClass->fromMailer,
                                         'to'              => $email,
                                         'subject'         => $emailClass->subject,
                                         'message'         => $emailClass->render(),
-                                        'template'        => 'Ticket ACK',
+                                        'template'        => 'Charity Confirmation',
                                         'additional_data' => '',
                                         'status'          => 'pre-send',
                                         'is_draft'        => 1,
