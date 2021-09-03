@@ -238,6 +238,8 @@ class ProductPriceController extends Controller
 	
 	public function genericPricing(Request $request) {
 
+        $product_price = 100;
+        $final_price = 100;
         $ids = $request->all();
         $cat_id = $ids['id'];
 		ini_set('memory_limit', -1);
@@ -251,14 +253,47 @@ class ProductPriceController extends Controller
 		$i = 0;
 
 		$countriesCount = count($countries);
+        $category_segments = \App\CategorySegment::where('status',1)->get();
         
 		// foreach($categories as $category) {
 
 			foreach($brands as $brand) {
+                $country = $countries[$i];
 
-				$country = $countries[$i];
-				$product_list[] = ['catId'=>$categoryDetail->id, 'categoryName'=>$categoryDetail->title, 'product'=>'Product For Brand', 
-					'brandId'=>$brand['id'], 'brandName'=>$brand['name'], 'country'=>$country
+                foreach ($category_segments as $key => $value) {
+                    $category_segment_discount = DB::table('category_segment_discounts')->where('brand_id', $brand['id'])->where('category_segment_id', $value['id'])->first();
+                    if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
+                        
+                        if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
+                            $final_price = ($product_price * $category_segment_discount->amount)/100;
+                        }
+
+                    }elseif($category_segment_discount->amount_type == 'amount'){
+                        if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
+                            $final_price = $final_price-$category_segment_discount->amount;
+                        }
+                    }
+                }
+
+                if($country['default_duty']!='' || $country['default_duty']!=0){
+                    $final_price += ($final_price * $country['default_duty'])/100;
+                }
+
+                if(\App\Product::IVA_PERCENTAGE!=0){
+                    $IVA = \App\Product::IVA_PERCENTAGE;
+                    $final_price = ( $final_price * $IVA )/100;
+                }
+                
+				$product_list[] = [
+                    'catId'=>$categoryDetail->id, 
+                    'categoryName'=>$categoryDetail->title, 
+                    'product'=>'Product For Brand', 
+					'brandId'=>$brand['id'], 
+                    'brandName'=>$brand['name'], 
+                    'country'=>$country,
+                    'product_price'=>100,
+                    'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
+                    'final_price'=>$final_price
 				];
 
 				if($i< $countriesCount-1) {
@@ -267,13 +302,17 @@ class ProductPriceController extends Controller
 					$i = 0;
 				}
 
+                $product_price = 100;
+                $final_price = 100;
+
 			}
 
 		// }
 
-		$category_segments = \App\CategorySegment::where('status',1)->get();
+		
 		return view('product_price.generic_price', compact('product_list', 'category_segments'));
 	}
+
 	
 	public function updateProductPrice(Request $request) {
 		if($request->route()->getName() == 'updateDutyPrice'){ 

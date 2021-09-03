@@ -17,13 +17,16 @@
                        <thead>
                        <tr>
                            <th style="width: 7%">Category</th>
-                           <th style="width: 9%">Brand</th>
+                           <th style="width: 6%">Brand</th>
                            <th style="width: 4%;word-break: break-all">Product</th>
-                           <th style="width: 15%">Country</th>
+                           <th style="width: 5%">Country</th>
+                           <th style="width: 5%">Price</th>
                            @foreach($category_segments as $category_segment)
 							  <th width="3%">{{ $category_segment->name }}</th>
 						   @endforeach
-                           <th style="width: 7%">Add Duty </th>
+                           <th style="width: 5%">Add Duty </th>
+                           <th style="width: 5%">less_IVA </th>
+                           <th style="width: 5%">Final Price</th>
                        </tr>
                        </thead>
                        <tbody>
@@ -59,7 +62,9 @@
                                        {{ $product['country']['country_name'] }}
                                    </span>
                                </td>
-                            
+
+                               <td>{{ $product['product_price'] }}</td>
+
                                   @foreach($category_segments as $category_segment)
                                     <td>
                                         @php
@@ -82,6 +87,8 @@
                                        </div>
                                    </div>
                                </td>
+                               <td>{{ $product['less_IVA'] }}</td>
+                               <td>{{ $product['final_price'] }}</td>
                            </tr> 
                        @endforeach
                        </tbody>
