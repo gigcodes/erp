@@ -60,7 +60,7 @@
                             <div class="col-4">
                                 <div class="form-group">
                                     <label for="store_website_id">Is Pushed:</label>
-                                    <select name="is_pushed">
+                                    <select name="is_pushed" class="form-control">
                                         <option value=""></option>
                                         <option value="0">False</option>
                                         <option value="1">True</option>
