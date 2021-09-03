@@ -18,7 +18,7 @@ class Mailinglist extends Model
      * @SWG\Property(property="website_id",type="integer")
      * @SWG\Property(property="email",type="string")
      */
-    protected $fillable = ['id', 'name', 'remote_id', 'service_id','website_id','email'];
+    protected $fillable = ['id', 'name', 'language', 'remote_id', 'service_id','website_id','email'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
