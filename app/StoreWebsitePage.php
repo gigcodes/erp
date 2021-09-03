@@ -39,7 +39,8 @@ class StoreWebsitePage extends Model
         'stores',
         'platform_id',
         'store_website_id',
-        'language'
+        'language',
+        'is_pushed',
     ];
 
     public function storeWebsite()

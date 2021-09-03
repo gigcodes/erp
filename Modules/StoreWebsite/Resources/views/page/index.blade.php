@@ -59,6 +59,16 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
+                                    <label for="store_website_id">Is Pushed:</label>
+                                    <select name="is_pushed">
+                                        <option value=""></option>
+                                        <option value="0">False</option>
+                                        <option value="1">True</option>
+                                   </select>    
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
                                     <label for="keyword">Keyword:</label>
                                     <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
                                 </div>

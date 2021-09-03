@@ -24,6 +24,7 @@ class PageController extends Controller
     {
         $title = "Pages | Store Website";
 
+        
         $storeWebsites = StoreWebsite::all()->pluck("website", "id");
         $pages         = StoreWebsitePage::join("store_websites as  sw", "sw.id", "store_website_pages.store_website_id")
             ->select([\DB::raw("concat(store_website_pages.title,'-',sw.title) as page_name"), "store_website_pages.id"])
@@ -83,6 +84,18 @@ class PageController extends Controller
         if ($request->store_website_id != null) {
             $pages = $pages->where("store_website_pages.store_website_id", $request->store_website_id);
         }
+
+        if ($request->store_website_id != null) {
+            $pages = $pages->where("store_website_pages.store_website_id", $request->store_website_id);
+        }
+
+
+        if ($request->is_pushed != '') {
+            $pages = $pages->where("store_website_pages.is_pushed", $request->is_pushed);
+        }
+
+        
+
 
         $pages = $pages->orderBy("store_website_pages.id","desc")->select(["store_website_pages.*", "sw.website as store_website_name"])->paginate();
 
@@ -150,6 +163,8 @@ class PageController extends Controller
             $post['stores'] = $post['stores_str'];
         }
 
+        $post['is_pushed']=0;     
+
         $records->fill($post);
 
         // if records has been save then call a request to push
@@ -208,6 +223,7 @@ class PageController extends Controller
 
         if ($page) {
             \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
+            StoreWebsitePage::where("id", $id)->update(['is_pushed'=>1]);
             return response()->json(["code" => 200, 'message' => "Website send for push"]);
         }
 
@@ -235,6 +251,7 @@ class PageController extends Controller
                         $page->content          = isset($d->content) ? $d->content : "";
                         $page->created_at       = isset($d->creation_time) ? $d->creation_time : "";
                         $page->updated_at       = isset($d->update_time) ? $d->update_time : "";
+                        $page->is_pushed =0;
                         $page->save();                        
                     }
                 }
@@ -300,7 +317,8 @@ class PageController extends Controller
 
             if( ! empty( $request->to_page ) || ! empty( $request->site_urls ) ){
                 $updateData = [];
-
+                $updateData['is_pushed']=0;
+                
                 if($request->cttitle == 'true'){
                     $updateData['meta_title'] = $page->meta_title;
                 }
@@ -422,6 +440,7 @@ class PageController extends Controller
                         $newPage->store_website_id = $page->store_website_id;
                         $newPage->language         = $l->name;
                         $newPage->copy_page_id     = $page->id;
+                        $newPage->is_pushed =0;
                         $newPage->save();
 
                         activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
