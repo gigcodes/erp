@@ -2100,6 +2100,9 @@
             $.ajax({
                 type: 'POST',
                 url: "/product/image/order/change",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: {
                     mid : mid,
                     pid : pid,
