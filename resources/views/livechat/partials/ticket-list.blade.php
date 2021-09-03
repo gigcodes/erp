@@ -27,8 +27,15 @@
         </a>
     </td>
     <td>
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->message }}">
-            {{ str_limit($ticket->message,6)}}
+        <?php
+        $message=$ticket->message;
+        if ($ticket->lang_code!='' && $ticket->lang_code!='en')
+          {
+           $message = \App\Helpers\TranslationHelper::translate($ticket->lang_code,'en', $ticket->message);
+          }  
+       ?>
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $message }}">
+            {{ str_limit($message,6)}}
         </a>
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>

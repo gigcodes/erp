@@ -83,6 +83,12 @@ class TicketController extends Controller
         $data = $request->all();
         $data['ticket_id'] = "T" . date("YmdHis");
         $data['status_id'] = 1;
+        if (isset($request->lang_code) && $request->lang_code!='')
+          {
+            $lang=explode("_",$request->lang_code);
+            $data['lang_code']=$lang[1] ;
+          }
+         
         $success = Tickets::create($data);
         if (!is_null($success)) {
             $message = $this->generate_erp_response("ticket.success", 0, $default = 'Ticket #' . $data['ticket_id'] . ' created successfully', request('lang_code'));

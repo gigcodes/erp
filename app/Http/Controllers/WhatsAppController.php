@@ -1966,8 +1966,8 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
-        // dd($request->all());
-        $this->validate($request, [
+        // dd($request->all()); 
+         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
             'task_id' => 'sometimes|nullable|numeric',
@@ -2233,6 +2233,7 @@ class WhatsAppController extends FindByNumberController
                 $data['ticket_id'] = $request->ticket_id;
                 $module_id = $request->ticket_id;
                 $ticket = \App\Tickets::find($request->ticket_id);
+                
                 $params['message'] = $request->get('message');
                 $params['ticket_id'] = $request->ticket_id; 
                 $params['approved'] = 1;
@@ -2246,9 +2247,16 @@ class WhatsAppController extends FindByNumberController
                 }elseif($ticket->customer) {
                     $whatsappNo = $ticket->customer->whatsapp_number;
                 }
-
-
-                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $params['message'],null, $chat_message->id);
+                $message=$params['message'];
+                if ($ticket)
+                  {
+                    if ($ticket->lang_code!='' && $ticket->lang_code!='en')
+                     {
+                        $message = TranslationHelper::translate('en', $ticket->lang_code, $params['message']);
+                     }
+                       
+                  }
+                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $message,null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 
             } else {
