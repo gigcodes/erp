@@ -74,8 +74,8 @@ class SeoToolController extends Controller
 		//fetch domain reports
 		$storeWebsites = StoreWebsite::select('id', 'website')->get();
 		foreach($storeWebsites as $storeWebsite) {
-		$inputs['website'] = $websiteId = $storeWebsite['website'];
-		$inputs['websiteId'] = $storeWebsite['id'];
+		$inputs['website'] = $storeWebsite['website'];
+		$inputs['websiteId'] =  $websiteId =$storeWebsite['id'];
 		$database = 'us';
 		$toolId = 1;
 		$now = Carbon::now()->format('Y-m-d');
@@ -200,6 +200,7 @@ class SeoToolController extends Controller
 		//Semrush siteaudit api start
 		$websiteId = $inputs['websiteId'];
 		$projectId = StoreWebsite::where('id', $websiteId)->pluck('semrush_project_id')->first();
+		$projectId  = 2135454;
 		if($projectId  != null){
 			
 			$auditLaunchApi = (new SiteAudit)->semrushApis('site_audit');
@@ -220,7 +221,10 @@ class SeoToolController extends Controller
 				$data['depths'] = json_encode($data['depths']); 
 				$data['mask_allow'] = json_encode($data['mask_allow']); 
 				$data['mask_disallow'] = json_encode($data['mask_disallow']); 
-				$data['removedParameters'] = json_encode($data['removedParameters']); 
+				$data['removedParameters'] = json_encode($data['removedParameters']);
+				if($data['excluded_checks'] == null) {
+					$data['excluded_checks'] = 0;
+				}
 				$siteAudit = SiteAudit::create($data);
 			}	
 			$siteAuditIssues = json_decode($siteIssuesResponse, true);
