@@ -63,7 +63,6 @@ class SendReferralMail extends Mailable
         $template = \App\MailinglistTemplate::getReferAFirendTemplate($this->store_website_id);
         if ($template) {
             if (!empty($template->mail_tpl)) {
-                $message = $this->Controller->generate_erp_response("refera.friend.success", 0, $default = 'refferal created successfully', request('lang_code'));
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
@@ -72,7 +71,6 @@ class SendReferralMail extends Mailable
                     ));
             } else {
                 $content = $template->static_template;
-                $message = $this->Controller->generate_erp_response("refera.friend.success", 0, $default = 'refferal created successfully', request('lang_code'));
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)
                     ->view('emails.blank_content', compact(
