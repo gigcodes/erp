@@ -62,17 +62,17 @@ class CreateMailingListNewsLetters extends Command
 
                 if(!$anyFound){
                     $res = $this->createSendInBlueMailingList($website,$lang);
-                    if($res['code']==200){
+                    /*if($res['code']==200){
                         $mess = $this->subscribeToNewsLetter($website->website,$website->title,$lang->code,$res['last_record_id']);
                         
-                    }
+                    }*/
                 }
 
             }
         }
     }
 
-    public function subscribeToNewsLetter($website=null,$store_name=null,$lang_code=null,$mailingListId=null){
+    /*public function subscribeToNewsLetter($website=null,$store_name=null,$lang_code=null,$mailingListId=null){
 
         $mailingListDetails = Mailinglist::find($mailingListId);
 
@@ -231,7 +231,7 @@ class CreateMailingListNewsLetters extends Command
             return response()->json(['status' => 'success']);
         }
     }
-
+*/
     public function createSendInBlueMailingList($website=null,$lan=null){
         
         $return_response = array();
@@ -275,7 +275,7 @@ class CreateMailingListNewsLetters extends Command
             'name' => $website->title,
             'language' => $lan->id,
             'website_id' => $website->id,
-            'service_id' => $website->mailing_service_id,
+            'service_id' => 1,
             'remote_id' => $res->id,
         ]);
 
