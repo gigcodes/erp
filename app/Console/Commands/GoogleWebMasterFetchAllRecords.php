@@ -58,7 +58,7 @@ class GoogleWebMasterFetchAllRecords extends Command{
             $this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
 
             $token = $this->client->getAccessToken(); 
-            $request->session()->put('token',$token);
+            //$request->session()->put('token',$token);
             //echo"<pre>";print_r($token);die;
             if(empty($token)){
                 continue;
@@ -68,7 +68,8 @@ class GoogleWebMasterFetchAllRecords extends Command{
             
                 if ($this->client->getAccessToken()){
                     
-                    $details=$this->updateSitesData($request);
+                  //  $details=$this->updateSitesData($request);
+                    $details=$this->updateSitesData($token);
                     //echo"<pre>";print_r($token);die;
                     $curl = curl_init();
                     curl_setopt_array($curl, array(
@@ -166,14 +167,13 @@ class GoogleWebMasterFetchAllRecords extends Command{
 
 
 
-        public function updateSitesData($request){
-            if(!(isset($request->session()->get('token')['access_token']))){
-
+        public function updateSitesData($token){
+            if(!(isset($token['access_token']))){
                 redirect()->route('googlewebmaster.get-access-token');
             }
             
             $google_keys=explode(',',env('GOOGLE_CLIENT_MULTIPLE_KEYS'));
-            $token = $request->session()->get('token');
+            //$token = $request->session()->get('token');
             foreach($google_keys as $google_key){
 
                 if($google_key){
@@ -181,7 +181,7 @@ class GoogleWebMasterFetchAllRecords extends Command{
                     $this->apiKey=$google_key;
                     //$this->apiKey='';
 
-                    $this->googleToken = $request->session()->get('token')['access_token'];
+                    $this->googleToken = $token['access_token'];
 
                     $url_for_sites='https://www.googleapis.com/webmasters/v3/sites?key='.$this->apiKey."<br>";
                     
@@ -232,7 +232,7 @@ class GoogleWebMasterFetchAllRecords extends Command{
                 }
             }
 
-            return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'success'=>$this->sitesUpdated. ' of sites are updated.','error'=>count($this->curl_errors_array).' error found in this request.','error_message'=>$this->curl_errors_array[0]['error']??'');
+          //  return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'success'=>$this->sitesUpdated. ' of sites are updated.','error'=>count($this->curl_errors_array).' error found in this request.','error_message'=>$this->curl_errors_array[0]['error']??'');
         }
 
 
