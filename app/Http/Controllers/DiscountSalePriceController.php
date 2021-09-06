@@ -23,11 +23,17 @@ class DiscountSalePriceController extends Controller
      */
     public function index(Request $request)
     {
-        
-       
-       
         $discountsaleprice=StoreWebsiteSalesPrice::select('store_website_sales_prices.*','suppliers.supplier')
-           ->leftJoin('suppliers','store_website_sales_prices.supplier_id','suppliers.id')->get();
+        ->leftJoin('suppliers','store_website_sales_prices.supplier_id','suppliers.id');
+     
+    
+     if ($request->type!='')
+         $discountsaleprice->where('type',$request->type);
+     if ($request->type_id!='')
+         $discountsaleprice->where('type_id',$request->type_id); 
+     if ($request->supplier!='')
+         $discountsaleprice->where('supplier_id',$request->supplier);          
+     $discountsaleprice=$discountsaleprice->get();
         $supplier=\App\Supplier::get();
         if ($request->ajax()) 
         {
@@ -121,11 +127,31 @@ class DiscountSalePriceController extends Controller
     {
         $data            = $request->except(['_token', 'file']);
         $data['created_by'] = Auth::id();
-       
-        StoreWebsiteSalesPrice::insert($data);
 
-        return redirect('discount-sale-price')->withSuccess('You have successfully added a record!');
+        $id=$request->id;
+        if ($id>0)
+        {
+            StoreWebsiteSalesPrice::where('id',$id)->update($data);
+
+            return redirect('discount-sale-price')->withSuccess('You have successfully updated a record!');
+        }
+        else
+        {
+            StoreWebsiteSalesPrice::insert($data);
+
+            return redirect('discount-sale-price')->withSuccess('You have successfully added a record!');
+        }
+       
+        
     }
+
+    public function delete($id)
+    {
+        StoreWebsiteSalesPrice::where('id',$id)->delete();
+        return redirect('discount-sale-price')->withSuccess('You have successfully deleted a record!');
+
+    }    
+    
 
 
    

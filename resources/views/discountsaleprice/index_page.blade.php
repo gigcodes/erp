@@ -1,43 +1,56 @@
 
-               @foreach ($cash_flows as $cash_flow)
+                @foreach ($discountsaleprice as $d)
                    <tr>
-                       <td class="small">{{ date('Y-m-d', strtotime($cash_flow->date)) }}</td>
-                       <td>{!! $cash_flow->getLink() !!}</td>
-                       <td>@switch($cash_flow->cash_flow_able_type)
-                             @case('\App\Order')
-                                  <a href="{{ @$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website_url }}" target="_blank">{{$cash_flow->cashFlowAble->storeWebsiteOrder->storeWebsite->website ?? ''}}</a></p>        
-                                  @break
-                           @default
-                             
-                           @endswitch 
+                       <td class="small">{{ $d->id }}</td>
+                       <td>{{ $d->type }} </td>
+                       <td>
+                         @php
+                              if ($d->type=='brand')
+                               {
+                                $r=\App\Brand::where('id',$d->type_id)->first();
+                                echo $r->name;
+                               }
 
+                               if ($d->type=='product')
+                               {
+                                $r=\App\Product::where('id',$d->type_id)->first();
+                                echo $r->name;
+                               }
+
+                               if ($d->type=='category')
+                               {
+                                $r=\App\Category::where('id',$d->type_id)->first();
+                                echo $r->title;
+                               }
+
+                               if ($d->type=='store_website')
+                               {
+                                $r=\App\StoreWebsite::where('id',$d->type_id)->first();
+                                echo $r->title;
+                               }
+                                 
+                         @endphp
+                      
+
+                       
                        </td>
-                       <td>{!! $cash_flow->get_bname()!!} </td>
-                       <td>{{ class_basename($cash_flow->cashFlowAble) }}</td>
+                       <td>{{ $d->supplier }}</td>
+                       <td>{{ date('d-m-Y',strtotime($d->start_date)) }}</td>
+                       <td>{{date('d-m-Y',strtotime($d->end_date)) }}</td>
+                       <td>{{ $d->amount }}</td>
+                       <td>{{ $d->amount_type }}</td>
                        <td>
-                           {{ $cash_flow->description }}
-                           @if ($cash_flow->files)
-                               <ul>
-                                   @foreach ($cash_flow->files as $file)
-                                       <li><a href="{{ route('cashflow.download', $file->id) }}" class="btn-link">{{ $file->filename }}</a></li>
-                                   @endforeach
-                               </ul>
-                           @endif
-                       </td>
-                       <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
-                       <td>{{ $cash_flow->amount_eur }}</td>
-                       <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
-                       <td>{{ $cash_flow->erp_eur_amount }}</td>
-                       <td>
-                        {{($cash_flow->monetaryAccount)?$cash_flow->monetaryAccount->name: "N/A"}}
-                       </td>
-                       <td>{{ ucwords($cash_flow->type) }}</td>
-                       <td>
-                           <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
-                           {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
+                         @php
+                         $d->start_date=date('d-m-Y',strtotime($d->start_date));
+                         $d->end_date=date('d-m-Y',strtotime($d->end_date));
+
+                         @endphp
+                       <button type="button" class="btn btn-image edit-form d-inline"  data-toggle="modal" data-target="#cashCreateModal" data-edit="{{ json_encode($d) }}"><img src="/images/edit.png" /></button>  
+                       {!! Form::open(['method' => 'DELETE','url' => ['discount-sale-price', $d->id],'style'=>'display:inline']) !!}
                            <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                            {!! Form::close() !!}
+
                        </td>
+                       
                    </tr>
                @endforeach
-        
