@@ -114,7 +114,9 @@ class MagentoService
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
 
         $this->translations = $this->getTranslations();
-
+		if(!$this->translations) {
+			 return false;
+		}
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         /*  if (!$this->validateTranslation()) {
@@ -1072,8 +1074,8 @@ class MagentoService
 
     private function startTranslation()
     {
-        \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
-    }
+         \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
+	}
 
     private function getWebsiteAttributes()
     {

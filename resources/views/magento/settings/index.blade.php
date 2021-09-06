@@ -33,6 +33,14 @@
                            @endforeach
                        </select>
                     </div>  
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}">
+                          
+                    </div>  
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}">
+                          
+                    </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -59,11 +67,13 @@
                             <th>Name</th>
                             <th>Path</th>
                             <th>Value</th>
+                            <th>Date</th>
+                            <th>Created By</th>
                             <th>Action</th>
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($magentoSettings as $magentoSetting)
                             <tr>
                                 <td>{{ $magentoSetting->id }}</td>
@@ -90,6 +100,9 @@
                                 <td>{{ $magentoSetting->name }}</td>
                                 <td>{{ $magentoSetting->path }}</td>
                                 <td>{{ $magentoSetting->value }}</td>
+                                <td>{{ $magentoSetting->created_at }}</td>
+                                <td>{{ $magentoSetting->uname }}</td>
+
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
@@ -104,6 +117,8 @@
     </div>
 
 </div>
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
 
 <div id="add-setting-popup" class="modal fade" role="dialog">
     <div class="modal-dialog" role="document">
@@ -165,6 +180,7 @@
                     <div class="form-group">
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
+                        
 
                     </div>
                     <div class="form-group">
@@ -231,6 +247,8 @@
                     <div class="form-group">
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
+                        <button type="button" value="Log" class="btn btn-image" onclick="showlog();" data-setting="" >Log</button>
+
                     </div>
                     <div class="form-group">
                         <label for="">Path</label>
@@ -263,6 +281,29 @@
                     <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="namepopup" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Name History</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    
+                   
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                   
+                </div>
+          
         </div>
     </div>
 </div>
@@ -514,5 +555,66 @@
             });
         } 
     });
+
+
+   
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('magento-admin-settings')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+
+        function showlog()
+        {
+            id=$('#edit-setting-popup').attr('data-id');
+            $.ajax({
+            url: '{{url("/magento-admin-settings/namehistrory/")}}/'+id,   
+            }).done(function(response) {
+                $('#modal-body').html(response);
+                $('#namepopup').modal('show');
+               
+            }).fail(function() {
+                console.log("error");
+            });
+            
+            
+        }
 </script>
 @endsection

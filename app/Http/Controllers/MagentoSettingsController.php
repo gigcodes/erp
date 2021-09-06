@@ -3,27 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\MagentoSetting;
+use App\MagentoSettingNameLog;
 use App\StoreWebsite;
 use App\Website;
 use App\WebsiteStore; 
 use App\MagentoSettingLog;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request; 
+use Illuminate\Support\Facades\Auth;
 
 use Carbon\Carbon;
+
 
 class MagentoSettingsController extends Controller
 {
 
     public function index(Request $request)
     {
-
+     
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite', 
             'store.website.storeWebsite',
             'website');
         
-        if($request->scope){
+          $magentoSettings->leftJoin('users','magento_settings.created_by','users.id');
+          $magentoSettings->select('magento_settings.*','users.name as uname');
+            if($request->scope){
             $magentoSettings->where('scope', $request->scope);
         }
 
@@ -53,11 +58,29 @@ class MagentoSettingsController extends Controller
                 }
             } 
         }
-
-        $magentoSettings = $magentoSettings->orderBy('created_at', 'DESC')->paginate(25);    
+        if ($request->name!='')
+        {
+            $magentoSettings->where('name', $request->name); 
+        }
+        if ($request->path!='')
+        {
+            $magentoSettings->where('path', $request->path); 
+        }
+        $magentoSettings = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);    
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
+
+        if ($request->ajax()) {
+            return view('magento.settings.index_ajax', [
+                'magentoSettings' => $magentoSettings,
+                'storeWebsites' => $storeWebsites,
+                'websitesStores' => $websitesStores ,
+                'websiteStoreViews' => $websiteStoreViews,
+            ]);
+        }
+        else
+        {
         
         return view('magento.settings.index', [
             'magentoSettings' => $magentoSettings,
@@ -65,6 +88,7 @@ class MagentoSettingsController extends Controller
             'websitesStores' => $websitesStores ,
             'websiteStoreViews' => $websiteStoreViews,
         ]);
+       }
     }
 
     public function create(Request $request)
@@ -94,6 +118,7 @@ class MagentoSettingsController extends Controller
                             'name'     => $name,
                             'path'     => $path,
                             'value'    => $value,
+                            'created_by'=>Auth::id(),
                         ]);
                     }
                 }
@@ -116,6 +141,7 @@ class MagentoSettingsController extends Controller
                             'name'     => $name,
                             'path'     => $path,
                             'value'    => $value,
+                            'created_by'=>Auth::id(),
                         ]);
                     }
                 }
@@ -135,6 +161,7 @@ class MagentoSettingsController extends Controller
                                     'name'     => $name,
                                     'path'     => $path,
                                     'value'    => $value,
+                                    'created_by'=>Auth::id(),
                                 ]);
                             }                            
                         }
@@ -160,6 +187,7 @@ class MagentoSettingsController extends Controller
                             'name'     => $name,
                             'path'     => $path,
                             'value'    => $value,
+                            'created_by'=>Auth::id(),
                         ]);
                     }
                 }
@@ -182,6 +210,7 @@ class MagentoSettingsController extends Controller
                                     'name'     => $name,
                                     'path'     => $path,
                                     'value'    => $value,
+                                    'created_by'=>Auth::id(),
                                 ]);
                             }                            
                         }
@@ -208,11 +237,21 @@ class MagentoSettingsController extends Controller
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
         $website_ids = $request->websites;
+        $m=MagentoSetting::where('id', $request->id)->first();
+        MagentoSettingNameLog::insert([
+            'old_value' => $m->name,
+            'new_value' => $name,
+            'updated_by' => Auth::id(),
+            'magento_settings_id'=>$request->id,
+            'updated_at'=>date('Y-m-d H:i')
+        ]);
+
         MagentoSetting::where('id', $request->id)->update([
             'name' => $name,
             'path' => $path,
             'value' => $value
         ]); 
+       
         $entity = MagentoSetting::find($entity_id);
 
         if ($scope === 'default') {
@@ -539,6 +578,23 @@ class MagentoSettingsController extends Controller
             MagentoSettingLog::create($formData);
         }
         return redirect()->route('magento.setting.index');        
+    }
+
+    public function  namehistrory($id){
+         
+       $ms= MagentoSettingNameLog::select('magento_setting_name_logs.*','users.name')->leftJoin('users','magento_setting_name_logs.updated_by','users.id')->where('magento_settings_id',$id)->get();
+       $table="<table class='table table-bordered'> <thead><tr><th>Date</th><th>Old Value</old><th>New Value</th><th>Created By</th><tr><thead><tbody";
+       foreach($ms as $m)
+       {
+           $table.="<tr><td>".$m->updated_at."</td>";
+           $table.="<td>".$m->old_value."</td>";
+           $table.="<td>".$m->new_value."</td>";
+           $table.="<td>".$m->name."</td></tr>";
+       }
+       $table.="</tbody></table>";
+       echo $table;
+
+
     }
     
 }

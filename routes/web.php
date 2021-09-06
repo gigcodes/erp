@@ -73,6 +73,7 @@ Route::resource('product-location', 'ProductLocationController');
 /** Magento Settings */
 Route::middleware('auth')->group(function () {
 
+    Route::get('magento-admin-settings/namehistrory/{id}', 'MagentoSettingsController@namehistrory');
     Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
     Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
     Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
@@ -80,6 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
     Route::get('magento-admin-settings/delete/{id}', 'MagentoSettingsController@deleteSetting')->name('delete.setting');
+   
 
 });
 //Google Web Master Routes
@@ -172,6 +174,22 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('bulk-messages', 'BulkCustomerRepliesController');
     Route::resource('keyword', 'KeywordToCategoryController');
     Route::resource('category', 'CustomerCategoryController');
+});
+
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::get('/', 'SeoToolController@index')->name('seo-tool');
+    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
+   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
+    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
+    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
+    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
+	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
+	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
+	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
+	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
+	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
+	Route::get('project-list', 'SeoToolController@projectList');
+	Route::post('save-keyword', 'SeoToolController@saveKeyword');
 });
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
@@ -286,6 +304,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue'); 
+    Route::post('product/image/order/change', 'ProductController@changeimageorder');
+    
     
     Route::post('products/customer/charity/savewebsite', 'CustomerCharityController@savewebsite');
     Route::post('products/customer/charity/getwebsite', 'CustomerCharityController@getwebsite');
@@ -667,6 +687,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    //SEMrush Account Management
+    Route::get('semrush/manage-semrush-account', 'SemrushController@manageSemrushAccounts')->name('semrush-manage-accounts');
+
+    //SEMrush
+    Route::prefix('semrush')->middleware('auth')->group(static function () {
+        Route::get('/domain_report', 'SemrushController@index')->name('semrush.domain_report');
+        Route::get('/keyword_report', 'SemrushController@keyword_report')->name('semrush.keyword_report');
+        Route::get('/url_report', 'SemrushController@url_report')->name('semrush.url_report');
+        Route::get('/backlink_reffring_report', 'SemrushController@backlink_reffring_report')->name('semrush.backlink_reffring_report');
+        Route::get('/publisher_display_ad', 'SemrushController@publisher_display_ad')->name('semrush.publisher_display_ad');
+        Route::get('/traffic_analitics_report', 'SemrushController@traffic_analitics_report')->name('semrush.traffic_analitics_report');
+        Route::get('/competitor_analysis', 'SemrushController@competitor_analysis')->name('semrush.competitor_analysis');
+    });
+
+
     Route::prefix('content-management-status')->group(function () {
         Route::get('/', 'StoreSocialContentStatusController@index')->name('content-management-status.index');
         Route::post('save', 'StoreSocialContentStatusController@save')->name('content-management-status.save');
@@ -777,6 +812,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
+    Route::get('order/charity-order', 'OrderController@charity_order');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');

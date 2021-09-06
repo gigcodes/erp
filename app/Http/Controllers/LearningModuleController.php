@@ -48,6 +48,7 @@ class LearningModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
+		
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 			$userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
@@ -2350,6 +2351,21 @@ class LearningModuleController extends Controller {
 
 			$learning->learning_status = $request->status_id;
 			$learning->save();
+			$s=TaskStatus::where('name','completed')->first();
+			if ($s)
+			{
+				if ($s->id== $request->status_id)
+				{
+					$payment_receipt = new PaymentReceipt;
+					$payment_receipt->date = date( 'Y-m-d' );
+					$payment_receipt->worked_minutes = 0;
+					$payment_receipt->rate_estimated = $learning->cost;
+					$payment_receipt->status = 'Pending';
+					$payment_receipt->task_id = $learning->id;
+					$payment_receipt->user_id = $learning->assign_to;
+					$payment_receipt->save();
+				}
+			}
 			return response()->json(["message" => "Status Updated Successfully"]);
 		}
    }
