@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBackLinkDomainsTable extends Migration
+class CreateSeoToolsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,10 @@ class CreateBackLinkDomainsTable extends Migration
      */
     public function up()
     {
-        Schema::create('back_link_domains', function (Blueprint $table) {
+        Schema::create('seo_tools', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('store_website_id');
-            $table->text('tool_id');
-            $table->text('database');
-            $table->text('domain'); 
-            $table->text('domain_ascore');
-            $table->text('backlinks_num');
+            $table->string('tool');
+            $table->string('api_key');
             $table->timestamps();
         });
     }
@@ -32,6 +28,6 @@ class CreateBackLinkDomainsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('back_link_domains');
+        Schema::dropIfExists('seo_tools');
     }
 }
