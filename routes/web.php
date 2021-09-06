@@ -2223,6 +2223,12 @@ Route::prefix('comments')->middleware('auth')->group(function () {
     Route::post('/facebook', 'SocialController@postComment');
 });
 
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::post('save-keyword-idea', 'DomainSearchKeywordController@saveKeywordIdea')->name('save.keyword.idea');
+    Route::get('keyword-search', 'DomainSearchKeywordController@searchKeyword')->name('keyword-search');;
+});
+
+
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
