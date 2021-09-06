@@ -30,6 +30,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
 
+        Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
+
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
