@@ -2733,7 +2733,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
     Route::post('mailinglist-templates/category/store', 'MailinglistTemplateCategoryController@store')->name('mailingList.category.store');
-
+    Route::post('mailinglist-templates/saveimagesfile', 'MailinglistTemplateController@saveimagesfile');
+    
+    Route::post('mailinglist-templates/images_file', 'MailinglistTemplateController@images_file');
+    
 
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
