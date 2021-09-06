@@ -228,12 +228,13 @@ class MagentoSettingsController extends Controller
     }
 
     public function update(Request $request) {
-
+        
         $entity_id = $request->id;
         $scope = $request->scope;
         $name = $request->name;
         $path = $request->path;
         $value = $request->value;
+        $git_repository = $request->git_repository;
         $is_live = isset($request->live);
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
@@ -244,7 +245,7 @@ class MagentoSettingsController extends Controller
             'value' => $value
         ]); 
         $entity = MagentoSetting::find($entity_id);
-
+        
         if ($scope === 'default') {
             
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->orWhere('website', $request->website)->get();
@@ -275,17 +276,20 @@ class MagentoSettingsController extends Controller
                     $magento_url = str_replace('.com', '', $magento_url);
                     
                     //BASE SCRIPT
-                    $gitRepo = GithubRepository::where('name',$magento_url)->first();
-                    
-                    if(!empty($gitRepo->name)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$gitRepo->name.' -s '.$scope.' -c '.$entity_id.' -p '.$path.' -v '.$value;
+                    if(!empty($git_repository)):                        
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$entity->scope_id.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command                        
+                        $result      = exec($cmd, $allOutput); //Execute command   
+                    else:
+                        return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
                     
                 }
             }
+            
+            return response()->json(["code" => 200 , "message" => "Request pushed on website successfully"]);
+            
         }else if($scope === 'websites'){
 
             $store = $request->store;
@@ -320,20 +324,22 @@ class MagentoSettingsController extends Controller
                     $magento_url = str_replace('.com', '', $magento_url);
                     
                     //BASE SCRIPT
-                    $gitRepo = GithubRepository::where('name',$magento_url)->first();
-                    
-                    if(!empty($gitRepo->name)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$gitRepo->name.' -s '.$scope.' -c '.$entity_id.' -p '.$path.' -v '.$value;
+                    if(!empty($git_repository)):                        
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$entity->scope_id.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command                        
+                        $result      = exec($cmd, $allOutput); //Execute command 
+                    else:
+                        return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
                    
                 }
 
             }
             
-        }else if($scope === 'stores'){
+            return response()->json(["code" => 200 , "message" => "Request pushed on website successfully"]);
+            
+        } else if($scope === 'stores'){
 
             $store = $request->store;
             $store_view = $request->store_view; 
@@ -367,13 +373,13 @@ class MagentoSettingsController extends Controller
                     $magento_url = str_replace('.com', '', $magento_url);
                     
                     //BASE SCRIPT
-                    $gitRepo = GithubRepository::where('name',$magento_url)->first();
-                    
-                    if(!empty($gitRepo->name)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$gitRepo->name.' -s '.$scope.' -c '.$entity_id.' -p '.$path.' -v '.$value;
+                    if(!empty($git_repository)):                        
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$entity->scope_id.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command                        
+                        $result      = exec($cmd, $allOutput); //Execute command  
+                    else:
+                        return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
                     
                 }
