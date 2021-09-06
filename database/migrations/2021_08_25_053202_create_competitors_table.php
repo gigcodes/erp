@@ -19,7 +19,7 @@ class CreateCompetitorsTable extends Migration
             $table->text('tool_id');
             $table->text('database');
             $table->text('subtype');
-            $table->text('domain');
+            $table->text('domian'); 
             $table->text('common_keywords');
             $table->text('keywords');
             $table->text('traffic');

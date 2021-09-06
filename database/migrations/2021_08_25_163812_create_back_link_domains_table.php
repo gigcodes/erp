@@ -17,9 +17,8 @@ class CreateBackLinkDomainsTable extends Migration
             $table->increments('id');
             $table->text('store_website_id');
             $table->text('tool_id');
-			$table->enum('subtype', ['organic', 'paid']);
             $table->text('database');
-            $table->text('domain');
+            $table->text('domain'); 
             $table->text('domain_ascore');
             $table->text('backlinks_num');
             $table->timestamps();
