@@ -269,20 +269,23 @@ class CreateMailingListNewsLetters extends Command
         curl_close($curl);
         \Log::info($response);
         $res = json_decode($response);
+		if(isset($res->id)) {
+			$last_record_id = Mailinglist::create([
+				'id' => $res->id,
+				'name' => $website->title,
+				'language' => $lan->id,
+				'website_id' => $website->id,
+				'service_id' => 1,
+				'remote_id' => $res->id,
+			]);
 
-        $last_record_id = Mailinglist::create([
-            'id' => $res->id,
-            'name' => $website->title,
-            'language' => $lan->id,
-            'website_id' => $website->id,
-            'service_id' => 1,
-            'remote_id' => $res->id,
-        ]);
-
-        $return_response['code'] = 200;
-        $return_response['msg'] = "success";
-        $return_response['last_record_id'] = $last_record_id->id;
-
+			$return_response['code'] = 200;
+			$return_response['msg'] = "success";
+			$return_response['last_record_id'] = $last_record_id->id;
+		} else{
+			 $return_response['code'] = 401;
+            $return_response['msg'] = $res->message;
+		}
         return $return_response;
 
     }
