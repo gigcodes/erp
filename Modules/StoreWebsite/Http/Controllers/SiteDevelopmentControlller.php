@@ -6,6 +6,7 @@ use App\Role;
 use App\Setting;
 use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use App\User;
 use App\SiteDevelopmentArtowrkHistory;
@@ -23,11 +24,11 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
-
+		$masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) as site_development_id'));
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id',DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) as site_development_id'));
 
         if ($request->k != null) {
             $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
@@ -57,10 +58,25 @@ class SiteDevelopmentController extends Controller
         }
         
         $categories->groupBy('site_development_categories.id');
-        $categories->orderBy('title', 'asc');
+        
+		 if($request->order){
+			 if ($request->order == 'latest_task_first') {
+				$categories->orderBy('title', 'asc');
+			 } else if ($request->order == 'communication') {
+				 $categories = $categories->orderBy('created_at', 'DESC');
+			}			 
+		 } else{
+			 $categories->orderBy('title', 'asc');
+		 }
         $categories->orderBy('site_developments.id', 'DESC');
        $categories = $categories->paginate(Setting::get('pagination'));
-       
+       foreach($categories as $category) {
+	    $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')
+		->where('site_developement_id',$category->site_development_id)->select('users.name as assigned_to_name');
+        $users = $query->get();
+		 $category->assignedTo = $users;
+	   }
+	   
 //   dd($categories);
         //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
@@ -94,14 +110,39 @@ class SiteDevelopmentController extends Controller
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
+        return view('storewebsite::site-development.index', compact('masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
     }
 
+	public function addMasterCategory(Request $request)
+    {
+        if ($request->text) {
+
+            //Cross Check if title is present
+            $categoryCheck = SiteDevelopmentMasterCategory::where('title', $request->text)->first();
+
+            if (empty($categoryCheck)) {
+                //Save the Category
+                $develop        = new SiteDevelopmentMasterCategory;
+                $develop->title = $request->text;
+                $develop->save();
+
+               return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
+
+            } else {
+
+                return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
+            }
+
+        } else {
+            return response()->json(["code" => 500, "messages" => 'Please Enter Text']);
+        }
+    }
+	
     public function addCategory(Request $request)
     {
         if ($request->text) {
@@ -168,6 +209,10 @@ class SiteDevelopmentController extends Controller
 
         if ($request->type == 'html_designer') {
             $site->html_designer = $request->text;
+        }
+
+        if ($request->type == 'site_development_master_category_id') {
+            $site->site_development_master_category_id = $request->text;
         }
 
         if ($request->type == 'tester_id') {
