@@ -245,33 +245,33 @@ class ProductPriceController extends Controller
 		ini_set('memory_limit', -1);
 		$product_list = [];
 		$countries = SimplyDutyCountry::select('*')->get()->toArray();
-		$categoryIds = Category::pluck('id')->toArray(); 
-		// $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
-        $categoryDetail = Category::where('id',$cat_id)->select('id', 'title')->first();
+		$categoryDetail = Category::where('id',$cat_id)->select('id', 'title')->first();
         
-		$brands = Brand::select('id', 'name')->get()->toArray();
+		//$brands = Brand::select('id', 'name')->get()->toArray();
+		$brands = Product::leftJoin('brands', 'brands.id', 'products.brand')
+				  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name')->groupBy('products.brand')->get()->toArray();
 		$i = 0;
 
 		$countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status',1)->get();
         
-		// foreach($categories as $category) {
-
 			foreach($brands as $brand) {
-                $country = $countries[$i];
+               $country = $countries[$i];
 
                 foreach ($category_segments as $key => $value) {
                     $category_segment_discount = DB::table('category_segment_discounts')->where('brand_id', $brand['id'])->where('category_segment_id', $value['id'])->first();
-                    if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
-                        
-                        if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-                            $final_price = ($product_price * $category_segment_discount->amount)/100;
-                        }
+                    if($category_segment_discount != null) {
+						if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
+							
+							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
+								$final_price = ($product_price * $category_segment_discount->amount)/100;
+							}
 
-                    }elseif($category_segment_discount->amount_type == 'amount'){
-                        if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-                            $final_price = $final_price-$category_segment_discount->amount;
-                        }
+						}elseif($category_segment_discount->amount_type == 'amount'){
+							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
+								$final_price = $final_price-$category_segment_discount->amount;
+							}
+						}
                     }
                 }
 
@@ -306,22 +306,23 @@ class ProductPriceController extends Controller
                 $final_price = 100;
 
 			}
-
-		// }
-
 		
 		return view('product_price.generic_price', compact('product_list', 'category_segments'));
 	}
 
 	
-	public function updateProductPrice(Request $request) {
+	public function updateProductPrice(Request $request) { 
 		if($request->route()->getName() == 'updateDutyPrice'){ 
 		   $duty = SimplyDutyCountry::find($request->countryId);
            $duty->default_duty = $request->dutyPrice;
            $duty->save();
-		} else if($request->route()->getName() == 'updateSegmentPrice') {
-			$catSegDiscount = CategorySegmentDiscount::where(['brand_id'=>$request->brandId])->first();
-			$catSegDiscount->update(['category_segment_id'=>$request->segmentId, 'amount'=>$request->price]);
+		} else if($request->route()->getName() == 'updateSegmentPrice') { 
+			$catSegDiscount = CategorySegmentDiscount::where(['category_segment_id'=>$request->segmentId,'brand_id'=>$request->brandId])->first();
+			if($catSegDiscount == null) {
+				CategorySegmentDiscount::create(['category_segment_id'=>$request->segmentId, 'amount'=>$request->price, 'brand_id'=>$request->brandId]);
+			} else {
+		     	$catSegDiscount->update([ 'amount'=>$request->price]);
+			}
 		}
 		return json_encode(['status'=>true]);
 	}

@@ -587,17 +587,18 @@
         });
 	}
 	
-	function updateSegmentPrice(segmentId, brandId, price) {		
-		 $.ajax({
-            //updateSegmentPrice  real route
-            url: "{{route('updateDutyPrice')}}",
-            type: 'post',
-            data: {
+	function updateSegmentPrice(segmentId, brandId, price) {
+		var data = {
                 _token: '{{csrf_token()}}',
                 segmentId: segmentId,
                 brandId: brandId,
                 price: price.value
-            },
+            };	
+		 $.ajax({
+            //updateSegmentPrice  real route
+            url: "{{route('updateSegmentPrice')}}",
+            type: 'post',
+            data: data,
             beforeSend: function () {
                 $("#loading-image").show();
             }

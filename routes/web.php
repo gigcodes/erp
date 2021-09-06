@@ -3287,6 +3287,7 @@ Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@up
 
 Route::get('product-generic-pricing', 'product_price\ProductPriceController@genericPricing')->name('product.generic.pricing');
 Route::post('product-duty-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateDutyPrice');
+Route::post('product-segment-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateSegmentPrice');
 
 
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
