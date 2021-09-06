@@ -38,10 +38,14 @@ Route::get('/test/analytics-user', 'AnalyticsController@cronGetUserShowData')->n
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 
+
 Route::middleware('auth')->group(function()
 {
+    Route::get('discount-sale-price', 'DiscountSalePriceController@index');
+    Route::get('discount-sale-price/type', 'DiscountSalePriceController@type');
+    Route::post('discount-sale-price/create', 'DiscountSalePriceController@create');
     Route::get('create-media-image', 'CustomerController@testImage');
-Route::get('generate-favicon', 'HomeController@generateFavicon');
+    Route::get('generate-favicon', 'HomeController@generateFavicon');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
@@ -1583,6 +1587,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
+
+    
    
    
 
