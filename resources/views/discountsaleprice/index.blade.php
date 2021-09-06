@@ -27,44 +27,39 @@
             <form class="form-search-data">
                
                 <div class="row">
-                    <div class="col-xs-6 col-md-2 pd-2">
-                        <div class="form-group cls_task_subject">
-                            <input type="text" name="site_name" placeholder="Search Site Name" id="site_name" class="form-control input-sm ui-autocomplete-input" value="" autocomplete="off">
-                        </div>
-                    </div>
-                    <div class="col-xs-6 col-md-2 pd-2">
-                        <div class="form-group">
-                        <input type="text" name="daterange" placeholder="Search date" id="daterange" class="form-control input-sm ui-autocomplete-input" value="<?php if (isset($_GET['daterange'])) { echo $_GET['daterange'] ;} ?>" autocomplete="off">    </div>
-                    </div>
+                   
                     
-                      <div class="col-xs-6 col-md-2 pd-2">
+                      <div class="col-xs-6 col-md-3 pd-3">
                         <div class="form-group">
-                            <select onchange="get_bname();" name="module_type" id="module_type" class="form-control input-sm">
-                                <option selected="" value="0"> Filter By Module / Type</option>
-                                <option value="order"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='order') {  echo "selected='selected'" ;} ?> >Order</option>
-                                <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
-                                <option value="assent_manager" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='assent_manager') {  echo "selected='selected'" ;} ?> >Assent Manager</option>
-                          
-                            </select>
+                        <strong>Type:</strong>
+                <select class="form-control" onchange="filltype(this.value,1);" name="type" >
+                <option value="" ></option>
+                  <option value="brand" {{ 'brand' == old('type') ? 'selected' : '' }}>Brand</option>
+                  <option value="category" {{ 'paid' == old('type') ? 'selected' : '' }}>Category</option>
+                  <option value="product" {{ 'product' == old('type') ? 'selected' : '' }}>Product</option>
+                  <option value="store_website" {{ 'store_website' == old('type') ? 'selected' : '' }}>Store Website</option>
+                </select>
                         </div>
                     </div>
                     <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select name="b_name" id="b_name" class="form-control input-sm">
-                                <option value="">Benefiiciary</option>
-                                
-                            </select>
+                        <strong>Sub Type:</strong>
+                        <div id="d_type1">
+                <select class="form-control" name="type_id" required id="type_id">
+                  </select>
+                </div>
                         </div>
                     </div>
                     <div class="col-xs-6 col-md-2 pd-2">
                         <div class="form-group">
-                            <select name="type" id="type" class="form-control input-sm">
-                                <option value="">Filter by Type</option>
-                                <option value="Pending"  <?php if (isset($_GET['type']) && $_GET['type']=='Pending') {  echo "selected='selected'" ;} ?> >Pending</option>
-                                <option value="Received"  <?php if (isset($_GET['type']) && $_GET['type']=='Received') {  echo "selected='selected'" ;} ?> >Received</option>
-                                <option value="Paid" <?php if (isset($_GET['type']) && $_GET['type']=='Paid') {  echo "selected='selected'" ;} ?> >Paid</option>
-                                
-                            </select>
+                        <strong>Supplier:</strong>
+                        <select class="form-control"  name="supplier" >
+                <option value="" >Select Supplier </option>
+                @foreach($supplier as $s)
+                    <option value="{{$s->id}}"> {{$s->supplier}} </option>
+                @endforeach
+            
+              </select>
                         </div>
                     </div>
                     
@@ -122,7 +117,34 @@
                    <tr>
                        <td class="small">{{ $d->id }}</td>
                        <td>{{ $d->type }} </td>
-                       <td>{{ $d->type_id }}
+                       <td>
+                         @php
+                              if ($d->type=='brand')
+                               {
+                                $r=\App\Brand::where('id',$d->type_id)->first();
+                                echo $r->name;
+                               }
+
+                               if ($d->type=='product')
+                               {
+                                $r=\App\Product::where('id',$d->type_id)->first();
+                                echo $r->name;
+                               }
+
+                               if ($d->type=='category')
+                               {
+                                $r=\App\Category::where('id',$d->type_id)->first();
+                                echo $r->title;
+                               }
+
+                               if ($d->type=='store_website')
+                               {
+                                $r=\App\StoreWebsite::where('id',$d->type_id)->first();
+                                echo $r->title;
+                               }
+                                 
+                         @endphp
+                      
 
                        
                        </td>
@@ -131,7 +153,18 @@
                        <td>{{date('d-m-Y',strtotime($d->end_date)) }}</td>
                        <td>{{ $d->amount }}</td>
                        <td>{{ $d->amount_type }}</td>
-                       <td></td>
+                       <td>
+                         @php
+                         $d->start_date=date('d-m-Y',strtotime($d->start_date));
+                         $d->end_date=date('d-m-Y',strtotime($d->end_date));
+
+                         @endphp
+                       <button type="button" class="btn btn-image edit-form d-inline"  data-toggle="modal" data-target="#cashCreateModal" data-edit="{{ json_encode($d) }}"><img src="/images/edit.png" /></button>  
+                       {!! Form::open(['method' => 'DELETE','url' => ['discount-sale-price', $d->id],'style'=>'display:inline']) !!}
+                           <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                           {!! Form::close() !!}
+
+                       </td>
                        
                    </tr>
                @endforeach
@@ -150,7 +183,7 @@
         <div class="modal-content">
           <form action="{{ url('discount-sale-price/create') }}" method="POST" enctype="multipart/form-data">
             @csrf
-
+              <input type="hidden" name="id" value="0" id="e_id"> 
             <div class="modal-header">
               <h4 class="modal-title">Discount Sale Price</h4>
               <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -158,7 +191,7 @@
             <div class="modal-body">
             <div class="form-group">
                 <strong>Type:</strong>
-                <select class="form-control" onchange="filltype(this.value);" name="type" required id="type">
+                <select class="form-control" onchange="filltype(this.value);" name="type" required id="type1">
                 <option value="" ></option>
                   <option value="brand" {{ 'brand' == old('type') ? 'selected' : '' }}>Brand</option>
                   <option value="category" {{ 'paid' == old('type') ? 'selected' : '' }}>Category</option>
@@ -201,7 +234,7 @@
               <div class="form-group">
                 <strong>From Date:</strong>
                 <div >
-                  <input type='date' class="form-control" name="start_date" value="{{ date('Y-m-d H:i') }}" required />
+                  <input type='text' class="form-control" name="start_date" id="start_date" value="{{ date('Y-m-d H:i') }}" required />
 
                 </div>
 
@@ -213,7 +246,7 @@
               <div class="form-group">
                 <strong>To Date:</strong>
                 <div >
-                  <input type='date' class="form-control" name="end_date" value="{{ date('Y-m-d H:i') }}" required />
+                  <input type='text' class="form-control" name="end_date"  id="end_date" value="{{ date('Y-m-d H:i') }}" required />
 
                  
                 </div>
@@ -225,7 +258,7 @@
 
               <div class="form-group">
                 <strong>Amount:</strong>
-                <input type="number" name="amount" class="form-control" value="{{ old('amount') }}" required>
+                <input type="number" name="amount"  id="amount" class="form-control" value="{{ old('amount') }}" required>
 
                 @if ($errors->has('amount'))
                   <div class="alert alert-danger">{{$errors->first('amount')}}</div>
@@ -235,7 +268,7 @@
               <div class="form-group">
                 <strong>Amount Type:</strong>
                 <select class="form-control"  name="amount_type" required id="amount_type">
-                <option value="Amount" ></option>
+                <option value="amount" >Amount</option>
                   <option value="percentage">Percentage</option>
                    </select>
 
@@ -281,11 +314,11 @@
 </script>
   <script type="text/javascript">
     $(document).ready(function() {
-      $('#date-datetime').datetimepicker({
+      $('#start_date').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
       });
 
-      $('.enter-date').datetimepicker({
+      $('#end_date').datetimepicker({
         format: 'YYYY-MM-DD'
       });
     });
@@ -370,7 +403,7 @@
             }            
         });
 
-        function filltype(type)
+        function filltype(type,t=0)
         {
          if (type!='')
           {
@@ -379,6 +412,9 @@
                     url: "{{url('discount-sale-price/type')}}?type="+ type,
                     type: 'GET',
                     success: function (data) {
+                      if (t==1)
+                      $("#d_type1").html(data);
+                      else
                       $("#d_type").html(data); 
                      
                
@@ -392,6 +428,56 @@
               
           }      
         }
+
+        $(document).on('click', '.edit-form', function() {
+         
+      var data = $(this).data('edit');
+      
+     
+     // var url = "{{ route('email-addresses.index') }}/" + emailAddress.id;
+
+      //$('#emailAddressEditModal form').attr('action', url);
+      $('#e_id').val(data.id);
+      $('#type1').val(data.type);
+      
+      filltype(data.type)
+
+      $('#amount').val(data.amount);
+      $('#amount_type').val(data.amount_type);
+      $('#supplier_id').val(data.supplier_id);
+      $('#start_date').val(data.start_date);
+      $('#end_date').val(data.end_date);
+      $('#type_id').val(data.type_id);
+      
+      $('#start_date').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
+      });
+
+      $('#end_date').datetimepicker({
+        format: 'YYYY-MM-DD'
+      });
+     
+
+     /* $('#emailAddressEditModal').find('input[name="recovery_phone"]').val(emailAddress.recovery_phone);
+      $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
+
+      $('#emailAddressEditModal').find('input[name="signature_name"]').val(emailAddress.signature_name);
+	    $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
+      $('#emailAddressEditModal').find('input[name="signature_email"]').val(emailAddress.signature_email);
+      $('#emailAddressEditModal').find('input[name="signature_phone"]').val(emailAddress.signature_phone);
+      $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
+      $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
+      $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
+      $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
+      $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
+     	  
+      $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
+
+      $('#edit_driver').val(emailAddress.driver).trigger('change');
+      $('#edit_port').val(emailAddress.port).trigger('change');
+      $('#edit_encryption').val(emailAddress.encryption).trigger('change');
+      */
+    });
 
   </script>      
 @endsection

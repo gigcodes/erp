@@ -42,6 +42,7 @@ Route::get('/test/dhl', 'TmpTaskController@test');
 Route::middleware('auth')->group(function()
 {
     Route::get('discount-sale-price', 'DiscountSalePriceController@index');
+    Route::delete('discount-sale-price/{id}', 'DiscountSalePriceController@delete');
     Route::get('discount-sale-price/type', 'DiscountSalePriceController@type');
     Route::post('discount-sale-price/create', 'DiscountSalePriceController@create');
     Route::get('create-media-image', 'CustomerController@testImage');
