@@ -181,7 +181,10 @@
                                     href="{{ route('customer.show', $callBusyMessage['customerid']) }}"><img
                                         src="/images/view.png" /></a> -->
                             @endif
+
+                            @if (isset($callBusyMessage['customerid']))
                             <i class="fa fa-ticket create-customer-ticket-modal" onclick="showticket('{{ $callBusyMessage['customerid'] }}');" data-customer_id="{{ $callBusyMessage['customerid'] }}" style="cursor: pointer;" title="Create Ticket" aria-hidden="true"></i>
+                            @endif
 
                         </td>
                     </tr>

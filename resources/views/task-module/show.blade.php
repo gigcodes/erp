@@ -1157,9 +1157,10 @@
 					      <tr>
 					        <th style="width: 5%;">Sl no</th>
 					        <th style=" width: 30%">Files</th>
-					        <th style="word-break: break-all; width: 45%">Send to</th>
+					        <th style="word-break: break-all; width: 40%">Send to</th>
+					        <th style="width: 10%">User</th>
 					        <th style="width: 10%">Created at</th>
-                            <th style="width: 10%">Action</th>
+                            <th style="width: 15%">Action</th>
 					      </tr>
 					    </thead>
 					    <tbody class="task-image-list-view">
@@ -1255,7 +1256,20 @@
         </div>
     </div>
 </div>
-
+<div id="previewDoc" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<iframe src="" id="previewDocSource" width='700' height='550' allowfullscreen webkitallowfullscreen></iframe>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
@@ -1284,6 +1298,23 @@
             });
 
         });
+	
+		$(document).on('click', '.previewDoc', function () {
+			$('#previewDocSource').attr('src', '');
+            var docUrl = $(this).data('docurl');
+            var type = $(this).data('type'); 
+			var type = jQuery.trim(type);
+			if(type == "image") { 
+				$('#previewDocSource').attr('src', docUrl);
+			} else {
+				$('#previewDocSource').attr('src', "https://docs.google.com/gview?url="+docUrl+"&embedded=true");
+			}
+			$('#previewDoc').modal('show');
+        });
+		
+		$("#previewDoc").on("hidden", function () {
+		   $('#previewDocSource').attr('src', '');
+		});
     </script>    
 
 

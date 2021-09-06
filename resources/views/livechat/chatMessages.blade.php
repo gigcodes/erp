@@ -2,15 +2,11 @@
 @section('large_content')
 
 <?php 
-// $chatIds = \App\CustomerLiveChat::latest()->orderBy('seen','asc')->orderBy('status','desc')->get();
-
-$chatIds = \App\CustomerLiveChat::with('customer')
-->join(DB::raw('(Select max(id) as id from customer_live_chats group by customer_id) LatestMessage'), function($join) {
-$join->on('customer_live_chats.id', '=', 'LatestMessage.id');
-})
-->groupBy('customer_id')->orderBy('created_at', 'desc')->get();
+$chatIds = \App\CustomerLiveChat::latest()->orderBy('seen','asc')->orderBy('status','desc')->get();
 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 ?>
+@section('link-css')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style type="text/css">
         .chat-righbox a{
             color: #555 !important;
@@ -78,14 +74,18 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             color: #808080;
         }
     </style>
+@endsection
         <div class="row">
             <div class="col-lg-12 margin-tb p-0">
-                <h2 class="page-heading">Live Chat </h2>
+                <h2 class="page-heading">Live Chat</h2>
                 <div class="pull-right">
+                    <div style="text-align: right; margin-bottom: 10px;">
+                        <button type="button" class="btn btn-primary" onclick="createCoupon()">New Coupon</button>
+                        <span>&nbsp;</span>                        
+                    </div>
                 </div>
             </div>
         </div>
-
         <div class="row">
             <div class="table-responsive">
                 <table class="table table-striped table-bordered" id="keywordassign_table">
@@ -131,7 +131,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         $language = json_decode($content, true);
                                         @endphp
                                         <div class="selectedValue">
-                                            <select id="autoTranslate" class="form-control auto-translate globalSelect2 chat_lang_{{$chatId->customer_id}}" data-customerId="{{$chatId->customer_id}}">
+                                            <select id="autoTranslate" class="form-control auto-translate">
                                                 <option value="">Translation Language</option>
                                                 @foreach ($language as $key => $value)
                                                     <option value="{{$value}}">{{$key}}</option>
@@ -156,29 +156,20 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                             <i class="fa fa-location-arrow"></i>
                                                         </span>
                                                     </a>
-                                                    <button  style="padding:0 ;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="1" data-object="customer" data-id="{{ @$customer->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                                                 </div>
                                             </div>                                          
                                         </div>
                                         <div class="row cls_quick_reply_box">
                                             <div class="col-md-4 cls_remove_rightpadding">
-                                                @php
-                                                    $all_replay = \App\Reply::where('model','Store Website')->get();
-                                                @endphp
-                                                <select class="form-control quick_replies_data category_quick_{{ @$customer->id }}" id="quick_replies">
+                                                <select class="form-control" id="quick_replies">
                                                     <option value="">Quick Reply</option>
-                                                    @if(isset($all_replay))
-                                                        @foreach ($all_replay as $rpl)
-                                                            <option value="{{ $rpl->reply }}">{{ $rpl->reply }}</option>
-                                                        @endforeach
-                                                    @endif
                                                 </select>
                                             </div>
                                             <div class="col-md-4 cls_remove_rightpadding pl-3">
                                                 @php
                                                     $all_categories = \App\ReplyCategory::all();
                                                 @endphp
-                                                <select class="form-control auto-translate" id="categories" data-id="{{ @$customer->id }}" data-store_id="{{ $customer->store_website_id ?? 1 }}">
+                                                <select class="form-control auto-translate" id="categories">
                                                     <option value="">Select Category</option>
                                                     @if(isset($all_categories))
                                                         @foreach ($all_categories as $category)
@@ -198,7 +189,6 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                 </div>
                                             </div>
                                         </div>
-                                        <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id ?? 1 }}" />
                                         <div onclick="getLiveChats('{{ $customer->id }}')" class="card-body msg_card_body" style="display: none;" id="live-message-recieve">
                                             @if(isset($message) && !empty($message))
                                                 @foreach($message as $msg)
@@ -216,7 +206,6 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             <a href="javascript:;" class="btn btn-image cls_addition_info" title="Additional info" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" ><img src="{{asset('images/remark.png')}}"/></a>
                                             &nbsp;
                                             <a href="javascript:;" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" ><i class="fa fa-lightbulb-o" aria-hidden="true"></i></a>
-                                            <i class="fa fa-ticket create-customer-ticket-modal" onclick="showticket('{{ $chatId->customer_id }}');" data-customer_id="{{ $chatId->customer_id }}" style="cursor: pointer;" title="Create Ticket" aria-hidden="true"></i>
 
 
                                             
@@ -302,31 +291,300 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 </table>
             </div>
         </div>
-
-
-        @include("partials.customer-new-ticket")
-        <div id="chat-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>
-                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
-                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
-                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
-                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+    
+        <!-- ADD COUPON MODAL -->
+        <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <!-- <form id="coupon-form" method="POST" onsubmit="return executeCouponOperation();"> -->
+                <form id="coupon-form" method="POST" >
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="couponModalLabel">New Coupon</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @csrf
+                            <!-- Accordian form start -->
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingOne">
+                                        <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Coupon Information 
+                                        </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <input type="hidden" name="active" id="is_active" value="1" />
+                                            <input type="hidden" name="uses_per_coupon" id="use_per_coupon" value="1" class="form-control" />
+                                            <input type="hidden" name="priority" value="Default"  />
+                                            <input type="hidden" class="form-control" name="store_labels[0]" value="Quck Created Coupon" />
+                                            
+                                            <input type="hidden" name="uses_per_coupon" value="1" />
+                                            <input type="hidden" name="priority" value="1" />
+                                            <input type="hidden" name="coupon_qty" value="1" />
+                                            <input type="hidden" name="code_length" value="1" />
+                                            <input type="hidden" name="format" value="1oed4" />
+                                            <input type="hidden" name="prefix" value="sdfe2" />
+                                            <input type="hidden" name="suffix" value="ldoec2" />
+                                            <input type="hidden" name="dash" value="1" />
+                                            <input type="hidden" name="discount_qty" value="1" />
+                                            <input type="hidden" name="discount_step" value="1" />
+                                            <input type="hidden" name="apply_to_shipping" value="true" />
+                                            <input type="hidden" name="stop_rules_processing" value="true" />                                            
+                                            
+                                            <div class="form-group row">
+                                                <label for="code" class="col-sm-3 col-form-label required">Rule Name</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name" />
+                                                    @if ($errors->has('name'))
+                                                    <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="description" class="col-sm-3 col-form-label">Description</label>
+                                                <div class="col-sm-8">
+                                                    <textarea type="text" class="form-control" name="description" placeholder="Description" id="description">{{old('description')}}</textarea>
+                                                    @if ($errors->has('description'))
+                                                    <div class="alert alert-danger">{{$errors->first('description')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="store_website_id" class="col-sm-3 col-form-label required">Store Websites</label>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control select select2" name="store_website_id" onchange="getWebsitesByStoreId(this);">
+                                                        <option value="">Please select</option>
+                                                        @foreach($store_websites as $ws)
+                                                            <option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="website_ids" class="col-sm-3 col-form-label required">Websites</label>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="customer_groups" class="col-sm-3 col-form-label required">Customer Groups</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups">
+                                                            <option data-title="NOT LOGGED IN" value="0" selected>NOT LOGGED IN</option>
+                                                            <option data-title="General" value="1">General</option>
+                                                            <option data-title="Wholesale" value="2">Wholesale</option>
+                                                            <option data-title="Retailer" value="3">Retailer</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="coupon_type" class="col-sm-3 col-form-label required">Coupon</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 required" name="coupon_type" id="coupon_type" >
+                                                            <option  value="NO_COUPON">No Coupon</option>
+                                                            <option  value="SPECIFIC_COUPON">Specific Coupon</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row hide_div">
+                                                <label for="coupon_code" class="col-sm-3 col-form-label">Coupon Code</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="code" placeholder="Code" id="coupon_code" />
+                                                    @if ($errors->has('code'))
+                                                    <div class="alert alert-danger">{{$errors->first('code')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Uses per Coustomer</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" />
+                                                    <div class="">Usage limit enforced for logged in customers only.</div>
+                                                    @if ($errors->has('uses_per_coustomer'))
+                                                    <div class="alert alert-danger">{{$errors->first('uses_per_coustomer')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Start</label>
+                                                <div class="col-sm-8">
+                                                    <div class='input-group date' id='start'>
+                                                        <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                    @if ($errors->has('start'))
+                                                    <div class="alert alert-danger">{{$errors->first('start')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="expiration" class="col-sm-3 col-form-label">Expiration</label>
+                                                <div class="col-sm-8">
+                                                    <div class='input-group date' id='expiration'>
+                                                        <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                    @if ($errors->has('expiration'))
+                                                    <div class="alert alert-danger">{{$errors->first('expiration')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label ">Apply</label>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control select select2 " name="simple_action" id="simple_action">
+                                                        <option data-title="Percent of product price discount" value="by_percent">Percent of product price discount</option>
+                                                        <option data-title="Fixed amount discount" value="by_fixed">Fixed amount discount</option>
+                                                        <option data-title="Fixed amount discount for whole cart" value="cart_fixed">Fixed amount discount for whole cart</option>
+                                                        <option data-title="Buy X get Y free (discount amount is Y)" value="buy_x_get_y">Buy X get Y free (discount amount is Y)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Discount Amount</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control required" name="discount_amount" placeholder="Discount amount" id="discount_amount" />
+                                                    @if ($errors->has('discount_amount'))
+                                                    <div class="alert alert-danger">{{$errors->first('discount_amount')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Accordian form end here -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <!-- <button type="submit" class="btn btn-primary">Save</button> -->
+                            <button type="button" class="btn btn-primary save-button">Save</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
 @endsection
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"></script>
+    <!-- New Coupon -->
+    <script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $(document).ready(function() {
+        $('#start').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm',            
+        });
+        $('#expiration').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+    });
+    function createCoupon() {
+        /* beautify preserve:start */
+        $('#coupon-form').attr('action', '{{ route('quick.couponcode.store') }}')
+        /* beautify preserve:end */
+        //$('#coupon-form input').not('input[name="_token"]').val('');
+        //$('#coupon-form textarea').val('');
+        $('#couponModal').modal('show');
+    }
+    function getWebsitesByStoreId(ele){
+        let store_id = $(ele).val();
+
+        $.ajax({
+            url : "{{ route('getWebsiteByStore') }}",
+            type : "POST",
+            data : {
+                store_id : store_id,
+            },
+            beforeSend: function () {
+              $("#loading-image-preview").show();
+            },
+            success : function (response){
+              $("#loading-image-preview").hide();  
+                if(response.type == "success"){
+                    $('.websites').html("");
+                    $('.websites').append(response.data);
+
+                    $('.websites_edit').html("");
+                    $('.websites_edit').append(response.data);
+                }
+            },
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
+            }
+        });
+    }
+    $('.save-button').on('click',function(){
+        
+        if($('#coupon-form').valid()){
+            let formData = $('#coupon-form').serializeArray();
+
+            var indexed_array = {};
+            $.map(formData, function(n, i){
+                if(n['name'] == "website_ids"){
+                    indexed_array[n['name']] = $('.websites').val();
+                }else if(n['name'] == "customer_groups"){
+                    indexed_array[n['name']] = $('.customers').val(); 
+                }else{
+                     if(n['value'] != "") {
+                        indexed_array[n['name']] = n['value'];
+                     }
+                }
+            });
+
+            if($("#disable_coupon_code").is(":checked")) {
+                indexed_array["auto_generate"] = true;
+            }
+            
+            $.ajax({
+                url : "{{ route('quick.couponcode.store') }}",
+                type : "POST",
+                data : indexed_array,
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
+                success : function (response){
+                    $("#loading-image-preview").hide();
+                    if(response.type == "error"){
+                        toastr['error'](response.message, 'error'); 
+                        return false;
+                    }else if(response.type == "success"){
+                      toastr['success'](response.message, 'success'); 
+                      location.reload();
+                    }
+                },
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
+                }
+            });
+        }
+        
+    });
+    </script>
     <script>
         var openChatWindow = "<?php echo request('open_chat',false); ?>";
         if(openChatWindow == "true") {
@@ -438,13 +696,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 if ($(this).val() != "") {
                     var category_id = $(this).val();
 
-                    // category_quick_5119
-
-                    var store_website_id = $('#live_selected_customer_store').val();
-
-                    // var store_website_id = $(this).data('store_id');
-                    var id = $(this).data('id');
-
+                    var store_website_id = $('#selected_customer_store').val();
                   /*  if(store_website_id == ''){
                         store_website_id = 0;
                     }*/
@@ -455,10 +707,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                     }).done(function(data){
                         console.log(data);
                         if(data.status == 1){
-                            $('.category_quick_'+id).empty().append('<option value="">Quick Reply</option>');
+                            $('#quick_replies').empty().append('<option value="">Quick Reply</option>');
                             var replies = data.data;
                             replies.forEach(function (reply) {
-                                $('.category_quick_'+id).append($('<option>', {
+                                $('#quick_replies').append($('<option>', {
                                     value: reply.reply,
                                     text: reply.reply,
                                     'data-id': reply.id
@@ -505,18 +757,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 })
             });
 
-            $('.quick_replies_data').on("change", function(){
-                // $('.message_textarea').text($(this).val());
-
-                $(this).closest('td').find('.message_textarea').text($(this).val())
+            $('#quick_replies').on("change", function(){
+                $('.message_textarea').text($(this).val());
             });
-
-            function showticket(c)
-                {
-                  
-                    $('#ticket_customer_id').val(c);
-                    $('#create-customer-ticket-modal').modal('show');
-                
-                }
     </script>
 @endsection

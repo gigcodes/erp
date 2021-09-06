@@ -166,6 +166,27 @@ var page = {
             page.openUserStoreHistorListing($(this));
             
         });
+
+        $(document).on("click",".open-store-reindex-history",function(href) {
+            page.openStoreReindexHistory($(this));            
+        });
+
+    },
+    openStoreReindexHistory: function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+ele.data("id")+'/store-reindex-history',
+            method: "get",
+        }
+        this.sendAjax(_z, 'showStoreReindexHistory');
+    },
+    showStoreReindexHistory : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-store-reindex-history");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }     
     },
     openUserStoreHistorListing: function(ele) {
         var _z = {

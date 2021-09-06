@@ -27,7 +27,7 @@ class ReferFriendController extends Controller
                     ->orWhere('referee_phone', 'LIKE', '%'.$request->term.'%');
 		}
 
-		$data = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+		$data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
 		if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('referfriend.partials.list-referral', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),

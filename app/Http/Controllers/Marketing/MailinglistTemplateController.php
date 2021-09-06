@@ -134,6 +134,10 @@ class MailinglistTemplateController extends Controller
         $mailing_item->category_id  = $request->category;
         $mailing_item->store_website_id  = $request->store_website;
 
+        $mailing_item->salutation  = $request->salutation;
+        $mailing_item->introduction  = $request->introduction;
+
+
         $mailing_item->save();
 
         // this is related to image upload
@@ -149,6 +153,15 @@ class MailinglistTemplateController extends Controller
             $path = $path . "/" . $filename . "." . $ext;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
                 $mailing_item->example_image = $path;
+                $mailing_item->save();
+            }
+        }
+        $filename = date('U') . str_random(10);
+        if (!empty($_FILES['logo'])) {
+            $ext  = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+            $path = $path . "/" . $filename . "." . $ext;
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
+                $mailing_item->logo = $path;
                 $mailing_item->save();
             }
         }

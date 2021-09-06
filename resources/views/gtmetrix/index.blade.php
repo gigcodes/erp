@@ -49,6 +49,9 @@
     </div>  
     <div class="col-md-2 margin-tb">
         <div class="pull-right mt-3">
+        <button class="btn btn-secondary multi-run-test-btn btn-xs" onclick="checkCheckbox()" title="Run Test">
+            <i class="fa fa-play"></i>
+        </button>
             <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time
                 @if ( $cronTime && !empty( $cronTime->val ))
                     ( <small> {{$cronTime->val}} </small> )
@@ -66,7 +69,7 @@
     <div class="col-lg-12 margin-tb">
         <div class="panel-group" style="margin-bottom: 5px;">
             <div class="panel mt-3 panel-default">
-                <table class="table table-bordered table-striped table-responsive">
+                <table class="table table-bordered table-striped table-responsive site-gtMetrix-data">
                     <thead>
                         <tr>
                             <th>Website</th>
@@ -89,8 +92,10 @@
                     </thead>
                     <tbody>
                         @foreach ($list as $key)
+                        
                             <tr>
-                                <td><a href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a></td>
+                            
+                                <td> <input type="checkbox" name ="multi-run-test-type" class= "multi-run-test" value ="{{ $key->id }}"><a href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a></td>
                                 <td>{{ $key->test_id }}</td>
                                 <td>{{ $key->status }}</td>
                                 <td>{{ $key->error }}</td>
@@ -147,7 +152,7 @@
    50% 50% no-repeat;display:none;">
 </div>
 <div class="modal fade" id="gtmetrix-stats-modal" role="dialog">
-    <div class="modal-dialog modal-md model-width">
+    <div class="modal-dialog modal-lg model-width">
       <!-- Modal content-->
         <div class="modal-content message-modal" style="width: 100%;">
             
@@ -178,6 +183,8 @@
     
 @section('scripts')
 <script>
+
+//$(".site-gtmetrix-data tbody>tr").append("<input type='checkbox' />");
     function setactive(id){
 //   $(".nav-tabs li.nav-item a.nav-link").removeClass('active');
 
@@ -303,6 +310,56 @@
             }
         });
     });
+    var arrayList = [];
+    $(document).on("click",".multi-run-test",function() {
+        
+        $("input:checkbox[class=multi-run-test]:checked").each(function () {
+            if(arrayList.length == 0){
+                arrayList.push($(this).val()); 
+            }
+            else{
+               let findValue = arrayList.find(item =>{
+                if(item!==$(this).val()) 
+                arrayList.push($(this).val());
+                })
+            }
+            console.log(arrayList,"array");
+            
+        });
+    });
+    
+    function checkCheckbox() {  
+        
+        console.log(arrayList,"final ertyuy array");
+        if(arrayList.length){
+           
+            $.ajax({
+                url: "/gtmetrix/multi-run-event",
+                type: 'POST',
+                data : { _token: "{{ csrf_token() }}", arrayList : arrayList},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    if(result.code == 200) {
+                        
+                        toastr["success"](result.message);
+                    }else{
+                        toastr["error"](result.message);
+                    }
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    toastr["error"]("Something went wrong please check log file");
+                }
+            })
+        }else{
+
+            toastr["error"]("Please select atleast one checkbox");
+        }
+        
+    };
 
 </script>
 

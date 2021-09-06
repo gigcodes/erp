@@ -9,6 +9,7 @@ use App\MailinglistTemplateCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use qoraiche\mailEclipse\mailEclipse;
+use App\StoreWebsite;
 use View;
 
 class MailinglistTemplateCategoryController extends Controller
@@ -19,10 +20,24 @@ class MailinglistTemplateCategoryController extends Controller
 
         $logged_user = $request->user();
 
-        MailinglistTemplateCategory::create([
+       $cid= MailinglistTemplateCategory::create([
             'title' => $request->name,
             'user_id' => $logged_user->id
         ]);
+        $storeWebSites = StoreWebsite::get();
+        $data=[
+            'store_website_id'=>0,
+            'category_id'=>$cid->id
+        ];
+        MailinglistTemplate::insert($data);
+        foreach($storeWebSites as $s)
+        {
+            $data=[
+                'store_website_id'=> $s->id,
+                'category_id'=>$cid->id
+            ];
+            MailinglistTemplate::insert($data);
+        }
 
         return response()->json([
             'status' => true

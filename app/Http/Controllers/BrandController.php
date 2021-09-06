@@ -412,6 +412,7 @@ class BrandController extends Controller
 
         if($brand) {
            $brand->brand_segment = $segment;
+           $brand->status=0;
            $brand->save();
            return response()->json(["code" => 200 , "data" => []]);
         }
@@ -427,6 +428,7 @@ class BrandController extends Controller
 
         if($brand) {
            $brand->next_step = $next_step;
+           $brand->status=0;
            $brand->save();
            return response()->json(["code" => 200 , "data" => []]);
         }
@@ -531,16 +533,30 @@ class BrandController extends Controller
 
     }
 
-    public function storeCategorySegmentDiscount(Request $request) {
-        $category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
+    public function storeCategorySegmentDiscount(Request $request) {   
+		$ps = \App\StoreWebsiteProductPrice::join('products','store_website_product_prices.product_id','products.id')
+		->select('store_website_product_prices.id','store_website_product_prices.duty_price',
+		   'store_website_product_prices.product_id','store_website_product_prices.store_website_id','websites.code')
+           ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+		   ->leftJoin('category_segment_discounts','store_website_product_prices.web_store_id','websites.id' )
+           ->where('category_segment_discounts.brand_id', $request->brand_id)->where('category_segment_discounts.category_segment_id', $request->category_segment_id)
+           ->get(); //dd($ps);
+           if ($ps)
+           {
+				foreach($ps as $p)
+				{ 
+				  \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['status'=>0]) ;
+				}
+			}
+			$category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
         if($category_segment) {
-            return DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
+             return $catSegment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
                 'amount' => $request->amount,
                 'amount_type' => 'percentage',
                 'updated_at' => now() 
             ]);
         } else {
-            return DB::table('category_segment_discounts')->insert([
+            return $catSegment = DB::table('category_segment_discounts')->insert([
                 ['brand_id' => $request->brand_id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
             ]);
         }
@@ -710,6 +726,8 @@ class BrandController extends Controller
                                 "amount_type" => "percentage",
                             ]);
                         }
+
+                        $this->update_store_website_product_prices($b->id,$segment->id,$request->value);
                     }
                 }
             }
@@ -717,6 +735,40 @@ class BrandController extends Controller
 
         return response()->json(["code" => 200 , "message" => "Default segment discount assigned"]);
     }
+
+    public function approve(Request $request)
+    {
+         $ids=$request->ids;
+         $ids=explode(",", $ids);
+         for($i=0;$i<count($ids);$i++)
+         {
+             if ($ids[$i]>0)
+             \App\Brand::where('id',$ids[$i])->update(['status'=> 1]);
+                
+         }
+         return response()->json(["code" => 200 , "message" => "Approved Successfully"]);
+    }
+
+    public function update_store_website_product_prices($brand,$segment,$amount)
+        {
+                $ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.segment_discount')
+                ->join('products','store_website_product_prices.product_id','products.id')
+                ->join('categories','products.category','categories.id' )
+                ->join('category_segments','categories.category_segment_id','category_segments.id' )
+                ->where('products.brand',$brand)
+                ->where('categories.category_segment_id',$segment)
+                ->get();
+               
+                if ($ps)
+                {
+                    foreach($ps as $p)
+                    {
+                    \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$amount,'status'=>0]) ;
+                    $note="Segment Discount Changed from ".$p->segment_discount." To ".$amount;
+                    \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+                    }
+                }
+        }
 
     //END - DEVTASK-4278
 }

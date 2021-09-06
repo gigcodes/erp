@@ -55,6 +55,10 @@ use App\TwilioCallData;
 use App\TwilioSitewiseTime;
 use App\TwilioCallWaiting;
 use App\TwilioKeyOption;
+use App\OrderProduct;
+use App\ReturnExchangeProduct;
+use App\ReturnExchange;
+use App\ReturnExchangeStatus;
 
 /**
  * Class TwilioController - active record
@@ -574,10 +578,10 @@ class TwilioController extends FindByNumberController
                 if($key_data){
                     
                     foreach($key_data as $kk => $vv){
-                        $in_message .= ' Please Press '.$vv['key'].' for a '.$vv['details'];
+                        $in_message .= ', Please Press '.$vv['key'].' for a '.$vv['details'].' . ';
                     }
                 }
-                $in_message .= ' Please Press 0 for a Communicate with Our Agent';
+                $in_message .= ', Please Press 0 for a Communicate with Our Agent .';
 
 
                 Log::channel('customerDnd')->info(' in message >> '.$in_message);
@@ -647,10 +651,10 @@ class TwilioController extends FindByNumberController
                         if($key_data){
                             
                             foreach($key_data as $kk => $vv){
-                            $in_message .= 'Please Press '.$vv['key'].' for a '.$vv['details'];
+                            $in_message .= ' Please Press '.$vv['key'].' for a '.$vv['details'];
                             }
                         }
-                        $in_message .= 'Please Press 0 for a Communicate with Our Agent';
+                        $in_message .= ' Please Press 0 for a Communicate with Our Agent';
 
 
                         Log::channel('customerDnd')->info(' in message >> '.$in_message);
@@ -1008,7 +1012,7 @@ class TwilioController extends FindByNumberController
                     );
             
                     $gather->say(
-                        'Please Enter Last 4 Digits of Your Order Number',
+                        'Please Enter Your Order Id',
                         ['loop' => 3]
                     );
 
@@ -1039,6 +1043,70 @@ class TwilioController extends FindByNumberController
                 }else if($key_wise_option[$selectedOption]['description'] == 'administration'){ 
 
                     Log::channel('customerDnd')->info('twilio_call_menu_response >>> Administration');
+
+                    if(isset($key_wise_option[$selectedOption]['message']) && $key_wise_option[$selectedOption]['message'] != '')
+                    {
+                        $response->say($key_wise_option[$selectedOption]['message']);
+                    }
+                    // $response->play('https://'.$request->getHost() . "/intro_ring.mp3");
+
+                    $gather = $response->gather(
+                        [
+                            'numDigits' => 1,
+                            'action' => route('twilio_call_menu_response', [], false)
+                        ]
+                    );
+
+                    $in_message = 'Please Press 0 for a Communicate with Our Agent';
+            
+                    $gather->say(
+                        $in_message,
+                        ['loop' => 3]
+                    );
+
+                }else if($key_wise_option[$selectedOption]['description'] == 'socialmedia'){ 
+
+                    Log::channel('customerDnd')->info('twilio_call_menu_response >>> socialmedia');
+
+                    if(isset($key_wise_option[$selectedOption]['message']) && $key_wise_option[$selectedOption]['message'] != '')
+                    {
+                        $response->say($key_wise_option[$selectedOption]['message']);
+                    }
+                    // $response->play('https://'.$request->getHost() . "/intro_ring.mp3");
+
+                    $gather = $response->gather(
+                        [
+                            'numDigits' => 1,
+                            'action' => route('twilio_call_menu_response', [], false)
+                        ]
+                    );
+
+                    $in_message = 'Please Press 0 for a Communicate with Our Agent';
+            
+                    $gather->say(
+                        $in_message,
+                        ['loop' => 3]
+                    );
+
+                }else if($key_wise_option[$selectedOption]['description'] == 'return_refund_exchange'){ 
+
+                    Log::channel('customerDnd')->info('twilio_call_menu_response >>> return_refund_exchange');
+
+                    $gather = $response->gather(
+                        [
+                            'timeout' => 2,
+                            'action' => route('twilio_return_refund_exchange_on_call', [], false)
+                        ]
+                    );
+            
+                    $gather->say(
+                        'Please Press 1 for Return, Please Press 2 for Refund, Please Press 3 for Exchange, Please Press 0 for a Communicate with Our Agent',
+                        ['loop' => 3]
+                    );
+
+                }else if($key_wise_option[$selectedOption]['description'] == 'general'){ 
+
+                    Log::channel('customerDnd')->info('twilio_call_menu_response >>> general');
 
                     if(isset($key_wise_option[$selectedOption]['message']) && $key_wise_option[$selectedOption]['message'] != '')
                     {
@@ -1103,10 +1171,86 @@ class TwilioController extends FindByNumberController
 
         // $order_data = Customer::where('phone', '=', $number)->first();
 
-        $order_data = Order::where('id', $selectedOption)->first();
+        $order_data = Order::where('order_id', $selectedOption)->first();
 
+        $option = ($request->get("sel_option") != null ? 1 : 0);
 
-        if($order_data){
+        if($order_data && $option == 1)
+        {
+            Log::channel('customerDnd')->info('Order Data Match'.json_encode($order_data));
+            Log::channel('customerDnd')->info('Option :: > '.$request->get("sel_option"));
+
+            if($request->get("sel_option") == 'return' || $request->get("sel_option") == 'exchange' || $request->get("sel_option") == 'refund'){
+
+                $order_pro = OrderProduct::where('order_id',$order_data->id)->first();
+
+                if($order_pro){
+
+                    Log::channel('customerDnd')->info('order_product_id ::  '.$order_pro->id);
+
+                    $return_exchange_pro = ReturnExchangeProduct::where('order_product_id',$order_pro->id)->first();
+
+                    if($return_exchange_pro){
+                    Log::channel('customerDnd')->info('return_exchange_pro  return_exchange_id::  '.$return_exchange_pro->return_exchange_id);
+
+                    Log::channel('customerDnd')->info('return_exchange_pro  status_id::  '.$return_exchange_pro->status_id);
+                    }
+
+                    $order_status = '';
+
+                    if($return_exchange_pro && $return_exchange_pro->return_exchange_id != null && $return_exchange_pro->return_exchange_id != ''){
+                        $return_exchange = ReturnExchange::where('id',$return_exchange_pro->return_exchange_id)->first();
+
+                        $returnexchangestatus = ReturnExchangeStatus::where('id',$return_exchange->status)->first();
+
+                        $order_status = $returnexchangestatus->status_name;
+
+                        $response->say('Your Order '.$request->get("sel_option").' Status is '.$order_status);
+
+                        $response->say('Thank you.');
+
+                        $response->hangup();
+                    
+                        return $response;
+                    }
+                    else if($return_exchange_pro && $return_exchange_pro->status_id != null && $return_exchange_pro->status_id != ''){
+
+                        $returnexchangestatus = ReturnExchangeStatus::where('id',$return_exchange_pro->status_id)->first();
+
+                        $order_status = $returnexchangestatus->status_name;
+
+                        $response->say('Your Order '.$request->get("sel_option").' Status is '.$order_status);
+
+                        $response->say('Thank you.');
+
+                        $response->hangup();
+                    
+                        return $response;
+                    }else{
+
+                        Log::channel('customerDnd')->info('Not Match Any Record regarding '.$request->get("sel_option").' .');
+
+                        $response->say('Not Match Any Record regarding '.$request->get("sel_option").' .');
+
+                        $response->redirect(route('ivr', ['count'=>0], false));
+
+                        return $response;
+
+                    }
+                }else{
+
+                    // Log::channel('customerDnd')->info('Not Match Any Record from your Input 22');
+                    Log::channel('customerDnd')->info('Not Match Any Record regarding '.$request->get("sel_option").' .');
+
+                    $response->say('Not Match Any Record regarding '.$request->get("sel_option").' .');
+
+                    $response->redirect(route('ivr', ['count'=>0], false));
+
+                    return $response;
+                }
+            }
+        }
+        else if($order_data && $option == 0){
             Log::channel('customerDnd')->info('Order Data Match'.json_encode($order_data));
             $order_status = '';
             if($order_data->order_status_id != null)
@@ -1136,9 +1280,93 @@ class TwilioController extends FindByNumberController
             $response->say('Not Match Any Record from your Input');
 
             $response->redirect(route('ivr', ['count'=>0], false));
+
+            return $response;
         }
         
 
+    }
+
+
+    public function twilio_return_refund_exchange_on_call(Request $request)
+    {
+        $selectedOption = $request->input('Digits');
+        $response = new VoiceResponse();
+        Log::channel('customerDnd')->info('return_refund_exchange selectedOption = '.$selectedOption);
+
+
+        if($selectedOption == 0){
+
+            $response->redirect(route('ivr', ['call_with_agent'=>1], false));
+            
+            return $response;
+
+        }else if($selectedOption == 1){
+            
+            Log::channel('customerDnd')->info('return_refund_exchange >> Return ');
+            
+            $gather = $response->gather(
+                [
+                    'numDigits' => 30,
+                    // 'timeout' => 2,
+                    'action' => route('twilio_order_status_and_information_on_call', ['sel_option'=>'return'], false)
+                ]
+            );
+    
+            $gather->say(
+                'Please Enter Your Order Id',
+                ['loop' => 3]
+            );
+
+        }else if($selectedOption == 2){
+            //Refund
+            Log::channel('customerDnd')->info('return_refund_exchange >> Refund ');
+
+            $gather = $response->gather(
+                [
+                    'numDigits' => 30,
+                    // 'timeout' => 2,
+                    'action' => route('twilio_order_status_and_information_on_call', ['sel_option'=>'refund'], false)
+                ]
+            );
+    
+            $gather->say(
+                'Please Enter Your Order Id',
+                ['loop' => 3]
+            );
+
+        }else if($selectedOption == 3){
+            //Exchange
+            Log::channel('customerDnd')->info('return_refund_exchange >> Exchange ');
+
+            $gather = $response->gather(
+                [
+                    'numDigits' => 30,
+                    // 'timeout' => 2,
+                    'action' => route('twilio_order_status_and_information_on_call', ['sel_option'=>'exchange'], false)
+                ]
+            );
+    
+            $gather->say(
+                'Please Enter Your Order Id',
+                ['loop' => 3]
+            );
+
+        }else{
+            $response->say('Invalid Input.');
+
+            $response->redirect(route('ivr', ['count'=>2], false));
+    
+            return $response;
+        }
+
+        $response->say(
+            'Returning to the main menu',
+            ['voice' => 'Alice', 'language' => 'en-GB']
+        );
+        $response->redirect(route('ivr', [], false));
+
+        return $response;
     }
     // IVR Menu key input Action - END
 

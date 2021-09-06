@@ -1,6 +1,8 @@
 <div id="charityCreateModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
-
+    @php
+    $storewebsite = \App\StoreWebsite::all()
+    @endphp
     <!-- Modal content-->
     <div class="modal-content"> 
       <form action="{{ route('customer.charity.post') }}" method="POST">
@@ -17,6 +19,18 @@
             <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
             @if ($errors->has('name'))
               <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Store Website:</strong>
+            <select name="store_website_id" class="form-control" required>
+              @foreach($storewebsite as $w)
+              <option value="{{$w->id}}">{{$w->title}}</option>
+              @endforeach
+            </select>  
+           
+            @if ($errors->has('store_website_id'))
+              <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
             @endif
           </div>
           <div class="form-group">
@@ -178,6 +192,18 @@
             <input type="text" name="name" class="form-control" value="{{ old('name') }}" required id="vendor_name">
             @if ($errors->has('name'))
               <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Store Website:</strong>
+            <select name="store_website_id" id="vendor_store_website_id" class="form-control" required>
+              @foreach($storewebsite as $w)
+              <option value="{{$w->id}}">{{$w->title}}</option>
+              @endforeach
+            </select>  
+           
+            @if ($errors->has('store_website_id'))
+              <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
             @endif
           </div>
           <div class="form-group">
