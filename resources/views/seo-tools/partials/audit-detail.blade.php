@@ -8,7 +8,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">Site Audit ({{websiteName($id)}})</h2>
+                    <h2 class="page-heading">Site Audit </h2>
                 </div>
             </div>
         </div>
