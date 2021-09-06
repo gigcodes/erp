@@ -40,21 +40,13 @@
     </div>
 
     @if ($message = Session::get('success'))
-
         <div class="alert alert-success">
-
             <p>{{ $message }}</p>
-
         </div>
-
     @endif
 
-
-
     <div class="productGrid" id="productGrid">
-
       @include('lead-order.lead-order-item')
-
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -67,50 +59,27 @@
       $(".select2").select2({tags:true});
     });
       $(document).on('click', '.pagination a, th a', function(e) {
-
         e.preventDefault();
-
         var url = $(this).attr('href');
-
-
-
         getProducts(url);
-
       });
-
       $(document).on('click', '.check-lead', function() {
-
         var id = $(this).data('leadid');
-
-
-
         if ($(this).prop('checked') == true) {
-
           // $(this).data('attached', 1);
-
           attached_leads.push(id);
-
         } else {
-
           var index = attached_leads.indexOf(id);
-
-
-
           // $(this).data('attached', 0);
-
           attached_leads.splice(index, 1);
-
         }
-
-
-
         console.log(attached_leads);
-
       });
-
     </script>
 
 @endsection
 @section('scripts')
   
 @endsection
+
+
