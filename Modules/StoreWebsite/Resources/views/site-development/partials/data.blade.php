@@ -70,10 +70,55 @@
                  </div>
             </td>
 			<td>	
-				@foreach($category->assignedTo as $assignedTo)
-				{{$assignedTo->assigned_to_name}} <br>
+				@foreach($category->assignedTo as $assignedTo) 
+					<div style="height:40px !important;">{{$assignedTo['assigned_to_name']}}  </div></br><hr>
 				@endforeach
 			</td>
+			
+			 <td class="pr-0 pt-0" >
+                <div class="row m-0">
+                  <div style="width: calc(100% - 145px);">
+                      <div class="row">
+					  <table>
+					  @foreach($category->assignedTo as $assignedTo) 
+					  <tr><td>
+                          <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1" style="height:60px !important;">
+                              <?php
+                              $MsgPreview = '# ';
+                              if ($website) {
+                                  $MsgPreview = $website->website;
+                              }
+                              if ($site) {
+                                  $MsgPreview = $MsgPreview . ' ' . $site->title;
+                              }
+                              ?>
+							  <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                 <div style="margin-top: 4px;" class="d-flex p-0">
+								     <button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{$assignedTo['task_id']}}"><img src="/images/filled-sent.png" style="cursor: default;"></button> 
+								 </div>
+							</div>
+						  
+                          <div class="col-md-12 p-0 pl-4">
+								<!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
+                                  <div class="d-flex">
+                                      <div class="justify-content-between expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
+                                          <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif pl-1"> {{ str_limit($assignedTo['message'], 30,'...') }} </span>
+                                      </div>
+                                  </div>
+                                  <div class="expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
+                                      <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif hidden">  {{ $assignedTo['message'] }} </span>
+                                  </div>
+                                  <!-- END - #DEVTASK-19918 -->
+                          </div>
+						  </td>
+						  </tr>
+						  @endforeach
+						  </table>
+                      </div>
+                  </div>
+                </div>
+			</td>
+			
             <td style="display:none;">
                 <input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
                 <input style="margin-top: 0;" type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site){{ $site->title }}@endif" data-site="@if($site){{ $site->id }}@endif">
@@ -128,99 +173,7 @@
                     </div>
                 </div>
             </td>
-            <td class="pr-0 pt-0">
-                <div class="row m-0">
-{{--                    @if($site)--}}
-{{--                    <div class="col-md-12">--}}
-{{--                        <div class="chat_messages expand-row table-hover-cell d-inline">--}}
-{{--                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="site_development" data-id="{{$site->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>--}}
-{{--                            <span class="chat-mini-container"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>--}}
-{{--                            <span class="chat-full-container hidden"></span>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    @endif--}}
-
-                  <div style="width: calc(100% - 145px);">
-                      <div class="row">
-                          <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1">
-                              <?php
-                              $MsgPreview = '# ';
-                              if ($website) {
-                                  $MsgPreview = $website->website;
-                              }
-                              if ($site) {
-                                  $MsgPreview = $MsgPreview . ' ' . $site->title;
-                              }
-                              ?>
-                              <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-@if($site){{ $site->id }}@endif">
-                              <div style="margin-top: 4px;" class="d-flex p-0">
-                                  <button class="btn pr-0 btn-xs btn-image send-message-site" data-prefix="{{$MsgPreview}}" data-category="{{ $category->id }}" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png" /></button>
-                                  @if($site)
-                                      <div  class="chat_messages expand-row table-hover-cell d-inline">
-                                          <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="site_development" data-id="{{$site->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                                          <span class="chat-full-container hidden"></span>
-                                      </div>
-                                  @endif
-                              </div>
-                          </div>
-                          <div class="col-md-12 p-0 pl-4">
-                          @if($site)
-                              <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
-                                  <div class="d-flex">
-                                      @if($site->lastChat) Chat = @endif
-                                      <div class="justify-content-between expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
-                                          <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif pl-1"> @if($site->lastChat) {{ str_limit($site->lastChat->message, 30,'...') }} @endif</span>
-                                      </div>
-                                  </div>
-                                  <div class="expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
-                                      <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif hidden"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
-                                  </div>
-                                  <div class="d-flex">
-                                      @if($site->lastRemark) Remarks = @endif
-                                      <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                          <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 35, '...') }} @endif</span>
-                                      </div>
-                                  </div>
-                                  <div class="expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif hidden">
-                                    @if($site->lastRemark) {{ $site->lastRemark->remarks }} @endif
-                                </span>
-                                  </div>
-                                  <!-- END - #DEVTASK-19918 -->
-                              @endif
-                          </div>
-                      </div>
-                  </div>
-                    <div style="width: 140px; display:none;">
-                        <div  class="d-flex mt-1">
-                            <span  class="hidden_row_{{ $category->id  }}" >
-                               <span class="d-flex">
-                                   <span class="d-flex">
-                                    <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
-                                &nbsp;<label style="font-size: 12px;line-height: 20px" class="mb-0" for="developer">Developer</label>
-                               </span>
-                              <span class="d-flex pl-2">
-                                    <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">
-                                &nbsp;<label style="font-size: 12px;line-height: 20px" class="mb-0" for="html">Html</label>&nbsp;
-                              </span>
-                               </span>
-                               <span class="d-flex ">
-                                   <span class="d-flex">
-                                    <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">
-                                &nbsp;<label style="font-size: 12px;line-height: 20px"  class="mb-0" for="designer">Designer</label>&nbsp;
-                               </span>
-
-                               <span class="d-flex pl-2">
-                                    <input type="checkbox" id="html_{{$category->id}}" name="tester" value="tester">
-                                &nbsp;<label style="font-size: 12px;line-height: 20px" class="mb-0" for="html">Tester</label>
-                               </span>
-                               </span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-            </td>
+           
             <td>
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>

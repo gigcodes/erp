@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Carbon\Carbon;
 
 class SiteDevelopmentController extends Controller
 {
@@ -70,20 +71,47 @@ class SiteDevelopmentController extends Controller
 		 } else{
 			 $categories->orderBy('title', 'asc');
 		 }
-       $categories = $categories->paginate(Setting::get('pagination'));
-       foreach($categories as $category) {
-	    $site_developement_id = $category->site_development_id;
-		$query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('users.id','users.name as assigned_to_name');
-        $taskStatistics = $query->get();
-       
-        $query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('users.id','users.name as assigned_to_name');
-        $othertaskStatistics = $query1->get();
+        $categories = $categories->paginate(Setting::get('pagination'));
 		
-        $merged = $othertaskStatistics->merge($taskStatistics);
-		$category->assignedTo = $merged;
+        foreach($categories as $category) {
+			$finalArray = [];
+			$site_developement_id = $category->site_development_id;
+			$query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('developer_tasks.id','developer_tasks.task as subject','developer_tasks.status','users.name as assigned_to_name', 'users.id as user_id');
+			$taskStatistics = $query->get();
+			foreach($taskStatistics as $task) {
+				$object = DeveloperTask::find($task->id);
+				$message = $object->whatsappAll()->orderBy('id', 'desc')->first(); 
+				if($message == null ) {
+					$finalArray[] = ['assigned_to_name'=>$task['assigned_to_name'], 
+					'message'=> '', 'messaged_at'=>'', 'task_id'=>$task['id']];
+				} else{
+					$finalArray[] = ['assigned_to_name'=>$task['assigned_to_name'], 'task_id'=>$task['id'], 
+					'message'=> $message['message'], 'messaged_at'=>Carbon::parse($message['created_at'])->format('Y-m-d H:i:s')];
+				}
+				/*if(!isset($finalArray[$task['user_id']]) || $finalArray[$task['user_id']]['messaged_at'] < $array['messaged_at']) {
+					$finalArray[$task['user_id']] = $array;
+				}*/
+			}
+			$query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('tasks.id','tasks.task_subject as subject','tasks.assign_status','users.name as assigned_to_name', 'users.id as user_id');
+			$othertaskStatistics = $query1->get();
+			foreach($othertaskStatistics as $task) {
+				$object = Task::find($task->id);
+				$message = $object->whatsappAll()->orderBy('id', 'desc')->first(); 
+				if($message == null ) {
+					$finalArray[]  = ['assigned_to_name'=>$task['assigned_to_name'], 'task_id'=>$task['id'], 
+					'message'=> '', 'messaged_at'=>''];
+				} else{
+					$finalArray[] = ['assigned_to_name'=>$task['assigned_to_name'], 'task_id'=>$task['id'], 
+					'message'=> $message['message'], 'messaged_at'=>Carbon::parse($message['created_at'])->format('Y-m-d H:i:s')];
+				}
+				/*if(!isset($finalArray[$task['user_id']]) || $finalArray[$task['user_id']]['messaged_at'] < $array['messaged_at']) {
+					$finalArray[$task['user_id']] = $array;
+				}*/
+			} dd($finalArray);
+			//$merged = $othertaskStatistics->merge($taskStatistics);
+			$category->assignedTo = $finalArray;  
 	   }
 	   
-//   dd($categories);
         //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
 
