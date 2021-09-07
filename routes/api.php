@@ -249,3 +249,5 @@ Route::post('google-scrapper-data', '\App\Http\Controllers\Api\v1\GoogleScrapper
 
 //Out Of Stock Subscribe
 Route::post('out-of-stock-subscription' ,'Api\v1\OutOfStockSubscribeController@Subscribe');
+//customer data add in cart
+Route::post('customer/add_cart_data' ,'Api\v1\CustomerController@add_cart_data');
