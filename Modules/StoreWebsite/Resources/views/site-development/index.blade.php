@@ -1719,9 +1719,11 @@
 	$("#order_query").change(function(){
 		var url = window.location.href;
 		if(url.indexOf('?order=') != -1  || url.indexOf('&order=') != -1 ) { 
-			var new_url = removeParam('order', url); console.log(new_url);
-		}
-		window.location =  window.location.href+'&order='+$(this).val();
+			var new_url = removeParam('order', url); 
+			window.location = new_url+'&order='+$(this).val();
+		}else{
+			window.location =  window.location.href+'&order='+$(this).val();
+		} 
 		
 	});
 	
