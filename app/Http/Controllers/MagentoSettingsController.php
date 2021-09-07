@@ -281,6 +281,7 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command   
+                        \Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -329,6 +330,7 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
+                        \Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -378,6 +380,7 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
+                        \Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
