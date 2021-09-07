@@ -441,13 +441,22 @@ class ProductPriceController extends Controller
 			foreach($brands as $brand) {
                $country = $countries[$i];
 
-                foreach ($category_segments as $key => $value) {
-                    $category_segment_discount = DB::table('category_segment_discounts')->where('brand_id', $brand['id'])->where('category_segment_id', $value['id'])->first();
+              //  foreach ($category_segments as $key => $value) {
+				$category_segment_discount = \DB::table("categories")->join("category_segments as cs", "cs.id", "categories.category_segment_id")
+						->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
+						->where('categories.id', $cat_id)
+						->where('csd.brand_id', $brand['id'])
+						->select("csd.*")
+						->first();                   
+
+				   //$category_segment_discount = DB::table('category_segment_discounts')->where('category_id', $cat_id)->where('brand_id', $brand['id'])->first();
                     if($category_segment_discount != null) {
 						if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
 							
 							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-								$final_price = ($product_price * $category_segment_discount->amount)/100;
+								//$final_price = ($product_price * $category_segment_discount->amount)/100;
+								$catDisc = ($product_price * $category_segment_discount->amount)/100;
+								$final_price = $final_price - $catDisc;
 							}
 
 						}elseif($category_segment_discount->amount_type == 'amount'){
@@ -456,15 +465,17 @@ class ProductPriceController extends Controller
 							}
 						}
                     }
-                }
+                //}
 
                 if($country['default_duty']!='' || $country['default_duty']!=0){
-                    $final_price += ($final_price * $country['default_duty'])/100;
+                    $dutyDisc = ($final_price * $country['default_duty'])/100;
+					$final_price = $final_price - $dutyDisc;
                 }
 
                 if(\App\Product::IVA_PERCENTAGE!=0){
                     $IVA = \App\Product::IVA_PERCENTAGE;
-                    $final_price = ( $final_price * $IVA )/100;
+                    $lessIva = ( $final_price * $IVA )/100;
+					$final_price = $final_price - $lessIva;
                 }
                 
 				$product_list[] = [
