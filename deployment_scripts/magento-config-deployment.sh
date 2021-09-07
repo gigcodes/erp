@@ -60,8 +60,7 @@ git commit -m 'Deployment config erp'
 git push origin stage
 
 ##### Create PR from stage to master ####
-pr=$(hub pull-request -b master -h stage -m "config deployment from erp")
-pull_number=$(echo "$pr" | awk -F "/" {'print $7'})
+pull_number=`curl -XPOST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ludxb/$repo/pulls -d '{"head":"stage","base":"master","title":"config deployment from erp"}' |grep '"number"'|awk '{print $2}'|cut -d',' -f1`
 
 ##### Merge PR ####
 curl -XPUT -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/ludxb/$repo/pulls/$pull_number/merge
