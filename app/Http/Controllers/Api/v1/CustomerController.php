@@ -56,6 +56,7 @@ class CustomerController extends Controller
             $customer_id = $checkCustomer->id;
             foreach($request->item_info as $item){
                 $skuarr = explode("-",$item['sku']);
+                
                 $product = Product::where('sku',$skuarr[0])->first();
                 if($product){
                     $erp_lead = new ErpLeads;
