@@ -1012,7 +1012,7 @@ class TwilioController extends FindByNumberController
                     );
             
                     $gather->say(
-                        'Please Enter Last 4 Digits of Your Order Number',
+                        'Please Enter Your Order Id',
                         ['loop' => 3]
                     );
 
@@ -1171,7 +1171,7 @@ class TwilioController extends FindByNumberController
 
         // $order_data = Customer::where('phone', '=', $number)->first();
 
-        $order_data = Order::where('id', $selectedOption)->first();
+        $order_data = Order::where('order_id', $selectedOption)->first();
 
         $option = ($request->get("sel_option") != null ? 1 : 0);
 
@@ -1182,7 +1182,7 @@ class TwilioController extends FindByNumberController
 
             if($request->get("sel_option") == 'return' || $request->get("sel_option") == 'exchange' || $request->get("sel_option") == 'refund'){
 
-                $order_pro = OrderProduct::where('order_id',$selectedOption)->first();
+                $order_pro = OrderProduct::where('order_id',$order_data->id)->first();
 
                 if($order_pro){
 
@@ -1228,9 +1228,9 @@ class TwilioController extends FindByNumberController
                         return $response;
                     }else{
 
-                        Log::channel('customerDnd')->info('Not Match Any Record from your Input 11');
+                        Log::channel('customerDnd')->info('Not Match Any Record regarding '.$request->get("sel_option").' .');
 
-                        $response->say('Not Match Any Record from your Input');
+                        $response->say('Not Match Any Record regarding '.$request->get("sel_option").' .');
 
                         $response->redirect(route('ivr', ['count'=>0], false));
 
@@ -1239,9 +1239,10 @@ class TwilioController extends FindByNumberController
                     }
                 }else{
 
-                    Log::channel('customerDnd')->info('Not Match Any Record from your Input 22');
+                    // Log::channel('customerDnd')->info('Not Match Any Record from your Input 22');
+                    Log::channel('customerDnd')->info('Not Match Any Record regarding '.$request->get("sel_option").' .');
 
-                    $response->say('Not Match Any Record from your Input');
+                    $response->say('Not Match Any Record regarding '.$request->get("sel_option").' .');
 
                     $response->redirect(route('ivr', ['count'=>0], false));
 
@@ -1279,6 +1280,8 @@ class TwilioController extends FindByNumberController
             $response->say('Not Match Any Record from your Input');
 
             $response->redirect(route('ivr', ['count'=>0], false));
+
+            return $response;
         }
         
 
@@ -1311,7 +1314,7 @@ class TwilioController extends FindByNumberController
             );
     
             $gather->say(
-                'Please Enter Last 4 Digits of Your Order Number',
+                'Please Enter Your Order Id',
                 ['loop' => 3]
             );
 
@@ -1328,7 +1331,7 @@ class TwilioController extends FindByNumberController
             );
     
             $gather->say(
-                'Please Enter Last 4 Digits of Your Order Number',
+                'Please Enter Your Order Id',
                 ['loop' => 3]
             );
 
@@ -1345,7 +1348,7 @@ class TwilioController extends FindByNumberController
             );
     
             $gather->say(
-                'Please Enter Last 4 Digits of Your Order Number',
+                'Please Enter Your Order Id',
                 ['loop' => 3]
             );
 

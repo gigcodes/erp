@@ -1010,6 +1010,7 @@ class Product extends Model
         if ($website) {
             // $brand    = @$this->brands->brand_segment == NULL ? $this->brand_segment : $this->brands->brand_segment;
             $brand = $category_segment != null ? $category_segment : @$this->brands->brand_segment ;
+
             $category = $this->category;
             $country  = $countryId;
 
@@ -1021,7 +1022,7 @@ class Product extends Model
             }
 
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where(function ($q) use ($brand, $category, $country) {
                     $q->orWhere(function ($q) use ($brand, $category) {
                         $q->where("brand_segment", $brand)->where("category_id", $category);
@@ -1034,17 +1035,18 @@ class Product extends Model
             }
 
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where("brand_segment", $brand)->first();
             }
 
+
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where("category_id", $category)->first();
             }
 
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where("country_code", $country)->first();
             }
 

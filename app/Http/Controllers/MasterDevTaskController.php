@@ -36,6 +36,12 @@ class MasterDevTaskController extends Controller
      */
     public function index(Request $request)
     {
+
+        $memory_use = MemoryUsage::
+                whereDate('created_at', now()->format('Y-m-d'))
+                ->orderBy('used','desc')
+                ->first();
+
         $currentSize = \DB::table("database_historical_records")->orderBy("created_at", "desc")->first();
         //echo '<pre>'; print_r($currentSize); echo '</pre>';exit;
         $sizeBefore  = null;
@@ -140,10 +146,7 @@ class MasterDevTaskController extends Controller
 		//$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
         $projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at or display_dev_master = 1";
 
-        $memory_use = MemoryUsage::
-                whereDate('created_at', now()->format('Y-m-d'))
-                ->orderBy('used','desc')
-                ->first();
+        
 
 
         $projectDirectoryData = \DB::select($projectDirectorySql);

@@ -53,13 +53,10 @@ class TestingController extends Controller
 
 
     public function testingFunction(Request $request)
+   
     {
             
-        
-        Schema::table('call_busy_messages', function (Blueprint $table) {
-            $table->text('audio_text');
-          });
-        
+       
         $message = '<!DOCTYPE html>
                     <html>
                     <head>

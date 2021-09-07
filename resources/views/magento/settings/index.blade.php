@@ -33,6 +33,14 @@
                            @endforeach
                        </select>
                     </div>  
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}">
+                          
+                    </div>  
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}">
+                          
+                    </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -63,7 +71,7 @@
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($magentoSettings as $magentoSetting)
                             <tr>
                                 <td>{{ $magentoSetting->id }}</td>
@@ -75,10 +83,11 @@
                                         <td>-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
-                                        
+                                
                                         <td>{{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }}</td>
                                         <td>{{ $magentoSetting->store->website->name }}</td>
                                         <td>-</td>
+                                        
                                 @else
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-' }}</td>
@@ -103,6 +112,8 @@
     </div>
 
 </div>
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
 
 <div id="add-setting-popup" class="modal fade" role="dialog">
     <div class="modal-dialog" role="document">
@@ -138,29 +149,26 @@
                               </div>
                         
 
-
-                        
                     <div class="form-group">
-                        <label for="">Websites</label><br>
-                        <select class="form-control website select2" name="website[]" multiple data-placeholder="Select setting websites" style="width: 100%">
-                            <option value=""></option>
+                        <label for="single_website">Website</label><br>
+                        <select class="form-control website" name="single_website" data-placeholder="Select setting website" style="width: 100%">
+                            <option value="">Select Website</option>
                             @foreach($storeWebsites as $w)
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
                             @endforeach
                         </select>
-                    </div>     
-
+                        <input type="hidden" id="single_website" name="website[]" value="" />
+                    </div>
+                    
                     <div class="form-group d-none website_store_form">
                         <label for="">Website Store </label><br>
                         <select class="form-control website_store select2" name="website_store[]" data-placeholder="Select setting website store" style="width: 100%">
-                            <option value=""></option> 
                         </select>
                     </div>       
 
                     <div class="form-group d-none website_store_view_form">
                         <label for="">Website Store View</label><br>
                         <select class="form-control website_store_view select2" name="website_store_view[]" data-placeholder="Select setting website store view" style="width: 100%">
-                            <option value=""></option> 
                         </select>
                     </div>                       
                     
@@ -177,7 +185,18 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
-                    </div> 
+                    </div>
+                        
+                    <div class="form-group">
+                        <label for="">Websites (This setting will apply to following websites)</label><br>
+                        <select class="form-control website select2" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
+                            <option value=""></option>
+                            @foreach($storeWebsites as $w)
+                                <option value="{{ $w->id }}">{{ $w->website }}</option>
+                            @endforeach
+                        </select>
+                    </div>    
+                        
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -232,6 +251,16 @@
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
                     </div>
                     <div class="form-group">
+                        <label for="git_repository">Github Repository</label><br>
+                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
+                            @php $i=0;  @endphp
+                            @foreach(\App\Github\GithubRepository::all() as $w)
+                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
+                                @php $i+=1; @endphp
+                            @endforeach
+                        </select>                        
+                    </div>
+                    <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
                         <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
                             <option value=""></option>
@@ -265,6 +294,11 @@
 @section('scripts')
 
 <script type="text/javascript">
+    
+    $(document).on('change', '[name="single_website"]', function(e) {
+        //$('#add-setting-popup [name="website[]"]').select2("val", this.value);
+        $('#single_website').val(this.value);
+    });
 
     $(".select2").select2();
 
@@ -392,7 +426,7 @@
             }else{
                 toastr['error'](response.message);
             }
-            //location.reload();
+            location.reload();
         }).fail(function() {
             console.log("error");
             $("#loading-image").hide();
@@ -409,14 +443,14 @@
             $('#add-setting-popup .website_store_form').addClass('d-none');
             return false;
         }else if(scope == 'websites'){
-            $('#add-setting-popup .website').attr('multiple', false).val('');
+            //$('#add-setting-popup .website').attr('multiple', false).val('');
             $('#add-setting-popup .website').trigger('change'); 
             $('#add-setting-popup .website_store').attr('multiple', true);
             $('#add-setting-popup .website_store').trigger('change'); 
             $('#add-setting-popup .website_store_form').removeClass('d-none');
             $('#add-setting-popup .website_store_view_form').addClass('d-none');
         }else if(scope == 'stores'){
-            $('#add-setting-popup .website').attr('multiple', false).val('');
+            //$('#add-setting-popup .website').attr('multiple', false).val('');
             $('#add-setting-popup .website').trigger('change'); 
             $('#add-setting-popup .website_store').attr('multiple', false).val('');
             $('#add-setting-popup .website_store').trigger('change'); 
@@ -494,11 +528,55 @@
             url: '/magento-admin-settings/delete/'+id,   
             }).done(function(response) {
                 $("#loading-image").hide(); 
-                location.reload();  
+                location.reload();
             }).fail(function() {
                 console.log("error");
             });
         } 
     });
+
+
+   
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('magento-admin-settings')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
 </script>
 @endsection

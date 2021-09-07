@@ -73,7 +73,11 @@
 
 						<button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty">
 							<a href="javascript:;"><i class="fa fa-info-circle"></i></a>
-						</button> 
+						</button>
+
+						<button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history">
+								<a href="javascript:;"><i class="fa fa-history"></i></a>
+						</button>
 
 			        </td>
 			      </tr>
@@ -514,4 +518,41 @@
 			</div>
 		</div>
 	</div>	
+</script>
+
+<script type="text/x-jsrender" id="template-store-reindex-history">
+    <div class="modal-content">
+        <div class="modal-header">
+           <h5 class="modal-title">Store Reindex History</h5>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">		
+                <div class="col-lg-12">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Servername</th>
+                            <th>Username</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {{props data}}
+                                  <tr>
+                                    <td>{{if prop}}{{:prop.date}}{{/if}}</td>
+                                    <td>{{if prop}}{{:prop.server_name}}{{/if}}</td>
+                                    <td>{{if prop}}{{:prop.username}}{{/if}}</td>
+                                    <td>{{if prop}}{{:prop.action}}{{/if}}</td>
+                                  </tr>
+                            {{/props}}
+                        </tbody>
+                    </table>
+                </div>	
+            </div>
+         </div>
+    </div>	
 </script>

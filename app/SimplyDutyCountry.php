@@ -14,7 +14,7 @@ class SimplyDutyCountry extends Model
      * @SWG\Property(property="country_name",type="string")
      * @SWG\Property(property="default_duty",type="string")
      */
-    protected $fillable = ['country_code','country_name', 'default_duty'];
+    protected $fillable = ['country_code','country_name', 'default_duty','status'];
 
     public static function getSelectList()
     {

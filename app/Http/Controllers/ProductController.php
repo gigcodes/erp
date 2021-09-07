@@ -5684,5 +5684,16 @@ class ProductController extends Controller
 
     }
 
+
+    public function changeimageorder(Request $request)
+    {
+        if(!empty($request->mid) && !empty($request->pid) && !empty($request->val)) {
+            \App\Mediables::where('mediable_type','App\Product')->where('mediable_id',$request->pid)->where('media_id',$request->mid)->update(['order'=>$request->val]);
+        return response()->json(["code" => 200 ,"data" => [], "message" => "order update successfully"]);
+        }
+        else
+        return response()->json(["code" => 0 ,"data" => [], "message" => "error"]);
+    }
+
 }
 

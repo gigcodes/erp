@@ -178,6 +178,7 @@
                 <th width="7%">Product</th>
                 <th width="7%">Phone</th>
                 <th width="7%">Email</th>
+                <th width="7%">Store Website</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
@@ -345,6 +346,48 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="createWebsite" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+               
+                    <div class="modal-body">
+                <form id="create_website" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" name="model_charity_id"  id="model_charity_id">
+                            <strong>Website</strong>
+                                            <select name="website_id"  id="website_id" class="form-control" required>
+                            @foreach($website1 as $w)
+                            <option value="{{$w->id}}">{{$w->name}}</option>
+                            @endforeach
+                            </select>  
+                            
+                        </div>
+
+                        <div class="form-group">
+                        <strong>Price</strong>
+                            <input type="text" class="form-control" name="website_price" id="website_price">            
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                       
+                       
+                    </div>
+                </form>
+                       <div id="dev_website"> </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" onclick="savewebsite();" class="btn btn-secondary">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
     <div id="create_broadcast" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -678,6 +721,7 @@
             var url = "/products/customer/charity/" + vendor.id; 
             $('#charityEditModal form').attr('action', url);
             $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
+            $('#vendor_store_website_id').val( vendor.store_website_id ).prop('selected', true);;
             $('#vendor_name').val(vendor.name);
             $('#vendor_address').val(vendor.address);
             $('#vendor_phone').val(vendor.phone);
@@ -1465,6 +1509,77 @@
 
     });
 
+    function addwebsite(vendor_id)
+      {
+       
+        $.ajax({
+            url: "{{url('products/customer/charity/getwebsite')}}", 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'charity_id': vendor_id
+
+            }
+        }).done(function(response) {
+           
+            $("#model_charity_id").val(vendor_id);
+           /* $("#website_id").val(response.website_id).prop('selected', true);;;
+            $("#website_price").val(response.price); */
+            
+            $("#dev_website").html(response);
+            $('#createWebsite').modal("show");
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+        
+        
+      }
+
+      function savewebsite()
+      {
+        
+        var formData = $('#create_website').serialize();
+        var charity_id= $('#model_charity_id').val();
+        var website_id= $('#website_id').val();
+        var website_price= $('#website_price').val();
+        $.ajax({
+            url: "{{url('products/customer/charity/savewebsite')}}", 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'charity_id': charity_id,
+                'website_id': website_id,
+                'price': website_price
+
+            }
+        }).done(function(response) {
+            toastr['success'](response);
+            
+            $('#createWebsite').modal("hide");
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+   
+      }
+
+   function delwebsite(id)
+   {
+        $.ajax({
+            url: "{{url('products/customer/charity/deletewebsite')}}", 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'id': id
+                
+            }
+        }).done(function(response) {
+            toastr['success'](response);
+            
+            $('#createWebsite').modal("hide");
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+   }
     $(document).on('change', 'select[name="websites[]"]', function(){
         var website_id = $(this).val();
         $.ajax({
