@@ -59,3 +59,7 @@ class OutOfStockSubscribeController extends Controller {
        
    }
 }
+
+
+
+
