@@ -41,6 +41,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
         
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
+        
+        Route::prefix('build-process')->group(function () {
+            Route::get('/', 'StoreWebsiteController@buildProcess')->name("store-website.build.process");
+            Route::post('save', 'StoreWebsiteController@buildProcessSave')->name("store-website.build.process.save");
+        });
 
         Route::prefix('social-strategy')->group(function () {
     		Route::get('/', 'StoreWebsiteController@socialStrategy')->name("store-website.social-strategy");   
