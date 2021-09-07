@@ -55,8 +55,9 @@ class CustomerController extends Controller
 
             $customer_id = $checkCustomer->id;
             foreach($request->item_info as $item){
-               $product = Product::where('sku',$item['sku'])->first();
-               if($product){
+                $skuarr = explode('-', $item['sku'])
+                $product = Product::where('sku',$skuarr[0])->first();
+                if($product){
                     $erp_lead = new ErpLeads;
                     $erp_lead->lead_status_id = 1;
                     $erp_lead->customer_id = $customer_id;
