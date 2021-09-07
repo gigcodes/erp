@@ -40,14 +40,35 @@
             </form>
         </div>
     </div>
+	
+	
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Email address Passwords Manager</h2>
+            <div class="pull-left">
+
+            </div>
+            <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
+            </div>
+            <div>
+                {{ Form::open(array('url' => route('email.password.change'), 'method' => 'post')) }}
+                    <input type="hidden" name="users" id="userIds">
+                    <button type="submit" class="btn btn-secondary"> Generate password </button>
+                {{ Form::close() }}
+            </div>
+        </div>
+    </div>
 
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th>ID</th>
-            <th>From Name</th>
-            <th>From Address</th>
+            <!--th>From Name</th>
+            <th>From Address</th-->
+			<th>Username</th>
+            <th>Password</th>
             <th>Recovery Phone</th>
             <th>Recovery Email</th>
             <th>Driver</th>
@@ -56,8 +77,7 @@
             <th>Encryption</th>
             <th>Store Website</th>
             <th>Status</th>
-            <!--th>Username</th-->
-            <!--th>Password</th-->
+            
             <th>Action</th>
           </tr>
         </thead>
@@ -65,12 +85,19 @@
         <tbody>
           @foreach ($emailAddress as $server)
             <tr>
-              <td>{{ $server->id }}</td>
-              <td>
+               <td>
+				<input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}"></td>
+              <td><!--td>
                   {{ $server->from_name }}
               </td>
               <td>
                   {{ $server->from_address }}
+              </td-->
+			 
+                  {{ $server->username }}
+              </td>
+              <td>
+                  {{ $server->password }}
               </td>
               <td>
                   {{ $server->recovery_phone }}
@@ -90,12 +117,7 @@
               <td>
                   {{ $server->encryption }}
               </td>
-              <!--td>
-                  {{ $server->username }}
-              </td-->
-              <!--td>
-                  {{ $server->password }}
-              </td-->
+              
 			  <td>
                   @if($server->website){{ $server->website->title }} @endif
               </td>
@@ -756,6 +778,10 @@
           $("#loading-image").hide();
         });
     });
+  $('.checkbox_ch').change(function(){
+             var values = $('input[name="userIds[]"]:checked').map(function(){return $(this).val();}).get();
+             $('#userIds').val(values);
+         });
 
   </script>
 @endsection

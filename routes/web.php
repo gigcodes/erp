@@ -1783,8 +1783,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
+    Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendWhatsApp')->name('email.password.sendwhatsapp');
     
-    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
     Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
 

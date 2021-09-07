@@ -33,7 +33,7 @@ class EmailAddressesController extends Controller
             }
         }
 
-        $emailAddress = $query->paginate();
+        $emailAddress = $query->paginate(); 
         $allStores    = StoreWebsite::all();
         $allDriver    = EmailAddress::pluck('driver')->unique();
         $allPort      = EmailAddress::pluck('port')->unique();
@@ -334,4 +334,24 @@ class EmailAddressesController extends Controller
         $filename = 'Report-Email-failed'.'.csv';
         return Excel::download(new EmailFailedReport($recordsArr),$filename);
     }
+	
+	public function passwordChange(Request $request) {
+		 if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
+        $data = array();
+        foreach ($users as $key) {
+            // Generate new password
+            $newPassword = str_random(12);
+
+            $user = EmailAddress::findorfail($key);
+            $user->password = $newPassword;
+            $user->save();
+            $data[$key] = $newPassword;
+        }
+
+        return view("email-addresses.send-whatsapp", ['data' => $data]);
+	}
 }
