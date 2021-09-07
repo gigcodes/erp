@@ -1967,6 +1967,7 @@ class WhatsAppController extends FindByNumberController
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
         // dd($request->all()); 
+       
          $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
@@ -2005,7 +2006,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-
+        
         if ($context == 'customer') {
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
@@ -2256,6 +2257,8 @@ class WhatsAppController extends FindByNumberController
                      }
                        
                   }
+                  echo $ticket->lang_code;
+                  echo $message;
                 $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $message,null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 

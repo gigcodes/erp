@@ -1474,6 +1474,7 @@ class LiveChatController extends Controller
     }
     public function sendEmail(Request $request)
     {
+       
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -1520,6 +1521,14 @@ class LiveChatController extends Controller
         if ($tickets->email != '') 
         {
             $file_paths = [];
+
+            
+                    if ($tickets->lang_code!='' && $tickets->lang_code!='en')
+                     {
+                        $request->message = TranslationHelper::translate('en', $tickets->lang_code, $request->message);
+                     }
+                       
+                 
 
             if ($request->hasFile('file')) 
             {
