@@ -1,4 +1,6 @@
-@php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); @endphp
+@php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); 
+
+@endphp
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
         @foreach ($products as $key => $product)
         @php 
@@ -28,6 +30,7 @@
                 <td>
                     
                     <div class="row"> 
+                        
                             @if(!$websiteList->isEmpty())
                                 @foreach($websiteList as $index => $site)
                                     <div class="col-md-12" productid="{{ $product->id }}">
@@ -84,7 +87,15 @@
                                                                     class="btn btn-sm">
                                                                     <i class="fa fa-crop" aria-hidden="true"></i>
                                                                 </a>
-                                                             </div>
+                                                                @php 
+                                                                  
+                                                                   $md=\App\Mediables::where('mediable_type','App\Product')->where('mediable_id',$product->id)->where('media_id',$media->id)->first();
+
+                                                                @endphp
+                                                                @if($md)
+                                                                <input type="text" value="{{$md->order}}" onchange="changeordervalue('{{$md->media_id}}','{{$md->mediable_id}}',this.value);">
+                                                                @endif 
+                                                            </div>
                                                           </div>
                                                        </div>
                                                    @endif

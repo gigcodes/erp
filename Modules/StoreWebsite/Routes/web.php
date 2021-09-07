@@ -30,6 +30,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
 
+        Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
+
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
@@ -177,10 +179,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/agents', 'WebsiteStoreViewController@agents')->name("store-website.website-store-views.group.agents");
         Route::get('/groups', 'WebsiteStoreViewController@groups')->name("store-website.website-store-views.group.groups");
     });
-    
     Route::prefix('page')->group(function () {
         Route::get('/', 'PageController@index')->name("store-website.page.index");
-        Route::get('/records', 'PageController@records')->name("store-website.page.records");
+        Route::get('/meta-title-keywords', 'PageController@pageMetaTitleKeywords')->name("store-website.page.keywords");
+		Route::get('/records', 'PageController@records')->name("store-website.page.records");
         Route::post('save', 'PageController@store')->name("store-website.page.save");
         Route::get('/{id}/edit', 'PageController@edit')->name("store-website.page.edit");
         Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");

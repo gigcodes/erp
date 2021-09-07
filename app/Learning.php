@@ -78,6 +78,7 @@ class Learning extends Model {
 		'learning_assignment',
 		'learning_duedate',
 		'learning_status',
+		'currency'
 	];
 
 	const TASK_TYPES = [

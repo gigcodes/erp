@@ -217,6 +217,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+       
         $term             = $request->input('term');
         $order_status     = $request->status ?? [''];
         $date             = $request->date ?? '';
@@ -367,6 +368,163 @@ class OrderController extends Controller
         $orderStatusList = OrderStatus::all();
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
+    }
+
+
+    public function charity_order(Request $request)
+    {
+       
+        $term             = $request->input('term');
+        $order_status     = $request->status ?? [''];
+        $date             = $request->date ?? '';
+        $brandList        = \App\Brand::all()->pluck("name", "id")->toArray();
+        $brandIds         = array_filter($request->get("brand_id", []));
+        $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
+        $fromdatadefault  = array(
+            "street"       => config("dhl.shipper.street"),
+            "city"         => config("dhl.shipper.city"),
+            "postal_code"  => config("dhl.shipper.postal_code"),
+            "country_code" => config("dhl.shipper.country_code"),
+            "person_name"  => config("dhl.shipper.person_name"),
+            "company_name" => config("dhl.shipper.company_name"),
+            "phone"        => config("dhl.shipper.phone"),
+        );
+        if ($request->input('orderby') == '') {
+            $orderby = 'DESC';
+        } else {
+            $orderby = 'ASC';
+        }
+
+        // dd($orderby);
+
+        switch ($request->input('sortby')) {
+            case 'type':
+                $sortby = 'order_type';
+                break;
+            case 'date':
+                $sortby = 'order_date';
+                break;
+            case 'estdeldate':
+                $sortby = 'estimated_delivery_date';
+                break;
+            case 'order_handler':
+                $sortby = 'sales_person';
+                break;
+            case 'client_name':
+                $sortby = 'client_name';
+                break;
+            case 'status':
+                $sortby = 'order_status_id';
+                break;
+            case 'advance':
+                $sortby = 'advance_detail';
+                break;
+            case 'balance':
+                $sortby = 'balance_amount';
+                break;
+            case 'action':
+                $sortby = 'action';
+                break;
+            case 'due':
+                $sortby = 'due';
+                break;
+            case 'communication':
+                $sortby = 'communication';
+                break;
+            default:
+                $sortby = 'order_date';
+        }
+
+        //$orders = (new Order())->newQuery()->with('customer');
+        // $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
+        $orders = (new Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo", "swo.order_id", "orders.id");
+        if (empty($term)) {
+            $orders = $orders;
+        } else {
+            $orders = $orders->whereHas('customer', function ($query) use ($term) {
+                return $query->where('name', 'LIKE', '%' . $term . '%')
+                    ->orWhere('id', 'LIKE', '%' . $term . '%')
+                    ->orWhere('email', 'LIKE', '%' . $term . '%');
+            })
+                ->orWhere('orders.order_id', 'like', '%' . $term . '%')
+                ->orWhere('order_type', $term)
+                ->orWhere('sales_person', Helpers::getUserIdByName($term))
+                ->orWhere('received_by', Helpers::getUserIdByName($term))
+                ->orWhere('client_name', 'like', '%' . $term . '%')
+                ->orWhere('orders.city', 'like', '%' . $term . '%')
+                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+        }
+        if ($order_status[0] != '') {
+            $orders = $orders->whereIn('order_status_id', $order_status);
+        }
+
+        if ($date != '') {
+            $orders = $orders->where('order_date', $date);
+        }
+
+        if ($store_site = $request->store_website_id) {
+            $orders = $orders->where('swo.website_id', $store_site);
+        }
+
+        $statusFilterList = clone ($orders);
+
+        $orders = $orders->leftJoin("order_products as op", "op.order_id", "orders.id")
+            ->leftJoin("customers as cs", "cs.id", "orders.customer_id")
+            ->leftJoin("products as p", "p.id", "op.product_id")
+            ->join('customer_charities','customer_charities.product_id','p.id')
+            ->leftJoin("brands as b", "b.id", "p.brand");
+
+        if (!empty($brandIds)) {
+            $orders = $orders->whereIn("p.brand", $brandIds);
+        }
+
+        $orders = $orders->groupBy("orders.id");
+        $orders = $orders->select(["orders.*", "cs.email as cust_email", \DB::raw("group_concat(b.name) as brand_name_list"), "swo.website_id"]);
+
+        $users             = Helpers::getUserArray(User::all());
+        $order_status_list = OrderHelper::getStatus();
+
+        if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
+        } else {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
+        }
+
+        $statusFilterList = $statusFilterList->leftJoin("order_statuses as os", "os.id", "orders.order_status_id")
+            ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
+        $totalOrders  = sizeOf($orders->get());
+        $orders_array = $orders->paginate(10);
+        
+        $quickreply   = Reply::where('model', 'Order')->get();
+
+        $duty_shipping = array();
+        foreach($orders_array as $key => $order){
+            $duty_shipping[$order->id]['id'] = $order->id;
+
+            $website_code_data = $order->duty_tax;
+            if($website_code_data != null)
+            {
+                $product_qty = count($order->order_product);
+
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);
+
+                $duty_shipping[$order->id]['shipping'] = $duty_amount;
+                $duty_shipping[$order->id]['duty'] = $shipping_amount;
+            }else{
+                $duty_shipping[$order->id]['shipping'] = 0;
+                $duty_shipping[$order->id]['duty'] = 0;
+            }
+
+        }
+        $orderStatusList = OrderStatus::all();
+        //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+        return view('orders.charity_order', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
     }
 
     public function addProduct(Request $request)

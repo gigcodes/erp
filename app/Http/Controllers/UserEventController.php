@@ -440,6 +440,8 @@ class UserEventController extends Controller
             $data['learning_subject']    = $subject;
             $data['learning_assignment'] = $description;
             $data['learning_duedate']    = $request->date;
+            $data['cost']    = $request->cost;
+            $data['currency']    = $request->currency;
 
             $learning = Learning::create($data);
 
