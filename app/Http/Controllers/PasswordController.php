@@ -178,7 +178,7 @@ class PasswordController extends Controller
             $message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
 
             $whatsappmessage = new WhatsAppController();
-            $whatsappmessage->sendWithThirdApi($number, $whatsappnumber , $message);
+            $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
          }
 
         return redirect()->route('password.index')->withSuccess('You have successfully changed password');

@@ -54,8 +54,7 @@ class GoogleTranslate
             $result = $translate->translate($text, [
                 'target' => $target
             ]);
-            \Log::info(print_r(["REsult of google",$result],true));
-            
+            \Log::info(print_r(["Result of google",$result],true));
             return $result['text'];
         } catch (\Exception $e) {
             \Log::error($e);

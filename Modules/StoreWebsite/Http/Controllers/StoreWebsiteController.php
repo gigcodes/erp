@@ -21,6 +21,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
 use App\StoreWebsiteUserHistory;
 use App\StoreReIndexHistory;
+use Carbon\Carbon;
 
 
 class StoreWebsiteController extends Controller
@@ -688,6 +689,29 @@ class StoreWebsiteController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => $resultArray]);
+    }
+
+    public function storeReindexHistory(Request $request){
+        
+        $website = StoreWebsite::find($request->id);
+        $date = Carbon::now()->subDays(7);
+        $histories = StoreReIndexHistory::where('server_name',$website->title)->where('created_at','>=',$date)
+            ->latest()
+            ->get();
+
+        $resultArray = [];
+
+        foreach($histories as $history){
+            $resultArray[] = [
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
+                'server_name'  => $history->server_name,
+                'username'     => $history->username,
+                'action'       => $history->action,
+            ];
+        }
+
+        return response()->json(["code" => 200, "data" => $resultArray]);
+        
     }
 	
 	public function generateReIndexfile(Request $request)
