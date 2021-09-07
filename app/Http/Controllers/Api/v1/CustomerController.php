@@ -32,7 +32,7 @@ class CustomerController extends Controller
             'item_info.*.qty' => 'required',
         ]);
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("buyback.failed.validation",0, $default = "Please check validation errors !", request('lang_code'));
+            $message = $this->generate_erp_response("customercart.failed.validation",0, $default = "Please check validation errors !", request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
