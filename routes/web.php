@@ -1539,6 +1539,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Paswords Manager
     Route::get('passwords', 'PasswordController@index')->name('password.index');
+    Route::post('passwords/change', 'PasswordController@changePasswords')->name('passwords.change');
     Route::post('password/store', 'PasswordController@store')->name('password.store');
     Route::get('password/passwordManager', 'PasswordController@manage')->name('password.manage');
     Route::post('password/change', 'PasswordController@changePassword')->name('password.change');
@@ -1784,7 +1785,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
-    Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendWhatsApp')->name('email.password.sendwhatsapp');
+   // Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendWhatsApp')->name('email.password.sendwhatsapp');
     
 	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 

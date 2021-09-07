@@ -76,10 +76,29 @@
         </div>
     @endif
 
+	<div class="row">
+        <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Passwords Manager</h2>
+            <div class="pull-left">
+
+            </div>
+            <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
+            </div>
+            <div>
+                {{ Form::open(array('url' => route('passwords.change'), 'method' => 'post')) }}
+                    <input type="hidden" name="users" id="userIds">
+                    <button type="submit" class="btn btn-secondary"> Generate password </button>
+                {{ Form::close() }}
+            </div>
+        </div>
+    </div>
+
     <div class="table-responsive mt-3">
       <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
+            <th>#</th>
             <th>Website</th>
             <th>Username</th>
             <th>Password</th>
@@ -88,6 +107,8 @@
           </tr>
 
           <tr>
+		  
+            <th></th>
             <th><input type="text" id="website" class="search form-control"></th>
             <th><input type="text" id="username" class="search form-control"></th>
             <th></th>
@@ -438,7 +459,10 @@
        
         });
     });
-
+  $('.checkbox_ch').change(function(){
+             var values = $('input[name="userIds[]"]:checked').map(function(){return $(this).val();}).get();
+             $('#userIds').val(values);
+         });
         
 </script>
 @endsection

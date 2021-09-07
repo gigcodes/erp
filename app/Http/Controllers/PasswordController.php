@@ -95,6 +95,26 @@ class PasswordController extends Controller
         //
     }
 
+
+	public function changePasswords(Request $request) {
+		 if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
+        $data = array();
+        foreach ($users as $key) {
+            // Generate new password
+            $newPassword = str_random(12);
+
+            $user = Password::findorfail($key);
+            $user->password = Crypt::encrypt($newPassword);
+            $user->save();
+            $data[$key] = $newPassword;
+        }
+		\Session::flash('success', 'Password Updated');
+		return redirect()->back();
+	}
     /**
      * Store a newly created resource in storage.
      *

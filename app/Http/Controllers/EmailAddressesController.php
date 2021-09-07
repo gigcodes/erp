@@ -351,7 +351,9 @@ class EmailAddressesController extends Controller
             $user->save();
             $data[$key] = $newPassword;
         }
+		\Session::flash('success', 'Password Updated');
+		return redirect()->back();
+    }
+	
 
-        return view("email-addresses.send-whatsapp", ['data' => $data]);
-	}
 }

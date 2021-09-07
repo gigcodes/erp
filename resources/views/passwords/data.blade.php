@@ -10,6 +10,9 @@
           @foreach ($passwords as $password)
 
             <tr>
+			 <td>
+				<input type="checkbox" class="checkbox_ch" id="u{{ $password->id }}" name="userIds[]" value="{{ $password->id }}"></td>
+              <td>
               <td>
                 {{ $password->website }}
                 <br>
