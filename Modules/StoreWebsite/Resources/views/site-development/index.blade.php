@@ -84,8 +84,8 @@
 				Status Count
 			</a>
 			<select name="order" id="order_query" class="form-control" >
-               <option value="title">Title</option>
-               <option value="communication">Communication</option>
+               <option value="title" @if(isset($input['order']) and $input['order'] == "title") selected @endif>Title</option>
+               <option value="communication" @if(isset($input['order']) and $input['order'] == "communication") selected @endif>Communication</option>
             </select>
 		</div>
 		</h2>
@@ -172,13 +172,13 @@
 						<tr>
 							<th width="4%">S No</th>
 							<th width="15%"></th>
-							<th width="15%">Master Category</th>
+							<th width="12%">Master Category</th>
 							<th width="12%">Remarks</th>
 							<th width="12%">Assign To</th>
 							<th style="display:none;">Title</th>
 							<th  style="display:none;">Message</th>
-							<th width="35%">Communication</th>
-							<th width="16%">Action</th>
+							<th width="25%">Communication</th>
+							<th width="20%">Action</th>
 						</tr>
 					</thead>
 					<tbody class="infinite-scroll-pending-inner">
@@ -1717,8 +1717,31 @@
 	//End load more functionality
 	
 	$("#order_query").change(function(){
+		var url = window.location.href;
+		if(url.indexOf('?order=') != -1  || url.indexOf('&order=') != -1 ) { 
+			var new_url = removeParam('order', url); console.log(new_url);
+		}
 		window.location =  window.location.href+'&order='+$(this).val();
+		
 	});
+	
+	function removeParam(key, sourceURL) {
+    var rtn = sourceURL.split("?")[0],
+        param,
+        params_arr = [],
+        queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+    if (queryString !== "") {
+        params_arr = queryString.split("&");
+        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+            param = params_arr[i].split("=")[0];
+            if (param === key) {
+                params_arr.splice(i, 1);
+            }
+        }
+        if (params_arr.length) rtn = rtn + "?" + params_arr.join("&");
+    }
+    return rtn;
+}
 </script>
 
 @endsection

@@ -24,6 +24,7 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
+		$input = $request->input();
 		$masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         //Getting Website Details
         $website = StoreWebsite::find($id);
@@ -60,20 +61,20 @@ class SiteDevelopmentController extends Controller
         $categories->groupBy('site_development_categories.id');
         
 		 if($request->order){
-			 if ($request->order == 'latest_task_first') {
-				$categories->orderBy('title', 'asc');
+			 if ($request->order == 'title') {
+				$categories->orderBy('site_development_categories.title', 'asc');
 			 } else if ($request->order == 'communication') {
-				 $categories = $categories->orderBy('created_at', 'DESC');
+				 $categories = $categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id');
+				 $categories = $categories->orderBy('store_development_remarks.created_at', 'DESC');
 			}			 
 		 } else{
 			 $categories->orderBy('title', 'asc');
 		 }
-        $categories->orderBy('site_developments.id', 'DESC');
        $categories = $categories->paginate(Setting::get('pagination'));
        foreach($categories as $category) {
 	    $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')
 		->where('site_developement_id',$category->site_development_id)->select('users.name as assigned_to_name');
-        $users = $query->get();
+        $users = $query->groupBy('users.id')->get();
 		 $category->assignedTo = $users;
 	   }
 	   
@@ -110,12 +111,12 @@ class SiteDevelopmentController extends Controller
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input','masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
+        return view('storewebsite::site-development.index', compact('input','masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
     }
 
 	public function addMasterCategory(Request $request)
