@@ -75,7 +75,7 @@ class CustomerController extends Controller
             }
         }
 
-        return response()->json(['status' => 'success', 'orders' => $responseData], 200);
+        return response()->json(['status' => 'success', 'message' => 'Successfully Added'], 200);
     }
 
     // DEVTASK-20592 end
