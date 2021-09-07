@@ -72,10 +72,15 @@ class SiteDevelopmentController extends Controller
 		 }
        $categories = $categories->paginate(Setting::get('pagination'));
        foreach($categories as $category) {
-	    $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')
-		->where('site_developement_id',$category->site_development_id)->select('users.name as assigned_to_name');
-        $users = $query->groupBy('users.id')->get();
-		 $category->assignedTo = $users;
+	    $site_developement_id = $category->site_development_id;
+		$query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('users.id','users.name as assigned_to_name');
+        $taskStatistics = $query->get();
+       
+        $query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('users.id','users.name as assigned_to_name');
+        $othertaskStatistics = $query1->get();
+		
+        $merged = $othertaskStatistics->merge($taskStatistics);
+		$category->assignedTo = $merged;
 	   }
 	   
 //   dd($categories);
