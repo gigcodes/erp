@@ -67,8 +67,6 @@
                             <th>Name</th>
                             <th>Path</th>
                             <th>Value</th>
-                            <th>Date</th>
-                            <th>Created By</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -100,9 +98,6 @@
                                 <td>{{ $magentoSetting->name }}</td>
                                 <td>{{ $magentoSetting->path }}</td>
                                 <td>{{ $magentoSetting->value }}</td>
-                                <td>{{ $magentoSetting->created_at }}</td>
-                                <td>{{ $magentoSetting->uname }}</td>
-
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
@@ -180,7 +175,6 @@
                     <div class="form-group">
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
-                        
 
                     </div>
                     <div class="form-group">
@@ -247,8 +241,6 @@
                     <div class="form-group">
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
-                        <button type="button" value="Log" class="btn btn-image" onclick="showlog();" data-setting="" >Log</button>
-
                     </div>
                     <div class="form-group">
                         <label for="">Path</label>
@@ -257,6 +249,16 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
+                    </div>
+                    <div class="form-group">
+                        <label for="git_repository">Github Repository</label><br>
+                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
+                            @php $i=0;  @endphp
+                            @foreach($githubRepository as $w)
+                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
+                                @php $i+=1; @endphp
+                            @endforeach
+                        </select>                        
                     </div>
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
@@ -281,29 +283,6 @@
                     <button type="submit" class="btn btn-primary form-save-btn">Save changes</button>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
-
-<div id="namepopup" class="modal fade" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Name History</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modal-body">
-                    
-                   
-                   
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                   
-                </div>
-          
         </div>
     </div>
 </div>
@@ -599,22 +578,5 @@
                 });
             }            
         });
-
-
-        function showlog()
-        {
-            id=$('#edit-setting-popup').attr('data-id');
-            $.ajax({
-            url: '{{url("/magento-admin-settings/namehistrory/")}}/'+id,   
-            }).done(function(response) {
-                $('#modal-body').html(response);
-                $('#namepopup').modal('show');
-               
-            }).fail(function() {
-                console.log("error");
-            });
-            
-            
-        }
 </script>
 @endsection
