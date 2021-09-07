@@ -66,7 +66,11 @@ class CreateErpLeadFromCancellationOrder extends Command
                     $this->info('order id = ' . $order->id . ' create id = ' . $erpLeads->id . "\n");
                 }
             }
-            echo 'Successfully update!!';
+            
+            $message = $this->generate_erp_response("erp.lead.created.for.candellation.order.success", 0, $default='Successfully update!!', request('lang_code'));
+            
+            echo $message;
+            
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
