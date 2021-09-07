@@ -277,7 +277,7 @@ class MagentoSettingsController extends Controller
                     
                     //BASE SCRIPT
                     if(!empty($git_repository)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$entity->scope_id.' -p '.$path.' -v '.$value;
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command   
@@ -325,7 +325,7 @@ class MagentoSettingsController extends Controller
                     
                     //BASE SCRIPT
                     if(!empty($git_repository)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$entity->scope_id.' -p '.$path.' -v '.$value;
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
@@ -374,7 +374,7 @@ class MagentoSettingsController extends Controller
                     
                     //BASE SCRIPT
                     if(!empty($git_repository)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$entity->scope_id.' -p '.$path.' -v '.$value;
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
