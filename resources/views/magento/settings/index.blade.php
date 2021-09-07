@@ -254,7 +254,7 @@
                         <label for="git_repository">Github Repository</label><br>
                         <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
                             @php $i=0;  @endphp
-                            @foreach($githubRepository as $w)
+                            @foreach(\App\Github\GithubRepository::all() as $w)
                             <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
                                 @php $i+=1; @endphp
                             @endforeach
