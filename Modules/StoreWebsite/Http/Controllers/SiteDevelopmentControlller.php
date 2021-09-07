@@ -6,6 +6,7 @@ use App\Role;
 use App\Setting;
 use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
+use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use App\User;
 use App\SiteDevelopmentArtowrkHistory;
@@ -23,11 +24,12 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
-
+		$input = $request->input();
+		$masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
-        $categories = SiteDevelopmentCategory::select('site_development_categories.*', DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) as site_development_id'));
+        $categories = SiteDevelopmentCategory::select('site_development_categories.*', 'site_developments.site_development_master_category_id',DB::raw('(SELECT id from site_developments where site_developments.site_development_category_id = site_development_categories.id AND `website_id` = '. $id .' ORDER BY created_at DESC limit 1) as site_development_id'));
 
         if ($request->k != null) {
             $categories = $categories->where("site_development_categories.title", "like", "%" . $request->k . "%");
@@ -57,10 +59,25 @@ class SiteDevelopmentController extends Controller
         }
         
         $categories->groupBy('site_development_categories.id');
-        $categories->orderBy('title', 'asc');
-        $categories->orderBy('site_developments.id', 'DESC');
+        
+		 if($request->order){
+			 if ($request->order == 'title') {
+				$categories->orderBy('site_development_categories.title', 'asc');
+			 } else if ($request->order == 'communication') {
+				 $categories = $categories->leftJoin('store_development_remarks', 'store_development_remarks.store_development_id', '=', 'site_developments.id');
+				 $categories = $categories->orderBy('store_development_remarks.created_at', 'DESC');
+			}			 
+		 } else{
+			 $categories->orderBy('title', 'asc');
+		 }
        $categories = $categories->paginate(Setting::get('pagination'));
-       
+       foreach($categories as $category) {
+	    $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')
+		->where('site_developement_id',$category->site_development_id)->select('users.name as assigned_to_name');
+        $users = $query->groupBy('users.id')->get();
+		 $category->assignedTo = $users;
+	   }
+	   
 //   dd($categories);
         //Getting   Roles Developer
         $role = Role::where('name', 'LIKE', '%Developer%')->first();
@@ -94,14 +111,39 @@ class SiteDevelopmentController extends Controller
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input','masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
+        return view('storewebsite::site-development.index', compact('input','masterCategories','categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
     }
 
+	public function addMasterCategory(Request $request)
+    {
+        if ($request->text) {
+
+            //Cross Check if title is present
+            $categoryCheck = SiteDevelopmentMasterCategory::where('title', $request->text)->first();
+
+            if (empty($categoryCheck)) {
+                //Save the Category
+                $develop        = new SiteDevelopmentMasterCategory;
+                $develop->title = $request->text;
+                $develop->save();
+
+               return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
+
+            } else {
+
+                return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
+            }
+
+        } else {
+            return response()->json(["code" => 500, "messages" => 'Please Enter Text']);
+        }
+    }
+	
     public function addCategory(Request $request)
     {
         if ($request->text) {
@@ -168,6 +210,10 @@ class SiteDevelopmentController extends Controller
 
         if ($request->type == 'html_designer') {
             $site->html_designer = $request->text;
+        }
+
+        if ($request->type == 'site_development_master_category_id') {
+            $site->site_development_master_category_id = $request->text;
         }
 
         if ($request->type == 'tester_id') {
@@ -435,11 +481,11 @@ class SiteDevelopmentController extends Controller
 
         $site_devs = \App\SiteDevelopment::where('site_development_category_id', $request->cat_id)->where('website_id', $request->website_id)->get()->pluck('id')->toArray();
         
-        $response = \App\StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->orderBy('id', 'DESC')->get();
-        // $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
-        // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
-        // ->orderBy("store_development_remarks.remarks","asc")
-        // ->get();
+       // $response = \App\StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->orderBy('id', 'DESC')->get();
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+         ->orderBy("store_development_remarks.remarks","asc")
+         ->get();
         return response()->json(["code" => 200 , "data" => $response]);
 
     }

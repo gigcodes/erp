@@ -38,9 +38,43 @@
                 </button>
                 @endif
               </div>
-
+				<form>
+                    <label class="radio-inline">
+                        <input class="save-artwork-status" type="radio" name="artwork_status" data-category="{{ $category->id }}" value="Yes" data-type="artwork_status" data-site="@if($site){{ $site->id }}@endif" @if($site){{ $site->artwork_status == 'Yes' ? 'checked' : '' }}@endif />Yes
+                    </label>
+                    <label class="radio-inline">
+                        <input class="save-artwork-status" type="radio" name="artwork_status" data-category="{{ $category->id }}" value="No" data-type="artwork_status" data-site="@if($site){{ $site->id }}@endif" @if($site){{ $site->artwork_status == 'No' ? 'checked' : '' }}@endif />No
+                    </label>
+                    <label class="radio-inline">
+                        <input class="save-artwork-status" type="radio" name="artwork_status" data-category="{{ $category->id }}" value="Done" data-type="artwork_status" data-site="@if($site){{ $site->id }}@endif" @if($site){{ $site->artwork_status == 'Done' ? 'checked' : '' }}@endif />Done
+                    </label>
+                </form>
             </td>
-            <td>
+			<td>
+				{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, $category->site_development_master_category_id, array('class'=>'save-item-select','data-category'=>$category->id, 'data-type'=>'site_development_master_category_id', 'data-site'=>$site ? $site->id : '0'))}}
+            </td>
+			<td>
+				<div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1">
+					 <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="remark_{{$key}}" data-catId="{{ $category->id }}" data-siteId="@if($site){{ $site->id }}@endif" data-websiteId="@if($website) {{ $website->id }} @endif" >
+					 <div style="margin-top: 4px;" class="d-flex p-0">
+						<button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$key}})"><img src="/images/filled-sent.png" /></button>
+					 </div>
+                </div>
+				<div class="col-md-12 p-0 pl-4">
+				  <div class="d-flex">
+                                      @if($site->lastRemark) Remarks = @endif
+                                      <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
+                                          <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 35, '...') }} @endif</span>
+                                      </div>
+                    </div>
+                 </div>
+            </td>
+			<td>	
+				@foreach($category->assignedTo as $assignedTo)
+				{{$assignedTo->assigned_to_name}} <br>
+				@endforeach
+			</td>
+            <td style="display:none;">
                 <input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
                 <input style="margin-top: 0;" type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site){{ $site->title }}@endif" data-site="@if($site){{ $site->id }}@endif">
                 <form>
@@ -56,7 +90,7 @@
                 </form>
             </td>
             <?php /* <td><input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="description" value="@if($site){{ $site->description }}@endif" data-site="@if($site){{ $site->id }}@endif"></td> */ ?>
-            <td>
+            <td  style="display:none;">
                 <div class="row m-0">
                     <div class="col-md-6 mb-1 pr-0 pl-0">
                         <select style="margin-top: 5px;" class="form-control save-item-select developer assign-to select2" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
@@ -118,7 +152,7 @@
                                   $MsgPreview = $MsgPreview . ' ' . $site->title;
                               }
                               ?>
-                                  <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-@if($site){{ $site->id }}@endif">
+                              <input style="margin-top: 0px;width:auto !important;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-@if($site){{ $site->id }}@endif">
                               <div style="margin-top: 4px;" class="d-flex p-0">
                                   <button class="btn pr-0 btn-xs btn-image send-message-site" data-prefix="{{$MsgPreview}}" data-category="{{ $category->id }}" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png" /></button>
                                   @if($site)
@@ -157,7 +191,7 @@
                           </div>
                       </div>
                   </div>
-                    <div style="width: 140px">
+                    <div style="width: 140px; display:none;">
                         <div  class="d-flex mt-1">
                             <span  class="hidden_row_{{ $category->id  }}" >
                                <span class="d-flex">
