@@ -816,7 +816,7 @@
 			var website_id = $("#remark_"+rowId).data("websiteid");
 			
 			var val = $("#remark_"+rowId).val();
-			var data = {remark: val,cat_id: cat_id,website_id : website_id};console.log(data);
+			var data = {remark: val,cat_id: cat_id,website_id : website_id};
 			$.ajax({
 				url: '/site-development/' + siteId + '/remarks',
 				type: 'POST',

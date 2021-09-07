@@ -481,11 +481,11 @@ class SiteDevelopmentController extends Controller
 
         $site_devs = \App\SiteDevelopment::where('site_development_category_id', $request->cat_id)->where('website_id', $request->website_id)->get()->pluck('id')->toArray();
         
-        $response = \App\StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->orderBy('id', 'DESC')->get();
-        // $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
-        // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
-        // ->orderBy("store_development_remarks.remarks","asc")
-        // ->get();
+       // $response = \App\StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->orderBy('id', 'DESC')->get();
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+         ->orderBy("store_development_remarks.remarks","asc")
+         ->get();
         return response()->json(["code" => 200 , "data" => $response]);
 
     }
