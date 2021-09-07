@@ -2,21 +2,8 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Complaint;
-use Dompdf\Dompdf;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use App\Imports\CustomerImport;
-use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Mails\Manual\CustomerEmail;
-use App\Mails\Manual\RefundProcessed;
-use App\Mails\Manual\OrderConfirmation;
-use App\Mails\Manual\AdvanceReceipt;
-use App\Mails\Manual\IssueCredit;
-use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use App\Customer;
 use App\ErpLeads;
