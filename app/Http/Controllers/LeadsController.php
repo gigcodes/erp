@@ -1510,4 +1510,6 @@ class LeadsController extends Controller
         return response()->json(['Sucess', 200,'message' => $message]);
 
     }
+    
+    
 }
