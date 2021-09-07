@@ -169,39 +169,46 @@ class PasswordController extends Controller
      */
     public function update(Request $request)
     {
-        $this->validate($request, [
-            'website'   => 'sometimes|nullable|string|max:255',
-            'url'       => 'required',
-            'username'  => 'required|min:3|max:255',
-            'password'  => 'required|min:6|max:255'
-        ]);
+		if(!isset($request->send_on_whatsapp)) {
+			$this->validate($request, [
+				'website'   => 'sometimes|nullable|string|max:255',
+				'url'       => 'required',
+				'username'  => 'required|min:3|max:255',
+				'password'  => 'required|min:6|max:255'
+			]);
 
-        $password = Password::findorfail($request->id);
-        $data_old['password_id'] = $password->id;
-        $data_old['website'] = $password->website;
-        $data_old['url'] = $password->url;
-        $data_old['username'] = $password->username;
-        $old_password =  $password->password;
-        $data_old['password'] = $old_password;
-        $data_old['registered_with'] = $password->registered_with;
-        PasswordHistory::create($data_old);
+			$password = Password::findorfail($request->id);
+			$data_old['password_id'] = $password->id;
+			$data_old['website'] = $password->website;
+			$data_old['url'] = $password->url;
+			$data_old['username'] = $password->username;
+			$old_password =  $password->password;
+			$data_old['password'] = $old_password;
+			$data_old['registered_with'] = $password->registered_with;
+			PasswordHistory::create($data_old);
 
-        $data = $request->except('_token');
-        $data['password'] = Crypt::encrypt($request->password);
-        $password->update($data);
-
+			$data = $request->except('_token');
+			$data['password'] = Crypt::encrypt($request->password);
+			$password->update($data);
+		}
         if(isset($request->send_message) && $request->send_message == 1){
-            $user_id = $request->user_id;
+			$user_id = $request->user_id;
             $user = User::findorfail($user_id);
             $number = $user->phone;
             $whatsappnumber = '971502609192';
-            $message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
-
+			if(isset($request->send_on_whatsapp)) { 
+				$password = Password::findorfail($request->id);
+				$message = 'Password For '. $request->website .'is: ' . Crypt::decrypt($password->password);
+				$successMessage = 'You have successfully sent password';
+			} else{
+				$message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
+				$successMessage = 'You have successfully changed password';
+			}
             $whatsappmessage = new WhatsAppController();
             $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
          }
 
-        return redirect()->route('password.index')->withSuccess('You have successfully changed password');
+        return redirect()->route('password.index')->withSuccess($successMessage);
     }
 
     /**

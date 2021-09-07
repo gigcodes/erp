@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\EmailAddress;
+use App\User;
 use App\EmailRunHistories;
 use App\StoreWebsite;
 use Carbon\Carbon;
@@ -40,13 +41,14 @@ class EmailAddressesController extends Controller
         $allEncryption= EmailAddress::pluck('encryption')->unique();
 
         //dd($allDriver);
-
+$users = User::orderBy('name','asc')->get();
         return view('email-addresses.index', [
             'emailAddress' => $emailAddress,
             'allStores'    => $allStores,
             'allDriver'    => $allDriver,
             'allPort'      => $allPort,
             'allEncryption'=> $allEncryption,
+            'users'=> $users,
         ]);
     }
 
@@ -355,5 +357,19 @@ class EmailAddressesController extends Controller
 		return redirect()->back();
     }
 	
+	function sendToWhatsApp(Request $request) {
+		$emailDetail = EmailAddress::find($request->id);
+		$user_id = $request->user_id;
+        $user = User::findorfail($user_id);
+        $number = $user->phone;
+        $whatsappnumber = '971502609192';
+		
+		 $message = 'Password For '. $emailDetail->username .'is: ' . $emailDetail->password;
+				
+		$whatsappmessage = new WhatsAppController();
+        $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
+		\Session::flash('success', 'Password sent');
+		return redirect()->back();
+	}
 
 }
