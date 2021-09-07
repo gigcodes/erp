@@ -61,11 +61,11 @@ class MagentoSettingsController extends Controller
         }
         if ($request->name!='')
         {
-            $magentoSettings->where('name', $request->name); 
+            $magentoSettings->where('magento_settings.name', $request->name); 
         }
         if ($request->path!='')
         {
-            $magentoSettings->where('path', $request->path); 
+            $magentoSettings->where('magento_settings.path', $request->path); 
         }
         $magentoSettings = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);    
         $storeWebsites = StoreWebsite::get();
