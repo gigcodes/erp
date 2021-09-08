@@ -53,7 +53,7 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <strong>Api Key:</strong>
+            <strong>Status:</strong>
             {!! Form::select('status', ["active" => "Active" , "error" => "Error", "in-active" => "In-Active"],($account->status)?$account->status:old('status'), array('class' => 'form-control')) !!}
         </div>
     </div>
