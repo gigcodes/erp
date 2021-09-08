@@ -41,8 +41,8 @@
                        <td>{{ $d->amount_type }}</td>
                        <td>
                          @php
-                         $d->start_date=date('d-m-Y',strtotime($d->start_date));
-                         $d->end_date=date('d-m-Y',strtotime($d->end_date));
+                       //  $d->start_date=date('d-m-Y',strtotime($d->start_date));
+                       //  $d->end_date=date('d-m-Y',strtotime($d->end_date));
 
                          @endphp
                        <button type="button" class="btn btn-image edit-form d-inline"  data-toggle="modal" data-target="#cashCreateModal" data-edit="{{ json_encode($d) }}"><img src="/images/edit.png" /></button>  

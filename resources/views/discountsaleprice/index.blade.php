@@ -34,10 +34,10 @@
                         <strong>Type:</strong>
                 <select class="form-control" onchange="filltype(this.value,1);" name="type" >
                 <option value="" ></option>
-                  <option value="brand" {{ 'brand' == old('type') ? 'selected' : '' }}>Brand</option>
-                  <option value="category" {{ 'paid' == old('type') ? 'selected' : '' }}>Category</option>
-                  <option value="product" {{ 'product' == old('type') ? 'selected' : '' }}>Product</option>
-                  <option value="store_website" {{ 'store_website' == old('type') ? 'selected' : '' }}>Store Website</option>
+                  <option value="brand" {{ (isset($_GET['type']) && $_GET['type']=='brand') ? 'selected' : '' }}>Brand</option>
+                  <option value="category" {{ (isset($_GET['type']) && $_GET['type']=='category')  ? 'selected' : '' }}>Category</option>
+                  <option value="product" {{(isset($_GET['type']) && $_GET['type']=='product') ? 'selected' : '' }}>Product</option>
+                  <option value="store_website" {{ (isset($_GET['type']) && $_GET['type']=='store_website')  ? 'selected' : '' }}>Store Website</option>
                 </select>
                         </div>
                     </div>
@@ -56,7 +56,12 @@
                         <select class="form-control"  name="supplier" >
                 <option value="" >Select Supplier </option>
                 @foreach($supplier as $s)
-                    <option value="{{$s->id}}"> {{$s->supplier}} </option>
+                   @php
+                              $sel='';    
+                        if (isset($_GET['supplier']) && $_GET['supplier']==$s->id)
+                                $sel="selected='selected'";
+                   @endphp
+                    <option value="{{$s->id}}"  {{ $sel}} > {{$s->supplier}} </option>
                 @endforeach
             
               </select>
@@ -155,8 +160,8 @@
                        <td>{{ $d->amount_type }}</td>
                        <td>
                          @php
-                         $d->start_date=date('d-m-Y',strtotime($d->start_date));
-                         $d->end_date=date('d-m-Y',strtotime($d->end_date));
+                         $d->start_date=date('Y-m-d',strtotime($d->start_date));
+                         $d->end_date=date('Y-m-d',strtotime($d->end_date));
 
                          @endphp
                        <button type="button" class="btn btn-image edit-form d-inline"  data-toggle="modal" data-target="#cashCreateModal" data-edit="{{ json_encode($d) }}"><img src="/images/edit.png" /></button>  
@@ -315,7 +320,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#start_date').datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
+        format: 'YYYY-MM-DD'
       });
 
       $('#end_date').datetimepicker({
@@ -450,34 +455,30 @@
       $('#type_id').val(data.type_id);
       
       $('#start_date').datetimepicker({
-        format: 'YYYY-MM-DD HH:mm'
+        format: 'DD-MM-YYYY'
       });
 
-      $('#end_date').datetimepicker({
-        format: 'YYYY-MM-DD'
-      });
+      $('#end_date').datepicker('setDate', 'now');
      
 
-     /* $('#emailAddressEditModal').find('input[name="recovery_phone"]').val(emailAddress.recovery_phone);
-      $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
-
-      $('#emailAddressEditModal').find('input[name="signature_name"]').val(emailAddress.signature_name);
-	    $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
-      $('#emailAddressEditModal').find('input[name="signature_email"]').val(emailAddress.signature_email);
-      $('#emailAddressEditModal').find('input[name="signature_phone"]').val(emailAddress.signature_phone);
-      $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
-      $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
-      $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
-      $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
-      $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
-     	  
-      $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
-
-      $('#edit_driver').val(emailAddress.driver).trigger('change');
-      $('#edit_port').val(emailAddress.port).trigger('change');
-      $('#edit_encryption').val(emailAddress.encryption).trigger('change');
-      */
     });
 
-  </script>      
+    function setseachval(v)
+    {
+      setTimeout(function(){ $('#type_id').val(v); }, 1000);
+
+    }
+   
+  </script>  
+  @php if (isset($_GET['type']))
+         {
+           echo "<script>filltype('".$_GET['type']."',1);</script>";
+         }  
+         if (isset($_GET['type_id']))
+         {
+          echo "<script>setseachval('".$_GET['type_id']."');</script>";
+         }  
+   @endphp   
+   
+   
 @endsection
