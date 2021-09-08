@@ -64,14 +64,14 @@
 				  <div class="d-flex">
                                       @if($site->lastRemark) Remarks = @endif
                                       <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
-                                          <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 35, '...') }} @endif</span>
+                                          <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 25, '...') }} @endif</span>
                                       </div>
                     </div>
                  </div>
             </td>
 			
 			<td colspan=2>
-			<table>	
+			<table class="assign">	
 				@foreach($category->assignedTo as $assignedTo)   
 					<tr><td width="32%">{{$assignedTo['assigned_to_name']}}</td>
 					<td>
@@ -96,7 +96,7 @@
 								<!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
                                   <div class="d-flex">
                                       <div class="justify-content-between expand-row-msg-chat" data-id="{{$assignedTo['id']}}">
-                                          <span class="td-full-chat-container-{{$assignedTo['id']}} pl-1"> {{ str_limit($assignedTo['message'], 30,'...') }} </span>
+                                          <span class="td-full-chat-container-{{$assignedTo['id']}} pl-1"> {{ str_limit($assignedTo['message'], 20,'...') }} </span>
                                       </div>
                                   </div>
                                   <div class="expand-row-msg-chat" data-id="{{$assignedTo['id']}}">
