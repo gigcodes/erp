@@ -3366,6 +3366,12 @@ Route::get('store-website-product-prices/history', 'product_price\ProductPriceCo
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
 Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
 Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_duty');
+
+Route::get('product-generic-pricing', 'product_price\ProductPriceController@genericPricing')->name('product.generic.pricing');
+Route::post('product-duty-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateDutyPrice');
+Route::post('product-segment-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateSegmentPrice');
+
+
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
