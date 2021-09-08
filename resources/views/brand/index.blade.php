@@ -30,6 +30,12 @@
 .brand-list .form-group{
     margin-bottom: 0 !important;
 }
+    .form-control1{
+    border: 1px solid #ccc;
+    height: 30px;
+    max-width: -webkit-fill-available;
+    border-radius: 4px;
+}
 </style>
 @endsection
 
@@ -46,11 +52,23 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             @endfor
     </select>
 </div>
-<div class="row brand-header-row">
-<div class="col-md-12 pl-0">
-    <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>) </h2>
+<div class="row brand-header-row m-0" >
+<div class="col-md-12 pl-0 pr-0">
+    <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>)
+
+        <div class="col-lg-4 margin-tb align-right pull-right">
+
+            <div class="pull-left">
+            </div>
+            <div>
+                <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
+                <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
+                <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
+            </div>
+        </div>
+    </h2>
 </div>
-    <div class="col-8 flex pl-0">
+    <div class="col-12 flex pl-3 pr-3">
         <div class="form-inline">
             <div class="form-group">
                 <input type="number" id="product_price" step="0.01" class="form-control" placeholder="Product price">
@@ -66,8 +84,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
             <button type="button" id="calculatePriceButton" class="btn btn-secondary ml-3">Calculate</button>
         </div>
-        <div class="form-inline ml-5 pl-5">
-            <form>
+        <div class="form-inline pl-3">
+            <form style="display: flex">
                 <div class="form-group">
                     <input type="text" value="{{ request('keyword') }}" name="keyword" id="search_text" class="form-control" placeholder="Enter keyword for search">
                 </div>
@@ -75,9 +93,40 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </form>
         </div>
 
-        <div class="form-inline ml-5 pl-5">
+        <div class="form-inline pl-3">
+           
+           <div class="form-group">
+           <?php
+                        echo Form::select(
+                            "brand_segment_1",
+                            ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
+                            $brand->brand_segment,
+                            ['id'=>'brand_segment_1',"class" => "form-control ", "data-brand-id" => $brand->id,'data-placeholder'=>'-- Select Brand --']
+                        ); ?>
+
+        
+        </div>
+         
+      </div>
+
+        <div class="form-inline pl-3">
+           
+                <div class="form-group">
+                <select class="globalSelect2" id="category_segments_1">
+                @foreach($category_segments as $category_segment)
+                    <option value="{{ $category_segment->id }}">{{ $category_segment->name }}</option>
+                @endforeach
+                </select>  </div>
+              
+        </div>
+
+      
+
+        <div class="form-inline pl-3">
             <form>
                 <div class="form-group">
+                   
+               
                     <input type="text" value="{{ request('default_value') }}" name="default_value" id="default_value_segment" class="form-control" placeholder="Setup Default value for segment">
                 </div>
                 <button type="submit" class="btn btn-secondary btn-assign-default-val ml-3">Assign</button>
@@ -98,16 +147,15 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 {{--            </form>--}}
 {{--        </div>--}}
 {{--    </div>--}}
-    <div class="col-lg-4 margin-tb align-right">
-
-        <div class="pull-left">
-        </div>
-        <div>
-            <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
-            <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
-            <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
-        </div>
-    </div>
+{{--    <div class="col-lg-4 margin-tb align-right">--}}
+{{--        <div class="pull-left">--}}
+{{--        </div>--}}
+{{--        <div>--}}
+{{--            <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>--}}
+{{--            <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>--}}
+{{--            <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>--}}
+{{--        </div>--}}
+{{--    </div>--}}
 </div>
 
 @if ($message = Session::get('success'))
@@ -116,37 +164,40 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 </div>
 @endif
 
-<div class="row">
+<div class="row m-0 pl-3 pr-3">
 
-<br>
+
 <?php 
     $bList = \App\Brand::pluck('name','id')->toArray();
 ?>
-<div class="infinite-scroll">
+<div class="infinite-scroll" >
     {!! $brands->links() !!}
     <div class="table-responsive mt-3">
-        <table class="table table-bordered brand-list">
+        <table class="table table-bordered brand-list" style="table-layout: fixed;font-size: 13px">
             <tr>
-                <th width="2%">ID</th>
-                <th width="3%">Name</th>
+                <th width="2%"><input id="checkAll" type="checkbox" ></th>
+                <th width="4%">ID</th>
+                <th width="5%">Name</th>
                 <th width="5%">Image</th>
                 <th width="8%">Similar Brands</th>
-                <th width="10%">Merge Brands</th>
+                <th width="7%">Merge Brands</th>
                 <th width="4%">Magento ID</th>
                 <th width="4%">Euro to Inr</th>
-                <th width="6%" style="word-break:break-all">Deduction%</th>
-                <th width="15%">Segment</th>
+                <th width="4%" style="word-break:break-all">Deduction%</th>
+                <th width="6%">Segment</th>
                 @foreach($category_segments as $category_segment)
-                    <th width="3%">{{ $category_segment->name }}</th>
+                    <th width="4%">{{ $category_segment->name }}</th>
                 @endforeach
-                <th width="12%">Selling on</th>
-                <th width="5%">Priority</th>
-                <th width="10%">Next Step</th>
-                <th width="10%">Action</th>
+                <th width="9%">Selling on</th>
+                <th width="7%">Priority</th>
+                <th width="7%">Next Step</th>
+                <th width="5%">Status</th>
+                <th width="8%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
-                <td>{{ $brand->id }}</td>
+            <td><input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $brand->id }}'></td>    
+            <td>{{ $brand->id }}</td>
                 <td>{{ $brand->name }}</td>
                 <td>
                     @if($brand->brand_image)
@@ -197,9 +248,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @endphp
 
                         @if($category_segment_discount)
-                            <input type="text" class="form-control" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input  type="text" class="form-control1 1" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @else
-                            <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                            <input  type="text" class="form-control1 1" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
 
@@ -209,7 +260,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <td class="show_brand" data-id="{{$brand->id}}" style="max-width: 150px;cursor: pointer; ">
                     <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? (strlen($storeWebsite[explode(",", $brand->selling_on)[0]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[0]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[0]]) : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[0]))
-                    <br>
+
                     @endif
                     <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? (strlen($storeWebsite[explode(",", $brand->selling_on)[1]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[1]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[1]]) : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[1]))
@@ -233,6 +284,12 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         {!!Form::select('next_step',[null => "--Select--"] + \App\Helpers\StatusHelper::getStatus(),$brand->next_step??'',array('class'=>'form-control input-sm mb-3 brand-next-step','data-id'=>$brand->id))!!}
                     </div>       
                 </td>
+                <td> @if($brand->status==1)
+               approved
+             @else
+               pending 
+             @endif     
+        </td>
                 <td>
                     <a style="padding:1px;" class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['brand.destroy',$brand->id],'style'=>'display:inline']) !!}
@@ -303,7 +360,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
       <form id="upload-barnd-logos">
           <div class="modal-body">
               @csrf
-              <div class="row">
+              <div class="row m-0">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="row">
                         <div class="col-md-12">
@@ -333,6 +390,20 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="/js/bootstrap-multiselect.min.js"></script>
 <script src="/js/bootstrap-filestyle.min.js"></script>
 <script type="text/javascript">
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
+
+
+
+
+
     function store_amount(brand_id, category_segment_id) {
         var amount = $(this.event.target).val();
         $.ajax({
@@ -431,7 +502,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             website = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/attach-website",
+            url: "{{url('/brand/attach-website')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 website: website,
@@ -452,7 +523,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         var reference = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/update-reference",
+            url: "{{url('/brand/update-reference')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 reference: reference,
@@ -506,7 +577,7 @@ $('.select2-selection__clear').remove()
             segment = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/change-segment",
+            url: "{{url('/brand/change-segment')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 segment: segment,
@@ -527,7 +598,7 @@ $('.select2-selection__clear').remove()
             next_step = $(this).val();
         $.ajax({
             type: 'POST',
-            url: "/brand/next-step",
+            url: "{{url('/brand/next-step')}}",
             data: {
                 _token: "{{ csrf_token() }}",
                 next_step: next_step,
@@ -554,7 +625,7 @@ $('.select2-selection__clear').remove()
             var brandId = $(this).data("id");
             $.ajax({
                 type: 'GET',
-                url: "/brand/" + brandId + "/create-remote-id",
+                url: "{{url('/brand/')}}" + brandId + "/create-remote-id",
             }).done(function(response) {
                 if (response.code == 200) {
                     $this.closest("tr").find(".remote-td").html(response.data.magento_id);
@@ -651,10 +722,13 @@ $('.select2-selection__clear').remove()
         var $this = $(this);
         $.ajax({
             method : "POST",
-            url: "/brand/assign-default-value",
+            url: "{{url('/brand/assign-default-value')}}",
             data: {
                 _token: "{{ csrf_token() }}",
-                value: $("#default_value_segment").val()
+                value: $("#default_value_segment").val(),
+                category_segments: $("#category_segments_1").val(),
+                brand_segment: $("#brand_segment_1").val()
+
             },
             dataType: "json",
             beforeSend : function(){
@@ -672,5 +746,49 @@ $('.select2-selection__clear').remove()
         });
     });
  
+
+    function approve()
+    {
+            str='';
+            $(".checkboxClass:checked").each(function(){
+               
+                if (str=='')
+                   str=$(this).val();
+                else
+                   str= str + "," + $(this).val();  
+            });
+            if (str=='')
+              alert('First Select Brand')
+            else
+            {
+                    $.ajax({
+                        method : "POST",
+                        url: "{{url('/brand/approve')}}",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            ids: str,
+                         },
+                        dataType: "json",
+                        beforeSend : function(){
+                            $("#loading-image").show();
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            if(response.code == 200) {
+                                toastr["success"]("approved successfully", "Message")
+                                location.reload();
+                            }else{
+                                toastr["error"](response.message, "Message");
+                            }
+                        }
+                    });
+            }
+            
+        
+    }
+
+    $("#checkAll").click(function(){
+         $('input:checkbox').not(this).prop('checked', this.checked);
+    });
 </script>
 @endsection

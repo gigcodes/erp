@@ -370,9 +370,10 @@ class LeadsController extends Controller
         // ]);
 
         if ($request->ajax()) {
-            return response()->json(['lead' => $lead]);
+            $message = $this->generate_erp_response("erp.lead.created.success",0, $default='Lead created successfully.', request('lang_code'));
+            return response()->json(['lead' => $lead, "message" => $message]);
         }
-
+        
         return redirect()->route('leads.create')
             ->with('success', 'Lead created successfully.');
     }
@@ -598,11 +599,26 @@ class LeadsController extends Controller
 
         $params['customer_id'] = $customer->id;
         \Log::channel('customer')->info("Lead send price started : " . $customer->id);
+        $cnt = "IN";
+        $website = \App\StoreWebsite::find(15);
         foreach ($request->selected_product as $product_id) {
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
+            $dutyPrice = $product->getDuty($cnt);
+            $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+            if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+                $special_price = $discountPrice['total'];
+                $brand = $product->brands;
+                if($brand) {
+                    if (!empty($brand->euro_to_inr)) {
+                        $special_price = (float)$brand->euro_to_inr * (float)trim($discountPrice['total']);
+                    } else {
+                        $special_price = (float)Setting::get('euro_to_inr') * (float)trim($discountPrice['total']);
+                    }
+                }
+            }
 
             if ($request->has('dimension')) {
 
@@ -991,7 +1007,7 @@ class LeadsController extends Controller
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-            ->select(["erp_leads.*", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id"]);
+            ->select(["erp_leads.*","products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number","c.email as customer_email"]);
 
 
         /*$term = $request->get('term');
@@ -1101,9 +1117,10 @@ class LeadsController extends Controller
             }
 
             $customer->save();
+            $message = $this->generate_erp_response("erp.block.customer.lead.success",0, $default='Leads for Customer are blocked', request('lang_code'));
             return response()->json([
                 'status' => 200,
-                'message' => 'Leads for Customer are blocked',
+                'message' => $message,
             ]);
         }
     }
@@ -1139,7 +1156,8 @@ class LeadsController extends Controller
 
         $customer = \App\Customer::where("id", request()->get("customer_id", 0))->first();
         if (!$customer) {
-            return response()->json(["code" => 0, "data" => [], "message" => "Please select valid customer"]);
+            $message = $this->generate_erp_response("erp.lead.add.failed.validation",0, $default='Please select valid customer', request('lang_code'));
+            return response()->json(["code" => 0, "data" => [], "message" => $message]);
         }
 
         $product = \App\Product::where("id", $productId)->first();
@@ -1216,7 +1234,8 @@ class LeadsController extends Controller
             $erpLeads->attachMedia($media, config('constants.media_tags'));
         }
 
-        return response()->json(["code" => 1, "data" => []]);
+        $message = $this->generate_erp_response("erp.lead.add.success", 0, $default='Erp lead created successfully', request('lang_code'));
+        return response()->json(["code" => 1, "data" => [], "message" => $message ]);
     }
 
     public function erpLeadDelete()
@@ -1227,8 +1246,9 @@ class LeadsController extends Controller
         if ($erpLeads) {
             $erpLeads->delete();
         }
-
-        return response()->json(["code" => 1, "data" => []]);
+        
+        $message = $this->generate_erp_response("erp.lead.delete.success", 0, $default='Erp lead deleted successfully', request('lang_code'));
+        return response()->json(["code" => 1, "data" => [], "message" => $message ]);
     }
 
     public function customerSearch()
@@ -1305,8 +1325,10 @@ class LeadsController extends Controller
                 MessageQueue::create($params);
             }
         }
-
-        return response()->json(["code" => 1, "data" => []]);
+        
+        $message = $this->generate_erp_response("erp.lead.message.send.success", 0, $default='Message sent successfully', request('lang_code'));
+        return response()->json(["code" => 1, "data" => [], "message" =>$message ]);
+        
     }
 
     public function updateErpStatus(Request $request, $id)
@@ -1418,8 +1440,9 @@ class LeadsController extends Controller
         //     app('App\Http\Controllers\WhatsAppController')
         //                         ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false);
         // }
-
-        return response()->json(['code' => 200,'message' => "Status Updated Successsfully", 'template' => $template]);
+        
+        $message = $this->generate_erp_response("erp.lead.status.update.success", 0, $default='Status Updated Successsfully', request('lang_code'));        
+        return response()->json(['code' => 200,'message' => $message, 'template' => $template]);
     }
 
     public function erpLeadStatusChange(Request $request)
@@ -1482,7 +1505,14 @@ class LeadsController extends Controller
             }
            
         }
-        return response()->json('Sucess', 200);
+        
+        $message = $this->generate_erp_response("erp.lead.status.change.success", 0, $default='Status Changed Successsfully', request('lang_code'));        
+        return response()->json(['Sucess', 200,'message' => $message]);
 
     }
+    
+    
 }
+
+
+

@@ -13,6 +13,7 @@
 
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
+    Route::post('generate-reindex', 'StoreWebsiteController@generateReIndexfile');
     
     Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name("store-website.user-list");
 
@@ -28,6 +29,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::prefix('{id}')->group(function () {
         
         Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
+
+        Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
 
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         
@@ -176,10 +179,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/agents', 'WebsiteStoreViewController@agents')->name("store-website.website-store-views.group.agents");
         Route::get('/groups', 'WebsiteStoreViewController@groups')->name("store-website.website-store-views.group.groups");
     });
-    
     Route::prefix('page')->group(function () {
         Route::get('/', 'PageController@index')->name("store-website.page.index");
-        Route::get('/records', 'PageController@records')->name("store-website.page.records");
+        Route::get('/meta-title-keywords', 'PageController@pageMetaTitleKeywords')->name("store-website.page.keywords");
+		Route::get('/records', 'PageController@records')->name("store-website.page.records");
         Route::post('save', 'PageController@store')->name("store-website.page.save");
         Route::get('/{id}/edit', 'PageController@edit')->name("store-website.page.edit");
         Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");
@@ -238,6 +241,7 @@ Route::middleware('auth')->group(function()
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
+    Route::post('/save-master-category', 'SiteDevelopmentController@addMasterCategory')->name("site-development.master_category.save");
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");
     Route::post('/save-development', 'SiteDevelopmentController@addSiteDevelopment')->name("site-development.save");
     Route::post('/disallow-category', 'SiteDevelopmentController@disallowCategory')->name("site-development.disallow.category");

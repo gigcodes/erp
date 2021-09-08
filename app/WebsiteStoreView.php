@@ -43,4 +43,8 @@ class WebsiteStoreView extends Model
     {
         return $this->belongsTo(\App\WebsiteStore::class);
     }
+
+    public function magentoSetting(){
+        return $this->hasOne(MagentoSetting::class, 'store_website_view_id', 'id');
+    }
 }

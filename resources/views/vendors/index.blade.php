@@ -276,6 +276,7 @@
     @include('vendors.partials.modal-emailToAll')
     @include('common.commonEmailModal')
     @include('vendors.partials.vendor-modals')
+    @include('vendors.partials.charity-modals')
     @include('vendors.partials.add-vendor-info-modal')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')

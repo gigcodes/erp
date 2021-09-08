@@ -75,6 +75,20 @@ class MailinglistTemplate extends Model
         }
     }
 
+    public static function getMailTemplate($order_status,$store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', $order_status)->first();
+
+        if ($category) {
+            return self::getTemplate($category, $store);
+        } else {
+            
+        $category_default = \App\MailinglistTemplateCategory::where('title', 'Ticket ACK')->first();
+        return self::getTemplate($category_default, $store);
+            
+        }
+    }
+
     public static function getOrderCancellationTemplate($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Order Cancellation')->first();
@@ -202,4 +216,17 @@ class MailinglistTemplate extends Model
 
         return false;
     }
+    
+    public static function getReferAFirendTemplate($store = null) {
+        
+        $category = \App\MailinglistTemplateCategory::where('title', 'Refer_a_frined')->first();
+        
+        if ($category) {
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+        
+    }
+    
 }

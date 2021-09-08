@@ -29,6 +29,29 @@
 </h2>
 
 
+<form method="get" action="{{route('instagram.message-queue')}}">
+
+    <div class="form-group">
+        <div class="row ml-2">
+    
+   
+            <div class="col-md-2">
+                <input class="form-control" placeholder="Enter Influencer name" type="text" name="filterFullName" value="{{ $filterFullName }}" >
+            </div>
+
+
+            <div class="col-md-2">
+                <input class="form-control" placeholder="Enter message"  type="text" name="filterMessage" value="{{ $filterMessage }}">
+            </div>
+
+           
+            <div class="col-md-1 d-flex justify-content-between">
+                <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+            </div>
+        </div>
+    </div>
+</form>
+
 
 <div class="infinite-scroll col-md-12">
     <div class="table-responsive">

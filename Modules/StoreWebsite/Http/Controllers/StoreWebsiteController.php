@@ -20,6 +20,8 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
 use App\StoreWebsiteUserHistory;
+use App\StoreReIndexHistory;
+use Carbon\Carbon;
 
 
 class StoreWebsiteController extends Controller
@@ -687,6 +689,67 @@ class StoreWebsiteController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => $resultArray]);
+    }
+
+    public function storeReindexHistory(Request $request){
+        
+        $website = StoreWebsite::find($request->id);
+        $date = Carbon::now()->subDays(7);
+        $histories = StoreReIndexHistory::where('server_name',$website->title)->where('created_at','>=',$date)
+            ->latest()
+            ->get();
+
+        $resultArray = [];
+
+        foreach($histories as $history){
+            $resultArray[] = [
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
+                'server_name'  => $history->server_name,
+                'username'     => $history->username,
+                'action'       => $history->action,
+            ];
+        }
+
+        return response()->json(["code" => 200, "data" => $resultArray]);
+        
+    }
+	
+	public function generateReIndexfile(Request $request)
+    { 
+        $server = $request->get("for_server");
+        $user   = $request->user();
+        if(!$user) {
+            return false;
+        }
+        $username = str_replace(" ", "_", $user->name);
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-reindex.sh -f reindex -s '.$server.' 2>&1';
+
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+
+        \Log::info(print_r($allOutput,true));
+
+        //$nameF = $server.".sh";
+        $nameF = "magento-reindex.txt";
+        
+        StoreReIndexHistory::create([
+            'user_id' => $user->id, 
+            'server_name' => $server,
+            'username' => $username,
+            'action' => 'add'
+        ]);
+        
+        //header download
+        header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
+        header("Content-Type: application/force-download");
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header("Content-Type: text/plain");
+
+        echo $result;
+        die;
     }
 
 }

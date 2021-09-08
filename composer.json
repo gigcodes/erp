@@ -109,7 +109,8 @@
         },
         "files": [
             "Modules/BookStack/helpers.php",
-            "app/Helpers/common_functions.php"            
+            "app/Helpers/common_functions.php",
+            "app/Helpers/semrush_helper.php"            
         ]
     },
     "autoload-dev": {

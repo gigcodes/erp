@@ -96,7 +96,7 @@
 
 	function loadTwilioDevice(token,agent) {
 		const $confirmModal = $('#receive-call-popup');
-
+		var set_status = '';
 		console.log("Token : "+token);
 		console.log("Agent : "+agent);
 		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
@@ -168,7 +168,7 @@
 		});
 
 		device.on('disconnect', function (conn) {
-
+			clearInterval(set_status);
 			var auth_id = $('.call-twilio ').attr('data-auth-id');
 
 			$.ajax({
@@ -245,23 +245,26 @@
 
 					var auth_id = $('.call-twilio ').attr('data-auth-id');
 
-					$.ajax({
-						url: '/twilio/change_agent_call_status',
-						type: 'POST',
-						dataType: 'json',
-						data: {
-							_token: "{{ csrf_token() }}",
-							authid : auth_id,
-							status: 1,
-						},
-					})
+					set_status = setInterval(function(){  
+						$.ajax({
+							url: '/twilio/change_agent_call_status',
+							type: 'POST',
+							dataType: 'json',
+							data: {
+								_token: "{{ csrf_token() }}",
+								authid : auth_id,
+								status: 1,
+							},
+						})
+					}, 2000);
 
 					conn.accept();
 				});
 
 				$buttonForCancelledCall.off().one('click', function () {
-
+					clearInterval(set_status);
 					$confirmModal.modal('hide');
+					
 					sendTwilioEvents({
 						status: 'busy',
 						From:  conn.parameters.From,
@@ -293,7 +296,7 @@
 		});
 
 		device.on('cancel', function (conn) {
-
+			clearInterval(set_status);
 			var agent_id = 'client:'+agent;
 
 			if(agent_id == conn.parameters.To)
@@ -496,7 +499,7 @@
 		//call control
 		var buttons = $("<ul style='list-style: none !important; ' class='buttons'><h4>Call Control</h4></ul>").appendTo(center);
 		$("<li><button class='btn btn-danger hangup' onclick='callerHangup()'>Hangup</button></li>").appendTo(buttons);
-		$("<li><button class='btn btn-primary muter' onclick='callerMute()'></button></li>").appendTo(buttons);
+		// $("<li><button class='btn btn-primary muter' onclick='callerMute()'></button></li>").appendTo(buttons);
 
 		function calculateTime() {
 			++totalSeconds;

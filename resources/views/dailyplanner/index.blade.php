@@ -186,7 +186,10 @@
 							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="History"> <i class="fa fa-history"></i> </button>
                             @php
                                 $edit = App\UserEvent\UserEvent::where('daily_activity_id', $task->id)->with('attendees')->first();
-                                $vendor = App\UserEvent\UserEventParticipant::where('user_event_id',$edit->id)->pluck('object_id')->toArray();
+                                $vendor = [];
+                                if($edit){
+                                  $vendor = App\UserEvent\UserEventParticipant::where('user_event_id',$edit->id)->pluck('object_id')->toArray();
+                                }
                             @endphp
                             <button type="button" class="btn btn-image payment-model-op p-0 m-0" data-note="{{ $task->activity }}" data-vendor="{{ json_encode($vendor) }}" data-date="{{ $task->for_date }}" data-id="{{ $task->id }}" title="Payment"> <i class="fa fa-money"></i> </button>
 							@if( !empty( $task->id ) )

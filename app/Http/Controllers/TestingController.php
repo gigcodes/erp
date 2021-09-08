@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Category;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class TestingController extends Controller
 {
@@ -50,8 +53,11 @@ class TestingController extends Controller
 
 
     public function testingFunction(Request $request)
+   
     {
-            $message = '<!DOCTYPE html>
+            
+       
+        $message = '<!DOCTYPE html>
                     <html>
                     <head>
                     <meta charset="utf-8">

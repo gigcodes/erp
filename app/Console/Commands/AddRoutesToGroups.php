@@ -84,6 +84,13 @@ class AddRoutesToGroups extends Command
                         continue;
                     }
                     $lang_code = $data[1]; 
+                    if($lang_code == 'kr'){
+                        $lang_code = 'ko';
+                    }else if($lang_code == 'jp'){
+                        $lang_code = 'ja';
+                    }else if($lang_code == 'ge'){
+                        $lang_code = 'ka';
+                    } 
                     $web_name = $data[0];
                     if($web_name == 'Vera Lusso'){
                         $web_name = 'veralusso';
@@ -165,7 +172,7 @@ class AddRoutesToGroups extends Command
                 dump(['status' => 'success', 'responseData' => $changed_themes], 200);
             }
         } 
-        // dump(['existing_themes_ids' => $existing_themes_ids, 'all_themes_ids' => $all_themes_ids, 'changed_themes' => $changed_themes]);
+        dump(['existing_themes_ids' => $existing_themes_ids, 'all_themes_ids' => $all_themes_ids, 'changed_themes' => $changed_themes]);
 
     }
 }

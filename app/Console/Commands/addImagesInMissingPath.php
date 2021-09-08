@@ -44,7 +44,6 @@ class addImagesInMissingPath extends Command
         $path = explode('/', $path);
         $dir = '/';
         foreach($path as $key => $f){
-            dump($dir);
             if($key == 0 || $key == count($path) -1) continue;
             $dir .= $f . '/' ;
             if(!is_dir($dir)){

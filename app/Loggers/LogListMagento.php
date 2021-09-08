@@ -22,7 +22,8 @@ class LogListMagento extends Model
         'sync_status',
         'languages',
         'user_id',
-        'tried'
+        'tried',
+        'total_request_assigned'
     ];
 
     public static function log($productId, $message, $severity = 'info', $storeWebsiteId = null, $syncStatus = null, $languages = null)
