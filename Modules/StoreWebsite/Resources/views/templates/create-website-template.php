@@ -13,13 +13,17 @@
 		         {{if data}}
 		         	<input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
 		         {{/if}}
-		         <div class="form-group col-md-6">
+		         <div class="form-group col-md-4">
 		            <label for="title">Title</label>
 		            <input type="text" name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
 		         </div>
-		         <div class="form-group col-md-6">
+		         <div class="form-group col-md-4">
 		            <label for="website">Website</label>
 		            <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
+		         </div>
+		         <div class="form-group col-md-4">
+		            <label for="website">Semrush Project Id</label>
+		            <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="website" placeholder="Enter Semrush Project Id">
 		         </div>
 		      </div>
 
