@@ -198,7 +198,7 @@ class PasswordController extends Controller
             $whatsappnumber = '971502609192';
 			if(isset($request->send_on_whatsapp)) { 
 				$password = Password::findorfail($request->id);
-				$message = 'Password For '. $request->website .'is: ' . Crypt::decrypt($password->password);
+				 $message = 'Username for '. $password ->website . ' is: '. $password['username'].' Password For '. $password ->website .' is: ' . Crypt::decrypt($password->password);
 				$successMessage = 'You have successfully sent password';
 			} else{
 				$message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
