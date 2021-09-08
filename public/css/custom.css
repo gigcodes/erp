@@ -2012,3 +2012,7 @@ table{
 .row.tickets{
     font-size: 13px !important;
 }
+@media(min-width:1600px){
+	.col-md-12.mb-1.p-0.d-flex.pl-4.pt-2.mt-1.msg {     width: 60%; }
+	.col-md-12.p-0.pl-4.text {     width: 40%; }
+}

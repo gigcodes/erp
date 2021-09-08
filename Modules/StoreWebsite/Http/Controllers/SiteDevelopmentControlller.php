@@ -75,41 +75,28 @@ class SiteDevelopmentController extends Controller
 		
         foreach($categories as $category) {
 			$finalArray = [];
-			$site_developement_id = $category->site_development_id;
-			$query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('developer_tasks.id','developer_tasks.task as subject','developer_tasks.status','users.name as assigned_to_name', 'users.id as user_id');
-			$taskStatistics = $query->get();
-			foreach($taskStatistics as $task) {
-				$object = DeveloperTask::find($task->id);
-				$message = $object->whatsappAll()->orderBy('id', 'desc')->first(); 
-				if($message == null ) {
-					$finalArray[] = ['assigned_to_name'=>$task['assigned_to_name'], 
-					'message'=> '', 'messaged_at'=>'', 'task_id'=>$task['id']];
-				} else{
-					$finalArray[] = ['assigned_to_name'=>$task['assigned_to_name'], 'task_id'=>$task['id'], 
-					'message'=> $message['message'], 'messaged_at'=>Carbon::parse($message['created_at'])->format('Y-m-d H:i:s')];
-				}
-				/*if(!isset($finalArray[$task['user_id']]) || $finalArray[$task['user_id']]['messaged_at'] < $array['messaged_at']) {
-					$finalArray[$task['user_id']] = $array;
-				}*/
-			}
-			$query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('tasks.id','tasks.task_subject as subject','tasks.assign_status','users.name as assigned_to_name', 'users.id as user_id');
+			 $site_developement_id = $category->site_development_id;
+			$taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select();
+
+			$query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('developer_tasks.id','developer_tasks.task as subject','developer_tasks.status','users.name as assigned_to_name');
+			$query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+			$taskStatistics = $query->get(); 
+			//print_r($taskStatistics);
+			$othertask = Task::where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select(); 
+			$query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('tasks.id','tasks.task_subject as subject','tasks.assign_status','users.name as assigned_to_name');
+			$query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
 			$othertaskStatistics = $query1->get();
-			foreach($othertaskStatistics as $task) {
-				$object = Task::find($task->id);
-				$message = $object->whatsappAll()->orderBy('id', 'desc')->first(); 
-				if($message == null ) {
-					$finalArray[]  = ['assigned_to_name'=>$task['assigned_to_name'], 'task_id'=>$task['id'], 
-					'message'=> '', 'messaged_at'=>''];
-				} else{
-					$finalArray[] = ['assigned_to_name'=>$task['assigned_to_name'], 'task_id'=>$task['id'], 
-					'message'=> $message['message'], 'messaged_at'=>Carbon::parse($message['created_at'])->format('Y-m-d H:i:s')];
-				}
-				/*if(!isset($finalArray[$task['user_id']]) || $finalArray[$task['user_id']]['messaged_at'] < $array['messaged_at']) {
-					$finalArray[$task['user_id']] = $array;
+			$merged = $othertaskStatistics->merge($taskStatistics); 
+			foreach($merged as $m) {
+				/*if($m['task_type'] == 'task' ) {
+					$object = Task::find($m['id']);
+				} else {
+					$object = DeveloperTask::find($m['id']);
 				}*/
-			} 
-			//$merged = $othertaskStatistics->merge($taskStatistics);
-			$category->assignedTo = $finalArray;  
+				$chatMessage = $m->whatsappAll()->orderBy('id', 'desc')->pluck('message')->first();
+				$m['message'] = $chatMessage ; ;
+			}  
+			$category->assignedTo = $merged;  
 	   }
 	   
         //Getting   Roles Developer
@@ -616,14 +603,14 @@ class SiteDevelopmentController extends Controller
 
         $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('developer_tasks.id','developer_tasks.task as subject','developer_tasks.status','users.name as assigned_to_name');
         $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
-        $taskStatistics = $query->get();
+        $taskStatistics = $query->get(); 
         //print_r($taskStatistics);
         $othertask = Task::where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select(); 
         $query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('tasks.id','tasks.task_subject as subject','tasks.assign_status','users.name as assigned_to_name');
         $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
         $merged = $othertaskStatistics->merge($taskStatistics);
-        //print_r($merged);
+       
         return response()->json(["code" => 200, "taskStatistics" => $merged]);
 
     }

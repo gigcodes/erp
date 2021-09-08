@@ -69,20 +69,13 @@
                     </div>
                  </div>
             </td>
-			<td>	
-				@foreach($category->assignedTo as $assignedTo) 
-					<div style="height:40px !important;">{{$assignedTo['assigned_to_name']}}  </div></br><hr>
-				@endforeach
-			</td>
 			
-			 <td class="pr-0 pt-0" >
-                <div class="row m-0">
-                  <div style="width: calc(100% - 145px);">
-                      <div class="row">
-					  <table>
-					  @foreach($category->assignedTo as $assignedTo) 
-					  <tr><td>
-                          <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1" style="height:60px !important;">
+			<td colspan=2>
+			<table>	
+				@foreach($category->assignedTo as $assignedTo)   
+					<tr><td width="32%">{{$assignedTo['assigned_to_name']}}</td>
+					<td>
+                          <div class="col-md-12 mb-1 p-0 d-flex pl-4 pt-2 mt-1 msg">
                               <?php
                               $MsgPreview = '# ';
                               if ($website) {
@@ -93,32 +86,31 @@
                               }
                               ?>
 							  <input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                                 <div style="margin-top: 4px;" class="d-flex p-0">
-								     <button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{$assignedTo['task_id']}}"><img src="/images/filled-sent.png" style="cursor: default;"></button> 
+                                 <div class="d-flex p-0">
+								     <button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{$assignedTo['id']}}"><img src="/images/filled-sent.png" style="cursor: default;"></button> 
 								 </div>
+								 <button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="{{$assignedTo['message_type']}}" data-id="{{$assignedTo['id']}}" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>
 							</div>
 						  
-                          <div class="col-md-12 p-0 pl-4">
+                          <div class="col-md-12 p-0 pl-4 text">
 								<!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
                                   <div class="d-flex">
-                                      <div class="justify-content-between expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
-                                          <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif pl-1"> {{ str_limit($assignedTo['message'], 30,'...') }} </span>
+                                      <div class="justify-content-between expand-row-msg-chat" data-id="{{$assignedTo['id']}}">
+                                          <span class="td-full-chat-container-{{$assignedTo['id']}} pl-1"> {{ str_limit($assignedTo['message'], 30,'...') }} </span>
                                       </div>
                                   </div>
-                                  <div class="expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
-                                      <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif hidden">  {{ $assignedTo['message'] }} </span>
+                                  <div class="expand-row-msg-chat" data-id="{{$assignedTo['id']}}">
+                                      <span class="td-full-chat-container-{{$assignedTo['id']}} hidden">  {{ $assignedTo['message'] }} </span>
                                   </div>
                                   <!-- END - #DEVTASK-19918 -->
                           </div>
 						  </td>
-						  </tr>
-						  @endforeach
-						  </table>
-                      </div>
-                  </div>
-                </div>
-			</td>
-			
+					
+					</tr>
+				@endforeach
+				 </table>
+			</td> 
+		
             <td style="display:none;">
                 <input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
                 <input style="margin-top: 0;" type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site){{ $site->title }}@endif" data-site="@if($site){{ $site->id }}@endif">
