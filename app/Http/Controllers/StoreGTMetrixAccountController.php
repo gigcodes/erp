@@ -74,6 +74,7 @@ class StoreGTMetrixAccountController extends Controller
         $input['email'] = $request->input('email');
         $input['password'] = $request->input('password');
         $input['account_id'] = $request->input('account_id');
+        $input['status'] = $request->input('status');
 		$insert = StoreGTMetrixAccount::where('id',$id)->update($input);
 
         return redirect()->route('GtMetrixAccount.index')
