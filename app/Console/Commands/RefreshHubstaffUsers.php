@@ -13,6 +13,7 @@ class RefreshHubstaffUsers extends Command
 
     public $HUBSTAFF_TOKEN_FILE_NAME;
     public $SEED_REFRESH_TOKEN;
+    public $hubstaff;
 
     /**
      * The name and signature of the console command.
@@ -38,7 +39,7 @@ class RefreshHubstaffUsers extends Command
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
         // $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
-        $this->SEED_REFRESH_TOKEN       = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -67,11 +68,17 @@ class RefreshHubstaffUsers extends Command
         // 3. if users not recieved due to token failure refresh the token and retry
 
         // start hubstaff section from here
-        $hubstaff          = Hubstaff::getInstance();
-        $hubstaff          = $hubstaff->authenticate();
+        $hubstaff       = Hubstaff::getInstance();
+        $this->hubstaff = $hubstaff->authenticate();
+        $this->startGetUser();
         // $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
-        $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(config('env.HUBSTAFF_ORG_ID'),0,665240);
-        
+
+    }
+
+    private function startGetUser($startId = 665240)
+    {
+        $organizationUsers = $this->hubstaff->getRepository('organization')->getOrgUsers(config('env.HUBSTAFF_ORG_ID'), 0, $startId);
+
         if (!empty($organizationUsers->members)) {
             $record = count($organizationUsers->members);
             echo "Total Record :" . $record;
@@ -80,7 +87,7 @@ class RefreshHubstaffUsers extends Command
                 echo PHP_EOL;
                 $memeberExist = HubstaffMember::where("hubstaff_user_id", $member->user_id)->first();
                 if (!$memeberExist) {
-                    $userDetails = $hubstaff->getRepository('user')->getUserDetail($member->user_id);
+                    $userDetails = $this->hubstaff->getRepository('user')->getUserDetail($member->user_id);
                     if (!empty($userDetails)) {
                         $member->email = $userDetails->user->email;
                     }
@@ -99,6 +106,10 @@ class RefreshHubstaffUsers extends Command
                 echo PHP_EOL;
                 echo "Total Record Left :" . $record--;
                 echo PHP_EOL;
+            }
+
+            if (!empty($organizationUsers->pagination) && !empty($organizationUsers->pagination->next_page_start_id)) {
+                $this->startGetUser($organizationUsers->pagination->next_page_start_id);
             }
         }
 
