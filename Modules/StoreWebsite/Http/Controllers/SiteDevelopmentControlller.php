@@ -107,7 +107,7 @@ class SiteDevelopmentController extends Controller
 				/*if(!isset($finalArray[$task['user_id']]) || $finalArray[$task['user_id']]['messaged_at'] < $array['messaged_at']) {
 					$finalArray[$task['user_id']] = $array;
 				}*/
-			} dd($finalArray);
+			} 
 			//$merged = $othertaskStatistics->merge($taskStatistics);
 			$category->assignedTo = $finalArray;  
 	   }
