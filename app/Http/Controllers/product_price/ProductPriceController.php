@@ -466,17 +466,18 @@ class ProductPriceController extends Controller
 						}
                     }
                 //}
-
-                if($country['default_duty']!='' || $country['default_duty']!=0){
-                    $dutyDisc = ($final_price * $country['default_duty'])/100;
-					$final_price = $final_price - $dutyDisc;
-                }
-
-                if(\App\Product::IVA_PERCENTAGE!=0){
+				if(\App\Product::IVA_PERCENTAGE!=0){
                     $IVA = \App\Product::IVA_PERCENTAGE;
                     $lessIva = ( $final_price * $IVA )/100;
 					$final_price = $final_price - $lessIva;
                 }
+
+                if($country['default_duty']!='' || $country['default_duty']!=0){
+                    $dutyDisc = ($final_price * $country['default_duty'])/100;
+					$final_price = $final_price + $dutyDisc;
+                }
+
+               
                 
 				$product_list[] = [
                     'catId'=>$categoryDetail->id, 
