@@ -51,6 +51,12 @@
             {!! Form::text('account_id', ($account->account_id)?$account->account_id:old('account_id'), array('placeholder' => 'Api Key','class' => 'form-control')) !!}
         </div>
     </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Api Key:</strong>
+            {!! Form::select('status', ["active" => "Active" , "error" => "Error", "in-active" => "In-Active"],($account->status)?$account->status:old('status'), array('class' => 'form-control')) !!}
+        </div>
+    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
         <input type="hidden" name="id" value="{{$account->id}}">
         <button type="submit" class="btn btn-success">+</button>
