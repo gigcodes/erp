@@ -29,7 +29,7 @@
     <td>
         <?php
         $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
-        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Message</td></tr></thead><tbody>";
+        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
         
         foreach( $messages as $m)
         {
@@ -41,6 +41,7 @@
             } 
           
             $table.="<tr><td>".$m->created_at."</td>";
+            $table.="<td>".$m->message."</td>";
             $table.="<td>".$message."</td></tr>";
         }
         $table.="</tbody></table>";
@@ -139,7 +140,7 @@
 
             <?php
         $messages = \App\Email::where('model_type','App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at','desc')->get();
-        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Message</td></tr></thead><tbody>";
+        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Original</td><td>Message</td></tr></thead><tbody>";
         
         foreach( $messages as $m)
         {
@@ -151,6 +152,7 @@
             } 
           
             $table.="<tr><td>".$m->created_at."</td>";
+            $table.="<td>".$m->message."</td>";
             $table.="<td>".$message."</td></tr>";
         }
         $table.="</tbody></table>";
