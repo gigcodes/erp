@@ -28,13 +28,26 @@
     </td>
     <td>
         <?php
-        $message=$ticket->message;
-        if ($ticket->lang_code!='' && $ticket->lang_code!='en')
-          {
-           $message = \App\Helpers\TranslationHelper::translate($ticket->lang_code,'en', $ticket->message);
-          }  
+        $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
+        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Message</td></tr></thead><tbody>";
+        
+        foreach( $messages as $m)
+        {
+            
+            $message=$m->message;
+            if ($ticket->lang_code!='' && $ticket->lang_code!='en')
+            {
+            $message = \App\Helpers\TranslationHelper::translate($ticket->lang_code,'en', $m->message);
+            } 
+          
+            $table.="<tr><td>".$m->created_at."</td>";
+            $table.="<td>".$message."</td></tr>";
+        }
+        $table.="</tbody></table>";
+        
+         
        ?>
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $message }}">
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table }}">
             {{ str_limit($message,6)}}
         </a>
     </td>
@@ -124,6 +137,29 @@
                 <i class="fa fa-comments-o"></i>
             </button>
 
+            <?php
+        $messages = \App\Email::where('model_type','App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at','desc')->get();
+        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Message</td></tr></thead><tbody>";
+        
+        foreach( $messages as $m)
+        {
+            
+            $message=$m->message;
+            if ($ticket->lang_code!='' && $ticket->lang_code!='en')
+            {
+            $message = \App\Helpers\TranslationHelper::translate($ticket->lang_code,'en', $m->message);
+            } 
+          
+            $table.="<tr><td>".$m->created_at."</td>";
+            $table.="<td>".$message."</td></tr>";
+        }
+        $table.="</tbody></table>";
+        
+         
+       ?>
+            <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
+            email
+        </a>
             <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
                 <i class="fa fa-trash" style="margin-left: -10px"></i></button>
 

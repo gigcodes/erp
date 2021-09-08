@@ -2234,8 +2234,16 @@ class WhatsAppController extends FindByNumberController
                 $data['ticket_id'] = $request->ticket_id;
                 $module_id = $request->ticket_id;
                 $ticket = \App\Tickets::find($request->ticket_id);
-                
-                $params['message'] = $request->get('message');
+                $message=$request->get('message');
+                if ($ticket)
+                  {
+                    if ($ticket->lang_code!='' && $ticket->lang_code!='en')
+                     {
+                        $message = TranslationHelper::translate('en', $ticket->lang_code, $message );
+                     }
+                       
+                  }
+                $params['message'] = $message;
                 $params['ticket_id'] = $request->ticket_id; 
                 $params['approved'] = 1;
                 $params['status'] = 2; 
@@ -2248,17 +2256,8 @@ class WhatsAppController extends FindByNumberController
                 }elseif($ticket->customer) {
                     $whatsappNo = $ticket->customer->whatsapp_number;
                 }
-                $message=$params['message'];
-                if ($ticket)
-                  {
-                    if ($ticket->lang_code!='' && $ticket->lang_code!='en')
-                     {
-                        $message = TranslationHelper::translate('en', $ticket->lang_code, $params['message']);
-                     }
-                       
-                  }
-                  echo $ticket->lang_code;
-                  echo $message;
+               
+                
                 $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $message,null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 
