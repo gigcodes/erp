@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Github\GithubBranchState;
-use App\Helpers\githubTrait;
+use App\Github\GitHubBranchState;
+use App\Helpers\GithubTrait;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
