@@ -239,11 +239,24 @@ class MagentoSettingsController extends Controller
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
         $website_ids = $request->websites;
+
+        $m = MagentoSetting::where('id', $request->id)->first();
+        if($m) {
+            MagentoSettingNameLog::insert([
+                'old_value' => $m->name,
+                'new_value' => $name,
+                'updated_by' => Auth::id(),
+                'magento_settings_id' => $request->id,
+                'updated_at' => date('Y-m-d H:i')
+            ]);
+        }
+
         MagentoSetting::where('id', $request->id)->update([
             'name' => $name,
             'path' => $path,
             'value' => $value
         ]); 
+
         $entity = MagentoSetting::find($entity_id);
         
         if ($scope === 'default') {
