@@ -45,8 +45,8 @@ class Hubstaff
             
         }*/
 
-        $token = new Token();
-        $token->getAuthToken($this->SEED_REFRESH_TOKEN, $this->HUBSTAFF_TOKEN_FILE_NAME);
+        /*$token = new Token();
+        $token->getAuthToken($this->SEED_REFRESH_TOKEN, $this->HUBSTAFF_TOKEN_FILE_NAME);*/
 
         $this->accessToken = json_decode(Storage::disk('local')->get($this->HUBSTAFF_TOKEN_FILE_NAME))->access_token;
 
