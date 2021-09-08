@@ -69,8 +69,13 @@ class RefreshHubstaffUsers extends Command
 
         // start hubstaff section from here
         $hubstaff       = Hubstaff::getInstance();
-        $this->hubstaff = $hubstaff->authenticate();
-        $this->startGetUser();
+        try{
+            $this->hubstaff = $hubstaff->authenticate(false);
+            $this->startGetUser();
+        }catch(\Exception $e) {
+            $this->hubstaff = $hubstaff->authenticate(true);
+            $this->startGetUser();
+        }
         // $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
 
     }
