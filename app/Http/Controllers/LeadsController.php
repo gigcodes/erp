@@ -1509,7 +1509,3 @@ class LeadsController extends Controller
 
     }
 }
-
-
-
-
