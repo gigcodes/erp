@@ -201,7 +201,12 @@
                 <th width="7%">Date</th>
                 <th width="10%">Status</th>
                 <th width="10%">Customer</th>
+                <th width="7%">Customer email</th>
+                <th width="7%">Customer whatsapp no.</th>
                 <th width="5%">Image</th>
+                <th width="5%">Product ID</th>
+                <th width="5%">Sku</th>
+                <th width="7%">Product name</th>
                 <th width="5%">Brand</th>
                 <th width="5%">Brand Segment</th>
                 <th width="10%">Category</th> 
@@ -230,9 +235,20 @@
                   <td class="tblcell">
                   <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></label></div></td>
 
+                  <!-- 08-09-2021 -->
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['customer_email']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['customer_whatsapp_number']}}</label></div></td>
+                  <!-- 08-09-2021  end -->
+
                   <td class="tblcell">
                   <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div></td>
                   
+                  <!-- 08-09-2021 -->
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_id']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_sku']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_name']}}</label></div></td>
+                  <!-- 08-09-2021 end -->
+
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['cat_title']}}</label></div></td>
