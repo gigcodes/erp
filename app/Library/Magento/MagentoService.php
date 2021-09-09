@@ -72,12 +72,12 @@ class MagentoService
         if (!$this->validateToken()) {
             return false;
         }
-
+        
         // started to check for the category
-        if (!$this->validateCategory()) {
+       /* if (!$this->validateCategory()) {
             return false;
-        }
-
+        }*/
+       
         // started to check the product rediness test
          if (!$this->validateReadiness()) {
         return false;
@@ -92,14 +92,15 @@ class MagentoService
         }
 
         // assign reference
+        
         $this->assignReference();
-
+       
         return $this->assignOperation();
     }
 
     private function assignOperation()
     {
-
+       
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
         $this->websiteIds = $this->getWebsiteIds();
@@ -153,9 +154,9 @@ class MagentoService
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
-
+        
         $this->getPricing();
-
+        
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
 
@@ -293,6 +294,8 @@ class MagentoService
 
         $pushSingle = false;
 
+        
+
         if ($mainCategory->push_type == 0 && !is_null($mainCategory->push_type)) {
             \Log::info("Product push type single via category");
             \Log::info($this->product->id . " #20 => " . date("Y-m-d H:i:s"));
@@ -315,9 +318,9 @@ class MagentoService
                 $pushSingle = true;
             }
         }
-
+        
         if ($pushSingle) {
-            $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
+              $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
                 $this->log->total_request_assigned = $totalRequest;
                 $this->log->save();
@@ -493,10 +496,13 @@ class MagentoService
                 'value'          => $this->storeColor,
             ];
         }
-
+        
         $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/", $this->token, $data);
+        
         $res              = json_decode($functionResponse['res']);
 
+        var_dump($functionResponse); die();
+        
         // store image function has been done
         if ($functionResponse['httpcode'] == 200) {
             if ($this->productType == "configurable" || $this->productType == "single") {
@@ -589,6 +595,10 @@ class MagentoService
                 }
 
             }
+        }
+        else
+        {
+            return false;
         }
 
     }
@@ -741,11 +751,13 @@ class MagentoService
         ];
         $d['description']  = $this->description;
         $d['tax_class_id'] = 2;
-
+       
+        
         $data = $this->defaultData($d);
-
+        
         $result = $this->_pushProduct('single', $this->sku, $data, '', $this->storeWebsite, $this->token, $this->product);
         // Return result
+        
         return $result;
     }
 
