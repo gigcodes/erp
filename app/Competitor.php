@@ -10,11 +10,11 @@ class Competitor extends Model
     protected $fillable=['store_website_id', 'tool_id', 'database', 'subtype', 'domain','common_keywords','keywords','traffic'];
 
     public function competitorSemrushApis($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'organic'=>'https://api.semrush.com/?type=domain_organic_organic&key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&display_limit=10&export_columns=Dn,Cr,Np,Or,Ot,Oc,Ad&domain=seobook.com&database=us',
+			'organic'=>'https://api.semrush.com/?type=domain_organic_organic&key='.$key.'&display_limit=1&export_columns=Dn,Cr,Np,Or,Ot,Oc,Ad&domain='.$domain.'&database='.$db,
 
-			'paid'=>'https://api.semrush.com/?type=domain_adwords_adwords&key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&display_limit=10&export_columns=Dn,Cr,Np,Ad,At,Ac,Or&domain=ebay.com&database=us'
+			'paid'=>'https://api.semrush.com/?type=domain_adwords_adwords&key='.$key.'&display_limit=1&export_columns=Dn,Cr,Np,Ad,At,Ac,Or&domain='.$domain.'&database='.$db
 		];
 		
 		if($column == null) {

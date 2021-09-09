@@ -205,7 +205,7 @@
 
 
     <div class="modal fade template-modal" id="addimage" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle1">Image</h5>
@@ -293,7 +293,7 @@
                     </a>
                     <a data-id="{{ $value['id'] }}"  class="add-image"
                             href="javascript:;">
-                        <i class="fa fa-send"></i>
+                        <i class="fa fa-list"></i>
                     </a>
                     </td>
                 </tr>

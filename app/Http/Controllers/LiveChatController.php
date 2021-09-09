@@ -1357,7 +1357,9 @@ class LiveChatController extends Controller
 			$query = $query->whereDate('date', $request->date);
         }
 
-        $pageSize = Setting::get('pagination');
+        $pageSize = Setting::get('pagination'); 
+        if ($pageSize=='')
+        $pageSize=1;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
         
@@ -1369,7 +1371,7 @@ class LiveChatController extends Controller
             ], 200);
         }
        return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
-        
+      
     }
 
     public function createTickets(Request $request) {
@@ -1472,6 +1474,7 @@ class LiveChatController extends Controller
     }
     public function sendEmail(Request $request)
     {
+       
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -1512,12 +1515,20 @@ class LiveChatController extends Controller
                 );
                 \Config::set('mail', array_merge($config, $configExtra));
                 (new \Illuminate\Mail\MailServiceProvider(app()))->register();
-            }
+            } 
         }
-
+        $message=$request->message;
         if ($tickets->email != '') 
         {
             $file_paths = [];
+
+            
+                    if ($tickets->lang_code!='' && $tickets->lang_code!='en')
+                     {
+                        $message = TranslationHelper::translate('en', $tickets->lang_code, $request->message);
+                     }
+                       
+                 
 
             if ($request->hasFile('file')) 
             {
@@ -1565,7 +1576,8 @@ class LiveChatController extends Controller
                 'to' => $tickets->email,
                 'seen' => 1,
                 'subject' => $request->subject.$ticketIdString,
-                'message' => $request->message,
+                'message' => $message,
+                'message_en' => $request->message,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
                 'cc' => $cc ?: null,

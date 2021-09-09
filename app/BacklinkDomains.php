@@ -10,10 +10,10 @@ class BacklinkDomains extends Model
     protected $fillable=['store_website_id', 'tool_id', 'database','subtype','domain','domain_ascore','backlinks_num'];
 
     public function backlinkdomainsSemrushApis($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'domain'=>'https://api.semrush.com/analytics/v1/?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&type=backlinks_refdomains&target=searchenginejournal.com&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5',
-			'ref_domain'=>'https://api.semrush.com/analytics/v1/?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&type=backlinks_refdomains&target=searchenginejournal.com&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5&display_filter=%2B%7Ctype%7C%7Cnewdomain%7C%2B%7Czone%7C%7Cuk',
+			'domain'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_refdomains&target='.$domain.'&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5',
+			'ref_domain'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_refdomains&target='.$domain.'&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5&display_filter=%2B%7Ctype%7C%7Cnewdomain%7C%2B%7Czone%7C%7Cuk',
 		];
 		
 		if($column == null) {

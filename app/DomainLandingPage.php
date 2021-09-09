@@ -10,9 +10,9 @@ class DomainLandingPage extends Model
     protected $fillable=['store_website_id', 'tool_id', 'database', 'target_url', 'first_seen', 'last_seen', 'times_seen', 'ads_count'];
 
     public function landingPageSemrushApi($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'landing_page'=>'https://api.semrush.com/analytics/da/v2/?action=report&key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&domain=ebay.com&type=advertiser_landings',
+			'landing_page'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_landings',
 		];
 		
 		if($column == null) {

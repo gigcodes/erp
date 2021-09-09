@@ -1101,8 +1101,6 @@ class LeadsController extends Controller
     public function blockcustomerlead(Request $request)
     {
 
-
-
         if ($request->customer_id) {
             $customer = Customer::find($request->customer_id);
             $is_blocked_lead = !$customer->is_blocked_lead;
@@ -1510,9 +1508,4 @@ class LeadsController extends Controller
         return response()->json(['Sucess', 200,'message' => $message]);
 
     }
-    
-    
 }
-
-
-
