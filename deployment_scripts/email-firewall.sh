@@ -1,4 +1,4 @@
-email_whitelisted=$1
+email_whitelisted=`mysql erp_live -e "select email from users where is_whitelisted='1'"`
 
 echo p | mail > /tmp/mail
 ip=`grep 'Subject:' /tmp/mail|cut -d' ' -f2|cut -d'-' -f2`

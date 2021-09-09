@@ -34,6 +34,15 @@
 								@endforeach
 							  </select>
 							  </div>
+							  
+							   <div class="col-md-2">			
+							   <select data-placeholder="Select website"  class="chosen-select" name="website" >
+								<option value="">Select Website</option>
+								@foreach($allWebsites as $website)
+								  <option value="{{$website['id']}}" @if(isset($filter['website']) and $filter['website'] == $website['id']) SELECTED  @endif>{{$website['website']}}</option>
+								@endforeach
+							  </select>
+							  </div>
 							
 							<div class="col-md-1 d-flex justify-content-between">
 								<button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button> 

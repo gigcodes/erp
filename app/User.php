@@ -74,6 +74,7 @@ class User extends Authenticatable
         'mail_notification',
         'is_auto_approval',
         'last_mail_sent_payment',
+        'is_whitelisted'
     ];
 
     public function getIsAdminAttribute()
