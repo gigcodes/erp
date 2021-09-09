@@ -425,28 +425,13 @@ class MagentoSettingsController extends Controller
 		foreach($magentoSettings as $magentoSetting) {
 			if($magentoSetting['scope'] == 'default') {
 				$scopeId = 0;
-				$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
 			}else if($scope === 'websites'){
-				$websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function($q) use ( $store_website_id){
-					$q->where('store_website_id', $store_website_id);
-				})->get();
-				foreach($websiteStores as $websiteStore){
-					$scopeID = $websiteStore->platform_id;
-					$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
-				}
+				$scopeId = WebsiteStore::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
 			}else if($scope === 'stores'){
-				$websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function($q) use ( $store_website_id){
-					$q->whereIn('store_website_id', $store_website_id );
-				})->get();
-
-				foreach($websiteStoresViews as $websiteStoresView){
-					  $scopeID = $websiteStoresView->platform_id;
-					$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
-				}
+				$scopeId = WebsiteStoreView::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
 			}
-			
+			$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
 		}
-		
 		if($settings !='') {
 			$filePath = public_path()."/uploads/temp-sync.txt";
 			$myfile = fopen($filePath, "w") or die("Unable to open file!");
