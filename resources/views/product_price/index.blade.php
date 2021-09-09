@@ -123,7 +123,7 @@
                 <div class="form-group mr-3">
                     <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
                 </div>
-
+                {{--
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
                     <option value="">Select Websites</option>
@@ -133,10 +133,10 @@
                             @endforeach
                         @endif
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="form-group mr-3">
-                    <a onClick="showgenerice()" class="btn btn-secondary">Show Generic Prices</a>
+                    <a href="{{url('/product-generic-pricing')}}" class="btn btn-secondary">Show Generic Prices</a>
                 </div>
             </form> 
         </div>
