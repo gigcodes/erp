@@ -259,7 +259,7 @@ class SeoToolController extends Controller
 				$dataToSave['title_page'] = $siteAuditIssuesData['title_page'];
 				SiteIssue::create($dataToSave);
 			}
-		}die;
+		}
 		}
 		return redirect('seo');
 	}
