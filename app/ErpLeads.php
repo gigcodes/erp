@@ -43,7 +43,6 @@ class ErpLeads extends Model
         'max_price',
         'brand_segment',
         'gender',
-        'qty',
         'created_at',
         'updated_at',
     ];

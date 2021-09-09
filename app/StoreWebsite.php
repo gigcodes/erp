@@ -87,6 +87,7 @@ class StoreWebsite extends Model
         'push_web_id',
         'icon',
         'is_price_override',
+		'semrush_project_id'
     ];
 
     const DB_CONNECTION = [
