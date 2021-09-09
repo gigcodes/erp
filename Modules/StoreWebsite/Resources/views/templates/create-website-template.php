@@ -178,7 +178,7 @@
 
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                          <div class="form-row">
                              <div class="form-group col-md-12">
                                 <label for="website_source">Website source?</label>
@@ -189,12 +189,26 @@
                              </div>
                           </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
 
                       <div class="form-group">
                          <label for="server_ip">Server IP</label>
                          <input type="text" name="server_ip" value="{{if data}}{{:data.server_ip}}{{/if}}" class="form-control" id="server_ip" placeholder="Enter Server IP">
                       </div>
+                    </div>
+					
+					 <div class="col-md-4">
+                         <div class="form-group">
+                                         <label for="country_duty">Repository</label>
+                                         <select name="repository_id" class="form-control">
+                                            <option value="">-- N/A --</option>
+                                            <?php
+											foreach(\App\Github\GithubRepository::all() as $k => $l) {
+												echo "<option {{if data.repository_id == '".$l->id."'}} selected {{/if}} value='".$l->id."'>".$l->name."</option>";
+											}
+											?>
+                                         </select>
+		                </div>
                     </div>
                 </div>
 

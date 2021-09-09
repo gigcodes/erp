@@ -9,6 +9,7 @@ use App\Website;
 use App\WebsiteStore; 
 use App\MagentoSettingLog;
 use App\WebsiteStoreView;
+use App\MagentoSettingPushLog;
 use App\Github\GithubRepository;
 use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ class MagentoSettingsController extends Controller
 
     public function index(Request $request)
     {
-     
+		
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite', 
             'store.website.storeWebsite',
@@ -29,10 +30,11 @@ class MagentoSettingsController extends Controller
         
           $magentoSettings->leftJoin('users','magento_settings.created_by','users.id');
           $magentoSettings->select('magento_settings.*','users.name as uname');
-            if($request->scope){
+        if($request->scope){
             $magentoSettings->where('scope', $request->scope);
         }
-
+		$pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+		->select('website', 'command', 'magento_setting_push_logs.created_at')->get();
         if($request->website){
             
             if(empty($request->scope)){
@@ -58,7 +60,9 @@ class MagentoSettingsController extends Controller
                     $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
                 }
             } 
+			//$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
         }
+		
         if ($request->name!='')
         {
             $magentoSettings->where('magento_settings.name','LIKE', '%'.$request->name.'%'); 
@@ -71,13 +75,14 @@ class MagentoSettingsController extends Controller
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
-
+		
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
                 'magentoSettings' => $magentoSettings,
                 'storeWebsites' => $storeWebsites,
                 'websitesStores' => $websitesStores ,
                 'websiteStoreViews' => $websiteStoreViews,
+                'pushLogs' => $pushLogs,
             ]);
         }
         else
@@ -88,6 +93,7 @@ class MagentoSettingsController extends Controller
             'storeWebsites' => $storeWebsites,
             'websitesStores' => $websitesStores ,
             'websiteStoreViews' => $websiteStoreViews,
+            'pushLogs' => $pushLogs,
         ]);
        }
     }
@@ -389,7 +395,8 @@ class MagentoSettingsController extends Controller
                     
                     //BASE SCRIPT
                     if(!empty($git_repository)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
+                        
+						$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
@@ -405,8 +412,41 @@ class MagentoSettingsController extends Controller
             return response()->json(["code" => 200 , "message" => "Request pushed on website successfully"]);
             
         }
-        
+      
     }
+	
+	public function pushMagentoSettings(Request $request) {
+		$store_website_id = $request->store_website_id;
+		$magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
+		$settings = '';
+		$storeWebsiteDetails = StoreWebsite::leftJoin('github_repositories', 'github_repositories.id', '=', 'store_websites.repository_id')
+		->where('store_websites.id', $store_website_id)->select('github_repositories.name as repo_name')->first();
+		
+		foreach($magentoSettings as $magentoSetting) {
+			if($magentoSetting['scope'] == 'default') {
+				$scopeId = 0;
+			}else if($scope === 'websites'){
+				$scopeId = WebsiteStore::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
+			}else if($scope === 'stores'){
+				$scopeId = WebsiteStoreView::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
+			}
+			$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
+		}
+		if($settings !='') {
+			$filePath = public_path()."/uploads/temp-sync.txt";
+			$myfile = fopen($filePath, "w") or die("Unable to open file!");
+			fwrite($myfile, $settings);
+			fclose($myfile);
+			
+			$cmd = 'bash ' . 'magento-config-deployment.sh -r '.$storeWebsiteDetails['repo_name'].' -f '.$filePath;
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput); //Execute command  
+            \Log::info(print_r(["Command Output",$allOutput],true));
+			MagentoSettingPushLog::create(['store_website_id'=>$store_website_id,'command'=>$cmd]);
+		} 
+		return redirect(route('magento.setting.index'));
+	}
 
     public function websiteStores(Request $request){ 
         $website_ids = Website::where('store_website_id', $request->website_id)->get()->pluck('id')->toArray();
