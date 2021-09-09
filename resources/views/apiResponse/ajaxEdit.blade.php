@@ -24,3 +24,16 @@
                                 <input type="text" class="form-control required" name="res_value" placeholder="Value" value="{{ $data->value}}" id="edit_value"  />
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label for="code" class="col-sm-3 col-form-label required"></label>
+                            <div class="col-sm-8">
+                             @if($history)   
+                            <b>Old Value</b> :{{ ($history) ? $history->old_value : '' }}
+                            <b>Edit By</b> :{{ ($history) ? $history->User->name : '' }}    
+                            <b>On</b> :{{ ($history) ? $history->created_at : '' }}  
+                            @endif  
+                             
+                        </div>
+                        </div>
+
+                        

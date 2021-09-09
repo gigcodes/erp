@@ -76,10 +76,29 @@
         </div>
     @endif
 
+	<div class="row">
+        <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Passwords Manager</h2>
+            <div class="pull-left">
+
+            </div>
+            <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
+            </div>
+            <div>
+                {{ Form::open(array('url' => route('passwords.change'), 'method' => 'post')) }}
+                    <input type="hidden" name="users" id="userIds">
+                    <button type="submit" class="btn btn-secondary"> Generate password </button>
+                {{ Form::close() }}
+            </div>
+        </div>
+    </div>
+
     <div class="table-responsive mt-3">
       <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
+            <th>#</th>
             <th>Website</th>
             <th>Username</th>
             <th>Password</th>
@@ -88,6 +107,8 @@
           </tr>
 
           <tr>
+		  
+            <th></th>
             <th><input type="text" id="website" class="search form-control"></th>
             <th><input type="text" id="username" class="search form-control"></th>
             <th></th>
@@ -254,6 +275,40 @@
 
         </div>
     </div>
+	
+	<div id="sendToWhatsapp{{$password->id}}" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Send to Whatsapp</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+					<form action="{{ route('password.update') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <select class="form-control" name="user_id">
+                                @foreach($users as $user)
+                                <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+							 <input type="hidden" name="id" value="{{ $password->id }}"/>
+							<input type="hidden" name="send_message" value="1">
+							<input type="hidden" name="send_on_whatsapp" value="1">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Update</button>
+                    </div>
+					</form>
+            </div>
+
+        </div>
+    </div>
+
+	
     @endforeach
     @endif
     <div id="getHistory" class="modal fade" role="dialog">
@@ -293,7 +348,9 @@
 
         </div>
     </div>
-@endsection
+	
+	
+	@endsection
 
 
 @section('scripts')
@@ -438,7 +495,14 @@
        
         });
     });
-
-        
+  $('.checkbox_ch').change(function(){
+             var values = $('input[name="userIds[]"]:checked').map(function(){return $(this).val();}).get();
+             $('#userIds').val(values);
+         });
+		 
+	function sendtoWhatsapp(password_id) {
+		$("#sendToWhatsapp"+ password_id +"" ).modal('show');
+	}
+   
 </script>
 @endsection

@@ -1007,7 +1007,7 @@ class LeadsController extends Controller
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-            ->select(["erp_leads.*", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id"]);
+            ->select(["erp_leads.*","products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number","c.email as customer_email"]);
 
 
         /*$term = $request->get('term');
@@ -1154,7 +1154,7 @@ class LeadsController extends Controller
 
         $customer = \App\Customer::where("id", request()->get("customer_id", 0))->first();
         if (!$customer) {
-            $message = $this->generate_erp_response("erp.lead.add.failed.validation", 0, $default='Please select valid customer', request('lang_code'));
+            $message = $this->generate_erp_response("erp.lead.add.failed.validation",0, $default='Please select valid customer', request('lang_code'));
             return response()->json(["code" => 0, "data" => [], "message" => $message]);
         }
 

@@ -103,6 +103,7 @@ class Product extends Model
         'suggested_color',
         'last_brand',
         'sub_status_id',
+        "is_cron_check"
     ];
 
     protected $dates         = ['deleted_at'];
@@ -810,7 +811,7 @@ class Product extends Model
                         $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', urldecode($filename));
 
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateReplace()->upload();
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateIncrement()->upload();
                         $this->attachMedia($media, config('constants.media_original_tag'));
                         $countImageUpdated++;
                     }
@@ -1009,6 +1010,7 @@ class Product extends Model
         if ($website) {
             // $brand    = @$this->brands->brand_segment == NULL ? $this->brand_segment : $this->brands->brand_segment;
             $brand = $category_segment != null ? $category_segment : @$this->brands->brand_segment ;
+
             $category = $this->category;
             $country  = $countryId;
 
@@ -1020,7 +1022,7 @@ class Product extends Model
             }
 
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where(function ($q) use ($brand, $category, $country) {
                     $q->orWhere(function ($q) use ($brand, $category) {
                         $q->where("brand_segment", $brand)->where("category_id", $category);
@@ -1033,17 +1035,18 @@ class Product extends Model
             }
 
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where("brand_segment", $brand)->first();
             }
 
+
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where("category_id", $category)->first();
             }
 
             if (!$priceRecords) {
-                $priceModal   = $priceCModal;
+                $priceModal   = \App\PriceOverride::where("store_website_id", $website->id);
                 $priceRecords = $priceModal->where("country_code", $country)->first();
             }
 
@@ -1115,7 +1118,14 @@ class Product extends Model
         $countryCode = \App\SimplyDutyCountry::where("country_code", $countryCode)->first();
 
         if ($countryCode) {
-            return (float) $countryCode->default_duty;
+            if ($countryCode->default_duty>0)
+                return (float) $countryCode->default_duty;
+            else
+            {
+                $segment = \App\SimplyDutySegment::where("id", $countryCode->segment_id)->first();
+                if ($segment)
+                   return (float) $segment->price;
+            }    
         }
 
         /*$hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
@@ -1628,5 +1638,20 @@ class Product extends Model
     public function getWebsiteSku()
     {
         return $this->sku."-".$this->color;
+    }
+
+    public function fetchMultipleSkuRecord()
+    {
+        $records = \App\ScrapedProducts::where("scraped_products.sku",$this->sku)->leftJoin("products as p","p.id","scraped_products.product_id")
+        ->leftJoin("brands as b","b.id","scraped_products.brand_id")
+        ->select(["scraped_products.*","p.supplier as product_supplier","b.name as brand_name"])
+        ->get();
+        return $records;
+    }
+
+
+    public function isCharity()
+    {
+        return CustomerCharity::where('product_id', $this->id)->first() ? true : false;
     }
 }

@@ -113,8 +113,11 @@ class Twilio extends Model
                 $i++;
             }
         }
-        // Saving the data in CallBusyMessage
-        $insertData = CallBusyMessage::bulkInsert($data);
+         // Saving the data in CallBusyMessage
+        // $insertData = CallBusyMessage::bulkInsert($data);
+	    foreach($data as $record) {
+		   CallBusyMessage::create($record);
+	    }
         exit('This data inserted in db..Now, you can check missed calls screen');
     }
 }

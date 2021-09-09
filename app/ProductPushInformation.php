@@ -20,7 +20,7 @@ class ProductPushInformation extends Model
             $user_id = Auth::id();
 
             $old_arr = [];
-            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id'];
+            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id','real_product_id','is_available'];
             foreach ($old_contents as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
                     continue;
@@ -37,20 +37,32 @@ class ProductPushInformation extends Model
                 $old_arr['old_' . $key] = $oldValue;
             }
 
+            if(!empty($dirties['is_added_from_csv']) && !empty($old_contents['is_added_from_csv']) ){
+                    $dirties['is_added_from_csv'] = !$old_contents['is_added_from_csv'];
+            }else{
+                $dirties['is_added_from_csv'] = $old_contents['is_added_from_csv'];
+            }
+
+
+            if(!empty($dirties['is_available']) && !empty($old_contents['is_available']) ){
+                    $dirties['is_available'] = !$old_contents['is_available'];
+            }else{
+                $dirties['is_available'] = $old_contents['is_available'];
+            }
+
             $new_values =  array_merge($old_arr, $dirties);
             $new_values['user_id'] =$user_id  ?? 'command' ;
             // unset($new_values['store_website_id']);
-
+            unset($new_values['real_product_id']);
+            unset($new_values['id']);
             ProductPushInformationHistory::create($new_values);
         });
 
 
-        static::creating(function (ProductPushInformation $p) {
-
+        static::created(function (ProductPushInformation $p) {
             $old_arr = [];
             $user_id = Auth::id();
-            // dd($p->toArray());
-            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id'];
+            $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id','real_product_id','is_available','real_product_id'];
             foreach ($p->toArray() as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
                     continue;
@@ -67,19 +79,26 @@ class ProductPushInformation extends Model
                 $old_arr['old_' . $key] = $oldValue;
                 $old_arr['user_id'] = $user_id ?? 'command';
             }
-            //  unset($old_arr['store_website_id']);
-
+            $old_arr['is_added_from_csv'] = $p->is_added_from_csv;
+            $old_arr['is_available'] = $p->is_available;
             ProductPushInformationHistory::create($old_arr);
-        });
+            $productSku = explode('-',$p->sku)[0];
 
+
+        });
     }
 
     public function storeWebsite(){
         return $this->hasOne(StoreWebsite::class, 'id', 'store_website_id');
     }
 
-    public function product(){
-        return Product::with('brands', 'categories')->where('sku', explode('-', $this->sku)[0])->first();
+    // public function product(){
+    //     return Product::with('brands', 'categories')->where('sku', explode('-', $this->sku)[0])->first();
+    // }
+
+    public function product()
+    {
+        return $this->hasOne(Product::class,'id','real_product_id');
     }
 
     public static function filterProductSku($categories, $brands){

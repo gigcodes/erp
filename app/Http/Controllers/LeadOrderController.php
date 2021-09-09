@@ -57,6 +57,8 @@ class LeadOrderController extends Controller
             }
         endif;
         
+        $leads = null;
+
         if($orderOrLead != 'order'):
             if($orderOrLead == 'lead'):                
                 $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','users.name as customer_name','brands.id as brand_id')

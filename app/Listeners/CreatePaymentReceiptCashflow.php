@@ -33,7 +33,7 @@ class CreatePaymentReceiptCashflow
             'currency'            => $receipt->currency,
             'status'              => 1,
             'order_status'        => 'pending',
-            'user_id'             => $user_id,
+            'user_id'             => $receipt->user_id,
             'updated_by'          => $user_id,
             'cash_flow_able_id'   => $receipt->id,
             'cash_flow_able_type' => \App\PaymentReceipt::class,

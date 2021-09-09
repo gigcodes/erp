@@ -18,15 +18,41 @@
         <div class="pull-right ">
 
 
-            <div class="d-flex justify-content-between  mx-3">
+            {{-- <div class="d-flex justify-content-between  mx-3">
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#instagram-account-popup">
                     Edit account
                 </button>
-            </div>
+            </div> --}}
         </div>
     </div>
 </h2>
+
+
+<form method="get" action="{{route('instagram.message-queue.approve')}}">
+
+    <div class="form-group">
+        <div class="row ml-2">
+    
+   
+            <div class="col-md-2">
+                <input class="form-control" placeholder="Enter Influencer name" type="text" name="filterFullName" value="{{ $filterFullName }}" >
+            </div>
+
+
+            <div class="col-md-2">
+                <input class="form-control" placeholder="Enter message"  type="text" name="filterMessage" value="{{ $filterMessage }}">
+            </div>
+
+           
+            <div class="col-md-1 d-flex justify-content-between">
+                <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
 
 <div class="modal fade" id="instagram-account-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 aria-hidden="true">

@@ -1,12 +1,26 @@
 @foreach($products as $product)
     <tr>
-
+        @php
+            $productModel = $product->product
+        @endphp
         <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox" data-id="{{ $product->product_id }}">
             {{ $product->id }}</td>
-        <td>{{ $product->product_id  }} <br><b> {{ ( $product->product->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
-        <td>@if($product->product) @if (isset($product->product->product_category)) {{ $product->product->product_category->title }} @endif @endif</td>
-        <td>@if($product->product) {{ $product->product->supplier }} @endif</td>
-        <td>@if($product->product)  @if ($product->product->brands) {{ $product->product->brands->name }} @endif @endif</td>
+        <td>{{ $product->product_id  }} <br><b> {{ ( $productModel->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
+        <td>@if($productModel) @if (isset($productModel->product_category)) {{ $productModel->product_category->title }} @endif @endif</td>
+        <td>@if($productModel) {{ $productModel->supplier }} @endif</td>
+        <td>@if($productModel)  @if ($productModel->brands) {{ $productModel->brands->name }} @endif @endif</td>
+        @php
+            $websites = [];
+            if($productModel) {
+               $listofWebsite = $productModel->getWebsites();
+               if(!$listofWebsite->isEmpty()) {
+                    foreach($listofWebsite as $lw) {
+                        $websites[] = $lw->title;
+                    }
+               }
+            }
+        @endphp
+        <td>{!! implode("</br>",$websites) !!}</td>
         <td> <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')" style="max-width: 150px; max-height: 150px;"></td>
         <td>
         @if($product->newMedia)
@@ -14,8 +28,11 @@
                 <tbody>
                 <tr>
             @foreach($product->differentWebsiteImages as $images)
-                <td>{{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
-                <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+                <td>
+                    <div style="width: 190px;margin: 0px;display: inline-block;">
+                        {{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
+                        <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+                    </div>
                 </td>
             @endforeach
                 </tr>
@@ -38,6 +55,19 @@
                     <option value="Only One Image Available">Only One Image Available</option>
                     <option value="Image incorrect">Image incorrect</option>
             </select>
+
+            <button 
+                style="float:right;padding-right:0px;" 
+                type="button" 
+                class="btn btn-xs show-http-status" 
+                title="Http Status" 
+                data-toggle="modal" data-target="#show-http-status"
+                data-request="{{ $product->httpRequestData ? $product->httpRequestData->response : 'N/A' }}"
+                data-response="{{ $product->httpRequestData ? $product->httpRequestData->requestData : 'N/A' }}"
+                >
+                <i class="fa fa-info-circle"></i>
+            </button>
+
         </td>
         <td>{!! $product->getProductIssueStatus($product->id) !!}</td>
 

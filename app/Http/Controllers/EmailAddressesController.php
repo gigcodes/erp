@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\EmailAddress;
+use App\User;
 use App\EmailRunHistories;
 use App\StoreWebsite;
 use Carbon\Carbon;
@@ -10,6 +11,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Exports\EmailFailedReport;
 use Maatwebsite\Excel\Facades\Excel;
+use Mail;
 
 class EmailAddressesController extends Controller
 {
@@ -20,8 +22,8 @@ class EmailAddressesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EmailAddress::query();
-        
+        $query = EmailAddress::query(); 
+              
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
 
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
@@ -32,20 +34,21 @@ class EmailAddressesController extends Controller
             }
         }
 
-        $emailAddress = $query->paginate();
+        $emailAddress = $query->paginate(); 
         $allStores    = StoreWebsite::all();
         $allDriver    = EmailAddress::pluck('driver')->unique();
         $allPort      = EmailAddress::pluck('port')->unique();
         $allEncryption= EmailAddress::pluck('encryption')->unique();
 
         //dd($allDriver);
-
+$users = User::orderBy('name','asc')->get();
         return view('email-addresses.index', [
             'emailAddress' => $emailAddress,
             'allStores'    => $allStores,
             'allDriver'    => $allDriver,
             'allPort'      => $allPort,
             'allEncryption'=> $allEncryption,
+            'users'=> $users,
         ]);
     }
 
@@ -80,9 +83,26 @@ class EmailAddressesController extends Controller
             'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
 
-        EmailAddress::create($data);
+        $data = $request->except('_token','signature_logo','signature_image');
+
+        $id=EmailAddress::insertGetId($data);
+
+        $signature_logo = $request->file('signature_logo');
+        $signature_image = $request->file('signature_image');
+        $destinationPath = public_path('uploads');
+         
+       if ($signature_logo!='')
+          {
+             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
+             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
+          }   
+        if ($signature_image!='')
+           {
+            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
+            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
+           }
+        
 
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully saved a Email Address!');
     }
@@ -107,6 +127,7 @@ class EmailAddressesController extends Controller
      */
     public function update(Request $request, $id)
     {
+       
         $this->validate($request, [
             'from_name'      => 'required|string|max:255',
             'from_address'   => 'required|string|max:255',
@@ -120,9 +141,26 @@ class EmailAddressesController extends Controller
             'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
+        $data = $request->except('_token','signature_logo','signature_image');
 
         EmailAddress::find($id)->update($data);
+
+        $signature_logo = $request->file('signature_logo');
+        $signature_image = $request->file('signature_image');
+        $destinationPath = public_path('uploads');
+         
+       if ($signature_logo!='')
+          {
+             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
+             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
+          }   
+        if ($signature_image!='')
+           {
+            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
+            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
+           }
+                 
+
 
         return redirect()->back()->withSuccess('You have successfully updated a Email Address!');
     }
@@ -298,4 +336,40 @@ class EmailAddressesController extends Controller
         $filename = 'Report-Email-failed'.'.csv';
         return Excel::download(new EmailFailedReport($recordsArr),$filename);
     }
+	
+	public function passwordChange(Request $request) {
+		 if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
+        $data = array();
+        foreach ($users as $key) {
+            // Generate new password
+            $newPassword = str_random(12);
+
+            $user = EmailAddress::findorfail($key);
+            $user->password = $newPassword;
+            $user->save();
+            $data[$key] = $newPassword;
+        }
+		\Session::flash('success', 'Password Updated');
+		return redirect()->back();
+    }
+	
+	function sendToWhatsApp(Request $request) {
+		$emailDetail = EmailAddress::find($request->id);
+		$user_id = $request->user_id;
+        $user = User::findorfail($user_id);
+        $number = $user->phone;
+        $whatsappnumber = '971502609192';
+		
+		 $message = 'Password For '. $emailDetail->username .'is: ' . $emailDetail->password;
+				
+		$whatsappmessage = new WhatsAppController();
+        $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
+		\Session::flash('success', 'Password sent');
+		return redirect()->back();
+	}
+
 }

@@ -12,6 +12,14 @@
                 <a href="{{ route('twilio-get-numbers', $account_id) }}">
                     <button type="button" class="btn btn-secondary">Get Twilio Numbers</button>
                 </a>
+
+                <a class="ml-2">
+                    <button type="button" data-toggle="modal" data-target="#workspaceModal" class="btn btn-secondary">Twilio Workspace</button>
+                </a>
+
+                <a class="ml-2">
+                    <button type="button" data-toggle="modal" data-target="#workerModal" class="btn btn-secondary">Twilio Worker</button>
+                </a>
             </div>
         </div>
     </div>
@@ -83,17 +91,21 @@
                                             </select>
                                         </div>
                                     </td>
-                                    <td colspan="3">
+                                    <td colspan="1">
                                         <label>Message when agent available</label>
                                         <input type="text" class="form-control" name="message_available" id="message_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_available }}"/>
                                     </td>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <label>Message when agent not available</label>
                                         <input type="text" class="form-control" name="message_not_available" id="message_not_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_not_available }}"/>
                                     </td>
                                     <td colspan="3">
                                         <label>Message when agent is busy</label>
                                         <input type="text" class="form-control" name="message_busy" id="message_busy_{{ $number->id }}" value="{{ @ $number->assigned_stores->message_busy }}"/>
+                                    </td>
+                                    <td colspan="4">
+                                        <label>Message when Working Hours is Over</label>
+                                        <input type="text" class="form-control" name="end_work_message" id="end_work_message_{{ $number->id }}" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
                                     <td colspan="3">
                                         <button class="btn btn-sm btn-image save-number-to-store" id="save_{{ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
@@ -129,6 +141,122 @@
         </div>
     </div>
 
+    <!-- WorkSpace Modal -->
+    <div class="modal fade" id="workspaceModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Twilio WorkSpace</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{-- @if(count($workspace) <= 0) --}}
+                <div class="row">
+                    <a class="ml-2" href="{{ route('twilio-work-space', $account_id) }}" >
+                        <button type="button" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
+                    </a>
+                </div>
+                {{-- @endif --}}
+
+                <table class="table table-bordered table-hover mt-5">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Workspace Name</th>
+                            <th scope="col" class="text-center">Workspace Sid</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach($workspace as $key => $val)
+                        <tr class="row_{{$val->id}}">
+                            <td>{{$val->workspace_name}}</td>
+                            <td>{{$val->workspace_sid}}</td>
+                            <td><i style="cursor: pointer;" class="fa fa-trash delete_workspace" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div> -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Worker Modal -->
+    <div class="modal fade" id="workerModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Twilio Worker</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{-- @if(count($workspace) <= 0) --}}
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-control worker_workspace_id" id="">
+                            <option value="">Select Workspace</option>
+                            @if(isset($workspace))
+                                @foreach($workspace as $val)
+                                    <option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" />
+                    </div>
+                   
+
+                    <a class="ml-2" >
+                        <button type="button" class="btn btn-secondary create_twilio_worker">Create</button>
+                    </a>
+                </div>
+                {{-- @endif --}}
+
+                <table class="table table-bordered table-hover mt-5">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Workspace Name</th>
+                            <th scope="col" class="text-center">Worker Name</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center worker_list">
+                        @if($worker)
+                            @foreach($worker as $key => $val)
+                            <tr class="worker_row_{{$val->id}}">
+                                <td>{{$val->workspace_name}}</td>
+                                <td>{{$val->worker_name}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                            </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+                
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div> -->
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+               50% 50% no-repeat;display:none;">
+    </div>
+
     <script type="text/javascript">
         $(document).ready(function(){
             var counter_one, counter_two;
@@ -144,6 +272,11 @@
             });
 
             $('.save-number-to-store').on("click", function(){
+                var pathname = window.location.pathname;
+
+                path_arr = pathname.split('/');
+                var credential_id = path_arr[path_arr.length-1];
+
                 var selected_no = $(this).attr('id');
                 selected_no = selected_no.split('_');
                 var num_id = selected_no[1];
@@ -156,7 +289,9 @@
                         'store_website_id' : $('#store_website_'+num_id).val(),
                         'message_available' : $('#message_available_'+num_id).val(),
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
-                        'message_busy' : $('#message_busy_'+num_id).val()
+                        'message_busy' : $('#message_busy_'+num_id).val(),
+                        'end_work_message' : $('#end_work_message_'+num_id).val(),
+                        'credential_id' : credential_id
                     }
                 }).done(function(response){
                     if(response.status == 1){
@@ -204,6 +339,112 @@
                 });
 
 
+            });
+
+            $('.delete_workspace').on("click", function(){
+                var id = $(this).attr('data-id');
+
+                $.ajax({
+                    url: "{{ route('delete-twilio-work-space') }}",
+                    type: 'POST',
+                    data : {
+                        workspace_id: id,
+                        _token : "{{ csrf_token() }}"
+                    },
+                    beforeSend: function() {
+                    $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+
+                        $(".row_"+id).css("display", "none");
+
+                        if(response.code == 200) {
+                            toastr["success"](response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
+                        toastr["error"]("Oops, something went wrong");
+                    }
+                });
+                
+            });
+
+            $('.create_twilio_worker').on("click", function(){
+
+                var workspace_id = $('.worker_workspace_id').val();
+                var worker_name = $('.twilio_worker_name').val();
+
+                $.ajax({
+                    url: "{{ route('create-twilio-worker') }}",
+                    type: 'POST',
+                    data : {
+                        workspace_id: workspace_id,
+                        worker_name: worker_name,
+                        account_id: '{{ $account_id }}',
+                        _token : "{{ csrf_token() }}"
+                    },
+                    beforeSend: function() {
+                    $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+
+                        if(response.code == 200) {
+                            toastr["success"](response.message);
+
+                            var html = '<tr>';
+                            html += '<td>'+response.data.workspace_name+'</td>';
+                            html += '<td>'+response.data.worker_name+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="'+response.data.id+'" aria-hidden="true"></i></td>';
+                            html += '</tr>';
+                            $('.worker_list').append(html);
+
+                        }else if(response.code == 400){
+                            toastr["error"](response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
+                        toastr["error"]("Oops, something went wrong");
+                    }
+                });
+                
+            });
+
+
+            $('.delete_worker').on("click", function(){
+                var id = $(this).attr('data-id');
+
+                $.ajax({
+                    url: "{{ route('delete-twilio-worker') }}",
+                    type: 'POST',
+                    data : {
+                        worker_id: id,
+                        _token : "{{ csrf_token() }}"
+                    },
+                    beforeSend: function() {
+                    $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+
+                        $(".worker_row_"+id).css("display", "none");
+
+                        if(response.code == 200) {
+                            toastr["success"](response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
+                        toastr["error"]("Oops, something went wrong");
+                    }
+                });
+                
             });
 
         });

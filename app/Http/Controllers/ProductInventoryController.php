@@ -31,9 +31,10 @@ use App\Supplier;
 use App\SupplierBrandDiscount;
 use App\SupplierDiscountLogHistory;
 use App\User;
-use App\product_discount_excel_file;
+use App\ProductDiscountExcelFile;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+
 
 class ProductInventoryController extends Controller
 {
@@ -952,6 +953,22 @@ class ProductInventoryController extends Controller
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
 
+		// started to update status request
+		if($request->get("update_status",false) ==  true) {
+			foreach($inventory_data as $upd) {
+				$nups = $request->get("status_id_update",0);
+				if($nups) {
+				   $upd->status_id = $nups;
+				   if($nups != \App\Helpers\StatusHelper::$requestForExternalScraper) {
+				   	$upd->sub_status_id = null;
+				   }
+				   $upd->save();
+				}
+			}
+			return response()->json(["code" => 200 , "data" => [], "message" => "Request has been updated successfully"]);
+		}
+		// end for update request status
+
 		$query = DB::table('products as p')
 				->selectRaw('
 				   sum(CASE WHEN p.category = ""
@@ -1074,15 +1091,43 @@ class ProductInventoryController extends Controller
     public function inventoryListNew( Request $request ){
     	$filter_data = $request->input();
 		// $inventory_data = \App\Product::getProducts($filter_data);
-
-		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id")->paginate(20);		
+        
+		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id");
+		if ($request->start_date!='')
+		  $inventory_data->whereDate('products.created_at' ,'>=',$request->start_date );
+		if ($request->end_date!='')
+		   $inventory_data->whereDate('products.created_at' ,'<=',$request->end_date );	  
+		$inventory_data=$inventory_data->orderBy("swp.created_at","desc")->paginate(20);		
     	
     	$inventory_data_count = $inventory_data->total();
-		
 
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
+    	$totalProduct =  \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
+                ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
+                ->join("products as p", "p.id", "sp.product_id")
+                ->where("suppliers.supplier_status_id", 1)
+                ->select(\DB::raw("count(distinct p.id) as total"))->first();
 
-        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count'));
+        $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
+
+    	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
+    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->select(\DB::raw("count(distinct p.id) as total"))->first();
+    	$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
+
+		$history=\App\InventoryHistory::orderBy('date', 'DESC')->limit(7)->get();
+		/*$date=date('Y-m-d');
+		$date=date("Y-m-d",strtotime($date . ' - 1 day'));
+		for($count=0;$count<7;$count++)
+		{
+			$nStock = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->select(\DB::raw("count(distinct product_id) as total"))->first();
+			$history[] = ['date'=>$date,'productUpdated'=>($nStock) ? $nStock->total : 0];
+		    $date = date("Y-m-d",strtotime($date . ' - 1 day'));
+		}*/
+
+		 
+
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
+
+        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct','history'));
     }
 
     public function downloadReport() {
@@ -1347,23 +1392,194 @@ class ProductInventoryController extends Controller
 
 	}
 
-	public function supplierProductHistory(Request $request)
-	{
-		$suppliers = \App\Supplier::all();
-		$inventory = \App\InventoryStatusHistory::select('created_at','supplier_id',DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
-			->whereDate('created_at','>=', Carbon::now()->subDays(7))
+    public function supplierProductHistory(Request $request)
+	{ 
+		/*$suppliers = \Cache::rememberForever('supplier', function() {
+			return \App\Supplier::pluck('supplier','id')->toArray();
+		});*/
+		$suppliers = \App\Supplier::pluck('supplier','id')->toArray();// 
+		
+	    $selectedDate = Carbon::now()->subDays(7);
+		$dataToInsert = []; 
+		
+		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
+		$extraDates = $date;
+		$columnData = [];
+		for ($i=1; $i < 8 ; $i++) { 
+			$columnData[] = $extraDates;
+			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+		}
+			$total_rows = 5;
+		
+		$page = $request->has('page') ? $request->query('page') : 1;
+		
+			
+		$inventory= \App\InventoryStatusHistory::leftjoin('scrapers', 'scrapers.supplier_id', '=', 'inventory_status_histories.supplier_id')->select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', 'scrapers.last_completed_at', DB::raw('count(distinct inventory_status_histories.product_id) as product_count_count'))
+				->whereDate('inventory_status_histories.created_at','>=', $selectedDate)
+				->where('in_stock','>',0)
+				->groupBy('inventory_status_histories.supplier_id');
+						
+			if($request->supplier and $request->supplier != "") {
+				$inventory = $inventory->where('inventory_status_histories.supplier_id',$request->supplier);
+			}
+			//$inventory = $inventory->orderBy('product_count_count','desc')->simplePaginate(5);
+			$inventory = $inventory->get();
+		
+	
+		$allHistory = [];
+		
+				
+			foreach ($inventory as $key => $row) {          
+				$newRow = [];
+				$newRow['supplier_name'] = '';
+				if(isset($suppliers[$row->supplier_id])) {
+					$newRow['supplier_name'] = $suppliers[$row->supplier_id];
+				}
+				$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")
+						->whereDate('inventory_status_histories.created_at','>=', $selectedDate)
+						->where("inventory_status_histories.supplier_id",$row->supplier_id)
+						->groupBy("p.brand")
+						->select(\DB::raw("count(p.brand) as total"))
+						->get()
+						->count();
+
+				$newRow['brands'] = $brandCount;
+				$newRow['products'] = $row->product_count_count;
+				$newRow['supplier_id'] = $row->supplier_id;
+				$newRow['last_scrapped_on'] = $row->last_completed_at;
+
+				foreach ($columnData as $c) { 
+					# code...
+					$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$c)
+								->where('supplier_id',$row->supplier_id)
+								->select(\DB::raw("count(distinct product_id) as total_product"))->first();
+					$newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
+								
+					//$dataToInsert[] = ['supplier_id'=>$row->supplier_id, 'supplier_name'=>$newRow['supplier_name'], 'last_scrapped_on'=>$newRow['last_scrapped_on'], 'products'=>$newRow['products'], 'brands'=>$newRow['brands'], 'date'=>$c, 'count'=>$newRow['dates'][$c] ];
+				}
+							
+				array_push($allHistory,$newRow);
+				
+			}
+		
+		/*dd($dataToInsert);
+		if(count($dataToInsert) > 0) {
+			\App\InventoryStatusHistoryView::insert($dataToInsert);
+		}*/
+		
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('product-inventory.partials.supplier-product-history-data', compact('allHistory', 'total_rows', 'request', 'columnData'))->render()
+            ], 200);
+        }
+        
+		return view('product-inventory.supplier-product-history',compact('allHistory','total_rows','suppliers','request','columnData'));
+	}
+
+
+	public function supplierProductHistoryWithView(Request $request)
+	{ 
+		/*$inventory = \App\InventoryStatusHistory::select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
+			->whereDate('inventory_status_histories.created_at','>=', Carbon::now()->subDays(7))
 			->where('in_stock','>',0)
-			->groupBy('supplier_id');
+			->groupBy('inventory_status_histories.supplier_id');*/	
+			
+		$suppliers = \App\Supplier::pluck('supplier','id')->toArray();
+	    $selectedDate = Carbon::now()->subDays(7);
+		$dataToInsert = []; 
+		for($date=$selectedDate; $date<Carbon::now(); Carbon::parse($date)->addDays(1)) {
+			$inventoryHistoryView = \App\InventoryStatusHistory::where('inventory_status_histories.created_at', 'like', $date.'%')->first(); 
+			if($inventoryHistoryView == null) {
+				$inventory = \App\InventoryStatusHistory::leftjoin('scrapers', 'scrapers.supplier_id', '=', 'inventory_status_histories.supplier_id')->select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', 'scrapers.last_completed_at', DB::raw('count(distinct product_id) as product_count_count'))
+				->whereDate('inventory_status_histories.created_at','=', $selectedDate)
+				->where('in_stock','>',0)
+				->groupBy('inventory_status_histories.supplier_id');	
+					
+				if($request->supplier and $request->supplier != "") {
+					$inventory = $inventory->where('inventory_status_histories.supplier_id',$request->supplier);
+				}
+
+				$inventory = $inventory->orderBy('product_count_count','desc')->paginate(2); //dd($inventory);
+				$total_rows = $inventory->total();
+				$allHistory = [];
+				$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
+				$extraDates = $date;
+				$columnData = [];
+				for ($i=1; $i < 8 ; $i++) { 
+					$columnData[] = $extraDates;
+					$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+				}
+				
+				foreach ($inventory as $key => $row) {          
+					$newRow = [];
+					$newRow['supplier_name'] = '';
+					if(isset($suppliers[$row->supplier_id])) {
+						$newRow['supplier_name'] = $suppliers[$row->supplier_id];
+					}
+					$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")
+					->whereDate('inventory_status_histories.created_at','>=', $selectedDate)
+					->where("inventory_status_histories.supplier_id",$row->supplier_id)
+					->groupBy("p.brand")
+					->select(\DB::raw("count(p.brand) as total"))
+					->get()
+					->count();
+
+					$newRow['brands'] = $brandCount;
+					$newRow['products'] = $row->product_count_count;
+					$newRow['supplier_id'] = $row->supplier_id;
+					$newRow['last_scrapped_on'] = $row->last_completed_at;
+
+					foreach ($columnData as $c) { 
+						# code...
+						$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$c)
+						->where('supplier_id',$row->supplier_id)
+						->select(\DB::raw("count(distinct product_id) as total_product"))->first();
+						$newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
+						
+						$dataToInsert[] = ['supplier_id'=>$row->supplier_id, 'supplier_name'=>$newRow['supplier_name'], 'last_scrapped_on'=>$newRow['last_scrapped_on'], 'products'=>$newRow['products'], 'brands'=>$newRow['brands'], 'date'=>$c, 'count'=>$newRow['dates'][$c] ];
+					}
+					
+					array_push($allHistory,$newRow);
+				}
+			}
+		}
+		
+		
+		dd($dataToInsert);
+		if(count($dataToInsert) > 0) {
+			\App\InventoryStatusHistoryView::insert($dataToInsert);
+		}
+		
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('product-inventory.partials.supplier-product-history-data', compact('allHistory', 'inventory', 'total_rows', 'request', 'columnData'))->render()
+            ], 200);
+        }
+        
+		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request','columnData'));
+	}
 
 
+	public function supplierProductHistoryCopy(Request $request)
+	{ 
+		$suppliers = \App\Supplier::pluck('supplier','id')->toArray(); dd($suppliers);
+        
+		$inventory = \App\InventoryStatusHistory::leftjoin('scrapers', 'scrapers.supplier_id', '=', 'inventory_status_histories.supplier_id')->select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', 'scrapers.last_completed_at', DB::raw('count(distinct product_id) as product_count_count', 'GROUP_CONCAT(product_id) as brand_products'))
+			->whereDate('inventory_status_histories.created_at','>=', Carbon::now()->subDays(7))
+			->where('in_stock','>',0)
+			->groupBy('inventory_status_histories.supplier_id');
+			
+		/*$inventory = \App\InventoryStatusHistory::select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
+			->whereDate('inventory_status_histories.created_at','>=', Carbon::now()->subDays(7))
+			->where('in_stock','>',0)
+			->groupBy('inventory_status_histories.supplier_id');*/	
+			
 		if($request->supplier) {
-			$inventory = $inventory->where('supplier_id',$request->supplier);
+			$inventory = $inventory->where('inventory_status_histories.supplier_id',$request->supplier);
 		}
 
-		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(24);
-
+		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(1); //dd($inventory);
 		$total_rows = $inventory->total();
-
 		$allHistory = [];
 		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
 		$extraDates = $date;
@@ -1373,11 +1589,13 @@ class ProductInventoryController extends Controller
 			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
 		}
 
-
-		foreach ($inventory as $key => $row) {
-            
+		foreach ($inventory as $key => $row) {          
             $newRow = [];
-			$newRow['supplier_name'] = $row->supplier->supplier;
+			$newRow['supplier_name'] = '';
+			if(isset($suppliers[$row->supplier_id])) {
+				$newRow['supplier_name'] = $suppliers[$row->supplier_id];
+			}
+			
 			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)
 			->where('in_stock','>',0)
 			->groupBy("p.brand")
@@ -1388,22 +1606,23 @@ class ProductInventoryController extends Controller
 			$newRow['brands'] = $brandCount;
 			$newRow['products'] = $row->product_count_count;
 			$newRow['supplier_id'] = $row->supplier_id;
+			$newRow['last_scrapped_on'] = $row->last_completed_at;
 
 			foreach ($columnData as $c) { 
 				# code...
 				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$c)->where('supplier_id',$row->supplier_id)->select(\DB::raw("count(distinct product_id) as total_product"))->first();
-
 				$newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
 			}
-
 			array_push($allHistory,$newRow);
 		}
-
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('product-inventory.partials.supplier-product-history-data', compact('allHistory', 'inventory', 'total_rows', 'request', 'columnData'))->render()
+            ], 200);
+        }
+        
 		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request','columnData'));
-
-
 	}
-
 
 	public function supplierProductHistoryBrand (Request $request) 
 	{
@@ -1459,7 +1678,7 @@ class ProductInventoryController extends Controller
 
 		$brand_data = \App\SupplierBrandDiscount::distinct()->get(['brand_id']);
 		$id = $request->id;
-		$excel_data = product_discount_excel_file::join('users','users.id','product_discount_excel_files.user_id')->select('product_discount_excel_files.*','users.name')->get();
+		$excel_data = ProductDiscountExcelFile::join('users','users.id','product_discount_excel_files.user_id')->select('product_discount_excel_files.*','users.name')->get();
 
 		// dd($excel_data);
 
@@ -1555,7 +1774,31 @@ class ProductInventoryController extends Controller
                     $discount = new SupplierBrandDiscount();
                     // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->whereNull('generic_price')->where('condition_from_retail', $row[4])->where('condition_from_retail_exceptions', $row[5])->first();
                     $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->first();
-
+					if ($row[4]!='')
+					{
+							$segments = CategorySegment::where('status', 1)->get();
+							if(!$segments->isEmpty())
+							 { 
+								foreach($segments as $segment) 
+								{ 
+									$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+									if ($csd)
+									{
+									   $csd->amount= $row[4];
+									   $csd->save();
+									}
+									else
+									{
+									\App\CategorySegmentDiscount::create([
+										"brand_id" => $brand->id,
+										"category_segment_id" => $segment->id,
+										"amount" => $row[4],
+										"amount_type" => "percentage",
+									]);
+								   }
+								}
+							 }
+				   }
                    
                     if ($exist_row) {
                         if ($exist_row->condition_from_retail != $row[4]) {
@@ -1614,7 +1857,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
             // ------------------------------------------------------------------ SS21---------------------------------------------------------------------------
@@ -1730,7 +1973,33 @@ class ProductInventoryController extends Controller
 
                             $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
 
-						
+                            
+								if ($condition_from_retail!='')
+								{
+										$segments = CategorySegment::where('status', 1)->get();
+										if(!$segments->isEmpty())
+											{ 
+											foreach($segments as $segment) 
+											{ 
+												$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+												if ($csd)
+												{
+													$csd->amount=$condition_from_retail;
+													$csd->save();
+												}
+												else
+												{
+												\App\CategorySegmentDiscount::create([
+													"brand_id" => $brand->id,
+													"category_segment_id" => $segment->id,
+													"amount" => $condition_from_retail,
+													"amount_type" => "percentage",
+												]);
+												}
+											}
+											}
+								}	
+
                             if ($exist_row) {
                                 if ($exist_row->condition_from_retail != $condition_from_retail) {
 
@@ -1833,7 +2102,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
 			
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
@@ -1938,6 +2207,32 @@ class ProductInventoryController extends Controller
 								$brand = Brand::create($params_brand);
                                
                             }
+
+							if ($condition_from_retail!='')
+							{
+									$segments = CategorySegment::where('status', 1)->get();
+									if(!$segments->isEmpty())
+									 { 
+										foreach($segments as $segment) 
+										{ 
+											$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+											if ($csd)
+											{
+											   $csd->amount= $condition_from_retail;
+											   $csd->save();
+											}
+											else
+											{
+											\App\CategorySegmentDiscount::create([
+												"brand_id" => $brand->id,
+												"category_segment_id" => $segment->id,
+												"amount" => $condition_from_retail,
+												"amount_type" => "percentage",
+											]);
+										   }
+										}
+									 }
+						   }
             
                             $discount = new SupplierBrandDiscount();
                             // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
@@ -2043,7 +2338,7 @@ class ProductInventoryController extends Controller
                 }
 
                 $file->move(public_path('product_discount_file'), $fileName);
-                $excel_log = product_discount_excel_file::create($params_file);
+                $excel_log = ProductDiscountExcelFile::create($params_file);
                 return redirect()->back()->with('success', 'Excel Imported Successfully!');
             }
 
@@ -2138,7 +2433,31 @@ class ProductInventoryController extends Controller
 								$brand = Brand::create($params_brand);
                                 
                             }
-                    
+							if ($condition_from_retail!='')
+							{
+									$segments = CategorySegment::where('status', 1)->get();
+									if(!$segments->isEmpty())
+									 { 
+										foreach($segments as $segment) 
+										{ 
+											$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+											if ($csd)
+											{
+											   $csd->amount= $condition_from_retail;
+											   $csd->save();
+											}
+											else
+											{
+											\App\CategorySegmentDiscount::create([
+												"brand_id" => $brand->id,
+												"category_segment_id" => $segment->id,
+												"amount" => $condition_from_retail,
+												"amount_type" => "percentage",
+											]);
+										   }
+										}
+									 }
+						   } 
                                 $discount = new SupplierBrandDiscount();
                                 // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
         
@@ -2203,7 +2522,7 @@ class ProductInventoryController extends Controller
                     }
         
                     $file->move(public_path('product_discount_file'), $fileName);
-                    $excel_log = product_discount_excel_file::create($params_file);
+                    $excel_log = ProductDiscountExcelFile::create($params_file);
                     return redirect()->back()->with('success', 'Excel Imported Successfully!');
                 }
             
@@ -2216,6 +2535,241 @@ class ProductInventoryController extends Controller
 
 		return redirect()->back()->with('error', 'Something went wrong, please check your file!');
 
+	}
+
+
+	public function mapping_excel(Request $request)
+	{
+
+		$this->validate($request, [
+            'excel' => 'required|file',
+        ]);
+
+        $file = $request->file('excel');
+
+        if ($file->getClientOriginalExtension() == 'xlsx') {
+            $reader = new Xlsx();
+        } else {
+            if ($file->getClientOriginalExtension() == 'xls') {
+                $reader = new Xls();
+            }
+        }
+
+		try {
+			$ogfilename = $file->getClientOriginalName();  
+            $fileName_array = chop($ogfilename, ".xlsx");
+            $fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
+            $params_file['excel_name'] = $fileName;
+            $params_file['user_id'] =\Auth::user()->id;
+                
+            $spreadsheet = $reader->load($file->getPathname());
+
+            $rows = $spreadsheet->getActiveSheet()->toArray();
+			$i = 0;
+			foreach($rows as $row) {
+				if($row[$i] != '' && $row[$i+1] != '' && $row[$i+2] != '')
+				{
+					$data = $row;
+					$column_index = $i;
+					break;
+				}
+				$i++;
+			}
+			
+			return response()->json(["code" => 200, "message" => 'Header Data Get Successfully , Please do Mapping', "header_data" => $data, "column_index" => $column_index ]);
+		
+		}catch(\Exception $e){
+			return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+		}
+
+		return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+
+	}
+
+	public function export_mapping_excel(Request $request){
+		
+		$file = $request->file;
+		
+		if ($file->getClientOriginalExtension() == 'xlsx') {
+			$reader = new Xlsx();
+		} else {
+			if ($file->getClientOriginalExtension() == 'xls') {
+				$reader = new Xls();
+			}
+		}
+
+		try {
+			$brand_index = $request->brand_dropdown;
+			$gender_index = $request->gender_dropdown;
+			$category_index = $request->category_dropdown;
+			$exceptions_index = $request->exceptions_dropdown;
+			$generice_price_index = $request->generice_price_dropdown;
+			$condition_from_retail_index = $request->condition_from_retail_dropdown;
+			$condition_from_exceptions_index = $request->condition_from_exceptions_dropdown;
+			$column_index = $request->column_index;
+
+			// dd($brand_index,$gender_index,$category_index,$exceptions_index,$generice_price_index,$condition_from_retail_index,$condition_from_exceptions_index);
+
+			$ogfilename = $file->getClientOriginalName();
+                    
+            $fileName_array = chop($ogfilename, ".xlsx");
+            $fileName = ($fileName_array) . '_' . time().'.'.$file->extension();
+                
+            $params_file['excel_name'] = $fileName;
+            $params_file['user_id'] =\Auth::user()->id;
+
+            $spreadsheet = $reader->load($file->getPathname());
+
+            $rows = $spreadsheet->getActiveSheet()->toArray();
+
+				foreach ($rows as $key => $row) {
+
+					if ($key <= $column_index) {
+						continue;
+					}
+				
+					$brand_name = trim($row[$brand_index]);
+					
+
+					if($brand_name != '')
+						$brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
+					else	
+						$brand = '';
+			
+					if (!$brand && $brand_name != '') {
+						$params_brand = [
+							"name" => $brand_name,
+						];
+						$brand = Brand::create($params_brand);
+						
+					}
+					
+					if($brand)
+					{
+						if ($row[$condition_from_retail_index]!='')
+						{
+								$segments = CategorySegment::where('status', 1)->get();
+								if(!$segments->isEmpty())
+								 { 
+									foreach($segments as $segment) 
+									{ 
+										$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+										if ($csd)
+										{
+                                           $csd->amount= $row[$condition_from_retail_index];
+										   $csd->save();
+										}
+										else
+										{
+										\App\CategorySegmentDiscount::create([
+											"brand_id" => $brand->id,
+											"category_segment_id" => $segment->id,
+											"amount" => $row[$condition_from_retail_index],
+											"amount_type" => "percentage",
+										]);
+									   }
+									}
+								 }
+					   }
+						$discount = new SupplierBrandDiscount();
+						
+						$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->first();
+
+					
+						if ($exist_row) {
+
+
+							if ($generice_price_index != null && $exist_row->generic_price != $row[$generice_price_index]) {
+								
+								$updaterow3 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $row[$generice_price_index]]);
+
+								
+
+								$params['supplier_brand_discounts_id'] = $exist_row->id;
+								$params['header_name']  = 'generic_price';
+								$params['old_value']   = $exist_row->generic_price;
+								$params['new_value']   = $row[$generice_price_index];
+								$params['user_id'] = \Auth::user()->id;
+
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+
+							if ($condition_from_retail_index != null && $exist_row->condition_from_retail != $row[$condition_from_retail_index]) {
+								$updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $row[$condition_from_retail_index]]);
+
+								$params['supplier_brand_discounts_id'] = $exist_row->id;
+								$params['header_name']  = 'condition_from_retail';
+								$params['old_value']   = $exist_row->condition_from_retail;
+								$params['new_value']   = $row[$condition_from_retail_index];
+								$params['user_id'] = \Auth::user()->id;
+
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+							if ($condition_from_exceptions_index != null && $exist_row->condition_from_retail_exceptions != $row[$condition_from_exceptions_index]) {
+								$updaterow5 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('condition_from_retail', $row[$condition_from_retail_index])->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $row[$condition_from_exceptions_index]]);
+								
+								$params['supplier_brand_discounts_id'] = $exist_row->id;
+								$params['header_name']  = 'condition_from_retail_exceptions';
+								$params['old_value']   = $exist_row->condition_from_retail_exceptions;
+								$params['new_value']   = $row[$condition_from_exceptions_index];
+								$params['user_id'] = \Auth::user()->id;
+
+								$log_history1 = \App\SupplierDiscountLogHistory::create($params);
+							}
+						} else {
+							$discount->supplier_id = $request->supplier;
+							$discount->brand_id = $brand->id;
+							$discount->gender = $row[$gender_index];
+							$discount->category = $row[$category_index];
+							$discount->generic_price = ($generice_price_index != null ? $row[$generice_price_index] : null);
+							$discount->exceptions = ($exceptions_index != null ? $row[$exceptions_index] : null);
+							$discount->condition_from_retail = ($condition_from_retail_index != null ? $row[$condition_from_retail_index] : null);
+							$discount->condition_from_retail_exceptions = ($condition_from_exceptions_index ? $row[$condition_from_exceptions_index] : null);
+							$discount->save();
+
+
+							if ($generice_price_index != null && $row[$generice_price_index] != null) {
+								$params['supplier_brand_discounts_id'] = $discount->id;
+								$params['header_name']  = 'generic_price';
+								$params['old_value']   = '-';
+								$params['new_value']   = $row[$generice_price_index];
+								$params['user_id'] = \Auth::user()->id;
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+							if ($condition_from_retail_index != null && $row[$condition_from_retail_index] != null) {
+								$params['supplier_brand_discounts_id'] = $discount->id;
+								$params['header_name']  = 'condition_from_retail';
+								$params['old_value']   = '-';
+								$params['new_value']   = $row[$condition_from_retail_index];
+								$params['user_id'] = \Auth::user()->id;
+								$log_history = \App\SupplierDiscountLogHistory::create($params);
+							}
+
+							if ($condition_from_exceptions_index != null && $row[$condition_from_exceptions_index] != null) {
+								$params['supplier_brand_discounts_id'] = $discount->id;
+								$params['header_name']  = 'condition_from_retail_exceptions';
+								$params['old_value']   = '-';
+								$params['new_value']   = $row[$condition_from_exceptions_index];
+								$params['user_id'] = \Auth::user()->id;
+								$log_history1 = \App\SupplierDiscountLogHistory::create($params);
+							}
+						}
+					}
+				}
+
+				$file->move(public_path('product_discount_file'), $fileName);
+				$excel_log = ProductDiscountExcelFile::create($params_file);
+				return response()->json(["code" => 200, "message" => 'Excel Imported Successfully!' ]);
+			
+
+		}catch(\Exception $e){
+			return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
+		}
+
+		return response()->json(["code" => 400, "message" => 'Something went wrong, please check your file!' ]);
 	}
 
 	public function updategenericprice(Request $request){

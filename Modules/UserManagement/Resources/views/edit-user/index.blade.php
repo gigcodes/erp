@@ -91,6 +91,10 @@
                             {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control','autocomplete' => 'off')) !!}
                         </div>
                     </div>
+                    <div class="form-group">
+                        <strong>White Listed:</strong>
+                        {!! Form::select('is_whitelisted',[0 => "No", 1 => "Yes"],$user->is_whitelisted, array('class' => 'form-control')) !!}
+                    </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Amount of Assigned Products:</strong>
@@ -221,8 +225,6 @@
                     <strong>Agent Role:</strong>
                     {!! Form::select('agent_role[]', $agent_roles,$user_agent_roles, array('class' => 'form-control','multiple')) !!}
                 </div>
-
-
             </div>
         </div>
     </div>

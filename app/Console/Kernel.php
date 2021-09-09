@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\GoogleWebMasterFetchAllRecords;
 use App\Console\Commands\CheckScrapersLog;
 use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
@@ -145,8 +146,11 @@ use App\Console\Commands\AddGroupTheme;
 use App\Console\Commands\SendInstagramMessageInQueue;
 use App\Console\Commands\AddRoutesToGroups;
 use App\Console\Commands\UpdateProductInformationFromCsv;
+use App\Console\Commands\ConnectGoogleClientAccounts; 
+use App\Console\Commands\UpdateLanguageToGroup;
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\UpdateCharities;
 
 use DB;
 
@@ -158,6 +162,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
         CheckLogins::class,
         //        SyncInstagramMessage::class,
@@ -291,6 +296,9 @@ class Kernel extends ConsoleKernel
         SendInstagramMessageInQueue::class,
         ProjectFileManagerDateAndSize::class,
         AddRoutesToGroups::class,
+        ConnectGoogleClientAccounts::class,
+        UpdateCharities::class,
+        UpdateLanguageToGroup::class,
     ];
 
     /**
@@ -546,7 +554,7 @@ class Kernel extends ConsoleKernel
 
         //Sync customer from magento to ERP
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
-
+        $schedule->command('fetch-all-records:start')->dailyAt('23:59')->timezone('Asia/Kolkata');
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         $schedule->command('google-analytics:run')->everyFifteenMinutes();
@@ -645,6 +653,7 @@ class Kernel extends ConsoleKernel
         //cron for updating data from csv
         $schedule->command('update-product:from-csv')->daily();	
         $schedule->command('send-instagram-message:in-queue')->everyMinute();	
+        //$schedule->command('ConnectGoogleClientAccounts')->hourly();
 
     }
 
