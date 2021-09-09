@@ -2244,6 +2244,7 @@ class WhatsAppController extends FindByNumberController
                        
                   }
                 $params['message'] = $message;
+                $params['message_en'] = $request->get('message');
                 $params['ticket_id'] = $request->ticket_id; 
                 $params['approved'] = 1;
                 $params['status'] = 2; 

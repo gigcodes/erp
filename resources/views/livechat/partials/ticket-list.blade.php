@@ -27,30 +27,10 @@
         </a>
     </td>
     <td>
-        <?php
-        $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
-        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
+       
         
-        foreach( $messages as $m)
-        {
-            
-            $message=$m->message;
-            if ($ticket->lang_code!='' && $ticket->lang_code!='en')
-            {
-            $message = \App\Helpers\TranslationHelper::translate($ticket->lang_code,'en', $m->message);
-            } 
-          
-            $table.="<tr><td>".$m->created_at."</td>";
-            $table.="<td>".$m->message."</td>";
-            $table.="<td>".$message."</td></tr>";
-        }
-        $table.="</tbody></table>";
-        
-         
-       ?>
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table }}">
-            {{ str_limit($message,6)}}
-        </a>
+            {{ str_limit($ticket->message,6)}}
+       
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>
     <td class="row-ticket" data-content="Brand : {{ !empty($ticket->brand) ? $ticket->brand : 'N/A' }}<br>
@@ -84,13 +64,27 @@
                     <img src="<?php echo $base_url;?>/images/filled-sent.png"/>
                 </button>
 
-                <button type="button"
-                        style="margin-left:6px;"
-                        class="btn btn-xs btn-image load-communication-modal"
-                        data-object="ticket"
-                        data-id="{{$ticket->id}}">
-                        <i class="fa fa-comments-o"></i>
-                </button>
+               
+                <?php
+        $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
+        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
+        
+        foreach( $messages as $m)
+        {
+                                  
+            $table.="<tr><td>".$m->created_at."</td>";
+            $table.="<td>".$m->message."</td>";
+            $table.="<td>".$m->message_en."</td></tr>";
+        }
+        $table.="</tbody></table>";
+        
+         
+       ?>
+       <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table }}">
+       <i class="fa fa-comments-o"></i>
+        </a>
+       
+                
 
             </div>
        </div>
@@ -144,23 +138,17 @@
         
         foreach( $messages as $m)
         {
-            
-            $message=$m->message;
-            if ($ticket->lang_code!='' && $ticket->lang_code!='en')
-            {
-            $message = \App\Helpers\TranslationHelper::translate($ticket->lang_code,'en', $m->message);
-            } 
-          
+                    
             $table.="<tr><td>".$m->created_at."</td>";
             $table.="<td>".$m->message."</td>";
-            $table.="<td>".$message."</td></tr>";
+            $table.="<td>".$m->message_en."</td></tr>";
         }
         $table.="</tbody></table>";
         
          
        ?>
             <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
-            email
+            <i class="fa fa-envelope" style="margin-left: -10px"></i>
         </a>
             <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
                 <i class="fa fa-trash" style="margin-left: -10px"></i></button>

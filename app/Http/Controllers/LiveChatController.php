@@ -1515,9 +1515,9 @@ class LiveChatController extends Controller
                 );
                 \Config::set('mail', array_merge($config, $configExtra));
                 (new \Illuminate\Mail\MailServiceProvider(app()))->register();
-            }
+            } 
         }
-
+        $message=$request->message;
         if ($tickets->email != '') 
         {
             $file_paths = [];
@@ -1525,7 +1525,7 @@ class LiveChatController extends Controller
             
                     if ($tickets->lang_code!='' && $tickets->lang_code!='en')
                      {
-                        $request->message = TranslationHelper::translate('en', $tickets->lang_code, $request->message);
+                        $message = TranslationHelper::translate('en', $tickets->lang_code, $request->message);
                      }
                        
                  
@@ -1576,7 +1576,8 @@ class LiveChatController extends Controller
                 'to' => $tickets->email,
                 'seen' => 1,
                 'subject' => $request->subject.$ticketIdString,
-                'message' => $request->message,
+                'message' => $message,
+                'message_en' => $request->message,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
                 'cc' => $cc ?: null,
