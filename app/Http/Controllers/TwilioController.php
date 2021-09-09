@@ -59,6 +59,8 @@ use App\OrderProduct;
 use App\ReturnExchangeProduct;
 use App\ReturnExchange;
 use App\ReturnExchangeStatus;
+use App\TwilioWorkspace;
+use App\TwilioWorker;
 
 /**
  * Class TwilioController - active record
@@ -2390,7 +2392,18 @@ class TwilioController extends FindByNumberController
             $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
             $store_websites = StoreWebsite::all();
             $customer_role_users = RoleUser::where(['role_id' => 27])->with('user')->get();
-            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users','account_id'));
+            $workspace = TwilioWorkspace::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+            // $worker = TwilioWorker::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
+
+            $worker = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
+            ->where('twilio_workers.twilio_credential_id', '=', $id)
+            ->where('twilio_workers.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_workers.*')
+            ->get();
+
+            // dd($worker);
+             
+            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker'));
         }catch(\Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
         }
@@ -2897,6 +2910,111 @@ class TwilioController extends FindByNumberController
        
             return view('twilio.twilio_key_data', compact('twilio_key_arr','web_id'));
         }
+    }
+
+    public function setTwilioWorkSpace(Request $request,$account_id){
+        try {
+            $date = date("d-m-Y h:i:s");
+            // dd($date);
+            $check_account = TwilioCredential::where(['id' => $account_id])->firstOrFail();
+            $sid = $check_account->account_id;
+            $token = $check_account->auth_token;
+            $twilio = new Client($sid, $token);
+            $workspace_name = "NewWorkspace ".$date;
+            $workspace = $twilio->taskrouter->v1->workspaces
+            ->create($workspace_name, // friendlyName
+                        [
+                            // "eventCallbackUrl" => "https://workspace-example.free.beeceptor.com",
+                            "template" => "FIFO"
+                        ]
+            );
+
+            TwilioWorkspace::create([
+                'twilio_credential_id' => $account_id,
+                'workspace_name' => $workspace_name,
+                'workspace_sid' => $workspace->sid,
+                'workspace_response' => '',
+             ]);
+
+            return redirect()->back()->with('success','Workspace Created successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error','Something went wrong');
+        }
+
+    }
+
+    public function deleteTwilioWorkSpace(Request $request){
+        $workspace_id = $request->workspace_id;
+
+        $getdata = TwilioWorkspace::where('id', $workspace_id)->first();
+
+        $check_account = TwilioCredential::where(['id' => $getdata->twilio_credential_id])->firstOrFail();
+        $sid = $check_account->account_id;
+        $token = $check_account->auth_token;
+        $twilio = new Client($sid, $token);
+
+        $twilio->taskrouter->v1->workspaces($getdata->workspace_sid)->delete();
+
+        TwilioWorkspace::where('id',$workspace_id)->update(['deleted'=> 1]);
+
+        return new JsonResponse(['code' => 200, 'message' => 'Workspace deleted successfully']);
+    }
+
+    public function createTwilioWorker(Request $request){
+
+        $workspace_id = $request->workspace_id;
+        $worker_name = $request->worker_name;
+        $twilio_credential_id = $request->account_id;
+
+        $check_name = TwilioWorker::where('worker_name',$worker_name)->where('twilio_workspace_id',$workspace_id)->first();
+
+        if($check_name){
+            return new JsonResponse(['code' => 400, 'message' => 'This Worker already exists']);
+        }else{
+
+            $workspace_data = TwilioWorkspace::where('id', $workspace_id)->first();
+
+            $check_account = TwilioCredential::where(['id' => $workspace_data->twilio_credential_id])->firstOrFail();
+            $sid = $check_account->account_id;
+            $token = $check_account->auth_token;
+            $twilio = new Client($sid, $token);
+
+            $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($worker_name);
+
+            TwilioWorker::create([
+                'twilio_credential_id' => $twilio_credential_id,
+                'twilio_workspace_id' => $workspace_id,
+                'worker_name' => $worker_name,
+                'worker_sid' => $worker->sid,
+             ]);
+
+             $worker_latest_record = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
+             ->where('twilio_workers.worker_name',$worker_name)
+             ->where('twilio_workers.twilio_workspace_id',$workspace_id)
+             ->where('twilio_workers.deleted',0)
+             ->select('twilio_workspaces.workspace_name','twilio_workers.*')
+             ->first();
+
+            return new JsonResponse(['code' => 200, 'message' => 'Worker Created successfully', 'data' => $worker_latest_record]);
+        }
+    }
+
+    public function deleteTwilioWorker(Request $request){
+        $worker_id = $request->worker_id;
+
+        $getdata = TwilioWorker::where('id', $worker_id)->first();
+        $get_workspace_data = TwilioWorkspace::where('id', $getdata->twilio_workspace_id)->first();
+
+        $check_account = TwilioCredential::where(['id' => $getdata->twilio_credential_id])->firstOrFail();
+        $sid = $check_account->account_id;
+        $token = $check_account->auth_token;
+        $twilio = new Client($sid, $token);
+
+        $twilio->taskrouter->v1->workspaces($get_workspace_data->workspace_sid)->workers($getdata->worker_sid)->delete();
+
+        TwilioWorker::where('id',$worker_id)->update(['deleted'=> 1]);
+
+        return new JsonResponse(['code' => 200, 'message' => 'Worker deleted successfully']);
     }
 
 } 

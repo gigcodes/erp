@@ -102,7 +102,6 @@
                                 <td>{{ $magentoSetting->value }}</td>
                                 <td>{{ $magentoSetting->created_at }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
-
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
@@ -180,7 +179,6 @@
                     <div class="form-group">
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
-                        
 
                     </div>
                     <div class="form-group">
@@ -248,7 +246,6 @@
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
                         <button type="button" value="Log" class="btn btn-image" onclick="showlog();" data-setting="" >Log</button>
-
                     </div>
                     <div class="form-group">
                         <label for="">Path</label>
@@ -257,6 +254,16 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
+                    </div>
+                    <div class="form-group">
+                        <label for="git_repository">Github Repository</label><br>
+                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
+                            @php $i=0;  @endphp
+                            @foreach(\App\Github\GithubRepository::all() as $w)
+                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
+                                @php $i+=1; @endphp
+                            @endforeach
+                        </select>                        
                     </div>
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
@@ -599,8 +606,6 @@
                 });
             }            
         });
-
-
         function showlog()
         {
             id=$('#edit-setting-popup').attr('data-id');

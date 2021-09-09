@@ -4,13 +4,16 @@ namespace App\Http\Controllers\product_price;
 
 use App\Http\Controllers\Controller;
 use App\CountryGroup;
+use App\Category;
 use App\StoreWebsite;
 use App\WebsiteStore;
 use App\Product;
 use App\Setting;
 use App\Brand;
 use App\Supplier;
+use App\CategorySegmentDiscount;
 use App\SimplyDutyCountry;
+use App\SimplyDutySegment;
 use App\Helpers\StatusHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,6 +32,10 @@ class ProductPriceController extends Controller
     public function index(Request $request)
     {
         ini_set("memory_limit", -1);
+        
+        $categoryIds = Category::pluck('id')->toArray(); 
+        $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+        
         $filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
         
@@ -182,8 +189,8 @@ class ProductPriceController extends Controller
             $view = view('product_price.index_ajax',compact('product_list', 'count', 'category_segments'))->render();
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
-        
-        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments'));
+      
+        return view('product_price.index',compact('countryGroups','product_list', 'suppliers', 'websites', 'brands', 'selected_suppliers', 'selected_brands', 'selected_websites','category_segments','categories'));
     }
 
 
@@ -412,6 +419,116 @@ class ProductPriceController extends Controller
         DB::table('category_segment_discounts')->where('id', $request->seg_id)->update(['amount' => $request->seg_discount]);
         return response()->json(['data' => $response_array, 'status' => true]);
     }
+	
+	public function genericPricing(Request $request) {
+
+        $product_price = 100;
+        $final_price = 100;
+        $ids = $request->all();
+        $cat_id = $ids['id'];
+		ini_set('memory_limit', -1);
+		$product_list = [];
+		$countries = SimplyDutyCountry::select('*')->get()->toArray();
+		$categoryDetail = Category::where('id',$cat_id)->select('id', 'title')->first();
+        
+		//$brands = Brand::select('id', 'name')->get()->toArray();
+		$brands = Product::leftJoin('brands', 'brands.id', 'products.brand')
+				  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name','brands.brand_segment')->groupBy('products.brand')->get()->toArray();
+		$i = 0;
+
+		$countriesCount = count($countries);
+        $category_segments = \App\CategorySegment::where('status',1)->get();
+        
+			foreach($brands as $brand) {
+               $country = $countries[$i];
+
+              //  foreach ($category_segments as $key => $value) {
+				$category_segment_discount = \DB::table("categories")->join("category_segments as cs", "cs.id", "categories.category_segment_id")
+						->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
+						->where('categories.id', $cat_id)
+						->where('csd.brand_id', $brand['id'])
+						->select("csd.*")
+						->first();                   
+
+				   //$category_segment_discount = DB::table('category_segment_discounts')->where('category_id', $cat_id)->where('brand_id', $brand['id'])->first();
+                    if($category_segment_discount != null) {
+						if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
+							
+							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
+								//$final_price = ($product_price * $category_segment_discount->amount)/100;
+								$catDisc = ($product_price * $category_segment_discount->amount)/100;
+								$final_price = $final_price - $catDisc;
+							}
+
+						}elseif($category_segment_discount->amount_type == 'amount'){
+							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
+								$final_price = $final_price-$category_segment_discount->amount;
+							}
+						}
+                    }
+                //}
+				if(\App\Product::IVA_PERCENTAGE!=0){
+                    $IVA = \App\Product::IVA_PERCENTAGE;
+                    $lessIva = ( $final_price * $IVA )/100;
+					$final_price = $final_price - $lessIva;
+                }
+
+                if($country['default_duty']!='' || $country['default_duty']!=0){
+                    $dutyDisc = ($final_price * $country['default_duty'])/100;
+					$final_price = $final_price + $dutyDisc;
+                }
+
+                if($country['segment_id']!='' || $country['segment_id']!=0){
+                   $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
+                   $country['dutySegment'] = $dutysegment->segment;
+                }else{
+                    $country['dutySegment'] = '';
+                }
+               
+                
+				$product_list[] = [
+                    'catId'=>$categoryDetail->id, 
+                    'categoryName'=>$categoryDetail->title, 
+                    'product'=>'Product For Brand', 
+					'brandId'=>$brand['id'], 
+                    'brandName'=>$brand['name'], 
+                    'brandSegment'=>$brand['brand_segment'],
+                    'country'=>$country,
+                    'product_price'=>100,
+                    'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
+                    'final_price'=>$final_price
+				];
+
+				if($i< $countriesCount-1) {
+					$i++;
+				} else {
+					$i = 0;
+				}
+
+                $product_price = 100;
+                $final_price = 100;
+
+			}
+		
+		return view('product_price.generic_price', compact('product_list', 'category_segments'));
+	}
+
+	
+	public function updateProductPrice(Request $request) { 
+		if($request->route()->getName() == 'updateDutyPrice'){ 
+		   $duty = SimplyDutyCountry::find($request->countryId);
+           $duty->default_duty = $request->dutyPrice;
+           $duty->save();
+		} else if($request->route()->getName() == 'updateSegmentPrice') { 
+			$catSegDiscount = CategorySegmentDiscount::where(['category_segment_id'=>$request->segmentId,'brand_id'=>$request->brandId])->first();
+			if($catSegDiscount == null) {
+				CategorySegmentDiscount::create(['category_segment_id'=>$request->segmentId, 'amount'=>$request->price, 'brand_id'=>$request->brandId]);
+			} else {
+		     	$catSegDiscount->update([ 'amount'=>$request->price]);
+			}
+		}
+		return json_encode(['status'=>true]);
+	}
 
     public function approve(Request $request)
     {

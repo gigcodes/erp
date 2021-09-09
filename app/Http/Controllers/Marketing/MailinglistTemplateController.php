@@ -193,14 +193,15 @@ class MailinglistTemplateController extends Controller
     public function images_file(Request $request)
     {
          $id=$request->id;
-         $rs=MailingTemplateFilesHistory::where('mailing_id',$id)->get();
+         $rs=MailingTemplateFilesHistory::where('mailing_id',$id)->orderBy('created_at','desc')->get();
          $table=" <table class='table table-bordered' > <thead> <tr>";
          $table.="<th>Date</th><th>Old Path</th><th>New Path</th></tr></thead><tbody>";
          foreach($rs as $r)
             {
                 $table.="<tr><td>".date('d-m-Y',strtotime($r->created_at))."</td>";
                 $table.="<td>".$r->old_path."</td>";
-                $table.="<td>".$r->new_path."</td></tr>";
+                $table.="<td><a download='path_".$r->id.".jpg' href='".asset($r->new_path)."' title='path'>
+                ".$r->new_path."</a></td></tr>";
 
             }
           $table.="</tbody></table>";

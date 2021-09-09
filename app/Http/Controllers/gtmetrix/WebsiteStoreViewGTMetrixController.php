@@ -23,11 +23,11 @@ class WebsiteStoreViewGTMetrixController extends Controller
         $query = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
 
         if (request('date')) {
-            $query->whereDate('created_at', request('date'));
+            $query->whereDate('store_views_gt_metrix.created_at', request('date'));
         }
 
         if (request('status')) {
-            $query->where('status', request('status'));
+            $query->where('store_views_gt_metrix.status', request('status'));
         }
 
         $columns = ['error', 'report_url', 'report_url', 'html_load_time', 'html_bytes', 'page_load_time', 'page_bytes', 'page_elements', 'pagespeed_score', 'yslow_score'];

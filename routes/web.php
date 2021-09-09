@@ -1544,6 +1544,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Paswords Manager
     Route::get('passwords', 'PasswordController@index')->name('password.index');
+    Route::post('passwords/change', 'PasswordController@changePasswords')->name('passwords.change');
     Route::post('password/store', 'PasswordController@store')->name('password.store');
     Route::get('password/passwordManager', 'PasswordController@manage')->name('password.manage');
     Route::post('password/change', 'PasswordController@changePassword')->name('password.change');
@@ -1790,8 +1791,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
+    Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendToWhatsApp')->name('email.password.sendwhatsapp');
     
-    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
     Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
 
@@ -3115,6 +3118,10 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
+    Route::get('set-twilio-work-space/{account_id}', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
+    Route::post('delete-twilio-work-space', 'TwilioController@deleteTwilioWorkSpace')->name('delete-twilio-work-space');
+    Route::post('create-twilio-worker', 'TwilioController@createTwilioWorker')->name('create-twilio-worker');
+    Route::post('delete-twilio-worker', 'TwilioController@deleteTwilioWorker')->name('delete-twilio-worker');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
 
@@ -3363,6 +3370,12 @@ Route::get('store-website-product-prices/history', 'product_price\ProductPriceCo
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
 Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
 Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_duty');
+
+Route::get('product-generic-pricing', 'product_price\ProductPriceController@genericPricing')->name('product.generic.pricing');
+Route::post('product-duty-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateDutyPrice');
+Route::post('product-segment-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateSegmentPrice');
+
+
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
