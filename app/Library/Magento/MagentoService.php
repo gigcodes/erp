@@ -500,18 +500,17 @@ class MagentoService
         $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/", $this->token, $data);
         
         $res              = json_decode($functionResponse['res']);
-
-        var_dump($functionResponse); die();
         
+       
         // store image function has been done
         if ($functionResponse['httpcode'] == 200) {
-            if ($this->productType == "configurable" || $this->productType == "single") {
+           /* if ($this->productType == "configurable" || $this->productType == "single") {
                 if (array_key_exists('media_gallery_entries', $res) && !empty($res->media_gallery_entries)) {
                     foreach ($res->media_gallery_entries as $key => $image) {
                         $this->imageIds[] = $image->id;
                     }
                 }
-            }
+            }*/
 
             if (isset($res->id)) {
                 if ($this->productType == "configurable") {
@@ -596,10 +595,7 @@ class MagentoService
 
             }
         }
-        else
-        {
-            return false;
-        }
+        
 
     }
 
