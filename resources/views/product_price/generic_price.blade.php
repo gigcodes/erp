@@ -1,3 +1,8 @@
+@extends('layouts.app')
+
+@section('title','Product pricing')
+
+@section('content')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
 <style>.hidden {
 	display:none;
@@ -19,7 +24,7 @@
                            <th style="width: 7%">Category</th>
                            <th style="width: 6%">Brand segment</th>
                            <th style="width: 4%;word-break: break-all">Product</th>
-                           <th style="width: 5%">Country segment</th>
+                           {{-- <th style="width: 5%">Country segment</th> --}}
                            <th style="width: 5%">Price</th>
                            @foreach($category_segments as $category_segment)
 							  <th width="3%">{{ $category_segment->name }}</th>
@@ -52,7 +57,7 @@
                                             </span>
                                </td>
                                <td>{{ $product['product'] }}</td>
-                               
+                            {{--  
                                <td class="expand-row" style="word-break: break-all">
 
                                    <span class="td-mini-container">
@@ -63,7 +68,7 @@
                                        {{ $product['country']['dutySegment'] }}
                                    </span>
                                </td>
-
+                            --}}
                                <td>{{ $product['product_price'] }}</td>
 
                                   @foreach($category_segments as $category_segment)
@@ -99,3 +104,4 @@
         </div>
     </div>
 </div>
+@endsection
