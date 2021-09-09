@@ -423,7 +423,27 @@ class MagentoSettingsController extends Controller
 		->where('store_websites.id', $store_website_id)->select('github_repositories.name as repo_name')->first();
 		
 		foreach($magentoSettings as $magentoSetting) {
-			$settings .= $magentoSetting['scope'].','.$magentoSetting['scope_id'].','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
+			if($magentoSetting['scope'] == 'default') {
+				$scopeId = 0;
+				$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
+			}else if($scope === 'websites'){
+				$websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function($q) use ( $store_website_id){
+					$q->where('store_website_id', $store_website_id);
+				})->get();
+				foreach($websiteStores as $websiteStore){
+					$scopeID = $websiteStore->platform_id;
+					$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
+				}
+			}else if($scope === 'stores'){
+				$websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function($q) use ( $store_website_id){
+					$q->whereIn('store_website_id', $store_website_id );
+				})->get();
+
+				foreach($websiteStoresViews as $websiteStoresView){
+					  $scopeID = $websiteStoresView->platform_id;
+					$settings .= $magentoSetting['scope'].','.$scopeId.','.$magentoSetting['path'].','.$magentoSetting['value'].PHP_EOL;
+				}
+			}
 			
 		}
 		
