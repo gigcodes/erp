@@ -17,9 +17,9 @@
                        <thead>
                        <tr>
                            <th style="width: 7%">Category</th>
-                           <th style="width: 6%">Brand</th>
+                           <th style="width: 6%">Brand segment</th>
                            <th style="width: 4%;word-break: break-all">Product</th>
-                           <th style="width: 5%">Country</th>
+                           <th style="width: 5%">Country segment</th>
                            <th style="width: 5%">Price</th>
                            @foreach($category_segments as $category_segment)
 							  <th width="3%">{{ $category_segment->name }}</th>
@@ -44,22 +44,23 @@
                                 </td>
                                <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
-                                                {{ strlen( $product['brandName']) > 15 ? substr( $product['brandName'], 0, 15).'...' :  $product['brandName'] }}
+                                                {{ strlen( $product['brandSegment']) > 15 ? substr( $product['brandSegment'], 0, 15).'...' :  $product['brandSegment'] }}
                                      </span>
 
                                    <span class="td-full-container hidden">
-                                               {{ $product['brandName'] }}
+                                               {{ $product['brandSegment'] }}
                                             </span>
                                </td>
                                <td>{{ $product['product'] }}</td>
+                               
                                <td class="expand-row" style="word-break: break-all">
 
                                    <span class="td-mini-container">
-                                        {{ strlen( $product['country']['country_name']) > 9 ? substr( $product['country']['country_name'], 0, 9).'...' :  $product['country']['country_name'] }}
+                                        {{ strlen( $product['country']['dutySegment']) > 9 ? substr( $product['country']['dutySegment'], 0, 9).'...' :  $product['country']['dutySegment'] }}
                                    </span>
 
                                    <span class="td-full-container hidden">
-                                       {{ $product['country']['country_name'] }}
+                                       {{ $product['country']['dutySegment'] }}
                                    </span>
                                </td>
 

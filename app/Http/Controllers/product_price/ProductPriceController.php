@@ -13,6 +13,7 @@ use App\Brand;
 use App\Supplier;
 use App\CategorySegmentDiscount;
 use App\SimplyDutyCountry;
+use App\SimplyDutySegment;
 use App\Helpers\StatusHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -432,7 +433,7 @@ class ProductPriceController extends Controller
         
 		//$brands = Brand::select('id', 'name')->get()->toArray();
 		$brands = Product::leftJoin('brands', 'brands.id', 'products.brand')
-				  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name')->groupBy('products.brand')->get()->toArray();
+				  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name','brands.brand_segment')->groupBy('products.brand')->get()->toArray();
 		$i = 0;
 
 		$countriesCount = count($countries);
@@ -477,6 +478,12 @@ class ProductPriceController extends Controller
 					$final_price = $final_price + $dutyDisc;
                 }
 
+                if($country['segment_id']!='' || $country['segment_id']!=0){
+                   $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
+                   $country['dutySegment'] = $dutysegment->segment;
+                }else{
+                    $country['dutySegment'] = '';
+                }
                
                 
 				$product_list[] = [
@@ -485,6 +492,7 @@ class ProductPriceController extends Controller
                     'product'=>'Product For Brand', 
 					'brandId'=>$brand['id'], 
                     'brandName'=>$brand['name'], 
+                    'brandSegment'=>$brand['brand_segment'],
                     'country'=>$country,
                     'product_price'=>100,
                     'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
