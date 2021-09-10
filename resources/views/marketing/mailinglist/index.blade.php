@@ -11,6 +11,9 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+		.error {
+			color:red;
+		}
     </style>
 @endsection
 
@@ -76,8 +79,14 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="text" name="name" class="form-control name" placeholder="Name">
+                            <input type="text" name="name" id="name" class="form-control name" placeholder="Name">
                         </div>
+
+                        <div class="form-group">
+                            <input type="text" name="subject" id="subject" class="form-control name" placeholder="Subject">
+                        </div>
+						  <div class="form-group error" id="mailing_errors">
+						  </div>
                     </form>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -149,6 +158,7 @@
 <script>
     jQuery(document).ready(function(){
         $(document).on("click",".save_list",function (e) {
+			$('#mailing_errors').html('');
             var _this = jQuery(this).parents(".modal-body").find("form");
             e.preventDefault();
             $.ajax({
@@ -158,11 +168,21 @@
                 beforeSend: function (request) {
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
-                success: function (data) {
-                    if (true) {
-                        location.reload();
-                    }
+                success: function (data) { 
+					if(data.status == false) {
+						var error = ''; 
+						$.each(data.messages, function( index, value ) {
+						   error += value + "<br>";
+						});
+						$('#mailing_errors').html(error);
+					} else{
+						location.reload();
+					}
+                    /*if (true) {
+						   // location.reload();
+					} else */
                 }
+			
             });
         });
         jQuery(".edit_maillist").on("click",function (e){

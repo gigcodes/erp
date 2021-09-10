@@ -15,7 +15,7 @@ use App\Http\Controllers\Controller;
 
 use App\MailinglistTemplate;
 use App\EmailEvent;
-
+use Validator;
 
 class MailinglistController extends Controller
 {
@@ -64,8 +64,20 @@ class MailinglistController extends Controller
 
     public function create(Request $request)
     { 
+		$rules = [
+            'service_id'=>'required',
+            'website_id'=>'required',
+            'email'=>'required',
+            'name'=>'required',
+            'subject'=>'required',
+        ];
+        $validation = Validator::make($request->all(), $rules);
+        if ($validation->fails())
+        {
+            return array('status'=>false, 'messages'=>$validation->getMessageBag());
+        }
         $website_id = $request->website_id;
-        //FInd Service 
+        //Find Service 
         $service = Service::find($request->service_id);
 
         if($service){
@@ -117,7 +129,7 @@ class MailinglistController extends Controller
 
                 curl_setopt_array($curl, array(
                 //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => "https://acelle.theluxuryunlimited.com/api/v1/lists?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => "",
                   CURLOPT_MAXREDIRS => 10,
@@ -125,12 +137,12 @@ class MailinglistController extends Controller
                   CURLOPT_FOLLOWLOCATION => true,
                   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                   CURLOPT_CUSTOMREQUEST => "POST",
-                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'from_email' => $request->email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $request->email),
+                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'default_subject'=>$request->subject,'from_email' => $request->email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $request->email),
                 ));
 
                 $response = curl_exec($curl);
                  
-                curl_close($curl);
+                curl_close($curl); 
                 $res = json_decode($response);
                 if($res->status == 1){
                     //getting last id
