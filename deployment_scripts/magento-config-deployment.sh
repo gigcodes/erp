@@ -78,6 +78,7 @@ git add app/etc/config.php
 git commit -m 'Deployment config erp'
 git push origin stage
 
+sleep 10
 ##### Create PR from stage to master ####
 pull_number=`curl -XPOST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ludxb/$repo/pulls -d '{"head":"stage","base":"master","title":"config deployment from erp"}' |grep '"number"'|awk '{print $2}'|cut -d',' -f1`
 
