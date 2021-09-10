@@ -234,10 +234,14 @@
         });
     }
 	
+	var checkExist = setInterval(function() {
+	   if ($('.row_keywords').length) {
+		  fetchKeywords();
+		  clearInterval(checkExist);
+	   }
+	}, 100); // check every 100ms
 	
-	jQuery( '.keywordRecords' ).ready(function() {
-	   fetchKeywords()
-	});
+	
 	function fetchKeywords() {
 		$( ".row_keywords" ).each(function( index ) {
 			if($(this).html() == '') {
@@ -278,8 +282,7 @@
                     t += '<td>' + data.translate_text + '</td></tr>';
                 }); 
 				t+="</tbody></table>";
-				console.log(t);
-                $('#col_'+rowId).html(t);
+				 $('#col_'+rowId).html(t);
             } 
         },
         complete: function () {
