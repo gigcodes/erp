@@ -5695,5 +5695,33 @@ class ProductController extends Controller
         return response()->json(["code" => 0 ,"data" => [], "message" => "error"]);
     }
 
+    public function pushproductlist(Request $request)
+    {
+       
+        $products=\App\StoreWebsiteProduct::join('products','store_website_products.product_id','products.id');
+        $products->join('store_websites','store_website_products.store_website_id','store_websites.id');
+        $products->leftJoin('categories','products.category','categories.id');
+        $products->leftJoin('brands','products.brand','brands.id');
+        $products->select('store_website_products.*',"products.name as product_name","store_websites.title as store_website_name","store_websites.magento_url as store_website_url","categories.title as category","brands.name as brand");
+        if ($request->website != '') {
+            $products->where('store_website_id', $request->website);
+        }
+        if ($request->category != '') {
+            $products->where('products.category', $request->category);
+        } 
+        if ($request->brand != '') {
+            $products->where('products.brand', $request->brand);
+        } 
+        $products->orderBy('created_at','desc');
+        $products=$products->paginate(Setting::get('pagination'));
+        //$products = $products->paginate(Setting::get('pagination'));
+        $websiteList = \App\StoreWebsite::get();
+        $categoryList = \App\Category::all();
+        $brandList = \App\Brand::get();
+
+        return view('products.pushproductlist', compact('products', 'categoryList', 'brandList', 'websiteList'))
+            ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
+
 }
 

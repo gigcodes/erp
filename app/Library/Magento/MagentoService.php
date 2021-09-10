@@ -70,6 +70,8 @@ class MagentoService
     {
         // start to send request if there is token
 
+        
+
         if (!$this->validateToken()) {
             return false;
         }
@@ -95,6 +97,8 @@ class MagentoService
         // assign reference
         $this->assignReference();
 
+        
+
         return $this->assignOperation();
     }
 
@@ -108,16 +112,18 @@ class MagentoService
         $this->websiteAttributes = $this->getWebsiteAttributes();
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
+        
         $this->startTranslation();
+        
 
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
         $this->meta = $this->getMeta();
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
 
         $this->translations = $this->getTranslations();
-		if(!$this->translations) {
+		/*if(!$this->translations) {
 			 return false;
-		}
+		}*/
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         /*  if (!$this->validateTranslation()) {
@@ -156,8 +162,10 @@ class MagentoService
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
-
+        
         $this->getPricing();
+
+        
 
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
@@ -296,6 +304,8 @@ class MagentoService
 
         $pushSingle = false;
 
+       
+
         if ($mainCategory->push_type == 0 && !is_null($mainCategory->push_type)) {
             \Log::info("Product push type single via category");
             \Log::info($this->product->id . " #20 => " . date("Y-m-d H:i:s"));
@@ -337,6 +347,34 @@ class MagentoService
         }
 
         // started to check that request issue
+        $platform_id=0;
+        if (isset($result->id))
+        {
+            $platform_id=$result->id;
+            $sp=\App\StoreWebsiteProduct::where('product_id',$this->product->id)
+              ->where('store_website_id',$this->storeWebsite->id)->first();
+            if ($sp)
+            {
+                  $sp->platform_id=$platform_id;
+                  $sp->updated_at=date("Y-m-d H:i:s");
+                  $sp->save();
+
+            }
+            else
+            {
+                $data['product_id']=$this->product->id;
+                $data['store_website_id']=$this->storeWebsite->id;
+                $data['platform_id']=$platform_id;
+                $data['created_at']=date("Y-m-d H:i:s");
+                \App\StoreWebsiteProduct::insert($data);
+            }
+            
+        }
+            
+
+       
+       
+        
         if ($this->log) {
             $totalReq     = $this->log->total_request_assigned;
             $totalSuccess = \App\ProductPushErrorLog::where('log_list_magento_id', $this->log->id)->where('response_status', 'success')->count();
@@ -345,12 +383,15 @@ class MagentoService
                 $this->log->message        = "Product has been failed to push as total request is not matching with current request";
                 $this->log->save();
             } else {
+               
                 $this->pushdiscountprice();
                 $this->product->status_id        = StatusHelper::$inMagento;
                 $this->product->isUploaded       = 1;
                 $this->product->is_uploaded_date = Carbon::now();
                 $this->product->isListed         = 1;
                 $this->product->save();
+                
+                
 
                 $this->log->languages = json_encode($this->languagecode);
                 $this->log->save();
@@ -500,9 +541,13 @@ class MagentoService
 
         $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/", $this->token, $data);
         $res              = json_decode($functionResponse['res']);
+        $returnres=$res;
+        
+
+         
 
         // store image function has been done
-        if ($functionResponse['httpcode'] == 200) {
+       if ($functionResponse['httpcode'] == 200) {
             if ($this->productType == "configurable" || $this->productType == "single") {
                 if (array_key_exists('media_gallery_entries', $res) && !empty($res->media_gallery_entries)) {
                     foreach ($res->media_gallery_entries as $key => $image) {
@@ -594,6 +639,7 @@ class MagentoService
 
             }
         }
+        return $returnres;
 
     }
 
@@ -750,6 +796,7 @@ class MagentoService
 
         $result = $this->_pushProduct('single', $this->sku, $data, '', $this->storeWebsite, $this->token, $this->product);
         // Return result
+        
         return $result;
     }
 
@@ -1076,7 +1123,7 @@ class MagentoService
 
     private function startTranslation()
     {
-         \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
+        \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
 	}
 
     private function getWebsiteAttributes()
