@@ -176,7 +176,7 @@ class CustomerCharityController extends Controller
 
             
         }
-        $customer_charities = DB::select('
+       /* $customer_charities = DB::select('
                     SELECT *,
                     (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                     (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
@@ -212,7 +212,36 @@ class CustomerCharityController extends Controller
                     social_handle LIKE "%' . $term . '%" OR 
                     id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' .$permittedCategories. '
                     ORDER BY ' . $sortByClause . ' message_created_at DESC;
-                ');
+                '); 
+                */
+                $customer_charities = DB::select('
+                SELECT customer_charities.id,customer_charities.product_id, customer_charities.frequency, customer_charities.is_blocked ,customer_charities.reminder_message, customer_charities.category_id, customer_charities.name, customer_charities.phone, customer_charities.email, customer_charities.address, customer_charities.social_handle, customer_charities.website, customer_charities.login, customer_charities.password, customer_charities.gst, customer_charities.account_name, customer_charities.account_iban, customer_charities.account_swift,
+                customer_charities.frequency_of_payment, 
+                customer_charities.bank_name, 
+                customer_charities.bank_address, 
+                customer_charities.city, 
+                customer_charities.country, 
+                customer_charities.ifsc_code, 
+                customer_charities.remark, 
+                    customer_charities.created_at,customer_charities.updated_at,
+                    customer_charities.updated_by,
+                    customer_charities.reminder_from,
+                    customer_charities.reminder_last_reply,
+                    customer_charities.status, 
+                    customer_charities.store_website_id,
+                    store_websites.title as store_websites_name,
+                    0 as message_status
+                    FROM customer_charities 
+                    LEFT JOIN store_websites on store_websites.id=customer_charities.store_website_id
+                    WHERE (name LIKE "%' . $term . '%" OR
+                    phone LIKE "%' . $term . '%" OR
+                    email LIKE "%' . $term . '%" OR
+                    address LIKE "%' . $term . '%" OR
+                    social_handle LIKE "%' . $term . '%" OR 
+                    customer_charities.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' .$permittedCategories. '
+                    ORDER BY ' . $sortByClause . ' created_at DESC;
+            
+            ');
 
         // dd($customer_charities);
 

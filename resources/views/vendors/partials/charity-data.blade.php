@@ -35,7 +35,9 @@
     <th width="7%">Email</th>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
-    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
+    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;"> 
+   
+
         <div class="row">
             <div class="col-md-8 form-inline cls_remove_rightpadding">
                 <div class="row cls_textarea_subbox">
