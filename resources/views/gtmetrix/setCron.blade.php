@@ -4,7 +4,7 @@
         @csrf
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Cron</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add Gtmetrix</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -14,12 +14,8 @@
                 
                 <div class="form-group">
                 <label >Select website </label>
-                    <select name="website"  class="form-control" required>
-                        @foreach( $StoreWebsite as $w)
-                        <option value="{{$w->website}}">{{$w->website}}</option>
-                        @endforeach
-                       
-                    </select>
+                    <input name="website" class="form-control" required>
+                    
                 </div>
                 <div class="form-group">
                 <label >Select Status</label>
@@ -33,7 +29,7 @@
                 <div class="form-group">
                 <label >Select Store View </label>
                     <select name="store_view"  class="form-control" required>
-                       
+                    <option value="0">Select Store View </option>
                         @foreach( $storeViewList as $s)
                         <option value="{{$s->id}}">{{$s->code}}</option>
                         @endforeach
