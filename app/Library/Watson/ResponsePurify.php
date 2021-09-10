@@ -211,7 +211,7 @@ class ResponsePurify
                 \Log::info("Order status option started last order fond ".json_encode($lastOrder));
                 if(!empty($lastOrder)) {
                     if($lastOrder->status) {
-                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
+                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $lastOrder->status->message_text_tpl)];
                     }
                 }
             }
