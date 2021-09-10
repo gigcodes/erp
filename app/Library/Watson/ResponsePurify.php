@@ -202,13 +202,12 @@ class ResponsePurify
         \Log::info("Order status option started");
         // is order status need to be send?
         $intentsList = ["Order_status_find"];
-        \Log::info(print_r(["Order status need to check",$this->intents],true));
+        \Log::info(print_r(["Order status need to check",$text,$this->intents],true));
         foreach ($intentsList as $intents) {
             if (in_array($intents, array_keys($this->intents))) {
                 // check the last order of customer and send the message status
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
-                \Log::info("Order status option started last order fond ".json_encode($lastOrder));
                 if(!empty($lastOrder)) {
                     if($lastOrder->status) {
                         return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $lastOrder->status->message_text_tpl)];
