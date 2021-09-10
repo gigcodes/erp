@@ -211,7 +211,7 @@ class ResponsePurify
                     \Log::info("Steps for check 3");
                     if($lastOrder->status) {
                         \Log::info("Steps for check 4");
-                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
+                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $lastOrder->status->message_text_tpl)];
                     }
                 }
             }
