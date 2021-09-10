@@ -28,8 +28,6 @@ class CustomerCharityController extends Controller
     public function index(Request $request)
     {
 
-        \Log::info("customer_charity => Started 1 => ".date("Y-m-d H:i:s"));
-
         $term         = $request->term ?? '';
         $sortByClause = '';
         $orderby      = 'DESC';
@@ -48,22 +46,15 @@ class CustomerCharityController extends Controller
 
         $isAdmin = Auth::user()->isAdmin();
 
-        \Log::info("customer_charity => Started 2 => ".date("Y-m-d H:i:s"));
-
-
         if ($isAdmin) {
             $permittedCategories = [];
         } else {
             $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
         }
-
-        \Log::info("customer_charity => Started 3 => ".date("Y-m-d H:i:s"));
-
         //getting request
         if ($request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
             $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null
         ) {
-            \Log::info("customer_charity => Started 4 => ".date("Y-m-d H:i:s"));
             //Query Initiate
             if ($isAdmin) {
                 $query = CustomerCharity::query();
@@ -76,8 +67,6 @@ class CustomerCharityController extends Controller
                 }
 
             }
-
-            \Log::info("customer_charity => Started 5 => ".date("Y-m-d H:i:s"));
 
             if (request('term') != null) {
                 $query->where('name', 'LIKE', "%{$request->term}%");
@@ -133,7 +122,6 @@ class CustomerCharityController extends Controller
                 $query->where('email', 'like', '%' . request('email') . '%');
 
             }
-            \Log::info("customer_charity => Started 6 => ".date("Y-m-d H:i:s"));
             if (request('communication_history') != null && !request('with_archived')) {
                 $communication_history = request('communication_history');
                 $query->orWhereRaw("customer_charities.id in (select charity_id from chat_messages where charity_id is not null and message like '%" . $communication_history . "%')");
@@ -155,7 +143,6 @@ class CustomerCharityController extends Controller
                 $totalVendor        = $query->orderby('name', 'asc')->count();
                 $customer_charities = $query->orderby('name', 'asc')->paginate($pagination);
             }
-            \Log::info("customer_charity => Started 7 => ".date("Y-m-d H:i:s"));
         } else {
             if ($isAdmin) {
                 $permittedCategories = "";
@@ -171,7 +158,6 @@ class CustomerCharityController extends Controller
                 }
 
             }
-            \Log::info("customer_charity => Started 8 => ".date("Y-m-d H:i:s"));
             /* $customer_charities = DB::select('
             SELECT *,
             (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
@@ -243,8 +229,6 @@ class CustomerCharityController extends Controller
 
             $totalVendor = count($customer_charities);
 
-            \Log::info("customer_charity => Started 9 => ".date("Y-m-d H:i:s"));
-
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
             $perPage     = Setting::get('pagination');
             if (request()->get('select_all') == 'true') {
@@ -255,7 +239,6 @@ class CustomerCharityController extends Controller
             if (!is_numeric($perPage)) {
                 $perPage = 2;
             }
-            \Log::info("customer_charity => Started 10 => ".date("Y-m-d H:i:s"));
             $currentItems = array_slice($customer_charities, $perPage * ($currentPage - 1), $perPage);
 
             $customer_charities = new LengthAwarePaginator($currentItems, count($customer_charities), $perPage, $currentPage, [
@@ -263,19 +246,11 @@ class CustomerCharityController extends Controller
             ]);
         }
 
-        \Log::info("customer_charity => Started 11 => ".date("Y-m-d H:i:s"));
-
         $vendor_categories = VendorCategory::all();
-
-        \Log::info("customer_charity => Started 12 => ".date("Y-m-d H:i:s"));
 
         $users = User::all();
 
-        \Log::info("customer_charity => Started 13 => ".date("Y-m-d H:i:s"));
-
         $replies = \App\Reply::where("model", "Vendor")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
-
-        \Log::info("customer_charity => Started 14 => ".date("Y-m-d H:i:s"));
 
         /* if ($request->ajax()) {
         return response()->json([
@@ -289,15 +264,9 @@ class CustomerCharityController extends Controller
             ->select([\DB::raw("count(u.id) as total_records"), "u.name"])
             ->get();
 
-        \Log::info("customer_charity => Started 15 => ".date("Y-m-d H:i:s"));
-            
         $storewebsite = StoreWebsite::all();
 
-        \Log::info("customer_charity => Started 16 => ".date("Y-m-d H:i:s"));
-
-        $website1     = Website::all();
-
-        \Log::info("customer_charity => Started 17 => ".date("Y-m-d H:i:s"));
+        $website1 = Website::all();
 
         return view('vendors.charity', [
             'vendors'           => $customer_charities,
