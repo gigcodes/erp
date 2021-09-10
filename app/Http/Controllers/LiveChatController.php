@@ -1437,7 +1437,7 @@ class LiveChatController extends Controller
 
             $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
 
-            $storeWebsiteOrder = $order->storeWebsiteOrder;
+           // $storeWebsiteOrder = $order->storeWebsiteOrder;
             $email             = Email::create([
                 'model_id'         => $customer->id,
                 'model_type'       => \App\Customer::class,
