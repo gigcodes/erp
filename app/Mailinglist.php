@@ -44,8 +44,8 @@ class Mailinglist extends Model
         return $this->belongsToMany(Customer::class, 'list_contacts', 'list_id', 'customer_id')->withTimestamps();
     }
 	
-	public function sendAutoEmails($mailingList, $mailing_item) {
-		
+	public function sendAutoEmails($mailingList, $mailing_item, $service) {
+		if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) { 
 			if(!empty($mailing_item['static_template'])) { 
 				$emailEvent = EmailEvent::create(["list_contact_id"=>$mailingList->list_contact_id, 'template_id'=> $mailing_item->id]);
 				$htmlContent = $mailing_item->static_template;
@@ -79,6 +79,25 @@ class Mailinglist extends Model
 				curl_close($curl);
 				
 			}
+		}else if(strpos($service->name, 'AcelleMail') !== false) {
+			$curl = curl_init();
+
+            curl_setopt_array($curl, array(
+             CURLOPT_URL => "https://acelle.theluxuryunlimited.com/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => array('name' => $mailing_item['subject'],'subject' => $mailing_item['subject'] , 'run_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s') , 'template_content' => $htmlContent),
+            ));
+
+                            $response = curl_exec($curl);   
+                            $response = json_decode($response);
+                           
+		}
 		
 	}
 
