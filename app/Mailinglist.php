@@ -91,7 +91,7 @@ class Mailinglist extends Model
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => array('name' => $mailing_item['subject'],'subject' => $mailing_item['subject'] , 'run_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s') , 'template_content' => $htmlContent),
+            CURLOPT_POSTFIELDS => array('name' => $mailing_item->subject,'subject' => $mailing_item->subject, 'run_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s') , 'template_content' => $htmlContent),
             ));
 
                             $response = curl_exec($curl);   
