@@ -94,6 +94,7 @@ class ResponsePurify
 
         // send the order status from here
         $orderStatus = $this->isNeedToSendOrderStatus($text);
+        \Log::info(print_r(["Order status found",$orderStatus],true));
         if(!empty($orderStatus)) {
            return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
         }
@@ -198,6 +199,7 @@ class ResponsePurify
 
     private function isNeedToSendOrderStatus($text = "")
     {
+        \Log::info("Order status option started");
         // is order status need to be send?
         $intentsList = ["Order_status_find"];
         foreach ($intentsList as $intents) {
@@ -205,6 +207,7 @@ class ResponsePurify
                 // check the last order of customer and send the message status
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
+                \Log::info("Order status option started last order fond ".json_encode($lastOrder));
                 if(!empty($lastOrder)) {
                     if($lastOrder->status) {
                         return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
