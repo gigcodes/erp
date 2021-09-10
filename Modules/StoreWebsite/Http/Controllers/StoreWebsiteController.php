@@ -769,8 +769,12 @@ class StoreWebsiteController extends Controller
                     $ref = $request->reference;
                     $staticdep = 1;
                     
-                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:110beac588a1bb30c600b8f208f3b6c38d@build.theluxuryunlimited.com:8080'); 
-                    $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref]);                    
+                    
+                   $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11d3a5aab65b24c4efce2db700f8048b39@build.theluxuryunlimited.com:8080'); 
+                   
+					
+				   $jenkins->launchJob($jobName);                    
+                   // $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref]);                    
                     
                     if($jenkins->getJob($request->build_name)):
                         return response()->json(["code" => 200, "error" => "Process builed complete successfully."]);

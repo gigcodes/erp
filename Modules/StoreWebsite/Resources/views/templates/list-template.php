@@ -570,7 +570,7 @@
         <div class="modal-body">
             <div class="row">
                 <div class="col-lg-12">
-                    <form>
+                    <form class="build-process">
                         <?php echo csrf_field(); ?>
                         <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
                         <div class="row">
@@ -594,7 +594,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <button data-id="{{:data.id}}" class="btn btn-secondary update-build-process">Update</button>
+                                    <button data-id="{{:data.id}}"class="btn btn-secondary update-build-process">Update</button>
                                 </div>
                             </div>
                         </div>

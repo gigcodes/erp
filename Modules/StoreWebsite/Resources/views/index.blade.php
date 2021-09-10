@@ -150,6 +150,12 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+	
+	$('.update-build-process').click( function()
+           {
+             alert('button clicked');
+           }
+        );
 </script>
 
 @endsection
