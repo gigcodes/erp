@@ -23,7 +23,7 @@
                     <td title="{{:prop.stores}}">{{:prop.stores_small}}</td>
                     <td>{{:prop.store_website_name}}</td>
                     <td>{{:prop.meta_title}}</td>
-                    <td id="keyword_{{:prop.id}}">{{:prop.meta_keyword}}</td>
+                    <td id="keyword_{{:prop.id}}">{{:prop.meta_keywords}}</td>
                     <td>{{:prop.meta_description}}</td>
                     <td id="col_{{:prop.id}}" data-id="{{:prop.id}}" class="row_keywords" data-title="{{:prop.title}}"></td>
                     <td>
