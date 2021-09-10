@@ -49,10 +49,14 @@ class PushToMagento implements ShouldQueue
         // Load product and website
         $product = $this->_product;
         $website = $this->_website;
-	
+        $charity=0;
+	    $p                     = \App\CustomerCharity::where('product_id', $product->id)->first();
+        if ($p)
+          $charity=1;
         try {
 			
 		    //$jobId = app(JobRepository::class)->id;
+            
 
             if ($this->log) { 
                 $this->log->sync_status    = "started_push";
@@ -106,15 +110,15 @@ class PushToMagento implements ShouldQueue
             // check the product has images or not and then if no image for push then assign error it
             $images = $product->getImages("gallery_" . $website->cropper_color);
           
-           /* if (empty($images)) {   
+            if (empty($images) && $charity==0) {   
                 ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'error', $website->id, null, null, $this->log->id);
                 $this->log->message      = "Image(s) is needed for push product";
                 $this->log->sync_status  = "image_not_found";
                 $this->log->job_end_time = date("Y-m-d H:i:s");
                 $this->log->save();
                 return false;
-            }*/
-
+            }
+            
             $magentoService = new MagentoService($product, $website, $this->log);
             $magentoService->pushProduct();
 

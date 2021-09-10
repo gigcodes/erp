@@ -353,7 +353,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/updatePrice', 'ProductController@updatePrice');
     Route::get('products/{id}/quickDownload', 'ProductController@quickDownload')->name('products.quick.download');
     Route::post('products/{id}/quickUpload', 'ProductController@quickUpload')->name('products.quick.upload');
-    Route::post('products/{id}/listMagento', 'ProductController@listMagento');
+    Route::get('products/{id}/listMagento', 'ProductController@listMagento');
     Route::post('products/multilistMagento', 'ProductController@multilistMagento');
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');

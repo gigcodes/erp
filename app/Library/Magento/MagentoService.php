@@ -55,6 +55,7 @@ class MagentoService
     public $languagecode    = [];
     public $aclanguagecode  = [];
     public $activeLanguages = [];
+    public $charity ;
 
     const SKU_SEPERATOR = "-";
 
@@ -63,20 +64,26 @@ class MagentoService
         $this->product      = $product;
         $this->storeWebsite = $storeWebsite;
         $this->log          = $log;
+        $this->charity=0;
+        $p                     = \App\CustomerCharity::where('product_id', $this->product->id)->first();
+        if ($p)
+          $this->charity=1;
     }
 
     public function pushProduct()
     {
         // start to send request if there is token
 
+        
+
         if (!$this->validateToken()) {
             return false;
         }
         
         // started to check for the category
-       /* if (!$this->validateCategory()) {
+        if ($this->charity==0 && !$this->validateCategory()) {
             return false;
-        }*/
+        }
        
         // started to check the product rediness test
          if (!$this->validateReadiness()) {
@@ -94,7 +101,7 @@ class MagentoService
         // assign reference
         
         $this->assignReference();
-       
+        
         return $this->assignOperation();
     }
 
@@ -156,6 +163,8 @@ class MagentoService
         // get normal and special prices
         
         $this->getPricing();
+
+        
         
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
@@ -335,7 +344,7 @@ class MagentoService
             }
             $result = $this->_pushConfigurableProductWithChildren();
         }
-
+       
         // started to check that request issue
         if ($this->log) {
             $totalReq     = $this->log->total_request_assigned;
@@ -504,13 +513,13 @@ class MagentoService
        
         // store image function has been done
         if ($functionResponse['httpcode'] == 200) {
-           /* if ($this->productType == "configurable" || $this->productType == "single") {
+          if ($this->charity==0 && ($this->productType == "configurable" || $this->productType == "single")) {
                 if (array_key_exists('media_gallery_entries', $res) && !empty($res->media_gallery_entries)) {
                     foreach ($res->media_gallery_entries as $key => $image) {
                         $this->imageIds[] = $image->id;
                     }
                 }
-            }*/
+            }
 
             if (isset($res->id)) {
                 if ($this->productType == "configurable") {
