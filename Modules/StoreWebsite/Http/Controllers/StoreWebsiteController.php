@@ -769,8 +769,8 @@ class StoreWebsiteController extends Controller
                     $ref = $request->reference;
                     $staticdep = 1;
                     
-                    
-                   $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11d3a5aab65b24c4efce2db700f8048b39@build.theluxuryunlimited.com:8080'); 
+                     
+                   $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
                    
 					
 				   $jenkins->launchJob($jobName);                    
