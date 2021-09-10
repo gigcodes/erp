@@ -3349,7 +3349,8 @@ Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
-Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
+Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
+
 
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
