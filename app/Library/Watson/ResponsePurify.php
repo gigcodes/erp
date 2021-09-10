@@ -94,7 +94,6 @@ class ResponsePurify
 
         // send the order status from here
         $orderStatus = $this->isNeedToSendOrderStatus($text);
-        \Log::info(print_r(["Order status found",$orderStatus],true));
         if(!empty($orderStatus)) {
            return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
         }
@@ -199,22 +198,25 @@ class ResponsePurify
 
     private function isNeedToSendOrderStatus($text = "")
     {
-        \Log::info("Order status option started");
         // is order status need to be send?
         $intentsList = ["Order_status_find"];
-        \Log::info(print_r(["Order status need to check",$text,$this->intents],true));
+        \Log::info("Steps for check 1");
         foreach ($intentsList as $intents) {
             if (in_array($intents, array_keys($this->intents))) {
+                \Log::info("Steps for check 2");
                 // check the last order of customer and send the message status
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
                 if(!empty($lastOrder)) {
+                    \Log::info("Steps for check 3");
                     if($lastOrder->status) {
-                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $lastOrder->status->message_text_tpl)];
+                        \Log::info("Steps for check 4");
+                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
                     }
                 }
             }
         }
+        \Log::info("Steps for check 5");
         return false;
     }
 
