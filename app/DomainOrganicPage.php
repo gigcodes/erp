@@ -10,9 +10,9 @@ class DomainOrganicPage extends Model
     protected $fillable=['store_website_id', 'tool_id', 'database', 'url', 'number_of_keywords', 'traffic', 'traffic_percentage'];
 
     public function organicPageSemrushApi($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'organic_page'=>'https://api.semrush.com/?type=domain_organic_unique&key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&display_filter=%2B%7CPc%7CGt%7C100&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain=seobook.com&display_sort=tr_desc&database=us',
+			'organic_page'=>'https://api.semrush.com/?type=domain_organic_unique&key='.$key.'&display_filter=%2B%7CPc%7CGt%7C100&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain='.$domain.'&display_sort=tr_desc&database=us',
 		];
 		
 		if($column == null) {

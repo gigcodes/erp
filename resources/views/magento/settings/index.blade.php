@@ -39,13 +39,29 @@
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}">
-                          
                     </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                         <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                      </div> 
                  </form>
+				{{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
+					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+						<select class="form-control websites select2" name="store_website_id" data-placeholder="website">
+                           <option value=""></option>
+                           @foreach($storeWebsites as $w)
+                               <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
+                           @endforeach
+                        </select>
+					</div> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    </div> 
+					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#push_logs">Sync Logs</button>
+                    </div>
+				</form>		
+				
              </div>
          </div> 
      </div>
@@ -102,7 +118,6 @@
                                 <td>{{ $magentoSetting->value }}</td>
                                 <td>{{ $magentoSetting->created_at }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
-
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
@@ -180,7 +195,6 @@
                     <div class="form-group">
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
-                        
 
                     </div>
                     <div class="form-group">
@@ -248,7 +262,6 @@
                         <label for="">Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Enter setting name">
                         <button type="button" value="Log" class="btn btn-image" onclick="showlog();" data-setting="" >Log</button>
-
                     </div>
                     <div class="form-group">
                         <label for="">Path</label>
@@ -257,6 +270,16 @@
                     <div class="form-group">
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
+                    </div>
+                    <div class="form-group">
+                        <label for="git_repository">Github Repository</label><br>
+                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
+                            @php $i=0;  @endphp
+                            @foreach(\App\Github\GithubRepository::all() as $w)
+                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
+                                @php $i+=1; @endphp
+                            @endforeach
+                        </select>                        
                     </div>
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
@@ -307,7 +330,41 @@
         </div>
     </div>
 </div>
-
+<div id="push_logs" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sync Logs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>Website </th>
+								<th>Synced on</th>
+							</tr>
+						</thead>
+						<tbody>
+						@foreach($pushLogs as $pushLog)
+							<tr>
+								<td>{{$pushLog['website']}}</td>
+								<td>{{$pushLog['created_at'] }}</td>
+							</tr>
+						@endforeach
+						</tbody>
+					</table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                   
+                </div>
+          
+        </div>
+    </div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
 50% 50% no-repeat;display:none;"></div>
 @endsection
@@ -599,8 +656,6 @@
                 });
             }            
         });
-
-
         function showlog()
         {
             id=$('#edit-setting-popup').attr('data-id');

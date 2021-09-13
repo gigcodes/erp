@@ -38,10 +38,15 @@ Route::get('/test/analytics-user', 'AnalyticsController@cronGetUserShowData')->n
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 
+
 Route::middleware('auth')->group(function()
 {
+    Route::get('discount-sale-price', 'DiscountSalePriceController@index');
+    Route::delete('discount-sale-price/{id}', 'DiscountSalePriceController@delete');
+    Route::get('discount-sale-price/type', 'DiscountSalePriceController@type');
+    Route::post('discount-sale-price/create', 'DiscountSalePriceController@create');
     Route::get('create-media-image', 'CustomerController@testImage');
-Route::get('generate-favicon', 'HomeController@generateFavicon');
+    Route::get('generate-favicon', 'HomeController@generateFavicon');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
@@ -77,6 +82,8 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
     Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
     Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
+	
+    Route::post('magento-admin-settings/push-settings', 'MagentoSettingsController@pushMagentoSettings')->name('magento.setting.pushMagentoSettings');
 
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
@@ -304,6 +311,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue'); 
+    Route::post('product/image/order/change', 'ProductController@changeimageorder');
+    
     
     Route::post('products/customer/charity/savewebsite', 'CustomerCharityController@savewebsite');
     Route::post('products/customer/charity/getwebsite', 'CustomerCharityController@getwebsite');
@@ -1537,6 +1546,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Paswords Manager
     Route::get('passwords', 'PasswordController@index')->name('password.index');
+    Route::post('passwords/change', 'PasswordController@changePasswords')->name('passwords.change');
     Route::post('password/store', 'PasswordController@store')->name('password.store');
     Route::get('password/passwordManager', 'PasswordController@manage')->name('password.manage');
     Route::post('password/change', 'PasswordController@changePassword')->name('password.change');
@@ -1581,6 +1591,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
+
+    
    
    
 
@@ -1781,8 +1793,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
+    Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendToWhatsApp')->name('email.password.sendwhatsapp');
     
-    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
     Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
 
@@ -2220,6 +2234,12 @@ Route::prefix('comments')->middleware('auth')->group(function () {
     Route::get('/facebook', 'SocialController@getComments');
     Route::post('/facebook', 'SocialController@postComment');
 });
+
+Route::prefix('seo')->middleware('auth')->group(function () {
+    Route::post('save-keyword-idea', 'DomainSearchKeywordController@saveKeywordIdea')->name('save.keyword.idea');
+    Route::get('keyword-search', 'DomainSearchKeywordController@searchKeyword')->name('keyword-search');;
+});
+
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
@@ -2725,7 +2745,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
     Route::post('mailinglist-templates/category/store', 'MailinglistTemplateCategoryController@store')->name('mailingList.category.store');
-
+    Route::post('mailinglist-templates/saveimagesfile', 'MailinglistTemplateController@saveimagesfile');
+    
+    Route::post('mailinglist-templates/images_file', 'MailinglistTemplateController@images_file');
+    
 
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
@@ -3097,6 +3120,10 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
+    Route::get('set-twilio-work-space/{account_id}', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
+    Route::post('delete-twilio-work-space', 'TwilioController@deleteTwilioWorkSpace')->name('delete-twilio-work-space');
+    Route::post('create-twilio-worker', 'TwilioController@createTwilioWorker')->name('create-twilio-worker');
+    Route::post('delete-twilio-worker', 'TwilioController@deleteTwilioWorker')->name('delete-twilio-worker');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
 
@@ -3322,7 +3349,9 @@ Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
+
 
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
@@ -3345,6 +3374,12 @@ Route::get('store-website-product-prices/history', 'product_price\ProductPriceCo
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
 Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
 Route::post('product-pricing/add_duty', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_duty');
+
+Route::get('product-generic-pricing', 'product_price\ProductPriceController@genericPricing')->name('product.generic.pricing');
+Route::post('product-duty-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateDutyPrice');
+Route::post('product-segment-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateSegmentPrice');
+
+
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
 Route::group(['middleware' => 'auth', 'admin'], function () {

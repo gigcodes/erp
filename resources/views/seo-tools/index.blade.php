@@ -260,42 +260,8 @@
 	</div>
 	@endif
 @endforeach
-	
-	
-	
-	<div class="row seo_select" >
-				<div class="container">
-					<h3>Compitetors Report</h3>
-					<div class="form-group col-md-12" style="display:none;">
-						<div class="seo_select_inner col-md-4 ">
-							<label for="with_archived">Select Website</label>
-							{{ Form::select('search', $websites, null, array('class'=>'search select2', 'placeholder'=>'Seletc Website', 'id'=>'search')) }}
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			
-			
-	<div class="seo_content">
-		<div class="container">
-			<div class="seo_content_inner">
-				<div class="seo_text seo_fir col-md-4">
-					<div class="seo_text_inner">
-						<h6>Compitetors</h6>
-						<a href="{{route('compitetors-details', 2)}}"><span>View Data</span></a>
-					</div>
-				</div>
-			</div>
-	    </div>
-	</div>
-	
-	<div class="tab-content" id="myTabContent">
-	</div>
-		
-	
-	
-			
+
+
 		
 @endsection
 

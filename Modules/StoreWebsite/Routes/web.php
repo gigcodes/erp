@@ -30,6 +30,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
 
+        Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
+
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
@@ -39,6 +41,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
         
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
+        
+        Route::prefix('build-process')->group(function () {
+            Route::get('/', 'StoreWebsiteController@buildProcess')->name("store-website.build.process");
+            Route::post('save', 'StoreWebsiteController@buildProcessSave')->name("store-website.build.process.save");
+        });
 
         Route::prefix('social-strategy')->group(function () {
     		Route::get('/', 'StoreWebsiteController@socialStrategy')->name("store-website.social-strategy");   
@@ -239,6 +246,7 @@ Route::middleware('auth')->group(function()
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
+    Route::post('/save-master-category', 'SiteDevelopmentController@addMasterCategory')->name("site-development.master_category.save");
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");
     Route::post('/save-development', 'SiteDevelopmentController@addSiteDevelopment')->name("site-development.save");
     Route::post('/disallow-category', 'SiteDevelopmentController@disallowCategory')->name("site-development.disallow.category");

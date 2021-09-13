@@ -200,18 +200,23 @@ class ResponsePurify
     {
         // is order status need to be send?
         $intentsList = ["Order_status_find"];
+        \Log::info("Steps for check 1");
         foreach ($intentsList as $intents) {
             if (in_array($intents, array_keys($this->intents))) {
+                \Log::info("Steps for check 2");
                 // check the last order of customer and send the message status
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
                 if(!empty($lastOrder)) {
+                    \Log::info("Steps for check 3");
                     if($lastOrder->status) {
-                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
+                        \Log::info("Steps for check 4");
+                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], "Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.")];
                     }
                 }
             }
         }
+        \Log::info("Steps for check 5");
         return false;
     }
 

@@ -102,6 +102,10 @@ var page = {
             page.editSeoRecord($(this));
         });
 
+        page.config.bodyView.on("click",".open-build-process-template",function(e) {
+            e.preventDefault();
+            page.editBuildProcess($(this));
+        });
 
         
 
@@ -166,6 +170,27 @@ var page = {
             page.openUserStoreHistorListing($(this));
             
         });
+
+        $(document).on("click",".open-store-reindex-history",function(href) {
+            page.openStoreReindexHistory($(this));            
+        });
+
+    },
+    openStoreReindexHistory: function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+ele.data("id")+'/store-reindex-history',
+            method: "get",
+        }
+        this.sendAjax(_z, 'showStoreReindexHistory');
+    },
+    showStoreReindexHistory : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-store-reindex-history");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }     
     },
     openUserStoreHistorListing: function(ele) {
         var _z = {
@@ -320,6 +345,42 @@ var page = {
             $("#loading-image").hide();
             $(".common-modal").modal("hide");
             toastr["success"]("Added successfully","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    
+    editBuildProcess : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/build-process",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterBuildProcess');
+    },
+    afterBuildProcess: function(response) {
+        var createWebTemplate = $.templates("#template-build-process");
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    updateBuildProcess : function(ele) {
+          var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/build-process/save",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterUpdateBuildProcess");
+    },
+    afterUpdateBuildProcess : function(response) {
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Build Process successfully","");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");

@@ -16,6 +16,7 @@ use App\StoreWebsite;
 use App\StoreWebsiteAttributes;
 use App\Supplier;
 use Carbon\Carbon;
+use App\StoreWebsiteSalesPrice;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -122,7 +123,9 @@ class MagentoService
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
 
         $this->translations = $this->getTranslations();
-
+		if(!$this->translations) {
+			 return false;
+		}
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         /*  if (!$this->validateTranslation()) {
@@ -354,6 +357,7 @@ class MagentoService
                 $this->log->message        = "Product has been failed to push as total request is not matching with current request";
                 $this->log->save();
             } else {
+                $this->pushdiscountprice();
                 $this->product->status_id        = StatusHelper::$inMagento;
                 $this->product->isUploaded       = 1;
                 $this->product->is_uploaded_date = Carbon::now();
@@ -1089,8 +1093,8 @@ class MagentoService
 
     private function startTranslation()
     {
-        \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
-    }
+         \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
+	}
 
     private function getWebsiteAttributes()
     {
@@ -1253,5 +1257,120 @@ class MagentoService
 
         return $string;
     }
+
+    public  function pushdiscountprice()
+    {
+         $product = $this->product; 
+         $discount=0;
+         $discount_type='amount';
+         $start_date=date('Y-m-d');
+         $end_date=date('Y-m-d');
+         $date=date('Y-m-d');
+         $supplier_id=0;
+         $supplier               = Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
+         ->where('product_suppliers.product_id', $this->product->id)
+         ->select('suppliers.*')
+         ->first();
+         if ($supplier)
+             $supplier_id=$supplier->id;
+         $product_discount=StoreWebsiteSalesPrice::where('type','product')
+            ->where('type_id',$product->id)
+            ->whereRaw('$date between date(start_date) and date(end_date)')
+            ->first();
+         if ($product_discount)
+           {
+                $discount=$product_discount->amount;
+                $discount_type=$product_discount->amount_type;
+                $start_date=date('Y-m-d',strtotime($product_discount->start_date));
+                $end_date=date('Y-m-d',strtotime($product_discount->end_date));
+           }
+         else 
+         {
+                $storeWebsite=$this->storeWebsite;
+                $product_discount1=StoreWebsiteSalesPrice::where('type','store_website')
+                ->where('type_id',$storeWebsite->id)
+                ->whereRaw('$date between date(start_date) and date(end_date)')
+                ->first();
+                if ($product_discount1)
+                {
+                    $discount=$product_discount1->amount;
+                    $discount_type=$product_discount1->amount_type;
+                    $start_date=date('Y-m-d',strtotime($product_discount1->start_date));
+                    $end_date=date('Y-m-d',strtotime($product_discount1->end_date));
+                }
+                else
+                {
+                    $category=$this->$category;
+                    $product_discount2=StoreWebsiteSalesPrice::where('type','category')
+                    ->where('type_id',$category->id)
+                    ->where('supplier_id',$supplier_id)
+                    ->whereRaw('$date between date(start_date) and date(end_date)')
+                    ->first();
+                    if ($product_discount2)
+                        {
+                            $discount=$product_discount2->amount;
+                            $discount_type=$product_discount2->amount_type;
+                            $start_date=date('Y-m-d',strtotime($product_discount2->start_date));
+                            $end_date=date('Y-m-d',strtotime($product_discount2->end_date));
+                        }
+                    else
+                        {
+                            $brand=$this->$brand;
+                            $product_discount3=StoreWebsiteSalesPrice::where('type','brand')
+                            ->where('type_id',$brand->id)
+                            ->where('supplier_id',$supplier_id)
+                            ->whereRaw('$date between date(start_date) and date(end_date)')
+                            ->first();
+                                if ($product_discount3)
+                                {
+                                    $discount=$product_discount3->amount;
+                                    $discount_type=$product_discount3->amount_type;
+                                    $start_date=date('Y-m-d',strtotime($product_discount3->start_date));
+                                    $end_date=date('Y-m-d',strtotime($product_discount3->end_date));
+                                }
+                        }    
+                }
+         }  
+
+         if ($discount>0)
+         {
+             if ($discount_type=='percentage')
+                   $discount=($this->prices/100) * $discount;
+
+                $assku   = $this->sku . (!empty($this->size) ? '-' . $this->size : '');
+
+                $data['prices']['sku']   = $assku;
+                $data['prices']['price']  = $discount;
+                $data['prices']['price_from'] = $start_date;
+                $data['prices']['price_to'] = $end_date;
+                $data['prices']['store_id']=0;
+
+
+             $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/special-price/", $this->token, $data);
+             $httpcode = $functionResponse['httpcode'];
+
+                if ($httpcode != 200) {
+
+                    if ($this->log) {
+                        $this->log->message     = "Product Discount push to magento failed for product ID " . $product->id ;
+                        $this->log->sync_status = "error";
+                        $this->log->save();
+                    }    
+                }
+                else
+                {
+                    if ($this->log) {
+                        $this->log->message     = "Product Discount push to magento Done for product ID " . $product->id ;
+                        $this->log->sync_status = "message";
+                        $this->log->save();
+                    }   
+                }
+
+
+
+         }
+
+    }
+
 
 }

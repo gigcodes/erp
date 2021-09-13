@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Marketing;
 use App\Http\Controllers\Controller;
 use App\MailinglistTemplate;
 use App\MailinglistTemplateCategory;
+use App\MailingTemplateFilesHistory;
+use App\MailingTemplateFile;
+
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +18,10 @@ class MailinglistTemplateController extends Controller
 {
     public function index()
     {
-
+       
+        
+       
+        
         $mailings = MailinglistTemplate::with('category', 'storeWebsite')->paginate(20);
 
         // get first all mail class
@@ -183,6 +189,63 @@ class MailinglistTemplateController extends Controller
 
         return response()->json(["code" => 200, "data" => [], "message" => "Mailing list template deleted successfully"]);
     }
+
+    public function images_file(Request $request)
+    {
+         $id=$request->id;
+         $rs=MailingTemplateFilesHistory::where('mailing_id',$id)->orderBy('created_at','desc')->get();
+         $table=" <table class='table table-bordered' > <thead> <tr>";
+         $table.="<th>Date</th><th>Old Path</th><th>New Path</th></tr></thead><tbody>";
+         foreach($rs as $r)
+            {
+                $table.="<tr><td>".date('d-m-Y',strtotime($r->created_at))."</td>";
+                $table.="<td>".$r->old_path."</td>";
+                $table.="<td><a download='path_".$r->id.".jpg' href='".asset($r->new_path)."' title='path'>
+                ".$r->new_path."</a></td></tr>";
+
+            }
+          $table.="</tbody></table>";
+          echo $table;
+
+    }
+
+    public function saveimagesfile(Request $request)
+    {
+        $id=$request->id;
+        $mltemplate = MailinglistTemplate::where("id", $id)->first();
+
+        $path = "mailinglist/email-templates/" . $id; 
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $filename = date('U') . str_random(10);
+        if (!empty($_FILES['image'])) {
+            $ext  = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $path = $path . "/" . $filename . "." . $ext;
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
+               
+            }
+        }
+
+       $m= MailingTemplateFile::where('mailing_id',$id)->first();
+       if ($m)
+       {
+          MailingTemplateFilesHistory::insert(['mailing_id'=>$id,'old_path'=>$m->path,'created_at'=>date('Y-m-d'),'new_path'=>$path,'updated_by'=>Auth()->id()]);
+          $m->path=$path;
+          $m->save();
+       }
+       else
+       {
+           MailingTemplateFile::insert(['mailing_id'=>$id,'path'=>$path]);
+           MailingTemplateFilesHistory::insert(['mailing_id'=>$id,'old_path'=>'','created_at'=>date('Y-m-d'),'new_path'=>$path,'updated_by'=>Auth()->id()]);
+        
+       }
+
+       return redirect('marketing/mailinglist-templates/')->withSuccess('You have successfully added a image!');
+
+    }
+    
 
 }
 

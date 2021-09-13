@@ -62,8 +62,7 @@
             <Select name="whatsapp_number" class="form-control">
                 <option value>None</option>
                 <?php foreach($allWhatsappNo as $awp) { ?>
-                    <option value="<?php echo $awp['number'] ?>" {{ old('whatsapp_number') == $awp['number'] ? 'selected' : '' }}>{{$awp['number']}}</option>
-                <?php } ?>
+                     <?php } ?>
             </Select>
             @if ($errors->has('whatsapp_number'))
             <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>

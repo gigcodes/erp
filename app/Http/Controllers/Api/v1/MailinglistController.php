@@ -100,7 +100,12 @@ class MailinglistController extends Controller
         } 
 
         // Step4
-        $mailinglist = Mailinglist::where('website_id', $store_website->id)->get();
+		$language = explode('_',$request->lang_code);
+	    $language = end($language);
+		
+		 $languageId = Language::where('locale',  $language)->pluck('id')->first();
+       $mailinglist = Mailinglist::where('website_id', $store_website->id)
+		->where('language',  $languageId)->get();
 
         // Step5
         foreach ($mailinglist as $key => $m) {

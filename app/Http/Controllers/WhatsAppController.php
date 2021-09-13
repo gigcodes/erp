@@ -1966,8 +1966,9 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
-        // dd($request->all());
-        $this->validate($request, [
+        // dd($request->all()); 
+       
+         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
             'task_id' => 'sometimes|nullable|numeric',
@@ -2005,7 +2006,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-
+        
         if ($context == 'customer') {
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
@@ -2233,7 +2234,17 @@ class WhatsAppController extends FindByNumberController
                 $data['ticket_id'] = $request->ticket_id;
                 $module_id = $request->ticket_id;
                 $ticket = \App\Tickets::find($request->ticket_id);
-                $params['message'] = $request->get('message');
+                $message=$request->get('message');
+                if ($ticket)
+                  {
+                    if ($ticket->lang_code!='' && $ticket->lang_code!='en')
+                     {
+                        $message = TranslationHelper::translate('en', $ticket->lang_code, $message );
+                     }
+                       
+                  }
+                $params['message'] = $message;
+                $params['message_en'] = $request->get('message');
                 $params['ticket_id'] = $request->ticket_id; 
                 $params['approved'] = 1;
                 $params['status'] = 2; 
@@ -2246,9 +2257,9 @@ class WhatsAppController extends FindByNumberController
                 }elseif($ticket->customer) {
                     $whatsappNo = $ticket->customer->whatsapp_number;
                 }
-
-
-                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $params['message'],null, $chat_message->id);
+               
+                
+                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $message,null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 
             } else {

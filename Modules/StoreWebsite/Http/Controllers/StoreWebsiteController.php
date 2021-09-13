@@ -21,6 +21,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
 use App\StoreWebsiteUserHistory;
 use App\StoreReIndexHistory;
+use Carbon\Carbon;
 
 
 class StoreWebsiteController extends Controller
@@ -296,8 +297,7 @@ class StoreWebsiteController extends Controller
      * Edit Page
      * @param  Request $request [description]
      * @return
-     */
-
+    */
     public function edit(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where("id", $id)->first();
@@ -689,43 +689,102 @@ class StoreWebsiteController extends Controller
 
         return response()->json(["code" => 200, "data" => $resultArray]);
     }
-	
-	public function generateReIndexfile(Request $request)
-    { 
-        $server = $request->get("for_server");
-        $user   = $request->user();
-        if(!$user) {
-            return false;
+    
+    public function storeReindexHistory(Request $request){
+        
+        $website = StoreWebsite::find($request->id);
+        $date = Carbon::now()->subDays(7);
+        $histories = StoreReIndexHistory::where('server_name',$website->title)->where('created_at','>=',$date)
+            ->latest()
+            ->get();
+
+        $resultArray = [];
+
+        foreach($histories as $history){
+            $resultArray[] = [
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
+                'server_name'  => $history->server_name,
+                'username'     => $history->username,
+                'action'       => $history->action,
+            ];
         }
-        $username = str_replace(" ", "_", $user->name);
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-reindex.sh -f reindex -s '.$server.' 2>&1';
 
-        $allOutput   = array();
-        $allOutput[] = $cmd;
-        $result      = exec($cmd, $allOutput);
-
-        \Log::info(print_r($allOutput,true));
-
-        //$nameF = $server.".sh";
-        $nameF = "magento-reindex.txt";
+        return response()->json(["code" => 200, "data" => $resultArray]);
         
-        StoreReIndexHistory::create([
-            'user_id' => $user->id, 
-            'server_name' => $server,
-            'username' => $username,
-            'action' => 'add'
+    }
+    
+    
+    /**
+     * Build Process Page
+     * @param  Request $request [description]
+     * @return
+    */
+    public function buildProcess(Request $request, $id) {
+        $storeWebsite = StoreWebsite::where("id", $id)->first();
+        if ($storeWebsite) {
+            return response()->json([
+                "code" => 200, 
+                "data" => $storeWebsite,                
+            ]);
+        }
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);        
+    }
+    
+    public function buildProcessSave(Request $request){
+        
+        $post = $request->all();
+        
+        $validator = Validator::make($post, [
+            'build_name' => 'required',
+            'repository' => 'required',
         ]);
-        
-        //header download
-        header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
-        header("Content-Type: application/force-download");
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header("Content-Type: text/plain");
 
-        echo $result;
-        die;
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }            
+            
+            return response()->json(["code" => 500, "error" => "Please fill required fields."]);            
+        }
+       
+        if(!empty($request->store_website_id)){
+            
+            $StoreWebsite = StoreWebsite::find($request->store_website_id);
+            
+            if($StoreWebsite != null){
+                
+                $StoreWebsite->build_name = $request->build_name;
+                $StoreWebsite->repository = $request->repository;
+                $StoreWebsite->reference = $request->reference;
+                $StoreWebsite->update();
+                
+                if($StoreWebsite):
+                    
+                    $jobName = $request->build_name;
+                    $repository = $request->repository;
+                    $ref = $request->reference;
+                    $staticdep = 1;
+                    
+                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:110beac588a1bb30c600b8f208f3b6c38d@build.theluxuryunlimited.com:8080'); 
+                    $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref]);                    
+                    
+                    if($jenkins->getJob($request->build_name)):
+                        return response()->json(["code" => 200, "error" => "Process builed complete successfully."]);
+                    else:
+                        return response()->json(["code" => 500, "error" => "Please try again, Jenkins job not created"]);
+                    endif;
+                    
+                endif;
+                                
+            }
+            
+            return response()->json(["code" => 500, "error" => "Please fill required fields."]);
+            
+        }        
     }
 
 }

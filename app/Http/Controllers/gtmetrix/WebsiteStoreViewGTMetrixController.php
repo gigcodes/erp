@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Setting;
 use App\StoreViewsGTMetrix;
 use App\StoreGTMetrixAccount;
+use App\WebsiteStoreView;
+use App\StoreWebsite;
 use Entrecore\GTMetrixClient\GTMetrixClient;
 use Entrecore\GTMetrixClient\GTMetrixTest;
 use Illuminate\Http\Request;
@@ -21,13 +23,13 @@ class WebsiteStoreViewGTMetrixController extends Controller
     public function index(Request $request)
     {
         $query = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
-
+         
         if (request('date')) {
-            $query->whereDate('created_at', request('date'));
+            $query->whereDate('store_views_gt_metrix.created_at', request('date'));
         }
 
         if (request('status')) {
-            $query->where('status', request('status'));
+            $query->where('store_views_gt_metrix.status', request('status'));
         }
 
         $columns = ['error', 'report_url', 'report_url', 'html_load_time', 'html_bytes', 'page_load_time', 'page_bytes', 'page_elements', 'pagespeed_score', 'yslow_score'];
@@ -36,6 +38,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $query->orWhere('store_views_gt_metrix.' . $column, 'LIKE', '%' . request('keyword') . '%');
             }
         }
+        if (request('sortby') && request('ord'))
+              $query->orderBy(request('sortby'),request('ord'));
 
         $list = $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
             ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
@@ -45,7 +49,17 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
         $cronStatus = Setting::where('name', "gtmetrixCronStatus")->get()->first();
         $cronTime   = Setting::where('name', "gtmetrixCronType")->get()->first();
-        return view('gtmetrix.index', compact('list', 'cronStatus', 'cronTime'));
+        $storeViewList = WebsiteStoreView::whereNotNull('website_store_id')->get();
+        $StoreWebsite=StoreWebsite::get();
+        if ($request->ajax()) 
+        {
+            return view('gtmetrix.index_ajax', compact('list', 'cronStatus', 'cronTime'));
+        }
+        else
+        {
+            return view('gtmetrix.index', compact('list', 'cronStatus', 'cronTime','storeViewList','StoreWebsite'));
+        }    
+       
     }
 
     public function saveGTmetrixCronStatus($status = null)
@@ -94,6 +108,24 @@ class WebsiteStoreViewGTMetrixController extends Controller
         return redirect()->back()->with('success', 'Success');
     }
 
+
+    public function saveGTmetrixCron(Request $request)
+    {
+
+        $request->validate([
+            'website' => 'required',
+        ]);
+        $data['store_view_id']=$request->store_view;
+        $data['status']=$request->status;
+        $data['website_url']=$request->website;
+
+
+        StoreViewsGTMetrix::create( $data);
+
+     
+        return redirect()->back()->with('success', 'Success'); 
+    }
+
     /**
      * Show the store view history.
      *
@@ -103,7 +135,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
     {
         $title = 'History';
         if ($id) {
-            $history = StoreViewsGTMetrix::where('store_view_id', $id)->orderBy("created_at", "desc")->paginate(25);
+            $history = StoreViewsGTMetrix::whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
 
             return view('gtmetrix.history', compact('history','title'));
             //return response()->json(["code" => 200, "data" => $history]);

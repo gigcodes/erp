@@ -1158,6 +1158,7 @@
 					        <th style="width: 5%;">Sl no</th>
 					        <th style=" width: 30%">Files</th>
 					        <th style="word-break: break-all; width: 40%">Send to</th>
+					        <th style="width: 10%">User</th>
 					        <th style="width: 10%">Created at</th>
                             <th style="width: 15%">Action</th>
 					      </tr>
@@ -1305,11 +1306,15 @@
 			var type = jQuery.trim(type);
 			if(type == "image") { 
 				$('#previewDocSource').attr('src', docUrl);
-			} else { console.log('else');
+			} else {
 				$('#previewDocSource').attr('src', "https://docs.google.com/gview?url="+docUrl+"&embedded=true");
 			}
 			$('#previewDoc').modal('show');
         });
+		
+		$("#previewDoc").on("hidden", function () {
+		   $('#previewDocSource').attr('src', '');
+		});
     </script>    
 
 

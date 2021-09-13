@@ -203,6 +203,33 @@
         </div>
     </div>
 
+
+    <div class="modal fade template-modal" id="addimage" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle1">Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" >
+                <form method="post" action="{{url('/marketing/mailinglist-templates/saveimagesfile')}}" enctype="multipart/form-data" >
+                {{ csrf_field() }}   
+                <input required type="file" name="image" class="py-3" id="image">
+                   <input  type="hidden" name="id"  id="i_id" value='0'>
+                   <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+
+
+                       <div id="image_body">
+
+                       </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
@@ -263,6 +290,10 @@
                     | <a data-id="{{ $value['id'] }}"  class="add-content"
                             href="javascript:;">
                         <i class="fa fa-send"></i>
+                    </a>
+                    <a data-id="{{ $value['id'] }}"  class="add-image"
+                            href="javascript:;">
+                        <i class="fa fa-list"></i>
                     </a>
                     </td>
                 </tr>
@@ -484,6 +515,32 @@
                     $('.content_body').html('');
                     $('.content_body').append(response.html);
                     $('#addcontent').modal('show');
+                },
+                error : function (response){
+
+                }
+            });
+        });
+
+        $('.add-image').on('click',function(){
+            let id = $(this).attr('data-id');
+            
+            $.ajax({
+                url : "{{ url('marketing/mailinglist-templates/images_file') }}",
+                type : "POST",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data : {
+                    id : id
+                },
+                success : function (response){
+                    
+                    $('#image_body').html('');
+                    $('#i_id').val(id);
+                    $('#image_body').html(response);
+                    $('#addimage').modal('show');
+                    
                 },
                 error : function (response){
 

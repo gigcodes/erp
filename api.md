@@ -1432,3 +1432,44 @@ POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
     "message": "Failed"
 }
 ```
+
+## Add customer data in cart request
+
+Key : customercart.failed.validation, customercart.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
+{
+"name":"test",
+"lang_code":"en-US",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"item_info":[
+    {
+        "sku":"1BH018VCNK2AIXF0F6R",
+        "qty":2
+    },
+    {
+        "sku":"QW2S0A04VCE0NO",
+        "qty":2
+    }
+]
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

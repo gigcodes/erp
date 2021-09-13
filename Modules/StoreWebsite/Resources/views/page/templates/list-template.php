@@ -23,7 +23,7 @@
                     <td title="{{:prop.stores}}">{{:prop.stores_small}}</td>
                     <td>{{:prop.store_website_name}}</td>
                     <td>{{:prop.meta_title}}</td>
-                    <td id="keyword_{{:prop.id}}">{{:prop.meta_keyword}}</td>
+                    <td id="keyword_{{:prop.id}}">{{:prop.meta_keywords}}</td>
                     <td>{{:prop.meta_description}}</td>
                     <td id="col_{{:prop.id}}" data-id="{{:prop.id}}" class="row_keywords" data-title="{{:prop.title}}"></td>
                     <td>
@@ -67,6 +67,7 @@
                 <th>Store View</th>
                 <th>Site</th>
                 <th>Active</th>
+                <th>Pushed</th>
                 <th>Created at</th>
                 <th>Actions</th>
               </tr>
@@ -81,6 +82,7 @@
                     <td title="{{:prop.stores}}">{{:prop.stores_small}}</td>
                     <td>{{:prop.store_website_name}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{:prop.created_at}}</td>
                     <td>
                         <button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">

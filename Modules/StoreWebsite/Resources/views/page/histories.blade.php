@@ -10,26 +10,30 @@
     }
 </style>
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
-<div class="row" id="common-page-layout">
-    <div class="col-lg-12 margin-tb">
+<div class="row m-0" id="common-page-layout">
+    <div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading">{{$title}} ({{$records->count()}}) <span class="count-text"></span></h2>
     </div>
     <br>
-    <div class="col-lg-12 margin-tb">
-        <div class="row">
+    <div class="col-lg-12 margin-tb pl-3 pr-3">
+        <div class="row m-0">
             <div class="col-md-12">
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get">
-                            <div class="form-group ml-2">
+                            <div class="form-group mr-2 d-flex">
                                 <label for="store_website_id">Store Websites:</label>
+                            </div>
+                            <div class="form-group  d-flex">
+
                                 <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
                             </div>
-                            <div class="form-group ml-2">
-                                <label for="keyword">Keyword:</label>
+
+                            <div class="form-group ml-5 d-flex">
+                                <label for="keyword" class="mr-2">Keyword:</label>
                                 <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
                             </div>
-                            <div class="form-group ml-2">
+                            <div class="form-group ml-2 d-flex">
                                 <label for="button">&nbsp;</label>
                                 <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
                                     <img src="/images/search.png" style="cursor: default;">
@@ -40,15 +44,15 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row m-0">
             <div class="col-md-12">
                 <div class="alert alert-success" id="alert-msg" style="display: none;">
                     <p></p>
                 </div>
             </div>
         </div>
-        <div class="col-md-12 margin-tb" id="page-view-result">
-            <div class="table-responsive mt-3">
+        <div class="col-md-12 margin-tb p-0" id="page-view-result">
+            <div class="table-responsive ">
                 <table class="table table-bordered">
                     <thead>
                     <tr>
@@ -61,16 +65,18 @@
                     </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($records as $record) {  ?>
-                            <tr>
-                                <td><?php echo $record->id; ?></td>
-                                <td><?php echo $record->store_website_name; ?></td>
-                                <td><?php echo $record->url_key; ?></td>
-                                <td><?php echo $record->url; ?></td>
-                                <td><?php echo $record->result; ?></td>
-                                <td><?php echo $record->result_type; ?></td>
-                            </tr>
-                        <?php } ?>
+                                            <?php foreach($records as $record) {  ?>
+                                                <tr>
+                                                    <td><?php echo $record->id; ?></td>
+                                                    <td><?php echo $record->store_website_name; ?></td>
+                                                    <td><?php echo $record->url_key; ?></td>
+                                                    <td><?php echo $record->url; ?></td>
+                                                    <td><?php echo $record->result; ?></td>
+                                                    <td><?php echo $record->result_type; ?></td>
+                                                </tr>
+                                            <?php } ?>
+
+
                     </tbody>
                 </table>
             <?php echo $records->links(); ?>

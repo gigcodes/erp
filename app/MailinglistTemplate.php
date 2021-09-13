@@ -216,4 +216,17 @@ class MailinglistTemplate extends Model
 
         return false;
     }
+    
+    public static function getReferAFirendTemplate($store = null) {
+        
+        $category = \App\MailinglistTemplateCategory::where('title', 'Refer_a_frined')->first();
+        
+        if ($category) {
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+        
+    }
+    
 }

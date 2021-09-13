@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\GoogleWebMasterFetchAllRecords;
 use App\Console\Commands\CheckScrapersLog;
 use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
@@ -161,6 +162,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
         CheckLogins::class,
         //        SyncInstagramMessage::class,
@@ -552,7 +554,7 @@ class Kernel extends ConsoleKernel
 
         //Sync customer from magento to ERP
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
-
+        $schedule->command('fetch-all-records:start')->dailyAt('23:59')->timezone('Asia/Kolkata');
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         $schedule->command('google-analytics:run')->everyFifteenMinutes();

@@ -2094,5 +2094,28 @@
             });
 
         });
+
+        function changeordervalue(mid,pid,v)
+        {
+            $.ajax({
+                type: 'POST',
+                url: "/product/image/order/change",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    mid : mid,
+                    pid : pid,
+                    val:v
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'Success')
+                }
+            }).fail(function (response) {
+                alert('Could not update Order');
+            });
+
+        }
 	</script>
 @endsection

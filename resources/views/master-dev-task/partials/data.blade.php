@@ -204,11 +204,11 @@
                     </tr>
                     <tr>
 
-                        <td>{{ isset($memory_use) ?? $memory_use->total}}</td>
-                        <td>{{ isset($memory_use) ?? $memory_use->used}}</td>
-                        <td>{{ isset($memory_use) ?? $memory_use->free}}</td>
-                        <td>{{ isset($memory_use) ?? $memory_use->buff_cache}}</td>
-                        <td>{{ isset($memory_use) ?? $memory_use->available}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->total  :  "" }}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->used : ""}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->free : ""}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->buff_cache : ""}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->available : ""}}</td>
 
                     </tr>
                 </table>

@@ -30,11 +30,11 @@ class DomainSearchKeyword extends Model
     ];
 	
 	public function domainKeywordSearchSemrushApis($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
+		$domain = strtolower($domain);
 		$apis = [
-			'organic'=>'https://api.semrush.com/?type=domain_organic&key='.$key.'&display_filter=%2B%7CPh%7CCo%7Cseo&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=tr_desc&database='.$db,
-			
-			'paid'=>'https://api.semrush.com/?type=domain_adwords&key='.$key.'&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=po_asc&database='.$db, 
+			'organic'=>'https://api.semrush.com/?type=domain_organic&key='.$key.'&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=tr_desc&database='.$db,			
+			'paid'=>'https://api.semrush.com/?type=domain_adwords&key='.$key.'&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain='.$domain.'&display_sort=po_asc&database='.$db
 		];
 		
 		if($column == null) {
@@ -56,7 +56,8 @@ seo book keyword density;1;1;0;110;6.64;http://tools.seobook.com/general/keyword
 free seo tools;6;6;0;1600;7.18;http://tools.seobook.com/;0.42;0.52;0.60;204000000;0.68,0.84,1.00,1.00,1.00,0.84,0.84,1.00,1.00,0.84,1.00,0.84
 learn seo;8;8;0;1900;7.76;http://www.seobook.com/learn-seo/;0.30;0.40;0.47;396000000;0.67,0.79,0.79,0.79,0.79,0.79,1.00,0.79,0.79,0.67,0.79,0.67
 aaron seo;1;1;0;70;0.00;http://www.seobook.com/;0.29;0.00;0.03;16300000;0.22,0.56,0.11,0.44,0.11,0.11,0.11,0.33,0.11,1.00,0.78,0.22
-seo book keyword suggestion tool free download;1;1;0;70;0.00;http://tools.seobook.com/;0.29;0.00;0.14;775000;0.29,1.00,0.00,0.43,0.00,0.00,0.14,0.00,0.14,0.00,0.00,0.43',		
+seo book keyword suggestion tool free download;1;1;0;70;0.00;http://tools.seobook.com/;0.29;0.00;0.14;775000;0.29,1.00,0.00,0.43,0.00,0.00,0.14,0.00,0.14,0.00,0.00,0.43
+',		
 
 			'paid'=>'Keyword;Position;Previous Position;Position Difference;Search Volume;CPC;Visible Url;Traffic (%);Traffic Cost;Competition;Number of Results;Trends
 g tube pads amazon;1;1;0;30;0.36;www.ebay.com/;0.00;0;0.88;3130000;0.14,0.14,0.43,0.14,0.71,0.14,0.57,0.14,1.00,0.14,0.14,0.14
