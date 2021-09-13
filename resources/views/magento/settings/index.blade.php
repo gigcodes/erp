@@ -3,7 +3,9 @@
 @section('title', 'Magento Settings')
 
 @section('content')
-
+<style>
+div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
+</style>
 <div class="row">
     <div class="col-12">
         <h2 class="page-heading">Magento Settings</h2>
@@ -121,6 +123,7 @@
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs" ><i class="fa fa-eye"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -365,6 +368,33 @@
         </div>
     </div>
 </div>
+<div id="settingsPushLogsModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Magento Push Logs</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			  <div class="modal-body">
+				<div class="table-responsive mt-3">
+				  <table class="table table-bordered">
+					<thead>
+					  <tr>
+						<th>Date</th>
+						<th>Command</th>
+						<th>Command Output</th>
+					  </tr>
+					</thead>
+					<tbody id="settingsPushLogs">
+
+					</tbody>
+				  </table>
+				</div>
+			  </div>    
+		</div>
+	</div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
 50% 50% no-repeat;display:none;"></div>
 @endsection
@@ -429,6 +459,17 @@
 
         return false;
     });
+	
+	$(document).on('click', '.push_logs', function(e) { 
+		var settingId = $(this).data('id');
+		$.ajax({
+          url: 'magento-admin-settings/pushLogs/'+ $(this).data('id'),
+          success: function (data) { console.log(data);
+            $('#settingsPushLogs').html(data);
+            $('#settingsPushLogsModal').modal('show');
+          },
+        });
+	});
 
     $(document).on('click', '.edit-setting', function(e) { 
         $('.edit-magento-setting-form select[name="websites"]').val('');
