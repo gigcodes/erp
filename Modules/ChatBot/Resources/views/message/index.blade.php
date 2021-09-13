@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Message List | Chatbot')
+@section('title', 'Message List  | Chatbot')
 
 @section('content')
 

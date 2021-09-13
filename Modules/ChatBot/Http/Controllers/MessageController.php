@@ -299,4 +299,26 @@ class MessageController extends Controller
         return response()->json(["code" => 500, "data" => [], "messages" => "No task found"]);
     }
 
+  public function updateEmailAddress(Request $request)
+  {
+    $chat_id=$request->chat_id;
+    $fromemail=$request->fromemail;
+    $toemail=$request->toemail;
+    $ccemail=$request->ccemail;
+    if ($chat_id>0)
+    {
+        ChatMessage::where('id',$chat_id)
+        ->update(['from_email'=>$fromemail,'to_email'=>$toemail,'cc_email'=>$ccemail]);
+        return response()->json(["code" => 200, "data" => [], "messages" => "Record Updated Successfully"]);
+    }
+    else
+    {
+        return response()->json(["code" => 500, "data" => [], "messages" => "Error"]); 
+    }
+    
+
+    
+  
+  }
+
 }

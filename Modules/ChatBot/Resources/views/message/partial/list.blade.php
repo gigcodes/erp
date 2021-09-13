@@ -63,6 +63,7 @@ padding: 3px 2px;
         <th width="4%">From</th>
         <th width="17%">Shortcuts</th>
         <th width="6%">Action</th>
+        <th> <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image editmessagebcc"  data-to_email="to-email" data-from_email="developer_task" data-id="1" data-cc_email="text" data-all="1" title=""><img src="{{asset('images/chat.png')}}" alt=""></button><th>
 
     </tr>
     </thead>
@@ -175,6 +176,8 @@ padding: 3px 2px;
                         <button  style="padding:0 ;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                         <button  style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
+                    <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image editmessagebcc"  data-to_email="{{$pam->to_email}}" data-from_email="{{$pam->from_email}}" data-id="{{$pam->id}}" data-cc_email="{{$pam->cc_email}}" data-all="1" title=""><img src="{{asset('images/chat.png')}}" alt=""></button><
+
                 </div>
             </div>
         </td>
@@ -389,14 +392,96 @@ padding: 3px 2px;
     </div>
 </div>
 
+<div id="editmessagebcc" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Email/Message</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <form method="post" action="<?php echo route("chatbot.question.save"); ?>">
+                <?php echo csrf_field(); ?>
+                
+                <div class="modal-body">
+
+                    <input type="text" name="chat_id"  id="chat_id">
+                    <div class="form-group">
+                            <label for="value">To</label>
+                            <input type="email" name="to_email" id="to_email" class="form-control"  placeholder="Enter To Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="value">From</label>
+                            <input type="email" name="from_email"  id="from_email" class="form-control"  placeholder="Enter from email" required>
+                        </div> 
+                        <div class="form-group">
+                            <label for="value">Cc</label>
+                            <input type="email" name="cc_email"  id="cc_email" class="form-control"  placeholder="Enter cc">
+                        </div>    
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary form-edit-email-btn">Save changes</button>
+                </div>
+            </form>
+            </div>
+           
+        </div>
+
+    </div>
+</div>
+
 
 
 <script type="text/javascript">
 
     $(document).on('click','.log-message-popup',function(){
+       
         $('#logMessageModel').modal('show');
-        $('#logMessageModel p').text($(this).data('log_message'));
+        
     })
+
+    $(document).on('click','.editmessagebcc',function(){
+        $('#chat_id').val($(this).data('id'));
+        $('#from_email').val($(this).data('from_email'));
+        $('#to_email').val($(this).data('to_email'));
+        $('#cc_email').val($(this).data('cc_email'));
+        $('#editmessagebcc').modal('show');
+      
+    })
+
+    $(document).on("click",".form-edit-email-btn",function () {
+        let chatID =  $('#chat_id').val();
+        let fromemail=$('#from_email').val();
+        let toemail=$('#to_email').val();
+        let ccemail=$('#cc_email').val();
+         $.ajax({
+            type: "GET",
+            url: "{{url('/chatbot/messages/update-emailaddress')}}",
+            data: {
+                chat_id : chatID,
+                fromemail:fromemail,
+                toemail:toemail,
+                ccemail:ccemail
+               
+            },
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Record not Update successfully!');
+            }
+        });
+    });
+
+    
 
     $(document).on('click','.bot-reply-popup',function(){
         $('#botReply').modal('show');

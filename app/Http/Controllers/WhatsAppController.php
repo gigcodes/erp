@@ -4189,12 +4189,18 @@ class WhatsAppController extends FindByNumberController
         }
 
         $data = '';
+        $model_id=''
+        $model_class='';
+        $toemail='';
         if ($message->message != '') {
 
             if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'charity' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
+                    $model_id=$message->supplier_id;
+                    $model_class='\App\Supplier::class';
+                    $toemail=$supplierDetails->email;
                     if ($language != null) {
                         try {
                             $result = TranslationHelper::translate('en', $language, $message->message);
@@ -4232,6 +4238,9 @@ class WhatsAppController extends FindByNumberController
 
                 if ($context == 'user-feedback') {
                     $userDetails = User::find($message->user_id);
+                    $model_id=$message->user_id;
+                    $model_class='\App\User::class';
+                    $toemail=$userDetails->email;
                     $phone = $userDetails->phone;
                     $user = \Auth::user();
                     $whatsapp_number = $user->whatsapp_number;
@@ -4246,21 +4255,44 @@ class WhatsAppController extends FindByNumberController
                     $charity = CustomerCharity::find($msg->charity_id);
                     $phone = $charity->phone;
                     $whatsapp_number = Auth::user()->whatsapp_number;
+                    $model_id=$msg->charity_id;
+                    $model_class='\App\CustomerCharity::class';
+                    $toemail=$charity->email;
                 }
                 if ($context == 'SOP-Data') { 
                     $user = User::find($message->user_id);
                     
                     $phone = $user->phone;
                     $whatsapp_number = Auth::user()->whatsapp_number;
+                    $model_id=$message->user_id;
+                    $toemail=$user->email;
+                    $model_class='\App\User::class';
                 }
                 if ($context == 'hubstuff') { 
                     $user = User::find($message->hubstuff_activity_user_id);
                     $phone = $user->phone;
+                    $toemail=$user->email;
                     $whatsapp_number = Auth::user()->whatsapp_number;
+                    $model_id=$message->user_id;
+                    $model_class='\App\User::class';
                 } 
-                $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
+                if( $message->is_email == 1 ){
+                    $sendResult=$this->sendemail($message,$model_id,$model_class,$toemail);
+                }  
+                else
+                {
+                    $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
+                }
+               
             } else {
-                $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);
+                
+                if( $message->is_email == 1 ){
+                    $sendResult= $this->sendemail($message,$model_id,$model_class,$toemail);
+                }  
+                else
+                {
+                    $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
+                }
             }
 
             // Store send result
@@ -6101,5 +6133,47 @@ class WhatsAppController extends FindByNumberController
         $data = AutoCompleteMessage::where('message', 'like', ''. $request->keyword . '%')->pluck('message')->toArray();
         return response()->json(['data' => $data]);
     }
+
+   public function sendemail($message,$model_id,$model_class,$toemail)
+   {
+
+    $botReply          = \App\ChatbotReply::where( 'chat_id', $message->id)->get();
+    $from_address      = config('env.MAIL_FROM_ADDRESS');
+
+    $subject = null;
+    $message_body = $message->message;
+
+    if ($message->from_email!='')
+         $from_address=$message->from_email;
+   
+         $toemail=$message->to_email;
+    $cc=$message->cc_email;
+    if ($message->email_id>0)
+        {
+            $email=\App\Email::where('id',$message->email_id);
+            if ($email)
+            {
+                $subject=$email->subject;
+                $toemail==$email->from;
+
+            }
+        }
+
+    $email             = \App\Email::create([
+                'model_id'         => $model_id,
+                'model_type'       => $model_class,
+                'from'             => $from_address ?? '',
+                'to'               => $toemail,
+                'subject'          => $subject,
+                'message'          => $message_body,
+                'template'         => 'customer-simple',
+                'additional_data'  => $model_id,
+                'status'           => 'pre-send',
+                'store_website_id' => null,
+                'is_draft' => 1,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+   }  
 
 }
