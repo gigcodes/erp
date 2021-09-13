@@ -95,6 +95,36 @@
 	</div>
 </div>
 
+<div id="buildHistoryModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Build History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+      <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Created At</th>
+                <th>Status</th>
+                <th>Build Detail</th>
+                <th>Created By</th>
+              </tr>
+            </thead>
+            <tbody id="buildHistory">
+
+            </tbody>
+          </table>
+        </div>
+      </div>    
+			</div>
+		</div>
+	</div>
+</div>
+
     <div class="modal fade" id="store-generate-pem-file" role="dialog">
 		<div class="modal-dialog">
 		 <div class="modal-content">
@@ -150,6 +180,17 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+	
+	$(document).on("click",".open-build-process-history",function(href) {
+		$.ajax({
+          url: 'store-website/'+ $(this).data('id')+'/build-process/history',
+          success: function (data) {
+            $('#buildHistory').html(data);
+            $('#buildHistoryModal').modal('show');
+          },
+        });
+    });
+           
 </script>
 
 @endsection
