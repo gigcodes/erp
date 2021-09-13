@@ -81,7 +81,10 @@
                                         
                                         <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template">
                                             <a href="javascript:void(0);"><i class="fa fa-simplybuilt"></i></a>
-                                        </button>                                            
+                                        </button>   
+										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
+                                            <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+                                        </button> 										
 			        </td>
 			      </tr>
 			    {{/props}}  

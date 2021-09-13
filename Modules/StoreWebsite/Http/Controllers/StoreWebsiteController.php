@@ -21,6 +21,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
 use App\StoreWebsiteUserHistory;
 use App\StoreReIndexHistory;
+use App\BuildProcessHistory;
 use Carbon\Carbon;
 
 
@@ -769,14 +770,14 @@ class StoreWebsiteController extends Controller
                     $ref = $request->reference;
                     $staticdep = 1;
                     
-                     
-                   $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
-                   
-					
-				   $jenkins->launchJob($jobName);                    
-                   // $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref]);                    
-                    
+                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
+                    $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref,'staticdep' => 0]);           
                     if($jenkins->getJob($request->build_name)):
+					$job = $jenkins->getJob($request->build_name);
+					$builds = $job->getBuilds();
+						$buildDetail = 'Build Name: '.$jobName . '<br> Build Repository: '.$repository.'<br> Reference: '.$ref;
+						$record = ['store_website_id'=>$request->store_website_id, 'created_by'=> Auth::id(), 'text'=>$buildDetail, 'build_name'=>$jobName,'build_number'=>$builds[0]->getNumber()];
+						BuildProcessHistory::create($record);
                         return response()->json(["code" => 200, "error" => "Process builed complete successfully."]);
                     else:
                         return response()->json(["code" => 500, "error" => "Please try again, Jenkins job not created"]);
@@ -790,5 +791,10 @@ class StoreWebsiteController extends Controller
             
         }        
     }
+	
+	public function buildProcessHistory($store_website_id) {
+		$buildHistory = BuildProcessHistory::leftJoin('users', 'users.id', '=', 'build_process_histories.created_by')->where('store_website_id', $store_website_id)->select('users.name as UserName', 'build_process_histories.*')->orderBy('id', 'desc')->get();
+		return view('storewebsite::build_history', compact('buildHistory'));
+	}
 
 }
