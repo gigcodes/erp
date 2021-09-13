@@ -108,6 +108,17 @@ class TmpTaskController extends Controller
 
     public function testEmail(Request $request)
     {
+        
+        $cnt = "IN";
+        $website = \App\StoreWebsite::find($request->get("store_website_id"));
+        $product = \App\Product::find($request->get("product_id"));
+        $dutyPrice = $product->getDuty($cnt);
+        $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+
+        \Log::info(print_r($discountPrice,true));
+        die;
+
+
         $suggestion = \App\SuggestedProduct::first();
         echo "<pre>"; print_r($suggestion);  echo "</pre>";die;
 
@@ -143,7 +154,7 @@ class TmpTaskController extends Controller
             "2" => "magetwo",
             "3" => "magethree"
         ];
-
+         
         if($request->product_id == null) {
             die("Please Enter product id");
         }
@@ -153,19 +164,21 @@ class TmpTaskController extends Controller
             $websiteArrays = explode(",", $request->store_website_ids);
         }
         $product = \App\Product::find($request->product_id);
+        
         // call product
         if ($product) {
             if(empty($websiteArrays)) {
                 $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             }
             if (count($websiteArrays) == 0) {
+               
                 \Log::channel('productUpdates')->info("Product started " . $product->id . " No website found");
                 $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                 //ProductPushErrorLog::log($product->id, $msg, 'error');
                 //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-                echo $msg;die;
+               
             } else {
-                $i = 1;
+                $i = 1;  
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
@@ -215,8 +228,7 @@ class TmpTaskController extends Controller
             }
         }
 
-        echo "Done";
-        die;
+       
     }
 
     public function deleteChatMessages()

@@ -164,7 +164,7 @@
         </div>
         <div class="col-lg-12 margin-tb">
             <div class="pull-right mt-3"> 
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
+                <button type="button" class="btn btn-secondary create-charity" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
             </div>
         </div>   
     </div>
@@ -178,6 +178,7 @@
                 <th width="7%">Product</th>
                 <th width="7%">Phone</th>
                 <th width="7%">Email</th>
+                <th width="7%">Store Website</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
@@ -345,6 +346,50 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="createWebsite" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+               
+                    <div class="modal-body">
+                <form id="create_website" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="hidden" name="model_charity_id"  id="model_charity_id">
+                            <strong>Website</strong>
+                                            <select name="website_id"  id="website_id" class="form-control" required>
+                            @foreach($website1 as $w)
+                            <option value="{{$w->id}}">{{$w->name}}</option>
+                            @endforeach
+                            </select>  
+                            
+                        </div>
+
+                        <div class="form-group">
+                        <strong>Price</strong>
+                            <input type="text" class="form-control" name="website_price" id="website_price">            
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                       
+                       
+                    </div>
+                </form>
+                       <div id="dev_website"> </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" onclick="savewebsite();" class="btn btn-secondary">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <div id="create_broadcast" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -368,6 +413,36 @@
             </div>
         </div>
     </div>
+
+    <div id="pushmagento" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Push To Magento</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="send_message" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Select Store Website</strong>
+                            <input type="hidden" value="" name="vender_id" id="pushmagento_vender_id">
+                            <select name="storewebsite" id="pushmagento_storewebsite">
+                              @foreach ($storewebsite as $s)
+                                <option value="{{$s->id}}">{{$s->title}}</option>
+                              @endforeach   
+                           </select>
+                                           </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" id="upload-single" class="btn btn-secondary">Push</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -377,6 +452,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
     <script type="text/javascript">
+
+
+
+        $(document).on('submit', '.create-charity', function () {
+            $('select[name="website_stores[]"]').html('');
+            $('select[name="website_stores[]"]').select2();
+            $('select[name="websites[]"]').html('');
+            $('select[name="websites[]"]').select2();
+        });
 
         $(document).on('click', '.send-email-common-btn', function () {
             $('#commonEmailModal .getTemplateData').parent().remove();
@@ -393,27 +477,27 @@
             }
         });
 
-        $(document).on('click', '.upload-single', function () {
-            $(self).hide();
-            $this = $(this);
-            var ajaxes = [];
-            // for (var i = 0; i < productIds.length; i++) {
-            var id = $(this).data('product-id');
-            var thiss = $(this);
+        $(document).on('click', '#upload-single', function () {
+              var ajaxes = [];
+            
+            var id = $('#pushmagento_vender_id').val();
+            var storewebsite = $('#pushmagento_storewebsite').val();
             $(this).addClass('fa-spinner').removeClass('fa-upload')
             url = "{{ url('products') }}/" + id + '/listMagento';
             ajaxes.push($.ajax({
-                type: 'POST',
+                type: 'GET',
                 url: url,
                 data: {
                     _token: "{{ csrf_token() }}",
+                    storewebsite:storewebsite,
                 },
                 beforeSend: function () {
                     // $(thiss).text('Loading...');
                     // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
                 }
             }).done(function (response) {
-                thiss.removeClass('fa-spinner').addClass('fa-upload')
+                $('#pushmagento').modal("hide");
+                //$(this).removeClass('fa-spinner').addClass('fa-upload');
                 toastr['success']('Charity pushed to magento sites.', 'Success')
                 $('#product' + id).hide();
             }));
@@ -659,10 +743,17 @@
             });
         });
         $(document).on('click', '.edit-vendor', function () {
+
+            $('select[name="website_stores[]"]').html('');
+            $('select[name="website_stores[]"]').select2();
+            $('select[name="websites[]"]').html('');
+            $('select[name="websites[]"]').select2();
+
             var vendor = $(this).data('vendor');
             var url = "/products/customer/charity/" + vendor.id; 
             $('#charityEditModal form').attr('action', url);
             $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
+            $('#vendor_store_website_id').val( vendor.store_website_id ).prop('selected', true);;
             $('#vendor_name').val(vendor.name);
             $('#vendor_address').val(vendor.address);
             $('#vendor_phone').val(vendor.phone);
@@ -680,6 +771,43 @@
             $('#country').val(vendor.country);
             $('#ifsc_code').val(vendor.ifsc_code);
             $('#remark').val(vendor.remark);
+            var website_store_id = $(this).val();
+            $.ajax({
+                url: '/customer-charity/get-website-store/'+vendor.id,
+                method: 'GET', 
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done(function(response) {
+                $("#loading-image").hide();
+
+                var store_website_ids = [];
+                response.website_stores.forEach(function(value, index){
+                    store_website_ids[index] = value.website_store.website.store_website.id;
+                }) 
+
+                var website_store_ids = [];
+                response.website_stores.forEach(function(value, index){
+                    website_store_ids[index] = value.website_store.id;
+                }) 
+
+                var html = ''; 
+                response.all_stores.forEach(function(value, index){
+                    html += `<option value="${value.id}" ${website_store_ids.includes(value.id) ? 'selected' : ''}>${value.name}</option>`
+                }) 
+                $('select[name="website_stores[]"]').append(html);
+                $('select[name="website_stores[]"]').select2();
+                
+                var html = ''; 
+                response.all_websites.forEach(function(value, index){
+                    html += `<option value="${value.id}" ${store_website_ids.includes(value.id) ? 'selected' : ''}>${value.website}</option>`
+                }) 
+                $('select[name="websites[]"]').append(html);
+                $('select[name="websites[]"]').trigger('change');
+                
+            }).fail(function() {
+                console.log("error");
+            });
         });
         $(document).on('click', '.create-agent', function () {
             var id = $(this).data('id');
@@ -1412,5 +1540,108 @@
         }
 
     });
+
+    function addwebsite(vendor_id)
+      {
+       
+        $.ajax({
+            url: "{{url('products/customer/charity/getwebsite')}}", 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'charity_id': vendor_id
+
+            }
+        }).done(function(response) {
+           
+            $("#model_charity_id").val(vendor_id);
+           /* $("#website_id").val(response.website_id).prop('selected', true);;;
+            $("#website_price").val(response.price); */
+            
+            $("#dev_website").html(response);
+            $('#createWebsite').modal("show");
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+        
+        
+      }
+
+      function showpushbox(vendor_id)
+      {
+        
+        $('#pushmagento_vender_id').val(vendor_id);
+        $('#pushmagento').modal("show");
+      }
+      function savewebsite()
+      {
+        
+        var formData = $('#create_website').serialize();
+        var charity_id= $('#model_charity_id').val();
+        var website_id= $('#website_id').val();
+        var website_price= $('#website_price').val();
+        $.ajax({
+            url: "{{url('products/customer/charity/savewebsite')}}", 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'charity_id': charity_id,
+                'website_id': website_id,
+                'price': website_price
+
+            }
+        }).done(function(response) {
+            toastr['success'](response);
+            
+            $('#createWebsite').modal("hide");
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+   
+      }
+
+   function delwebsite(id)
+   {
+        $.ajax({
+            url: "{{url('products/customer/charity/deletewebsite')}}", 
+            type: "POST",
+            data: {
+                '_token': '{{ csrf_token() }}',
+                'id': id
+                
+            }
+        }).done(function(response) {
+            toastr['success'](response);
+            
+            $('#createWebsite').modal("hide");
+        }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+        });
+   }
+    $(document).on('change', 'select[name="websites[]"]', function(){
+        var website_id = $(this).val();
+        $.ajax({
+            url: '/magento-admin-settings/website/stores',
+            method: 'POST',
+            data: {
+                _token : '{{ csrf_token() }}',
+                website_id : website_id
+                },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            var html = '';
+            response.data.forEach(function(value, index){
+                html += `<option value="${value.id}">${value.name}</option>`
+            }) 
+            $('.website_stores').append(html);
+            $('.website_stores').select2();
+        }).fail(function() {
+            console.log("error");
+        });
+    });
+
     </script>
 @endsection

@@ -24,7 +24,9 @@
 		  			</button>
                     <button style="display: inline-block;" class="btn btn-sm ml-5 btn-secondary open-store-magento-user-lising">
                             User Listing
-                        </button>
+                        </button> &nbsp; 
+                    <button class="btn btn-secondary" data-toggle="modal" data-target="#store-generate-pem-file"> Store Generate Reindex</button>
+
 				 </div> 		
 		    </div>
 		    <div class="col">
@@ -92,6 +94,51 @@
 		</div>
 	</div> 
 </div>
+
+    <div class="modal fade" id="store-generate-pem-file" role="dialog">
+		<div class="modal-dialog">
+		 <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Store Generate Reindex</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="/store-website/generate-reindex" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label for="meta_title">Server List</label>
+										<select class="form-control select2" name="for_server">
+											<option value="BRANDS">BRANDS</option>
+											<option value="AVOIRCHIC">AVOIRCHIC</option>
+											<option value="OLABELS">OLABELS</option>
+											<option value="SOLOLUXURY">SOLOLUXURY</option>
+											<option value="SUVANDNAT">SUVANDNAT</option>
+											<option value="THEFITEDIT">THEFITEDIT</option>
+											<option value="THESHADESSHOP">THESHADESSHOP</option>
+											<option value="UPEAU">UPEAU</option>
+											<option value="VERALUSSO">VERALUSSO</option>
+										</select>
+									 </div>
+								</div> 
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit-generete-file-btn">Generate</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('/js/jquery-ui.js') }}"></script>

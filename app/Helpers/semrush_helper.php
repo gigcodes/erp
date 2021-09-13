@@ -1,5 +1,7 @@
 <?php
 
+use App\StoreWebsite;
+
 function parseSemrushResponse($response) {
 		$response1 = explode("\n", $response);
 		$final = [];
@@ -8,4 +10,9 @@ function parseSemrushResponse($response) {
 			$final[] = $new;
 		}
 		return json_encode($final);
-	}
+}
+
+function websiteName($websiteId) {
+	return StoreWebsite::where('id', $websiteId)->pluck('website')->first();
+}
+

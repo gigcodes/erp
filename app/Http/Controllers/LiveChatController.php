@@ -20,6 +20,11 @@ use App\Tickets;
 use App\TicketStatuses;
 use App\Email;
 use Google\Cloud\Translate\TranslateClient;
+use App\StoreWebsite;
+use App\Website;
+use App\WebsiteStore;
+use App\WebsiteStoreViewValue;
+use App\Setting;
 
 class LiveChatController extends Controller
 {
@@ -68,7 +73,7 @@ class LiveChatController extends Controller
 
                 $name  = $detials[0];
                 $email = $detials[1];
-                $phone = (isset($detials[2]) ? $detials[2] : null);
+                $phone = $detials[2];
                 //Check if customer exist
 
                 $customer = Customer::where('email', $email)->first();
@@ -85,7 +90,7 @@ class LiveChatController extends Controller
                     $customer        = new Customer;
                     $customer->name  = $name;
                     $customer->email = $email;
-                    $customer->phone = $phone ?? null;
+                    $customer->phone = null;
                     $customer->language = 'en';
                     $customer->save();
                 }
@@ -272,17 +277,20 @@ class LiveChatController extends Controller
                 $chatId = $chat->id;
 
                 //Getting user
-                $userEmail = $chat->users[0]->email;
+                // if(isset($chat->users[1]->email))
+                //     $userEmail = $chat->users[1]->email;
+                // else
+                //     $userEmail = $chat->users[0]->email;
+
+                if(isset($chat->thread->events[0]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[0]->fields[1]->value;
+                else if(isset($chat->thread->events[2]->fields[1]->value)) 
+                    $userEmail  = $chat->thread->events[2]->fields[1]->value;
+                else
+                    $userEmail  = null;
+                
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
-
-                
-
-                if(isset($chat->thread->events[0]->fields[2]->value)) 
-                    $userPhone  = $chat->thread->events[0]->fields[2]->value;
-                else
-                    $userPhone  = null;
-
                 /*$translate = new TranslateClient([
                     'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
                 ]);*/
@@ -358,8 +366,8 @@ class LiveChatController extends Controller
                     $customer        = new Customer;
                     $customer->name  = $userName;
                     $customer->email = $userEmail;
-                    $customer->phone = $userPhone ?? null;
                     $customer->language = $customer_language;
+                    $customer->phone = null;
                     $customer->store_website_id = $websiteId;
                     $customer->language = 'en';
                     $customer->save();
@@ -839,6 +847,9 @@ class LiveChatController extends Controller
 
     public function getLiveChats()
     {
+        $store_websites = StoreWebsite::all();
+        $website_stores = WebsiteStore::with('storeView')->get();
+        
         if (session()->has('chat_customer_id')) {
             $chatId       = session()->get('chat_customer_id');
             $chat_message = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy("id","desc")->get();
@@ -846,7 +857,6 @@ class LiveChatController extends Controller
             $customer       = Customer::findorfail($chatId);
             $name           = $customer->name;
             $customerInital = substr($name, 0, 1);
-            $message = array();
             if (count($chat_message) == 0) {
                 //$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
             } else {
@@ -869,13 +879,13 @@ class LiveChatController extends Controller
                 }
             }
             $count = CustomerLiveChat::where('seen', 0)->count();
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital'));
+            return view('livechat.chatMessages', compact('message', 'name', 'customerInital','store_websites', 'website_stores'));
         } else {
             $count          = 0;
             $message        = '';
             $customerInital = '';
             $name           = '';
-            return view('livechat.chatMessages', compact('message', 'name', 'customerInital'));
+            return view('livechat.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
         }
     }
 
@@ -1083,6 +1093,7 @@ class LiveChatController extends Controller
             //     "Content-Type: " . $contentType
             // );
             array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+            array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
         if ($data) {
             $curlData[CURLOPT_POSTFIELDS] = $data;
@@ -1293,6 +1304,7 @@ class LiveChatController extends Controller
         $selectArray[] = 'users.name AS assigned_to_name'; 
         $query = Tickets::query();
         $query = $query->leftjoin('users','users.id', '=', 'tickets.assigned_to');
+
         $query = $query->select($selectArray);
 
         if($request->ticket_id)
@@ -1344,8 +1356,10 @@ class LiveChatController extends Controller
         {
 			$query = $query->whereDate('date', $request->date);
         }
-        
-        $pageSize = 10;
+
+        $pageSize = Setting::get('pagination'); 
+        if ($pageSize=='')
+        $pageSize=1;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
         
@@ -1356,13 +1370,10 @@ class LiveChatController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-         return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
-        
+       return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
       
-        
     }
 
-    
     public function createTickets(Request $request) {
         $data = [];
         $data['ticket_id'] = "T" . date("YmdHis");
@@ -1426,7 +1437,7 @@ class LiveChatController extends Controller
 
             $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
 
-            $storeWebsiteOrder = $order->storeWebsiteOrder;
+           // $storeWebsiteOrder = $order->storeWebsiteOrder;
             $email             = Email::create([
                 'model_id'         => $customer->id,
                 'model_type'       => \App\Customer::class,
@@ -1463,6 +1474,7 @@ class LiveChatController extends Controller
     }
     public function sendEmail(Request $request)
     {
+       
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -1503,12 +1515,20 @@ class LiveChatController extends Controller
                 );
                 \Config::set('mail', array_merge($config, $configExtra));
                 (new \Illuminate\Mail\MailServiceProvider(app()))->register();
-            }
+            } 
         }
-
+        $message=$request->message;
         if ($tickets->email != '') 
         {
             $file_paths = [];
+
+            
+                    if ($tickets->lang_code!='' && $tickets->lang_code!='en')
+                     {
+                        $message = TranslationHelper::translate('en', $tickets->lang_code, $request->message);
+                     }
+                       
+                 
 
             if ($request->hasFile('file')) 
             {
@@ -1556,7 +1576,8 @@ class LiveChatController extends Controller
                 'to' => $tickets->email,
                 'seen' => 1,
                 'subject' => $request->subject.$ticketIdString,
-                'message' => $request->message,
+                'message' => $message,
+                'message_en' => $request->message,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
                 'cc' => $cc ?: null,

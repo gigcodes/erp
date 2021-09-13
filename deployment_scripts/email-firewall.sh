@@ -1,0 +1,17 @@
+email_whitelisted=`mysql erp_live -e "select email from users where is_whitelisted='1'"`
+
+echo p | mail > /tmp/mail
+ip=`grep 'Subject:' /tmp/mail|cut -d' ' -f2|cut -d'-' -f2`
+comment=`grep 'Subject:' /tmp/mail|cut -d' ' -f2|cut -d'-' -f1`
+fromaddress=`grep 'From:' /tmp/mail|cut -d' ' -f2`
+email=`grep 'From:' /tmp/mail|cut -d'<' -f2|cut -d'>' -f1`
+
+##### Check if sending mail account exist in our database whitelist ####
+if [ ! -z $email ]
+then
+	echo $email_whitelisted|grep $email
+	if [ $? -eq 0 ]
+	then
+		bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/webaccess-firewall.sh -f add -i $ip -c "$fromaddress-$comment"
+	fi
+fi

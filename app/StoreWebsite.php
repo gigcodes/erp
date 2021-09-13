@@ -61,9 +61,13 @@ class StoreWebsite extends Model
         'created_at',
         'updated_at',
         'magento_url',
+        'stage_magento_url',
+        'dev_magento_url',
         'magento_username',
         'magento_password',
         'api_token',
+        'stage_api_token',
+        'dev_api_token',
         'cropper_color',
         'cropping_size',
         'instagram',
@@ -84,6 +88,8 @@ class StoreWebsite extends Model
         'push_web_id',
         'icon',
         'is_price_override',
+        'repository_id',
+		    'semrush_project_id'
     ];
 
     const DB_CONNECTION = [
@@ -102,7 +108,7 @@ class StoreWebsite extends Model
     // Append attributes
     protected $appends = ['website_url'];
 
-    function list() {
+    public static function list() {
         return self::pluck("website", "id")->toArray();
     }
 

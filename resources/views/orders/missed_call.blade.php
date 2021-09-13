@@ -86,13 +86,16 @@
         <div class="table-responsive">
             <table class="table table-bordered">
                 <tr>
-                    <th style="width: 12%">Mobile Number</th>
-                    <th style="width: 12%">Message</th>
-                    <th style="width: 15%">Website name</th>
+                    <th style="width: 10%">Mobile Number</th>
+                    <th style="width: 8%">Message</th>
+                    <th style="width: 10%">Website name</th>
+                    <th style="width: 10%">From</th>
+                    <th style="width: 10%">To</th>
+                    <th style="width: 10%">Agent</th>
                     <th style="width: 20%">Call Recording</th>
-                    <th style="width: 15%">Call Time</th>
-                    <th style="width: 11%">Status</th>
-                    <th  style="width:15%">Action</th>
+                    <th style="width: 9%">Call Time</th>
+                    <th style="width: 8%">Status</th>
+                    <th  style="width:10%">Action</th>
                 </tr>
 
 
@@ -108,6 +111,17 @@
                         <td>{{ $callBusyMessage['message'] }}</td>
                         <td>{{ !empty($callBusyMessage['store_website_name']) ? $callBusyMessage['store_website_name'] : ' ' }}
                         </td>
+                        <td>{{$callBusyMessage['from']}} 
+                            @if($callBusyMessage['call_data'] == 'client') 
+                                <i class="fa fa-user" aria-hidden="true" title="Call From Customer"></i> 
+                            @elseif($callBusyMessage['call_data'] == 'agent') 
+                                <i class="fa fa-desktop" aria-hidden="true" title="Call From Agent"></i> 
+                            @elseif($callBusyMessage['call_data'] == 'leave_message') 
+                                <i class="fa fa-envelope" aria-hidden="true" title="Message From Customer"></i> 
+                            @endif
+                        </td>
+                        <td>{{$callBusyMessage['to']}}</td>
+                        <td>{{(isset($callBusyMessage['agent']) ? $callBusyMessage['agent'] : '' )}}</td>
                         <td>
                             <audio src="{{$callBusyMessage['recording_url']}}" controls preload="metadata">
                             <p>Alas, your browser doesn't support html5 audio.</p>
@@ -168,13 +182,21 @@
                                         src="/images/view.png" /></a> -->
                             @endif
 
+                            @if (isset($callBusyMessage['customerid']))
+                            <i class="fa fa-ticket create-customer-ticket-modal" onclick="showticket('{{ $callBusyMessage['customerid'] }}');" data-customer_id="{{ $callBusyMessage['customerid'] }}" style="cursor: pointer;" title="Create Ticket" aria-hidden="true"></i>
+                            @endif
+
                         </td>
                     </tr>
                 @endforeach
             </table>
         </div>
     </div>
-
+    
+    <div class="col-md-12">
+        {{ $callBusyMessages_pagination->links() }}
+    </div>
+    @include("partials.customer-new-ticket")
     <!-- Customer Detail Modal -->
     <div class="modal fade" id="customer-information" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -573,6 +595,13 @@ const formData = $(this).serialize()
         $('#customer-information').modal('show')
 
     })
+
+    function showticket(c)
+    {
+        $('#ticket_customer_id').val(c);
+        $('#create-customer-ticket-modal').modal('show');
+       
+    }
     </script>
 
 @endsection

@@ -232,6 +232,8 @@ var page = {
             }
         }
         this.sendAjax(_z, "showResults");
+
+        
     },
     getResults: function(href) {
         console.log(href);
@@ -258,8 +260,7 @@ var page = {
         $(".count-text").html("("+response.total+")");
         $(".page_no").val(response.page);
 
-    	page.config.bodyView.find("#page-view-result").html(tplHtml);
-
+    	page.config.bodyView.find("#page-view-result").html(tplHtml).after(function(){ loadUsersList(); });
     }
     ,
     deleteRecord : function(ele) {

@@ -57,12 +57,7 @@
     </div>
 </div>
 
-{{--<div class="col-md-2 margin-tb">--}}
-{{--    <div class="pull-right mt-3">--}}
-{{--        --}}{{-- <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time</button> --}}
 
-{{--    </div>--}}
-{{--</div>--}}
 @include('partials.flash_messages')
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
@@ -128,6 +123,21 @@
                 <div class="form-group mr-3">
                     <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
                 </div>
+                {{--
+                <div class="form-group mr-3">
+                    <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
+                    <option value="">Select Websites</option>
+                        @if ($categories)
+                            @foreach($categories as $category)
+                                <option value="{{ $category['id'] }}" >{{ $category['title'] }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div> --}}
+
+                <div class="form-group mr-3">
+                    <a href="{{url('/product-generic-pricing')}}" class="btn btn-secondary">Show Generic Prices</a>
+                </div>
             </form> 
         </div>
     </div>  
@@ -149,7 +159,10 @@
                            <th style="width: 4%;word-break: break-all">Segment</th>
                            <th style="width: 15%">Main Website</th>
                            <th style="width: 7%">EURO Price</th>
-                           <th style="width: 10%">Seg Discount</th>
+                           <!--<th style="width: 10%">Seg Discount</th>!-->
+                           @foreach($category_segments as $category_segment)
+								<th width="3%">{{ $category_segment->name }}</th>
+							@endforeach
                            <th style="width: 5%">Less IVA</th>
                            <th style="width: 5%">Net Sale Price</th>
                            <th style="width: 7%">Add Duty (Default)</th>
@@ -208,15 +221,31 @@
                                             </span>
                                </td>
                                <td>{{ $key['eur_price'] }}</td>
-                               <td>
-                                   <div style="align-items: center">
+                               
+                                <!--   <div style="align-items: center">
                                        <span style="min-width:26px;">{{ $key['seg_discount'] }}</span>
                                        <div class="ml-2" style="float: right;">%</div>
                                        <div style="float: right;width:50%;">
                                             <input style="padding: 6px" placeholder="segment discount" data-ref="{{$key['segment']}}" value="{{ $key['segment_discount_per'] }}" type="text" class="form-control seg_discount {{$key['segment']}}" name="seg_discount">
                                        </div>
-                                   </div>
-                               </td>
+                                   </div> !-->
+                                   @foreach($category_segments as $category_segment)
+                                    <td>
+                                        @php
+                                            $category_segment_discount = \DB::table('category_segment_discounts')->where('brand_id', $key['brand_id'])->where('category_segment_id', $category_segment->id)->first();
+                                        @endphp
+
+                                        @if($category_segment_discount)
+                                            <input type="text" class="form-control seg_discount" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{$key['brand_id'] }}, {{ $category_segment->id }})" data-ref="{{ $category_segment->id }}"></th>
+                                        @else
+                                            <input type="text" class="form-control seg_discount" value="" onchange="store_amount({{ $key['brand_id']}}, {{ $category_segment->id }})" data-ref="{{ $category_segment->id }}"></th>
+                                        @endif
+                                    {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $key['brand_id'] }}, {{ $category_segment->id }})"> --}} {{-- Purpose : Comment code -  DEVTASK-4410 --}}
+
+
+                                    </td>
+                                @endforeach 
+                               
                                <td>{{ $key['iva'] }}</td>
                                <td>{{ $key['net_price'] }}</td>
                                <td>
@@ -245,7 +274,7 @@
                        @endforelse
                        </tbody>
                    </table>
-
+                   <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
               </div>
         </div>
     </div>
@@ -254,46 +283,111 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
             50% 50% no-repeat;display:none;">
 </div>
+
+<div class="modal fade bd-example-modal-lg" id="genericModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Generic Prices</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="genericModalContent">
+        
+      </div>
+    
+    </div>
+  </div>
+</div>
+
 @endsection
     
 @section('scripts')
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script>
  
-    var page = 1;
-	$(window).scroll(function() {
-	    if($(window).scrollTop() + $(window).height() >= $(document).height()) {
-	        page++;
-	        loadMoreData(page);
-	    }
-	});
+   /* var page = 1;
+  $(window).scroll(function() {
+      if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 0 ) ) {
+          loadMoreData();
+      }
+  });
 
-    let data = $('.filter_form').serialize();
-	function loadMoreData(page){
-	  $.ajax(
-	        {
-	            url: '?page=' + page + '&count=' + {{$i}} + '&' + data,
-	            type: "get",
-	            beforeSend: function()
-	            {
-	                $('#loading-image').show();
-	            }
-	        })
-	        .done(function(data)
-	        {
+    let data = $('.filter_form').serialize();*/
+  /*function loadMoreData(){
+    if (isLoading)
+        return;
+    isLoading = true;
+    page = page + 1;
+    $.ajax(
+          {
+              url: '?page=' + page + '&count=' + {{$i}} + '&' + data,
+              type: "get",
+              beforeSend: function()
+              {
+                  $('#loading-image').show();
+              }
+          })
+          console.log("Hello world!"); 
+          .done(function(data)
+          {
+            alert(url);
                 $('#loading-image').hide();
-	            if(data.html == " "){
-	                $('.ajax-load').html("No more records found");
-	                return;
-	            }
-	            $('.ajax-load').hide();
-	            $("tbody").append(data.html);
-	        })
-	        .fail(function(jqXHR, ajaxOptions, thrownError)
-	        {
-	              alert('server not responding...');
-	        });
-	}
+              if(data.html == " "){
+                  $('.ajax-load').html("No more records found");
+                  return;
+              }
+              $('.ajax-load').hide();
+              $("tbody").append(data.html);
+              isLoading = false;
+          })
+          .fail(function(jqXHR, ajaxOptions, thrownError)
+          {
+                alert('server not responding...');
+          });
+  }*/
+
+    var isLoading = false;
+    var page = 1;
+    $(document).ready(function () {
+        
+        $(window).scroll(function() {
+            if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                loadMore();
+            }
+        });
+
+        let data = $('.filter_form').serialize();
+
+        function loadMore() {
+            if (isLoading)
+                return;
+            isLoading = true;
+
+            var $loader = $('.infinite-scroll-products-loader');
+            page = page + 1;
+            $.ajax({
+                url: "/product-pricing?page="+ page + '&count=' + {{$i}} + '&' + data,
+                type: 'GET',
+                data: $('.filter_form').serialize(),
+                beforeSend: function() {
+                    $loader.show();
+                },
+                success: function (data) {
+                    console.log(data);
+                    $loader.hide();
+                    $('tbody').append($.trim(data['html']));
+                    isLoading = false;
+                },
+                error: function () {
+                    $loader.hide();
+                    isLoading = false;
+                }
+            });
+        }            
+    });
+
 
     // $(".select-multiple").multiselect();
     $(".select-multiple2").select2();
@@ -321,9 +415,9 @@
     // } );
 
     $(document).on('keyup', '.seg_discount', function () {
-        if (event.keyCode != 13) {
+        /*if (event.keyCode != 13) {
             return;
-        }
+        }*/
         let seg_discount = $(this).val();
         let ref_name = $(this).data('ref');
         let rows = $('.'+ref_name).closest('tr');
@@ -345,6 +439,7 @@
                 product_array: JSON.stringify(product_array),
                 seg_discount: seg_discount,
                 row_id: $(this).closest('tr').attr('data-id'),
+                seg_id: $(this).attr('data-ref'),
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -454,6 +549,85 @@
         });
 
     }); 
+	
+    function showgenerice() {
+        var catId = $('#categoryForGenericPrices').val();
+        if(catId==''){
+          alert('Select Category First');
+        }else{
+            var url = "{{url('/')}}/product-generic-pricing?id="+catId;
+            var win = window.open(url, '_blank');
+             win.focus();
+          // $.get("product-generic-pricing?id="+catId, function(data,status){
+          //   $('#genericModalContent').html(data);
+          //   $('#genericModal').modal('show');
+          // });
+
+        }
+    }
+	function showModal () {
+
+    var catId = $('#categoryForGenericPrices').val();
+    if(catId==''){
+      alert('Select Category First');
+    }else{
+
+      $.get("product-generic-pricing?id="+catId, function(data,status){
+        $('#genericModalContent').html(data);
+        $('#genericModal').modal('show');
+      });
+
+    }
+	}
+	
+	function updateDutyPrice(countryId, dutyPrice) {		
+		 $.ajax({
+            url: "{{route('updateDutyPrice')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                countryId: countryId,
+                dutyPrice: dutyPrice.value
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                 toastr["error"]("Something went wrong, Please try again.");
+            }else{
+                toastr["success"]("Product updated successfully!", "Message");
+            }
+        });
+	}
+	
+	function updateSegmentPrice(segmentId, brandId, price) {
+		var data = {
+                _token: '{{csrf_token()}}',
+                segmentId: segmentId,
+                brandId: brandId,
+                price: price.value
+            };	
+		 $.ajax({
+            //updateSegmentPrice  real route
+            url: "{{route('updateSegmentPrice')}}",
+            type: 'post',
+            data: data,
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                toastr["error"]("Something went wrong, Please try again.");
+            }else{
+                toastr["success"]("Product updated successfully!", "Message");
+            }
+        });
+	}
+	
+	
 </script>
 
 @endsection

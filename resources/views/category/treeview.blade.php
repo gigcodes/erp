@@ -171,7 +171,7 @@
                             <th style="width:3%">Action</th>
                         </tr>
                     </thead>
-
+                  
                     @foreach ($categories as $key => $cat)
                         <tr class="parent-cat">
                        

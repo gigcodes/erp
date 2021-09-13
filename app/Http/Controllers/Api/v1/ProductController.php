@@ -88,19 +88,20 @@ class ProductController extends Controller
                             $created    = new Carbon($order_product->created_at);
                             $now        = Carbon::now();
                             $difference = ($created->diff($now)->days < 1)
-                            ? 'today'
+                            ? 0
                             : $created->diffInDays($now);
-                            if ($difference > $ProductCancellationPolicie->days_cancelation) {
+                            if ($difference >= $ProductCancellationPolicie->days_cancelation) {
                                 $result_input["iscanceled"] = false;
                                 $result_input["isreturn"]   = false;
                             }
+
                             //}else if($order_product->purchase_status == "Refund to be processed"){
                             $created    = new Carbon($order_product->shipment_date);
                             $now        = Carbon::now();
                             $difference = ($created->diff($now)->days < 1)
-                            ? 'today'
+                            ? 0
                             : $created->diffInDays($now);
-                            if ($difference > $ProductCancellationPolicie->days_refund) {
+                            if ($difference >= $ProductCancellationPolicie->days_refund) {
                                 $result_input["isrefund"] = false;
                                 $result_input["isreturn"] = false;
                             }
@@ -111,6 +112,12 @@ class ProductController extends Controller
                             $result_input["iscanceled"] = false;
                             $result_input["isreturn"]   = false;
                         }
+                       
+                        if ($getOrder->shipment_date !=''  && !is_null($getOrder->shipment_date)) {
+                            $result_input["iscanceled"] = false;
+                            
+                        }
+
 
                         $message = $this->generate_erp_response("order.cancel.success", 0, $default = "Success", request('lang_code'));
                         return response()->json(["code" => 200, "message" => $message, "data" => $result_input]);

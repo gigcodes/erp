@@ -1774,7 +1774,31 @@ class ProductInventoryController extends Controller
                     $discount = new SupplierBrandDiscount();
                     // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->whereNull('generic_price')->where('condition_from_retail', $row[4])->where('condition_from_retail_exceptions', $row[5])->first();
                     $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->first();
-
+					if ($row[4]!='')
+					{
+							$segments = CategorySegment::where('status', 1)->get();
+							if(!$segments->isEmpty())
+							 { 
+								foreach($segments as $segment) 
+								{ 
+									$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+									if ($csd)
+									{
+									   $csd->amount= $row[4];
+									   $csd->save();
+									}
+									else
+									{
+									\App\CategorySegmentDiscount::create([
+										"brand_id" => $brand->id,
+										"category_segment_id" => $segment->id,
+										"amount" => $row[4],
+										"amount_type" => "percentage",
+									]);
+								   }
+								}
+							 }
+				   }
                    
                     if ($exist_row) {
                         if ($exist_row->condition_from_retail != $row[4]) {
@@ -1949,7 +1973,33 @@ class ProductInventoryController extends Controller
 
                             $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
 
-						
+                            
+								if ($condition_from_retail!='')
+								{
+										$segments = CategorySegment::where('status', 1)->get();
+										if(!$segments->isEmpty())
+											{ 
+											foreach($segments as $segment) 
+											{ 
+												$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+												if ($csd)
+												{
+													$csd->amount=$condition_from_retail;
+													$csd->save();
+												}
+												else
+												{
+												\App\CategorySegmentDiscount::create([
+													"brand_id" => $brand->id,
+													"category_segment_id" => $segment->id,
+													"amount" => $condition_from_retail,
+													"amount_type" => "percentage",
+												]);
+												}
+											}
+											}
+								}	
+
                             if ($exist_row) {
                                 if ($exist_row->condition_from_retail != $condition_from_retail) {
 
@@ -2157,6 +2207,32 @@ class ProductInventoryController extends Controller
 								$brand = Brand::create($params_brand);
                                
                             }
+
+							if ($condition_from_retail!='')
+							{
+									$segments = CategorySegment::where('status', 1)->get();
+									if(!$segments->isEmpty())
+									 { 
+										foreach($segments as $segment) 
+										{ 
+											$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+											if ($csd)
+											{
+											   $csd->amount= $condition_from_retail;
+											   $csd->save();
+											}
+											else
+											{
+											\App\CategorySegmentDiscount::create([
+												"brand_id" => $brand->id,
+												"category_segment_id" => $segment->id,
+												"amount" => $condition_from_retail,
+												"amount_type" => "percentage",
+											]);
+										   }
+										}
+									 }
+						   }
             
                             $discount = new SupplierBrandDiscount();
                             // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
@@ -2357,7 +2433,31 @@ class ProductInventoryController extends Controller
 								$brand = Brand::create($params_brand);
                                 
                             }
-                    
+							if ($condition_from_retail!='')
+							{
+									$segments = CategorySegment::where('status', 1)->get();
+									if(!$segments->isEmpty())
+									 { 
+										foreach($segments as $segment) 
+										{ 
+											$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+											if ($csd)
+											{
+											   $csd->amount= $condition_from_retail;
+											   $csd->save();
+											}
+											else
+											{
+											\App\CategorySegmentDiscount::create([
+												"brand_id" => $brand->id,
+												"category_segment_id" => $segment->id,
+												"amount" => $condition_from_retail,
+												"amount_type" => "percentage",
+											]);
+										   }
+										}
+									 }
+						   } 
                                 $discount = new SupplierBrandDiscount();
                                 // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
         
@@ -2546,7 +2646,31 @@ class ProductInventoryController extends Controller
 					
 					if($brand)
 					{
-						
+						if ($row[$condition_from_retail_index]!='')
+						{
+								$segments = CategorySegment::where('status', 1)->get();
+								if(!$segments->isEmpty())
+								 { 
+									foreach($segments as $segment) 
+									{ 
+										$csd=\App\CategorySegmentDiscount::where('brand_id',$brand->id)->where('category_segment_id',$segment->id)->first();
+										if ($csd)
+										{
+                                           $csd->amount= $row[$condition_from_retail_index];
+										   $csd->save();
+										}
+										else
+										{
+										\App\CategorySegmentDiscount::create([
+											"brand_id" => $brand->id,
+											"category_segment_id" => $segment->id,
+											"amount" => $row[$condition_from_retail_index],
+											"amount_type" => "percentage",
+										]);
+									   }
+									}
+								 }
+					   }
 						$discount = new SupplierBrandDiscount();
 						
 						$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->first();

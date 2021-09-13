@@ -213,7 +213,7 @@ class FetchAllEmails extends Command
                             'created_at'      => $email->getDate(),
                         ];
                         //                            dump("Received from: ". $email->getFrom()[0]->mail);
-                        Email::create($params);
+                        $email_id=Email::insertGetId($params);
 
                         if ($type['type'] == 'incoming') {
 
@@ -248,6 +248,7 @@ class FetchAllEmails extends Command
                                         'vendor_id'   => null,
                                         'customer_id' => $customer->id,
                                         'is_email'    => 1,
+                                        'email_id'    => $email_id,
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);

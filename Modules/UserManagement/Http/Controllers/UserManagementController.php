@@ -33,6 +33,7 @@ use Hash;
 use Illuminate\Support\Arr;
 use App\UserFeedbackCategory;
 use App\UserFeedbackStatus;
+use App\UserFeedbackStatusUpdate;
 
 
 class UserManagementController extends Controller
@@ -46,6 +47,63 @@ class UserManagementController extends Controller
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
         $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
+
+        // $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+        // $final_array = [];
+        // if($shell_list != ''){
+        //     $lines=explode(PHP_EOL,$shell_list);
+        //     $final_array = [];
+        //     foreach($lines as $line){
+        //         $values = [];
+        //         $values=explode(' ',$line);
+        //         array_push($final_array,$values);
+        //     }
+        // }
+        
+        
+        // if(!empty($final_array))
+        // {
+        //     foreach(array_reverse($final_array) as $values){
+                
+        //         $index   = $values[0]??0;
+        //         $ip      = $values[1]??0;
+        //         $comment = $values[2]??0;
+                
+        //         $where = ['ip' => $ip];
+
+        //         $insert = [
+        //             'index_txt'       => $index??'-',
+        //             'ip'              => $ip??'-',
+        //             'notes'           => $comment??'-',
+        //             // 'user_id'         => Auth::id(),
+        //             // 'other_user_name' => $comment,
+        //         ];
+        //         $userips = UserSysyemIp::updateOrCreate($where,$insert);   
+        //     }    
+        // }
+        
+
+        // $usersystemips = UserSysyemIp::with('user')->get();
+        $usersystemips = array();
+        
+        // $userlist = User::orderBy('name')->where('is_active',1)->get();
+        $userlist = array();
+
+        // $user = new feedback_table;
+        // $user->catagory=$req->input('catagory');
+        // //     // $user->adminrespose=$req->input('adminrespose');
+        // //     // $user->userrespose=$req->input('userrespose');
+        // //     // $user->status=$req->input('status');
+        // //     // $user->histry=$req->input('histry');
+        // $user->save();
+
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+    }
+
+    public function getUserList(Request $request){
+
+        $userlist = User::orderBy('name')->where('is_active',1)->pluck('name','id');
+        $usersystemips = UserSysyemIp::with('user')->get();
 
 
         $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
@@ -61,16 +119,12 @@ class UserManagementController extends Controller
         }
         
         
-        if(!empty($final_array))
-        {
+        if(!empty($final_array)){
             foreach(array_reverse($final_array) as $values){
-                
                 $index   = $values[0]??0;
                 $ip      = $values[1]??0;
                 $comment = $values[2]??0;
-                
                 $where = ['ip' => $ip];
-
                 $insert = [
                     'index_txt'       => $index??'-',
                     'ip'              => $ip??'-',
@@ -81,22 +135,8 @@ class UserManagementController extends Controller
                 $userips = UserSysyemIp::updateOrCreate($where,$insert);   
             }    
         }
-        
 
-
-        $usersystemips = UserSysyemIp::with('user')->get();
-        
-        $userlist = User::orderBy('name')->where('is_active',1)->get();
-
-        // $user = new feedback_table;
-        // $user->catagory=$req->input('catagory');
-        // //     // $user->adminrespose=$req->input('adminrespose');
-        // //     // $user->userrespose=$req->input('userrespose');
-        // //     // $user->status=$req->input('status');
-        // //     // $user->histry=$req->input('histry');
-        // $user->save();
-
-        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+        return response()->json( ["code" => 200 , "data" => $userlist , "usersystemips"=>$usersystemips] );
     }
 
 
@@ -1754,8 +1794,12 @@ class UserManagementController extends Controller
 
     public function addFeedbackCategory(Request $request)
     {
+        $cat = UserFeedbackCategory::where('category',$request->category);
+        if($cat->count() != 0){
+            return response()->json(['message' => 'Category already exists']);
+        }
         $category = new UserFeedbackCategory;
-        $category->user_id=$request->user_id;
+        $category->user_id=Auth::id();
         $category->category=$request->category;
         $category->save();
         $status = UserFeedbackStatus::get();
@@ -1784,6 +1828,24 @@ class UserManagementController extends Controller
         $user_id = $request->user_id;
         $category = UserFeedbackCategory::groupBy('category')->get();
         return view('usermanagement::user-feedback-table',compact('category', 'status','user_id'));
+
+    }
+    
+    public function updateFeedbackStatus(Request $request)
+    {
+        $cat_id = $request->cat_id;
+        $user_id = $request->user_id;
+        $status_id = $request->status_id;
+        $status = UserFeedbackStatusUpdate::where('user_feedback_category_id', $cat_id)->where('user_id', $user_id)->first();
+        if (!$status) {
+            $status = new UserFeedbackStatusUpdate;
+        }
+        $status->user_id = $user_id;
+        $status->user_feedback_status_id = $status_id ? $status_id : 0;
+        $status->user_feedback_category_id = $cat_id;
+        $status->save();
+
+        return response()->json(['message' => 'Status Update Successful']);
 
     }
 }

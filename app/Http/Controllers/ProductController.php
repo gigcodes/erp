@@ -1731,7 +1731,27 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
+            $website = StoreWebsite::find($request->storewebsite);
+            if($website){
+                \Log::info("Product started website found For website".$website->website);
+                $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
+                //currently we have 3 queues assigned for this task.
+                $log->sync_status = "waiting";
+                $log->queue = \App\Helpers::createQueueName($website->title);
+                $log->save();
+                PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
+                
+                
+            }
+            $product->isUploaded = 1;
+            $product->save();
+            // Return response
+            return response()->json([
+                'result' => 'queuedForDispatch',
+                'status' => 'listed'
+            ]);
             //check for hscode
+            /*
             $hsCode = $product->hsCode($product->category, $product->composition);
             $hsCode = true;
             if ($hsCode) {
@@ -1800,7 +1820,7 @@ class ProductController extends Controller
             return response()->json([
                 'result' => 'productNotFound',
                 'status' => 'error'
-            ]);
+            ]); */
         } catch(Exception $e) {
             //throw $th;
             $msg = $e->getMessage();
@@ -4553,12 +4573,15 @@ class ProductController extends Controller
         $limit =  $request->get("no_of_product",100);
 
 
-        $products = Product::select('*')->where("short_description", "!=", "")->where("name", "!=", "")->where("status_id", StatusHelper::$finalApproval)
+        $products = Product::select('*')
+		->where("short_description", "!=", "")->where("name", "!=", "")
+		->where("status_id", StatusHelper::$finalApproval)
         ->groupBy("brand", "category")
         ->limit($limit)
         ->get();
 
         foreach ($products as $key => $product) {
+			
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if(!empty($websiteArrays)) {
                 $i = 1;
@@ -5672,6 +5695,52 @@ class ProductController extends Controller
         }else{
             return response()->json(["code" => 200 , "data" => []]);
         }
+    }
+
+    public function getTranslationProduct(Request $request,$id)
+    {
+        $translation = \App\Product_translation::where("product_id",$id)->get();
+        return view("products.partials.translation-product",compact('translation'));
+
+    }
+
+
+    public function changeimageorder(Request $request)
+    {
+        if(!empty($request->mid) && !empty($request->pid) && !empty($request->val)) {
+            \App\Mediables::where('mediable_type','App\Product')->where('mediable_id',$request->pid)->where('media_id',$request->mid)->update(['order'=>$request->val]);
+        return response()->json(["code" => 200 ,"data" => [], "message" => "order update successfully"]);
+        }
+        else
+        return response()->json(["code" => 0 ,"data" => [], "message" => "error"]);
+    }
+
+    public function pushproductlist(Request $request)
+    {
+       
+        $products=\App\StoreWebsiteProduct::join('products','store_website_products.product_id','products.id');
+        $products->join('store_websites','store_website_products.store_website_id','store_websites.id');
+        $products->leftJoin('categories','products.category','categories.id');
+        $products->leftJoin('brands','products.brand','brands.id');
+        $products->select('store_website_products.*',"products.name as product_name","store_websites.title as store_website_name","store_websites.magento_url as store_website_url","categories.title as category","brands.name as brand");
+        if ($request->website != '') {
+            $products->where('store_website_id', $request->website);
+        }
+        if ($request->category != '') {
+            $products->where('products.category', $request->category);
+        } 
+        if ($request->brand != '') {
+            $products->where('products.brand', $request->brand);
+        } 
+        $products->orderBy('created_at','desc');
+        $products=$products->paginate(Setting::get('pagination'));
+        //$products = $products->paginate(Setting::get('pagination'));
+        $websiteList = \App\StoreWebsite::get();
+        $categoryList = \App\Category::all();
+        $brandList = \App\Brand::get();
+
+        return view('products.pushproductlist', compact('products', 'categoryList', 'brandList', 'websiteList'))
+            ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
 }

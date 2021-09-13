@@ -87,6 +87,15 @@
     .row.tickets{
         font-size: 13px !important;
     }
+    td{
+        padding: 5px !important;
+    }
+    td a{
+        color: #2f2f2f;
+    }
+    tbody td{
+        background: #ddd3;
+    }
 </style>
 @extends('layouts.app')
 
@@ -194,9 +203,38 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right">
-   
-    @include('livechat.partials.ticket-list')
+    <div class="space-right infinite-scroll">
+
+        <div class="table-responsive">
+            <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+                <thead>
+                <tr>
+                    <th style="width: 2%;"></th>
+                    <th style="width: 3%;">#</th>
+                    <th style="width: 5%;">Tickit Id</th>
+                    <th style="width: 5%;">Source</th>
+                    <th style="width: 7%;">Name</th>
+                    <th style="width: 7%;">Email</th>
+                    <th style="width: 6%;">Subject</th>
+                    <th style="width: 7%;">Message</th>
+                    <th style="width: 6%;">Assigned name</th>
+                    <th style="width: 5%;">Brand</th>
+                    <th style="width: 5%;">Country</th>
+                    <th style="width: 5%;">Order no</th>
+                    <th style="width: 9%;">Phone no</th>
+                    <th style="width: 13%;">Message Box</th>
+                    <th style="width: 7%;">Status</th>
+                    <th style="width: 8%;">Created</th>
+                    <th style="width: 8%;">Action</th>
+                </tr>
+                </thead>
+                <tbody id="content_data" class="infinite-scroll-pending-inner">
+                @include('livechat.partials.ticket-list')
+                </tbody>
+            </table>
+        </div>
+
+
     </div>
     
 
@@ -277,14 +315,63 @@
               50% 50% no-repeat;display:none;">
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <script type="text/javascript">
+
+        var page = 1;
+        function getScrollTop() {
+            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+        }
+        window.onscroll = function() {
+            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+            loadMore(++page);
+        };
+
+        function getDocumentHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+        };
+
+
+        function loadMore(page) {
+
+            var url = "/livechat/tickets?page="+page;
+
+            page = page + 1;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                beforeSend:function(){
+                        $('.infinite-scroll-products-loader').show();
+                },
+                success: function (data) {
+                    if (data == '') {
+                        $('.infinite-scroll-products-loader').hide();
+                    }
+                    $('.globalSelect2').select2();
+                    
+                    $('.infinite-scroll-products-loader').hide();
+                  
+                    $('.infinite-scroll-pending-inner').append(data.tbody);
+                },
+                error: function () {
+                    $('.infinite-scroll-products-loader').hide();
+                }
+            });
+        }
 
     $(document).on('click', '.row-ticket', function () {
         $('#viewmore #contentview').html($(this).data('content'));
