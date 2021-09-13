@@ -14,6 +14,9 @@
         outline: none;
         box-shadow: none;
     }
+  .shortTable{
+    cursor: pointer;
+  }
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
@@ -27,9 +30,15 @@
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
                     <option value="">Select Websites</option>
+                    @php
+                    $selectcate ='';
+                    if(isset($_GET['id'])){
+                      $selectcate =$_GET['id'];
+                    }
+                    @endphp
                         @if ($categories)
                             @foreach($categories as $category)
-                                <option value="{{ $category['id'] }}" >{{ $category['title'] }}</option>
+                                <option value="{{ $category['id'] }}" @if($selectcate == $category['id']) selected @endif  >{{ $category['title'] }}</option>
                             @endforeach
                         @endif
                     </select>
@@ -50,11 +59,23 @@
                    <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed">
                        <thead>
                        <tr>
-                           <th style="width: 7%">Category</th>
-                           <th style="width: 7%">website</th>
-                           <th style="width: 6%">Brand segment</th>
+                           <th style="width: 7%">Category
+                            <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="category" data-order="asc" aria-hidden="true"></i>
+                            <i class="fa fa-arrow-down shortTable cursor-pointer"data-input="category" data-order="desc" aria-hidden="true"></i>
+                           </th>
+                           <th style="width: 7%">website 
+                            <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="website" data-order="asc" aria-hidden="true"></i>
+                            <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="website" data-order="desc" aria-hidden="true"></i>
+                           </th>
+                           <th style="width: 7%">Brand segment
+                             <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="bsegment" data-order="asc" aria-hidden="true"></i>
+                            <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="bsegment" data-order="desc" aria-hidden="true"></i>
+                           </th>
                            <th style="width: 4%;word-break: break-all">Product</th>
-                           <th style="width: 5%">Country segment</th>
+                           <th style="width: 5%">Country segment
+                            <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="csegment" data-order="asc" aria-hidden="true"></i>
+                            <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="csegment" data-order="desc" aria-hidden="true"></i>
+                           </th>
                            <th style="width: 5%">Price</th>
                            @foreach($category_segments as $category_segment)
                               <th width="3%"> Category Segment {{ $category_segment->name }}</th>
@@ -165,7 +186,7 @@ function showgenerice() {
         
         $(window).scroll(function() {
             if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-               // loadMore();
+              loadMore();
             }
         });
 
@@ -175,18 +196,25 @@ function showgenerice() {
             if (isLoading)
                 return;
             isLoading = true;
-            var url      = window.location.href;
             var $loader = $('.infinite-scroll-products-loader');
             page = page + 1;
+
+            var url  = new URL(window.location.href);
+            var search_params = url.searchParams;
+          // add "topic" parameter
+            search_params.set('page', page);
+            search_params.set('count',{{$i}});
+            url.search = search_params.toString();
+            var new_url = url.toString();
+
             $.ajax({
-                url: url+"?page="+ page + '&count=' + {{$i}} + '&' + data,
+                url: new_url + '&' + data,
                 type: 'GET',
                 data: $('.filter_form').serialize(),
                 beforeSend: function() {
                     $loader.show();
                 },
                 success: function (data) {
-                    console.log(data);
                     $loader.hide();
                     $('tbody').append($.trim(data['html']));
                     isLoading = false;
@@ -196,9 +224,54 @@ function showgenerice() {
                     isLoading = false;
                 }
             });
-        }            
+        }  
+
+    $(document).on('click', '.shortTable',function(){
+      var $loader = $('#loading-image-preview');
+      $loader.show();
+      var order = $(this).data('order');
+      var input = $(this).data('input');
+
+      var url  = new URL(window.location.href);
+      var search_params = url.searchParams;
+
+      search_params.set('order', order);
+      search_params.set('input', input);
+
+      url.search = search_params.toString();
+      var new_url = url.toString();
+
+      window.history.pushState("", "Title", new_url);
+      $.ajax({
+        url: new_url,
+        type: 'GET',
+        data: {},
+        // beforeSend: function() {
+        //   $loader.show();
+        // },
+        success: function (data) {
+            $loader.hide();
+            $('tbody').html($.trim(data['html']));
+            isLoading = false;
+        },
+        error: function () {
+            $loader.hide();
+            isLoading = false;
+        } 
+      });
+
     });
 
+
+    });
+
+$(document).on('click', '.expand-row', function () {
+  var selection = window.getSelection();
+  if (selection.toString().length === 0) {
+    $(this).find('.td-mini-container').toggleClass('hidden');
+    $(this).find('.td-full-container').toggleClass('hidden');
+  }
+});
 </script>
 
 @endsection
