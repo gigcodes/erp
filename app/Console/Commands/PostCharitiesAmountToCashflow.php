@@ -57,10 +57,10 @@ class PostCharitiesAmountToCashflow extends Command
                 $date=date("Y-m-d");
                 $total = number_format($total,2);
                 $user_id = !empty(auth()->id()) ? auth()->id() : 6;
-                $cf=cashFlows::where('cash_flow_able_id',$o->charity_id)->where('cash_flow_able_type','\App\CustomerCharity::class')->first();
+                $cf=CashFlow::where('cash_flow_able_id',$o->charity_id)->where('cash_flow_able_type','\App\CustomerCharity::class')->first();
                 if (!$cf)
                 {
-                        cashFlows::create([
+                    CashFlow::create([
                             'date'                => $date,
                             'amount'              => $total,
                             'type'                => 'pending',
