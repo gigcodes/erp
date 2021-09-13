@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Customer;
 use App\EmailEvent;
 use Illuminate\Console\Command;
+use App\Service;
+use App\Mailinglist;
+use App\MailinglistTemplate;
 
 class CreateMailinglistInfluencers extends Command
 {
@@ -45,14 +48,14 @@ class CreateMailinglistInfluencers extends Command
         $influencers = \App\ScrapInfluencer::where(function($q) {
             $q->orWhere("read_status","!=",1)->orWhereNull('read_status');
         })->where('email', '!=', "")->get();
-
-        $websites = \App\StoreWebsite::select('id', 'title')->where("website_source", "magento")->orderBy('id', 'desc')->get();
+		
+        $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
 
         /*foreach ($influencers as $influencer) {
         $email_list[] = ['email' => $influencer->email, 'name' => $influencer->name, 'platform' => $influencer->platform];
         }*/
 
-        foreach ($websites as $website) {
+        foreach ($websites as $website) { 
 			$service = Service::find($website->mailing_service_id);
 			if($service){
 				$name = $website->title;
@@ -99,7 +102,7 @@ class CreateMailinglistInfluencers extends Command
 						$response = curl_exec($curl);
 						 
 						curl_close($curl); 
-						$res = json_decode($response);
+						$res = json_decode($response); 
 						if($res->status == 1){
 							//getting last id
 							$list = Mailinglist::orderBy('id','desc')->first();
@@ -108,13 +111,12 @@ class CreateMailinglistInfluencers extends Command
 							}else{
 								$id = 1;
 							}
-							if (isset($response->id)) {
+							if (isset($res->list_uid)) {
 								$mailList->remote_id = $res->list_uid;
 								$mailList->save();
 								$this->mailList[] = $mailList;
 							}
 							
-							return response()->json(true);
 						}   
 					}
 				}else{
@@ -122,13 +124,14 @@ class CreateMailinglistInfluencers extends Command
 				}
             }
         }
-        
-        if (!empty($influencers) && !empty($this->mailList)) {
+     
+        if (!empty($influencers) && !empty($this->mailList)) {  
 
             $listIds = [];
             if (!empty($this->mailList)) {
                 foreach ($this->mailList as $mllist) {
-                    $listIds[] = intval($mllist->remote_id);
+                    $listIds[] = $mllist->remote_id;
+                    //$listIds[] = intval($mllist->remote_id);
                 }
             }
 				
@@ -142,32 +145,27 @@ class CreateMailinglistInfluencers extends Command
 					]);
 				} else if(strpos($service->name, 'AcelleMail') !== false) {
 					//Assign Customer to list
+					foreach($listIds as $listId) {
+						$curl = curl_init();
 
-					$curl = curl_init();
+						$ch = curl_init();
+						curl_setopt($ch, CURLOPT_URL, 'https://acelle.theluxuryunlimited.com/api/v1/subscribers?list_uid='.$listId);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($ch, CURLOPT_POST, 1);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, "api_token=".config('env.ACELLE_MAIL_API_TOKEN')."&EMAIL=".$list->email);
 
-					curl_setopt_array($curl, array(
-					CURLOPT_URL => "https://acelle.theluxuryunlimited.com/api/v1/lists/".$listIds."/subscribers/store?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
-					  CURLOPT_RETURNTRANSFER => true,
-					  CURLOPT_ENCODING => "",
-					  CURLOPT_MAXREDIRS => 10,
-					  CURLOPT_TIMEOUT => 0,
-					  CURLOPT_FOLLOWLOCATION => true,
-					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					  CURLOPT_CUSTOMREQUEST => "POST",
-					  CURLOPT_POSTFIELDS => array('EMAIL' => $list->email,'name' => ' '),
-					));
+						$headers = array();
+						$headers[] = 'Accept: application/json';
+						$headers[] = 'Content-Type: application/x-www-form-urlencoded';
+						curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-					$response = curl_exec($curl);
-
-					$response = json_decode($response);
-					$url =  "https://acelle.theluxuryunlimited.com/api/v1/lists/".$listIds."/subscribers/".$response->subscriber_uid."/subscribe?api_token=".config('env.ACELLE_MAIL_API_TOKEN');
-					$headers = array('Content-Type: application/json');
-					$curl = curl_init();
-					curl_setopt($curl, CURLOPT_URL, $url);
-					curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
-					curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-					$response = curl_exec($curl);
+						$response = curl_exec($ch);
+						if (curl_errno($ch)) {
+							echo 'Error:' . curl_error($ch);
+						}
+						curl_close($ch);
+						
+					}
 				}
 
                 $customer = Customer::where('email', $list->email)->first();
