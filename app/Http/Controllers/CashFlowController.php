@@ -22,21 +22,78 @@ class CashFlowController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $cash_flows = CashFlow::with(['user', 'files'])->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+        $cash_flow = CashFlow::with(['user', 'files']);
+        if ($request->type!='')
+            $cash_flow->where('type',$request->type);
+        if ($request->module_type!='')
+           {
+               if ($request->module_type=='order')
+                  {
+                    $cash_flow->where('cash_flow_able_type',\App\Order::class);
+                    if ($request->b_name!='')
+                        {
+                            $cash_flow->join('orders','cash_flows.cash_flow_able_id','orders.id');
+                            $cash_flow->join('customers','orders.customer_id','customers.id');
+                            $cash_flow->where('name','like',"%$request->b_name%");
+                        } 
+
+                  } 
+               if ($request->module_type=='payment_receipt')
+                  {
+                            $cash_flow->where('cash_flow_able_type',\App\PaymentReceipt::class); 
+                            if ($request->b_name!='')
+                        {
+                            $cash_flow->join('payment_receipts','cash_flows.cash_flow_able_id','assets_manager.id');
+                            $cash_flow->where('remarks','like',"%$request->b_name%"); 
+                        }
+                  }  
+               if ($request->module_type=='assent_manager')
+                  {
+                        $cash_flow->where('cash_flow_able_type',\App\AssetsManager::class); 
+                        if ($request->b_name!='')
+                        {
+                        $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
+                        $cash_flow->where('name','like',"%$request->b_name%");
+                        }
+                  
+                         
+
+                  }      
+           }
+        
+        if ($request->daterange!='')
+        {
+            $date=explode("-", $request->daterange);
+            $datefrom=date('Y-m-d',strtotime($date[0]));
+            $dateto=date('Y-m-d',strtotime($date[1]));
+            $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
+        }
+        $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('cash_flows.id', 'desc')->paginate(Setting::get('pagination'));
         $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
         //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
-
+        if ($request->ajax()) 
+        {
+            return view('cashflows.index_page', [
+                'cash_flows' => $cash_flows,
+                'users'      => $users,
+                'categories' => $categories,
+                'purchases'  => $purchases,
+            ]);
+        }
+        else
+        {
         return view('cashflows.index', [
             'cash_flows' => $cash_flows,
             'users'      => $users,
             'categories' => $categories,
             'purchases'  => $purchases,
         ]);
+        }
     }
 
     /**
@@ -103,7 +160,7 @@ class CashFlowController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
@@ -234,5 +291,64 @@ class CashFlowController extends Controller
 
         return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
     }
+
+
+    public function getBnameList(Request $request)
+    {
+         
+         $model_type=$request->model_type;
+         if ($model_type=='order')
+         {
+                $model_type="\App\Customer";
+                $rs=$model_type::get();
+                $data='';
+                foreach($rs as $r)
+                {
+                   
+                    $arr['name']=$r->name;
+
+
+                    $data=$arr;
+
+                }
+                
+                return response()->json($data);
+         } 
+         if ($model_type=='assent_manager')
+         {
+                $model_type="\App\AssetsManager";
+                $rs=$model_type::get();
+                $data='';
+                foreach($rs as $r)
+                {
+                    $arr['name']=$r->name;
+
+
+                    $data=$arr;
+
+                }
+                
+                return response()->json($data);
+         } 
+         
+         if ($model_type=='payment_receipt')
+         {
+                $model_type="\App\PaymentReceipt";
+                $rs=$model_type::get();
+                $data='';
+                foreach($rs as $r)
+                {
+                    
+                    $arr['name']=$r->remarks;
+
+
+                    $data=$arr;
+
+                }
+                
+                return response()->json($data);
+         }  
+    }    
+
 }
     

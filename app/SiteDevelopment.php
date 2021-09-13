@@ -33,7 +33,7 @@ class SiteDevelopment extends Model
      */
     use Mediable;
 
-    protected $fillable = ['site_development_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id'];
+    protected $fillable = ['site_development_category_id','site_development_master_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id'];
 
 
     public function category()
@@ -77,6 +77,12 @@ class SiteDevelopment extends Model
     public function statusHistories()
     {
         return $this->hasMany(\App\SiteDevelopmentStatusHistory::class,'site_development_id','id');
+    }
+
+    public static function getLastRemark($scci, $web_id){
+        $site_devs = self::where('site_development_category_id', $scci)->where('website_id', $web_id)->get()->pluck('id')->toArray();
+        $remark = StoreDevelopmentRemark::whereIn('store_development_id',$site_devs)->latest()->first();
+        return $remark->remarks ?? '';
     }
 
 }

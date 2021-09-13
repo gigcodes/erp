@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Github\GithubBranchState;
+use App\Github\GitHubBranchState;
 use App\Helpers\GithubTrait;
 use Carbon\Carbon;
 use Exception;

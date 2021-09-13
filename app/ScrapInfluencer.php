@@ -5,6 +5,7 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Illuminate\Database\Eloquent\Model;
+use Plank\Mediable\Mediable;
 
 class ScrapInfluencer extends Model
 {
@@ -31,6 +32,7 @@ class ScrapInfluencer extends Model
      * @SWG\Property(property="comment_profile_pic_url",type="string")
      * @SWG\Property(property="comment_posted_at",type="datetime")
      */
+    use Mediable;
 
     protected $fillable = [
         'post_id',

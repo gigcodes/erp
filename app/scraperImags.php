@@ -12,6 +12,10 @@ class scraperImags extends Model
         'img_name', 
         'store_website',
         'img_url', 
+        'coordinates',
+        'height',
+        'width',
+        'device',
     ];
 
     // public function stores()

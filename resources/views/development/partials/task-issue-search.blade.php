@@ -48,6 +48,8 @@
                 <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
                 <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
                 <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
+                <option {{$request->get('order')== "oldest_first" ? 'selected' : ''}} value="oldest_first">Olderst First</option>
+                
             </select>
         </div>
         <div class="col-md-2 pd-sm">

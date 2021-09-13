@@ -13,13 +13,17 @@
 		         {{if data}}
 		         	<input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
 		         {{/if}}
-		         <div class="form-group col-md-6">
+		         <div class="form-group col-md-4">
 		            <label for="title">Title</label>
 		            <input type="text" name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
 		         </div>
-		         <div class="form-group col-md-6">
+		         <div class="form-group col-md-4">
 		            <label for="website">Website</label>
 		            <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
+		         </div>
+		         <div class="form-group col-md-4">
+		            <label for="website">Semrush Project Id</label>
+		            <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="website" placeholder="Enter Semrush Project Id">
 		         </div>
 		      </div>
 
@@ -43,6 +47,18 @@
                      <input type="text" name="magento_url" value="{{if data}}{{:data.magento_url}}{{/if}}" class="form-control" id="magento_url" placeholder="Enter magento url">
                   </div>
 		        </div>
+		        <div class="col-md-4">
+		            <div class="form-group">
+                     <label for="magento_url">Magento Url (for DEV)</label>
+                     <input type="text" name="dev_magento_url" value="{{if data}}{{:data.dev_magento_url}}{{/if}}" class="form-control" id="dev_magento_url" placeholder="Enter dev magento url">
+                  </div>
+		        </div>
+		        <div class="col-md-4">
+		            <div class="form-group">
+                     <label for="magento_url">Magento Url (for Stage)</label>
+                     <input type="text" name="stage_magento_url" value="{{if data}}{{:data.stage_magento_url}}{{/if}}" class="form-control" id="stage_magento_url" placeholder="Enter stage magento url">
+                  </div>
+		        </div>
 		      </div>
 
 		      <div class="row">
@@ -63,6 +79,18 @@
                       <div class="form-group">
                          <label for="api_token">Api Token</label>
                          <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
+                      </div>
+		        </div>
+		        <div class="col-md-4">
+                      <div class="form-group">
+                         <label for="dev_api_token">Api Token (for dev)</label>
+                         <input type="text" name="dev_api_token" value="{{if data}}{{:data.dev_api_token}}{{/if}}" class="form-control" id="dev_api_token" placeholder="Enter Dev Api token">
+                      </div>
+		        </div>
+		        <div class="col-md-4">
+                      <div class="form-group">
+                         <label for="api_token">Api Token (for stage)</label>
+                         <input type="text" name="stage_api_token" value="{{if data}}{{:data.stage_api_token}}{{/if}}" class="form-control" id="stage_api_token" placeholder="Enter Stage Api token">
                       </div>
 		        </div>
 		      </div>
@@ -150,7 +178,7 @@
 
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                          <div class="form-row">
                              <div class="form-group col-md-12">
                                 <label for="website_source">Website source?</label>
@@ -161,12 +189,26 @@
                              </div>
                           </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
 
                       <div class="form-group">
                          <label for="server_ip">Server IP</label>
                          <input type="text" name="server_ip" value="{{if data}}{{:data.server_ip}}{{/if}}" class="form-control" id="server_ip" placeholder="Enter Server IP">
                       </div>
+                    </div>
+					
+					 <div class="col-md-4">
+                         <div class="form-group">
+                                         <label for="country_duty">Repository</label>
+                                         <select name="repository_id" class="form-control">
+                                            <option value="">-- N/A --</option>
+                                            <?php
+											foreach(\App\Github\GithubRepository::all() as $k => $l) {
+												echo "<option {{if data.repository_id == '".$l->id."'}} selected {{/if}} value='".$l->id."'>".$l->name."</option>";
+											}
+											?>
+                                         </select>
+		                </div>
                     </div>
                 </div>
 

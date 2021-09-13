@@ -18,7 +18,7 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        $search = request("search");
+        $search = request("search"); 
         $status = request("status");
         $unreplied_msg = request("unreplied_msg");//Purpose : get unreplied message value - DEVATSK=4350
 
@@ -247,9 +247,11 @@ class MessageController extends Controller
                 $customer = $chatMessage->customer;
                 if ($customer) {
                     $params = $chatMessage->getAttributes();
+                    
                     \App\Helpers\MessageHelper::whatsAppSend($customer, $chatMessage->message, null, $chatMessage);
                     \App\Helpers\MessageHelper::sendwatson($customer, $chatMessage->message, null, $chatMessage, $params, false, 'customer');
                     return response()->json(["code" => 200, "data" => [], "message" => "Message sent Successfully"]);
+                    
                 }
             }
         }

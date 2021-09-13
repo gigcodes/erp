@@ -82,15 +82,24 @@
             width: 5px;
 	background-color: #F5F5F5;
         }
-
+        .add-remark-button
+        {
+            position: absolute;
+            top: 0;
+            right : -40px;
+            background: transparent;
+        }
+               .add-remark-button i{
+                   font-size: 18px;
+               }
         .image-diamention-rasio-desktop
         {
-            text-align: center;
             text-align: center;
             width: fit-content;
             /* display: flex; */
             overflow: auto;
             margin-bottom: 30px;
+            /*padding: 0 20px;*/
         }
         .image-diamention-rasio-mobile
         {
@@ -100,6 +109,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             margin-bottom: 30px;
+            /*padding: 0 20px;*/
         }
 
         .manage-product-image
@@ -107,7 +117,9 @@
             padding-bottom: 20px;
             border-bottom: 1px solid;
             margin-bottom: 20px;
-            object-fit:cover;
+            /* object-fit:cover; */
+            object-fit:contain;
+
         }
         .product-list-card::-webkit-scrollbar-thumb, .image-diamention-rasio::-webkit-scrollbar-thumb
         {
@@ -183,7 +195,7 @@
                         <option value="">Select Language</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <select class="form-control select-multiple" id="web_device" tabindex="-1" aria-hidden="true" name="device">
                         <option value="">Select Device</option>
 
@@ -192,11 +204,23 @@
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "tablet" ? 'selected' :'' ) }} value="tablet">Tablet</option>
                     </select>
                 </div>
+
+                <div class="col-md-2">
+                    <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+                    <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+                    <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ $startDate .' '.$endDate}}</p><i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+               
                 <div class="col-md-1">
                     <button type="button" class="btn btn-image filter_img" ><img src="/images/filter.png"></button>
                
                     <!-- <button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>     -->
                  </div>
+
+                
             </div>
         </div>
     </form>
@@ -204,7 +228,7 @@
 <!-- END - DEVTASK-4271 -->
 
 <!-- Purpose : Add class infinite-scroll - DEVTASK-4271 -->
-<div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;">
+<div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
         @php
             $oldDate = null;
             $count   = 0;
@@ -246,6 +270,15 @@
             
         @endphp
 
+        <div class="row">
+            <div class="col-md-12">
+                <br>
+                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{count($images)}}</h5> 
+
+                <hr style="margin: 5px 0px;">
+            </div>
+        </div> 
+
         @foreach($images as $image)
                 {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
 
@@ -254,14 +287,14 @@
                         $count = 0; 
                         $oldDate = date( 'Y-m-d' ,strtotime($image['created_at']));
                     ?>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-12">
                                 <br>
                                 <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($images)}}</h5> 
 
                                 <hr style="margin: 5px 0px;">
                             </div>
-                        </div> 
+                        </div>  -->
 
                     <?php } ?>
                     
@@ -277,7 +310,7 @@
                               <div class="row parent-row">
                         @endif --}}
                         {{-- END - DEVTASK-4271 --}}
-                        <div class="{{ $imageWidth }}" style="position: relative;">               
+                        <div class="{{ $imageWidth }}">               
                             @if ($image['coordinates'])
                                 @php 
                                     $x = 0;
@@ -285,10 +318,11 @@
                                     array_push($coordinates,$image['height']);
                                     $total_img_height = $image['height'];
                                 @endphp
-                        
 
-                                <div class="image-diamention-rasio {{ $imageDimensioClass }}" style="max-height: {{ $imageHeight }};">
-                                    @foreach ($coordinates as $z)
+
+                                <div  style="position: relative;display: flex">
+                                    <div class="image-diamention-rasio {{ $imageDimensioClass }}"  style="max-height: {{ $imageHeight }};">
+                                        @foreach ($coordinates as $z)
                                         @php
                                             if($device == "mobile"){
                                                 $z = ceil((2372*$z)/$total_img_height);
@@ -302,10 +336,13 @@
                                         </td>
                                         @php $x = $z; @endphp
                                     @endforeach
+                                    </div>
+                                    <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
                                 </div>
-                            @else    
-                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow:auto">
-                                    <div style="padding:0px 5px;">
+                            @else
+                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 p-0" style="position: relative;display: flex">
+                                    <div class="product-list-card" style="position: relative;padding:0;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow-y:auto;overflow-x: hidden">
+
                                         <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                             <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
                                                 <div class="carousel-inner maincarousel">
@@ -318,9 +355,9 @@
                         
                                         </div>
                                     </div>
+                                    <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
                                 </div>
                             @endif
-                            <button class="btn btn-secondarys" data-toggle="modal" data-target="#remark-area-list" style="position: absolute;top: 0;right : -43px;"><i class="fa fa-comments"></i></button>  
                         </div>
                     
 
@@ -406,6 +443,8 @@
 
 
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script>
     var i=1;
@@ -537,19 +576,31 @@
             {
                 if(res.status && res.list.length)
                 {
-                    $.each(res.list,function(k,v){
+                    var html = '<option value="">Select Language</option>';
+                    for (let i = 0; i < res.list.length; i++) {
+                        selected='';
 
-                    //console.log(k,v);
-                    var selected='';
-
-                    if(v.code=="{{$_REQUEST['code']??''}}")
-                    {
-                        selected='selected'
+                        if(res.list[i].code=="{{$_REQUEST['code']??''}}")
+                        {
+                            selected='selected'
+                        }
+                        html += '<option value="'+res.list[i].code+'" '+selected+'>'+res.list[i].name+' ('+res.list[i].code+') '+'</option>';
                     }
+                    $('[name="language"]').html(html);
 
-                    $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+                    // $.each(res.list,function(k,v){
 
-                    })
+                    // //console.log(k,v);
+                    // var selected='';
+
+                    // if(v.code=="{{$_REQUEST['code']??''}}")
+                    // {
+                    //     selected='selected'
+                    // }
+
+                    // $('[name="language"]').html('<option value="">Select Language</option><option value="'+v.code+'" '+selected+'>'+v.name+' ('+v.code+') '+'</option>');
+
+                    // })
                     
                 }
                 else
@@ -565,6 +616,9 @@
         var webstore = $('#web_store').find(":selected").val();
         var weblanguage = $('#web_language').find(":selected").val();
         var webdevice = $('#web_device').find(":selected").val();
+        var startDate = $('input[name="range_start"]').val();
+        var endDate = $('input[name="range_end"]').val();
+
         if(website == '' ){
              toastr['error']('Please Select Website');
              return false;
@@ -598,6 +652,11 @@
                 var origin   = window.location.origin;
                 var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice;
             }
+        }
+
+        if(startDate != ''&& endDate != '' ){
+            var origin   = window.location.origin;
+            var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice+"&startDate="+startDate+"&endDate="+endDate;
         }
        
         window.location.href = url;
@@ -654,8 +713,10 @@
                 website_id:website_id,
             },
             success: function(response){
-                for (let i = 0; i < response.remarks.length; i++) {
-                    var remark = response.remarks[i];
+                const shorter = (a,b)=>  a.id>b.id ? -1: 1;
+			    response.remarks.flat().sort(shorter);
+                for (let i = 0; i < response.remarks.flat().sort(shorter).length; i++) {
+                    var remark = response.remarks.flat().sort(shorter)[i];
                     if (remark.remarks.length > 80) {
                         remark.remarks = remark.remarks.substring(0, 80)+'...';
                     }
@@ -680,6 +741,49 @@
         $('#remark-load-more-data').modal('show');
         $('#remark-load-more-data').find('p').text(remark);
     })
+
+
+
+    let r_s = "";
+    let r_e = "";
+
+    let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+    let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+    jQuery('input[name="range_start"]').val();
+    jQuery('input[name="range_end"]').val();
+
+    function cb(start, end) {
+        $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#filter_date_range_').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        //parentEl: '#filter_date_range_',
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end);
+
+
+    $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+                    
+        let startDate=   jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        let endDate =    jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+        $("#date_current_show").removeClass("d-none");
+        $("#date_value_show").css("display", "none");
+
+    });
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection

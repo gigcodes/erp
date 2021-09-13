@@ -1561,6 +1561,9 @@ $metaData = '';
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/product-generic-pricing') }}">Product Generic Pricing</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 @endif

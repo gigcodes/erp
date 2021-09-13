@@ -322,12 +322,12 @@ function string_convert($msg2){
 
 
 function  convertToThumbUrl($url,$extension){
-$arr =explode("/",$url);
-$arr[count($arr)-1]= 'thumbnail/' . $arr[count($arr)-1];
+        $arr =explode("/",$url);
+        $arr[count($arr)-1]= 'thumbnail/' . $arr[count($arr)-1];
 
-$converted_str =   implode('/',$arr);
+        $converted_str =   implode('/',$arr);
 
-    return   str_replace('.'.$extension,'_thumb.'.$extension,$converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
+            return   str_replace('.'.$extension,'_thumb.'.$extension,$converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
 }
 
 function resizeCropImage($max_width=150, $max_height=150, $source_file, $dst_dir = null, $quality = 80)

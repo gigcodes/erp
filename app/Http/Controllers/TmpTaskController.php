@@ -108,6 +108,17 @@ class TmpTaskController extends Controller
 
     public function testEmail(Request $request)
     {
+        
+        $cnt = "IN";
+        $website = \App\StoreWebsite::find($request->get("store_website_id"));
+        $product = \App\Product::find($request->get("product_id"));
+        $dutyPrice = $product->getDuty($cnt);
+        $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+
+        \Log::info(print_r($discountPrice,true));
+        die;
+
+
         $suggestion = \App\SuggestedProduct::first();
         echo "<pre>"; print_r($suggestion);  echo "</pre>";die;
 
@@ -143,7 +154,7 @@ class TmpTaskController extends Controller
             "2" => "magetwo",
             "3" => "magethree"
         ];
-
+         
         if($request->product_id == null) {
             die("Please Enter product id");
         }

@@ -130,6 +130,13 @@ class scrapperPhyhon extends Controller
 
          $allWebsites=Website::select('name','id')->get();
 
+         $storewebsite = \App\StoreWebsite::get();
+
+         $current_date = Carbon::now()->format('Y-m-d');
+
+         $startDate = $current_date;
+         $endDate = $current_date;
+
        //  echo '<pre>';print_r($websites->toArray());die;
 
        
@@ -139,7 +146,7 @@ class scrapperPhyhon extends Controller
         // dd( $websiteList[0]['scrapper_image'] );
 
       //  echo '<pre>';print_r($websites->toArray());die;
-        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request'));
+        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
     }
 
 
@@ -165,10 +172,23 @@ class scrapperPhyhon extends Controller
                     $images = \App\scraperImags::where('store_website',$list->store_website_id)
                     ->where('website_id',$request->code); // this is language code. dont be confused with column name
 
-                    if(isset($request->device) && $request->device != '')
+                    if(isset($request->startDate) && isset($request->endDate)){
+
+                        $images = $images->whereDate('created_at','>=',date($request->startDate))
+                        ->whereDate('created_at','<=',date($request->endDate));
+                    }else{
+                       $images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                    }
+
+                    if(isset($request->device) && ($request->device == 'mobile' || $request->device == 'tablet'))
                     {
                         $images = $images->where('device',$request->device);
                     }
+                    elseif($request->device == 'desktop'){                        
+                        $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
+                    }
+
+                   
                     
                     $images = $images->get()
                     ->toArray();
@@ -179,7 +199,10 @@ class scrapperPhyhon extends Controller
 
         $allLanguages=Website::orderBy('name', 'ASC')->get();
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories'));
+        $startDate = $request->startDate;
+        $endDate = $request->endDate;
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories','startDate','endDate'));
 
     }
 
@@ -280,8 +303,11 @@ class scrapperPhyhon extends Controller
         $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
         
         $coordinates = $request->coordinates;
+        
         if (is_array($coordinates)) {
             $coordinates = implode(',',$request->coordinates);
+        }else{
+            $coordinates = implode(',',json_decode($request->coordinates, true));
         }
 
         // For Height Width Of Base64
@@ -289,7 +315,6 @@ class scrapperPhyhon extends Controller
             $data = \getimagesizefromstring($binary);
             $width = $data[0];
             $height = $data[1];
-
 
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 
@@ -302,6 +327,8 @@ class scrapperPhyhon extends Controller
                 'coordinates'=> $coordinates,
                 'height'=> $height,
                 'width'=> $width,
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
             );
 
             scraperImags::insert( $newImage );
@@ -387,15 +414,38 @@ class scrapperPhyhon extends Controller
     public function changeCatRemarkList(Request $request)
     {
         $store_website = \App\Website::find($request->website_id);
-        $site_development = SiteDevelopment::where('site_development_category_id',$request->remark)->where('website_id',$store_website->store_website_id)->orderBy('id','DESC')->first();
+        $site_development = SiteDevelopment::where('site_development_category_id',$request->remark)->where('website_id',$store_website->store_website_id)->get();
         $remarks = [];
-        if($site_development && $request->remark){
-            $remarks = \App\StoreDevelopmentRemark::where('store_development_id',$site_development->id)
-                                        ->join('users as user','user.id','store_development_remarks.user_id')
-                                        ->select('user.name as username','store_development_remarks.*')
-                                        ->get();
+        if(count($site_development) > 0)
+        {
+            foreach ($site_development as $val) {
+                $sd_remarks = \App\StoreDevelopmentRemark::join('users as usr','usr.id','store_development_remarks.user_id')
+                                            ->where('store_development_remarks.store_development_id',$val->id)
+                                            ->select('store_development_remarks.*','usr.name as username')
+                                            ->get()->toArray();
+                array_push($remarks,$sd_remarks);
+            }
         }
         return response()->json(['remarks' => $remarks]);
+    }
+
+    public function history(Request $request){
+       $all_data =  \App\scraperImags::join('store_websites','store_websites.id','scraper_imags.store_website')
+       ->select('store_websites.website','scraper_imags.device','scraper_imags.created_at AS created_date',\DB::raw('count(`scraper_imags`.`id`) as no_image'));
+    
+       if(isset($request->startDate) && isset($request->endDate)){
+            $all_data = $all_data->whereDate('scraper_imags.created_at','>=',date($request->startDate))
+            ->whereDate('scraper_imags.created_at','<=',date($request->endDate));
+        }else{
+            $all_data = $all_data->whereDate('scraper_imags.created_at',Carbon::now()->format('Y-m-d'));
+        }
+
+        $all_data = $all_data->orderBy('no_image', 'DESC')->groupBy('store_websites.website','scraper_imags.device')
+        ->get();
+
+
+        return response()->json(['history' => $all_data]);
+
     }
 }
 

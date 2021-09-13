@@ -22,6 +22,16 @@
             width: 150px !important;
             flex-grow: 1;
         }
+        .modal-lg{
+            width: auto;
+            max-width: inherit;
+        }
+        @media (min-width: 768px){
+            .modal-dialog {
+                width: 900px;
+                max-width: 900px;
+            }
+        }
     </style>
 
     <div class="row m-0" id="common-page-layout">
@@ -110,7 +120,7 @@
 
         <div class="common-modal modal" role="dialog">
 
-            <div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;">
+            <div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;word-break: break-all;">
             </div>
         </div>
 
@@ -141,7 +151,8 @@
                             <thead>
                                 <tr>
                                     <th class="th-sm" style="width:20%">Count</th>
-                                    <th class="th-sm" style="width:80%">Message</th>
+                                    <th class="th-sm" style="width:20%">Status</th>
+                                    <th class="th-sm" style="width:60%">Message</th>
                                 </tr>
                             </thead>
                             <tbody class="table_data">
@@ -276,27 +287,44 @@
                     type: 'GET',
                     url: "{{ route('magento_product_today_common_err_report') }}" + '?startDate=' + jQuery('input[name="range_start"]').val()+ '&&endDate='+ jQuery('input[name="range_end"]').val() ,
                     dataType: "json",
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
                     success: function(response) {
-
+                        $("#loading-image").hide();
                         if (response.code == 200) {
                             var html_content = '';
+
+
                             $.each(response.data, function(key, value) {
 
                                 html_content += '<tr>';
-                                html_content += '<td>' + value.count + '</td>';
-                                html_content += '<td>' + value.message + '</td>';
+                                html_content +=  '<td>' +value.count + '</td>';
+                                html_content +=  '<td>' +value.status + '</td>';
+                                html_content +=  '<td class="data">';
+                                var myContent = value.message;
+                                html_content +=   myContent.replace(/(<([^>]+)>)/ig,"");
+                                html_content += '</td>';
                                 html_content += '</tr>';
+
+
+                                // $('.table_data_count').html(html_content);
+                                //
+                                // $('.table_data_message').text(html_content2).html('</td>');
+
                             });
 
-                            $('.table_data').html(html_content);
 
+                            $('.table_data').html(html_content);
+                            //
                             $('#today_common_error_report_modal').modal('show');
                         }
 
-                        },
-                        error: function() {
-                            toastr['error']('Could not change module!');
-                        }
+                    },
+                    error: function() {
+                        $("#loading-image").hide();
+                        toastr['error']('Could not change module!');
+                    }
                   });
 
                 });
@@ -308,15 +336,22 @@
                     type: 'GET',
                     url: "{{ route('magento_product_today_common_err_report') }}",
                     dataType: "json",
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
                     success: function(response) {
-
+                        $("#loading-image").hide();
                         if (response.code == 200) {
                             var html_content = '';
                             $.each(response.data, function(key, value) {
-
+                                // console.log(response.data, 'response')
                                 html_content += '<tr>';
-                                html_content += '<td>' + value.count + '</td>';
-                                html_content += '<td>' + value.message + '</td>';
+                                html_content +=  '<td>' +value.count + '</td>';
+                                html_content +=  '<td>' +value.status + '</td>';
+                                html_content +=  '<td class="data">';
+                                var myContent = value.message;
+                                html_content +=   myContent.replace(/(<([^>]+)>)/ig,"");
+                                html_content += '</td>';
                                 html_content += '</tr>';
                             });
 
@@ -327,6 +362,7 @@
 
                     },
                     error: function() {
+                        $("#loading-image").hide();
                         toastr['error']('Could not change module!');
                     }
                 });
@@ -372,8 +408,17 @@
                         type: $(this).val(),
                         _token: "{{ csrf_token() }}"
                     },
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
                     success: function() {
-
+                        $("#loading-image").hide();
+                        toastr['success']('Status Change Successfully');
+                        
+                        setTimeout(function(){ location.reload(); }, 2000);
+                    },
+                    error: function(response) {
+                        $("#loading-image").hide();
                     }
                 })
 

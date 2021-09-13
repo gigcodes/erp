@@ -196,6 +196,8 @@ return [
         Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
         seo2websites\ErpCustomer\ErpCustomerServiceProvider::class,
         //LaravelFCM\FCMServiceProvider::class,
+
+        App\Providers\EmailServiceProvider::class,
     ],
 
     /*

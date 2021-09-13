@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use App\Order;
 use App\Learning;
 use App\Sop;
+use App\CustomerCharity;
 
 class ChatMessagesController extends Controller
 {
@@ -53,6 +54,9 @@ class ChatMessagesController extends Controller
                 break;
             case 'vendor':
                 $object = Vendor::find($request->object_id);
+                break;
+            case 'charity':
+                $object = CustomerCharity::find($request->object_id);
                 break;
             case 'task':
                 $object = Task::find($request->object_id);
@@ -110,7 +114,7 @@ class ChatMessagesController extends Controller
         $currentPage = request("page",1);
         $skip        = ($currentPage - 1) * $limit;
 
-        $loadType       = $request->get('load_type');
+        $loadType       = $request->get('load_type'); 
         $onlyBroadcast  = false;
 
         //  if loadtype is brodcast then get the images only
@@ -128,9 +132,6 @@ class ChatMessagesController extends Controller
         
         if ($request->object == "user-feedback") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
-            if ($request->feedback_status_id != null) {
-                $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id)->where('user_feedback_status',$request->feedback_status_id);
-            }
         }
         if ($request->object == "hubstuff") {
             $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
@@ -235,7 +236,7 @@ class ChatMessagesController extends Controller
         foreach ($chatMessages as $chatMessage) {
 
             $objectname = null;
-            if($request->object == 'customer' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
+            if($request->object == 'customer' || $request->object == 'charity' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
                 $objectname = $object->name;
             }
             if($request->object == 'task' || $request->object == 'developer_task') {

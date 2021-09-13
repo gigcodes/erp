@@ -87,6 +87,15 @@
     .row.tickets{
         font-size: 13px !important;
     }
+    td{
+        padding: 5px !important;
+    }
+    td a{
+        color: #2f2f2f;
+    }
+    tbody td{
+        background: #ddd3;
+    }
 </style>
 @extends('layouts.app')
 
@@ -97,7 +106,7 @@
 @include('partials.flash_messages')
     <div class="row tickets m-0">
         <div class="col-lg-12 margin-tb pr-0 pl-0">
-            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)
+        <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
@@ -170,7 +179,7 @@
                                 placeholder="Category" id="search_category">
                     </div> -->
                     <div>
-                        <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
+                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
                     <div >
                         <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
@@ -194,36 +203,40 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right">
-    <div class="table-responsive ">
-      <table style="font-size:13.8px;" class="table table-bordered tickets" id="list-table" cellspacing=0 >
-        <thead>
-          <tr>
-            <th>Sr. No.</th>
-            <th>Ticket</th>
-            <th>Source</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Subject</th>
-            <th>Message</th>
-            <th>Assigned To</th>
-            <th>Inquiry Type</th>
-            <th>Country</th>
-            <th>Order No.</th>
-            <th>Phone</th>
-            <th style="width: 18%">Communication</th>
-            <th style="width: 8%">Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+    <div class="space-right infinite-scroll">
 
-        <tbody>
-            @include('livechat.partials.ticket-list')
-        </tbody>
-      </table>
+        <div class="table-responsive">
+            <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+                <thead>
+                <tr>
+                    <th style="width: 2%;"></th>
+                    <th style="width: 3%;">#</th>
+                    <th style="width: 5%;">Tickit Id</th>
+                    <th style="width: 5%;">Source</th>
+                    <th style="width: 7%;">Name</th>
+                    <th style="width: 7%;">Email</th>
+                    <th style="width: 6%;">Subject</th>
+                    <th style="width: 7%;">Message</th>
+                    <th style="width: 6%;">Assigned name</th>
+                    <th style="width: 5%;">Brand</th>
+                    <th style="width: 5%;">Country</th>
+                    <th style="width: 5%;">Order no</th>
+                    <th style="width: 9%;">Phone no</th>
+                    <th style="width: 13%;">Message Box</th>
+                    <th style="width: 7%;">Status</th>
+                    <th style="width: 8%;">Created</th>
+                    <th style="width: 8%;">Action</th>
+                </tr>
+                </thead>
+                <tbody id="content_data" class="infinite-scroll-pending-inner">
+                @include('livechat.partials.ticket-list')
+                </tbody>
+            </table>
+        </div>
+
+
     </div>
-    </div>
-    {!! $data->render() !!}
+    
 
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
@@ -302,14 +315,63 @@
               50% 50% no-repeat;display:none;">
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <script type="text/javascript">
+
+        var page = 1;
+        function getScrollTop() {
+            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+        }
+        window.onscroll = function() {
+            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+            loadMore(++page);
+        };
+
+        function getDocumentHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+        };
+
+
+        function loadMore(page) {
+
+            var url = "/livechat/tickets?page="+page;
+
+            page = page + 1;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                beforeSend:function(){
+                        $('.infinite-scroll-products-loader').show();
+                },
+                success: function (data) {
+                    if (data == '') {
+                        $('.infinite-scroll-products-loader').hide();
+                    }
+                    $('.globalSelect2').select2();
+                    
+                    $('.infinite-scroll-products-loader').hide();
+                  
+                    $('.infinite-scroll-pending-inner').append(data.tbody);
+                },
+                error: function () {
+                    $('.infinite-scroll-products-loader').hide();
+                }
+            });
+        }
 
     $(document).on('click', '.row-ticket', function () {
         $('#viewmore #contentview').html($(this).data('content'));
@@ -338,88 +400,62 @@
     });
 
     function submitSearch(){
-        src = "{{url('livechat/tickets')}}";
-        term = $('#term').val();
-        serach_inquiry_type = $('#serach_inquiry_type').val();
-        search_country = $('#search_country').val();
-        search_order_no = $('#search_order_no').val();
-        search_phone_no = $('#search_phone_no').val();
-        //search_category = $('#search_category').val();
-        ticket_id = $('#ticket').val();
-        status_id = $('#status_id').val();
-        date = $('#date').val();
-        users_id = $('#users_id').val();
-        $.ajax({
-            url: src,
-            dataType: "json",
-            data: {
-                term : term,
-                serach_inquiry_type : serach_inquiry_type,
-                search_country : search_country,
-                search_order_no : search_order_no,
-                search_phone_no : search_phone_no,
-                //search_category : search_category,
-                ticket_id : ticket_id,
-                status_id : status_id,
-                date : date,
-                users_id : users_id,
+                src = "{{url('whatsapp/pollTicketsCustomer')}}";
+                term = $('#term').val();
+                erp_user = 152;
+                serach_inquiry_type = $('#serach_inquiry_type').val();
+                search_country = $('#search_country').val();
+                search_order_no = $('#search_order_no').val();
+                search_phone_no = $('#search_phone_no').val();
+                //search_category = $('#search_category').val();
+                ticket_id = $('#ticket').val();
+                status_id = $('#status_id').val();
+                date = $('#date').val();
+                users_id = $('#users_id').val();
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                        erpUser:erp_user,
+                        term : term,
+                        serach_inquiry_type : serach_inquiry_type,
+                        search_country : search_country,
+                        search_order_no : search_order_no,
+                        search_phone_no : search_phone_no,
+                        ticket_id : ticket_id,
+                        status_id : status_id,
+                        date : date,
+                        users_id : users_id,
 
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
 
-        }).done(function (data) {
-            $("#loading-image").hide();
-            $("#list-table tbody").empty().html(data.tbody);
-            $("#list_count").text(data.count);
-            if (data.links.length > 10) {
-                $('ul.pagination').replaceWith(data.links);
-            } else {
-                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }).done(function (message) {
+                    $("#loading-image").hide();
+                    //location.reload();
+                    //alert(ticket_id);
+                    $('#ticket').val(ticket_id);
+
+                    var rendered = renderMessage(message, tobottom);
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+                
             }
-
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-            alert('No response from server');
-        });
-        
-    }
 
     function resetSearch(){
-      src = "{{url('livechat/tickets')}}";
-        blank = '';
-        $.ajax({
-            url: src,
-            dataType: "json",
-            data: {
-               
-               blank : blank, 
-
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
-
-        }).done(function (data) {
-            $("#loading-image").hide();
-            $('#term').val('')
-            $('#serach_inquiry_type').val('')
-            $('#search_country').val('')
-            $('#search_order_no').val('')
-            $('#search_phone_no').val('')
-            //$('#search_category').val()
-            $('#ticket').val('')
-            $("#list-table tbody").empty().html(data.tbody);
-            $("#list_count").text(data.count);
-            if (data.links.length > 10) {
-                $('ul.pagination').replaceWith(data.links);
-            } else {
-                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-            }
-
-        }).fail(function (jqXHR, ajaxOptions, thrownError) {
-            alert('No response from server');
-        });
+        $("#loading-image").hide();
+        $('#term').val('');
+        $('#serach_inquiry_type').val('');
+        $('#search_country').val('');
+        $('#search_order_no').val('');
+        $('#search_phone_no').val('');
+        $('#ticket').val('');
+        $('#users_id').val('');
+        location.reload();
     }
 
 

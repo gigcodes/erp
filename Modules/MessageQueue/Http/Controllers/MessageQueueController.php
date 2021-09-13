@@ -217,6 +217,10 @@ class MessageQueueController extends Controller
             $chatMessage = $chatMessage->whereRaw(\Db::raw("c.id not in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
         }
 
+        if (request('only_lead') == "1") {
+            $chatMessage = $chatMessage->where("chat_messages.lead_id",">",0);
+        }
+
         $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number", "c.name as customer_name", "c.do_not_disturb"]);
 
         $chatMessage = $chatMessage->orderby("chat_messages.id", "DESC")->paginate($limit);

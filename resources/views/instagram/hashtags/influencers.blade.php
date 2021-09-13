@@ -238,6 +238,9 @@ button[disabled]:hover {
             <div class="pull-right">
                 <div class="row">
                 <div class="form-group mr-3 mb-3">    
+                    <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-sm" >Ceate Mailing List</a> 
+                </div>      
+                <div class="form-group mr-3 mb-3">    
                     <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
                 </div>        
                 <div class="form-group mr-3 mb-3">
@@ -368,7 +371,7 @@ button[disabled]:hover {
                         <th>Keyword</th> -->
                     </tr>
                    </thead>
-                     <tbody>
+                   <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                    @include('instagram.hashtags.partials.influencer-data')
                    
                     </tbody>
@@ -380,6 +383,7 @@ button[disabled]:hover {
 
         
     </div>
+    <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
@@ -995,7 +999,49 @@ button[disabled]:hover {
                 });
 
             
-        }    
+        }   
+
+
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('instagram/influencers')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        }); 
     </script>
 
 @endsection

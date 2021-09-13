@@ -33,7 +33,7 @@ class CategoryController extends Controller
     public function manageCategory(Request $request)
     {
 
-   
+       
 
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
 
@@ -71,6 +71,7 @@ class CategoryController extends Controller
             }
                 $categories = $final_cat;
         }else{
+              
 
             // $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
             $categories        = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id',0)->orderBy('title');
@@ -88,7 +89,7 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);;
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);
     }
     public function manageCategory11(Request $request)
     {

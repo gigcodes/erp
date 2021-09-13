@@ -12,7 +12,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">{{ $title }} ({{ $brands->count() }})<span class="count-text"></span></h2>
+        <h2 class="page-heading">{{ $title }} (<span id="count">{{ $brands->count() }}</span>)</h2>
     </div>
     <br>
     @if(session()->has('success'))
@@ -45,20 +45,28 @@
 			  		</form>
 				 </div>
 		    </div>
-		    <div class="col">
+		    <div class="col reconsile-brand-form">
 		    	<div class="h" style="margin-bottom:10px;">
 					<div class="row">
 						<div class="form-group">
-					  				<button class="btn btn-secondary" onclick="refresh()">Refresh</button>
-					  			</div>
-		    			
+			  				<?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2 store-website-id","placeholder" => "Select Website"]) ?>
+			  			</div>
 					</div>
 		    	</div>
 		    </div>
+            <div class="col">
+                <div class="h" style="margin-bottom:10px;">
+                    <div class="row">
+                        <div class="form-group">
+                            <button class="btn btn-secondary btn-reconsile-brand">Reconsile</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 	    </div>
 
 	    <div class="row mb-3 ml-3">
-		    <form class="form-inline message-search-handler" method="get">
+		    <form class="form-inline message-search-handler handle-search" method="get">
 		  		<div class="col">
 		  			<div class="form-group">
 					    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
@@ -111,44 +119,11 @@
 				        <?php } ?>	
 				      </tr>
 				    </thead>
-				    <tbody>
-				    	<?php foreach($brands as $brand) { ?>
-
-				    	  <?php
-				    	  	if(request()->get('brd_store_website_id')){
-				    	  		if(request()->get('no_brand')){
-					    	  		if(in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
-					    	  			continue;
-					    	  			}
-					    	  	}else{
-					    	  		if(!in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
-					    	  			continue;
-					    	  		}
-					    	  	}	
-				    	  	}
-				    	  ?>		
- 					      <tr>
-					      	<td><?php echo $brand->id; ?></td>
-					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( {{ $brand->counts }} )</a></td>
-					      	<td><?php echo $brand->min_sale_price; ?></td>
-					      	<td><?php echo $brand->max_sale_price; ?></td>
-					      	<?php foreach($storeWebsite as $swid => $sw) { 
-					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($swid, $apppliedResult[$brand->id])) ? "checked" : ""; 
-					      		?>
-					        	<td>
-					        		<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
-					        		<span>
-					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($swid); @endphp
-					        			{{ $magentoStoreBrandId ? $magentoStoreBrandId : '' }}
-					        		</span>
-					        		<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history"><i class="fa fa-info-circle" aria-hidden="true"></i>
-					        		</a>
-					        	</td>
-					        <?php } ?>
-					      </tr>
-					    <?php } ?>
+				    <tbody id="brand_data">
+				    	@include("storewebsite::brand.partials.brand_data")
 				    </tbody>
 				</table>
+				 <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 			</div>
 		</div>
 	</div>
@@ -180,7 +155,7 @@
 	    <!-- Modal content-->
 	    <div class="modal-content">
 	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Live</h4>
+	        	<h4 class="modal-title">Brand Live<span class="brand-live-data-count"></span></h4>
 	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
 	        </div>
 	        <div class="modal-body"></div>
@@ -191,13 +166,7 @@
 <div id="missing-live-data" class="modal fade" role="dialog">
   	<div class="modal-dialog">
 	    <!-- Modal content-->
-	    <div class="modal-content">
-	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Missing</h4>
-	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        </div>
-	        <div class="modal-body"></div>
-    	</div>
+	    
 	</div>
 </div>
 
@@ -262,7 +231,7 @@
             },
             success: function(response) {
             	$("#loading-image").hide();
-                $("#brand-live-data").find(".modal-body").html(response);
+                $("#brand-live-data").find(".modal-dialog").html(response);
                 $("#brand-live-data").modal("show");
             },
             error: function(response) {
@@ -286,7 +255,7 @@
             },
             success: function(response) {
             	$("#loading-image").hide();
-                $("#missing-live-data").find(".modal-body").html(response);
+                $("#missing-live-data").find(".modal-dialog").html(response);
                 $("#missing-live-data").modal("show");
             },
             error: function(response) {
@@ -296,8 +265,80 @@
     	});
 	});
 
-	
+    $(document).on("click",".btn-reconsile-brand",function(e) {
+        e.preventDefault();
+        if(confirm("Are you sure you want to do reconsile?")) {
+            var $this = $(this);
+            var swi = $(".reconsile-brand-form").find(".store-website-id").val();
+            $.ajax({
+                url: "/store-website/brand/reconsile-brand",
+                type: 'POST',
+                data : {
+                    store_website_id: swi,
+                    _token : "{{ csrf_token() }}"
+                },
+                beforeSend: function() {
+                  $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        toastr["success"](response.message);
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                },
+                error: function(response) {
+                    $("#loading-image").hide();
+                    toastr["error"]("Oops, something went wrong");
+                }
+            });
+        }
+    });
+//START - Load More functionality
+	var isLoading = false;
+	var page = 1;
+	$(document).ready(function () {
 
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/store-website/brand?page="+page,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					$loader.hide();					
+					$('#brand_data').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					} else {
+						var total_count = Number($('#count').html()) + Number(data.count); 
+						console.log(total_count);
+						$('#count').html(total_count);
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
 </script>
 
 @endsection

@@ -271,6 +271,7 @@ var getHtml = function(response) {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
         button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-asterisk" aria-hidden="true"></i></a>';
+        button += '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-server" aria-hidden="true"></i></a>';
         // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
 
@@ -373,12 +374,7 @@ $(document).on('click', '.load-communication-modal', function () {
     var feedback_status_id = null;
 
     if ($(this).data('feedback_cat_id')) {
-        var feedback_status_id = $(this).parents('tr').find('.user_feedback_status').val();
-        if (feedback_status_id.length === 0) {
-            var feedback_status_id = null;
-        }
         var feedback_category_id = $(this).data('feedback_cat_id');
-        
     }
 
     var thiss = $(this);
@@ -415,7 +411,6 @@ $(document).on('click', '.load-communication-modal', function () {
             load_attached: load_attached,
             load_type: load_type,
             feedback_category_id: feedback_category_id,
-            feedback_status_id: feedback_status_id,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');
@@ -1263,3 +1258,33 @@ $(document).on("click",".create-kyc-customer",function(e) {
         toastr["error"]("There was an error creating KYC", 'Message');
       });
 });
+
+
+$(document).on("click",".btn-whitelist-ip",function(e) {
+    e.preventDefault();
+    var id = $(this).data("id");
+    $.ajax({
+        type: 'POST',
+        url: "/users/add-system-ip-from-text",
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content'),
+          id: id
+        },
+        beforeSend: function() {
+          $("#loading-image").show();
+        },
+        dataType:"json",
+        success: function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message, 'Message');
+            }else{
+                toastr["error"](response.message, 'Message');
+            }
+        }
+      }).fail(function(error) {
+        $("#loading-image").hide();
+        toastr["error"]("Oops , something went wrong please check the log", 'Message');
+      });
+});
+

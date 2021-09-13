@@ -2,15 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\CronJobReport;
-use App\WebsiteStoreView;
-use App\StoreViewsGTMetrix;
-use Carbon\Carbon;
 use App\Setting;
-
-use Entrecore\GTMetrixClient\GTMetrixClient;
-use Entrecore\GTMetrixClient\GTMetrixTest;
+use App\StoreViewsGTMetrix;
+use App\WebsiteStoreView;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class GTMetrixTestCMD extends Command
 {
@@ -44,85 +41,165 @@ class GTMetrixTestCMD extends Command
      * @return mixed
      */
     public function handle()
-    {   
+    {
 
         try {
-            \Log::info('GTMetrix :: Daily cron start ' );
-            $cronStatus = Setting::where('name',"gtmetrixCronStatus")->get()->first();
-            if( !empty($cronStatus)){
-                if($cronStatus->val == 'stop' ) {
-                    \Log::info('GTMetrix :: stopped' );
+            \Log::info('GTMetrix :: Daily cron start ');
+            $cronStatus = Setting::where('name', "gtmetrixCronStatus")->get()->first();
+            if (!empty($cronStatus)) {
+                if ($cronStatus->val == 'stop') {
+                    \Log::info('GTMetrix :: stopped');
                     return false;
                 }
             }
 
+            $cronType    = Setting::where('name', "gtmetrixCronType")->get()->first();
+            $cronRunTime = Setting::where('name', "gtmetrixCronRunDate")->get()->first();
 
-
-            $cronType    = Setting::where('name',"gtmetrixCronType")->get()->first();
-            $cronRunTime = Setting::where('name',"gtmetrixCronRunDate")->get()->first();
-            
-            if( !empty( $cronRunTime ) ){
-                if( $cronRunTime->val != now()->format('Y-m-d') && $cronRunTime->val != 'daily' ){
-                    \Log::info('GTMetrix :: cron run time false' );
+            if (!empty($cronRunTime) && !empty($cronType)) {
+                if ($cronRunTime->val != now()->format('Y-m-d') && $cronType->val != 'daily') {
+                    \Log::info('GTMetrix :: cron run time false');
                     return false;
                 }
             }
 
-            if(!empty( $cronType )) {
-                if( $cronType->val == 'weekly' ){
+            if (!empty($cronType)) {
+                if ($cronType->val == 'weekly') {
                     $nextDate = now()->addWeeks(1)->format('Y-m-d');
-                }else{
+                } else {
                     $nextDate = now()->tomorrow()->format('Y-m-d');
                 }
-            }else{
+            } else {
                 $nextDate = now()->tomorrow()->format('Y-m-d');
             }
 
-            $this->nextCronRunTime( $nextDate );
+            $this->nextCronRunTime($nextDate);
             $report = CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            \Log::info('GTMetrix :: Daily cron start ' );
+            \Log::info('GTMetrix :: Daily cron start ');
             $storeViewList = WebsiteStoreView::whereNotNull('website_store_id')
-                            // ->where('website_store_views.id',977)
-                            ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
-                            ->join("websites as w", "w.id", "ws.website_id")
-                            ->join("store_websites as sw", "sw.id", "w.store_website_id")
-                            ->groupBy("store_website_id")
-                            ->select("website_store_views.code","website_store_views.id", "sw.website","sw.magento_url","sw.id as store_website_id")
-                            ->get()->toArray();
-            
-            \Log::info('GTMetrix :: store website =>'.sizeof( $storeViewList ) );
+            // ->where('website_store_views.id',977)
+                ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
+                ->join("websites as w", "w.id", "ws.website_id")
+                ->join("store_websites as sw", "sw.id", "w.store_website_id")
+                ->groupBy("store_website_id")
+                ->select("website_store_views.code", "website_store_views.id", "sw.website", "sw.magento_url", "sw.id as store_website_id")
+                ->get()->toArray();
+
+            \Log::info('GTMetrix :: store website =>' . sizeof($storeViewList));
 
             $request_too_many_pending = false;
 
-            foreach ($storeViewList as $value) {
-                $webite = $value['magento_url'].'/'.$value['code'];
-                $create = [
-                    'store_view_id' => $value['id'],
-                    'status'        => 'not_queued',
-                    'website_url'   => $webite,
-                ];
-                StoreViewsGTMetrix::create( $create );
+            // foreach ($storeViewList as $value) {
+            //     $webite = $value['magento_url'].'/'.$value['code'];
+            // $webiteUrl = "https://venmo.com";
+            //     $create = [
+            //         'store_view_id' => $value['id'],
+            //         'status'        => 'not_queued',
+            //         'website_url'   =>  $webiteUrl,
+            //     ];
+            //     \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully" );
+            //    StoreViewsGTMetrix::create( $create );
+            // }
+
+            if (!empty($storeViewList)) {
+                foreach ($storeViewList as $value) {
+
+                    $webiteUrl = $value['magento_url'];
+                    $curl      = curl_init();
+
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL            => "$webiteUrl/pub/sitemap/sitemap_gb_en.xml",
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING       => "",
+                        CURLOPT_TIMEOUT        => 30000,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => "GET",
+                        CURLOPT_HTTPHEADER     => array(
+                            // Set Here Your Requesred Headers
+                            'Content-Type: application/json',
+                        ),
+                    ));
+                    $response = curl_exec($curl);
+                    $err      = curl_error($curl);
+                    curl_close($curl);
+                    //$create = array();
+                    if ($err) {
+                        \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err);
+                        echo "cURL Error #:" . $err;
+                    } else {
+                        if (preg_match('/<html[^>]*>/', $response)) {
+
+                            $siteData = array(
+
+                                'store_view_id' => $value['id'],
+                                'status'        => 'not_queued',
+                                'website_url'   => $webiteUrl . '/' . $value['code'],
+                            );
+
+                            $create[] = $siteData;
+                            \Log::info("\nMessage:  Not found sitemap data");
+                        } else if (preg_match('/<\?xml[^?]*\?>/', $response)) {
+                            \Log::info("\nMessage: Site map data fetch succesfully");
+                            $xml = simplexml_load_string($response);
+                            //Convert into json
+                            $xmlToJson = json_encode($xml);
+                            // Convert into associative array
+                            $finalArray = json_decode($xmlToJson, true);
+
+                            if ($finalArray) {
+                                $siteData = array(
+
+                                    'store_view_id' => $value['id'],
+                                    'status'        => 'not_queued',
+                                    'website_url'   => $webiteUrl . '/' . $value['code'],
+                                );
+
+                                \Log::info(print_r($siteData, true));
+                                $create[] = $siteData;
+                                foreach ($finalArray['url'] as $key => $valueExtra) {
+
+                                    $siteData = array(
+
+                                        'store_view_id' => $value['id'],
+                                        'status'        => 'not_queued',
+                                        'website_url'   => $valueExtra['loc'],
+                                    );
+
+                                    $create[] = $siteData;
+
+                                }
+                            }
+                            foreach ($create as $key => $value) {
+                                StoreViewsGTMetrix::create($value);
+                            }
+
+                        }
+                        \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully");
+
+                    }
+
+                }
             }
 
-            // Get tested site report 
+            // Get tested site report
             // \Artisan::call('GT-metrix-test-get-report');
             \Log::info('GTMetrix :: Daily run complete ');
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
-            \Log::error('GTMetrix :: '.$e->getMessage() );
+            \Log::error('GTMetrix :: ' . $e->getMessage());
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 
-    public function nextCronRunTime( $date = null )
+    public function nextCronRunTime($date = null)
     {
-        
-        $type = Setting::where('name',"gtmetrixCronRunDate")->get()->first();
-        if(empty($type)) {
+
+        $type = Setting::where('name', "gtmetrixCronRunDate")->get()->first();
+        if (empty($type)) {
             $type['name'] = "gtmetrixCronRunDate";
             $type['type'] = "date";
             $type['val']  = $date;
