@@ -121,14 +121,14 @@ class MagentoService
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
 
         $this->translations = $this->getTranslations();
-		/*if(!$this->translations) {
+		if(!$this->translations) {
 			 return false;
-		}*/
+		}
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
-        /*  if (!$this->validateTranslation()) {
+          if (!$this->validateTranslation()) {
         return false;
-        }*/
+        }
 
         \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
 
