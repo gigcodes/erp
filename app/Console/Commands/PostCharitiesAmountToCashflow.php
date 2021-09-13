@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\OrderProduct;
 use App\CustomerCharity;
-use App\cashFlows;
+use App\CashFlow;
 
 
 class PostCharitiesAmountToCashflow extends Command
