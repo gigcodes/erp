@@ -1731,7 +1731,27 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
+            $website = StoreWebsite::find($request->storewebsite);
+            if($website){
+                \Log::info("Product started website found For website".$website->website);
+                $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id, "waiting");
+                //currently we have 3 queues assigned for this task.
+                $log->sync_status = "waiting";
+                $log->queue = \App\Helpers::createQueueName($website->title);
+                $log->save();
+                PushToMagento::dispatch($product,$website,$log)->onQueue($log->queue);
+                
+                
+            }
+            $product->isUploaded = 1;
+            $product->save();
+            // Return response
+            return response()->json([
+                'result' => 'queuedForDispatch',
+                'status' => 'listed'
+            ]);
             //check for hscode
+            /*
             $hsCode = $product->hsCode($product->category, $product->composition);
             $hsCode = true;
             if ($hsCode) {
@@ -1800,7 +1820,7 @@ class ProductController extends Controller
             return response()->json([
                 'result' => 'productNotFound',
                 'status' => 'error'
-            ]);
+            ]); */
         } catch(Exception $e) {
             //throw $th;
             $msg = $e->getMessage();
