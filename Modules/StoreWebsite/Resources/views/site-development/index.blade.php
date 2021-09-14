@@ -113,6 +113,25 @@
 									</div>
 								</div>
 							</div>
+							<div id="masterCategory" class="modal fade" role="dialog">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h4 class="modal-title">Attach Master Category</h4>
+										</div>
+										<div class="modal-body">
+											{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, null, array('class'=>'globalSelect2', 'id'=>'master_category_id'))}}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+											<button style="display: inline-block;width: 10%" class="btn btn-default btn-image btn-search-action">
+												Save 
+											</button>
+											
+										</div>
+									</div>
+								</div>
+							</div>
 						</form>
 
 						<form class="form-inline handle-search" style="display:inline-block;">
@@ -570,7 +589,12 @@
 
 	function saveCategory() {
 		var websiteId = $('#website_id_data').val();//$('#website_id').val()
-		var text = $('#add-category').val()
+		var text = $('#add-category').val();
+		var masterCategoryId = $('#master_category_id').val(); 
+		if(masterCategoryId == null || masterCategoryId == '') {
+			$('#masterCategory').modal('show');
+			return false;
+		}
 		if (text === '') {
 			alert('Please Enter Text');
 		} else {
@@ -581,6 +605,7 @@
 					data: {
 						websiteId : websiteId,
 						text: text,
+						master_category_id: masterCategoryId,
 						"_token": "{{ csrf_token() }}"
 					},
 					beforeSend: function() {
@@ -589,11 +614,12 @@
 				})
 				.done(function(data) {
 					$('#add-category').val('');
+					$('#master_category_id').val('');
 					$("#loading-image").hide();
 					toastr["success"](data.messages);
 					// refreshPage()
 					setTimeout(function(){ refreshPage(); }, 2000);
-					
+					$('#masterCategory').modal('hide');
 					console.log(data)
 					console.log("success");
 				})
