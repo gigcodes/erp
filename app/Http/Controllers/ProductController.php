@@ -3375,7 +3375,7 @@ class ProductController extends Controller
                     // check the store website count is existed with the total image
                     $storeWebCount = $product->getMedia($tag)->count();
                     if($productMediacount <= $storeWebCount) {
-                        $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                        $store_websites = StoreWebsite::where('cropper_color', "%".$request->get('color'))->first();
                         if ($store_websites !== null) {
                             $exist = SiteCroppedImages::where('website_id', $store_websites->id)
                                 ->where('product_id', $product->id)->exists();
