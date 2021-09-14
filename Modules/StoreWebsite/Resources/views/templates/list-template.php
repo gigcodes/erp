@@ -84,6 +84,9 @@
                                         </button>   
 										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
                                             <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+                                        </button> 
+										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master">
+                                            <a href="javascript:void(0);"><i class="fa fa-refresh"></i></a>
                                         </button> 										
 			        </td>
 			      </tr>
