@@ -3169,7 +3169,7 @@ class WhatsAppController extends FindByNumberController
 
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Customer::class,
-                'model_id' => 1
+                'model_id' => $data['customer_id']
             ], [
                 'last_communicated_message' => @$data['message'],
                 'last_communicated_message_at' => Carbon::now(),
