@@ -63,15 +63,14 @@ padding: 3px 2px;
         <th width="4%">From</th>
         <th width="17%">Shortcuts</th>
         <th width="6%">Action</th>
-        <th> <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image editmessagebcc"  data-to_email="to-email" data-from_email="developer_task" data-id="1" data-cc_email="text" data-all="1" title=""><img src="{{asset('images/chat.png')}}" alt=""></button><th>
-
+       
     </tr>
     </thead>
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) { ?>
     <tr class="customer-raw-line">
-
+          
 
         @php
 
@@ -93,7 +92,7 @@ padding: 3px 2px;
         @endphp
 
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}">
-
+        {{$pam->id}}
             @if($pam->supplier_id > 0)
                 @if (strlen($pam->supplier_name) > 5)
                <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,6)   }}...</p>
@@ -160,12 +159,12 @@ padding: 3px 2px;
         <td class="message-input pr-2 pt-2" style="padding-bottom: 5px">
             <div style="display: flex" class=" cls_textarea_subbox">
                 <div class=" cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
 
                 <div style="display: flex;" class="cls_remove_allpadding row-flex">
                     <span style="display: flex;align-items:  center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
-                    <button class="btn btn-image send-message1 p-0" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                    <button class="btn btn-image send-message1 p-0" data-id="{{ $pam->id }}"  data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->task_id > 0 )
                         <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @elseif($pam->developer_task_id > 0 )
@@ -176,7 +175,7 @@ padding: 3px 2px;
                         <button  style="padding:0 ;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                         <button  style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
-                    <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image editmessagebcc"  data-to_email="{{$pam->to_email}}" data-from_email="{{$pam->from_email}}" data-id="{{$pam->id}}" data-cc_email="{{$pam->cc_email}}" data-all="1" title=""><img src="{{asset('images/chat.png')}}" alt=""></button><
+                    <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image editmessagebcc"  data-to_email="{{$pam->to_email}}" data-from_email="{{$pam->from_email}}" data-id="{{$pam->id}}" data-cc_email="{{$pam->cc_email}}" data-all="1" title=""><i class="fa fa-edit"></i></button>
 
                 </div>
             </div>

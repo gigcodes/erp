@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
+
 class MessageController extends Controller
 {
     /**
@@ -18,6 +19,7 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
+       
         $search = request("search"); 
         $status = request("status");
         $unreplied_msg = request("unreplied_msg");//Purpose : get unreplied message value - DEVATSK=4350
