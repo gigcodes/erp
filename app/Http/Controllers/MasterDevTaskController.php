@@ -7,6 +7,8 @@ use App\MemoryUsage;
 use Illuminate\Http\Request;
 use ProjectDirectory;
 use Laravel\Horizon\Contracts\JobRepository;
+use App\ScraperProcess;
+use App\Scraper;
 
 class MasterDevTaskController extends Controller
 {
@@ -157,9 +159,23 @@ class MasterDevTaskController extends Controller
         $failedJobs = app(JobRepository::class)->getFailed();
 
 
+        $scraper_proc = [];
+
+        $scraper_process = ScraperProcess::where("scraper_name","!=","")->orderBy('started_at','DESC')->get()->unique('scraper_id');
+        foreach ($scraper_process as $key => $sp) {
+            $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
+            $from = \Carbon\Carbon::now();
+            $diff_in_hours = $to->diffInMinutes($from);
+            if ($diff_in_hours > 1440) {
+                array_push($scraper_proc,$sp);
+            }
+        }
+        $scrapers = Scraper::where("scraper_name","!=","")->whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
+
+
 
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs','scraper_process','scrapers'));
     }
 
 }
