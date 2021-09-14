@@ -95,7 +95,7 @@ use App\CustomerCharity;
 class WhatsAppController extends FindByNumberController
 {
 
-    use hubstaffTrait;
+    use HubstaffTrait;
     CONST MEDIA_PDF_CHUNKS = 50;
     CONST AUTO_LEAD_SEND_PRICE = 281;
     private $githubClient;
