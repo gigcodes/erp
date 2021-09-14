@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
 use App\Library\Hubstaff\Src\Hubstaff;
 use Carbon\Carbon;
 use DB;
@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class SendHubstaffReport extends Command
 {
-    use hubstaffTrait;
+    use HubstaffTrait;
 
     private $client;
 

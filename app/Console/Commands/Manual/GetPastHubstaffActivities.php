@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
 use Exception;
 use GuzzleHttp\Client;
@@ -13,7 +13,7 @@ class GetPastHubstaffActivities extends Command
 {
     private $HUBSTAFF_ACTIVITY_LAST_SYNC_FILE_NAME = 'hubstaff_activity_sync.json';
 
-    use hubstaffTrait;
+    use HubstaffTrait;
 
     private $client;
     /**
