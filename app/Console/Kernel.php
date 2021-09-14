@@ -151,7 +151,9 @@ use App\Console\Commands\UpdateLanguageToGroup;
 
 use App\Console\Commands\ProjectFileManagerDateAndSize;
 use App\Console\Commands\UpdateCharities;
-use App\Console\Commands\BuildStatus;
+
+use App\Console\Commands\FetchMagentoCronData;
+
 
 use DB;
 
@@ -163,6 +165,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        FetchMagentoCronData::class,
         GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
         CheckLogins::class,
@@ -313,8 +316,8 @@ class Kernel extends ConsoleKernel
     {
 
         $schedule->command('project:filemanagementdate')->daily();
-		
-        $schedule->command('command:updatBuildStatus')->everyFiveMinutes();
+
+        $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');;
 
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
