@@ -56,7 +56,9 @@
 	span.user_point_none button, span.admin_point_none button{
 		pointer-events: none;
 		cursor: not-allowed;
-	}
+	}table tr:last-child td {
+		 border-bottom: 1px solid #ddd !important;
+	 }
 
 </style>
 @endsection
@@ -66,24 +68,24 @@
 <div id="myDiv">
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
-<div class="row" id="common-page-layout">
+<div class="row" id="common-page-layout" style="overflow: hidden">
 	<div class="col-lg-12 margin-tb p-0">
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
-		<div class="pull-right pr-2">
-			<button type="button" class="btn btn-xs btn-secondary my-3" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
+		<div class="pull-right pr-2 d-flex">
+			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
-				<button style=" color: #757575" class="btn btn-secondary btn-image">
+				<button style=" color: #757575" class="btn btn-secondary btn-image ml-2">
 					+ Add Status
 				</button>
 			</a>
-			<button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
+			<button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn ml-2">
 				Remarks
 			</button>
 			<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
 				Status Count
 			</a>
-			<select name="order" id="order_query" class="form-control" >
+			<select name="order" id="order_query" class="form-control ml-2" >
                <option value="title" @if(isset($input['order']) and $input['order'] == "title") selected @endif>Title</option>
                <option value="communication" @if(isset($input['order']) and $input['order'] == "communication") selected @endif>Communication</option>
             </select>
@@ -120,7 +122,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status"] + $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", [""=>"All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */ ?>
@@ -137,7 +139,7 @@
 			</div>
 		</div>
 
-		<div class="row">
+		<div class="row m-0">
 			<div class="col-md-12">
 				<div class="collapse" id="statusFilterCount">
 					<div class="card card-body">
@@ -706,7 +708,7 @@
 				});
 		});
 
-		$(document).on("change", ".save-item-select", function() {
+		$(document).on("change", ".save-item-select ", function() {
 			websiteId = $('#website_id').val()
 			category = $(this).data("category")
 			type = $(this).data("type")
