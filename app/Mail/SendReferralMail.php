@@ -74,12 +74,6 @@ class SendReferralMail extends Mailable
                         'data'
                     ));
             }
-        } else {
-            $message = $this->Controller->generate_erp_response("coupon.failed", $this->store_website_id, $default = 'Unable to create coupon', request('lang_code'));
-            return response()->json([
-                'status'  => 'failed',
-                'message' => $message,
-            ], 500);
         }
 
     }
