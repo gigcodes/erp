@@ -736,7 +736,7 @@ class StoreWebsiteController extends Controller
         $post = $request->all();
         
         $validator = Validator::make($post, [
-            'build_name' => 'required',
+            'reference' => 'required',
             'repository' => 'required',
         ]);
 
@@ -758,22 +758,22 @@ class StoreWebsiteController extends Controller
             
             if($StoreWebsite != null){
                 
-                $StoreWebsite->build_name = $request->build_name;
+                $StoreWebsite->build_name = $request->repository;
                 $StoreWebsite->repository = $request->repository;
                 $StoreWebsite->reference = $request->reference;
                 $StoreWebsite->update();
                 
                 if($StoreWebsite):
                     
-                    $jobName = $request->build_name;
+                    $jobName = $request->repository;
                     $repository = $request->repository;
                     $ref = $request->reference;
                     $staticdep = 1;
                     
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
                     $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref,'staticdep' => 0]);           
-                    if($jenkins->getJob($request->build_name)):
-					$job = $jenkins->getJob($request->build_name);
+                    if($jenkins->getJob($jobName)):
+					$job = $jenkins->getJob($jobName);
 					$builds = $job->getBuilds();
 						$buildDetail = 'Build Name: '.$jobName . '<br> Build Repository: '.$repository.'<br> Reference: '.$ref;
 						$record = ['store_website_id'=>$request->store_website_id, 'created_by'=> Auth::id(), 'text'=>$buildDetail, 'build_name'=>$jobName,'build_number'=>$builds[0]->getNumber()];

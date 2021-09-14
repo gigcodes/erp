@@ -580,12 +580,7 @@
                         <?php echo csrf_field(); ?>
                         <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="build_name">Build Name</label>
-                                    <input type="text" name="build_name" id="build_name" value="{{:data.build_name}}" placeholder="Enter Build Name" class="form-control mt-0" />
-                                </div>
-                            </div>
+                            
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="build_repository">Repository</label>
