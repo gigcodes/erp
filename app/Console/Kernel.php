@@ -153,6 +153,7 @@ use App\Console\Commands\ProjectFileManagerDateAndSize;
 use App\Console\Commands\UpdateCharities;
 
 use App\Console\Commands\FetchMagentoCronData;
+use App\Console\Commands\BuildStatus;
 
 
 use DB;
