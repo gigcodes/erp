@@ -57,6 +57,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Plank\Mediable\Media as PlunkMediable;
 use App\CustomerAddressData;
 use App\StoreWebsite;
+use App\CreditHistory;
 
 class CustomerController extends Controller
 {
@@ -2880,4 +2881,90 @@ class CustomerController extends Controller
         $customer = Customer::leftjoin('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
         return response()->json(["status" => 200 ,"data" => $customer]);
     }
+	
+	public function fetchCreditBalance (Request $request) {
+		$email     = $request->email;
+        $platform_id  = $request->platform_id;
+        $website = $request->website;
+		if(empty($request->email)){
+			return response()->json(['message' => 'Customer email is required', 'status'=>500]);
+		}
+		if(empty($request->platform_id)){
+			return response()->json(['message' => 'Platform id is required', 'status'=>500]);
+		}
+		if(empty($request->website)){
+			return response()->json(['message' => 'Website is required', 'status'=>500]);
+		}
+
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+            $store_website_id = $store_website->id; 
+			$customer = Customer::where('email', $email)->where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+			
+			if($customer) {
+				  return response()->json(['message' => '', 'status'=>200, 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
+			} else{
+				  return response()->json(['message' => 'Customer Not Found', 'status'=>500]);
+			} 
+        } else {
+			 return response()->json(['message' => 'Website Not Found', 'status'=>500]);
+		}
+	}
+	
+	public function deductCredit (Request $request) {
+		if(empty($request->email)){
+			return response()->json(['message' => 'Customer email is required', 'status'=>500]);
+		}
+		if(empty($request->platform_id)){
+			return response()->json(['message' => 'Platform id is required', 'status'=>500]);
+		}
+		if(empty($request->website)){
+			return response()->json(['message' => 'Website is required', 'status'=>500]);
+		}
+		if(empty($request->balance)){
+			return response()->json(['message' => 'Balance is required', 'status'=>500]);
+		}
+		
+		$email     = $request->email;
+        $platform_id  = $request->platform_id;
+        $website = $request->website;
+        $balance = $request->balance;
+
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+             $store_website_id = $store_website->id;
+        } else {
+			return response()->json(['message' => 'Website not found.', 'code' => 500, 'status' => 'failure']);
+		}
+		//$customer = Customer::where('email', $email)->where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        $customer = Customer::where('id', 5)->first();
+		if($customer) {
+			$customer_id = $customer->id;
+			$totalCredit = $customer->credit; 
+			if($customer->credit >  $balance) {
+			   $calc_credit=$customer->credit-$balance;
+			   $customer->credit=$calc_credit;
+			   	   
+			   \App\CreditHistory::create(
+					array(
+						'customer_id'=>$customer_id,
+						'model_id'=>$customer_id,
+						'model_type'=>Customer::class,
+						'used_credit'=>(float)$totalCredit - $calc_credit,
+						'used_in'=>'MANUAL',
+						'type'=>'MINUS'
+					)
+				);
+				$customer->save();
+				return response()->json(['message' => 'Credit updated successfully', 'code' => 200, 'status' => 'success']);
+			} else {
+				$toAdd=$balance - $customer->credit;
+				return response()->json(['message' => 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', 'code' => 500, 'status' => 'failure']);
+			}
+        } else {
+			return response()->json(['message' => 'Customer not found.', 'code' => 500, 'status' => 'failure']);
+		}	
+		
+	}
+	
 }

@@ -773,6 +773,33 @@ Content-Type: application/json
 }
 ```
 
+## Fetch Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/fetch-credit-balance
+Accept: application/json
+Content-Type: application/json
+{
+	'email':'technodeviser05@gmail.com'
+	'website':'www.sololuxury.com'
+	'platform_id':1
+}
+Response
+{"message":"","status":200,"data":{"credit_balance":400,"currency":INr}}
+```
+## save Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/deduct-credit
+Accept: application/json
+Content-Type: application/json
+{
+	'email':'technodeviser05@gmail.com'
+	'website':'www.sololuxury.com'
+	'platform_id':1
+}
+Response
+{"message":"Credit updated successfully","code":200,"status":"success"}
+
+
 ## Store data into the laravel logs
 **Request:**
 
