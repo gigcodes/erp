@@ -3953,6 +3953,9 @@ class WhatsAppController extends FindByNumberController
         $message = ChatMessage::findOrFail($request->get("messageId"));
         $today_date = Carbon::now()->format('Y-m-d');
         $is_mail=0;
+        $model_id='';
+        $model_class='';
+        $toemail='';
         if ($chat_id>0) {
             $m = ChatMessage::where('id',$chat_id)->first();
             
@@ -3963,7 +3966,10 @@ class WhatsAppController extends FindByNumberController
         if ($context == "customer") {
             // check the customer message
             $customer = \App\Customer::find($message->customer_id);
-            
+
+            $model_id=$message->customer_id;
+            $model_class=\App\Customer::class;
+            $toemail='';
             // Check the message is email message
           /*  if( $message->is_email == 1 ){
                 
@@ -4211,9 +4217,7 @@ class WhatsAppController extends FindByNumberController
         
 
         $data = '';
-        $model_id='';
-        $model_class='';
-        $toemail='';
+        
         
         if ($message->message != '') {
 
@@ -6210,6 +6214,7 @@ class WhatsAppController extends FindByNumberController
                 'additional_data'  => $model_id,
                 'status'           => 'pre-send',
                 'store_website_id' => null,
+                'cc'               => $cc,
                 'is_draft' => 1,
             ]);
 
