@@ -56,6 +56,7 @@ class MagentoService
     public $languagecode    = [];
     public $aclanguagecode  = [];
     public $activeLanguages = [];
+    public $charity ;
 
     const SKU_SEPERATOR = "-";
 
@@ -64,21 +65,27 @@ class MagentoService
         $this->product      = $product;
         $this->storeWebsite = $storeWebsite;
         $this->log          = $log;
+        $this->charity=0;
+        $p                     = \App\CustomerCharity::where('product_id', $this->product->id)->first();
+        if ($p)
+          $this->charity=1;
     }
 
     public function pushProduct()
     {
         // start to send request if there is token
 
+        
+
         if (!$this->validateToken()) {
             return false;
         }
-
+        
         // started to check for the category
-        if (!$this->validateCategory()) {
+        if ($this->charity==0 && !$this->validateCategory()) {
             return false;
         }
-
+       
         // started to check the product rediness test
          if (!$this->validateReadiness()) {
         return false;
@@ -93,6 +100,7 @@ class MagentoService
         }
 
         // assign reference
+        
         $this->assignReference();
 
         return $this->assignOperation();
@@ -100,7 +108,7 @@ class MagentoService
 
     private function assignOperation()
     {
-
+       
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
         $this->websiteIds = $this->getWebsiteIds();
@@ -108,7 +116,9 @@ class MagentoService
         $this->websiteAttributes = $this->getWebsiteAttributes();
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
+        
         $this->startTranslation();
+        
 
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
         $this->meta = $this->getMeta();
@@ -120,9 +130,9 @@ class MagentoService
 		}
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
-        /*  if (!$this->validateTranslation()) {
+          if (!$this->validateTranslation()) {
         return false;
-        }*/
+        }
 
         \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
 
@@ -156,8 +166,10 @@ class MagentoService
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
-
+        
         $this->getPricing();
+
+        
 
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
@@ -296,6 +308,8 @@ class MagentoService
 
         $pushSingle = false;
 
+
+
         if ($mainCategory->push_type == 0 && !is_null($mainCategory->push_type)) {
             \Log::info("Product push type single via category");
             \Log::info($this->product->id . " #20 => " . date("Y-m-d H:i:s"));
@@ -318,9 +332,9 @@ class MagentoService
                 $pushSingle = true;
             }
         }
-
+        
         if ($pushSingle) {
-            $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
+              $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
                 $this->log->total_request_assigned = $totalRequest;
                 $this->log->save();
@@ -335,8 +349,36 @@ class MagentoService
             }
             $result = $this->_pushConfigurableProductWithChildren();
         }
-
+       
         // started to check that request issue
+        $platform_id=0;
+        if (isset($result->id))
+        {
+            $platform_id=$result->id;
+            $sp=\App\StoreWebsiteProduct::where('product_id',$this->product->id)
+              ->where('store_website_id',$this->storeWebsite->id)->first();
+            if ($sp)
+            {
+                  $sp->platform_id=$platform_id;
+                  $sp->updated_at=date("Y-m-d H:i:s");
+                  $sp->save();
+
+            }
+            else
+            {
+                $data['product_id']=$this->product->id;
+                $data['store_website_id']=$this->storeWebsite->id;
+                $data['platform_id']=$platform_id;
+                $data['created_at']=date("Y-m-d H:i:s");
+                \App\StoreWebsiteProduct::insert($data);
+            }
+            
+        }
+            
+
+       
+       
+        
         if ($this->log) {
             $totalReq     = $this->log->total_request_assigned;
             $totalSuccess = \App\ProductPushErrorLog::where('log_list_magento_id', $this->log->id)->where('response_status', 'success')->count();
@@ -345,12 +387,15 @@ class MagentoService
                 $this->log->message        = "Product has been failed to push as total request is not matching with current request";
                 $this->log->save();
             } else {
+               
                 $this->pushdiscountprice();
                 $this->product->status_id        = StatusHelper::$inMagento;
                 $this->product->isUploaded       = 1;
                 $this->product->is_uploaded_date = Carbon::now();
                 $this->product->isListed         = 1;
                 $this->product->save();
+                
+                
 
                 $this->log->languages = json_encode($this->languagecode);
                 $this->log->save();
@@ -497,13 +542,18 @@ class MagentoService
                 'value'          => $this->storeColor,
             ];
         }
-
+        
         $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/", $this->token, $data);
+        
         $res              = json_decode($functionResponse['res']);
+        $returnres=$res;
+        
+
+         
 
         // store image function has been done
         if ($functionResponse['httpcode'] == 200) {
-            if ($this->productType == "configurable" || $this->productType == "single") {
+          if ($this->charity==0 && ($this->productType == "configurable" || $this->productType == "single")) {
                 if (array_key_exists('media_gallery_entries', $res) && !empty($res->media_gallery_entries)) {
                     foreach ($res->media_gallery_entries as $key => $image) {
                         $this->imageIds[] = $image->id;
@@ -594,6 +644,7 @@ class MagentoService
 
             }
         }
+        return $returnres;
 
     }
 
@@ -745,11 +796,13 @@ class MagentoService
         ];
         $d['description']  = $this->description;
         $d['tax_class_id'] = 2;
-
+       
+        
         $data = $this->defaultData($d);
-
+        
         $result = $this->_pushProduct('single', $this->sku, $data, '', $this->storeWebsite, $this->token, $this->product);
         // Return result
+        
         return $result;
     }
 
@@ -1076,7 +1129,7 @@ class MagentoService
 
     private function startTranslation()
     {
-         \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
+        \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
 	}
 
     private function getWebsiteAttributes()

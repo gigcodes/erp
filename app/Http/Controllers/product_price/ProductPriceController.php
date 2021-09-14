@@ -428,28 +428,73 @@ class ProductPriceController extends Controller
         $final_price = 100;
         $ids = $request->all();
 
-        $categoryIds = Category::pluck('id')->toArray(); 
-        $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+        $categoryIds = Category::pluck('id')->toArray();
+        $categories = Category::whereNotIn('parent_id', $categoryIds)
+                        ->where('parent_id', '>', 0)
+                        ->select('id', 'title')
+                        ->orderBy('title','asc')
+                        ->get()->toArray();
 
         //$cat_id = isset($ids['id']) ? $ids['id'] :$categories[0]['id'];
         
+        $skip = empty($request->page) ? 0 : $request->page;
+
         ini_set('memory_limit', -1);
         $product_list = [];
-        $countries = SimplyDutyCountry::select('*')->get()->toArray();
+
+        $countries = SimplyDutyCountry::select('*');
+
+        if(isset($request->order) && isset($request->input)){
+            if($request->input=='csegment'){
+                $countries =$countries->orderBy('country_code',$request->order);
+            }
+        }
+
+        $countries = $countries->get()->toArray();
         
         
         //$brands = Brand::select('id', 'name')->get()->toArray();
         $brands =\App\StoreWebsite::where('store_websites.is_published', 1)
-            ->crossJoin('products')->leftJoin('brands', 'brands.id', 'products.brand')->whereNotNull('brands.name')
-                    ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId','store_websites.id as store_websites_id',
-                'store_websites.website as product_website')
+            ->crossJoin('products')
+            ->leftJoin('brands', 'brands.id', 'products.brand')
+            ->Join('categories', 'categories.id', 'products.category')
+            ->leftJoin("category_segments as cs", function ($q) {
+                $q->on("categories.category_segment_id", "cs.id");
+            })
+            // ->join("category_segments as cs", function ($q) {
+            //     $q->on("categories.category_segment_id", "cs.id");
+            // })
+            ->whereNotNull('brands.name')
+            ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId','store_websites.id as store_websites_id',
+                'store_websites.website as product_website','categories.title as cate_title','cs.name as country_segment');
                 //->groupBy('products.brand')
-                ->limit(50)->get()->toArray();
+                //->limit(50)->get()->toArray();
         //old query 09-09-2021
         // $brands = Product::leftJoin('brands', 'brands.id', 'products.brand')->whereNotNull('brands.name')
         //             ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId')
         //             ->groupBy('products.brand')->limit(50)->get()->toArray();
         $i = 0;
+
+        if(isset($request->order) && isset($request->input)){
+            if($request->input=='category'){
+                $brands->orderBy('cate_title',$request->order);
+            }
+
+            if($request->input=='website'){
+                $brands->orderBy('product_website',$request->order);
+            }
+
+            if($request->input=='bsegment'){
+                $brands->orderBy('brands.brand_segment',$request->order);
+            }
+
+            if($request->input=='csegment'){
+                $brands->orderBy('cs.name',$request->order);
+            }
+        }
+
+        $brands = $brands->skip($skip * Setting::get('pagination'))
+        ->limit('25')->get()->toArray();
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status',1)->get();
@@ -462,7 +507,7 @@ class ProductPriceController extends Controller
                         ->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
                         ->where('categories.id',$brand['catId'])
                         ->where('csd.brand_id', $brand['id'])
-                        ->select("csd.*")
+                        ->select("csd.*",'cs.name as category_segment')
                         ->first();                   
 
                    //$category_segment_discount = DB::table('category_segment_discounts')->where('category_id', $cat_id)->where('brand_id', $brand['id'])->first();
@@ -493,15 +538,17 @@ class ProductPriceController extends Controller
                     $final_price = $final_price + $dutyDisc;
                 }
 
-                if($country['segment_id']!='' || $country['segment_id']!=0){
-                   $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
-                   $country['dutySegment'] = $dutysegment->segment;
-                }else{
-                    $country['dutySegment'] = '';
-                }
-               
-                $categoryDetail = Category::where('id',$brand['catId'])->select('id', 'title')->first();
+                // if($country['segment_id']!='' || $country['segment_id']!=0){
+                //    $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
+                //    $country['dutySegment'] = $dutysegment->segment;
+                // }else{
+                //     $country['dutySegment'] = '';
+                // }
+                
+                $country['dutySegment']= isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];//$country['country_code'];
 
+                $categoryDetail = Category::where('id',$brand['catId'])->select('id', 'title')->first();
+                
                 $product_list[] = [
                     'catId'=>$categoryDetail ? $categoryDetail->id :'', 
                     'categoryName'=> $categoryDetail ? $categoryDetail->title :'', 
@@ -541,32 +588,79 @@ class ProductPriceController extends Controller
             $product_list =$data['product_list'];
             $category_segments =$data['category_segments'];
             $categories =$data['categories'];
+
+            if ($request->ajax()) {
+                $count = $request->count;
+
+                $view =view('product_price.generic_price_ajax', compact('product_list', 'category_segments'))->render();
+
+                return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
+            }
             return view('product_price.generic_price', compact('product_list', 'category_segments','categories'));
         }
 
         $categoryIds = Category::pluck('id')->toArray(); 
-        $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->get()->toArray();
+        $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->orderBy('title','asc')->get()->toArray();
 
         $cat_id = isset($ids['id']) ? $ids['id'] :$categories[0]['id'];
 
 		ini_set('memory_limit', -1);
 		$product_list = [];
-		$countries = SimplyDutyCountry::select('*')->get()->toArray();
+
+		$countries = SimplyDutyCountry::select('*');
+
+        if(isset($request->order) && isset($request->input)){
+            if($request->input=='csegment'){
+                $countries =$countries->orderBy('country_code',$request->order);
+            }
+        }
+
+        $countries = $countries->get()->toArray();
+
 		$categoryDetail = Category::where('id',$cat_id)->select('id', 'title')->first();
         
 		//$brands = Brand::select('id', 'name')->get()->toArray();
+        $skip = empty($request->page) ? 0 : $request->page;
 
         $brands =\App\StoreWebsite::where('store_websites.is_published', 1)
             ->crossJoin('products')
             ->leftJoin('brands', 'brands.id', 'products.brand')
+            ->Join('categories', 'categories.id', 'products.category')
+            ->leftJoin("category_segments as cs", function ($q) {
+                $q->on("categories.category_segment_id", "cs.id");
+            })
             ->whereNotNull('brands.name')
-            ->where('category', $cat_id)
+            ->where('products.category', $cat_id)
             ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId','store_websites.id as store_websites_id',
-                'store_websites.website as product_website')
-            ->groupBy('products.brand')->limit(50)->get()->toArray();
+                'store_websites.website as product_website','categories.title as cate_title','cs.name as country_segment');
+            //->groupBy('products.brand')
+           // ->limit(50)->get()->toArray();
             //old query 09-09-2021
 		// $brands = Product::leftJoin('brands', 'brands.id', 'products.brand')
 		// 		  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name','brands.brand_segment')->groupBy('products.brand')->get()->toArray();
+
+
+        if(isset($request->order) && isset($request->input)){
+            if($request->input=='category'){
+                $brands->orderBy('cate_title',$request->order);
+            }
+
+            if($request->input=='website'){
+                $brands->orderBy('product_website',$request->order);
+            }
+
+            if($request->input=='bsegment'){
+                $brands->orderBy('brands.brand_segment',$request->order);
+            }
+
+            if($request->input=='csegment'){
+                $brands->orderBy('cs.name',$request->order);
+            }
+        }
+
+
+        $brands = $brands->skip($skip * Setting::get('pagination'))
+        ->limit('25')->get()->toArray();
 		$i = 0;
 
 		$countriesCount = count($countries);
@@ -577,11 +671,11 @@ class ProductPriceController extends Controller
 
               //  foreach ($category_segments as $key => $value) {
 				$category_segment_discount = \DB::table("categories")->join("category_segments as cs", "cs.id", "categories.category_segment_id")
-						->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
-						->where('categories.id', $cat_id)
-						->where('csd.brand_id', $brand['id'])
-						->select("csd.*")
-						->first();                   
+                        ->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
+                        ->where('categories.id',$brand['catId'])
+                        ->where('csd.brand_id', $brand['id'])
+                        ->select("csd.*",'cs.name as category_segment')
+                        ->first();                   
 
 				   //$category_segment_discount = DB::table('category_segment_discounts')->where('category_id', $cat_id)->where('brand_id', $brand['id'])->first();
                     if($category_segment_discount != null) {
@@ -611,12 +705,16 @@ class ProductPriceController extends Controller
 					$final_price = $final_price + $dutyDisc;
                 }
 
-                if($country['segment_id']!='' || $country['segment_id']!=0){
-                   $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
-                   $country['dutySegment'] = $dutysegment->segment;
-                }else{
-                    $country['dutySegment'] = '';
-                }
+                // if($country['segment_id']!='' || $country['segment_id']!=0){
+                //    $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
+                //    $country['dutySegment'] = $dutysegment->segment;
+                // }else{
+                //     $country['dutySegment'] = '';
+                // }
+
+                $country['dutySegment']= isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
+
+                //$country['dutySegment']= $country['country_code'];
                
                 
 				$product_list[] = [
@@ -644,6 +742,12 @@ class ProductPriceController extends Controller
                 $final_price = 100;
 
 			}
+
+        if ($request->ajax()) {
+            $count = $request->count;
+            $view =view('product_price.generic_price_ajax', compact('product_list', 'category_segments'))->render();
+            return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
+        }
 		
 		return view('product_price.generic_price', compact('product_list', 'category_segments','categories'));
 	}

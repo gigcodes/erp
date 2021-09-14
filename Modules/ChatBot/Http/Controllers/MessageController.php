@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
+
 class MessageController extends Controller
 {
     /**
@@ -18,6 +19,7 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
+       
         $search = request("search"); 
         $status = request("status");
         $unreplied_msg = request("unreplied_msg");//Purpose : get unreplied message value - DEVATSK=4350
@@ -298,5 +300,27 @@ class MessageController extends Controller
 
         return response()->json(["code" => 500, "data" => [], "messages" => "No task found"]);
     }
+
+  public function updateEmailAddress(Request $request)
+  {
+    $chat_id=$request->chat_id;
+    $fromemail=$request->fromemail;
+    $toemail=$request->toemail;
+    $ccemail=$request->ccemail;
+    if ($chat_id>0)
+    {
+        ChatMessage::where('id',$chat_id)
+        ->update(['from_email'=>$fromemail,'to_email'=>$toemail,'cc_email'=>$ccemail]);
+        return response()->json(["code" => 200, "data" => [], "messages" => "Record Updated Successfully"]);
+    }
+    else
+    {
+        return response()->json(["code" => 500, "data" => [], "messages" => "Error"]); 
+    }
+    
+
+    
+  
+  }
 
 }

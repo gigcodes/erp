@@ -17,6 +17,7 @@ class GoogleTranslateController extends Controller
     public static function translateProductDetails($product,$logid=null)
     {
 		$logModel = LogListMagento::find($logid);
+       
         try {
             $measurement = ProductHelper::getMeasurements($product);
             $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
