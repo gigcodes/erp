@@ -190,6 +190,19 @@
           },
         });
     });
+	
+	$(document).on("click",".sync_stage_to_master",function(href) {
+		$.ajax({
+          url: 'store-website/'+ $(this).data('id')+'/sync-stage-to-master',
+          success: function (data) {
+			    if(data.code == 200) {
+				  toastr["success"](data.message);
+			    } else {
+					toastr["error"](data.message);
+				}
+          },
+        });
+    });
            
 </script>
 

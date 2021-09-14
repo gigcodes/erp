@@ -796,5 +796,19 @@ class StoreWebsiteController extends Controller
 		$buildHistory = BuildProcessHistory::leftJoin('users', 'users.id', '=', 'build_process_histories.created_by')->where('store_website_id', $store_website_id)->select('users.name as UserName', 'build_process_histories.*')->orderBy('id', 'desc')->get();
 		return view('storewebsite::build_history', compact('buildHistory'));
 	}
+	
+	public function syncStageToMaster($storeWebId) {
+		$websiteDetails = StoreWebsite::where('id', $storeWebId)->select('server_ip', 'repository')->first();
+		if($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository'] != null) {
+			$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r '.$websiteDetails['repository'].' -s '.$websiteDetails['server_ip'];
+			$allOutput = array(); 
+			$allOutput[] = $cmd; 
+			$result = exec($cmd, $allOutput); //Execute command
+			\Log::info(print_r(["Command Output",$allOutput],true));
+			return response()->json(["code" => 200 , "message" => "Command executed"]);
+		} else {
+			return response()->json(["code" => 500 , "message" => "Request has been failed."]);
+		}
+	}
 
 }
