@@ -23,6 +23,7 @@ use App\StoreWebsiteUserHistory;
 use App\StoreReIndexHistory;
 use App\BuildProcessHistory;
 use Carbon\Carbon;
+use App\Github\GithubRepository;
 
 
 class StoreWebsiteController extends Controller
@@ -798,14 +799,19 @@ class StoreWebsiteController extends Controller
 	}
 	
 	public function syncStageToMaster($storeWebId) {
-		$websiteDetails = StoreWebsite::where('id', $storeWebId)->select('server_ip', 'repository')->first();
-		if($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository'] != null) {
-			$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r '.$websiteDetails['repository'].' -s '.$websiteDetails['server_ip'];
-			$allOutput = array(); 
-			$allOutput[] = $cmd; 
-			$result = exec($cmd, $allOutput); //Execute command
-			\Log::info(print_r(["Command Output",$allOutput],true));
-			return response()->json(["code" => 200 , "message" => "Command executed"]);
+		$websiteDetails = StoreWebsite::where('id', $storeWebId)->select('server_ip', 'repository_id')->first();
+		if($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository_id'] != null) {
+			$repo = GithubRepository::where('id', $websiteDetails['repository_id'])->pluck('name')->first();
+			if($repo != null) {
+				$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r '.$repo.' -s '.$websiteDetails['server_ip'];
+				$allOutput = array(); 
+				$allOutput[] = $cmd; 
+				$result = exec($cmd, $allOutput); //Execute command
+				\Log::info(print_r(["Command Output",$allOutput],true));
+				return response()->json(["code" => 200 , "message" => "Command executed"]);
+			} else {
+				return response()->json(["code" => 500 , "message" => "Repository Not found."]);
+			}
 		} else {
 			return response()->json(["code" => 500 , "message" => "Request has been failed."]);
 		}
