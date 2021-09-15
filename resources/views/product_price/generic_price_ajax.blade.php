@@ -69,6 +69,7 @@
        </td>
        <td>{{ $product['less_IVA'] }}</td>
        <td>{{ $product['final_price'] }}</td>
+       <td><button class="btn btn-secondary UpdateProduct" data-brandId ="{{$product['brandId']}}" data-countryId ="{{$product['country']['id']}}">Update</button></td>
    </tr> 
 @endforeach
                    

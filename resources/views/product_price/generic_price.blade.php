@@ -76,13 +76,15 @@
                             <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="csegment" data-order="asc" aria-hidden="true"></i>
                             <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="csegment" data-order="desc" aria-hidden="true"></i>
                            </th>
-                           <th style="width: 5%">Price</th>
+                           <th style="width: 2%">Price</th>
                            @foreach($category_segments as $category_segment)
                               <th width="3%"> Category Segment {{ $category_segment->name }}</th>
                            @endforeach
                            <th style="width: 5%">Add Duty </th>
-                           <th style="width: 5%">less_IVA </th>
-                           <th style="width: 5%">Final Price</th>
+                           <th style="width: 5%">Add Profit </th>
+                           <th style="width: 3%">less_IVA </th>
+                           <th style="width: 3%">Final Price</th>
+                           <th style="width: 3%">Update</th>
                        </tr>
                        </thead>
                        <tbody>
@@ -132,7 +134,9 @@
                                </td>
                             
                                <td>{{ $product['product_price'] }}</td>
-
+                                @php
+                                    $j=1;
+                                @endphp
                                   @foreach($category_segments as $category_segment)
                                     <td>
                                         @php
@@ -140,23 +144,36 @@
                                         @endphp
 
                                         @if($category_segment_discount)
-                                            <input type="text" class="form-control seg_discount1" value="{{ $category_segment_discount->amount }}" = data-ref="{{ $category_segment->id }}" onKeyUp="updateSegmentPrice({{$category_segment->id}}, {{$product['brandId']}}, this)"></th>
+                                            <input type="text" class="form-control seg_discount1 segment{{$j}}" data-row="{{$i}}" data-name="{{'seg_discount'.$i}}" value="{{ $category_segment_discount->amount }}" = data-ref="{{ $category_segment->id }}" onKeyUp="checkFinalPriceBeforeUpdate(this)" data-less_IVA="{{ $product['less_IVA'] }}" data-cate_segment_discount="{{ $product['cate_segment_discount'] }}" data-cate_segment_discount_type="{{ $product['cate_segment_discount_type'] }}" data-product_price="{{ $product['product_price'] }}" data-default_duty="{{ $product['country']['default_duty'] }}"></th>
                                         @else
-                                            <input type="text" class="form-control seg_discount1" value="" data-ref="{{ $category_segment->id }}" onKeyUp="updateSegmentPrice({{$category_segment->id}}, {{$product['brandId']}}, this)"></th>
+                                            <input type="text" class="form-control seg_discount segment{{$j}}" data-row="{{$i}}"  data-name="{{'seg_discount'.$i}}" value="" data-ref="{{ $category_segment->id }}" onKeyUp="checkFinalPriceBeforeUpdate(this)" data-less_IVA="{{ $product['less_IVA'] }}" data-cate_segment_discount="{{ $product['cate_segment_discount'] }}" data-cate_segment_discount_type="{{ $product['cate_segment_discount_type'] }}" data-product_price="{{ $product['product_price'] }}" data-default_duty="{{ $product['country']['default_duty'] }}"></th>
                                         @endif
                                     </td>
+                                    @php
+                                    $j++;
+                                    @endphp
                                   @endforeach 
-                              
+                                  
                                <td>
                                    <div class="form-group">
                                        <div class="input-group">
-                                           <input style="width: 75%;border-radius: 4px;" placeholder="add duty" data-ref="{{str_replace(' ', '_', $product['country']['country_name'])}}" value="{{ str_replace('%', '', $product['country']['default_duty']) }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $product['country']['country_name'])}}" name="add_duty" onKeyUp="updateDutyPrice({{$product['country']['id']}}, this)">
+                                           <input style="width: 75%;border-radius: 4px;" data-row="{{$i}}" data-name="{{'add_duty'}}" placeholder="add duty" data-ref="{{str_replace(' ', '_', $product['country']['country_name'])}}" value="{{ str_replace('%', '', $product['country']['default_duty']) }}" type="text" class="form-control add_duty {{str_replace(' ', '_', $product['country']['country_name'])}}" name="add_duty" onKeyUp="checkFinalPriceBeforeUpdate2(this)" data-less_IVA="{{ $product['less_IVA'] }}" data-cate_segment_discount="{{ $product['cate_segment_discount'] }}" data-cate_segment_discount_type="{{ $product['cate_segment_discount_type'] }}" data-product_price="{{ $product['product_price'] }}" data-default_duty="{{ $product['country']['default_duty'] }}">
                                            <div class="ml-2" style="float: left;">%</div>
                                        </div>
                                    </div>
                                </td>
+                               <td>
+                                  <div style="align-items: center">
+                                      <span style="min-width:50px;">{{ $product['add_profit'] }}</span>
+                                      <div class="ml-2" style="float: right;">%</div>
+                                      <div style="float: right;width:50%;">
+                                          <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $product['store_websites_id']}}" value="{{ $product['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $product['store_websites_id']}}" name="add_profit">
+                                      </div>
+                                  </div>
+                               </td>
                                <td>{{ $product['less_IVA'] }}</td>
-                               <td>{{ $product['final_price'] }}</td>
+                               <td id="final_price_row{{$i}}">{{ $product['final_price'] }}</td>
+                               <td><button class="btn btn-secondary UpdateProduct" data-brandId ="{{$product['brandId']}}" data-countryId ="{{$product['country']['id']}}">Update</button></td>
                            </tr> 
                        @endforeach
                        </tbody>
@@ -261,9 +278,123 @@ function showgenerice() {
       });
 
     });
+});
+
+    function checkFinalPriceBeforeUpdate2($that){
+        var less_iva = $($that).data('less_iva').replace('%', "");;
+        var product_price = $($that).data('product_price');
+        var final_price =product_price;
+
+        var cate_segment_discount = $($that).data('cate_segment_discount');
+        var cate_segment_discount_type = $($that).data('cate_segment_discount_type');
+        var default_duty = $($that).data('default_duty');
+        var name = $($that).data('name');
+
+        cate_segment_discount = $($that).val();
+        var row = $($that).data('row');
+
+        // if(cate_segment_discount !='' && cate_segment_discount != null){
+        //     if(cate_segment_discount_type == 'percentage'){
+        //         var catDisc = (product_price * cate_segment_discount)/100;
+        //         final_price = final_price - catDisc;
+
+        //     }else{
+        //         final_price = final_price - cate_segment_discount;
+        //     }
+        // }
+
+        // if(less_iva!=0){
+        //     var lessIva = (final_price * less_iva )/100;
+        //     final_price = final_price - lessIva;
+        // }
+        if(default_duty !=''){
+            var dutyDisc = (final_price * default_duty)/100;
+            final_price = final_price + dutyDisc;
+        }
+        $('#final_price_row'+row).text(final_price.toFixed(2));
+    }
+
+    function checkFinalPriceBeforeUpdate($that){
+        var less_iva = $($that).data('less_iva').replace('%', "");;
+        var product_price = $($that).data('product_price');
+        var final_price =product_price;
+
+        var cate_segment_discount = $($that).data('cate_segment_discount');
+        var cate_segment_discount_type = $($that).data('cate_segment_discount_type');
+        var default_duty = $($that).data('default_duty');
+        var name = $($that).data('name');
+
+        cate_segment_discount = $($that).val();
+        var row = $($that).data('row');
+
+        if(cate_segment_discount !='' && cate_segment_discount != null){
+            if(cate_segment_discount_type == 'percentage'){
+                var catDisc = (product_price * cate_segment_discount)/100;
+                final_price = final_price - catDisc;
+
+            }else{
+                final_price = final_price - cate_segment_discount;
+            }
+        }
+
+        if(less_iva!=0){
+            var lessIva = (final_price * less_iva )/100;
+            final_price = final_price - lessIva;
+        }
+        if(default_duty !=''){
+            var dutyDisc = (final_price * default_duty)/100;
+            final_price = final_price + dutyDisc;
+        }
+        $('#final_price_row'+row).text(final_price.toFixed(2));
+    }
 
 
+function updateDutyPrice(countryId, dutyPrice) {     
+     $.ajax({
+        url: "{{route('updateDutyPrice')}}",
+        type: 'post',
+        data: {
+            _token: '{{csrf_token()}}',
+            countryId: countryId,
+            dutyPrice: dutyPrice.value
+        },
+        beforeSend: function () {
+            $("#loading-image").show();
+        }
+    }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.status == false){
+             toastr["error"]("Something went wrong, Please try again.");
+        }else{
+            toastr["success"]("Product updated successfully!", "Message");
+        }
     });
+}
+
+function updateSegmentPrice(segmentId, brandId, price) {
+        var data = {
+                _token: '{{csrf_token()}}',
+                segmentId: segmentId,
+                brandId: brandId,
+                price: price.value
+            };  
+         $.ajax({
+            //updateSegmentPrice  real route
+            url: "{{route('updateSegmentPrice')}}",
+            type: 'post',
+            data: data,
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                toastr["error"]("Something went wrong, Please try again.");
+            }else{
+                toastr["success"]("Product updated successfully!", "Message");
+            }
+        });
+    }
 
 $(document).on('click', '.expand-row', function () {
   var selection = window.getSelection();
@@ -272,6 +403,88 @@ $(document).on('click', '.expand-row', function () {
     $(this).find('.td-full-container').toggleClass('hidden');
   }
 });
+
+$(document).on('keyup', '.add_profit', function () {
+        if (event.keyCode != 13) {
+            return;
+        }
+        let add_profit = $(this).val().replace('%', '');
+        let ref_name = $(this).data('ref');
+        let rows = $('.'+ref_name).closest('tr');
+        let product_array = [];
+        for(let i=0; i< rows.length; i++){
+            product_array[i] = {
+                'row_id' : $(rows[i]).attr('data-id'),
+                'storewebsitesid' : $(rows[i]).attr('data-storewebsitesid'),
+                'product_id' : $(rows[i]).closest('tr').find('.product_id').text(),
+                'add_duty' : $(rows[i]).closest('tr').find('.add_duty').val().replace('%', ''),
+                'product_id' : $(rows[i]).find('.product_id').text(),
+                'add_profit' : $(rows[i]).closest('tr').find('.add_profit').val().replace('%', ''),
+                'country_code' : $(rows[i]).attr('data-country_code'), 
+            };
+        }
+
+        $.ajax({
+            url: "{{route('product.pricing.update.add_profit')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                product_array: JSON.stringify(product_array),
+                add_profit: add_profit,
+                row_id: $(this).closest('tr').attr('data-id'),
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            if(response.status == false){
+                toastr["error"](response.message + " is not exist!", "Message");
+            }else{
+                response.data.forEach(function(item, index) {
+                    if(item.status){
+                        let row = $(`.tr_${item.row_id}`); 
+                        $(row).find('td:nth-child(12) span').html(item.add_profit);
+                        $(row).find('.add_profit').val(add_profit);
+                        $(row).find('td:nth-child(13)').html(item.price);
+                    }
+                }); 
+                toastr["success"]("profit updated successfully!", "Message");
+            }
+        });
+
+    }); 
+
+$(document).on('click', '.UpdateProduct', function () {
+    var data ={
+         _token: '{{csrf_token()}}',
+        default_duty: $('.add_duty').val(),
+        segmentId1:   $('.segment1').data('ref'),
+        segmentprice1 :   $('.segment1').val(),
+        segmentId2:   $('.segment2').data('ref'),
+        segmentprice2:   $('.segment2').val(),
+        brandId:      $(this).attr('data-brandId'),
+        countryId:    $(this).attr('data-countryId'),
+    }
+
+    $.ajax({
+        //updateSegmentPrice  real route
+        url: "{{route('product_update')}}",
+        type: 'post',
+        data: data,
+        beforeSend: function () {
+            $("#loading-image").show();
+        }
+    }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.status == false){
+            toastr["error"]("Something went wrong, Please try again.");
+        }else{
+            toastr["success"]("Product updated successfully!", "Message");
+        }
+    });
+});
+
 </script>
 
 @endsection
