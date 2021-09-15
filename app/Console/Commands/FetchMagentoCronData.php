@@ -40,14 +40,20 @@ class FetchMagentoCronData extends Command
      */
     public function handle()
     {
-        $website = StoreWebsite::whereNotNull('dev_magento_url')->get()->pluck('dev_magento_url','id')->toArray();
+        $website = StoreWebsite::all()->pluck('website','id')->toArray();
         //$date = '2021-7-14';
 		$date = Carbon::yesterday()->format('Y-n-j');
 		$cronstatus = $this->cronStatus();
         foreach($website as $storeId => $web){
             foreach($cronstatus as $status){
+				$web = strtolower($web);
+				$url = parse_url($web); 
+				if(!isset($url['scheme'])) {	
+					$web = 'https://'.$web;
+				} 
+
                 $api = "$web/default/rest/all/V1/cronbystatus/$status/createdat/$date";
-                $data = json_decode($this->getDataApi($api), true);
+                $data = json_decode($this->getDataApi($api), true); 
                 if(!empty($data)){
                     foreach($data as $da){
                         if(isset($da['status']) && ($da['status']== true && $da['Message']=="Cron data returned successfully")){
