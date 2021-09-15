@@ -370,8 +370,8 @@ class LeadsController extends Controller
         // ]);
 
         if ($request->ajax()) {
-            $message = $this->generate_erp_response("erp.lead.created.success",0, $default='Lead created successfully.', request('lang_code'));
-            return response()->json(['lead' => $lead, "message" => $message]);
+            $message = "Lead created successfully";
+			return response()->json(['lead' => $lead, "message" => $message]);
         }
         
         return redirect()->route('leads.create')
@@ -1117,8 +1117,8 @@ class LeadsController extends Controller
             }
 
             $customer->save();
-            $message = $this->generate_erp_response("erp.block.customer.lead.success",0, $default='Leads for Customer are blocked', request('lang_code'));
-            return response()->json([
+            $message = "Leads for Customer are blocked";
+			return response()->json([
                 'status' => 200,
                 'message' => $message,
             ]);
@@ -1156,8 +1156,8 @@ class LeadsController extends Controller
 
         $customer = \App\Customer::where("id", request()->get("customer_id", 0))->first();
         if (!$customer) {
-            $message = $this->generate_erp_response("erp.lead.add.failed.validation",0, $default='Please select valid customer', request('lang_code'));
-            return response()->json(["code" => 0, "data" => [], "message" => $message]);
+            $message = "Please select valid customer";
+		    return response()->json(["code" => 0, "data" => [], "message" => $message]);
         }
 
         $product = \App\Product::where("id", $productId)->first();
@@ -1234,8 +1234,8 @@ class LeadsController extends Controller
             $erpLeads->attachMedia($media, config('constants.media_tags'));
         }
 
-        $message = $this->generate_erp_response("erp.lead.add.success", 0, $default='Erp lead created successfully', request('lang_code'));
-        return response()->json(["code" => 1, "data" => [], "message" => $message ]);
+        $message =  "Erp lead created successfully";
+		 return response()->json(["code" => 1, "data" => [], "message" => $message ]);
     }
 
     public function erpLeadDelete()
@@ -1247,8 +1247,8 @@ class LeadsController extends Controller
             $erpLeads->delete();
         }
         
-        $message = $this->generate_erp_response("erp.lead.delete.success", 0, $default='Erp lead deleted successfully', request('lang_code'));
-        return response()->json(["code" => 1, "data" => [], "message" => $message ]);
+       $message = "Erp lead deleted successfully";
+		return response()->json(["code" => 1, "data" => [], "message" => $message ]);
     }
 
     public function customerSearch()
@@ -1325,8 +1325,7 @@ class LeadsController extends Controller
                 MessageQueue::create($params);
             }
         }
-        
-        $message = $this->generate_erp_response("erp.lead.message.send.success", 0, $default='Message sent successfully', request('lang_code'));
+        $message = "Message sent successfully";
         return response()->json(["code" => 1, "data" => [], "message" =>$message ]);
         
     }
@@ -1440,8 +1439,7 @@ class LeadsController extends Controller
         //     app('App\Http\Controllers\WhatsAppController')
         //                         ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false);
         // }
-        
-        $message = $this->generate_erp_response("erp.lead.status.update.success", 0, $default='Status Updated Successsfully', request('lang_code'));        
+        $message = "Status Updated Successsfully";
         return response()->json(['code' => 200,'message' => $message, 'template' => $template]);
     }
 
@@ -1505,8 +1503,7 @@ class LeadsController extends Controller
             }
            
         }
-        
-        $message = $this->generate_erp_response("erp.lead.status.change.success", 0, $default='Status Changed Successsfully', request('lang_code'));        
+        $message = "Status Changed Successsfully";
         return response()->json(['Sucess', 200,'message' => $message]);
 
     }
