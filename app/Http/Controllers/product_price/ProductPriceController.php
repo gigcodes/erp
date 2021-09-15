@@ -767,27 +767,6 @@ class ProductPriceController extends Controller
     public function updateProduct(Request $request) { 
         //echo"<pre>";print_r($request->all());die();
 
-        if(isset($request->default_duty)){
-            $duty = SimplyDutyCountry::find($request->countryId);
-            $duty->default_duty = $request->default_duty;
-
-            $data=[
-                'simply_duty_countries_id'=>$duty->id,
-                'old_segment'=>$duty->segment_id, 
-                'new_segment'=>$duty->segment_id,
-                'old_duty'=>$duty->default_duty,
-                'new_duty'=>$request->input('duty'),
-                'updated_by'=>Auth::user()->id
-    
-            ];
-            //$duty->default_duty =$request->default_duty;
-            $duty->status=0;
-            SimplyDutyCountryHistory::insert($data);
-            if ($duty->save()) {
-                $this->update_store_website_product_prices($duty->country_code,$request->input('duty'));
-            }
-        }
-
         if(isset($request->segmentId1)){
             $catSegDiscount = CategorySegmentDiscount::where(['category_segment_id'=>$request->segmentId1,'brand_id'=>$request->brandId])->first();
             if($catSegDiscount == null) {
@@ -805,7 +784,51 @@ class ProductPriceController extends Controller
                 $catSegDiscount->update([ 'amount'=>$request->segmentprice2]);
             }
         }
+		 if(isset($request->default_duty)){
+            $duty = SimplyDutyCountry::find($request->countryId);
+            $duty->default_duty = $request->default_duty;
 
+            $data=[
+                'simply_duty_countries_id'=>$duty->id,
+                'old_segment'=>$duty->segment_id, 
+                'new_segment'=>$duty->segment_id,
+                'old_duty'=>$duty->default_duty,
+                'new_duty'=>$request->input('duty'),
+                'updated_by'=>Auth::user()->id
+    
+            ];
+            //$duty->default_duty =$request->default_duty;
+            $duty->status=0;
+            SimplyDutyCountryHistory::insert($data);
+            if ($duty->save()) {
+				$amount = $request->input('duty'); $code = $duty->country_code;
+				$ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price',
+				   'store_website_product_prices.product_id','store_website_product_prices.store_website_id','websites.code')
+				   ->leftJoin('websites','store_website_product_prices.web_store_id','websites.id' )
+				   ->where('websites.code',strtolower($code))
+				   ->get(); //dd($ps);
+				    if ($ps)
+				    {
+						foreach($ps as $p)
+						{ 
+						  \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
+						   $note="Country Duty changed  from ".$p->duty_price." To ".$amount;
+						   \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+					   }
+					}
+            }
+			
+			$ps= \App\Product::select('products.id','store_website_product_prices.store_website_id')
+			->leftJoin('store_website_product_prices', 'store_website_product_prices.product_id', '=', 'products.id')
+				   ->where('store_website_id',$request->input('websiteId'))
+				   ->where('brand',$request->input('brandId') )
+				   ->where('category',$request->input('catId'))->get();
+			foreach($ps as $p)
+			{ 
+			 $this->pushToMagento($p->product_id, $p->store_website_id);
+			}
+						  
+        }
         return json_encode(['status'=>true]);
     }
 
