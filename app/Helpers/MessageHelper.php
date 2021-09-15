@@ -334,6 +334,20 @@ class MessageHelper
         }
         //END - DEVTASK-4233
 
+        //START - Purpose : add data in array - DEVTASK-20605
+        if (!empty($messageModel)) {
+            $data = [
+                'model' => $messageModel->getTable(),
+                'model_id' => $messageModel->id,
+                'chat_message_id' => $params['unique_id'],
+                'message' => $message,
+                'status' => 'created'
+            ];
+            $chat_message_log = \App\ChatbotMessageLog::generateLog($data);   
+        }
+        //END - DEVTASK-20605
+
+
         $isReplied = 0;
         if ($userType !== 'vendor') {
             $log_comment = $log_comment.' User Type is Vendor ';//Purpose : Log Comment - DEVTASK-4233
@@ -452,7 +466,15 @@ class MessageHelper
                         $requestData->setMethod('POST');
                         $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                        $response = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+
+                        $data = [
+                            'chatbot_message_log_id' => $chat_message_log,
+                            'request' => $requestData,
+                            'response' => $response,
+                            'status' => 'Lead is created.'
+                        ];
+                        \App\ChatbotMessageLogResponse::StoreLogResponse($data);
 
                         \App\CommunicationHistory::create([
                             'model_id'   => $messageSentLast->id,
