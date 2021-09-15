@@ -1670,6 +1670,7 @@ class WhatsAppController extends FindByNumberController
                             'status' => 'success'
                         ];
                         $chat_message_log = \App\ChatbotMessageLog::generateLog($data);
+
                     }
                     else
                     {

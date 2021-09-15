@@ -537,17 +537,24 @@ class Model
     }
 
 
-    public static function sendMessage($customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false, $userType = null)
+    public static function sendMessage($customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false, $userType = null, $chat_message_log_id = null)
     {
-        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel, $userType)->onQueue('watson_push');
+        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel, $userType,$chat_message_log_id)->onQueue('watson_push');
 
         return true;
 
     }
 
-    public static function sendMessageFromJob($customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null, $userType = null)
+    public static function sendMessageFromJob($customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null, $userType = null, $chat_message_log_id = null)
     {
         if (env("PUSH_WATSON", true) == false) {
+            $data = [
+                'chatbot_message_log_id' => $chat_message_log_id,
+                'request' => "",
+                'response' => "Push Watson functionality is disabled.",
+                'status' => 'success'
+            ];
+            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
             return true;
         }
 
@@ -574,10 +581,24 @@ class Model
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
             $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
+            $data = [
+                'chatbot_message_log_id' => $chat_message_log_id,
+                'request' => "",
+                'response' => "sendMessageCustomer: ".$result,
+                'status' => 'success'
+            ];
+            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
             if (!empty($result->code) && ($result->code == 403 || $result->code == 404) ) {
                 $customer = self::createSession($customer, $assistant, $assistantID);
                 if ($customer) {
                     $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
+                    $data = [
+                        'chatbot_message_log_id' => $chat_message_log_id,
+                        'request' => "",
+                        'response' => "sendMessageCustomer: ".$result,
+                        'status' => 'success'
+                    ];
+                    $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                 }
             }
             $chatResponse = new ResponsePurify($result, $customer);

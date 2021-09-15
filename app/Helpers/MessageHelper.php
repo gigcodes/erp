@@ -634,7 +634,23 @@ class MessageHelper
             // assigned the first storewebsite to default erp customer
             $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
             if (!$isReplied && $customer->store_website_id) {
-                WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType);
+                $data = [
+                    'chatbot_message_log_id' => $params['chat_message_log_id'],
+                    'request' => "",
+                    'response' => "Sent Message to whatson manager",
+                    'status' => 'success'
+                ];
+                $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+
+                $watsonmanager_response = WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType,$params['chat_message_log_id']);
+
+                $data = [
+                    'chatbot_message_log_id' => $params['chat_message_log_id'],
+                    'request' => "",
+                    'response' => "Message queue dispatched succesfully.",
+                    'status' => 'success'
+                ];
+                $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
             }
         }
 
