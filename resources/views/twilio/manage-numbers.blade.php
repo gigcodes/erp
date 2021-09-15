@@ -20,6 +20,10 @@
                 <a class="ml-2">
                     <button type="button" data-toggle="modal" data-target="#workerModal" class="btn btn-secondary">Twilio Worker</button>
                 </a>
+
+                <a class="ml-2">
+                    <button type="button" data-toggle="modal" data-target="#workflowModal" class="btn btn-secondary">Twilio Workflow</button>
+                </a>
             </div>
         </div>
     </div>
@@ -254,13 +258,67 @@
                 </table>
                 
             </div>
-            <!-- <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div> -->
             </div>
         </div>
     </div>
+	
+	 <!-- Worker Modal -->
+    <div class="modal fade" id="workflowModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Twilio Workflow Model</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+					{{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow')) }}
+						<div class="col-md-3">
+							<select class="form-control worker_workspace_id" id="">
+								<option value="">Select Workspace</option>
+								@if(isset($workspace))
+									@foreach($workspace as $val)
+										<option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+									@endforeach
+								@endif
+							</select>
+						</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control " name="twilio_workflow_name" />
+						</div>
+						<button type="submit" class="btn btn-secondary">Create</button>
+					</form>
+                </div>
+
+                <table class="table table-bordered table-hover mt-5">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Workspace Name</th>
+                            <th scope="col" class="text-center">Worker Name</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center worker_list">
+                        @if($worker)
+                            @foreach($worker as $key => $val)
+                            <tr class="worker_row_{{$val->id}}">
+                                <td>{{$val->workspace_name}}</td>
+                                <td>{{$val->worker_name}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                            </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+                
+            </div>
+            </div>
+        </div>
+    </div>
+	
+	
 
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
