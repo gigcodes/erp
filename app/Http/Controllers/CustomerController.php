@@ -2883,62 +2883,39 @@ class CustomerController extends Controller
     }
 	
 	public function fetchCreditBalance (Request $request) {
-		$email     = $request->email;
-        $platform_id  = $request->platform_id;
+		$platform_id  = $request->platform_id;
         $website = $request->website;
-		if(empty($request->email)){
-			return response()->json(['message' => 'Customer email is required', 'status'=>500]);
-		}
-		if(empty($request->platform_id)){
-			return response()->json(['message' => 'Platform id is required', 'status'=>500]);
-		}
-		if(empty($request->website)){
-			return response()->json(['message' => 'Website is required', 'status'=>500]);
-		}
-
-        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		$store_website = StoreWebsite::where('website',"like", $website)->first();       
 		if($store_website) {
             $store_website_id = $store_website->id; 
-			$customer = Customer::where('email', $email)->where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
-			
+			$customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();			
 			if($customer) {
-				  return response()->json(['message' => '', 'status'=>200, 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
+				$message = $this->generate_erp_response("credit_fetch.success",$store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 200,'status'=>'success', 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
 			} else{
-				  return response()->json(['message' => 'Customer Not Found', 'status'=>500]);
+				$message = $this->generate_erp_response("credit_fetch.customer.failed",$store_website_id, $default = 'Customer not found', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
 			} 
         } else {
-			 return response()->json(['message' => 'Website Not Found', 'status'=>500]);
+			$message = $this->generate_erp_response("credit_fetch.website.failed",$store_website_id, $default = 'Website not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
 		}
 	}
 	
 	public function deductCredit (Request $request) {
-		if(empty($request->email)){
-			return response()->json(['message' => 'Customer email is required', 'status'=>500]);
-		}
-		if(empty($request->platform_id)){
-			return response()->json(['message' => 'Platform id is required', 'status'=>500]);
-		}
-		if(empty($request->website)){
-			return response()->json(['message' => 'Website is required', 'status'=>500]);
-		}
-		if(empty($request->balance)){
-			return response()->json(['message' => 'Balance is required', 'status'=>500]);
-		}
-		
-		$email     = $request->email;
-        $platform_id  = $request->platform_id;
+		$platform_id  = $request->platform_id;
         $website = $request->website;
-        $balance = $request->balance;
+        $balance = $request->amount;
 
         $store_website = StoreWebsite::where('website',"like", $website)->first();       
 		if($store_website) {
              $store_website_id = $store_website->id;
         } else {
-			return response()->json(['message' => 'Website not found.', 'code' => 500, 'status' => 'failure']);
-		}
-		//$customer = Customer::where('email', $email)->where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
-        $customer = Customer::where('id', 5)->first();
-		if($customer) {
+			$message = $this->generate_erp_response("credit_deduct.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		} 
+		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if($customer) {
 			$customer_id = $customer->id;
 			$totalCredit = $customer->credit; 
 			if($customer->credit >  $balance) {
@@ -2956,13 +2933,16 @@ class CustomerController extends Controller
 					)
 				);
 				$customer->save();
-				return response()->json(['message' => 'Credit updated successfully', 'code' => 200, 'status' => 'success']);
+				$message = $this->generate_erp_response("credit_deduct.success",$store_website_id, $default = 'Credit deducted successfully', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
 			} else {
-				$toAdd=$balance - $customer->credit;
-				return response()->json(['message' => 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', 'code' => 500, 'status' => 'failure']);
+				$toAdd = $balance - $customer->credit;
+				$message = $this->generate_erp_response("credit_deduct.insufficient_balance",$store_website_id, $default = 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
 			}
         } else {
-			return response()->json(['message' => 'Customer not found.', 'code' => 500, 'status' => 'failure']);
+			$message = $this->generate_erp_response("credit_deduct.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
+			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
 		}	
 		
 	}

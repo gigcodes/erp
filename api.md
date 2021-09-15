@@ -779,12 +779,12 @@ POST https://erp.theluxuryunlimited.com/api/fetch-credit-balance
 Accept: application/json
 Content-Type: application/json
 {
-	'email':'technodeviser05@gmail.com'
-	'website':'www.sololuxury.com'
-	'platform_id':1
+	'website':'www.sololuxury.com',
+	'platform_id':1,
+	"lang_code":"ae_ar",
 }
 Response
-{"message":"","status":200,"data":{"credit_balance":400,"currency":INr}}
+{"message":"Credit Fetched Successfully",'code' => 200,"status":success,"data":{"credit_balance":400,"currency":INR}}
 ```
 ## save Customer credit
 ```json
@@ -792,9 +792,10 @@ POST https://erp.theluxuryunlimited.com/api/deduct-credit
 Accept: application/json
 Content-Type: application/json
 {
-	'email':'technodeviser05@gmail.com'
 	'website':'www.sololuxury.com'
-	'platform_id':1
+	'platform_id':1,
+	'amount':50,
+	"lang_code":"ae_ar",
 }
 Response
 {"message":"Credit updated successfully","code":200,"status":"success"}
