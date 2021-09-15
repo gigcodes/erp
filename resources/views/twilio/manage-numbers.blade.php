@@ -154,9 +154,18 @@
             <div class="modal-body">
                 {{-- @if(count($workspace) <= 0) --}}
                 <div class="row">
-                    <a class="ml-2" href="{{ route('twilio-work-space', $account_id) }}" >
-                        <button type="button" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
-                    </a>
+					{{ Form::open(array('url'=>route('twilio-work-space'), 'id'=>'save-workspace')) }}
+						<div class="col-md-3">
+							<input type="text" class="form-control" name="workspace_name" placeholder="Enter Workespace Name"/>
+						</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" name="callback_url" placeholder="Enter Callback Name" />
+						</div>
+						<div class="col-md-3">
+							<input type="hidden" name="account_id" value="{{ $account_id}}">
+							<button type="submit" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
+						</div>
+					</form>
                 </div>
                 {{-- @endif --}}
 
@@ -258,6 +267,31 @@
     </div>
 
     <script type="text/javascript">
+	
+		$('#save-workspace').on('submit', function(e) { console.log('called');
+			e.preventDefault(); 
+			$.ajax({
+                type: $(this).attr('method'),
+				url: $(this).attr('action'),
+				data: new FormData(this),
+				processData: false,
+				contentType: false,
+				success: function(data) {
+					if(data.statusCode == 500) { 
+						toastr["error"](data.message);
+					} else {
+						toastr["success"](data.message);
+						setTimeout(function(){
+                           location.reload();
+                        }, 1000);
+					}
+				},
+				done:function(data) {
+					console.log('success '+data);
+				}
+            });
+		});
+		
         $(document).ready(function(){
             var counter_one, counter_two;
             $('.open_row').on("click", function(){
@@ -271,6 +305,8 @@
                 }
             });
 
+            
+			
             $('.save-number-to-store').on("click", function(){
                 var pathname = window.location.pathname;
 
@@ -373,7 +409,6 @@
             });
 
             $('.create_twilio_worker').on("click", function(){
-
                 var workspace_id = $('.worker_workspace_id').val();
                 var worker_name = $('.twilio_worker_name').val();
 
@@ -392,7 +427,7 @@
                     success: function(response) {
                         $("#loading-image").hide();
 
-                        if(response.code == 200) {
+                        if(response.statusCode == 200) {
                             toastr["success"](response.message);
 
                             var html = '<tr>';
@@ -402,7 +437,7 @@
                             html += '</tr>';
                             $('.worker_list').append(html);
 
-                        }else if(response.code == 400){
+                        }else if(response.statusCode == 500){
                             toastr["error"](response.message);
                         }
                         

@@ -61,6 +61,7 @@ use App\ReturnExchange;
 use App\ReturnExchangeStatus;
 use App\TwilioWorkspace;
 use App\TwilioWorker;
+use Validator;
 
 /**
  * Class TwilioController - active record
@@ -2912,33 +2913,44 @@ class TwilioController extends FindByNumberController
         }
     }
 
-    public function setTwilioWorkSpace(Request $request,$account_id){
-        try {
-            $date = date("d-m-Y h:i:s");
-            // dd($date);
-            $check_account = TwilioCredential::where(['id' => $account_id])->firstOrFail();
-            $sid = $check_account->account_id;
+    public function setTwilioWorkSpace(Request $request){ 
+		$validator = Validator::make($request->all(), [
+            'workspace_name' => 'required',
+        ]);
+		
+		if ($validator->fails()) {  
+			$errors = $validator->getMessageBag();
+			$errors = $errors->toArray();
+			$message = '';
+			foreach($errors as $error) {
+				$message .= $error[0].'<br>';
+			}
+            return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
+        }
+		
+        try { 
+           $account_id = $request->account_id;
+           $check_account = TwilioCredential::where(['id' => $account_id])->firstOrFail();
+            $sid = $check_account->account_id; 
             $token = $check_account->auth_token;
             $twilio = new Client($sid, $token);
-            $workspace_name = "NewWorkspace ".$date;
+            $workspace_name = $request->workspace_name;
             $workspace = $twilio->taskrouter->v1->workspaces
             ->create($workspace_name, // friendlyName
                         [
-                            // "eventCallbackUrl" => "https://workspace-example.free.beeceptor.com",
+                            "eventCallbackUrl" => $request->callback_url,
                             "template" => "FIFO"
                         ]
             );
-
-            TwilioWorkspace::create([
+			 TwilioWorkspace::create([
                 'twilio_credential_id' => $account_id,
                 'workspace_name' => $workspace_name,
                 'workspace_sid' => $workspace->sid,
                 'workspace_response' => '',
              ]);
-
-            return redirect()->back()->with('success','Workspace Created successfully');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error','Something went wrong');
+			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Workspace Created successfully']);
+        } catch (\Exception $e) { 
+            return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => 'Something went wrong']);
         }
 
     }
@@ -2961,6 +2973,20 @@ class TwilioController extends FindByNumberController
     }
 
     public function createTwilioWorker(Request $request){
+		$validator = Validator::make($request->all(), [
+            'workspace_id' => 'required',
+            'worker_name' => 'required',
+        ]);
+		
+		if ($validator->fails()) {  
+			$errors = $validator->getMessageBag();
+			$errors = $errors->toArray();
+			$message = '';
+			foreach($errors as $error) {
+				$message .= $error[0].'<br>';
+			}
+            return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
+        }
 
         $workspace_id = $request->workspace_id;
         $worker_name = $request->worker_name;
@@ -2968,9 +2994,9 @@ class TwilioController extends FindByNumberController
 
         $check_name = TwilioWorker::where('worker_name',$worker_name)->where('twilio_workspace_id',$workspace_id)->first();
 
-        if($check_name){
-            return new JsonResponse(['code' => 400, 'message' => 'This Worker already exists']);
-        }else{
+        if($check_name) {
+            return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Worker already exists']);
+        } else{
 
             $workspace_data = TwilioWorkspace::where('id', $workspace_id)->first();
 
@@ -2994,8 +3020,7 @@ class TwilioController extends FindByNumberController
              ->where('twilio_workers.deleted',0)
              ->select('twilio_workspaces.workspace_name','twilio_workers.*')
              ->first();
-
-            return new JsonResponse(['code' => 200, 'message' => 'Worker Created successfully', 'data' => $worker_latest_record]);
+			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Worker Created successfully', 'data' => $worker_latest_record]);
         }
     }
 
@@ -3016,5 +3041,7 @@ class TwilioController extends FindByNumberController
 
         return new JsonResponse(['code' => 200, 'message' => 'Worker deleted successfully']);
     }
+	
+	public function cra
 
 } 
