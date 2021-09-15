@@ -57,6 +57,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Plank\Mediable\Media as PlunkMediable;
 use App\CustomerAddressData;
 use App\StoreWebsite;
+use App\CreditHistory;
 
 class CustomerController extends Controller
 {
@@ -2880,4 +2881,70 @@ class CustomerController extends Controller
         $customer = Customer::leftjoin('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
         return response()->json(["status" => 200 ,"data" => $customer]);
     }
+	
+	public function fetchCreditBalance (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+		$store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+            $store_website_id = $store_website->id; 
+			$customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();			
+			if($customer) {
+				$message = $this->generate_erp_response("credit_fetch.success",$store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 200,'status'=>'success', 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
+			} else{
+				$message = $this->generate_erp_response("credit_fetch.customer.failed",$store_website_id, $default = 'Customer not found', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
+			} 
+        } else {
+			$message = $this->generate_erp_response("credit_fetch.website.failed",$store_website_id, $default = 'Website not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
+		}
+	}
+	
+	public function deductCredit (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+        $balance = $request->amount;
+
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+             $store_website_id = $store_website->id;
+        } else {
+			$message = $this->generate_erp_response("credit_deduct.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		} 
+		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if($customer) {
+			$customer_id = $customer->id;
+			$totalCredit = $customer->credit; 
+			if($customer->credit >  $balance) {
+			   $calc_credit=$customer->credit-$balance;
+			   $customer->credit=$calc_credit;
+			   	   
+			   \App\CreditHistory::create(
+					array(
+						'customer_id'=>$customer_id,
+						'model_id'=>$customer_id,
+						'model_type'=>Customer::class,
+						'used_credit'=>(float)$totalCredit - $calc_credit,
+						'used_in'=>'MANUAL',
+						'type'=>'MINUS'
+					)
+				);
+				$customer->save();
+				$message = $this->generate_erp_response("credit_deduct.success",$store_website_id, $default = 'Credit deducted successfully', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+			} else {
+				$toAdd = $balance - $customer->credit;
+				$message = $this->generate_erp_response("credit_deduct.insufficient_balance",$store_website_id, $default = 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+			}
+        } else {
+			$message = $this->generate_erp_response("credit_deduct.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
+			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		}	
+		
+	}
+	
 }

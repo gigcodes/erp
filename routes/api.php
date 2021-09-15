@@ -25,6 +25,8 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 /**
 *Routes added by Hitesh Ends
 **/ 
+Route::post('fetch-credit-balance', 'CustomerController@fetchCreditBalance');
+Route::post('deduct-credit', 'CustomerController@deductCredit');
 
 Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
