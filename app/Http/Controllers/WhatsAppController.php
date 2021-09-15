@@ -1117,7 +1117,6 @@ class WhatsAppController extends FindByNumberController
                     $supplier = Supplier::find($matchSupplier[1]);
                 }
             }
-
             if(!empty($customer)) {
                 /*try {
                     $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
@@ -1250,6 +1249,7 @@ class WhatsAppController extends FindByNumberController
             } else {
                 $params['message'] = $text;
             }
+
 
 // From me? Only store, nothing else
             if ($chatapiMessage['fromMe'] == true) {
@@ -1547,6 +1547,7 @@ class WhatsAppController extends FindByNumberController
                 (new \App\Services\Products\SendImagesOfProduct)->check($message);
                 \App\Helpers\MessageHelper::whatsAppSend( $customer, $params['message'], true , $message , false, $parentMessage);
             }
+
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
                 if ($params['message']) {
@@ -1639,12 +1640,46 @@ class WhatsAppController extends FindByNumberController
                         $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $dnd_params['message'], null, $auto_dnd_message->id);
                     }
                 }
-
+                $data = [
+                    'model' => $model_type,
+                    'model_id' => $model_id,
+                    'chat_message_id' => $params['unique_id'],
+                    'message' => $message,
+                    'status' => 'started'
+                ];
+                $chat_message_log = \App\ChatbotMessageLog::generateLog($data);
                 // Auto Instruction
                 if ($params['customer_id'] != '1000' && $params['customer_id'] != '976') {
                     if ($customer = Customer::find($params['customer_id'])) {
                         \Log::info("#1 Price for customer send function started");
+                        $data = [
+                            'chatbot_message_log_id' => $chat_message_log,
+                            'request' => "",
+                            'response' => "Message received from customer.",
+                            'status' => 'success'
+                        ];
+                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        $params['chat_message_log_id'] = $chat_message_log;
                         \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params, false, 'customer');
+                        $data = [
+                            'chat_message_log_id' => $chat_message_log,
+                            'model' => $model_type,
+                            'model_id' => $model_id,
+                            'chat_message_id' => $params['unique_id'],
+                            'message' => $message,
+                            'status' => 'success'
+                        ];
+                        $chat_message_log = \App\ChatbotMessageLog::generateLog($data);
+                    }
+                    else
+                    {
+                        $data = [
+                            'chatbot_message_log_id' => $chat_message_log,
+                            'request' => "",
+                            'response' => "Customer (".$params['customer_id'].")  not found.",
+                            'status' => 'failed'
+                        ];
+                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                     }
                 }
 
