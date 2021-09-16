@@ -101,8 +101,7 @@
                   </td>
                   
                   <td style="padding: 1px 7px">
-                    <span style="display:flex;">
-                    </span>
+                    <button class="btn btn-xs btn-none-border chatbot-log-list" data-id="{{$item->id}}"><i class="fa fa-eye"></i></button>
                   </td>
                 </tr>
               @endforeach()
@@ -113,6 +112,32 @@
         </div>
         
      </div>
+     <div id="show-log-list-chat-error" class="modal fade" role="dialog" style="margin: 150px;">
+      <div class="modal-dialog modal-lg" style="margin: 0px;">
+        <div class="modal-content" style="width: 1500px">
+          <div class="modal-header">
+            <h4 class="modal-title">Log message</h4>
+          </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                  <thead>
+                    <th>ID</th>
+                    <th>Request</th>
+                    <th>Response</th>
+                    <th>Status</th>
+                    <th>Created at</th>
+                  </thead>
+                  <tbody class="show-log-list-chat-error-data">
+
+                  </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -125,6 +150,25 @@
     $(full).toggleClass('hidden');
     $(mini).toggleClass('hidden');
   });
+
+  $(document).on("click",".chatbot-log-list",function(e) {
+      var id = $(this).data("id");
+      $.ajax({
+        url: '/chatbot-message-log/' + id + '/history',
+        type: 'GET',
+        beforeSend: function() {
+          $("#loading-image").show();
+        }
+      }).done(function(response) {
+        $("#loading-image").hide();
+        $(".show-log-list-chat-error-data").html(response);
+        $("#show-log-list-chat-error").modal("show");
+      }).fail(function(jqXHR, ajaxOptions, thrownError) {
+        toastr["error"]("Oops,something went wrong");
+        $("#loading-image").hide();
+      });
+  });
+
 </script>
 @if (Session::has('errors'))
   <script>

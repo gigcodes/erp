@@ -334,15 +334,13 @@ class MessageHelper
         }
         //END - DEVTASK-4233
 
-        if(isset($params['chat_message_log_id']))
-        {
-            $data = [
+        if(isset($params['chat_message_log_id'])) {
+            \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $params['chat_message_log_id'],
                 'request' => "",
-                'response' => "Message send to whatson.",
+                'response' => "Send watson message function started",
                 'status' => 'success'
-            ];
-            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+            ]);
         }
 
         $isReplied = 0;
@@ -367,6 +365,15 @@ class MessageHelper
                     }
                 }
 
+                if(isset($params['chat_message_log_id'])) {
+                    \App\ChatbotMessageLogResponse::StoreLogResponse([
+                        'chatbot_message_log_id' => $params['chat_message_log_id'],
+                        'request' => "",
+                        'response' => "Keyword assign match section started",
+                        'status' => 'success'
+                    ]);
+                }
+
                 if (count($keywordassign) > 0) {
 
                     // $log_comment = $log_comment.' Keyword assign found >> ';
@@ -374,13 +381,14 @@ class MessageHelper
     
                     $temp_log_params['keyword_match']     = $keywordassign[0]->task_description;
 
-                    $data = [
-                        'chatbot_message_log_id' => $params['chat_message_log_id'],
-                        'request' => "",
-                        'response' => "Keyword matched.",
-                        'status' => 'success'
-                    ];
-                    $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                    if(isset($params['chat_message_log_id'])) {
+                        \App\ChatbotMessageLogResponse::StoreLogResponse([
+                            'chatbot_message_log_id' => $params['chat_message_log_id'],
+                            'request' => "",
+                            'response' => "Keyword assign match found : ".$keywordassign[0]->task_description,
+                            'status' => 'success'
+                        ]);
+                    }
                 }
                 //END - DEVTASK-4233
                 
@@ -633,24 +641,44 @@ class MessageHelper
 
             // assigned the first storewebsite to default erp customer
             $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
-            if (!$isReplied && $customer->store_website_id) {
-                $data = [
+
+            if(isset($params['chat_message_log_id'])) {
+                \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $params['chat_message_log_id'],
                     'request' => "",
-                    'response' => "Sent Message to whatson manager",
+                    'response' => "Auto replied match found : ".$isReplied. " and  customer store website id ".$customer->store_website_id,
                     'status' => 'success'
-                ];
-                $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                ]);
+            }
 
+            if (!$isReplied && $customer->store_website_id) {
+                if(isset($params['chat_message_log_id'])) {
+                    \App\ChatbotMessageLogResponse::StoreLogResponse([
+                        'chatbot_message_log_id' => $params['chat_message_log_id'],
+                        'request' => "",
+                        'response' => "Watson manager send function started",
+                        'status' => 'success'
+                    ]);
+                }
                 $watsonmanager_response = WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType,$params['chat_message_log_id']);
 
-                $data = [
-                    'chatbot_message_log_id' => $params['chat_message_log_id'],
-                    'request' => "",
-                    'response' => "Message queue dispatched succesfully.",
-                    'status' => 'success'
-                ];
-                $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                if(isset($params['chat_message_log_id'])) {
+                    \App\ChatbotMessageLogResponse::StoreLogResponse([
+                        'chatbot_message_log_id' => $params['chat_message_log_id'],
+                        'request' => "",
+                        'response' => "Watson manager send function finished",
+                        'status' => 'success'
+                    ]);
+                }
+            }else{
+                if(isset($params['chat_message_log_id'])) {
+                    \App\ChatbotMessageLogResponse::StoreLogResponse([
+                        'chatbot_message_log_id' => $params['chat_message_log_id'],
+                        'request' => "",
+                        'response' => "Watson manager send function end replied found",
+                        'status' => 'success'
+                    ]);
+                }
             }
         }
 

@@ -2,20 +2,15 @@
 
 namespace App\Jobs;
 
-use App\ChatbotQuestion;
 use App\Customer;
+use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Model;
 use App\WatsonAccount;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Library\Watson\Language\Assistant\V2\AssistantService;
-use App\Library\Watson\Language\Workspaces\V1\DialogService;
-use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use App\Library\Watson\Language\Workspaces\V1\LogService;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class ManageWatsonAssistant implements ShouldQueue
 {
@@ -33,15 +28,15 @@ class ManageWatsonAssistant implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($customer, $inputText, $contextReset, $message_application_id, $messageModel = null, $userType = null,$chat_message_log_id = null)
+    public function __construct($customer, $inputText, $contextReset, $message_application_id, $messageModel = null, $userType = null, $chat_message_log_id = null)
     {
-        $this->customer = $customer;
-        $this->inputText = $inputText;
-        $this->contextReset = $contextReset;
+        $this->customer               = $customer;
+        $this->inputText              = $inputText;
+        $this->contextReset           = $contextReset;
         $this->message_application_id = $message_application_id;
-        $this->messageModel = $messageModel;
-        $this->userType = $userType;
-        $this->chat_message_log_id = $chat_message_log_id;
+        $this->messageModel           = $messageModel;
+        $this->userType               = $userType;
+        $this->chat_message_log_id    = $chat_message_log_id;
 
     }
 
@@ -52,23 +47,44 @@ class ManageWatsonAssistant implements ShouldQueue
      */
     public function handle()
     {
-        $data = [
-            'chatbot_message_log_id' => $this->chat_message_log_id,
-            'request' => "",
-            'response' => "Watson asistant queue started.",
-            'status' => 'success'
-        ];
-        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+        if (isset($this->chat_message_log_id)) {
+            \App\ChatbotMessageLogResponse::StoreLogResponse([
+                'chatbot_message_log_id' => $this->chat_message_log_id,
+                'request'                => "",
+                'response'               => "Watson asistantant function job dispatched started",
+                'status'                 => 'success',
+            ]);
+        }
+
         $store_website_id = ($this->customer->store_website_id > 0) ? $this->customer->store_website_id : 1;
 
         $account = WatsonAccount::where('store_website_id', $store_website_id)->first();
-        if($account) {
+        if ($account) {
             $asistant = new AssistantService(
                 "apiKey",
                 $account->api_key
             );
             $asistant->set_url($account->url);
-            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel , $this->userType,$this->chat_message_log_id);
+
+            if (isset($this->chat_message_log_id)) {
+                \App\ChatbotMessageLogResponse::StoreLogResponse([
+                    'chatbot_message_log_id' => $this->chat_message_log_id,
+                    'request'                => "",
+                    'response'               => "Watson asistantant function send message from job started with account".$account->api_key,
+                    'status'                 => 'success',
+                ]);
+            }
+
+            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel, $this->userType, $this->chat_message_log_id);
+        } else {
+            if (isset($this->chat_message_log_id)) {
+                \App\ChatbotMessageLogResponse::StoreLogResponse([
+                    'chatbot_message_log_id' => $this->chat_message_log_id,
+                    'request'                => "",
+                    'response'               => "Watson asistantant function job account not found",
+                    'status'                 => 'success',
+                ]);
+            }
         }
     }
 
@@ -76,13 +92,13 @@ class ManageWatsonAssistant implements ShouldQueue
     {
         $data = [
             'chatbot_message_log_id' => $this->chat_message_log_id,
-            'request' => "",
-            'response' => "Watson asistant queue failed.",
-            'status' => 'failed'
+            'request'                => "",
+            'response'               => "Watson asistant queue failed.",
+            'status'                 => 'failed',
         ];
         $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
         /* Remove data when job fail while creating..... */
-        if($this->method === 'create' && is_object($this->question)){
+        if ($this->method === 'create' && is_object($this->question)) {
             $this->question->delete();
         }
     }

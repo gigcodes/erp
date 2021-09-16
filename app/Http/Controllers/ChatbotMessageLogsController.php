@@ -20,4 +20,11 @@ class ChatbotMessageLogsController extends Controller
         return view('chatboat_message_logs.index', compact('logListMagentos','total_count'))
             ->with('success', \Request::Session()->get("success"));
     }
+
+    public function chatbotMessageLogHistory(Request $request,$id)
+    {
+        $response = \App\ChatbotMessageLogResponse::where("chatbot_message_log_id",$id)->get();
+
+        return view("chatboat_message_logs.history",compact('response'));
+    }
 }

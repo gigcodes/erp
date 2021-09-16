@@ -1543,12 +1543,14 @@ class WhatsAppController extends FindByNumberController
             if (empty($to)) {
                 $to = $config[0]['number'];
             }
+
             if ($customer) {
                 (new \App\Services\Products\SendImagesOfProduct)->check($message);
                 \App\Helpers\MessageHelper::whatsAppSend( $customer, $params['message'], true , $message , false, $parentMessage);
             }
 
             // Is this message from a customer?
+            $isCustomerNumber = true;
             if ($customer && $isCustomerNumber) {
                 if ($params['message']) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
@@ -1647,40 +1649,31 @@ class WhatsAppController extends FindByNumberController
                     'message' => $message,
                     'status' => 'started'
                 ];
-                $chat_message_log = \App\ChatbotMessageLog::generateLog($data);
+                $chat_message_log_id = \App\ChatbotMessageLog::generateLog($data);
                 // Auto Instruction
                 if ($params['customer_id'] != '1000' && $params['customer_id'] != '976') {
                     if ($customer = Customer::find($params['customer_id'])) {
-                        \Log::info("#1 Price for customer send function started");
-                        $data = [
-                            'chatbot_message_log_id' => $chat_message_log,
+                        \App\ChatbotMessageLogResponse::StoreLogResponse([
+                            'chatbot_message_log_id' => $chat_message_log_id,
                             'request' => "",
-                            'response' => "Message received from customer.",
+                            'response' => "Price for customer send function started.",
                             'status' => 'success'
-                        ];
-                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
-                        $params['chat_message_log_id'] = $chat_message_log;
+                        ]);
+                        $params['chat_message_log_id'] = $chat_message_log_id;
                         \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params, false, 'customer');
-                        $data = [
-                            'chat_message_log_id' => $chat_message_log,
-                            'model' => $model_type,
-                            'model_id' => $model_id,
-                            'chat_message_id' => $params['unique_id'],
-                            'message' => $message,
-                            'status' => 'success'
-                        ];
-                        $chat_message_log = \App\ChatbotMessageLog::generateLog($data);
-
-                    }
-                    else
-                    {
-                        $data = [
-                            'chatbot_message_log_id' => $chat_message_log,
+                        \App\ChatbotMessageLogResponse::StoreLogResponse([
+                            'chatbot_message_log_id' => $chat_message_log_id,
                             'request' => "",
-                            'response' => "Customer (".$params['customer_id'].")  not found.",
+                            'response' => "Price for customer send function ended.",
+                            'status' => 'success'
+                        ]);
+                    }else {
+                        \App\ChatbotMessageLogResponse::StoreLogResponse([
+                            'chatbot_message_log_id' => $chat_message_log_id,
+                            'request' => "",
+                            'response' => "Send watson function faield customer  (".$params['customer_id'].")  not found.",
                             'status' => 'failed'
-                        ];
-                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        ]);
                     }
                 }
 
