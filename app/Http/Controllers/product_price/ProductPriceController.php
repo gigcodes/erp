@@ -496,7 +496,7 @@ class ProductPriceController extends Controller
         }
 
         $brands = $brands->skip($skip * Setting::get('pagination'))
-        ->limit('5')->get()->toArray();
+        ->limit('20')->get()->toArray();
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status',1)->get();
