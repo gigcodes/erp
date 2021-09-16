@@ -1288,6 +1288,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.list')}}">Messages</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
