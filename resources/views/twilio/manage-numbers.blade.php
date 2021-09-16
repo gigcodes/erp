@@ -24,6 +24,14 @@
                 <a class="ml-2">
                     <button type="button" data-toggle="modal" data-target="#workflowModal" class="btn btn-secondary">Twilio Workflow</button>
                 </a>
+
+                <a class="ml-2">
+                    <button type="button" data-toggle="modal" data-target="#activityModal" class="btn btn-secondary">Twilio Activity</button>
+                </a>
+
+                <a class="ml-2">
+                    <button type="button" data-toggle="modal" data-target="#taskQueueModal" class="btn btn-secondary">Twilio Task Queue</button>
+                </a>
             </div>
         </div>
     </div>
@@ -226,7 +234,7 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" />
+                        <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/>
                     </div>
                    
 
@@ -262,7 +270,7 @@
         </div>
     </div>
 	
-	 <!-- Worker Modal -->
+	 <!-- Workflow Modal -->
     <div class="modal fade" id="workflowModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content ">
@@ -274,9 +282,9 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-					{{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow')) }}
-						<div class="col-md-3">
-							<select class="form-control worker_workspace_id" id="">
+					{{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow', 'class'=>'ajax-submit')) }}
+						<div class="col-md-4">
+							<select class="form-control workflow_workspace_id" name="workspace_id">
 								<option value="">Select Workspace</option>
 								@if(isset($workspace))
 									@foreach($workspace as $val)
@@ -285,8 +293,20 @@
 								@endif
 							</select>
 						</div>
-						<div class="col-md-3">
-							<input type="text" class="form-control " name="twilio_workflow_name" />
+						<div class="col-md-4">
+							<select class="form-control" name="task_queue" id="task_queue">
+								   
+							</select>
+						</div>
+						<div class="col-md-4">
+							<input type="hidden" name="account_id" value="{{ $account_id}}">
+							<input type="text" class="form-control " name="workflow_name" placeholder="Workflow Name"/>
+						</div>
+						<div class="col-md-4">
+							<input type="text" class="form-control " name="fallback_assignment_callback_url" placeholder="Fallback Assignment Callback Url"/>
+						</div>
+						<div class="col-md-4">
+							<input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
 						</div>
 						<button type="submit" class="btn btn-secondary">Create</button>
 					</form>
@@ -296,18 +316,22 @@
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">Workspace Name</th>
-                            <th scope="col" class="text-center">Worker Name</th>
+                            <th scope="col" class="text-center">Workflow Name</th>
+                            <th scope="col" class="text-center">Fallback url</th>
+                            <th scope="col" class="text-center">Callback url</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center worker_list">
-                        @if($worker)
-                            @foreach($worker as $key => $val)
+                    <tbody class="text-center workflow_list">
+                        @if($workflows)
+                            @foreach($workflows as $key => $val)
                             <tr class="worker_row_{{$val->id}}">
                                 <td>{{$val->workspace_name}}</td>
-                                <td>{{$val->worker_name}}</td>
-                                <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
-                            </tr>
+                                <td>{{$val->workflow_name}}</td>
+                                <td>{{$val->fallback_assignment_callback_url}}</td>
+                                <td>{{$val->assignment_callback_url}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-workflow')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                           </tr>
                             @endforeach
                         @endif
                     </tbody>
@@ -318,15 +342,224 @@
         </div>
     </div>
 	
-	
+	 <!-- Worker Modal -->
+    <div class="modal fade" id="activityModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Twilio Activities</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+					{{ Form::open(array('url'=>route('create-twilio-activity'), 'id'=>'create-twilio-activity', 'class'=>'ajax-submit')) }}
+						<div class="col-md-4">
+							<select class="form-control worker_workspace_id" name="workspace_id">
+								<option value="">Select Workspace</option>
+								@if(isset($workspace))
+									@foreach($workspace as $val)
+										<option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+									@endforeach
+								@endif
+							</select>
+						</div>
+						
+						<div class="col-md-3">
+							<input type="text" class="form-control " name="activity_name" placeholder="Activity Name"/>
+						</div>
+						<div class="col-md-3">
+							<input type="radio" name="availability" value="1" checked/> True
+							<input type="radio" name="availability" value="0"/> False
+							<input type="hidden" name="account_id" value="{{ $account_id}}">
+						</div>
+						<button type="submit" class="btn btn-secondary">Create</button>
+					</form>
+                </div>
+
+                <table class="table table-bordered table-hover mt-5">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Workspace Name</th>
+                            <th scope="col" class="text-center">Activity Name</th>
+                            <th scope="col" class="text-center">Availabilty</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center activities_list">
+                        @if($activities)
+                            @foreach($activities as $key => $val)
+                            <tr class="activity_row_{{$val->id}}">
+                                <td>{{$val->workspace_name}}</td>
+                                <td>{{$val->activity_name}}</td>
+                                <td>{{$val->availability}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-activity')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                            </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+                
+            </div>
+            </div>
+        </div>
+    </div>
+
+	<div class="modal fade" id="taskQueueModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Twilio Task Queue Model</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+					{{ Form::open(array('url'=>route('create-twilio-task-queue'), 'id'=>'create-twilio-task-queue', 'class'=>'ajax-submit')) }}
+						<div class="col-md-4">
+							<select class="form-control task_queue_workspace_id" name="workspace_id">
+								<option value="">Select Workspace</option>
+								@if(isset($workspace))
+									@foreach($workspace as $val)
+										<option value="{{ $val->id }}" >{{ $val->workspace_name }}</option>
+									@endforeach
+								@endif
+							</select>
+						</div>
+						<div class="col-md-4">
+							<input type="hidden" name="account_id" value="{{ $account_id}}">
+							<input type="text" class="form-control " name="task_queue_name" placeholder="Task Queue Name"/>
+						</div>
+						<div class="col-md-4">
+							<select class="form-control " name="task_order">
+								<option value="FIFO">First In First Out</option>
+								<option value="LIFO">Last In First Out</option>
+							</select>
+						</div>
+						<div class="col-md-4">
+							<select class="form-control " name="reservation_activity_id" id="reservation_activity_id">
+								<option value="">Select Reservation Activity</option>
+							</select>
+						</div>
+						<div class="col-md-4">
+							<select class="form-control " name="assignment_activity_id" id="assignment_activity_id">
+								<option value="">Select Assignment Activity</option>
+							</select>
+						</div>
+						<div class="col-md-4">
+							<input type="number" class="form-control " name="max_reserved_workers" placeholder="Max reserved workers" value="1"/>
+						</div>
+						<div class="col-md-4">
+							<input type="text" class="form-control " name="queue_expression" placeholder="QUEUE EXPRESSION"/>
+						</div>
+						<button type="submit" class="btn btn-secondary">Create</button>
+					</form>
+                </div>
+
+                <table class="table table-bordered table-hover mt-5">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Work space Name</th>
+                            <th scope="col" class="text-center">Task Queue Name</th>
+                            <th scope="col" class="text-center">Target Workers</th>
+                            <th scope="col" class="text-center">Max Reserved Workers</th>
+                            <th scope="col" class="text-center">Task Order</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center task_queue_list">
+                        @if($taskqueue)
+                            @foreach($taskqueue as $key => $val)
+                            <tr class="worker_row_{{$val->id}}">
+								<td>{{$val->workspace_name}}</td>
+                                <td>{{$val->task_queue_name}}</td>
+                                <td>{{$val->target_workers}}</td>
+                                <td>{{$val->max_reserved_workers}}</td>
+                                <td>{{$val->task_order}}</td>
+                                <td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-task-queue')}}" data-id="{{$val->id}}" aria-hidden="true"></i></td>
+                           </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+                
+            </div>
+            </div>
+        </div>
+    </div>
+
 
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
 
     <script type="text/javascript">
+	var baseUrl = window.location.origin+'/';
+		$('.task_queue_workspace_id').on('change', function(e){
+			var workspaceId = $(this).val();
+			$.get(baseUrl+"fetch-activities/"+workspaceId, function(data){
+				$('#reservation_activity_id option').remove();
+				$('#assignment_activity_id option').remove();
+				
+				$.each(data[0], function( index, value ) {
+					var option1 = '<option value="'+index+'">'+value+'</option>';
+					$('#assignment_activity_id').append(option1);
+				}); console.log(data[1]);
+				$.each(data[1], function( index, value ) {
+					var option2 = '<option value="'+index+'">'+value+'</option>';
+					$('#reservation_activity_id').append(option2);
+				});
+				
+			});
+		});
+		
+		$('.workflow_workspace_id').on('change', function(e){
+			var workspaceId = $(this).val();
+			$.get(baseUrl+"fetch-task-queue/"+workspaceId, function(data){
+				 $('#task_queue option').remove();
+				
+				$.each(data, function( index, value ) {
+					var option2 = '<option value="'+index+'">'+value+'</option>';
+					$('#task_queue').append(option2);
+				});
+				
+			});
+		});
 	
-		$('#save-workspace').on('submit', function(e) { console.log('called');
+		$('.trigger-delete').on('click', function(e) {
+			var id = $(this).attr('data-id');
+			//console.log($(this).closest('tr')); $(this).closest('tr').remove();
+			e.preventDefault(); 
+			var option = { _token: "{{ csrf_token() }}", _method: 'DELETE', id:id };
+			var route = $(this).attr('data-route');
+			$("#loading-image").show();
+			$.ajax({
+				type: 'post',
+				url: route,
+				data: option,
+				success: function(response) {
+					$("#loading-image").hide();
+					if(response.code == 200) {
+						$(this).closest('tr').remove();
+                        toastr["success"](response.message); 
+                    }else if(response.statusCode == 500){
+                        toastr["error"](response.message);
+                    }
+					setTimeout(function(){
+                          location.reload();
+                        }, 1000);
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+			}); 
+		});
+		
+	
+		$('#save-workspace').on('submit', function(e) { 
 			e.preventDefault(); 
 			$.ajax({
                 type: $(this).attr('method'),
@@ -340,8 +573,62 @@
 					} else {
 						toastr["success"](data.message);
 						setTimeout(function(){
-                           location.reload();
+                          location.reload();
                         }, 1000);
+					}
+				},
+				done:function(data) {
+					console.log('success '+data);
+				}
+            });
+		});
+		
+		$('.ajax-submit').on('submit', function(e) { 
+			e.preventDefault(); 
+			$.ajax({
+                type: $(this).attr('method'),
+				url: $(this).attr('action'),
+				data: new FormData(this),
+				processData: false,
+				contentType: false,
+				success: function(data) { console.log(data);
+					if(data.statusCode == 500) { 
+						toastr["error"](data.message);
+					} else {
+						toastr["success"](
+						if(data.type == "activityList") { 
+							var response = data;
+							var html = '<tr>';
+                            html += '<td>'+response.data.workspace_name+'</td>';
+                            html += '<td>'+response.data.activity_name+'</td>';
+                            html += '<td>'+response.data.availability+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-activity')}}" aria-hidden="true"></i></td>';
+                            html += '</tr>';
+                            $('.activities_list').append(html);
+						}else if(data.type == "workflowList") { 
+							var response = data;
+							var html = '<tr>';
+                            html += '<td>'+response.data.workspace_name+'</td>';
+                            html += '<td>'+response.data.workflow_name+'</td>';
+                            html += '<td>'+response.data.fallback_assignment_callback_url+'</td>';
+                            html += '<td>'+response.data.assignment_callback_url+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
+                            html += '</tr>';
+                            $('.workflow_list').append(html);
+						}else if(data.type == "taskQueueList") { 
+							var response = data;
+							var html = '<tr>';
+                            html += '<td>'+response.data.workspace_name+'</td>';
+                            html += '<td>'+response.data.task_queue_name+'</td>';
+                            html += '<td>'+response.data.target_workers+'</td>';
+                            html += '<td>'+response.data.max_reserved_workers+'</td>';
+                            html += '<td>'+response.data.task_order+'</td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-task-queue')}}" aria-hidden="true"></i></td>';
+                            html += '</tr>';
+                            $('.task_queue_list').append(html);
+						}
+						
+ 
 					}
 				},
 				done:function(data) {
@@ -450,13 +737,10 @@
                     },
                     success: function(response) {
                         $("#loading-image").hide();
-
                         $(".row_"+id).css("display", "none");
-
                         if(response.code == 200) {
                             toastr["success"](response.message);
-                        }
-                        
+                        }                       
                     },
                     error: function(response) {
                         $("#loading-image").hide();
