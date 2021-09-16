@@ -3125,12 +3125,24 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
-    Route::get('set-twilio-work-space/{account_id}', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
+    Route::post('set-twilio-work-space', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
     Route::post('delete-twilio-work-space', 'TwilioController@deleteTwilioWorkSpace')->name('delete-twilio-work-space');
     Route::post('create-twilio-worker', 'TwilioController@createTwilioWorker')->name('create-twilio-worker');
     Route::post('delete-twilio-worker', 'TwilioController@deleteTwilioWorker')->name('delete-twilio-worker');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
+
+	Route::post('create-twilio-workflow', 'TwilioController@createTwilioWorkflow')->name('create-twilio-workflow');
+    Route::delete('delete-twilio-workflow', 'TwilioController@deleteTwilioWorkflow')->name('delete-twilio-workflow');
+   
+    Route::post('create-twilio-activity', 'TwilioController@createTwilioActivity')->name('create-twilio-activity');
+    Route::delete('delete-twilio-activity', 'TwilioController@deleteTwilioActivity')->name('delete-twilio-activity');
+  
+	Route::get('fetch-activities/{workspaceId}', 'TwilioController@fetchActivitiesFromWorkspace')->name('fetch-activities');
+    Route::get('fetch-task-queue/{workspaceId}', 'TwilioController@fetchTaskQueueFromWorkspace')->name('fetch-task-queue');
+    
+	Route::post('create-twilio-task-queue', 'TwilioController@createTwilioTaskQueue')->name('create-twilio-task-queue');
+    Route::delete('delete-twilio-task-queue', 'TwilioController@deleteTwilioTaskQueue')->name('delete-twilio-task-queue');
 
     Route::get('twilio/call-recordings/{account_id}', 'TwilioController@CallRecordings')->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
