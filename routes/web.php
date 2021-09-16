@@ -3384,6 +3384,7 @@ Route::get('product-generic-pricing', 'product_price\ProductPriceController@gene
 Route::post('product-duty-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateDutyPrice');
 Route::post('product-segment-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateSegmentPrice');
 
+Route::post('product-update', 'product_price\ProductPriceController@updateProduct')->name('product_update');
 
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
