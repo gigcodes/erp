@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Loggers\LogListMagento;
 use App\Jobs\PushToMagento;
+use App\ProductUpdateLog;
 
 class ProductPriceController extends Controller
 {
@@ -913,18 +914,18 @@ class ProductPriceController extends Controller
 			->leftJoin('store_website_product_prices', 'store_website_product_prices.product_id', '=', 'products.id')
 				   ->where('store_website_id',$request->input('websiteId'))
 				   ->where('brand',$request->input('brandId') )
-				   ->where('category',$request->input('catId'))->select('product_id', 'store_website_id')->get();
+				   ->where('category',$request->input('catId'))->select('products.id as product_id', 'store_website_product_prices.store_website_id')->groupBy('products.id')->get();
 				   
 			foreach($ps as $p)
 			{ 
 				$ref_product = Product::find($p->product_id);
                 $category_segment = @$ref_product->categories->categorySegmentId->name == null ? (@$ref_product->brands->brand_segment != null ? $ref_product->brands->brand_segment : null) : $ref_product->categories->categorySegmentId->name;
                 $result = $ref_product->getPrice($p->store_website_id, $request->country_code,null, true,$request->default_duty, null, $request->add_profit, null, isset($ref_product->suppliers_info) ?  $ref_product->suppliers_info[0]->price : 0, $category_segment);
-                    
+                ProductUpdateLog::create(['store_website_id'=>$p->store_website_id, 'created_by'=>\Auth::id(), 'product_id'=>$p->product_id, 'log'=>$ref_product->name.' updated.']);    
 			}
 			foreach($ps as $p)
 			{ 
-			 $this->pushToMagento($p->product_id, $p->store_website_id);
+			   $this->pushToMagento($p->product_id, $p->store_website_id);
 			}
 						  
         }
@@ -1049,5 +1050,14 @@ class ProductPriceController extends Controller
             }
         }
    }
-
+	
+   public function productUpdateLogs(Request $request) {
+	    $productLogs = ProductUpdateLog::leftJoin('users', 'users.id', '=','product_update_logs.created_by')
+	     ->select('product_update_logs.*', 'users.name as product_updated_by')->orderBy('product_update_logs.id', 'desc')->paginate(20);
+		 
+		if($request->ajax()) {
+			return view('logging.partials.product_update_logs', compact('productLogs'));
+		}
+		return view('logging.product_update_logs', compact('productLogs'));
+   }
 }
