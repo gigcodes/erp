@@ -2482,8 +2482,12 @@ class OrderController extends Controller
 				$formatted_phone = str_replace('+91', '', $reservedCall['twilio_call_sid']);
 				$customer_array  = Customer::with('storeWebsite')->where('phone', 'LIKE', "%$formatted_phone%")->first();
 				if(isset($customer_array['store_website']) && count($customer_array['store_website'])){
-                    $reservedCall[$key]['store_website_name'] = $customer_array['store_website']['title'];
+                    $reservedCalls[$key]['store_website_name'] = $customer_array['store_website']['title'];
                 }
+				if(isset($customer_array['customer_name']) && count($customer_array['customer_name'])){
+                    $reservedCalls[$key]['customer_name'] = $customer_array['name'];
+                    $reservedCalls[$key]['customer_number'] = $customer_array['phone'];
+                } 
 			}
 		}
 	 
