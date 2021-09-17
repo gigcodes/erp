@@ -2727,7 +2727,8 @@ class OrderController extends Controller
                             $client->messages->create($receiverNumber, [
                                 'from' => $this->twilio_number,
                                 'body' => $request->message]);
-                
+                        
+                        
                         } catch (Exception $e) {
                             \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
                         }

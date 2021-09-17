@@ -614,6 +614,7 @@
                             <label><input class="msg_platform" type="checkbox" value="email">Email</label>
                           </div>
                           <div class="checkbox">
+                            
                             <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
                           </div>
                         </div>
