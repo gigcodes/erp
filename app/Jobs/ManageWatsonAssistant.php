@@ -22,6 +22,7 @@ class ManageWatsonAssistant implements ShouldQueue
     protected $message_application_id;
     protected $messageModel;
     protected $userType;
+    protected $chat_message_log_id;
 
     /**
      * Create a new job instance.
