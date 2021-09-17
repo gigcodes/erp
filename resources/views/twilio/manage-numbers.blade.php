@@ -167,13 +167,13 @@
                 {{-- @if(count($workspace) <= 0) --}}
                 <div class="row">
 					{{ Form::open(array('url'=>route('twilio-work-space'), 'id'=>'save-workspace')) }}
-						<div class="col-md-3">
+						<div class="col-md-4">
 							<input type="text" class="form-control" name="workspace_name" placeholder="Enter Workespace Name"/>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-4">
 							<input type="text" class="form-control" name="callback_url" placeholder="Enter Callback Name" />
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-4">
 							<input type="hidden" name="account_id" value="{{ $account_id}}">
 							<button type="submit" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
 						</div>
@@ -223,7 +223,7 @@
             <div class="modal-body">
                 {{-- @if(count($workspace) <= 0) --}}
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-3">    
                         <select class="form-control worker_workspace_id" id="">
                             <option value="">Select Workspace</option>
                             @if(isset($workspace))
@@ -289,6 +289,7 @@
                 <div class="row">
 					{{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow', 'class'=>'ajax-submit')) }}
 						<div class="col-md-4">
+						<label>Select Workspace</label>
 							<select class="form-control workflow_workspace_id" name="workspace_id">
 								<option value="">Select Workspace</option>
 								@if(isset($workspace))
@@ -299,21 +300,25 @@
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Task Queue Name</label>
 							<select class="form-control" name="task_queue" id="task_queue">
 								   
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Workflow Name</label>
 							<input type="hidden" name="account_id" value="{{ $account_id}}">
 							<input type="text" class="form-control " name="workflow_name" placeholder="Workflow Name"/>
 						</div>
 						<div class="col-md-4">
+						<label>Fallback Assignment</label>
 							<input type="text" class="form-control " name="fallback_assignment_callback_url" placeholder="Fallback Assignment Callback Url"/>
 						</div>
 						<div class="col-md-4">
+						<label>Assignment Callback Url</label>
 							<input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
 						</div>
-						<button type="submit" class="btn btn-secondary">Create</button>
+						<div class="Twilio_Workflow_Model_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
 					</form>
                 </div>
 
@@ -424,6 +429,7 @@
                 <div class="row">
 					{{ Form::open(array('url'=>route('create-twilio-task-queue'), 'id'=>'create-twilio-task-queue', 'class'=>'ajax-submit')) }}
 						<div class="col-md-4">
+						<label>Select Workspace</label>
 							<select class="form-control task_queue_workspace_id" name="workspace_id">
 								<option value="">Select Workspace</option>
 								@if(isset($workspace))
@@ -434,32 +440,38 @@
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Task Queue Name</label>
 							<input type="hidden" name="account_id" value="{{ $account_id}}">
 							<input type="text" class="form-control " name="task_queue_name" placeholder="Task Queue Name"/>
 						</div>
 						<div class="col-md-4">
+						<label>First In First Out</label>
 							<select class="form-control " name="task_order">
 								<option value="FIFO">First In First Out</option>
 								<option value="LIFO">Last In First Out</option>
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Select Reservation Activity</label>
 							<select class="form-control " name="reservation_activity_id" id="reservation_activity_id">
 								<option value="">Select Reservation Activity</option>
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Select Reservation Activity</label>
 							<select class="form-control " name="assignment_activity_id" id="assignment_activity_id">
 								<option value="">Select Assignment Activity</option>
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Quantity</label>
 							<input type="number" class="form-control " name="max_reserved_workers" placeholder="Max reserved workers" value="1"/>
 						</div>
 						<div class="col-md-4">
+						<label>QUEUE EXPRESSION</label>
 							<input type="text" class="form-control " name="queue_expression" placeholder="QUEUE EXPRESSION"/>
 						</div>
-						<button type="submit" class="btn btn-secondary">Create</button>
+						<div class="Twilio_Task_Queue_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
 					</form>
                 </div>
 
