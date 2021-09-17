@@ -1851,6 +1851,7 @@ class CustomerController extends Controller
 
     public function issueCredit(Request $request)
     {
+
         $customer = Customer::find($request->customer_id);
 
         $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
