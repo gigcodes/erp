@@ -11,9 +11,9 @@ class BacklinkIndexedPage extends Model
 	'response_code', 'backlinks_num', 'domains_num', 'last_seen', 'external_num', 'internal_num'];
 
     public function indexedPageSemrushApi($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'indexed_page'=>'https://api.semrush.com/analytics/v1/?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&type=backlinks_pages&target=searchenginejournal.com&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5',
+			'indexed_page'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_pages&target='.$domain.'&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5',
 		];
 		
 		if($column == null) {

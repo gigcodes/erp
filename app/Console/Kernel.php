@@ -152,6 +152,10 @@ use App\Console\Commands\UpdateLanguageToGroup;
 use App\Console\Commands\ProjectFileManagerDateAndSize;
 use App\Console\Commands\UpdateCharities;
 
+use App\Console\Commands\FetchMagentoCronData;
+use App\Console\Commands\BuildStatus;
+
+
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -162,6 +166,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        FetchMagentoCronData::class,
         GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
         CheckLogins::class,
@@ -299,6 +304,7 @@ class Kernel extends ConsoleKernel
         ConnectGoogleClientAccounts::class,
         UpdateCharities::class,
         UpdateLanguageToGroup::class,
+        BuildStatus::class,
     ];
 
     /**
@@ -312,7 +318,11 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('project:filemanagementdate')->daily();
 
+        $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');;
+
         $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
+
+		$schedule->command('ScrapperImage:REMOVE')->hourly();  //jenkins status detail
 
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');

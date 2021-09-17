@@ -388,6 +388,8 @@
         </div>
     </div>
 
+
+
     <div id="create_broadcast" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -406,6 +408,36 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-secondary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="pushmagento" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Push To Magento</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="send_message" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Select Store Website</strong>
+                            <input type="hidden" value="" name="vender_id" id="pushmagento_vender_id">
+                            <select name="storewebsite" id="pushmagento_storewebsite">
+                              @foreach ($storewebsite as $s)
+                                <option value="{{$s->id}}">{{$s->title}}</option>
+                              @endforeach   
+                           </select>
+                                           </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" id="upload-single" class="btn btn-secondary">Push</button>
                     </div>
                 </form>
             </div>
@@ -445,27 +477,27 @@
             }
         });
 
-        $(document).on('click', '.upload-single', function () {
-            $(self).hide();
-            $this = $(this);
-            var ajaxes = [];
-            // for (var i = 0; i < productIds.length; i++) {
-            var id = $(this).data('product-id');
-            var thiss = $(this);
+        $(document).on('click', '#upload-single', function () {
+              var ajaxes = [];
+            
+            var id = $('#pushmagento_vender_id').val();
+            var storewebsite = $('#pushmagento_storewebsite').val();
             $(this).addClass('fa-spinner').removeClass('fa-upload')
             url = "{{ url('products') }}/" + id + '/listMagento';
             ajaxes.push($.ajax({
-                type: 'POST',
+                type: 'GET',
                 url: url,
                 data: {
                     _token: "{{ csrf_token() }}",
+                    storewebsite:storewebsite,
                 },
                 beforeSend: function () {
                     // $(thiss).text('Loading...');
                     // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
                 }
             }).done(function (response) {
-                thiss.removeClass('fa-spinner').addClass('fa-upload')
+                $('#pushmagento').modal("hide");
+                //$(this).removeClass('fa-spinner').addClass('fa-upload');
                 toastr['success']('Charity pushed to magento sites.', 'Success')
                 $('#product' + id).hide();
             }));
@@ -1535,6 +1567,12 @@
         
       }
 
+      function showpushbox(vendor_id)
+      {
+        
+        $('#pushmagento_vender_id').val(vendor_id);
+        $('#pushmagento').modal("show");
+      }
       function savewebsite()
       {
         

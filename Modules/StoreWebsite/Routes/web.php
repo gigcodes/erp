@@ -28,7 +28,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
     Route::prefix('{id}')->group(function () {
         
-        Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
+        Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
+        
+		Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
 
         Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
 
@@ -41,6 +43,12 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
         
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
+        
+        Route::prefix('build-process')->group(function () {
+            Route::get('/', 'StoreWebsiteController@buildProcess')->name("store-website.build.process");
+            Route::get('/history', 'StoreWebsiteController@buildProcessHistory')->name("store-website.build.process.history");
+            Route::post('save', 'StoreWebsiteController@buildProcessSave')->name("store-website.build.process.save");
+        });
 
         Route::prefix('social-strategy')->group(function () {
     		Route::get('/', 'StoreWebsiteController@socialStrategy')->name("store-website.social-strategy");   

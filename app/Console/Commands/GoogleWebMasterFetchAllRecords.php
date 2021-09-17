@@ -42,29 +42,28 @@ class GoogleWebMasterFetchAllRecords extends Command{
         
         foreach($GoogleClientAccounts as $GoogleClientAccount){ 
             
-
-            $refreshToken = GoogleClientAccountMail::where('google_client_account_id',$GoogleClientAccount->id)->first();
-
+			$refreshToken = GoogleClientAccountMail::where('google_client_account_id',$GoogleClientAccount->id)->first();
+			if(isset($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN']) and $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] != null)  {
             // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
-            $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
+				$GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
 
-            if($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN == null){
-                continue;
-            }
-           
-            $this->client = new \Google_Client();
-            $this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
-            $this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
-            $this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
+				if($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN == null){
+					continue;
+				}
+			   
+				$this->client = new \Google_Client();
+				$this->client->setClientId($GoogleClientAccount->GOOGLE_CLIENT_ID);
+				$this->client->setClientSecret($GoogleClientAccount->GOOGLE_CLIENT_SECRET);
+				$this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
 
-            $token = $this->client->getAccessToken(); 
-            //$request->session()->put('token',$token);
-            //echo"<pre>";print_r($token);die;
-            if(empty($token)){
-                continue;
-            } 
+				$token = $this->client->getAccessToken(); 
+				//$request->session()->put('token',$token);
+				//echo"<pre>";print_r($token);die;
+				if(empty($token)){
+					continue;
+				} 
             
-            $google_oauthV2 = new \Google_Service_Oauth2($this->client);
+                $google_oauthV2 = new \Google_Service_Oauth2($this->client);
             
                 if ($this->client->getAccessToken()){
                     
@@ -157,6 +156,7 @@ class GoogleWebMasterFetchAllRecords extends Command{
                         } 
                     }
                 } 
+			}
         }
 
 

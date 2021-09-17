@@ -123,7 +123,7 @@
                 <div class="form-group mr-3">
                     <a href="/product-pricing" class="fa fa-refresh form-control" aria-hidden="true" ></a>
                 </div>
-
+                {{--
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
                     <option value="">Select Websites</option>
@@ -133,10 +133,10 @@
                             @endforeach
                         @endif
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="form-group mr-3">
-                    <a onClick="showModal()" class="btn btn-secondary">Show Generic Prices</a>
+                    <a href="{{url('/product-generic-pricing')}}" class="btn btn-secondary">Show Generic Prices</a>
                 </div>
             </form> 
         </div>
@@ -550,6 +550,21 @@
 
     }); 
 	
+    function showgenerice() {
+        var catId = $('#categoryForGenericPrices').val();
+        if(catId==''){
+          alert('Select Category First');
+        }else{
+            var url = "{{url('/')}}/product-generic-pricing?id="+catId;
+            var win = window.open(url, '_blank');
+             win.focus();
+          // $.get("product-generic-pricing?id="+catId, function(data,status){
+          //   $('#genericModalContent').html(data);
+          //   $('#genericModal').modal('show');
+          // });
+
+        }
+    }
 	function showModal () {
 
     var catId = $('#categoryForGenericPrices').val();

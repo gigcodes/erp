@@ -25,6 +25,8 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 /**
 *Routes added by Hitesh Ends
 **/ 
+Route::post('fetch-credit-balance', 'CustomerController@fetchCreditBalance');
+Route::post('deduct-credit', 'CustomerController@deductCredit');
 
 Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
@@ -249,5 +251,4 @@ Route::post('google-scrapper-data', '\App\Http\Controllers\Api\v1\GoogleScrapper
 
 //Out Of Stock Subscribe
 Route::post('out-of-stock-subscription' ,'Api\v1\OutOfStockSubscribeController@Subscribe');
-//customer data add in cart
-Route::post('customer/add_cart_data' ,'Api\v1\CustomerController@add_cart_data');
+

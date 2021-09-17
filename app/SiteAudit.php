@@ -10,12 +10,13 @@ class SiteAudit extends Model
     protected $fillable = ["project_id", "store_website_id","name","url","status","errors","warnings","notices","broken","blocked","redirected","healthy","haveIssues","haveIssuesDelta","defects","markups","depths","crawlSubdomains","respectCrawlDelay","canonical","user_agent_type","last_audit","last_failed_audit","next_audit","running_pages_crawled","running_pages_limit","pages_crawled","pages_limit","total_checks","errors_delta","warnings_delta","notices_delta","mask_allow","mask_disallow","removedParameters","excluded_checks"];
 	
 	public function semrushApis($apiName) {
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'project_list'=>'https://api.semrush.com/management/v1/projects?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-			'site_audit'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-			'site_audit_info'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/info?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-			'add_keywords'=>'https://api.semrush.com/management/v1/projects/{id}/keywords?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-			'site_issues'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+			'project_list'=>'https://api.semrush.com/management/v1/projects?key='.$key,
+			'site_audit'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key='.$key,
+			'site_audit_info'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/info?key='.$key,
+			'add_keywords'=>'https://api.semrush.com/management/v1/projects/{id}/keywords?key='.$key,
+			'site_issues'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key='.$key
 		];
 		return $apis[$apiName];
 	}

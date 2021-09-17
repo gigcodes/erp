@@ -45,7 +45,7 @@ use App\Sop;
 
 class TaskModuleController extends Controller
 {
-    use hubstaffTrait;
+    use HubstaffTrait;
     private $githubClient;
 
     public function __construct()

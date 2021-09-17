@@ -575,21 +575,6 @@ $metaData = '';
                                         </li>
                                     </ul>
                                 </li>
-
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Social media<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('influencers.index') }}">Instagram influencer</a>
-                                            <a class="dropdown-item" href="{{ route('instagram.message-queue') }}">Instagram Message Queue</a>
-                                            <a class="dropdown-item" href="{{ route('instagram.message-queue.approve') }}"> Instagram Message Queue Approval</a>
-                                            
-                                        </li>
-                                    </ul>
-                                </li>
-
-
-
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supplier<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -715,7 +700,6 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
-                                            <a class="dropdown-item" href="{{ route('customer.charity') }}">Charity</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -724,7 +708,6 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold leads</a>
                                             </ul>
                                         </li>
-                                        <li><a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead and Order Pricing</a></li>
                                     </ul>
                                 </li>
 
@@ -1241,10 +1224,6 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('review.index') }}">Reviews
                                     </a>
                                 </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('google-scrapper.index') }}">Google Py Scrapper
-                                    </a>
-                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Bloggers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1309,6 +1288,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.list')}}">Messages</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1366,21 +1348,6 @@ $metaData = '';
                                                 </li>
                                             </ul>
                                         </li>
-
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SEMrush<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('semrush.domain_report')}}">Domain Report</a>
-                                            <a class="dropdown-item" href="{{route('semrush.keyword_report')}}">Keyword Report</a>
-                                            <a class="dropdown-item" href="{{route('semrush.url_report')}}">URL Report</a>
-                                            <a class="dropdown-item" href="{{route('semrush.backlink_reffring_report')}}">Backlink & Reffring Domain</a>
-                                            <a class="dropdown-item" href="{{route('semrush.publisher_display_ad')}}">Publisher Display Ad</a>
-                                            <a class="dropdown-item" href="{{route('semrush.traffic_analitics_report')}}">Traffic analitics Report</a>
-                                            <a class="dropdown-item" href="{{route('semrush.competitor_analysis')}}">Competitor analyasis</a>
-                                        </li>
-                                    </ul>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1596,6 +1563,9 @@ $metaData = '';
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/product-generic-pricing') }}">Product Generic Pricing</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -1874,8 +1844,8 @@ $metaData = '';
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
                                             </li>
-                                            <li class="nav-item dropdown">
-                                                <a href="{{ route('semrush-manage-accounts') }}">SEMrush Account Management</a>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('GtMetrixAccount.index') }}">GTMetrix Account</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -3149,13 +3119,6 @@ $metaData = '';
              e.preventDefault();
             var customerId = $("input[name='message-id'").val();
             var language = $(".auto-translate").val();
-
-            if(customerId == '' || customerId == undefined)
-                customerId = $(this).data('customerid');
-
-            if(language == '' || language == undefined)
-                language = $(".chat_lang_"+customerId).val();
-
             let self = $(this);
             $.ajax({
                 url: "/customer/language-translate/"+customerId,
