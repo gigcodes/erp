@@ -51,7 +51,8 @@
         </div>
     </div>
 </div>
-
+<div id="loading-image" style="position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999; background: url(&quot;/images/pre-loader.gif&quot;) 50% 50% no-repeat; display: none;">
+</div>
 <div class="row m-0">
     <div class="col-lg-12"> 
         <div class="panel-group" style="margin-bottom: 5px;">
@@ -83,7 +84,10 @@
                            <th style="width: 5%">Add Duty </th>
                            <th style="width: 5%">Add Profit </th>
                            <th style="width: 3%">less_IVA </th>
-                           <th style="width: 3%">Final Price</th>
+                           <th style="width: 3%">Cost A</th>
+                           <th style="width: 3%">Cost B </th>
+                           <th style="width: 3%">Final Price A</th>
+                           <th style="width: 3%">Final Price B</th>
                            <th style="width: 3%">Update</th>
                        </tr>
                        </thead>
@@ -97,6 +101,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 @section('scripts')
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
@@ -230,7 +235,7 @@ function showgenerice() {
 
     function checkFinalPriceBeforeUpdate($that){
 		var product_price = 100;
-        var final_price =product_price;
+        var final_price1 = final_price2 = product_price;
 		var tr = $($that).closest('tr'); 
         var less_iva = $(tr).find('td .less_iva').val(); 
         var segment1 = $(tr).find('td .segment1').val();
@@ -241,40 +246,62 @@ function showgenerice() {
 		
         var default_duty = $(tr).find('td .add_duty').val();
         var add_profit = $(tr).find('td .add_profit').val();
-		if(segment2 != 0 && segment2 != '') {
-			var cate_segment_discount = segment2;
-			var cate_segment_discount_type = segment2DiscType;
-		} else {
-			var cate_segment_discount = segment1;
-			var cate_segment_discount_type = segment1DiscType;
-		}
+		
+		var cate_segment_discount1 = segment1;
+		var cate_segment_discount_type1 = segment1DiscType;
+		var cate_segment_discount2 = segment2;
+		var cate_segment_discount_type2 = segment2DiscType;
 
         var row = $($that).data('row');
 
-        if(cate_segment_discount !='' && cate_segment_discount != null){
-            if(cate_segment_discount_type == 'percentage'){
-                var catDisc = (product_price * cate_segment_discount)/100;
-                final_price = Number(final_price) - Number(catDisc);
+        if(cate_segment_discount1 !='' && cate_segment_discount1 != null){
+            if(cate_segment_discount_type1 == 'percentage'){
+                var catDisc = (final_price1 * cate_segment_discount1)/100;
+                final_price1 = Number(final_price1) - Number(catDisc);
 
             }else{
-                final_price = Number(final_price) - Number(cate_segment_discount);
+                final_price1 = Number(final_price1) - Number(cate_segment_discount1);
             }
         }
 
-        if(less_iva!=0){
-            var lessIva = (final_price * less_iva )/100;
-            final_price = Number(final_price) - Number(lessIva);
-        }
-        if(default_duty !=''){
-            var dutyDisc = (final_price * default_duty)/100;
-            final_price = Number(final_price) + Number(dutyDisc);
+		if(cate_segment_discount2 !='' && cate_segment_discount2 != null){
+            if(cate_segment_discount_type2 == 'percentage'){
+                var catDisc = (final_price2 * cate_segment_discount2)/100; 
+                final_price2 = Number(final_price2) - Number(catDisc);
+
+            }else{
+                final_price2 = Number(final_price2) - Number(cate_segment_discount2);
+            }
         }
 		
-		if(add_profit !=''){
-            var profit = (final_price * add_profit)/100;
-            final_price = Number(final_price) + Number(profit);
+        if(less_iva!=0){
+            var lessIva = (final_price1 * less_iva )/100;
+            final_price1 = Number(final_price1) - Number(lessIva);
+			
+			var lessIva = (final_price2 * less_iva )/100;
+            final_price2 = Number(final_price2) - Number(lessIva);
         }
-		$(tr).find('.row_final_price').text(final_price.toFixed(2));
+		
+        if(default_duty !=''){
+            var dutyDisc = (final_price1 * default_duty)/100;
+            final_price1 = Number(final_price1) + Number(dutyDisc);
+			
+			var dutyDisc = (final_price2 * default_duty)/100;
+            final_price2 = Number(final_price2) + Number(dutyDisc);
+        }
+		var cost1 = final_price1;
+		var cost2 = final_price2; console.log(add_profit);
+		if(add_profit !=''){
+            var profit = (final_price1 * add_profit)/100;
+            final_price1 = Number(final_price1) + Number(profit);
+			
+			var profit = (final_price2 * add_profit)/100;
+            final_price2 = Number(final_price2) + Number(profit);
+        }
+		$(tr).find('.row_final_price_a').text(final_price1.toFixed(2));
+		$(tr).find('.row_final_price_b').text(final_price2.toFixed(2));
+		$(tr).find('.row_cost_a').text(cost1.toFixed(2));
+		$(tr).find('.row_cost_b').text(cost2.toFixed(2));
     }
 
 
@@ -391,13 +418,15 @@ $(document).on('click', '.UpdateProduct', function () {
         default_duty: $(tr).find('td .add_duty').val(),
         segmentprice1 :  $(tr).find('td .segment1').val(),
         segmentprice2:   $(tr).find('td .segment2').val(),
-        segmentId1:   $(tr).find('td .segment2').attr('ref'),
-        segmentId2:   $(tr).find('td .segment2').attr('ref'),
+        segmentId1:   $(tr).find('td .segment1').data('ref'),
+        segmentId2:   $(tr).find('td .segment2').data('ref'),
         brandId:      $(this).attr('data-brandId'),
         countryId:    $(this).attr('data-countryId'),
         websiteId:    $(this).attr('data-websiteid'),
         catId:    $(this).attr('data-catid'),
-    }
+		add_profit : $(tr).find('td .add_profit').val(),
+		country_code : $(tr).find('td .country_code').val(),
+    }; 
 
     $.ajax({
         //updateSegmentPrice  real route
@@ -405,14 +434,14 @@ $(document).on('click', '.UpdateProduct', function () {
         type: 'post',
         data: data,
         beforeSend: function () {
-            $("#loading-image").show();
+			$("#loading-image").show();
         }
     }).done(function(response) {
         $("#loading-image").hide();
         if(response.status == false){
             toastr["error"]("Something went wrong, Please try again.");
         }else{
-            toastr["success"]("Product updated successfully!", "Message");
+            toastr["success"](response.count + " products updated" );
         }
     });
 });
