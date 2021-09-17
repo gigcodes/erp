@@ -2475,7 +2475,10 @@ class OrderController extends Controller
         $selectedStatus = $request->filterStatus;
         $selectedWebsite = $request->filterWebsite;
         $allStatuses = CallBusyMessageStatus::get();
-        return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite','callBusyMessages_pagination'));
+		
+		$reservedCalls = CallBusyMessage::leftJoin('call_busy_message_statuses', 'call_busy_message_statuses.id', '=', 'call_busy_messages.call_busy_message_statuses_id')->where('call_busy_message_statuses.name', 'Reserved')->select('call_busy_messages.*')->get();
+      //  dd($reservedCalls);
+		return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite','callBusyMessages_pagination', 'reservedCalls'));
 
     }
 

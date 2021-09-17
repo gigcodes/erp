@@ -187,6 +187,22 @@ class TwilioController extends FindByNumberController
 
     }
 
+	public function twilioEvents(Request $request, Client $twilioClient) {
+		$missedCallEvents = config('services.twilio')['missedCallEvents'];
+
+        $eventTypeName = $request->input("EventType");
+        if (in_array($eventTypeName, $missedCallEvents) and strtolower($eventTypeName) == "$eventTypeName") {
+            $taskAttr = $this->parseAttributes("TaskAttributes", $request);
+            if (!empty($taskAttr)) {
+               $call = CallBusyMessage::where('twilio_call_sid', $taskAttr->call_sid)->first();
+			    if($call != null) {
+				   $status = CallBusyMessage::where('name', 'Reserved')->pluck('id')->first();
+				  $call->update('call_busy_message_statuses_id', $status);
+			    }
+            }
+        } 
+	}
+
     /**
      * Incoming call URL for Twilio programmable voice
      * @param Request $request Request
@@ -2082,6 +2098,8 @@ class TwilioController extends FindByNumberController
                 Customer::create($add_customer);
             }
             Log::channel('customerDnd')->info('-----222222----- ');
+			
+			
             CallBusyMessage::create($params);
 
 
