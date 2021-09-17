@@ -63,6 +63,7 @@ use App\TwilioWorkspace;
 use App\TwilioWorker;
 use App\TwilioActivity;
 use App\TwilioWorkflow;
+use App\TwilioTaskQueue;
 use Validator;
 
 /**
@@ -2421,8 +2422,14 @@ class TwilioController extends FindByNumberController
             ->where('twilio_workflows.deleted',0)
             ->select('twilio_workspaces.workspace_name','twilio_workflows.*')
             ->get();
+			
+			$taskqueue = TwilioTaskQueue::join('twilio_workspaces','twilio_workspaces.id','twilio_task_queue.twilio_workspace_id')
+            ->where('twilio_task_queue.twilio_credential_id', '=', $id)
+            ->where('twilio_task_queue.deleted',0)
+            ->select('twilio_workspaces.workspace_name','twilio_task_queue.*')
+            ->get();
              
-            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'activities', 'workflows'));
+            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'customer_role_users','account_id','workspace', 'worker', 'activities', 'workflows', 'taskqueue'));
         }catch(\Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
         }
@@ -2934,6 +2941,7 @@ class TwilioController extends FindByNumberController
     public function setTwilioWorkSpace(Request $request){ 
 		$validator = Validator::make($request->all(), [
             'workspace_name' => 'required',
+            'callback_url' => 'required',
         ]);
 		
 		if ($validator->fails()) {  
@@ -2964,7 +2972,7 @@ class TwilioController extends FindByNumberController
                 'twilio_credential_id' => $account_id,
                 'workspace_name' => $workspace_name,
                 'workspace_sid' => $workspace->sid,
-                'workspace_response' => '',
+                'callback_url' => $request->callback_url,
              ]);
 			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Workspace Created successfully']);
         } catch (\Exception $e) { 
@@ -2994,6 +3002,7 @@ class TwilioController extends FindByNumberController
 		$validator = Validator::make($request->all(), [
             'workspace_id' => 'required',
             'worker_name' => 'required',
+            'worker_phone' => 'required',
         ]);
 		
 		if ($validator->fails()) {  
@@ -3023,13 +3032,18 @@ class TwilioController extends FindByNumberController
             $token = $check_account->auth_token;
             $twilio = new Client($sid, $token);
 
-            $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($worker_name);
+            $worker = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workers->create($worker_name, ['attributes'=>json_encode([
+                                "phone" => $request->worker_phone
+                            ])
+							]
+						);
 
             TwilioWorker::create([
                 'twilio_credential_id' => $twilio_credential_id,
                 'twilio_workspace_id' => $workspace_id,
                 'worker_name' => $worker_name,
                 'worker_sid' => $worker->sid,
+                'worker_phone' => $request->worker_phone,
              ]);
 
              $worker_latest_record = TwilioWorker::join('twilio_workspaces','twilio_workspaces.id','twilio_workers.twilio_workspace_id')
@@ -3064,6 +3078,9 @@ class TwilioController extends FindByNumberController
 		$validator = Validator::make($request->all(), [
             'workspace_id' => 'required',
             'workflow_name' => 'required',
+            'fallback_assignment_callback_url' => 'required',
+            'assignment_callback_url' => 'required',
+            'task_queue' => 'required',
         ]);
 		
 		if ($validator->fails()) {  
@@ -3079,9 +3096,13 @@ class TwilioController extends FindByNumberController
         $workspace_id = $request->workspace_id;
         $workflow_name = $request->workflow_name;
         $twilio_credential_id = $request->account_id;
+        $fallback_assignment_callback_url = $request->fallback_assignment_callback_url;
+        $assignment_callback_url = $request->assignment_callback_url;
+        $task_queue_id = $request->task_queue;
 
         $check_name = TwilioWorkflow::where('workflow_name',$workflow_name)->where('twilio_workspace_id',$workspace_id)->first();
-
+		$task_queue_sid = TwilioTaskQueue::where('id',$task_queue_id)->where('twilio_workspace_id',$workspace_id)->pluck('task_queue_sid')->first();
+		
         if($check_name) {
             return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This workflow already exists']);
         } else{
@@ -3093,22 +3114,30 @@ class TwilioController extends FindByNumberController
             $token = $check_account->auth_token;
             $twilio = new Client($sid, $token);
 
-            $workflow = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workflows->create($workflow_name, [
-				'assignmentCallbackUrl'=>$request->assignment_callback_url,
-				'fallbackAssignmentCallbackUrl'=>$request->fallback_assignment_callback_url
-			]);
+            $workflow = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->workflows->create($workflow_name,
+			 json_encode([
+                            "task_routing" => [
+                                "default_filter" => [
+                                    "queue" => $task_queue_sid
+                                ]
+                            ]
+                        ]), [
+					'assignmentCallbackUrl'=>$request->assignment_callback_url,
+					'fallbackAssignmentCallbackUrl'=>$request->fallback_assignment_callback_url
+				]);
 
             TwilioWorkflow::create([
                 'twilio_credential_id' => $twilio_credential_id,
                 'twilio_workspace_id' => $workspace_id,
                 'workflow_name' => $workflow_name,
                 'workflow_sid' => $workflow->sid,
+                'task_queue_id' => $task_queue_id,
                 'fallback_assignment_callback_url' =>$request->fallback_assignment_callback_url,
                 'assignment_callback_url' => $request->assignment_callback_url,
              ]);
 
              $workflow_latest_record = TwilioWorkflow::join('twilio_workspaces','twilio_workspaces.id','twilio_workflows.twilio_workspace_id')
-             ->where('twilio_workflows.worker_name',$worker_name)
+             ->where('twilio_workflows.workflow_name',$workflow_name)
              ->where('twilio_workflows.twilio_workspace_id',$workspace_id)
              ->where('twilio_workflows.deleted',0)
              ->select('twilio_workspaces.workspace_name','twilio_workflows.*')
@@ -3127,7 +3156,7 @@ class TwilioController extends FindByNumberController
 			$token = $check_account->auth_token;
 			$twilio = new Client($sid, $token);
 
-			$twilio->taskrouter->v1->workspaces($get_workspace_data->workspace_sid)->workflows($getdata->activity_sid)->delete();
+			$twilio->taskrouter->v1->workspaces($get_workspace_data->workspace_sid)->workflows($getdata->workflow_sid)->delete();
 
 			TwilioWorkflow::where('id',$workflow_id)->update(['deleted'=> 1]);
 
@@ -3223,7 +3252,12 @@ class TwilioController extends FindByNumberController
 	public function createTwilioTaskQueue(Request $request) {
 		$validator = Validator::make($request->all(), [
             'workspace_id' => 'required',
-            'activity_name' => 'required',
+            'task_queue_name' => 'required',
+            'assignment_activity_id' => 'required',
+            'reservation_activity_id' => 'required',
+            'task_order' => 'required',
+            'max_reserved_workers' => 'required',
+            'queue_expression' => 'required',
         ]);
 		
 		if ($validator->fails()) {  
@@ -3237,14 +3271,20 @@ class TwilioController extends FindByNumberController
         }
 
         $workspace_id = $request->workspace_id;
-        $activity_name = $request->activity_name;
-        $availability = $request->availability;
+        $task_queue_name = $request->task_queue_name;
+		$assignmentActivitySid = $reservationActivitySid = null;
+		if($request->assignment_activity_id) {
+			$assignmentActivitySid = TwilioActivity::where('id',$assignmentActivitySid)->where('twilio_workspace_id',$workspace_id)->pluck('activity_sid')->first();
+		}
+		if($request->reservation_activity_id) {
+			$reservationActivitySid = TwilioActivity::where('id',$request->reservation_activity_id)->where('twilio_workspace_id',$workspace_id)->pluck('activity_sid')->first();
+		}
         $twilio_credential_id = $request->account_id;
 
-        $check_name = TwilioActivity::where('activity_name',$activity_name)->where('twilio_workspace_id',$workspace_id)->first();
+        $check_name = TwilioTaskQueue::where('task_queue_name',$task_queue_name)->where('twilio_workspace_id',$workspace_id)->first();
 
         if($check_name) {
-            return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Activity already exists']);
+            return new JsonResponse(['status' => 'failed', 'statusCode'=>500, 'message' => 'This Task Queue already exists']);
         } else{
 
             $workspace_data = TwilioWorkspace::where('id', $workspace_id)->first();
@@ -3254,37 +3294,39 @@ class TwilioController extends FindByNumberController
             $token = $check_account->auth_token;
             $twilio = new Client($sid, $token);
 
-            $twilioAvailability = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->activities->create($activity_name,  [
-                            "availability" => $availability
-                        ]);
-			 TwilioActivity::create([
+            $twilioTaskQueue = $twilio->taskrouter->v1->workspaces($workspace_data->workspace_sid)->taskQueues->create( $task_queue_name,   [
+                                                  "assignmentActivitySid" => $assignmentActivitySid,
+                                                  "reservationActivitySid" => $reservationActivitySid,
+                                                  "targetWorkers" => $request->queue_expression,
+                                                  "maxReservedWorkers" => $request->max_reserved_workers,
+                                                  "taskOrder" => $request->task_order,
+                                              ]);
+			 TwilioTaskQueue::create([
                 'twilio_credential_id' => $twilio_credential_id,
                 'twilio_workspace_id' => $workspace_id,
-                'activity_name' => $activity_name,
-                'availability' => $availability,
-                'activity_sid' => $twilioAvailability->sid,
+                'task_queue_name' => $task_queue_name,
+                'task_order' =>  $request->task_order,
+                'reservation_activity_id' =>  $request->reservation_activity_id,
+                'assignment_activity_id' =>  $request->assignment_activity_id,
+                'target_workers' =>  $request->queue_expression,
+                'max_reserved_workers' =>  $request->max_reserved_workers,
+                'task_queue_sid' => $twilioTaskQueue->sid,
              ]);
 
-             $activities_latest_record = TwilioActivity::join('twilio_workspaces','twilio_workspaces.id','twilio_activities.twilio_workspace_id')
-             ->where('twilio_activities.activity_name',$activity_name)
-             ->where('twilio_activities.twilio_workspace_id',$workspace_id)
-             ->where('twilio_activities.deleted',0)
-             ->select('twilio_workspaces.workspace_name','twilio_activities.*')
+             $task_latest_record = TwilioTaskQueue::join('twilio_workspaces','twilio_workspaces.id','twilio_task_queue.twilio_workspace_id')
+             ->where('twilio_task_queue.task_queue_name',$task_queue_name)
+             ->where('twilio_task_queue.twilio_workspace_id',$workspace_id)
+             ->where('twilio_task_queue.deleted',0)
+             ->select('twilio_workspaces.workspace_name','twilio_task_queue.*')
              ->first();
-			if(isset($activities_latest_record['availability'] )) {
-				if($activities_latest_record['availability'] == 1) {
-					$activities_latest_record['availability'] = 'True';
-				} else {
-					$activities_latest_record['availability'] = 'False';
-				}
-			}
-			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Activity Created successfully', 'data' => $activities_latest_record, 'type'=>'activityList']);
+		
+			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Task Queue Created successfully', 'data' => $task_latest_record, 'type'=>'taskQueueList']);
         }
 	}
 	
 	public function deleteTwilioTaskQueue(Request $request){
-        $activity_id = $request->id;
-        $getdata = TwilioActivity::where('id', $activity_id)->first(); 
+        $taskQueueId = $request->id;
+        $getdata = TwilioTaskQueue::where('id', $taskQueueId)->first(); 
 		if($getdata != null) {
 			$get_workspace_data = TwilioWorkspace::where('id', $getdata->twilio_workspace_id)->first();
 			$check_account = TwilioCredential::where(['id' => $getdata->twilio_credential_id])->firstOrFail();
@@ -3292,19 +3334,24 @@ class TwilioController extends FindByNumberController
 			$token = $check_account->auth_token;
 			$twilio = new Client($sid, $token);
 
-			$twilio->taskrouter->v1->workspaces($get_workspace_data->workspace_sid)->activities($getdata->activity_sid)->delete();
+			$twilio->taskrouter->v1->workspaces($get_workspace_data->workspace_sid)->taskQueues($getdata->task_queue_sid)->delete();
 
-			TwilioActivity::where('id',$activity_id)->update(['deleted'=> 1]);
+			TwilioTaskQueue::where('id',$taskQueueId)->update(['deleted'=> 1]);
 
-			return new JsonResponse(['code' => 200, 'message' => 'Activity deleted successfully']);
+			return new JsonResponse(['code' => 200, 'message' => 'TwilioTaskQueue deleted successfully']);
 		} else {
-			return new JsonResponse(['code' => 500, 'message' => 'Activity not found']);
+			return new JsonResponse(['code' => 500, 'message' => 'TwilioTaskQueue not found']);
 		}
     }
 	
 	public function fetchActivitiesFromWorkspace($workspaceId) {
-		$twilioActivities = TwilioActivity::where('twilio_workspace_id', $workspaceId)->pluck('activity_name', 'id')->toArray();
+		$twilioActivities[0] = TwilioActivity::where('twilio_workspace_id', $workspaceId)->where('deleted', 0)->where('availability', 0)->pluck('activity_name', 'id')->toArray();
+		$twilioActivities[1] = $twilioActivities[0];
 		return $twilioActivities;
 	}
 
+	public function fetchTaskQueueFromWorkspace ($workspaceId) {
+		$twilioTaskQueue = TwilioTaskQueue::where('twilio_workspace_id', $workspaceId)->pluck('task_queue_name', 'id')->where('deleted', 0)->toArray();
+		return $twilioTaskQueue;
+	}
 } 

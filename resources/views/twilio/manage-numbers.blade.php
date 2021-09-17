@@ -237,6 +237,9 @@
                         <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/>
                     </div>
                    
+                    <div class="col-md-3">
+                        <input type="text" class="form-control worker_phone" name="worker_phone" placeholder="Worker Phone Number"/>
+                    </div>
 
                     <a class="ml-2" >
                         <button type="button" class="btn btn-secondary create_twilio_worker">Create</button>
@@ -249,6 +252,7 @@
                         <tr>
                             <th scope="col" class="text-center">Workspace Name</th>
                             <th scope="col" class="text-center">Worker Name</th>
+                            <th scope="col" class="text-center">Worker Phone</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -258,6 +262,7 @@
                             <tr class="worker_row_{{$val->id}}">
                                 <td>{{$val->workspace_name}}</td>
                                 <td>{{$val->worker_name}}</td>
+                                <td>{{$val->worker_phone}}</td>
                                 <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
                             </tr>
                             @endforeach
@@ -595,14 +600,14 @@
 					if(data.statusCode == 500) { 
 						toastr["error"](data.message);
 					} else {
-						toastr["success"](
+						toastr["success"](data.message);
 						if(data.type == "activityList") { 
 							var response = data;
 							var html = '<tr>';
                             html += '<td>'+response.data.workspace_name+'</td>';
                             html += '<td>'+response.data.activity_name+'</td>';
                             html += '<td>'+response.data.availability+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-activity')}}" aria-hidden="true"></i></td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-activity')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.activities_list').append(html);
 						}else if(data.type == "workflowList") { 
@@ -612,7 +617,7 @@
                             html += '<td>'+response.data.workflow_name+'</td>';
                             html += '<td>'+response.data.fallback_assignment_callback_url+'</td>';
                             html += '<td>'+response.data.assignment_callback_url+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.workflow_list').append(html);
 						}else if(data.type == "taskQueueList") { 
@@ -623,11 +628,13 @@
                             html += '<td>'+response.data.target_workers+'</td>';
                             html += '<td>'+response.data.max_reserved_workers+'</td>';
                             html += '<td>'+response.data.task_order+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-task-queue')}}" aria-hidden="true"></i></td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-task-queue')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.task_queue_list').append(html);
 						}
-						
+						setTimeout(function(){
+                          location.reload();
+                        }, 1000);
  
 					}
 				},
@@ -753,6 +760,7 @@
             $('.create_twilio_worker').on("click", function(){
                 var workspace_id = $('.worker_workspace_id').val();
                 var worker_name = $('.twilio_worker_name').val();
+                var worker_phone = $('.worker_phone').val();
 
                 $.ajax({
                     url: "{{ route('create-twilio-worker') }}",
@@ -760,6 +768,7 @@
                     data : {
                         workspace_id: workspace_id,
                         worker_name: worker_name,
+                        worker_phone: worker_phone,
                         account_id: '{{ $account_id }}',
                         _token : "{{ csrf_token() }}"
                     },
@@ -775,6 +784,7 @@
                             var html = '<tr>';
                             html += '<td>'+response.data.workspace_name+'</td>';
                             html += '<td>'+response.data.worker_name+'</td>';
+                            html += '<td>'+response.data.worker_phone+'</td>';
                             html += '<td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="'+response.data.id+'" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.worker_list').append(html);
