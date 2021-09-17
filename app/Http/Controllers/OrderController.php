@@ -2477,7 +2477,16 @@ class OrderController extends Controller
         $allStatuses = CallBusyMessageStatus::get();
 		
 		$reservedCalls = CallBusyMessage::leftJoin('call_busy_message_statuses', 'call_busy_message_statuses.id', '=', 'call_busy_messages.call_busy_message_statuses_id')->where('call_busy_message_statuses.name', 'Reserved')->select('call_busy_messages.*')->get();
-      //  dd($reservedCalls);
+		foreach($reservedCalls as $key=>$reservedCall) {
+			if (is_numeric($reservedCall['twilio_call_sid'])) {
+				$formatted_phone = str_replace('+91', '', $reservedCall['twilio_call_sid']);
+				$customer_array  = Customer::with('storeWebsite')->where('phone', 'LIKE', "%$formatted_phone%")->first();
+				if(isset($customer_array['store_website']) && count($customer_array['store_website'])){
+                    $reservedCall[$key]['store_website_name'] = $customer_array['store_website']['title'];
+                }
+			}
+		}
+	 
 		return view('orders.missed_call', compact('callBusyMessages','allStatuses','storeWebsite','selectedStatus','selectedWebsite','callBusyMessages_pagination', 'reservedCalls'));
 
     }

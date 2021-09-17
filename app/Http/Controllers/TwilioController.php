@@ -61,6 +61,7 @@ use App\ReturnExchange;
 use App\ReturnExchangeStatus;
 use App\TwilioWorkspace;
 use App\TwilioWorker;
+use App\CallBusyMessageStatus;
 
 /**
  * Class TwilioController - active record
@@ -195,10 +196,12 @@ class TwilioController extends FindByNumberController
             $taskAttr = $this->parseAttributes("TaskAttributes", $request);
             if (!empty($taskAttr)) {
                $call = CallBusyMessage::where('twilio_call_sid', $taskAttr->call_sid)->first();
-			    if($call != null) {
-				   $status = CallBusyMessage::where('name', 'Reserved')->pluck('id')->first();
-				  $call->update('call_busy_message_statuses_id', $status);
-			    }
+			    $status = CallBusyMessageStatus::where('name', 'Reserved')->pluck('id')->first();
+				if($call != null) {
+				   $call->update('call_busy_message_statuses_id', $status);
+			    } else {
+					CallBusyMessage::create(['twilio_call_sid'=>$taskAttr->call_sid, 'call_busy_message_statuses_id'=>$status]);
+				}
             }
         } 
 	}

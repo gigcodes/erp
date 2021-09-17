@@ -290,7 +290,8 @@
                 <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
                     <thead class="reserved-calls">
 						<tr>
-                        <th>Mobile Number</th>
+                        <th>Customer Details</th>
+                        <th>Website</th>
                         <th>Call Time</th>
 						</tr>
                     </thead>
@@ -298,7 +299,18 @@
 						
 						@foreach($reservedCalls as $reservedCall)
 							<tr>
-							<td>{{ $reservedCall['twilio_call_sid'] }}</td>
+							<td>
+								@if (isset($reservedCall['customer_name']))
+									{{ $reservedCall['customer_name'] }}
+								@else
+									{{ $reservedCall['twilio_call_sid'] }}
+								@endif
+							</td>
+							<td>
+								@if (isset($reservedCall['store_website_name']))
+									{{ $reservedCall['store_website_name'] }}
+								@endif
+							</td>
 							<td>{{ $reservedCall['created_at'] }}</td>
 							</tr>
 						@endforeach
