@@ -141,7 +141,7 @@ do
 	esac
 done
 
-if [ "$host" = "localhost" ]
+if [ "$host" = "localhost" ] || [ "$host" = "0.0.0.0" ]
 then
 	remotehost=localhost
 else

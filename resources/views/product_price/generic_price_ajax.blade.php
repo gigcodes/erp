@@ -82,7 +82,10 @@
                                   </div>
                                </td>
                                <td>{{ $product['less_IVA'] }} <input type="hidden" class="less_iva" value="{{ str_replace('%','',$product['less_IVA']) }}"></td>
-                               <td id="final_price_row{{$i}}" class="row_final_price">{{ $product['final_price'] }}</td>
+                               <td id="cost_a{{$i}}" class="row_cost_a">{{ $product['cost1'] }}</td>
+                               <td id="cost_b{{$i}}" class="row_cost_b">{{ $product['cost2'] }}</td>
+                               <td id="final_price_row_a{{$i}}" class="row_final_price_a">{{ $product['final_price1'] }}</td>
+                               <td id="final_price_row_b{{$i}}" class="row_final_price_b">{{ $product['final_price2'] }}</td>
                                <td><button class="btn btn-secondary UpdateProduct"  data-brandId ="{{$product['brandId']}}" data-websiteId ="{{$product['store_websites_id']}}" data-catid ="{{$product['catId']}}" data-countryid ="{{$product['country']['id']}}">Update</button></td>
                            </tr> 
 @endforeach
