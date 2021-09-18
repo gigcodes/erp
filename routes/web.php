@@ -1990,6 +1990,7 @@ Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->na
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
 
+Route::get('livechat/store-credit', 'LiveChatController@storeCredit');
 
 
 
