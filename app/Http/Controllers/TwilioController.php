@@ -206,6 +206,12 @@ class TwilioController extends FindByNumberController
             }
         } 
 	}
+	
+	public function parseAttributes($name, $request)
+    {
+        $attrJson = $request->input($name);
+        return json_decode($attrJson);
+    }
 
     /**
      * Incoming call URL for Twilio programmable voice
