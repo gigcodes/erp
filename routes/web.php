@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function()
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 Route::post('/products/published', 'ProductController@published');
 Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
+Route::get('/customers/accounts', 'CustomerController@accounts');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');

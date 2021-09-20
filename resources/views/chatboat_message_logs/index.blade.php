@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Log List Magento')
+@section('title', 'Chat Bot Message Log')
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -56,12 +56,65 @@
   </div>
   <div class="row m-0">
     <div class="col-lg-12 margin-tb p-0">
-      <h2 class="page-heading">Chat Boat Log ({{ $total_count }})
+      <h2 class="page-heading">Chat Bot Message Log ({{ $total_count }})
       <div class="pull-right">
         <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
       </div>
       </h2>
   </div>
+
+  <div class="row">
+       <div class="col-lg-12 margin-tb">
+          
+           <div class="pull-left">
+             <form class="form-inline" action="{{url('chatbot-message-log')}}" method="GET">
+               <div class="col">
+                 <div class="form-group">
+                   <div class='input-group'>
+                     <input type='text' placeholder="Search name" class="form-control" name="name"  value="{{ isset($_GET['name'])?$_GET['name']:''}}" />
+                   
+ 
+                   
+                   </div>
+                 </div>
+               </div>
+               <div class="col">
+                 <div class="form-group">
+                   <div class='input-group'>
+                    
+                     <input type='text' placeholder="Search Email" class="form-control" name="email"  value="{{ isset($_GET['email'])?$_GET['email']:''}}"  />
+                    
+ 
+                   
+                   </div>
+                 </div>
+               </div>
+               <div class="col">
+                 <div class="form-group">
+                   <div class='input-group'>
+                    
+                    
+                     <input type='text' placeholder="Search phone" class="form-control" name="phone"  value="{{ isset($_GET['phone'])?$_GET['phone']:''}}"  />
+ 
+                   
+                   </div>
+                 </div>
+               </div>
+ 
+              
+              
+ 
+               <div class="col">
+                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+               </div>
+             </form>
+           </div>
+           <div class="pull-right">
+          
+           </div>
+       </div>
+   </div>
+
   </div>
 
   <div class="col-md-12 pl-3 pr-3">
@@ -71,16 +124,19 @@
         <div class="table-responsive">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th style="width:5%">Product ID</th>
+              <th style="width:5%">ID</th>
               <th style="width:5%">Model</th>
               <th style="width:5%">Model Id</th>
+              <th style="width:5%">Customer Name</th>
               <th style="width:6%">Chat Message Id</th>
               <th style="width:6%">Message</th>
               <th style="width:5%">Status</th>
               <th style="width:5%">Last Updated</th>
               <th style="width:8%">Action</th>
             </thead>
-            <tbody class="infinite-scroll-pending-inner">
+            
+            <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
+
               @foreach($logListMagentos as $item)
           <tr>
                   <td>
@@ -88,6 +144,8 @@
                   </td>
                   <td> {{$item->model}} </td>
                   <td> {{$item->model_id}} </td>
+                  <td> {{$item->cname}} </td>
+                  
                   <td> {{$item->chat_message_id}} </td>
                   <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
                     <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 6, '...')}}</span>
@@ -112,9 +170,12 @@
         </div>
         
      </div>
+
+     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
      <div id="show-log-list-chat-error" class="modal fade" role="dialog" style="margin: 150px;">
-      <div class="modal-dialog modal-lg" style="margin: 0px;">
-        <div class="modal-content" style="width: 1500px">
+      <div class="modal-dialog " style="margin: 0px;">
+        <div class="modal-content" style="width: 1000px">
           <div class="modal-header">
             <h4 class="modal-title">Log message</h4>
           </div>
@@ -154,7 +215,7 @@
   $(document).on("click",".chatbot-log-list",function(e) {
       var id = $(this).data("id");
       $.ajax({
-        url: '/chatbot-message-log/' + id + '/history',
+        url: '{{url('chatbot-message-log')}}/' + id + '/history',
         type: 'GET',
         beforeSend: function() {
           $("#loading-image").show();
@@ -170,6 +231,53 @@
   });
 
 </script>
+
+<script>
+      
+      var isLoading = false;
+      var page = 1;
+      $(document).ready(function () {
+         
+          $(window).scroll(function() {
+              if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                  loadMore();
+              }
+          });
+
+          function loadMore() {
+              if (isLoading)
+                  return;
+              isLoading = true;
+              var $loader = $('.infinite-scroll-products-loader');
+              page = page + 1;
+              $.ajax({
+                  url: "{{url('chatbot-message-log')}}?ajax=1&page="+page,
+                  type: 'GET',
+                  data: $('.form-search-data').serialize(),
+                  beforeSend: function() {
+                      $loader.show();
+                  },
+                  success: function (data) {
+                     
+                      $loader.hide();
+                      if('' === data.trim())
+                          return;
+                      $('.infinite-scroll-cashflow-inner').append(data);
+                     
+
+                      isLoading = false;
+                  },
+                  error: function () {
+                      $loader.hide();
+                      isLoading = false;
+                  }
+              });
+          }           
+      });
+
+    
+
+</script>  
 @if (Session::has('errors'))
   <script>
   toastr["error"]("{{ $errors->first() }}", "Message")
