@@ -2256,6 +2256,8 @@ class TwilioController extends FindByNumberController
             'aget_user_id' => null
         ]);
 
+        TwilioCallWaiting::where("call_sid",$request->get("CallSid"))->delete();
+
         // $params = [
         //     'recording_url' => $request->input('RecordingUrl'),
         //     'twilio_call_sid' => $request->input('Caller'),
