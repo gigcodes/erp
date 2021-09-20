@@ -540,7 +540,7 @@
           <div class="form-group">
             <label>Master Category Title</label>
             <div class="input-group">
-              <input type="text" class="form-control input-sm" name="text" id="masterCategory" required="">
+              <input type="text" class="form-control input-sm" name="text" id="masterCategorySingle" required="">
             </div>
 		 </div>
         </div>
@@ -633,7 +633,7 @@
 	}
 	
 	function saveMasterCategory() {
-		var text = $('#masterCategory').val()
+		var text = $('#masterCategorySingle').val()
 		if (text === '') {
 			alert('Please Enter Master Category');
 		} else {
@@ -650,14 +650,14 @@
 					},
 				})
 				.done(function(data) {
-					$('#masterCategory').val('');
+					$('#masterCategorySingle').val('');
 					$("#loading-image").hide();
 					toastr["success"](data.messages);
 					// refreshPage()
 					setTimeout(function(){ refreshPage(); }, 2000);
 				})
 				.fail(function(data) {
-					$('#masterCategory').val('')
+					$('#masterCategorySingle').val('')
 					console.log(data)
 					console.log("error");
 				});
