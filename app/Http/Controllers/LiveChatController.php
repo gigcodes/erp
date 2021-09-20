@@ -1672,44 +1672,7 @@ class LiveChatController extends Controller
         return response()->json(["code" => 200, "message" => "Record Delete ticket"]);
     }
 
-    public function storeCredit (Request $request) {
-
-       
-        $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id');
-        $customers_all->leftjoin('credit_history','customers.id','credit_history.customer_id');
-        if ($request->name !='')
-             $customers_all->where('name',$request->name);
-             if ($request->email !='')
-             $customers_all->where('email',$request->email);
-             if ($request->phone !='')
-             $customers_all->where('phone',$request->phone);
-             if ($request->store_website !='')
-             $customers_all->where('store_website_id',$request->store_website);
-
-        $customers_all=$customers_all->paginate(Setting::get('pagination'));
-        $store_website = StoreWebsite::all();
-        
-        if ($request->ajax())
-       {
-        return view('livechat.store_credit_ajax', [
-            'customers_all' => $customers_all,
-            'store_website'=>$store_website
-           
-        ]);
-       }
-       else
-       {
-        return view('livechat.store_credit', [
-            'customers_all' => $customers_all,
-            'store_website'=>$store_website
-           
-        ]);
-       }
-
-  
-      
-  
-    }
+   
  
     
 
