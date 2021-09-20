@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function()
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 Route::post('/products/published', 'ProductController@published');
 Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
+Route::get('/customers/accounts', 'CustomerController@accounts');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -1154,6 +1155,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('chat-messages/dnd-list/records', 'ChatMessagesController@dndListRecords')->name('chat.dndList.records');
     Route::post('chat-messages/dnd-list/move-dnd', 'ChatMessagesController@moveDnd')->name('chat.dndList.moveDnd');
     // Customers
+    Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
@@ -1990,6 +1992,7 @@ Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name(
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
+
 
 
 
@@ -3126,12 +3129,24 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
-    Route::get('set-twilio-work-space/{account_id}', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
+    Route::post('set-twilio-work-space', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
     Route::post('delete-twilio-work-space', 'TwilioController@deleteTwilioWorkSpace')->name('delete-twilio-work-space');
     Route::post('create-twilio-worker', 'TwilioController@createTwilioWorker')->name('create-twilio-worker');
     Route::post('delete-twilio-worker', 'TwilioController@deleteTwilioWorker')->name('delete-twilio-worker');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
+
+	Route::post('create-twilio-workflow', 'TwilioController@createTwilioWorkflow')->name('create-twilio-workflow');
+    Route::delete('delete-twilio-workflow', 'TwilioController@deleteTwilioWorkflow')->name('delete-twilio-workflow');
+   
+    Route::post('create-twilio-activity', 'TwilioController@createTwilioActivity')->name('create-twilio-activity');
+    Route::delete('delete-twilio-activity', 'TwilioController@deleteTwilioActivity')->name('delete-twilio-activity');
+  
+	Route::get('fetch-activities/{workspaceId}', 'TwilioController@fetchActivitiesFromWorkspace')->name('fetch-activities');
+    Route::get('fetch-task-queue/{workspaceId}', 'TwilioController@fetchTaskQueueFromWorkspace')->name('fetch-task-queue');
+    
+	Route::post('create-twilio-task-queue', 'TwilioController@createTwilioTaskQueue')->name('create-twilio-task-queue');
+    Route::delete('delete-twilio-task-queue', 'TwilioController@deleteTwilioTaskQueue')->name('delete-twilio-task-queue');
 
     Route::get('twilio/call-recordings/{account_id}', 'TwilioController@CallRecordings')->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
@@ -3376,6 +3391,8 @@ Route::post('store-website-product-prices/approve', 'product_price\ProductPriceC
 Route::get('store-website-product-prices', 'product_price\ProductPriceController@store_website_product_prices')->name('store-website-product-prices');
 Route::get('store-website-product-prices/history', 'product_price\ProductPriceController@storewebsiteproductpriceshistory');
 
+Route::get('product-update-logs', 'product_price\ProductPriceController@productUpdateLogs')->name('product.update.logs');
+
 
 Route::post('product-pricing/update-segment', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.segment');
 Route::post('product-pricing/add_profit', 'product_price\ProductPriceController@update_product')->name('product.pricing.update.add_profit');
@@ -3385,6 +3402,7 @@ Route::get('product-generic-pricing', 'product_price\ProductPriceController@gene
 Route::post('product-duty-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateDutyPrice');
 Route::post('product-segment-price', 'product_price\ProductPriceController@updateProductPrice')->name('updateSegmentPrice');
 
+Route::post('product-update', 'product_price\ProductPriceController@updateProduct')->name('product_update');
 
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
@@ -3446,6 +3464,8 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+Route::get('chatbot-message-log','ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::get('chatbot-message-log/{id}/history','ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
 
 //Magento Product Error
