@@ -291,8 +291,9 @@
                     <thead class="reserved-calls">
 						<tr>
                         <th>Customer Name</th>
-                        <th>Customer Phone</th>
-                        <th>Website</th>
+                        <th>Customer Email</th>
+                        <th>From</th>
+                        <th>To</th>
                         <th>Call Time</th>
 						</tr>
                     </thead>
@@ -301,24 +302,18 @@
 						@foreach($reservedCalls as $reservedCall)
 							<tr>
 							<td>
-								@if (isset($reservedCall['customer_name']))
-									{{ $reservedCall['customer_name'] }}
-								
-								@endif
+								{{$reservedCall->name}}
+							</td>
+                            <td>
+                                {{$reservedCall->email}}
+                            </td>
+							<td>
+								{{$reservedCall->from}}
 							</td>
 							<td>
-								@if (isset($reservedCall['customer_number']))
-									{{ $reservedCall['customer_number'] }}
-								@else
-									{{ $reservedCall['twilio_call_sid'] }}
-								@endif
+								{{$reservedCall->to}}
 							</td>
-							<td>
-								@if (isset($reservedCall['store_website_name']))
-									{{ $reservedCall['store_website_name'] }}
-								@endif
-							</td>
-							<td>{{ $reservedCall['created_at'] }}</td>
+							<td>{{$reservedCall->created_at}}</td>
 							</tr>
 						@endforeach
 						

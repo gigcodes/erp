@@ -540,6 +540,8 @@ class TwilioController extends FindByNumberController
                                     'call_data' => 'client',
                                     'aget_user_id' => $client['agent_id']
                                 ]);
+
+                                TwilioCallWaiting::where("call_sid",$request->get("CallSid"))->delete();
                                 //Call History - END
                             }
                         }
