@@ -2719,8 +2719,8 @@ class OrderController extends Controller
                 if(in_array('sms', $order_via)){
                 
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {    
-                        $receiverNumber = $order->contact_detail;
-
+                        $receiverNumber = '+'.$order->contact_detail;
+                        
                         try {
                             $client = new Client($this->account_sid, $this->auth_token);
                             

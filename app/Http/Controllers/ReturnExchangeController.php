@@ -16,16 +16,31 @@ use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
 use App\Email;
 use App\AutoReply;
+use Illuminate\Support\Facades\Mail;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateCouponRequest;
 use Dompdf\Dompdf;
 use Qoraiche\MailEclipse\MailEclipse;
+use Twilio\Rest\Client;
+use Exception;
 
 
 class ReturnExchangeController extends Controller
 {
+
+    public $account_sid;
+    public $auth_token;
+    public $twilio_number;
+
+    public function __construct()
+    {
+        $this->account_sid = "AC23d37fbaf2f8a851f850aa526464ee7d";
+        $this->auth_token = "51e2bf471c33a48332ea365ae47a6517";
+        $this->twilio_number = "+18318880662";
+    }
+
     public function getOrders($id)
     {
         if (!empty($id)) {
@@ -346,9 +361,10 @@ class ReturnExchangeController extends Controller
                     'simple_action' => 'by_fixed',
                     'discount_amount' => $request->refund_amount,
                 ]);
-                
                 try {
+
                     $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+                    // return $response;
                     $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
                     $email = Email::create([
                         'model_id'         => $returnExchange->id,
@@ -364,6 +380,19 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
                     
+                    $receiverNumber = '+'.$returnExchange->customer->phone;
+                        
+                    try {
+                        $client = new Client($this->account_sid, $this->auth_token);
+                        
+                        $client->messages->create($receiverNumber, [
+                            'from' => $this->twilio_number,
+                            'body' => 'Your refund coupon :'.$code]);
+                    
+                    
+                    } catch (Exception $e) {
+                        \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
+                    }
                     $response = json_decode($response->getContent());
                     if( $response->type == 'error' ){
                         return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
@@ -378,14 +407,15 @@ class ReturnExchangeController extends Controller
 
             //Sending Mail on changing of order status
             if (isset($request->send_message) && $request->send_message == '1') {
-                
+                // return $returnExchange->type;
                 //sending order message to the customer
                 UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message', null))->onQueue("customer_message");
                 try {
                     if ($returnExchange->type == "refund") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                        $email = App\Email::create([
+                        // return $emailClass->render();
+                        $email = \App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -398,12 +428,27 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
+                        
                         \App\Jobs\SendEmail::dispatch($email);
+
+                        $receiverNumber = '+'.$returnExchange->customer->phone;
+                            
+                        try {
+                            $client = new Client($this->account_sid, $this->auth_token);
+                            
+                            $client->messages->create($receiverNumber, [
+                                'from' => $this->twilio_number,
+                                'body' => $emailClass->subject]);
+                        
+                        
+                        } catch (Exception $e) {
+                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
+                        }
 
                     } else if ($returnExchange->type == "return") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
-                        $email = App\Email::create([
+                        $email = \App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -418,10 +463,24 @@ class ReturnExchangeController extends Controller
                         ]);
                         \App\Jobs\SendEmail::dispatch($email);
 
+                        $receiverNumber = '+'.$returnExchange->customer->phone;
+                            
+                        try {
+                            $client = new Client($this->account_sid, $this->auth_token);
+                            
+                            $client->messages->create($receiverNumber, [
+                                'from' => $this->twilio_number,
+                                'body' => $emailClass->subject]);
+                        
+                        
+                        } catch (Exception $e) {
+                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
+                        }
+
                     } else if ($returnExchange->type == "exchange") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
-                        $email = App\Email::create([
+                        $email = \App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -436,6 +495,20 @@ class ReturnExchangeController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email);
+
+                        $receiverNumber = '+'.$returnExchange->customer->phone;
+
+                        try {
+                            $client = new Client($this->account_sid, $this->auth_token);
+                            
+                            $client->messages->create($receiverNumber, [
+                                'from' => $this->twilio_number,
+                                'body' => $emailClass->subject]);
+                        
+                        
+                        } catch (Exception $e) {
+                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
+                        }
                     }
                 } catch (\Exception $e) {
                     \Log::channel('productUpdates')->info("Sending mail issue at the returnexchangecontroller #158 ->" . $e->getMessage());
@@ -700,8 +773,9 @@ class ReturnExchangeController extends Controller
             'refund_amount_mode' => 'required|string',
         ]);
 
-        $data           = $request->except('_token', 'id', 'customer_id');
+        $data = $request->except('_token', 'id', 'customer_id');
         $returnExchange = ReturnExchange::find($request->id);
+
         if (!$returnExchange->date_of_issue) {
             $data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
         }
@@ -711,7 +785,10 @@ class ReturnExchangeController extends Controller
 
         //Sending Mail on edit of return and exchange
         $mailingListCategory = MailinglistTemplateCategory::where('title', 'Refund and Exchange')->first();
+        // return $mailingListCategory;
+
         $templateData        = MailinglistTemplate::where('store_website_id', $returnExchange->customer->store_website_id)->where('category_id', $mailingListCategory->id)->first();
+        
 
         $arrToReplace = ['{FIRST_NAME}', '{REFUND_TYPE}', '{CHQ_NUMBER}', '{REFUND_AMOUNT}', '{DATE_OF_REFUND}', '{DETAILS}'];
 
@@ -720,10 +797,33 @@ class ReturnExchangeController extends Controller
 
         $storeEmailAddress = EmailAddress::where('store_website_id', $returnExchange->customer->store_website_id)->first();
 
+        
         $emailData['subject']         = $templateData->subject;
         $emailData['static_template'] = $bodyText;
         $emailData['from']            = $storeEmailAddress->from_address;
-        Mail::to($returnExchange->customer->email)->send(new ReturnExchangeEmail($emailData));
+
+        if(isset($request->message_via)){
+            if(in_array('email', $request->message_via)){
+                Mail::to($returnExchange->customer->email)->send(new \App\Mail\ReturnExchangeEmail($emailData));
+            }
+
+            if(in_array('sms', $request->message_via)){
+                $receiverNumber = '+'.$returnExchange->customer->phone;
+                        
+                try {
+                    $client = new Client($this->account_sid, $this->auth_token);
+                        
+                    $client->messages->create($receiverNumber, [
+                        'from' => $this->twilio_number,
+                        'body' => $bodyText
+                    ]);
+                    
+                } catch (Exception $e) {
+                    \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
+                }
+            }
+        }
+        
         //Sending Mail on edit of return and exchange
 
         $updateOrder = 0;
