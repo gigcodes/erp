@@ -83,6 +83,7 @@
                             <th>Name</th>
                             <th>Path</th>
                             <th>Value</th>
+                            <th style="width:6% !important;">Value On Magento</th>
                             <th>Date</th>
                             <th>Created By</th>
                             <th>Action</th>
@@ -116,6 +117,10 @@
                                 <td>{{ $magentoSetting->name }}</td>
                                 <td>{{ $magentoSetting->path }}</td>
                                 <td>{{ $magentoSetting->value }}</td>
+                                <td  style="width:6% !important;">@if(isset($newValues[$magentoSetting['id']]))
+										{{ $newValues[$magentoSetting['id']] }}
+									@endif
+								</td>
                                 <td>{{ $magentoSetting->created_at }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
                                 <td>
