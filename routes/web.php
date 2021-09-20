@@ -1155,6 +1155,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('chat-messages/dnd-list/records', 'ChatMessagesController@dndListRecords')->name('chat.dndList.records');
     Route::post('chat-messages/dnd-list/move-dnd', 'ChatMessagesController@moveDnd')->name('chat.dndList.moveDnd');
     // Customers
+    Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
@@ -1990,6 +1991,7 @@ Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name(
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
+
 
 
 

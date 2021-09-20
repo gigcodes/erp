@@ -25,6 +25,9 @@ use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
+
+
+
 class LiveChatController extends Controller
 {
     //Webhook
@@ -1668,5 +1671,9 @@ class LiveChatController extends Controller
         $softdelete = Tickets::find($request->id)->delete();
         return response()->json(["code" => 200, "message" => "Record Delete ticket"]);
     }
+
+   
+ 
+    
 
 }
