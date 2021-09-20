@@ -1453,6 +1453,37 @@ class LiveChatController extends Controller
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
+			
+			/*$websiteUrl = StoreWebsite::where('id', $customer->store_website_id)->pluck('magento_url')->first();
+			if($websiteUrl != null and $websiteUrl != '') {
+				$bits = parse_url($websiteUrl); 
+				if (!str_contains($websiteUrl, 'www')) { 
+					$web = 'www.'.$bits['host'];
+				}
+				$websiteUrl = 'https://'.$web;
+				
+				 $curl = curl_init();
+			  	// Set cURL options
+				curl_setopt_array($curl, array(
+					CURLOPT_URL => $websiteUrl."/V1/swarming/credits/add-transaction/".$customer_id,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_ENCODING => "",
+					CURLOPT_MAXREDIRS => 10,
+					CURLOPT_TIMEOUT => 300,
+					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					CURLOPT_CUSTOMREQUEST => "POST",
+					CURLOPT_POSTFIELDS => json_encode($conf),
+					CURLOPT_HTTPHEADER => array(
+						"content-type: application/json",
+					),
+				));
+
+				// Get response
+				$response = curl_exec($curl);
+					
+				$response = json_decode($response, true);
+			}*/
+			
 
         }
         return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
