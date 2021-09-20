@@ -324,7 +324,7 @@ class TwilioController extends FindByNumberController
             $storewebsitetwiliono_data = [];
         }
 
-        Log::channel('customerDnd')->info(' storewebsitetwiliono_data :: >> '.$storewebsitetwiliono_data);
+        Log::channel('customerDnd')->info(' storewebsitetwiliono_data :: >> '.json_encode($storewebsitetwiliono_data));
         // foreach ($get_numbers as $num) {    
         //     Log::channel('customerDnd')->info(' Number >> '.$num['phone_number']);
         // }
@@ -2553,6 +2553,11 @@ class TwilioController extends FindByNumberController
 
         try {
             //create new record
+            $number_details = TwilioActiveNumber::where('id',$request->twilio_number_id)->first();
+            if($number_details) {
+                $number_details->workspace_sid = $request->workspace_sid;
+                $number_details->save();
+            }
 
             $storeWebsiteProduct = StoreWebsiteTwilioNumber::updateOrCreate([
                 // "store_website_id" => $request->store_website_id,
