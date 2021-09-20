@@ -12,7 +12,7 @@ class CustomMail implements MailSettings
 
     public function initialize($key)
     {
-        $this->config = \App\EmailAddress::where('from_address', $key)->first();
+        $this->config = \App\EmailAddress::where('from_address', $key)->where("from_address","not like","%theluxuryunlimited.com%")->first();
 
 
         if ($this->config) {
