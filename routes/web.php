@@ -1917,6 +1917,7 @@ Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgo
 Route::post('twilio/storerecording', 'TwilioController@storeRecording');
 Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
+Route::post('twilio/events', 'TwilioController@twilioEvents');
 
 Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
 Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');

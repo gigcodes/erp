@@ -61,6 +61,7 @@ use App\ReturnExchange;
 use App\ReturnExchangeStatus;
 use App\TwilioWorkspace;
 use App\TwilioWorker;
+use App\CallBusyMessageStatus;
 use App\TwilioActivity;
 use App\TwilioWorkflow;
 use Validator;
@@ -188,6 +189,31 @@ class TwilioController extends FindByNumberController
         }
         return response()->json(['empty' => true]);
 
+    }
+
+	public function twilioEvents(Request $request, Client $twilioClient) {
+		$missedCallEvents = config('services.twilio')['missedCallEvents'];
+
+        $eventTypeName = $request->input("EventType");
+        if (in_array($eventTypeName, $missedCallEvents) and strtolower($eventTypeName) == "$eventTypeName") {
+            $taskAttr = $this->parseAttributes("TaskAttributes", $request);
+            if (!empty($taskAttr)) {
+               $call = CallBusyMessage::where('caller_sid', $taskAttr->call_sid)->first();
+			    $status = CallBusyMessageStatus::where('name', 'Reserved')->pluck('id')->first();
+				if($call != null) {
+				   $call->update('call_busy_message_statuses_id', $status);
+			    } else {
+					CallBusyMessage::create(['twilio_call_sid'=>$taskAttr->caller,
+					'caller_sid'=> $taskAttr->call_sid, 'call_busy_message_statuses_id'=>$status]);
+				}
+            }
+        } 
+	}
+	
+	public function parseAttributes($name, $request)
+    {
+        $attrJson = $request->input($name);
+        return json_decode($attrJson);
     }
 
     /**
@@ -2085,6 +2111,8 @@ class TwilioController extends FindByNumberController
                 Customer::create($add_customer);
             }
             Log::channel('customerDnd')->info('-----222222----- ');
+			
+			
             CallBusyMessage::create($params);
 
 
