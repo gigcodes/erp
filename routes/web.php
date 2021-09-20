@@ -404,6 +404,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productlister', 'ProductListerController');
     Route::resource('productapprover', 'ProductApproverController');
     Route::get('productinventory/product-images/{id}', 'ProductInventoryController@getProductImages')->name('productinventory.product-images');
+    Route::get('productinventory/product-rejected-images/{id}', 'ProductInventoryController@getProductRejectedImages')->name('productinventory.product-rejected-images');
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
