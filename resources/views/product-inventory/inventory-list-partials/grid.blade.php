@@ -50,6 +50,7 @@
             @if(empty($data['size_eu']))
               <a title="add-size" data-id="{{ $data['id'] }}" data-size-system="{{ $data['size_system'] }}" data-category-id="{{ $data['category'] }}" data-sizes='{{ json_encode(explode(",",$data["size"])) }}' class="btn btn-image add-size-btn"><i class="fa fa-plus" aria-hidden="true"></i></a>
             @endif
+            <a title="show rejected medias" class="btn btn-image show-rejected-medias-modal des-pd" data-id="{{ $data['id'] }}" aria-expanded="false"><i class="fa fa-ban" aria-hidden="true"></i></a>
           </td>
           <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>
           <td class="status-history" data='@if(isset($data['status_history']))@json($data['status_history'])@endif' style="display:none"></td>

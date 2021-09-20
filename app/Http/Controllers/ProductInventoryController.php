@@ -1221,6 +1221,27 @@ class ProductInventoryController extends Controller
 	  return response()->json(['urls' => $urls]);
 	}
 
+	public function getProductRejectedImages($id)
+	{
+		$product = Product::find($id);
+		$urls = [];
+		if($product) {
+			$medias = \App\RejectedImages::getRejectedMediasFromProductId($id);
+			$site_medias = $medias->groupBy('title');
+			if ($site_medias->count()) {
+				$view = view('product-inventory.inventory-list-partials.rejected-images',['site_medias' => $site_medias]);
+				$html = $view->render();
+			} else {
+				$html = '<h1>No rejected media found</h1>';
+			}
+		} else {
+			$html = '<h1>No product found</h1>';
+		}
+		
+		//return response()->json(['site_medias' => $site_medias]);				
+		return response()->json(['html' => $html]);
+	}
+
 	public function changeSizeSystem(Request $request) 
 	{
 		$product_ids = $request->get("product_ids");

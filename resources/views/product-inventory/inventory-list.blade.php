@@ -446,6 +446,39 @@ table tr td{
         $('#medias-modal').modal('show')
     })
 
+    $('body').delegate('.show-rejected-medias-modal', 'click', function() {
+        id = $(this).data('id');
+        $.ajax({
+                url: '/productinventory/product-rejected-images/' + id,
+                type: 'GET'
+            })
+            .done(function(data) {
+                //console.log(data)
+                 $('#rejected-medias-modal .modal-body').html(data.html);
+                // $('#medias-modal .modal-body').html('');
+                // let result = '';
+                // if (data.urls.length > 0) {
+                //     result += '<table class="table table-bordered">';
+                //     result += '<thead><th>Image</th></thead>';
+                //     result += '<tbody>';
+                //     for (var i = 0; i < data.urls.length; i++) {
+                //         result += '<tr>';
+                //         result += '<td><img style="height:100px" src="' + data.urls[i] + '" /></td>'
+                //         result += '</tr>';
+                //     }
+                //     result += '</tbody>';
+                //     result += '</table>';
+
+                // } else {
+                //     result = '<h3>This product dont have any media </h3>';
+                // }
+                // $('#medias-modal .modal-body').html(result);
+
+            })
+            .fail(function(jqXHR, ajaxOptions, thrownError) {});
+        $('#rejected-medias-modal').modal('show')
+    })
+
     $('body').delegate('.show-status-history-modal', 'click', function() {
 
         let data = $(this).parent().parent().find('.status-history').attr('data')
