@@ -75,10 +75,54 @@ class MagentoSettingsController extends Controller
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
-		
+		$data = $magentoSettings;
+		$data = $data->groupBy('store_website_id')->toArray();
+		$newValues = [];
+		foreach($data as $websiteId=>$settings) {
+			$websiteUrl = StoreWebsite::where('id', $websiteId)->pluck('magento_url')->first();
+			if($websiteUrl != null and $websiteUrl != '') {
+				$bits = parse_url($websiteUrl); 
+				if (!str_contains($websiteUrl, 'www')) { 
+					$web = 'www.'.$bits['host'];
+				}
+				$websiteUrl = 'https://'.$web;
+			
+				$conf['data'] = [];
+				foreach($settings as $setting) { 
+					$conf['data'][] = ['path'=>$setting['path'], 'scope'=>$setting['scope'], 'scope_id'=>$setting['scope_id']];
+				} 
+			    $curl = curl_init();
+			  	// Set cURL options
+				curl_setopt_array($curl, array(
+					CURLOPT_URL => $websiteUrl."/rest/V1/configvalue/get",
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_ENCODING => "",
+					CURLOPT_MAXREDIRS => 10,
+					CURLOPT_TIMEOUT => 300,
+					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					CURLOPT_CUSTOMREQUEST => "POST",
+					CURLOPT_POSTFIELDS => json_encode($conf),
+					CURLOPT_HTTPHEADER => array(
+						"content-type: application/json",
+					),
+				));
+
+				// Get response
+				$response = curl_exec($curl);
+					
+				$response = json_decode($response, true);
+				
+				foreach($settings as $key=>$setting) { 
+					$newValues[$setting['id']] = $response[$key]['value'];
+				} 
+				curl_close($curl);
+			}
+		}
+	
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
                 'magentoSettings' => $magentoSettings,
+                'newValues' => $newValues,
                 'storeWebsites' => $storeWebsites,
                 'websitesStores' => $websitesStores ,
                 'websiteStoreViews' => $websiteStoreViews,
@@ -90,6 +134,7 @@ class MagentoSettingsController extends Controller
         
         return view('magento.settings.index', [
             'magentoSettings' => $magentoSettings,
+			'newValues' => $newValues,
             'storeWebsites' => $storeWebsites,
             'websitesStores' => $websitesStores ,
             'websiteStoreViews' => $websiteStoreViews,
