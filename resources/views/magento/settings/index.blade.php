@@ -85,6 +85,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             <th>Name</th>
                             <th>Path</th>
                             <th>Value</th>
+                            <th style="width:6% !important;">Value On Magento</th>
                             <th>Date</th>
                             <th>Created By</th>
                             <th>Action</th>
@@ -118,6 +119,10 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->name }}</td>
                                 <td>{{ $magentoSetting->path }}</td>
                                 <td>{{ $magentoSetting->value }}</td>
+                                <td  style="width:6% !important;">@if(isset($newValues[$magentoSetting['id']]))
+										{{ $newValues[$magentoSetting['id']] }}
+									@endif
+								</td>
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
                                 <td>
