@@ -700,6 +700,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                             <a class="dropdown-item" href="{{ route('chat.dndList') }}">DND Manage</a>
+                                            <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer Credit</a>
+                                            <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
+                                            <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -1288,6 +1291,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.messages.list')}}">Messages</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1840,6 +1846,9 @@ $metaData = '';
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('GtMetrixAccount.index') }}">GTMetrix Account</a>
                                             </li>
                                         </ul>
                                     </li>

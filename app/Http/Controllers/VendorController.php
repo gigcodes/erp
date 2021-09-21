@@ -35,7 +35,7 @@ class VendorController extends Controller
 {
 
   use githubTrait;
-  use hubstaffTrait;
+  use HubstaffTrait;
   CONST DEFAULT_FOR = 2; //For Vendor
 
   /**

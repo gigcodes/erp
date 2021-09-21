@@ -347,7 +347,8 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command   
-                        \Log::info(print_r(["Command Output",$allOutput],true));
+                        MagentoSettingPushLog::create(['store_website_id'=> $storeWebsite['id'],'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput)]);
+						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -396,7 +397,8 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
-                        \Log::info(print_r(["Command Output",$allOutput],true));
+                        MagentoSettingPushLog::create(['store_website_id'=>$websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput)]);
+						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -447,7 +449,8 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
-                        \Log::info(print_r(["Command Output",$allOutput],true));
+                        MagentoSettingPushLog::create(['store_website_id'=> $websiteStoresView->websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput)]);
+						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -488,9 +491,10 @@ class MagentoSettingsController extends Controller
 			$cmd = 'bash ' . 'magento-config-deployment.sh -r '.$storeWebsiteDetails['repo_name'].' -f '.$filePath;
             $allOutput   = array();
             $allOutput[] = $cmd;
-            $result      = exec($cmd, $allOutput); //Execute command  
+            $result      = exec($cmd, $allOutput); //Execute command   
+			
             \Log::info(print_r(["Command Output",$allOutput],true));
-			MagentoSettingPushLog::create(['store_website_id'=>$store_website_id,'command'=>$cmd]);
+			MagentoSettingPushLog::create(['store_website_id'=>$store_website_id,'command'=>$cmd, 'setting_id'=>$magentoSetting['id'], 'command_output'=>json_encode($allOutput)]);
 		} 
 		return redirect(route('magento.setting.index'));
 	}
@@ -532,8 +536,20 @@ class MagentoSettingsController extends Controller
        }
        $table.="</tbody></table>";
        echo $table;
-
-
     }
+	
+	public function magentoPushLogs($settingId) {
+		$logs = MagentoSettingPushLog::where('setting_id', $settingId)->get(); 
+		$data = '';
+		foreach($logs as $log) {
+			$cmdOutputs = json_decode($log['command_output']);
+			$data .= '<tr><td>'. $log['created_at'].'</td><td>'.$log['command'].'</td><td>';
+		 	foreach($cmdOutputs as $cmdOutput) {
+				$data .= $cmdOutput .'<br/>';
+			}		
+			$data .= '</td></tr>';
+		} 
+		echo $data;
+	}
     
 }

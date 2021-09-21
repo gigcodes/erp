@@ -135,7 +135,7 @@
                                  $url2=$url.$p.$ord2;
 
                             @endphp
-                            <th>Website</th>
+                            <th>Website <br><input type="checkbox" onclick="selectAll();" />&nbsp;Select All</th>
                             <th>Test id</th>
                             <th>Status</th>
                             <th>Error</th>
@@ -292,7 +292,14 @@
             $('#loading-image').hide();
         });
     });
+    function selectAll() {
+        if ($('.multi-run-test').prop('checked')) {
+            $('.multi-run-test').prop('checked',false);
+        } else {
+            $('.multi-run-test').prop('checked',true);
+        }
 
+    }
     $(document).on('click', '.show-comparison', function(e){
         e.preventDefault();
         var url = $(this).data('url');
@@ -450,8 +457,12 @@
                 isLoading = true;
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
+                const params = new URLSearchParams(window.location.search)
+                keyword = params.get('keyword');
+                status = params.get('status');
+                date = params.get('date');
                 $.ajax({
-                    url: "{{url('gtmetrix')}}?ajax=1&page="+page,
+                    url: "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {

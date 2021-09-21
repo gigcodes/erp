@@ -28,7 +28,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
     Route::prefix('{id}')->group(function () {
         
-        Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
+        Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
+        
+		Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
 
         Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
 

@@ -36,6 +36,7 @@
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs" ><i class="fa fa-eye"></i></button>
                                 </td>
                             </tr>
                         @endforeach

@@ -9,6 +9,8 @@ class MagentoSettingPushLog extends Model
 	protected $table = "magento_setting_push_logs";
     protected $fillable = [
         'store_website_id',
-        'command'
+        'setting_id',
+        'command',
+        'command_output'
 	];
 }

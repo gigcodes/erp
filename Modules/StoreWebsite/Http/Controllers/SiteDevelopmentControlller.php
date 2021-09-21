@@ -166,7 +166,7 @@ class SiteDevelopmentController extends Controller
 	
     public function addCategory(Request $request)
     {
-        if ($request->text) {
+        if ($request->text) { 
 
             //Cross Check if title is present
             $categoryCheck = SiteDevelopmentCategory::where('title', $request->text)->first();
@@ -175,6 +175,7 @@ class SiteDevelopmentController extends Controller
                 //Save the Category
                 $develop        = new SiteDevelopmentCategory;
                 $develop->title = $request->text;
+                $develop->master_category_id = $request->master_category_id;
                 $develop->save();
 
                 $all_website  = StoreWebsite::get();
@@ -182,12 +183,11 @@ class SiteDevelopmentController extends Controller
                 foreach($all_website as $key => $value) {
                     $site = new SiteDevelopment;
                     $site->site_development_category_id = $develop->id;
+                    $site->site_development_master_category_id = $develop->master_category_id;
                     $site->website_id = $value->id;
                     $site->save();
                 }
-
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
-
             } else {
 
                 return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
@@ -234,6 +234,7 @@ class SiteDevelopmentController extends Controller
 
         if ($request->type == 'site_development_master_category_id') {
             $site->site_development_master_category_id = $request->text;
+			SiteDevelopment::where(['site_development_category_id'=>$request->category])->update(['site_development_master_category_id'=>$request->text]);
         }
 
         if ($request->type == 'tester_id') {

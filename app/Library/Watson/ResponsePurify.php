@@ -24,11 +24,13 @@ class ResponsePurify
     public $entities = [];
     public $intents  = [];
     public $context;
+    public $logId;
 
-    public function __construct($response, $customer = null)
+    public function __construct($response, $customer = null, $logId = null)
     {
-    	$this->response = isset($response->output) ? $response->output : null;
+        $this->response = isset($response->output) ? $response->output : null;
         $this->context  = isset($response->context) ? $response->context : null;
+        $this->logId    = $logId;
 
         $this->customer = $customer;
 
@@ -57,20 +59,20 @@ class ResponsePurify
 
     }
 
-
-    public function checkAutoApprove() {
-         if (isset($this->intents)) {
+    public function checkAutoApprove()
+    {
+        if (isset($this->intents)) {
             foreach ($this->intents as $intents) {
-                $question = \App\ChatbotQuestion::where('value',$intents->intent)->first();
-                if($question && $question->auto_approve) {
+                $question = \App\ChatbotQuestion::where('value', $intents->intent)->first();
+                if ($question && $question->auto_approve) {
                     return true;
                 }
             }
         }
         if (isset($this->entities)) {
             foreach ($this->entities as $entities) {
-                $question = \App\ChatbotQuestion::where('value',$entities->entity)->first();
-                if($question && $question->auto_approve) {
+                $question = \App\ChatbotQuestion::where('value', $entities->entity)->first();
+                if ($question && $question->auto_approve) {
                     return true;
                 }
             }
@@ -90,20 +92,54 @@ class ResponsePurify
         // if match action then assign
         if (!empty($medias["match"]) && $medias["match"] == true) {
             return ["action" => "send_product_images", "reply_text" => $text, "response" => $this->response, "medias" => $medias["medias"]];
+        }else{
+            if (isset($this->logId)) {
+                \App\ChatbotMessageLogResponse::StoreLogResponse([
+                    'chatbot_message_log_id' => $this->logId,
+                    'request'                => "",
+                    'response'               => "Watson assistant function send message customer function media not match.",
+                    'status'                 => 'success',
+                ]);
+            }
         }
 
         // send the order status from here
         $orderStatus = $this->isNeedToSendOrderStatus($text);
-        if(!empty($orderStatus)) {
-           return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
+        if (isset($this->logId)) {
+            \App\ChatbotMessageLogResponse::StoreLogResponse([
+                'chatbot_message_log_id' => $this->logId,
+                'request'                => "",
+                'response'               => "Watson assistant function send message customer function order status => ".json_encode($orderStatus),
+                'status'                 => 'success',
+            ]);
+        }
+
+        if (!empty($orderStatus)) {
+            return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
         }
 
         // is need to refund status
         $refundStatus = $this->isNeedToRefundStatus($text);
-        if(!empty($orderStatus)) {
-           return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
+        if (isset($this->logId)) {
+            \App\ChatbotMessageLogResponse::StoreLogResponse([
+                'chatbot_message_log_id' => $this->logId,
+                'request'                => "",
+                'response'               => "Watson assistant function send message customer function refund status => ".json_encode($refundStatus),
+                'status'                 => 'success',
+            ]);
+        }
+        if (!empty($refundStatus)) {
+            return ["action" => "send_text_only", "reply_text" => $refundStatus["text"]];
         }
 
+        if (isset($this->logId)) {
+            \App\ChatbotMessageLogResponse::StoreLogResponse([
+                'chatbot_message_log_id' => $this->logId,
+                'request'                => "",
+                'response'               => "Watson assistant function send message customer function text => ".$text,
+                'status'                 => 'success',
+            ]);
+        }
 
         if (!empty($text)) {
             return ["action" => "send_text_only", "reply_text" => $text];
@@ -143,8 +179,8 @@ class ResponsePurify
         }
 
         $return = [
-            "match" => false,
-            "medias" => []
+            "match"  => false,
+            "medias" => [],
         ];
 
         // first match with scenerios
@@ -168,30 +204,29 @@ class ResponsePurify
 
         // now check with context scenrio of this again
         $context = $this->context;
-        if(!empty($context)) {
-        	if(!empty($context->skills)) {
-        		$attributes = "";
-        		foreach($context->skills as $skills) {
-        			if(!empty($skills->user_defined->brand_name)) {
-        				$attributes .= $skills->user_defined->brand_name;
-        				if(!empty($skills->user_defined->category_name)) {
-	        				$attributes .= $skills->user_defined->category_name;
-	        				// if brand and category both setup then 
-	        				$obect = new \stdClass;
-	        				$obect->attributes = $attributes;
-	        				$sendImages = new Action\SendProductImages($attributes, $params = [
-			                    "gender" => $gender,
-			                ]);
+        if (!empty($context)) {
+            if (!empty($context->skills)) {
+                $attributes = "";
+                foreach ($context->skills as $skills) {
+                    if (!empty($skills->user_defined->brand_name)) {
+                        $attributes .= $skills->user_defined->brand_name;
+                        if (!empty($skills->user_defined->category_name)) {
+                            $attributes .= $skills->user_defined->category_name;
+                            // if brand and category both setup then
+                            $obect             = new \stdClass;
+                            $obect->attributes = $attributes;
+                            $sendImages        = new Action\SendProductImages($attributes, $params = [
+                                "gender" => $gender,
+                            ]);
                             $return["match"] = true;
-			                if ($sendImages->isOptionMatched()) {
-			                    $return["medias"] = $sendImages->getResults();
-			                }
-	        			}
-        			}
-        		}
-        	}
+                            if ($sendImages->isOptionMatched()) {
+                                $return["medias"] = $sendImages->getResults();
+                            }
+                        }
+                    }
+                }
+            }
         }
-
 
         return $return;
     }
@@ -207,11 +242,11 @@ class ResponsePurify
                 // check the last order of customer and send the message status
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
-                if(!empty($lastOrder)) {
+                if (!empty($lastOrder)) {
                     \Log::info("Steps for check 3");
-                    if($lastOrder->status) {
+                    if ($lastOrder->status) {
                         \Log::info("Steps for check 4");
-                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], "Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.")];
+                        return ["text" => str_replace(["#{order_id}", "#{order_status}"], [$lastOrder->order_id, $lastOrder->status->status], "Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.")];
                     }
                 }
             }
@@ -227,11 +262,11 @@ class ResponsePurify
         foreach ($intentsList as $intents) {
             if (in_array($intents, array_keys($this->intents))) {
                 // check the last order of customer and send the message status
-                $customer  = $this->customer;
+                $customer     = $this->customer;
                 $latestRefund = $customer->latestRefund();
-                if(!empty($latestRefund)) {
-                    if($latestRefund->returnExchangeStatus) {
-                        return ["text" => str_replace(["#{id}","#{status}"], [$latestRefund->id,$latestRefund->returnExchangeStatus->status_name], $text)];
+                if (!empty($latestRefund)) {
+                    if ($latestRefund->returnExchangeStatus) {
+                        return ["text" => str_replace(["#{id}", "#{status}"], [$latestRefund->id, $latestRefund->returnExchangeStatus->status_name], $text)];
                     }
                 }
             }

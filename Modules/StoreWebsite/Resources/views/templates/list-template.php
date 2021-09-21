@@ -84,6 +84,9 @@
                                         </button>   
 										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
                                             <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+                                        </button> 
+										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master">
+                                            <a href="javascript:void(0);"><i class="fa fa-refresh"></i></a>
                                         </button> 										
 			        </td>
 			      </tr>
@@ -577,12 +580,7 @@
                         <?php echo csrf_field(); ?>
                         <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="build_name">Build Name</label>
-                                    <input type="text" name="build_name" id="build_name" value="{{:data.build_name}}" placeholder="Enter Build Name" class="form-control mt-0" />
-                                </div>
-                            </div>
+                            
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="build_repository">Repository</label>

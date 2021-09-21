@@ -55,7 +55,7 @@ class DevelopmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    use hubstaffTrait;
+    use HubstaffTrait;
     private $githubClient;
 
 

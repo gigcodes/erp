@@ -23,6 +23,7 @@ use App\StoreWebsiteUserHistory;
 use App\StoreReIndexHistory;
 use App\BuildProcessHistory;
 use Carbon\Carbon;
+use App\Github\GithubRepository;
 
 
 class StoreWebsiteController extends Controller
@@ -736,7 +737,7 @@ class StoreWebsiteController extends Controller
         $post = $request->all();
         
         $validator = Validator::make($post, [
-            'build_name' => 'required',
+            'reference' => 'required',
             'repository' => 'required',
         ]);
 
@@ -758,22 +759,22 @@ class StoreWebsiteController extends Controller
             
             if($StoreWebsite != null){
                 
-                $StoreWebsite->build_name = $request->build_name;
+                $StoreWebsite->build_name = $request->repository;
                 $StoreWebsite->repository = $request->repository;
                 $StoreWebsite->reference = $request->reference;
                 $StoreWebsite->update();
                 
                 if($StoreWebsite):
                     
-                    $jobName = $request->build_name;
+                    $jobName = $request->repository;
                     $repository = $request->repository;
                     $ref = $request->reference;
                     $staticdep = 1;
                     
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
                     $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref,'staticdep' => 0]);           
-                    if($jenkins->getJob($request->build_name)):
-					$job = $jenkins->getJob($request->build_name);
+                    if($jenkins->getJob($jobName)):
+					$job = $jenkins->getJob($jobName);
 					$builds = $job->getBuilds();
 						$buildDetail = 'Build Name: '.$jobName . '<br> Build Repository: '.$repository.'<br> Reference: '.$ref;
 						$record = ['store_website_id'=>$request->store_website_id, 'created_by'=> Auth::id(), 'text'=>$buildDetail, 'build_name'=>$jobName,'build_number'=>$builds[0]->getNumber()];
@@ -795,6 +796,25 @@ class StoreWebsiteController extends Controller
 	public function buildProcessHistory($store_website_id) {
 		$buildHistory = BuildProcessHistory::leftJoin('users', 'users.id', '=', 'build_process_histories.created_by')->where('store_website_id', $store_website_id)->select('users.name as UserName', 'build_process_histories.*')->orderBy('id', 'desc')->get();
 		return view('storewebsite::build_history', compact('buildHistory'));
+	}
+	
+	public function syncStageToMaster($storeWebId) {
+		$websiteDetails = StoreWebsite::where('id', $storeWebId)->select('server_ip', 'repository_id')->first();
+		if($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository_id'] != null) {
+			$repo = GithubRepository::where('id', $websiteDetails['repository_id'])->pluck('name')->first();
+			if($repo != null) {
+				$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r '.$repo.' -s '.$websiteDetails['server_ip'];
+				$allOutput = array(); 
+				$allOutput[] = $cmd; 
+				$result = exec($cmd, $allOutput); //Execute command
+				\Log::info(print_r(["Command Output",$allOutput],true));
+				return response()->json(["code" => 200 , "message" => "Command executed"]);
+			} else {
+				return response()->json(["code" => 500 , "message" => "Repository Not found."]);
+			}
+		} else {
+			return response()->json(["code" => 500 , "message" => "Request has been failed."]);
+		}
 	}
 
 }

@@ -233,7 +233,46 @@
                       @endforeach
                     @endif
                 </table>
+            </td>
+        </tr>
+        <tr>
+            <td>More Than 24 Hr</td>
+            <td>
 
+                <table style="width: 100%;">
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                    </tr>
+                    @if(!empty($scraper_process))
+                      @foreach($scraper_process as $i => $lr)
+                        <tr>
+                            <td>{{ $i}}</td>
+                            <td>{{ $lr->scraper_name}}</td>
+                        </tr>
+                      @endforeach
+                    @endif
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>Not Run In Last 24 Hr</td>
+            <td>
+
+                <table style="width: 100%;">
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                    </tr>
+                    @if(!empty($scrapers))
+                      @foreach($scrapers as $i => $lr)
+                        <tr>
+                            <td>{{ $i}}</td>
+                            <td>{{ $lr->scraper_name}}</td>
+                        </tr>
+                      @endforeach
+                    @endif
+                </table>
             </td>
         </tr>
        </tbody>

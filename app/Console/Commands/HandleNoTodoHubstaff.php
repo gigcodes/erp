@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
 use App\Hubstaff\HubstaffMember;
 use Exception;
 use GuzzleHttp\Client;
@@ -14,7 +14,7 @@ use Illuminate\Console\Command;
  */
 class HandleNoTodoHubstaff extends Command
 {
-    use hubstaffTrait;
+    use HubstaffTrait;
     /**
      * The name and signature of the console command.
      *
