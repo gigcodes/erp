@@ -14,10 +14,10 @@ class Scrapermissingdata extends Command
      *
      * @var string
      */
-    protected $signature = 'Scraper';
+    protected $signature = 'Scraper';    
 
     /**
-     * The console command description.
+     * The console command description.       
      *
      * @var string
      */
@@ -43,48 +43,134 @@ class Scrapermissingdata extends Command
         $date=date("Y-m-d");
         $ss=\App\ScrapedProducts::join('scrapers','scraped_products.website','scrapers.scraper_name') 
         ->select('scraped_products.*','scrapers.id as scraper_id')
+        ->orderBy('scraped_products','desc')
         ->whereRaw("date(scraped_products.created_at)=date('$date')")->get();
+        $website='';
+        $t=0;
+        $c=0;
+        $d=0;
+        $p=0;
+        $msg='';
         foreach($ss as $s)
         {
-            $msg='';
-            if($s->title=='')
-              $msg="Scraped : ".$s->scraper_id." Product :".$s->product_id." Title Missing"; 
-              if($s->composition=='')
-              $msg="Scraped : ".$s->scraper_id." Product :".$s->product_id." Composition Missing"; 
-              if($s->description=='')
-              $msg="Scraped : ".$s->scraper_id." Product :".$s->product_id." Description Missing"; 
-              if($s->price=='')
-              $msg="Scraped : ".$s->scraper_id." Product :".$s->product_id." Price Missing"; 
-
-             if ($msg!='')
-             {
-                 $u=\App\DeveloperTask::where('scraper_id',$s->scraper_id)->orderBy('created_at','desc')->first();
-                            if ($u)    
-                            {
-                                
-                                if ($u->user_id>0)
-                                   $user_id = $u->user_id;
-                                else
-                                $user_id=6;
+            if ($website!=$s->website)
+              {
+                 if ($website!='')
+                 {
+                    $msg='';
+                    if($t>0)
+                    $msg=" $t Product Title Missing "; 
+                    if($c>0)
+                    $msg=" $c Product Composition Missing "; 
+                    if($d>0)
+                    $msg=" $d Product  Description Missing "; 
+                    if($p=='')
+                    $msg=" $p Product  Price Missing "; 
+                    if ($msg!='')
+                    {
+                        $u=\App\DeveloperTask::where('scraper_id',$s->scraper_id)->orderBy('created_at','desc')->first();
+                                   if ($u)    
+                                   {
                                        
-                                $params = [];
-                                $params['message'] = $msg;
-                                $params['erp_user'] = $user_id;
-                                $params['user_id'] = $user_id;
-                                $params['approved'] = 1;
-                                $params['status'] = 2;
-                                $params['developer_task_id'] = $u->id;
-                                $chat_message = \App\ChatMessage::create($params);
+                                       if ($u->user_id>0)
+                                          $user_id = $u->user_id;
+                                       else
+                                       $user_id=6;
+                                              
+                                       $params = [];
+                                       $params['message'] = $msg;
+                                       $params['erp_user'] = $user_id;
+                                       $params['user_id'] = $user_id;
+                                       $params['approved'] = 1;
+                                       $params['status'] = 2;
+                                       $params['developer_task_id'] = $u->id;
+                                       $chat_message = \App\ChatMessage::create($params);
+       
+                                       $requestData = new Request();
+                                       $requestData->setMethod('POST');
+                                       $requestData->request->add(['user_id' => $user_id,'developer_task_id'=>$u->id, 'message' => $msg, 'status' => 1]);
+                                       app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'developer_task');
+                             
+                                   }
+                                       
+                    }   
 
-                                $requestData = new Request();
-                                $requestData->setMethod('POST');
-                                $requestData->request->add(['user_id' => $user_id,'developer_task_id'=>$u->id, 'message' => $msg, 'status' => 1]);
-                                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'developer_task');
-                      
-                            }
-                                
-             }   
-        } 
+      
+                 }
+
+                 $website=$s->website;
+                 $t=0;
+                 $c=0;
+                 $d=0;
+                 $p=0;
+                if($s->title=='')
+                   $t++; 
+                if($s->composition=='')
+                   $c++;
+                if($s->description=='')
+                  $d++; 
+                if($s->price=='')
+                  $p++;
+  
+              }
+            else
+            {
+                if($s->title=='')
+                   $t++; 
+                if($s->composition=='')
+                   $c++;
+                if($s->description=='')
+                  $d++; 
+                if($s->price=='')
+                  $p++;
+            }  
+                       
+        }
+
+
+        if ($website!='')
+                 {
+                    $msg='';
+                    if($t>0)
+                    $msg=" $t Product Title Missing "; 
+                    if($c>0)
+                    $msg=" $c Product Composition Missing "; 
+                    if($d>0)
+                    $msg=" $d Product  Description Missing "; 
+                    if($p=='')
+                    $msg=" $p Product  Price Missing "; 
+                    if ($msg!='')
+                    {
+                        $u=\App\DeveloperTask::where('scraper_id',$s->scraper_id)->orderBy('created_at','desc')->first();
+                                   if ($u)    
+                                   {
+                                       
+                                       if ($u->user_id>0)
+                                          $user_id = $u->user_id;
+                                       else
+                                       $user_id=6;
+                                              
+                                       $params = [];
+                                       $params['message'] = $msg;
+                                       $params['erp_user'] = $user_id;
+                                       $params['user_id'] = $user_id;
+                                       $params['approved'] = 1;
+                                       $params['status'] = 2;
+                                       $params['developer_task_id'] = $u->id;
+                                       $chat_message = \App\ChatMessage::create($params);
+       
+                                       $requestData = new Request();
+                                       $requestData->setMethod('POST');
+                                       $requestData->request->add(['user_id' => $user_id,'developer_task_id'=>$u->id, 'message' => $msg, 'status' => 1]);
+                                       app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'developer_task');
+                             
+                                   }
+                                       
+                    }   
+
+      
+                 } 
+        
         
     }    
 }
