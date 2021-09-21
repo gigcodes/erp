@@ -645,12 +645,18 @@ class ProductPriceController extends Controller
         $product_price = 100;
         $final_price = 100;
         $ids = $request->all();
+        
+        $cats=StoreWebsite::select('id','title')->get();
+       
+
+        
 
         if(!isset($ids['id'])){
             $data = $this->genericPricingAll($request);
             $product_list =$data['product_list'];
             $category_segments =$data['category_segments'];
             $categories =$data['categories'];
+            
 
             if ($request->ajax()) {
                 $count = $request->count;
@@ -659,7 +665,7 @@ class ProductPriceController extends Controller
 
                 return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
             }
-            return view('product_price.generic_price', compact('product_list', 'category_segments','categories'));
+            return view('product_price.generic_price', compact('product_list','cats', 'category_segments','categories'));
         }
 
         $categoryIds = Category::pluck('id')->toArray(); 
@@ -702,6 +708,22 @@ class ProductPriceController extends Controller
 		// $brands = Product::leftJoin('brands', 'brands.id', 'products.brand')
 		// 		  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name','brands.brand_segment')->groupBy('products.brand')->get()->toArray();
 
+         
+        
+
+        if($request->brand_segment!=''){
+            $brands->where('brands.brand_segment',$request->brand_segment);
+        }
+
+        if($request->category_segments!=''){
+            $brands->where('cs.name',$request->category_segments);
+        }
+
+        if($request->website!=''){
+            $brands->where('store_websites.id',$request->website);
+        }
+
+        
 
         if(isset($request->order) && isset($request->input)){
             if($request->input=='category'){
@@ -832,6 +854,7 @@ class ProductPriceController extends Controller
                     'cost1'=>$cost1,
                     'cost2'=>$cost2,'final_price1'=>$final_price1,
                     'final_price2'=>$final_price2,
+                    'add_profit_per'=>'',
                     'cate_segment_discount'=>isset($category_segment_discount->amount) ? $category_segment_discount->amount : 0,
                     'cate_segment_discount_type'=>isset($category_segment_discount->amount_type) ? $category_segment_discount->amount_type : 0,
                ];
@@ -853,7 +876,7 @@ class ProductPriceController extends Controller
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
 		
-		return view('product_price.generic_price', compact('product_list', 'category_segments','categories'));
+		return view('product_price.generic_price', compact('product_list','cats' ,'category_segments','categories'));
 	}
 
     public function updateProduct(Request $request) { 

@@ -74,7 +74,7 @@
                                </td>
                                <td>
                                   <div style="align-items: center">
-                                      <span style="min-width:50px;">{{ $product['add_profit'] }}</span>
+                                      
                                       <div class="ml-2" style="float: right;">%</div>
                                       <div style="float: right;width:50%;">
                                           <input style="padding: 6px" placeholder="add profit" data-ref="web_{{ $product['store_websites_id']}}" value="{{ $product['add_profit_per'] }}" type="text" class="form-control add_profit web_{{ $product['store_websites_id']}}" name="add_profit" onKeyUp="checkFinalPriceBeforeUpdate(this)" data-less_IVA="{{ $product['less_IVA'] }}">
