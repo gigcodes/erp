@@ -21,7 +21,7 @@
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
-        <h2 class="page-heading">Product pricing</h2>
+        <h2 class="page-heading">Product pricing ({{$numcount}}) </h2>
     </div>
 </div>
 <div class = "row m-0">
@@ -30,7 +30,8 @@
             <form id="form1" class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Category" name="id" id="categoryForGenericPrices">
-                              @php
+                    <option value="">Select Category</option>       
+                    @php
                     $selectcate ='';
                     if(isset($_GET['id'])){
                       $selectcate =$_GET['id'];
@@ -38,7 +39,13 @@
                     @endphp
                         @if ($categories)
                             @foreach($categories as $category)
-                                <option value="{{ $category['id'] }}" @if($selectcate == $category['id']) selected @endif  >{{ $category['title'] }}</option>
+                            @php
+                    $selectcate ='';
+                    if(isset($_GET['id']) && $_GET['id']==$category['id']){
+                      $selectcate ="selected='selected'";
+                    }
+                    @endphp
+                                <option  {{$selectcate}} value="{{ $category['id'] }}"   >{{ $category['title'] }}</option>
                             @endforeach
                         @endif
                     </select>
