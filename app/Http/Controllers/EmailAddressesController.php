@@ -42,14 +42,31 @@ class EmailAddressesController extends Controller
 
         //dd($allDriver);
 $users = User::orderBy('name','asc')->get();
-        return view('email-addresses.index', [
-            'emailAddress' => $emailAddress,
-            'allStores'    => $allStores,
-            'allDriver'    => $allDriver,
-            'allPort'      => $allPort,
-            'allEncryption'=> $allEncryption,
-            'users'=> $users,
-        ]);
+
+if ($request->ajax()) 
+{
+   
+    return view('email-addresses.index_ajax', [
+        'emailAddress' => $emailAddress,
+        'allStores'    => $allStores,
+        'allDriver'    => $allDriver,
+        'allPort'      => $allPort,
+        'allEncryption'=> $allEncryption,
+        'users'=> $users,
+    ]);
+}
+else
+{
+
+    return view('email-addresses.index', [
+        'emailAddress' => $emailAddress,
+        'allStores'    => $allStores,
+        'allDriver'    => $allDriver,
+        'allPort'      => $allPort,
+        'allEncryption'=> $allEncryption,
+        'users'=> $users,
+    ]);
+}
     }
 
     /**
