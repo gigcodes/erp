@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Loggers\LogListMagento;
 use App\Jobs\PushToMagento;
 use App\ProductUpdateLog;
+use App\PriceOverride;
 
 class ProductPriceController extends Controller
 {
@@ -466,17 +467,13 @@ class ProductPriceController extends Controller
             ->leftJoin("category_segments as cs", function ($q) {
                 $q->on("categories.category_segment_id", "cs.id");
             })
-            // ->join("category_segments as cs", function ($q) {
-            //     $q->on("categories.category_segment_id", "cs.id");
-            // })
+            
             ->whereNotNull('brands.name')
-            ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId','store_websites.id as store_websites_id','store_websites.website as product_website','categories.title as cate_title','cs.name as country_segment','products.id as pid');
-                //->groupBy('products.brand')
-                //->limit(50)->get()->toArray();
-        //old query 09-09-2021
-        // $brands = Product::leftJoin('brands', 'brands.id', 'products.brand')->whereNotNull('brands.name')
-        //             ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId')
-        //             ->groupBy('products.brand')->limit(50)->get()->toArray();
+            ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId',
+			'store_websites.id as store_websites_id','store_websites.website as product_website',
+			'categories.title as cate_title','cs.name as country_segment','products.id as pid')
+			->groupBy('categories.id', 'store_websites.id')->having(DB::raw('count(*)'), '>=', 1);
+                
         $i = 0;
 
         if(isset($request->order) && isset($request->input)){
@@ -507,30 +504,7 @@ class ProductPriceController extends Controller
                $country = $countries[$i];
 			   $catSegDisc1 = $catSegDisc2 = 0;
 				$final_price = $final_price1 = $final_price2 = $product_price;
-              //  foreach ($category_segments as $key => $value) {
-                /*$category_segment_discount = \DB::table("categories")->join("category_segments as cs", "cs.id", "categories.category_segment_id")
-                        ->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
-                        ->where('categories.id',$brand['catId'])
-                        ->where('csd.brand_id', $brand['id'])
-                        ->select("csd.*",'cs.name as category_segment')
-                        ->first();                   
-
-                   //$category_segment_discount = DB::table('category_segment_discounts')->where('category_id', $cat_id)->where('brand_id', $brand['id'])->first();
-                    if($category_segment_discount != null) {
-                        if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
-                            
-                            if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-                                //$final_price = ($product_price * $category_segment_discount->amount)/100;
-                                $catDisc = ($product_price * $category_segment_discount->amount)/100;
-                                $final_price = $final_price - $catDisc;
-                            }
-
-                        }elseif($category_segment_discount->amount_type == 'amount'){
-                            if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-                                $final_price = $final_price-$category_segment_discount->amount;
-                            }
-                        }
-                    }*/
+             
 					
 					foreach($category_segments as $key => $category_segment) {
 						$price = $final_price;
@@ -556,7 +530,7 @@ class ProductPriceController extends Controller
 							$final_price2 = $price;
 						}          
 					}
-                //}
+                
 				
                 if(\App\Product::IVA_PERCENTAGE!=0){
                     $IVA = \App\Product::IVA_PERCENTAGE;
@@ -580,12 +554,6 @@ class ProductPriceController extends Controller
                 $category_segment = isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
                 $price = $product->getPrice($brand['store_websites_id'],$country['country_code'],null, true,$dutyPrice, null, null, null, isset($product->suppliers_info[0]) ?  $product->suppliers_info[0]->price : 0, $category_segment);
 				
-                // if($country['segment_id']!='' || $country['segment_id']!=0){
-                //    $dutysegment = SimplyDutySegment::where('id',$country['segment_id'])->first();
-                //    $country['dutySegment'] = $dutysegment->segment;
-                // }else{
-                //     $country['dutySegment'] = '';
-                // }
                 $cost1 = $final_price1;
                 $cost2 = $final_price2;
 				$profit = 0;
@@ -605,7 +573,7 @@ class ProductPriceController extends Controller
 
                 $categoryDetail = Category::where('id',$brand['catId'])->select('id', 'title')->first();
                 
-                $product_list[] = [
+                $product_list[$categoryDetail->id.'_'.$country['id']] = [
                     'catId'=>$categoryDetail ? $categoryDetail->id :'', 
                     'categoryName'=> $categoryDetail ? $categoryDetail->title :'', 
                     'product'=>'Product For Brand', 
@@ -694,14 +662,10 @@ class ProductPriceController extends Controller
             })
             ->whereNotNull('brands.name')
             ->where('products.category', $cat_id)
-            ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId','store_websites.id as store_websites_id',
-                'store_websites.website as product_website','categories.title as cate_title','cs.name as country_segment');
-            //->groupBy('products.brand')
-           // ->limit(50)->get()->toArray();
-            //old query 09-09-2021
-		// $brands = Product::leftJoin('brands', 'brands.id', 'products.brand')
-		// 		  ->where('category', $cat_id)->whereNotNull('brands.name')->select('brands.id', 'brands.name','brands.brand_segment')->groupBy('products.brand')->get()->toArray();
-
+            ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId',
+			'store_websites.id as store_websites_id','store_websites.website as product_website',
+			'categories.title as cate_title','cs.name as country_segment','products.id as pid')
+			->groupBy('categories.id', 'store_websites.id')->having(DB::raw('count(*)'), '>=', 1);
 
         if(isset($request->order) && isset($request->input)){
             if($request->input=='category'){
@@ -723,7 +687,7 @@ class ProductPriceController extends Controller
 
 
         $brands = $brands->skip($skip * Setting::get('pagination'))
-        ->limit('5')->get()->toArray();
+        ->limit('20')->get()->toArray();
 		$i = 0;
 
 		$countriesCount = count($countries);
@@ -734,30 +698,6 @@ class ProductPriceController extends Controller
 				$final_price1 = $final_price2 = $product_price;
                $country = $countries[$i];
 
-              //  foreach ($category_segments as $key => $value) {
-				 /*$category_segment_discount = \DB::table("categories")->join("category_segments as cs", "cs.id", "categories.category_segment_id")
-                        ->join("category_segment_discounts as csd", "csd.category_segment_id", "cs.id")
-                        ->where('categories.id',$brand['catId'])
-                        ->where('csd.brand_id', $brand['id'])
-                        ->select("csd.*",'cs.name as category_segment')
-                        ->first();                   
-
-				   //$category_segment_discount = DB::table('category_segment_discounts')->where('category_id', $cat_id)->where('brand_id', $brand['id'])->first();
-                   if($category_segment_discount != null) {
-						if($category_segment_discount->amount!='' && $category_segment_discount->amount_type == 'percentage'){
-							
-							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-								//$final_price = ($product_price * $category_segment_discount->amount)/100;
-								$catDisc = ($product_price * $category_segment_discount->amount)/100;
-								$final_price = $final_price - $catDisc;
-							}
-
-						}elseif($category_segment_discount->amount_type == 'amount'){
-							if($category_segment_discount->amount!='' || $category_segment_discount->amount !=0 ){
-								$final_price = $final_price-$category_segment_discount->amount;
-							}
-						}
-                    }*/
 					foreach($category_segments as $key => $category_segment) {
 						$price = $final_price;
 						$category_segment_discount = \DB::table('category_segment_discounts')->where('brand_id', $brand['id'])->where('category_segment_id', $category_segment->id)->first();
@@ -783,7 +723,7 @@ class ProductPriceController extends Controller
 						}            
 					}
 					
-                //}
+                
 				if(\App\Product::IVA_PERCENTAGE!=0){
                     $IVA = \App\Product::IVA_PERCENTAGE;
                     $lessIva = ( $final_price1 * $IVA )/100;
@@ -817,7 +757,7 @@ class ProductPriceController extends Controller
 					$final_price2 = $final_price2 + $profitCost;
                 }
                 
-				$product_list[] = [
+				$product_list[$categoryDetail->id.'_'.$country['id']] = [
                     'catId'=>$categoryDetail->id, 
                     'categoryName'=>$categoryDetail->title, 
                     'product'=>'Product For Brand', 
@@ -831,6 +771,8 @@ class ProductPriceController extends Controller
                     'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
                     'cost1'=>$cost1,
                     'cost2'=>$cost2,'final_price1'=>$final_price1,
+					'add_profit' => number_format($price['promotion'],2,'.',''),
+                    'add_profit_per'=> (float)$price['promotion_per'],
                     'final_price2'=>$final_price2,
                     'cate_segment_discount'=>isset($category_segment_discount->amount) ? $category_segment_discount->amount : 0,
                     'cate_segment_discount_type'=>isset($category_segment_discount->amount_type) ? $category_segment_discount->amount_type : 0,
@@ -908,20 +850,21 @@ class ProductPriceController extends Controller
 					}
             }
 			
-			
-			
+			if($request->add_profit  > 0) {
+				PriceOverride::create(['store_website_id'=>$request->websiteId, 'brand_id'=>$request->input('brandId'), 'category_id'=>$request->input('catId'), 
+					'country_code'=>$request->input('country_code'), 'type'=>'PERCENTAGE', 'calculated'=>'+', 'value'=>$request->add_profit]);
+			}	
 			$ps= \App\Product::select('products.id','store_website_product_prices.store_website_id')
 			->leftJoin('store_website_product_prices', 'store_website_product_prices.product_id', '=', 'products.id')
 				   ->where('store_website_id',$request->input('websiteId'))
-				   ->where('brand',$request->input('brandId') )
-				   ->where('category',$request->input('catId'))->select('products.id as product_id', 'store_website_product_prices.store_website_id')->groupBy('products.id')->get();
+				   ->where(function($query) use ($request){
+                            $query->where('brand',$request->input('brandId') )
+                                  ->orWhere('category',$request->input('catId'));
+                   })->select('products.id as product_id','products.name as product_name', 'store_website_product_prices.store_website_id')->groupBy('products.id')->get();
 				   
 			foreach($ps as $p)
 			{ 
-				$ref_product = Product::find($p->product_id);
-                $category_segment = @$ref_product->categories->categorySegmentId->name == null ? (@$ref_product->brands->brand_segment != null ? $ref_product->brands->brand_segment : null) : $ref_product->categories->categorySegmentId->name;
-                $result = $ref_product->getPrice($p->store_website_id, $request->country_code,null, true,$request->default_duty, null, $request->add_profit, null, isset($ref_product->suppliers_info) ?  $ref_product->suppliers_info[0]->price : 0, $category_segment);
-                ProductUpdateLog::create(['store_website_id'=>$p->store_website_id, 'created_by'=>\Auth::id(), 'product_id'=>$p->product_id, 'log'=>$ref_product->name.' updated.']);    
+				ProductUpdateLog::create(['store_website_id'=>$p->store_website_id, 'created_by'=>\Auth::id(), 'product_id'=>$p->product_id, 'log'=>$p->product_name.' updated.']);    
 			}
 			foreach($ps as $p)
 			{ 

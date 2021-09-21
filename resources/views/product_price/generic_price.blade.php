@@ -425,7 +425,7 @@ $(document).on('click', '.UpdateProduct', function () {
         websiteId:    $(this).attr('data-websiteid'),
         catId:    $(this).attr('data-catid'),
 		add_profit : $(tr).find('td .add_profit').val(),
-		country_code : $(tr).find('td .country_code').val(),
+		country_code : $(tr).attr('data-country_code'),
     }; 
 
     $.ajax({
