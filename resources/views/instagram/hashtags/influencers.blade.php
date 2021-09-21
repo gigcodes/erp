@@ -229,6 +229,9 @@ button[disabled]:hover {
                         </select>
                 </div>
                 <div class="form-group mr-3 mb-3">
+               
+                 <input type="date" name="date" id="date11">
+            
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                     <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
                 </div>
@@ -255,6 +258,7 @@ button[disabled]:hover {
                 <div class="form-group mr-3 mb-3">
                     <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
                 </div>
+               
                 </div>
             </div>
         </div>
@@ -319,9 +323,13 @@ button[disabled]:hover {
                                    <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
                                    <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
                                    <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
-                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
+                                   <!--<button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> !-->
+                                   <button type="button" data-id="{{$keyword->name}}" class="btn btn-log-instances"><i class="fa fa-history" aria-hidden="true"></i></button>
                                    <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
-                                   </td>
+                                  
+                                 
+                  
+                                </td>
                                 </tr>
                                 @endforeach
                                 </tbody>
@@ -447,6 +455,21 @@ button[disabled]:hover {
       </div>
     </div>
 </div>
+
+<div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Instagram Logs</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @include("marketing.whatsapp-configs.partials.image")
 @include('instagram.hashtags.partials.influencer-history')
@@ -1042,6 +1065,25 @@ button[disabled]:hover {
                 });
             }            
         }); 
+
+
+        $(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            var $date=  $('#date11').val();
+            $.ajax({
+                url: '{{url('instagram/influencers/get-log')}}',
+                method:"get",
+                data : {
+                    id : $id,
+                    date : $date
+                },
+                success: function (data) {
+                   $("#manage-log-instance").find(".modal-body").html(data);
+                   $("#manage-log-instance").modal('show'); 
+                },
+            });
+        });
     </script>
 
 @endsection

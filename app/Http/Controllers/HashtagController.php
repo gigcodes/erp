@@ -898,5 +898,24 @@ class HashtagController extends Controller
        }       
        
        return redirect()->back()->with('message', 'mailinglist create successfully');    
-    }  
+    } 
+    
+    public function loginstance(Request $request)
+    {
+        $url = 'http://173.212.203.50:100/get-logs';
+        $date=$request->date;
+        $id=$request->id;
+
+
+        $data = ['name' => $id,'date'=>$date];
+        $data = json_encode($data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($ch);
+        echo $result;
+
+    }
 }
