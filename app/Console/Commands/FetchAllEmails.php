@@ -251,6 +251,7 @@ class FetchAllEmails extends Command
                                         'email_id'    => $email_id,
                                         'from_email'  => $from,
                                         'to_email'    => $to,
+                                        'email_id'    => $email_id
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
@@ -276,6 +277,7 @@ class FetchAllEmails extends Command
                                             'is_email'    => 1,
                                             'from_email'  => $from,
                                             'to_email'    => $to,
+                                            'email_id'    => $email_id
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
                                         $mailFound    = true;
@@ -299,6 +301,7 @@ class FetchAllEmails extends Command
                                             'is_email'    => 1,
                                             'from_email'  => $from,
                                             'to_email'    => $to,
+                                            'email_id'    => $email_id
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
                                         $mailFound    = true;
