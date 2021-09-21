@@ -30,17 +30,6 @@ use Exception;
 class ReturnExchangeController extends Controller
 {
 
-    public $account_sid;
-    public $auth_token;
-    public $twilio_number;
-
-    public function __construct()
-    {
-        $this->account_sid = "AC23d37fbaf2f8a851f850aa526464ee7d";
-        $this->auth_token = "51e2bf471c33a48332ea365ae47a6517";
-        $this->twilio_number = "+18318880662";
-    }
-
     public function getOrders($id)
     {
         if (!empty($id)) {
@@ -380,19 +369,12 @@ class ReturnExchangeController extends Controller
                         'is_draft'        => 1,
                     ]);
                     
-                    $receiverNumber = '+'.$returnExchange->customer->phone;
-                        
-                    try {
-                        $client = new Client($this->account_sid, $this->auth_token);
-                        
-                        $client->messages->create($receiverNumber, [
-                            'from' => $this->twilio_number,
-                            'body' => 'Your refund coupon :'.$code]);
+                    $receiverNumber = $returnExchange->customer->phone;
+                    
+                    \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :'.$code, $returnExchange->customer->storeWebsite->id);
                     
                     
-                    } catch (Exception $e) {
-                        \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
-                    }
+                    
                     $response = json_decode($response->getContent());
                     if( $response->type == 'error' ){
                         return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
@@ -431,19 +413,8 @@ class ReturnExchangeController extends Controller
                         
                         \App\Jobs\SendEmail::dispatch($email);
 
-                        $receiverNumber = '+'.$returnExchange->customer->phone;
-                            
-                        try {
-                            $client = new Client($this->account_sid, $this->auth_token);
-                            
-                            $client->messages->create($receiverNumber, [
-                                'from' => $this->twilio_number,
-                                'body' => $emailClass->subject]);
-                        
-                        
-                        } catch (Exception $e) {
-                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
+                        $receiverNumber = $returnExchange->customer->phone;
+                        \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
 
                     } else if ($returnExchange->type == "return") {
 
@@ -463,19 +434,8 @@ class ReturnExchangeController extends Controller
                         ]);
                         \App\Jobs\SendEmail::dispatch($email);
 
-                        $receiverNumber = '+'.$returnExchange->customer->phone;
-                            
-                        try {
-                            $client = new Client($this->account_sid, $this->auth_token);
-                            
-                            $client->messages->create($receiverNumber, [
-                                'from' => $this->twilio_number,
-                                'body' => $emailClass->subject]);
-                        
-                        
-                        } catch (Exception $e) {
-                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
+                        $receiverNumber = $returnExchange->customer->phone;
+                        \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
 
                     } else if ($returnExchange->type == "exchange") {
 
@@ -496,19 +456,8 @@ class ReturnExchangeController extends Controller
 
                         \App\Jobs\SendEmail::dispatch($email);
 
-                        $receiverNumber = '+'.$returnExchange->customer->phone;
-
-                        try {
-                            $client = new Client($this->account_sid, $this->auth_token);
-                            
-                            $client->messages->create($receiverNumber, [
-                                'from' => $this->twilio_number,
-                                'body' => $emailClass->subject]);
-                        
-                        
-                        } catch (Exception $e) {
-                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
+                        $receiverNumber = $returnExchange->customer->phone;
+                        \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                     }
                 } catch (\Exception $e) {
                     \Log::channel('productUpdates')->info("Sending mail issue at the returnexchangecontroller #158 ->" . $e->getMessage());
@@ -808,19 +757,8 @@ class ReturnExchangeController extends Controller
             }
 
             if(in_array('sms', $request->message_via)){
-                $receiverNumber = '+'.$returnExchange->customer->phone;
-                        
-                try {
-                    $client = new Client($this->account_sid, $this->auth_token);
-                        
-                    $client->messages->create($receiverNumber, [
-                        'from' => $this->twilio_number,
-                        'body' => $bodyText
-                    ]);
-                    
-                } catch (Exception $e) {
-                    \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
-                }
+                $receiverNumber = $returnExchange->customer->phone;
+                \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $bodyText);
             }
         }
         

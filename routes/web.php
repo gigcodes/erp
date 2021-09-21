@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function()
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 Route::post('/products/published', 'ProductController@published');
 Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
+Route::get('/customers/accounts', 'CustomerController@accounts');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -403,6 +404,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productlister', 'ProductListerController');
     Route::resource('productapprover', 'ProductApproverController');
     Route::get('productinventory/product-images/{id}', 'ProductInventoryController@getProductImages')->name('productinventory.product-images');
+    Route::get('productinventory/product-rejected-images/{id}', 'ProductInventoryController@getProductRejectedImages')->name('productinventory.product-rejected-images');
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
@@ -1154,6 +1156,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('chat-messages/dnd-list/records', 'ChatMessagesController@dndListRecords')->name('chat.dndList.records');
     Route::post('chat-messages/dnd-list/move-dnd', 'ChatMessagesController@moveDnd')->name('chat.dndList.moveDnd');
     // Customers
+    Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
@@ -1915,6 +1918,7 @@ Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgo
 Route::post('twilio/storerecording', 'TwilioController@storeRecording');
 Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
+Route::post('twilio/events', 'TwilioController@twilioEvents');
 
 Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
 Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
@@ -1989,6 +1993,7 @@ Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name(
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
+
 
 
 

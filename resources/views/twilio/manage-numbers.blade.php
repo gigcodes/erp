@@ -104,6 +104,19 @@
                                         </div>
                                     </td>
                                     <td colspan="1">
+                                        <label>Workspace:</label>
+                                        <div class="input-group">
+                                            <select class="form-control change-workspace" id="workspace_sid_{{ $number->id }}">
+                                                <option value="">Select Workspace</option>
+                                                @if(isset($workspace))
+                                                    @foreach($workspace as $wsp)
+                                                        <option value="{{ $wsp->workspace_sid }}"@if($number->workspace_sid == $wsp->workspace_sid) selected @endif>{{ $wsp->workspace_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td colspan="1">
                                         <label>Message when agent available</label>
                                         <input type="text" class="form-control" name="message_available" id="message_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_available }}"/>
                                     </td>
@@ -470,7 +483,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-center task_queue_list">
-                        @if($taskqueue)
+                        @if(isset($taskqueue))
                             @foreach($taskqueue as $key => $val)
                             <tr class="worker_row_{{$val->id}}">
 								<td>{{$val->workspace_name}}</td>
@@ -595,7 +608,7 @@
 					if(data.statusCode == 500) { 
 						toastr["error"](data.message);
 					} else {
-						toastr["success"](
+						toastr["success"](data.message);
 						if(data.type == "activityList") { 
 							var response = data;
 							var html = '<tr>';
@@ -672,7 +685,8 @@
                         'message_not_available' : $('#message_not_available_'+num_id).val(),
                         'message_busy' : $('#message_busy_'+num_id).val(),
                         'end_work_message' : $('#end_work_message_'+num_id).val(),
-                        'credential_id' : credential_id
+                        'credential_id' : credential_id,
+                        "workspace_sid" :$('#workspace_sid_'+num_id).val()
                     }
                 }).done(function(response){
                     if(response.status == 1){

@@ -75,15 +75,8 @@ use Exception;
 class OrderController extends Controller
 {
 
-    public $account_sid;
-    public $auth_token;
-    public $twilio_number;
-
     public function __construct()
     {
-        $this->account_sid = "AC23d37fbaf2f8a851f850aa526464ee7d";
-        $this->auth_token = "51e2bf471c33a48332ea365ae47a6517";
-        $this->twilio_number = "+18318880662";
         //      $this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
         //      $this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
         //      $this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
@@ -2635,13 +2628,13 @@ class OrderController extends Controller
                 $order->order_status_id = $status;
                 $order->save();
 
-                $history             = new OrderStatusHistory;
+                $history = new OrderStatusHistory;
                 $history->order_id   = $order->id;
                 $history->old_status = $old_status;
                 $history->new_status = $status;
                 $history->user_id    = Auth::user()->id;
                 $history->save();
-                
+
                 if(in_array('email', $order_via)){
                     if (isset($request->sendmessage) && $request->sendmessage == '1') {
                         //Sending Mail on changing of order status
@@ -2662,7 +2655,7 @@ class OrderController extends Controller
                                     'template'         => 'order-cancellation-update',
                                     'additional_data'  => $order->id,
                                     'status'           => 'pre-send',
-                                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                    'store_website_id' => (isset($storeWebsiteOrder)) ? $storeWebsiteOrder->store_website_id : null,
                                     'is_draft'         => 0,
                                 ]);
 
@@ -2718,25 +2711,18 @@ class OrderController extends Controller
 
                 if(in_array('sms', $order_via)){
                 
-                    if (isset($request->sendmessage) && $request->sendmessage == '1') {    
-                        $receiverNumber = '+'.$order->contact_detail;
-                        
-                        try {
-                            $client = new Client($this->account_sid, $this->auth_token);
+                    if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                        if(isset($order->storeWebsiteOrder)){
+
+                            $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
                             
-                            $client->messages->create($receiverNumber, [
-                                'from' => $this->twilio_number,
-                                'body' => $request->message]);
-                        
-                        
-                        } catch (Exception $e) {
-                            \Log::info("Sending SMS issue at the ordercontroller #2215 ->" . $e->getMessage());
+                            $receiverNumber = $order->contact_detail;
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
                         }
+                        
                     }
                 }
-                // }catch(\Exception $e) {
-                //   \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
-                // }
+                
             }
             //Sending Mail on changing of order status
             if (isset($request->sendmessage) && $request->sendmessage == '1') {

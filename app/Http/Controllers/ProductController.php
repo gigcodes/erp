@@ -5032,7 +5032,7 @@ class ProductController extends Controller
             SiteCroppedImages::where('product_id', $request->product_id)->where('website_id' , $request->site_id)->delete();
         }
         RejectedImages::updateOrCreate(
-            ['website_id' => $request->site_id, 'product_id' => $request->product_id],
+            ['website_id' => $request->site_id, 'product_id' => $request->product_id, 'user_id' => auth()->user()->id],
             ['status' => $request->status = "approve" ? 1 : 0]
         );
         return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
@@ -5056,7 +5056,7 @@ class ProductController extends Controller
             $sites = SiteCroppedImages::where('product_id', $request->product_id)->get();
             foreach($sites as $site) {
                 RejectedImages::updateOrCreate(
-                    ['website_id' => $site->website_id, 'product_id' => $request->product_id],
+                    ['website_id' => $site->website_id, 'product_id' => $request->product_id, 'user_id' => auth()->user()->id],
                     ['status' => $request->status = "approve" ? 1 : 0]
                 );
             }

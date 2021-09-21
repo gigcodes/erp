@@ -61,6 +61,7 @@ use App\ReturnExchange;
 use App\ReturnExchangeStatus;
 use App\TwilioWorkspace;
 use App\TwilioWorker;
+use App\CallBusyMessageStatus;
 use App\TwilioActivity;
 use App\TwilioWorkflow;
 use Validator;
@@ -190,6 +191,31 @@ class TwilioController extends FindByNumberController
 
     }
 
+	public function twilioEvents(Request $request, Client $twilioClient) {
+		$missedCallEvents = config('services.twilio')['missedCallEvents'];
+
+        $eventTypeName = $request->input("EventType");
+        if (in_array($eventTypeName, $missedCallEvents) and strtolower($eventTypeName) == "$eventTypeName") {
+            $taskAttr = $this->parseAttributes("TaskAttributes", $request);
+            if (!empty($taskAttr)) {
+               $call = CallBusyMessage::where('caller_sid', $taskAttr->call_sid)->first();
+			    $status = CallBusyMessageStatus::where('name', 'Reserved')->pluck('id')->first();
+				if($call != null) {
+				   $call->update('call_busy_message_statuses_id', $status);
+			    } else {
+					CallBusyMessage::create(['twilio_call_sid'=>$taskAttr->caller,
+					'caller_sid'=> $taskAttr->call_sid, 'call_busy_message_statuses_id'=>$status]);
+				}
+            }
+        } 
+	}
+	
+	public function parseAttributes($name, $request)
+    {
+        $attrJson = $request->input($name);
+        return json_decode($attrJson);
+    }
+
     /**
      * Incoming call URL for Twilio programmable voice
      * @param Request $request Request
@@ -298,7 +324,7 @@ class TwilioController extends FindByNumberController
             $storewebsitetwiliono_data = [];
         }
 
-        Log::channel('customerDnd')->info(' storewebsitetwiliono_data :: >> '.$storewebsitetwiliono_data);
+        Log::channel('customerDnd')->info(' storewebsitetwiliono_data :: >> '.json_encode($storewebsitetwiliono_data));
         // foreach ($get_numbers as $num) {    
         //     Log::channel('customerDnd')->info(' Number >> '.$num['phone_number']);
         // }
@@ -514,6 +540,8 @@ class TwilioController extends FindByNumberController
                                     'call_data' => 'client',
                                     'aget_user_id' => $client['agent_id']
                                 ]);
+
+                                TwilioCallWaiting::where("call_sid",$request->get("CallSid"))->delete();
                                 //Call History - END
                             }
                         }
@@ -2085,6 +2113,8 @@ class TwilioController extends FindByNumberController
                 Customer::create($add_customer);
             }
             Log::channel('customerDnd')->info('-----222222----- ');
+			
+			
             CallBusyMessage::create($params);
 
 
@@ -2225,6 +2255,8 @@ class TwilioController extends FindByNumberController
             'call_data' => 'leave_message',
             'aget_user_id' => null
         ]);
+
+        TwilioCallWaiting::where("call_sid",$request->get("CallSid"))->delete();
 
         // $params = [
         //     'recording_url' => $request->input('RecordingUrl'),
@@ -2525,6 +2557,11 @@ class TwilioController extends FindByNumberController
 
         try {
             //create new record
+            $number_details = TwilioActiveNumber::where('id',$request->twilio_number_id)->first();
+            if($number_details) {
+                $number_details->workspace_sid = $request->workspace_sid;
+                $number_details->save();
+            }
 
             $storeWebsiteProduct = StoreWebsiteTwilioNumber::updateOrCreate([
                 // "store_website_id" => $request->store_website_id,
