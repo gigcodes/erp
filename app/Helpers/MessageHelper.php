@@ -450,13 +450,15 @@ class MessageHelper
                                         // Create new message
                                         \App\ChatMessage::create($temp_img_params);
 
-                                        $data = [
-                                            'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                            'request' => "",
-                                            'response' => "Chat Message is created.",
-                                            'status' => 'success'
-                                        ];
-                                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                                        if(isset($params['chat_message_log_id'])) {
+                                            $data = [
+                                                'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                                'request' => "",
+                                                'response' => "Chat Message is created.",
+                                                'status' => 'success'
+                                            ];
+                                            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                                        }
                                     }
                                 }
                             }
@@ -481,13 +483,15 @@ class MessageHelper
                             ]);
 
                             $log_comment = $log_comment.' Create ERP lead lead id is '.$quick_lead->id;//Purpose : Log Comment - DEVTASK-4233
-                            $data = [
-                                'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                'request' => "",
-                                'response' => "Erp Lead is generated.",
-                                'status' => 'success'
-                            ];
-                            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                            if(isset($params['chat_message_log_id'])) {
+                                $data = [
+                                    'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                    'request' => "",
+                                    'response' => "Erp Lead is generated.",
+                                    'status' => 'success'
+                                ];
+                                $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                            }
 
                         }
 
@@ -505,13 +509,15 @@ class MessageHelper
 
                         $response = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
 
-                        $data = [
-                            'chatbot_message_log_id' => $params['chat_message_log_id'],
-                            'request' => $requestData,
-                            'response' => $response,
-                            'status' => 'success'
-                        ];
-                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        if(isset($params['chat_message_log_id'])) { 
+                            $data = [
+                                'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                'request' => $requestData,
+                                'response' => $response,
+                                'status' => 'success'
+                            ];
+                            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        }
 
                         \App\CommunicationHistory::create([
                             'model_id'   => $messageSentLast->id,
@@ -548,14 +554,15 @@ class MessageHelper
                         $messageModel = ChatMessage::create($temp_params);
 
                         $log_comment = $log_comment.' , If Empty message then Create Auto Mated replay in ChatMessage Table and id is '.$messageModel->id;//Purpose : Log Comment - DEVTASK-4233
-
-                        $data = [
-                            'chatbot_message_log_id' => $params['chat_message_log_id'],
-                            'request' => "",
-                            'response' => "Empty message received then automated reply from ChatMessage table",
-                            'status' => 'success'
-                        ];
-                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        if(isset($params['chat_message_log_id'])) { 
+                            $data = [
+                                'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                'request' => "",
+                                'response' => "Empty message received then automated reply from ChatMessage table",
+                                'status' => 'success'
+                            ];
+                            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        }
                     }
                 }
             }
@@ -605,13 +612,15 @@ class MessageHelper
                                 $chatbotReply->reply      = '{"output":{"database":[{"response_type":"text","text":"' . $reply->suggested_reply . '"}]}}';
                                 $chatbotReply->reply_from = 'erp';
                                 $chatbotReply->save();
-                                $data = [
-                                    'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                    'request' => "",
-                                    'response' => "CHAT_AUTO_WATSON_REPLY: ".$chatbotReply->reply,
-                                    'status' => 'success'
-                                ];
-                                $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                                if(isset($params['chat_message_log_id'])) { 
+                                    $data = [
+                                        'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                        'request' => "",
+                                        'response' => "CHAT_AUTO_WATSON_REPLY: ".$chatbotReply->reply,
+                                        'status' => 'success'
+                                    ];
+                                    $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                                }
                             }
 
                             // Send message if all required data is set
@@ -622,14 +631,15 @@ class MessageHelper
                                         $message->unique_id = $sendResult['id'] ?? '';
                                         $message->save();
                                     }
-
-                                    $data = [
-                                        'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                        'request' => "",
-                                        'response' => $sendResult,
-                                        'status' => 'success'
-                                    ];
-                                    $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                                    if(isset($params['chat_message_log_id'])) { 
+                                        $data = [
+                                            'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                            'request' => "",
+                                            'response' => $sendResult,
+                                            'status' => 'success'
+                                        ];
+                                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                                    }
                                 }
                                 $isReplied = 1;
                                 break;
