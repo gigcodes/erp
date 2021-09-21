@@ -544,9 +544,11 @@ class MagentoSettingsController extends Controller
 		foreach($logs as $log) {
 			$cmdOutputs = json_decode($log['command_output']);
 			$data .= '<tr><td>'. $log['created_at'].'</td><td>'.$log['command'].'</td><td>';
-		 	foreach($cmdOutputs as $cmdOutput) {
-				$data .= $cmdOutput .'<br/>';
-			}		
+            if(!empty($cmdOutputs)) {
+    		 	foreach($cmdOutputs as $cmdOutput) {
+    				$data .= $cmdOutput .'<br/>';
+    			}
+            }
 			$data .= '</td></tr>';
 		} 
 		echo $data;
