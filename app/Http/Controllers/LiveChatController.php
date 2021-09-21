@@ -1456,6 +1456,39 @@ class LiveChatController extends Controller
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
+			if($customer->store_website_id != null) {
+				$websiteDetails = StoreWebsite::where('id', $customer->store_website_id)->select('magento_url', 'api_token')->first();
+				if($websiteDetails != null and $websiteDetails['magento_url'] != null and $websiteDetails['api_token'] != null and $request->credit > 0) {
+					$websiteUrl = $websiteDetails['magento_url'];
+					$api_token = $websiteDetails['api_token'];
+					$bits = parse_url($websiteUrl); 
+					if(isset($bits['host'])) {
+						$web = $bits['host'];
+						if (!str_contains($websiteUrl, 'www')) { 
+							$web = 'www.'.$bits['host'];
+						}
+						$websiteUrl = 'https://'.$web;
+						
+						$ch = curl_init();
+						$url = $websiteUrl."/rest/V1/swarming/credits/add-store-credit/".$customer_id."?transaction[amount]=".$request->credit."&transaction[type]=add&transaction[summary]=test";
+						curl_setopt($ch, CURLOPT_URL, $url);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($ch, CURLOPT_POST, 1);
+
+						$headers = array();
+						$headers[] = 'Authorization: Bearer '.$api_token;
+						$headers[] = 'Cache-Control: no-cache';
+						$headers[] = 'Content-Type: application/json';
+						$headers[] = 'Postman-Token: 8bb5a8ac-9dd2-4e88-3d69-33518eca24cb';
+						curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+						$result = curl_exec($ch);
+						
+						curl_close($ch);
+					}
+				}
+			}
+			
 
         }
         return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
