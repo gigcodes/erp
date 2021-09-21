@@ -8,10 +8,21 @@
                   <td> {{$item->model_id}} </td>
                   <td> {{$item->cname}} </td>
                   
-                  <td> {{$item->chat_message_id}} </td>
+                  
                   <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 6, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
+                    @php
+                         $message=$item->message;
+                         $msg=json_decode($message);
+
+                         if ($msg)
+                         {
+                           if ($msg->message)
+                             $message=$msg->message;
+                             
+                         }
+                    @endphp
+                    <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 6, '...')}}</span>
+                    <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$message}}</span>
                   </td>
                   <td> {{$item->status}} </td>
                   <td>
