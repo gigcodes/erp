@@ -114,7 +114,7 @@ class MagentoSettingsController extends Controller
 					$response = json_decode($response, true);
 					
 					foreach($settings as $key=>$setting) { 
-						$newValues[$setting['id']] = $response[$key]['value'];
+						$newValues[$setting['id']] = isset($response[$key])  ? $response[$key]['value'] : null;
 					} 
 					curl_close($curl);
 				}
