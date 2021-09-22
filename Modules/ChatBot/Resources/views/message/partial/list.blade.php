@@ -159,12 +159,12 @@ padding: 3px 2px;
         <td class="message-input pr-2 pt-2" style="padding-bottom: 5px">
             <div style="display: flex" class=" cls_textarea_subbox">
                 <div class=" cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message0" placeholder="Message"></textarea>
                 </div>
 
                 <div style="display: flex;" class="cls_remove_allpadding row-flex">
                     <span style="display: flex;align-items:  center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
-                    <button class="btn btn-image send-message1 p-0" data-id="{{ $pam->id }}"  data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                    <button class="btn btn-image send-message1 p-0" id="send-message1" data-id="{{ $pam->id }}"  data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->task_id > 0 )
                         <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @elseif($pam->developer_task_id > 0 )
@@ -419,6 +419,10 @@ padding: 3px 2px;
                         <div class="form-group">
                             <label for="value">Cc</label>
                             <input type="email" name="cc_email"  id="cc_email" class="form-control"  placeholder="Enter cc">
+                        </div> 
+                        <div class="form-group">
+                            <label for="value">Message</label>
+                            <input type="email" name="message1"  id="message1" class="form-control"  placeholder="Enter cc">
                         </div>    
                 </div>
                 
@@ -449,6 +453,7 @@ padding: 3px 2px;
         $('#from_email').val($(this).data('from_email'));
         $('#to_email').val($(this).data('to_email'));
         $('#cc_email').val($(this).data('cc_email'));
+        $('#message1').val($('#message0').val());
         $('#editmessagebcc').modal('show');
       
     })
@@ -458,6 +463,7 @@ padding: 3px 2px;
         let fromemail=$('#from_email').val();
         let toemail=$('#to_email').val();
         let ccemail=$('#cc_email').val();
+        $('#message0').val($('#message1').val());
          $.ajax({
             type: "GET",
             url: "{{url('/chatbot/messages/update-emailaddress')}}",
@@ -471,6 +477,8 @@ padding: 3px 2px;
             success: function (response) {
                 if(response.code == 200) {
                     toastr['success'](response.messages);
+                    $('#send-message1').trigger('click');
+                    $('#editmessagebcc').modal('hide');
                 }else{
                     toastr['error'](response.messages);
                 }
