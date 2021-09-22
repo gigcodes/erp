@@ -102,6 +102,10 @@ class scrapperPhyhon extends Controller
                         });     
          }
 
+         if($request->store_website_id > 0) {
+            $websites= $websites->where('store_website_id',$request->store_website_id);
+         }
+
 
          if($request->search)
          {
