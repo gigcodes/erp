@@ -279,16 +279,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
                     </div>
-                    <div class="form-group">
-                        <label for="git_repository">Github Repository</label><br>
-                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
-                            @php $i=0;  @endphp
-                            @foreach(\App\Github\GithubRepository::all() as $w)
-                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
-                                @php $i+=1; @endphp
-                            @endforeach
-                        </select>                        
-                    </div>
+                   
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
                         <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
