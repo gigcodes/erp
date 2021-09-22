@@ -2950,9 +2950,13 @@ class CustomerController extends Controller
 
     public function storeCredit (Request $request) {
 
-        $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id');
-        $customers_all->select("customers.*","store_websites.title");
-        $customers_all->orderBy("customers.created_at","desc");
+        $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id')
+		->leftjoin('credit_history','customers.id','credit_history.customer_id');
+		$customers_all->select("customers.*","store_websites.title", \DB::raw("( select created_at from credit_history where credit_history.customer_id = customers.id ORDER BY id DESC LIMIT 0,1) as date"));
+        $customers_all->latest('date')->groupBy('customers.id')->orderBy("date","desc");
+		
+        
+      // $customers_all->orderBy("customers.updated_at","desc");
       // $customers_all->where('customers.credit','>',0);
         if ($request->name !='')
              $customers_all->where('name',$request->name);
