@@ -311,8 +311,7 @@ class LaravelLogController extends Controller
         $ChatMessages = ChatMessage::join("developer_tasks","developer_tasks.id","chat_messages.developer_task_id")
                                     ->leftJoin("users","users.id","developer_tasks.assigned_to")
                                     ->select(\DB::raw("chat_messages.message, chat_messages.created_at , developer_tasks.id as dev_task_id, users.name"))
-                                    ->orderBy('chat_messages.created_at','DESC')->whereDate('chat_messages.created_at', '>', Carbon::now()->subDays(30))->get();
-
+                                    ->orderBy('chat_messages.created_at','DESC')->whereDate('chat_messages.created_at', '>', Carbon::now()->subDays(30))->get();        
         return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords,'ChatMessages'=>$ChatMessages]);
 
     }
