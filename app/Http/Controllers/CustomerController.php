@@ -2988,6 +2988,7 @@ class CustomerController extends Controller
   
     public function accounts (Request $request) {
         $customers_all = Customer::where('store_website_id','>',0);
+        $customers_all->select('customers.*','store_websites.title');
         $customers_all->join('store_websites','store_websites.id','customers.store_website_id');
 
         if ($request->name !='')
@@ -2999,7 +3000,7 @@ class CustomerController extends Controller
               if ($request->store_website !='')
               $customers_all->where('store_website_id',$request->store_website);
               
-              
+              $customers_all->orderBy('created_at','desc');      
         $total=$customers_all->count();
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
