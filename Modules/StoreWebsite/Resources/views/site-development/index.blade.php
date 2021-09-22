@@ -56,7 +56,9 @@
 	span.user_point_none button, span.admin_point_none button{
 		pointer-events: none;
 		cursor: not-allowed;
-	}
+	}table tr:last-child td {
+		 border-bottom: 1px solid #ddd !important;
+	 }
 
 </style>
 @endsection
@@ -66,23 +68,27 @@
 <div id="myDiv">
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
-<div class="row" id="common-page-layout">
+<div class="row" id="common-page-layout" style="overflow: hidden">
 	<div class="col-lg-12 margin-tb p-0">
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
-		<div class="pull-right pr-2">
+		<div class="pull-right pr-2 d-flex">
+			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
-				<button style=" color: #757575" class="btn btn-secondary btn-image">
+				<button style=" color: #757575" class="btn btn-secondary btn-image ml-2">
 					+ Add Status
 				</button>
 			</a>
-			<button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
+			<button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn ml-2">
 				Remarks
 			</button>
 			<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
 				Status Count
 			</a>
-
+			<select name="order" id="order_query" class="form-control ml-2" >
+               <option value="title" @if(isset($input['order']) and $input['order'] == "title") selected @endif>Title</option>
+               <option value="communication" @if(isset($input['order']) and $input['order'] == "communication") selected @endif>Communication</option>
+            </select>
 		</div>
 		</h2>
 	</div>
@@ -107,6 +113,25 @@
 									</div>
 								</div>
 							</div>
+							<div id="masterCategory" class="modal fade" role="dialog">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h4 class="modal-title">Attach Master Category</h4>
+										</div>
+										<div class="modal-body">
+											{{Form::select('site_development_master_category_id', [''=>'- Select-']+$masterCategories, null, array('class'=>'globalSelect2', 'id'=>'master_category_id'))}}
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+											<button style="display: inline-block;width: 10%" class="btn btn-default btn-image btn-search-action">
+												Save 
+											</button>
+											
+										</div>
+									</div>
+								</div>
+							</div>
 						</form>
 
 						<form class="form-inline handle-search" style="display:inline-block;">
@@ -116,7 +141,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status"] + $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", [""=>"All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */ ?>
@@ -133,7 +158,7 @@
 			</div>
 		</div>
 
-		<div class="row">
+		<div class="row m-0">
 			<div class="col-md-12">
 				<div class="collapse" id="statusFilterCount">
 					<div class="card card-body">
@@ -167,11 +192,14 @@
 					<thead>
 						<tr>
 							<th width="4%">S No</th>
-							<th width="12%"></th>
-							<th width="15%">Title</th>
-							<th width="18%">Message</th>
-							<th width="35%">Communication</th>
-							<th width="16%">Action</th>
+							<th width="15%"></th>
+							<th width="12%">Master Category</th>
+							<th width="12%">Remarks</th>
+							<th width="12%">Assign To</th>
+							<th style="display:none;">Title</th>
+							<th  style="display:none;">Message</th>
+							<th width="25%">Communication</th>
+							<th width="20%">Action</th>
 						</tr>
 					</thead>
 					<tbody class="infinite-scroll-pending-inner">
@@ -499,6 +527,31 @@
 		</div>
 	</div>
 </div>
+<div id="masterCategoryModal" class="modal fade" role="dialog" style="display: none;">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Create Master Category</h4>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Master Category Title</label>
+            <div class="input-group">
+              <input type="text" class="form-control input-sm" name="text" id="masterCategorySingle" required="">
+            </div>
+		 </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary" onClick="saveMasterCategory()">Create</button>
+        </div>    
+    </div>
+  </div>
+</div>
 
 @endsection
 
@@ -536,7 +589,12 @@
 
 	function saveCategory() {
 		var websiteId = $('#website_id_data').val();//$('#website_id').val()
-		var text = $('#add-category').val()
+		var text = $('#add-category').val();
+		var masterCategoryId = $('#master_category_id').val(); 
+		if(masterCategoryId == null || masterCategoryId == '') {
+			$('#masterCategory').modal('show');
+			return false;
+		}
 		if (text === '') {
 			alert('Please Enter Text');
 		} else {
@@ -547,6 +605,7 @@
 					data: {
 						websiteId : websiteId,
 						text: text,
+						master_category_id: masterCategoryId,
 						"_token": "{{ csrf_token() }}"
 					},
 					beforeSend: function() {
@@ -555,11 +614,12 @@
 				})
 				.done(function(data) {
 					$('#add-category').val('');
+					$('#master_category_id').val('');
 					$("#loading-image").hide();
 					toastr["success"](data.messages);
 					// refreshPage()
 					setTimeout(function(){ refreshPage(); }, 2000);
-					
+					$('#masterCategory').modal('hide');
 					console.log(data)
 					console.log("success");
 				})
@@ -571,6 +631,40 @@
 
 		}
 	}
+	
+	function saveMasterCategory() {
+		var text = $('#masterCategorySingle').val()
+		if (text === '') {
+			alert('Please Enter Master Category');
+		} else {
+			$.ajax({
+					url: '{{ route('site-development.master_category.save') }}',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						text: text,
+						"_token": "{{ csrf_token() }}"
+					},
+					beforeSend: function() {
+						$("#loading-image").show();
+					},
+				})
+				.done(function(data) {
+					$('#masterCategorySingle').val('');
+					$("#loading-image").hide();
+					toastr["success"](data.messages);
+					// refreshPage()
+					setTimeout(function(){ refreshPage(); }, 2000);
+				})
+				.fail(function(data) {
+					$('#masterCategorySingle').val('')
+					console.log(data)
+					console.log("error");
+				});
+
+		}
+	}
+	
 	$(function() {
 		$(document).on("focusout", ".save-item", function() {
 			websiteId = $('#website_id').val()
@@ -640,7 +734,7 @@
 				});
 		});
 
-		$(document).on("change", ".save-item-select", function() {
+		$(document).on("change", ".save-item-select ", function() {
 			websiteId = $('#website_id').val()
 			category = $(this).data("category")
 			type = $(this).data("type")
@@ -744,6 +838,43 @@
 		});
 	});
 
+	function saveRemarks(rowId) { 
+		var siteId = $("#remark_"+rowId).data("siteid");
+		var cat_id = $("#remark_"+rowId).data("catid");
+			var website_id = $("#remark_"+rowId).data("websiteid");
+			
+			var val = $("#remark_"+rowId).val();
+			var data = {remark: val,cat_id: cat_id,website_id : website_id};
+			$.ajax({
+				url: '/site-development/' + siteId + '/remarks',
+				type: 'POST',
+				headers: {
+					'X-CSRF-TOKEN': "{{ csrf_token() }}"
+				},
+				data: data,
+				beforeSend: function() {
+					$("#loading-image").show();
+				}
+			}).done(function(response) {
+				$("#loading-image").hide();
+				$("#remark-field").val("");
+				toastr["success"]("Remarks fetched successfully");
+				var html = "";
+				$.each(response.data, function(k, v) {
+					html += "<tr>";
+					html += "<td>" + v.id + "</td>";
+					html += "<td>" + v.remarks + "</td>";
+					html += "<td>" + v.created_by + "</td>";
+					html += "<td>" + v.created_at + "</td>";
+					html += "</tr>";
+				});
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+			
+			}).fail(function(jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+	} 
 
 	function editCategory(id) {
 		$('#editCategory' + id).modal('show');
@@ -1612,5 +1743,43 @@
 		}
 	});
 	//End load more functionality
+	
+	$("#order_query").change(function(){
+		var url = window.location.href;
+		if(url.indexOf('?order=') != -1) {
+			var new_url = removeParam('order', url); 
+			window.location = new_url+'?order='+$(this).val();
+		} else if(url.indexOf('&order=') != -1) {
+			var new_url = removeParam('order', url); 
+			window.location = new_url+'&order='+$(this).val();
+		}else{
+			if(url.indexOf('?') != -1) {
+				window.location =  window.location.href+'&order='+$(this).val();
+			} else{
+				window.location =  window.location.href+'?order='+$(this).val();
+			}
+			
+		} 
+		
+	});
+	
+	function removeParam(key, sourceURL) {
+    var rtn = sourceURL.split("?")[0],
+        param,
+        params_arr = [],
+        queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+    if (queryString !== "") {
+        params_arr = queryString.split("&");
+        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+            param = params_arr[i].split("=")[0];
+            if (param === key) {
+                params_arr.splice(i, 1);
+            }
+        }
+        if (params_arr.length) rtn = rtn + "?" + params_arr.join("&");
+    }
+    return rtn;
+}
 </script>
+
 @endsection

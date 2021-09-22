@@ -11,7 +11,10 @@ use Carbon\Carbon;
 class DomainSearchKeywordController extends Controller
 {
     public function searchKeyword(request $request){
-		$store_website_id = 2;
+		$store_website_id = 0;
+		if( isset($request->website) && $request->website!='' ) {
+			$store_website_id = $request->website;
+		}
 		$last_record_date = DomainSearchKeyword::orderBy('id', 'desc')->pluck('created_at')->first();
 		$date = Carbon::parse($last_record_date)->format('Y-m-d');
 		$countries = DomainSearchKeyword::select('database')->groupBy('database')->orderBy('database','asc')->get();
@@ -27,8 +30,9 @@ class DomainSearchKeywordController extends Controller
 		}		
 		$keywordsearch = $SearchAnalytics->select('domain_search_keywords.*', 'seo_tools.tool')->where('store_website_id', $store_website_id)->where('domain_search_keywords.created_at', '>', $date." 00:00:00")->paginate(20);		
 		$website = StoreWebsite::where('id', $store_website_id)->select('id', 'website')->first();
+		$allWebsites = StoreWebsite::select('website', 'id')->get();
 		$seoKeywordIdeas = SeoKeywordIdea::where('store_website_id', $store_website_id)->get();
-		return view('seo-tools.keywords', compact('keywordsearch','countries','keywords','filter', 'website', 'seoKeywordIdeas'));
+		return view('seo-tools.keywords', compact('keywordsearch','allWebsites','countries','keywords','filter', 'website', 'seoKeywordIdeas'));
     }
 	
 

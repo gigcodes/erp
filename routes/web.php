@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function()
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 Route::post('/products/published', 'ProductController@published');
+Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
+Route::get('/customers/accounts', 'CustomerController@accounts');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -73,6 +75,9 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 Route::resource('courier', 'CourierController');
 Route::resource('product-location', 'ProductLocationController');
+
+Route::get('show-magento-cron-data', 'Cron\ShowMagentoCronDataController@MagentoCron')->name('magento-cron-data');
+
 });
 
 /** Magento Settings */
@@ -80,8 +85,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('magento-admin-settings/namehistrory/{id}', 'MagentoSettingsController@namehistrory');
     Route::get('magento-admin-settings', 'MagentoSettingsController@index')->name('magento.setting.index');
+    Route::get('magento-admin-settings/pushLogs/{settingId}', 'MagentoSettingsController@magentoPushLogs')->name('magento.setting.logs');
     Route::post('magento-admin-settings/create', 'MagentoSettingsController@create')->name('magento.setting.create');
     Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
+	
+    Route::post('magento-admin-settings/push-settings', 'MagentoSettingsController@pushMagentoSettings')->name('magento.setting.pushMagentoSettings');
 
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
@@ -360,7 +368,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/updatePrice', 'ProductController@updatePrice');
     Route::get('products/{id}/quickDownload', 'ProductController@quickDownload')->name('products.quick.download');
     Route::post('products/{id}/quickUpload', 'ProductController@quickUpload')->name('products.quick.upload');
-    Route::post('products/{id}/listMagento', 'ProductController@listMagento');
+    Route::get('products/{id}/listMagento', 'ProductController@listMagento');
     Route::post('products/multilistMagento', 'ProductController@multilistMagento');
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
@@ -396,6 +404,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productlister', 'ProductListerController');
     Route::resource('productapprover', 'ProductApproverController');
     Route::get('productinventory/product-images/{id}', 'ProductInventoryController@getProductImages')->name('productinventory.product-images');
+    Route::get('productinventory/product-rejected-images/{id}', 'ProductInventoryController@getProductRejectedImages')->name('productinventory.product-rejected-images');
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
@@ -1147,6 +1156,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('chat-messages/dnd-list/records', 'ChatMessagesController@dndListRecords')->name('chat.dndList.records');
     Route::post('chat-messages/dnd-list/move-dnd', 'ChatMessagesController@moveDnd')->name('chat.dndList.moveDnd');
     // Customers
+    Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
@@ -1544,6 +1554,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Paswords Manager
     Route::get('passwords', 'PasswordController@index')->name('password.index');
+    Route::post('passwords/change', 'PasswordController@changePasswords')->name('passwords.change');
     Route::post('password/store', 'PasswordController@store')->name('password.store');
     Route::get('password/passwordManager', 'PasswordController@manage')->name('password.manage');
     Route::post('password/change', 'PasswordController@changePassword')->name('password.change');
@@ -1790,8 +1801,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
+    Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendToWhatsApp')->name('email.password.sendwhatsapp');
     
-    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
     Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
 
@@ -1905,6 +1918,7 @@ Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgo
 Route::post('twilio/storerecording', 'TwilioController@storeRecording');
 Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
+Route::post('twilio/events', 'TwilioController@twilioEvents');
 
 Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
 Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
@@ -1979,6 +1993,7 @@ Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name(
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
 Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
+
 
 
 
@@ -3115,8 +3130,24 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
+    Route::post('set-twilio-work-space', 'TwilioController@setTwilioWorkSpace')->name('twilio-work-space');
+    Route::post('delete-twilio-work-space', 'TwilioController@deleteTwilioWorkSpace')->name('delete-twilio-work-space');
+    Route::post('create-twilio-worker', 'TwilioController@createTwilioWorker')->name('create-twilio-worker');
+    Route::post('delete-twilio-worker', 'TwilioController@deleteTwilioWorker')->name('delete-twilio-worker');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
+
+	Route::post('create-twilio-workflow', 'TwilioController@createTwilioWorkflow')->name('create-twilio-workflow');
+    Route::delete('delete-twilio-workflow', 'TwilioController@deleteTwilioWorkflow')->name('delete-twilio-workflow');
+   
+    Route::post('create-twilio-activity', 'TwilioController@createTwilioActivity')->name('create-twilio-activity');
+    Route::delete('delete-twilio-activity', 'TwilioController@deleteTwilioActivity')->name('delete-twilio-activity');
+  
+	Route::get('fetch-activities/{workspaceId}', 'TwilioController@fetchActivitiesFromWorkspace')->name('fetch-activities');
+    Route::get('fetch-task-queue/{workspaceId}', 'TwilioController@fetchTaskQueueFromWorkspace')->name('fetch-task-queue');
+    
+	Route::post('create-twilio-task-queue', 'TwilioController@createTwilioTaskQueue')->name('create-twilio-task-queue');
+    Route::delete('delete-twilio-task-queue', 'TwilioController@deleteTwilioTaskQueue')->name('delete-twilio-task-queue');
 
     Route::get('twilio/call-recordings/{account_id}', 'TwilioController@CallRecordings')->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
@@ -3340,7 +3371,9 @@ Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
+Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
+
 
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
 Route::get('gtmetrix-accounts', 'StoreGTMetrixAccountController@index')->name('GtMetrixAccount.index');
@@ -3432,6 +3465,8 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+Route::get('chatbot-message-log','ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::get('chatbot-message-log/{id}/history','ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
 
 //Magento Product Error

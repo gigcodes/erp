@@ -21,12 +21,13 @@
     Missed Call
     <div class="margin-tb" style="flex-grow: 1;">
         <div class="pull-right ">
-
-
             <div class="d-flex justify-content-between  mx-3">
-
+				<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#reservedCalls">
+                    Waiting Calls({{count($reservedCalls)}})  
+                </button>  &nbsp;
+				
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#add-status">
-                    Add Status
+                     Add Status
                 </button>
             </div>
         </div>
@@ -275,6 +276,53 @@
         </div>
     </div>
 
+ <!-- Add status  Modal -->
+     <div class="modal fade" id="reservedCalls" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="exampleModalLabel">Reserved Calls</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body add-status-body">
+                <table id="show-ordres-table" class="table table-bordered table-hover" style="table-layout:fixed;">
+                    <thead class="reserved-calls">
+						<tr>
+                        <th>Customer Name</th>
+                        <th>Customer Email</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Call Time</th>
+						</tr>
+                    </thead>
+                    <tbody>
+						
+						@foreach($reservedCalls as $reservedCall)
+							<tr>
+							<td>
+								{{$reservedCall->name}}
+							</td>
+                            <td>
+                                {{$reservedCall->email}}
+                            </td>
+							<td>
+								{{$reservedCall->from}}
+							</td>
+							<td>
+								{{$reservedCall->to}}
+							</td>
+							<td>{{$reservedCall->created_at}}</td>
+							</tr>
+						@endforeach
+						
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
     
      <!-- Add status  Modal -->
      <div class="modal fade" id="add-status" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

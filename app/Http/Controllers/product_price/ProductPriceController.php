@@ -495,7 +495,7 @@ class ProductPriceController extends Controller
         }
 
         $brands = $brands->skip($skip * Setting::get('pagination'))
-        ->limit('20')->get()->toArray();
+        ->limit(Setting::get('pagination'))->get()->toArray();
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status',1)->get();
@@ -573,7 +573,7 @@ class ProductPriceController extends Controller
 
                 $categoryDetail = Category::where('id',$brand['catId'])->select('id', 'title')->first();
                 
-                $product_list[$categoryDetail->id.'_'.$country['id']] = [
+                $product_list[$categoryDetail->id.'_'.$brand['store_websites_id']] = [
                     'catId'=>$categoryDetail ? $categoryDetail->id :'', 
                     'categoryName'=> $categoryDetail ? $categoryDetail->title :'', 
                     'product'=>'Product For Brand', 
@@ -687,7 +687,7 @@ class ProductPriceController extends Controller
 
 
         $brands = $brands->skip($skip * Setting::get('pagination'))
-        ->limit('20')->get()->toArray();
+        ->limit(Setting::get('pagination'))->get()->toArray();
 		$i = 0;
 
 		$countriesCount = count($countries);
@@ -757,7 +757,7 @@ class ProductPriceController extends Controller
 					$final_price2 = $final_price2 + $profitCost;
                 }
                 
-				$product_list[$categoryDetail->id.'_'.$country['id']] = [
+				$product_list[$categoryDetail->id.'_'.$brand['store_websites_id']] = [
                     'catId'=>$categoryDetail->id, 
                     'categoryName'=>$categoryDetail->title, 
                     'product'=>'Product For Brand', 

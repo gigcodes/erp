@@ -60,25 +60,34 @@
 			        	</button>
 
 			        	<button type="button" data-id="{{>prop.id}}" class="btn">
-			        		<a href="/site-development/{{>prop.id}}">
-			        			<img width="15px" title="Site Development" src="/images/project.png">
-			        		</a>
-						</button> 
+                                            <a href="/site-development/{{>prop.id}}">
+                                                    <img width="15px" title="Site Development" src="/images/project.png">
+                                            </a>
+                                        </button> 
 
-						<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
+                                        <button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
 
-						<button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
+                                        <button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
 
-						<button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
+                                        <button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
 
-						<button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty">
-							<a href="javascript:;"><i class="fa fa-info-circle"></i></a>
-						</button>
+                                        <button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty">
+                                                <a href="javascript:;"><i class="fa fa-info-circle"></i></a>
+                                        </button> 
 
-						<button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history">
-								<a href="javascript:;"><i class="fa fa-history"></i></a>
-						</button>
-
+                                        <button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history">
+                                                <a href="javascript:;"><i class="fa fa-history"></i></a>
+                                        </button>
+                                        
+                                        <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template">
+                                            <a href="javascript:void(0);"><i class="fa fa-simplybuilt"></i></a>
+                                        </button>   
+										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
+                                            <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+                                        </button> 
+										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master">
+                                            <a href="javascript:void(0);"><i class="fa fa-refresh"></i></a>
+                                        </button> 										
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -555,4 +564,44 @@
             </div>
          </div>
     </div>	
+</script>
+<script type="text/x-jsrender" id="template-build-process">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Build Process</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form class="build-process">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
+                        <div class="row">
+                            
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="build_repository">Repository</label>
+                                    <input type="text" name="repository" id="build_repository" value="{{:data.repository}}" placeholder="Enter Repository Name" class="form-control mt-0" />
+                                </div>
+                            </div>                            
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="build_reference">Reference</label>
+                                    <input type="text" name="reference" id="build_reference" value="{{:data.reference}}" placeholder="Enter Repository Name" class="form-control mt-0" />
+                                </div> 
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button data-id="{{:data.id}}"class="btn btn-secondary update-build-process">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </script>

@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\BuildProcessHistory;
+
+class BuildStatus extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'command:updatBuildStatus';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+		//$buildHistory = BuildProcessHistory::where('status', 'running')->get();
+		$buildHistory = BuildProcessHistory::all();
+		 $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
+                   
+		foreach($buildHistory as $history) {
+			$job = $jenkins->getJob($history['build_name']);
+			foreach ($job->getBuilds() as $build) {
+			  $number = $build->getNumber();var_dump($number);
+			  $result = $build->getResult();var_dump($result); 
+			  BuildProcessHistory::where('build_name', $history['build_name'])->where('build_number', $number)->update(['status'=>strtolower($result)]);
+			}
+		}
+        
+    }
+}

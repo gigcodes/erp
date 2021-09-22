@@ -10,9 +10,9 @@ class BacklinkAnchors extends Model
     protected $fillable=['store_website_id', 'tool_id', 'database','anchor','domains_num','backlinks_num'];
 
     public function backlinkanchorsSemrushApis($domain, $db, $column=null) {
-		$key = env('KEY');
+		$key = config('env.SEMRUSH_API');
 		$apis = [
-			'anchor'=>'https://api.semrush.com/analytics/v1/?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&type=backlinks_anchors&target=searchenginejournal.com&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5'];
+			'anchor'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_anchors&target='.$domain.'&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5'];
 		
 		if($column == null) {
 			return $apis;

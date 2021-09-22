@@ -9,6 +9,11 @@
     margin-top: 10px !important;
     margin-bottom: 10px !important;
     }
+    .table .thead-dark th {
+    color: #292929;
+    background-color: #eeeeee;
+    border-color: #e4e4e4;
+}
     </style>
         <div class="modal-content">
            
@@ -121,9 +126,9 @@
                 </div>
               </div>
               <div class="form-row">
-				  <div class="form-group col-md-12">
+				  <div class="form-group col-md-12 mb-0">
 						<div class="form-group">
-							<div class="justify-content-end pt-4 input-group">
+							<div class="justify-content-end pt-2 input-group">
 								<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
 								<div class="input-group-append">
 									<button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
@@ -133,7 +138,7 @@
 								<table class="table table-bordered">
 									<thead class="thead-dark">
 										<tr>
-											<th>Keywords</th>
+											<th>Keywords </th>
 											<th>Avg. monthly</th>
 											<th>Competition</th>
 											<th>Translation</th>

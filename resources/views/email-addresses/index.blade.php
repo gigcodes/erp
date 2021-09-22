@@ -40,14 +40,35 @@
             </form>
         </div>
     </div>
+	
+	
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Email address Passwords Manager</h2>
+            <div class="pull-left">
+
+            </div>
+            <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
+            </div>
+            <div>
+                {{ Form::open(array('url' => route('email.password.change'), 'method' => 'post')) }}
+                    <input type="hidden" name="users" id="userIds">
+                    <button type="submit" class="btn btn-secondary"> Generate password </button>
+                {{ Form::close() }}
+            </div>
+        </div>
+    </div>
 
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th>ID</th>
-            <th>From Name</th>
-            <th>From Address</th>
+            <!--th>From Name</th>
+            <th>From Address</th-->
+			<th>Username</th>
+            <th>Password</th>
             <th>Recovery Phone</th>
             <th>Recovery Email</th>
             <th>Driver</th>
@@ -56,21 +77,27 @@
             <th>Encryption</th>
             <th>Store Website</th>
             <th>Status</th>
-            <!--th>Username</th-->
-            <!--th>Password</th-->
+            
             <th>Action</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
           @foreach ($emailAddress as $server)
             <tr>
-              <td>{{ $server->id }}</td>
-              <td>
+               <td>
+				<input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}"></td>
+              <td><!--td>
                   {{ $server->from_name }}
               </td>
               <td>
                   {{ $server->from_address }}
+              </td-->
+			 
+                  {{ $server->username }}
+              </td>
+              <td>
+                  {{ $server->password }}
               </td>
               <td>
                   {{ $server->recovery_phone }}
@@ -90,12 +117,7 @@
               <td>
                   {{ $server->encryption }}
               </td>
-              <!--td>
-                  {{ $server->username }}
-              </td-->
-              <!--td>
-                  {{ $server->password }}
-              </td-->
+              
 			  <td>
                   @if($server->website){{ $server->website->title }} @endif
               </td>
@@ -108,16 +130,54 @@
                   {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!}
-                   <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts">Show Account</a>
-              </td>
+                   <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts" title="Show Account"><i class="fa fa-eye" aria-hidden="true"></i>
+</a>
+                   
+				   <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp"><i class="fa fa-send-o"></i></button></td>
+            
+					<div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+							<!-- Modal content-->
+							<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">Send to Whatsapp</h4>
+										<button type="button" class="close" data-dismiss="modal">&times;</button>
+									</div>
+									<form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
+									@csrf
+									<div class="modal-body">
+										<div class="form-group">
+											<select class="form-control" name="user_id">
+												@foreach($users as $user)
+												<option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+												@endforeach
+											</select>
+											 <input type="hidden" name="id" value="{{ $server->id }}"/>
+											<input type="hidden" name="send_message" value="1">
+											<input type="hidden" name="send_on_whatsapp" value="1">
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+										<button type="submit" class="btn btn-secondary">Update</button>
+									</div>
+									</form>
+							</div>
+
+						</div>
+					</div>
+			  </td>
             </tr>
+			
+			
+	
           @endforeach
         </tbody>
       </table>
     </div>
+    <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
-    {!! $emailAddress->appends(Request::except('page'))->links() !!}
-
+   
 <div id="emailAddressModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -756,6 +816,57 @@
           $("#loading-image").hide();
         });
     });
-
+  $('.checkbox_ch').change(function(){
+             var values = $('input[name="userIds[]"]:checked').map(function(){return $(this).val();}).get();
+             $('#userIds').val(values);
+         });
+function sendtoWhatsapp(password_id) {
+		$("#sendToWhatsapp"+ password_id +"" ).modal('show');
+	}
   </script>
+  <script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('email-addresses')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+
+  </script>     
 @endsection

@@ -213,7 +213,7 @@ class FetchAllEmails extends Command
                             'created_at'      => $email->getDate(),
                         ];
                         //                            dump("Received from: ". $email->getFrom()[0]->mail);
-                        $email_id=Email::insertGetId($params);
+                        $email_id = Email::insertGetId($params);
 
                         if ($type['type'] == 'incoming') {
 
@@ -249,6 +249,9 @@ class FetchAllEmails extends Command
                                         'customer_id' => $customer->id,
                                         'is_email'    => 1,
                                         'email_id'    => $email_id,
+                                        'from_email'  => $from,
+                                        'to_email'    => $to,
+                                        'email_id'    => $email_id
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
@@ -272,9 +275,12 @@ class FetchAllEmails extends Command
                                             'dubizzle_id' => null,
                                             'vendor_id'   => $vandor->id,
                                             'is_email'    => 1,
+                                            'from_email'  => $from,
+                                            'to_email'    => $to,
+                                            'email_id'    => $email_id
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
-                                        $mailFound = true;
+                                        $mailFound    = true;
                                     }
                                 }
 
@@ -293,9 +299,12 @@ class FetchAllEmails extends Command
                                             'task_id'     => null,
                                             'dubizzle_id' => null,
                                             'is_email'    => 1,
+                                            'from_email'  => $from,
+                                            'to_email'    => $to,
+                                            'email_id'    => $email_id
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
-                                        $mailFound = true;
+                                        $mailFound    = true;
                                     }
                                 }
                             }

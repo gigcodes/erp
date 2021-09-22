@@ -52,6 +52,9 @@
         <button class="btn btn-secondary multi-run-test-btn btn-xs" onclick="checkCheckbox()" title="Run Test">
             <i class="fa fa-play"></i>
         </button>
+        <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setCron" title="" data-id="1">
+                Add
+            </button>
             <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setSchedule" title="" data-id="1">Set cron time
                 @if ( $cronTime && !empty( $cronTime->val ))
                     ( <small> {{$cronTime->val}} </small> )
@@ -72,7 +75,67 @@
                 <table class="table table-bordered table-striped table-responsive site-gtMetrix-data">
                     <thead>
                         <tr>
-                            <th>Website</th>
+                            @php
+                              $url=url('gtmetrix');
+                              $p='';
+                              if (isset($_GET['date']))
+                                 {
+                                     if ($p=='')
+                                       $p="?date=".$_GET['date'];
+                                     else
+                                        $p.= "&date=".$_GET['date']; 
+                                 }
+                                 if (isset($_GET['status']))
+                                 {
+                                     if ($p=='')
+                                       $p="?status=".$_GET['status'];
+                                     else
+                                        $p.= "&status=".$_GET['status']; 
+                                 } 
+                                 if (isset($_GET['keyword']))
+                                 {
+                                     if ($p=='')
+                                       $p="?keyword=".$_GET['keyword'];
+                                     else
+                                        $p.= "&keyword=".$_GET['keyword']; 
+                                 } 
+                                 
+                                 $ord1='';
+                                 if (isset($_GET['sortby']) && $_GET['sortby']=='pagespeed_score' && $_GET['ord']=='asc' )
+                                 {
+                                     if ($p=='')
+                                     $ord1="?sortby=pagespeed_score&ord=desc";
+                                     else
+                                     $ord1.= "&sortby=pagespeed_score&ord=desc"; 
+                                 }
+                                 else
+                                 {
+                                    if ($p=='')
+                                     $ord1="?sortby=pagespeed_score&ord=asc";
+                                     else
+                                     $ord1.= "&sortby=pagespeed_score&ord=asc"; 
+                                 }
+
+                                 $ord2='';
+                                 if (isset($_GET['sortby']) && $_GET['sortby']=='yslow_score' && $_GET['ord']=='asc' )
+                                 {
+                                     if ($p=='')
+                                     $ord2="?sortby=yslow_score&ord=desc";
+                                     else
+                                     $ord2.= "&sortby=yslow_score&ord=desc"; 
+                                 }
+                                 else
+                                 {
+                                    if ($p=='')
+                                     $ord2="?sortby=yslow_score&ord=asc";
+                                     else
+                                     $ord2.= "&sortby=yslow_score&ord=asc"; 
+                                 }
+                                 $url1=$url.$p.$ord1;
+                                 $url2=$url.$p.$ord2;
+
+                            @endphp
+                            <th>Website <br><input type="checkbox" onclick="selectAll();" />&nbsp;Select All</th>
                             <th>Test id</th>
                             <th>Status</th>
                             <th>Error</th>
@@ -82,15 +145,18 @@
                             <th>Page load time</th>
                             <th>Page bytes</th>
                             <th>Page elements</th>
-                            <th>Pagespeed score</th>
-                            <th>Yslow score</th>
+                            <th>
+
+                              <a href="{{$url1}}">  Pagespeed score</a>
+                            </th>
+                            <th><a href="{{$url2}}">Yslow score</a></th>
                             <th style="width: 12%;">Resources</th>
                             <th style="width: 7.5%;">Date</th>
                             <th>PDF</th>
                             <th style="width: 10.5%;">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($list as $key)
                         
                             <tr>
@@ -145,7 +211,9 @@
                 </table>
             </div>
         </div>
-        {{ $list->links() }}
+        <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+       
     </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
@@ -179,6 +247,7 @@
 </div>
 
 @include('gtmetrix.setSchedule')
+@include('gtmetrix.setCron')
 @endsection
     
 @section('scripts')
@@ -223,7 +292,14 @@
             $('#loading-image').hide();
         });
     });
+    function selectAll() {
+        if ($('.multi-run-test').prop('checked')) {
+            $('.multi-run-test').prop('checked',false);
+        } else {
+            $('.multi-run-test').prop('checked',true);
+        }
 
+    }
     $(document).on('click', '.show-comparison', function(e){
         e.preventDefault();
         var url = $(this).data('url');
@@ -362,5 +438,57 @@
     };
 
 </script>
+
+<script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                const params = new URLSearchParams(window.location.search)
+                keyword = params.get('keyword');
+                status = params.get('status');
+                date = params.get('date');
+                $.ajax({
+                    url: "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+       
+
+  </script>      
+
 
 @endsection

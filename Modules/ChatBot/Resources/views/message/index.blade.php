@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Message List | Chatbot')
+@section('title', 'Message List  | Chatbot')
 
 @section('content')
 
@@ -117,6 +117,7 @@
             </div>
         </div>
     </div>
+    
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -386,12 +387,13 @@
             var field = "customer_id";
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
+            var id = $(this).data('id');
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
             var data_chatbot_id = tr.data('chatbot-id');
-
+            data.append("chat_id", id);
             console.log(type);
-
+             
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
@@ -469,7 +471,7 @@
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);
-
+           console.log(data);
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({

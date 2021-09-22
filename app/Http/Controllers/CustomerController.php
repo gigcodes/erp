@@ -57,6 +57,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Plank\Mediable\Media as PlunkMediable;
 use App\CustomerAddressData;
 use App\StoreWebsite;
+use App\CreditHistory;
 
 class CustomerController extends Controller
 {
@@ -1850,6 +1851,7 @@ class CustomerController extends Controller
 
     public function issueCredit(Request $request)
     {
+
         $customer = Customer::find($request->customer_id);
 
         $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
@@ -2880,4 +2882,186 @@ class CustomerController extends Controller
         $customer = Customer::leftjoin('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
         return response()->json(["status" => 200 ,"data" => $customer]);
     }
+	
+	public function fetchCreditBalance (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+		$store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+            $store_website_id = $store_website->id; 
+			$customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();			
+			if($customer) {
+				$message = $this->generate_erp_response("credit_fetch.success",$store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 200,'status'=>'success', 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
+			} else{
+				$message = $this->generate_erp_response("credit_fetch.customer.failed",$store_website_id, $default = 'Customer not found', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
+			} 
+        } else {
+			$message = $this->generate_erp_response("credit_fetch.website.failed",$store_website_id, $default = 'Website not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
+		}
+	}
+	
+	public function deductCredit (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+        $balance = $request->amount;
+
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+             $store_website_id = $store_website->id;
+        } else {
+			$message = $this->generate_erp_response("credit_deduct.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		} 
+		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if($customer) {
+			$customer_id = $customer->id;
+			$totalCredit = $customer->credit; 
+			if($customer->credit >  $balance) {
+			   $calc_credit=$customer->credit-$balance;
+			   $customer->credit=$calc_credit;
+			   	   
+			   \App\CreditHistory::create(
+					array(
+						'customer_id'=>$customer_id,
+						'model_id'=>$customer_id,
+						'model_type'=>Customer::class,
+						'used_credit'=>(float)$totalCredit - $calc_credit,
+						'used_in'=>'MANUAL',
+						'type'=>'MINUS'
+					)
+				);
+				$customer->save();
+				$message = $this->generate_erp_response("credit_deduct.success",$store_website_id, $default = 'Credit deducted successfully', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+			} else {
+				$toAdd = $balance - $customer->credit;
+				$message = $this->generate_erp_response("credit_deduct.insufficient_balance",$store_website_id, $default = 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+			}
+        } else {
+			$message = $this->generate_erp_response("credit_deduct.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
+			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		}	
+		
+	}
+
+    public function storeCredit (Request $request) {
+
+       
+        $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id');
+        $customers_all->select("customers.*","store_websites.title");
+        $customers_all->orderBy("customers.created_at","desc");
+      // $customers_all->where('customers.credit','>',0);
+        if ($request->name !='')
+             $customers_all->where('name',$request->name);
+             if ($request->email !='')
+             $customers_all->where('email',$request->email);
+             if ($request->phone !='')
+             $customers_all->where('phone',$request->phone);
+             if ($request->store_website !='')
+             $customers_all->where('store_website_id',$request->store_website);
+
+        $customers_all=$customers_all->paginate(Setting::get('pagination'));
+        $store_website = StoreWebsite::all();
+        
+        if ($request->ajax())
+       {
+        return view('livechat.store_credit_ajax', [
+            'customers_all' => $customers_all,
+            'store_website'=>$store_website
+           
+        ]);
+       }
+       else
+       {
+        return view('livechat.store_credit', [
+            'customers_all' => $customers_all,
+            'store_website'=>$store_website
+           
+        ]);
+       }
+   }
+      
+  
+    public function accounts (Request $request) {
+        $customers_all = Customer::where('store_website_id','>',0);
+        $customers_all->join('store_websites','store_websites.id','customers.store_website_id');
+
+        if ($request->name !='')
+              $customers_all->where('name',$request->name);
+              if ($request->email !='')
+              $customers_all->where('email',$request->email);
+              if ($request->phone !='')
+              $customers_all->where('phone',$request->phone); 
+              if ($request->store_website !='')
+              $customers_all->where('store_website_id',$request->store_website);
+              
+              
+        $total=$customers_all->count();
+        $customers_all = $customers_all->paginate(Setting::get('pagination'));
+        $store_website = StoreWebsite::all();
+        
+        if ($request->ajax()) 
+        {
+            return view('customers.account_ajax', [
+                'customers_all' => $customers_all,
+
+                
+            ]);
+        }
+        else
+        {
+            return view('customers.account', [
+                'customers_all' => $customers_all,
+                'total'=>$total,
+                'store_website'=>$store_website,
+                
+            ]);
+        }
+
+    }
+	
+	public function addCredit (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+        $credit = $request->amount;
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+             $store_website_id = $store_website->id;
+        } else {
+			$message = $this->generate_erp_response("credit_add.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		} 
+		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if($customer) {
+			$customer_id = $customer->id;
+			$totalCredit = $customer->credit; 
+			if($credit >  0) {
+			   $calc_credit=$customer->credit+$credit;
+			   $customer->credit=$calc_credit;
+			   	   
+			   \App\CreditHistory::create(
+					array(
+						'customer_id'=>$customer_id,
+						'model_id'=>$customer_id,
+						'model_type'=>Customer::class,
+						'used_credit'=>(float)$credit,
+						'used_in'=>'MANUAL',
+						'type'=>'PLUS'
+					)
+				);
+				$customer->save();
+			} 
+			$message = $this->generate_erp_response("credit_add.success",$store_website_id, $default = 'Credit added successfully', request('lang_code'));
+        	return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+		} else {
+			$message = $this->generate_erp_response("credit_add.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
+			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		}	
+		
+	}
+	
 }

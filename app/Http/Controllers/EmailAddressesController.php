@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\EmailAddress;
+use App\User;
 use App\EmailRunHistories;
 use App\StoreWebsite;
 use Carbon\Carbon;
@@ -33,21 +34,39 @@ class EmailAddressesController extends Controller
             }
         }
 
-        $emailAddress = $query->paginate();
+        $emailAddress = $query->paginate(); 
         $allStores    = StoreWebsite::all();
         $allDriver    = EmailAddress::pluck('driver')->unique();
         $allPort      = EmailAddress::pluck('port')->unique();
         $allEncryption= EmailAddress::pluck('encryption')->unique();
 
         //dd($allDriver);
+$users = User::orderBy('name','asc')->get();
 
-        return view('email-addresses.index', [
-            'emailAddress' => $emailAddress,
-            'allStores'    => $allStores,
-            'allDriver'    => $allDriver,
-            'allPort'      => $allPort,
-            'allEncryption'=> $allEncryption,
-        ]);
+if ($request->ajax()) 
+{
+   
+    return view('email-addresses.index_ajax', [
+        'emailAddress' => $emailAddress,
+        'allStores'    => $allStores,
+        'allDriver'    => $allDriver,
+        'allPort'      => $allPort,
+        'allEncryption'=> $allEncryption,
+        'users'=> $users,
+    ]);
+}
+else
+{
+
+    return view('email-addresses.index', [
+        'emailAddress' => $emailAddress,
+        'allStores'    => $allStores,
+        'allDriver'    => $allDriver,
+        'allPort'      => $allPort,
+        'allEncryption'=> $allEncryption,
+        'users'=> $users,
+    ]);
+}
     }
 
     /**
@@ -334,4 +353,40 @@ class EmailAddressesController extends Controller
         $filename = 'Report-Email-failed'.'.csv';
         return Excel::download(new EmailFailedReport($recordsArr),$filename);
     }
+	
+	public function passwordChange(Request $request) {
+		 if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
+        $data = array();
+        foreach ($users as $key) {
+            // Generate new password
+            $newPassword = str_random(12);
+
+            $user = EmailAddress::findorfail($key);
+            $user->password = $newPassword;
+            $user->save();
+            $data[$key] = $newPassword;
+        }
+		\Session::flash('success', 'Password Updated');
+		return redirect()->back();
+    }
+	
+	function sendToWhatsApp(Request $request) {
+		$emailDetail = EmailAddress::find($request->id);
+		$user_id = $request->user_id;
+        $user = User::findorfail($user_id);
+        $number = $user->phone;
+        $whatsappnumber = '971502609192';
+		
+		 $message = 'Password For '. $emailDetail->username .'is: ' . $emailDetail->password;
+				
+		$whatsappmessage = new WhatsAppController();
+        $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
+		\Session::flash('success', 'Password sent');
+		return redirect()->back();
+	}
+
 }
