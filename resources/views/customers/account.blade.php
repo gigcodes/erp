@@ -8,7 +8,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Customer Account</h2>
+            <h2 class="page-heading">Customer Account ({{$total}})</h2>
             <div class="pull-left">
               <form class="form-inline" action="{{url('customers/accounts')}}" method="GET">
                 <div class="col">
@@ -79,36 +79,41 @@
 
     @include('partials.flash_messages')
 
-    Total : {{$total}}
-
+   
     <div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>
           <tr>
+           <th>ID</th>
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Date</th>
             <th>Whatsapp Number</th>
             <th>Address</th>
             <th>City</th>
             <th>Pincode</th>
             <th>Country</th>
             <th>Store Website</th>
+            
           </tr>
         </thead>
 
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
           @foreach ($customers_all as $c)
             <tr>
+              <td>{{ $c->id }}</td>
               <td>{{ $c->name }}</td>
               <td>{{ $c->email }}</td>
               <td>{{ $c->phone }}</td>
+              <td>{{ date("d-m-Y",strtotime($c->created_at)) }}</td>
               <td>{{ $c->whatsapp_number }}</td>
               <td>{{ $c->address }}</td>
               <td>{{ $c->city }}</td>
               <td>{{ $c->pincode }}</td>
               <td>{{ $c->country }}</td>
               <td>{{ $c->title }}</td>
+             
              
             </tr>
           @endforeach
