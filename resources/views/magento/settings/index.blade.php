@@ -3,19 +3,21 @@
 @section('title', 'Magento Settings')
 
 @section('content')
-
-<div class="row">
-    <div class="col-12">
+<div class="row m-0">
+    <div class="col-12 p-0">
+<style>
+div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
+</style>
         <h2 class="page-heading">Magento Settings</h2>
     </div>
 
-     <div class="row">
-         <div class="col-lg-12 margin-tb mb-3 ml-4">
+     <div class="row m-0">
+         <div class="col-lg-12 margin-tb pl-3">
              <?php $base_url = URL::to('/');?> 
              <div class="pull-left cls_filter_box">
                  <form class="form-inline" action="{{ route('magento.setting.index') }}" method="GET"> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
+                    <div class="form-group cls_filter_inputbox" >
+                        <button style="color: #999999;border:1px solid #ddd;" type="button" class="btn btn-default" data-toggle="modal" data-target="#add-setting-popup">ADD Setting</button>
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <select class="form-control select2" name="scope" data-placeholder="scope">
@@ -42,7 +44,7 @@
                     </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
-                        <button type="submit" style="" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                        <button type="submit" style="" class="btn btn-image pl-0"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                      </div> 
                  </form>
 				{{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
@@ -66,11 +68,11 @@
          </div> 
      </div>
 
-    <div class="col-12 mb-3">
+    <div class="col-12 mb-3 mt-3 p-0">
 
         <div class="pull-left"></div>
         <div class="pull-right"></div>
-        <div class="col-12">
+        <div class="col-12 pl-3 pr-3">
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
@@ -83,6 +85,7 @@
                             <th>Name</th>
                             <th>Path</th>
                             <th>Value</th>
+                            <th style="width:6% !important;">Value On Magento</th>
                             <th>Date</th>
                             <th>Created By</th>
                             <th>Action</th>
@@ -116,11 +119,16 @@
                                 <td>{{ $magentoSetting->name }}</td>
                                 <td>{{ $magentoSetting->path }}</td>
                                 <td>{{ $magentoSetting->value }}</td>
-                                <td>{{ $magentoSetting->created_at }}</td>
+                                <td  style="width:6% !important;">@if(isset($newValues[$magentoSetting['id']]))
+										{{ $newValues[$magentoSetting['id']] }}
+									@endif
+								</td>
+                                <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
                                 <td>
-                                    <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
-                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting" ><img src="/images/delete.png"></button>
+                                    <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
+                                    <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image push_logs p-0" ><i class="fa fa-eye"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -271,16 +279,7 @@
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
                     </div>
-                    <div class="form-group">
-                        <label for="git_repository">Github Repository</label><br>
-                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
-                            @php $i=0;  @endphp
-                            @foreach(\App\Github\GithubRepository::all() as $w)
-                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
-                                @php $i+=1; @endphp
-                            @endforeach
-                        </select>                        
-                    </div>
+                   
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
                         <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
@@ -365,6 +364,33 @@
         </div>
     </div>
 </div>
+<div id="settingsPushLogsModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Magento Push Logs</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			  <div class="modal-body">
+				<div class="table-responsive mt-3">
+				  <table class="table table-bordered">
+					<thead>
+					  <tr>
+						<th>Date</th>
+						<th>Command</th>
+						<th>Command Output</th>
+					  </tr>
+					</thead>
+					<tbody id="settingsPushLogs">
+
+					</tbody>
+				  </table>
+				</div>
+			  </div>    
+		</div>
+	</div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
 50% 50% no-repeat;display:none;"></div>
 @endsection
@@ -429,6 +455,17 @@
 
         return false;
     });
+	
+	$(document).on('click', '.push_logs', function(e) { 
+		var settingId = $(this).data('id');
+		$.ajax({
+          url: 'magento-admin-settings/pushLogs/'+ $(this).data('id'),
+          success: function (data) { console.log(data);
+            $('#settingsPushLogs').html(data);
+            $('#settingsPushLogsModal').modal('show');
+          },
+        });
+	});
 
     $(document).on('click', '.edit-setting', function(e) { 
         $('.edit-magento-setting-form select[name="websites"]').val('');

@@ -288,38 +288,93 @@ class CustomerCharityController extends Controller
     {
 
         $this->validate($request, [
-            'category_id'          => 'sometimes|nullable|numeric',
-            'name'                 => 'required|string|max:255',
-            'address'              => 'sometimes|nullable|string',
-            'phone'                => 'required|nullable|numeric',
-            'email'                => 'sometimes|nullable|email',
-            'social_handle'        => 'sometimes|nullable',
-            'website'              => 'sometimes|nullable',
-            'login'                => 'sometimes|nullable',
-            'password'             => 'sometimes|nullable',
-            'gst'                  => 'sometimes|nullable|max:255',
-            'account_name'         => 'sometimes|nullable|max:255',
-            'account_iban'         => 'sometimes|nullable|max:255',
-            'account_swift'        => 'sometimes|nullable|max:255',
-            'frequency_of_payment' => 'sometimes|nullable|max:255',
-            'bank_name'            => 'sometimes|nullable|max:255',
-            'bank_address'         => 'sometimes|nullable|max:255',
-            'city'                 => 'sometimes|nullable|max:255',
-            'country'              => 'sometimes|nullable|max:255',
-            'ifsc_code'            => 'sometimes|nullable|max:255',
-            'remark'               => 'sometimes|nullable|max:255',
-        ]);
+            'category_id'   => 'sometimes|nullable|numeric',
+            'name'          => 'required|string|max:255',
+            'address'       => 'sometimes|nullable|string',
+            'phone'         => 'required|nullable|numeric',
+            'email'         => 'sometimes|nullable|email',
+            'social_handle' => 'sometimes|nullable',
+            'website'       => 'sometimes|nullable',
+            'login'         => 'sometimes|nullable',
+            'password'      => 'sometimes|nullable',
+            'gst'           => 'sometimes|nullable|max:255',
+            'account_name'  => 'sometimes|nullable|max:255',
+            'account_iban'  => 'sometimes|nullable|max:255',
+            'account_swift' => 'sometimes|nullable|max:255',
+            'frequency_of_payment'   => 'sometimes|nullable|max:255',
+            'bank_name'   => 'sometimes|nullable|max:255',
+            'bank_address'   => 'sometimes|nullable|max:255',
+            'city'   => 'sometimes|nullable|max:255',
+            'country'   => 'sometimes|nullable|max:255',
+            'ifsc_code'   => 'sometimes|nullable|max:255',
+            'remark'   => 'sometimes|nullable|max:255',
+      ]);
+  
+      $data = $request->except(['_token', 'create_user']);
+      if(empty($data["whatsapp_number"]))  {
+          //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+          //get default whatsapp number for vendor from whatsapp config
+          $task_info = DB::table('whatsapp_configs')
+                      ->select('*')
+                      ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+                      ->first();
+      if(isset($task_info->number) && $task_info->number!=null){
+      $data["whatsapp_number"] = $task_info->number;
+      }
+      }
+  
+      if(empty($data["default_phone"]))  {
+        $data["default_phone"] = $data["phone"];
+      }
+  
+      if(!empty($source)) {
+         $data["status"] = 0;
+      }  
+      
+      unset($data['websites']);
+      unset($data['website_stores']);
+      if($id == null){
+          $charity = CustomerCharity::create($data); 
+          $charity_category = Category::where('title', 'charity')->first();
+          $charity_brand = Brand::where('name', 'charity')->first();
+          $product = new Product(); 
+          $product->sku = '';
+          $product->status_id = '115';
+          $product->name = $charity->name;
+          $product->short_description = $charity->name;
+          $product->brand = $charity_brand->id;
+          $product->category = $charity_category->id;
+          $product->price = 1;
+          $product->save(); 
+          CustomerCharity::where('id', $charity->id)->update([
+              'product_id' => $product->id
+          ]);
+          Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
+        /*   $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
 
-        $data = $request->except(['_token', 'create_user']);
-        if (empty($data["whatsapp_number"])) {
-            //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
-            //get default whatsapp number for vendor from whatsapp config
-            $task_info = DB::table('whatsapp_configs')
-                ->select('*')
-                ->whereRaw("find_in_set(" . self::DEFAULT_FOR . ",default_for)")
-                ->first();
-            if (isset($task_info->number) && $task_info->number != null) {
-                $data["whatsapp_number"] = $task_info->number;
+          $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
+          $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
+          $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
+          $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+         foreach($website_stores as $store){
+            CustomerCharityWebsiteStore::updateOrCreate([
+                'customer_charity_id' => $charity->id,
+                'website_store_id' => $store->id
+            ],[
+                'customer_charity_id' => $charity->id,
+                'website_store_id' => $store->id
+            ]);
+          }*/
+
+          /*foreach($storeWebsites as $w){
+            $tag = 'gallery_' . $w->cropper_color; 
+            $is_image_exist = false;
+            while(!$is_image_exist){
+                $image = Media::inRandomOrder()->first();
+               if(file_exists($image->getAbsolutePath())){
+                    $is_image_exist = true;
+                    $image = $image->getAbsolutePath();
+                }
             }
         }
 

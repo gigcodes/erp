@@ -15,6 +15,7 @@ use App\ScrapedProducts;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\FetchEmail;
 
 class TmpTaskController extends Controller
 {
@@ -149,6 +150,7 @@ class TmpTaskController extends Controller
 
     public function testPushProduct(Request $request)
     {
+      
         $queueName = [
             "1" => "mageone",
             "2" => "magetwo",
@@ -164,19 +166,21 @@ class TmpTaskController extends Controller
             $websiteArrays = explode(",", $request->store_website_ids);
         }
         $product = \App\Product::find($request->product_id);
+        
         // call product
         if ($product) {
             if(empty($websiteArrays)) {
                 $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             }
             if (count($websiteArrays) == 0) {
+               
                 \Log::channel('productUpdates')->info("Product started " . $product->id . " No website found");
                 $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                 //ProductPushErrorLog::log($product->id, $msg, 'error');
                 //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-                echo $msg;die;
+               
             } else {
-                $i = 1;
+                $i = 1;  
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
@@ -226,8 +230,7 @@ class TmpTaskController extends Controller
             }
         }
 
-        echo "Done";
-        die;
+       
     }
 
     public function deleteChatMessages()

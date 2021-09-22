@@ -1156,7 +1156,7 @@ class ScrapStatisticsController extends Controller
     {
         $scraper_proc = [];
 
-        $scraper_process = ScraperProcess::orderBy('started_at','DESC')->get()->unique('scraper_id');
+        $scraper_process = ScraperProcess::where("scraper_name","!=","")->orderBy('started_at','DESC')->get()->unique('scraper_id');
         foreach ($scraper_process as $key => $sp) {
             $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
             $from = \Carbon\Carbon::now();

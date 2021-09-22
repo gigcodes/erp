@@ -127,6 +127,11 @@ var page = {
             page.updateSeoFormat($(this));
         });
 
+        $(".common-modal").on("click",".update-build-process",function(e) {
+            e.preventDefault();
+            page.updateBuildProcess($(this));
+        });
+
         
 
         $(document).on("change","select.select-searchable",function() {
@@ -171,9 +176,10 @@ var page = {
             
         });
 
-        $(document).on("click",".open-store-reindex-history",function(href) {
-            page.openStoreReindexHistory($(this));            
+		$(document).on("click",".open-store-user-histoty",function(href) {
+            page.openUserStoreHistorListing($(this));
         });
+
 
     },
     openStoreReindexHistory: function(ele) {
@@ -358,15 +364,15 @@ var page = {
         }
         this.sendAjax(_z, 'afterBuildProcess');
     },
-    afterBuildProcess: function(response) {
-        var createWebTemplate = $.templates("#template-build-process");
+    afterBuildProcess: function(response) { 
+        var createWebTemplate = $.templates("#template-build-process"); 
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
+            common.modal("show"); 
     },
-    updateBuildProcess : function(ele) {
-          var _z = {
+	updateBuildProcess : function(ele) { 
+       var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/build-process/save",
             method: "post",
             data : ele.closest("form").serialize(),
@@ -376,7 +382,7 @@ var page = {
         }
         this.sendAjax(_z, "afterUpdateBuildProcess");
     },
-    afterUpdateBuildProcess : function(response) {
+    afterUpdateBuildProcess : function(response) { 
         if(response.code  == 200) {
             $("#loading-image").hide();
             $(".common-modal").modal("hide");
