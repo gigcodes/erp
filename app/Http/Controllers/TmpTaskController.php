@@ -151,7 +151,7 @@ class TmpTaskController extends Controller
     public function testPushProduct(Request $request)
     {
       
-       /* $queueName = [
+        $queueName = [
             "1" => "mageone",
             "2" => "magetwo",
             "3" => "magethree"
@@ -199,7 +199,7 @@ class TmpTaskController extends Controller
                     }
                 }
             }
-        } */
+        }
     }
 
 
