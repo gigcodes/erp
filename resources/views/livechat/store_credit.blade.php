@@ -89,10 +89,7 @@
            <th>Email</th>
            <th>Phone</th>
            <th>Store Website</th>
-<<<<<<< HEAD
-=======
            <th>Date</th>
->>>>>>> 90f33185744acea8d0d164ae4b05ccabca476f38
            <th>Credit</th>
            <th>Utilised</th>
            <th>Balance</th>
@@ -113,23 +110,12 @@
              <td>{{ $c->email }}</td>
              <td>{{ $c->phone }}</td>
              <td>{{ $c->title }}</td>
-<<<<<<< HEAD
-=======
              <td>{{ date("d-m-Y",strtotime($c->created_at)) }}</td>
->>>>>>> 90f33185744acea8d0d164ae4b05ccabca476f38
              <td>{{ $c->credit  + $credit_in }}</td>
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>
-            
-             
-           
            </tr>
          @endforeach
-      
- 
-      
- 
-       
        </tbody>
      </table>
    </div>
@@ -162,11 +148,7 @@
                var $loader = $('.infinite-scroll-products-loader');
                page = page + 1;
                $.ajax({
-<<<<<<< HEAD
-                   url: "{{url('livechat/store-credit')}}?ajax=1&page="+page,
-=======
                    url: "{{url('customer/credit')}}?ajax=1&page="+page,
->>>>>>> 90f33185744acea8d0d164ae4b05ccabca476f38
                    type: 'GET',
                    data: $('.form-search-data').serialize(),
                    beforeSend: function() {

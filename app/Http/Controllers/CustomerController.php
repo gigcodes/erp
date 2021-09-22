@@ -2953,12 +2953,9 @@ class CustomerController extends Controller
        
         $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id');
         $customers_all->select("customers.*","store_websites.title");
-<<<<<<< HEAD
         $customers_all->where('customers.credit','>',0);
-=======
         $customers_all->orderBy("customers.created_at","desc");
       // $customers_all->where('customers.credit','>',0);
->>>>>>> 90f33185744acea8d0d164ae4b05ccabca476f38
         if ($request->name !='')
              $customers_all->where('name',$request->name);
              if ($request->email !='')
@@ -3027,8 +3024,6 @@ class CustomerController extends Controller
         }
 
     }
-<<<<<<< HEAD
-=======
 	
 	public function addCredit (Request $request) {
 		$platform_id  = $request->platform_id;
@@ -3069,6 +3064,5 @@ class CustomerController extends Controller
 		}	
 		
 	}
->>>>>>> 90f33185744acea8d0d164ae4b05ccabca476f38
 	
 }
