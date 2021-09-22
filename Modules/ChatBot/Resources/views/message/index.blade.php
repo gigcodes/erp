@@ -393,6 +393,9 @@
             var data_chatbot_id = tr.data('chatbot-id');
             data.append("chat_id", id);
             console.log(type);
+
+            var message= $('#message_'+id).val();
+          
              
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
@@ -411,8 +414,9 @@
             
             var customer_id = typeId;
             //var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-             var message= $('#message0').val();
            
+            var message= $('#message_'+id).val();
+          
             if(type === 'customer'){
 
                 data.append("customer_id", typeId);
