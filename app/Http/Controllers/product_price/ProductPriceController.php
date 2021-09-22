@@ -801,19 +801,23 @@ class ProductPriceController extends Controller
     public function updateProduct(Request $request) { 
         if(isset($request->segmentId1)){
             $catSegDiscount = CategorySegmentDiscount::where(['category_segment_id'=>$request->segmentId1,'brand_id'=>$request->brandId])->first();
-            if($catSegDiscount == null) {
-                CategorySegmentDiscount::create(['category_segment_id'=>$request->segmentId1, 'amount'=>$request->segmentprice1, 'brand_id'=>$request->brandId]);
-            } else {
-                $catSegDiscount->update([ 'amount'=>$request->segmentprice1]);
-            }
+            if($request->segmentprice1 != null and $request->segmentprice1 > 0) {
+				if($catSegDiscount == null) {
+					CategorySegmentDiscount::create(['category_segment_id'=>$request->segmentId1, 'amount'=>$request->segmentprice1, 'brand_id'=>$request->brandId]);
+				} else {
+					$catSegDiscount->update([ 'amount'=>$request->segmentprice1]);
+				}
+			}
         }
 
         if(isset($request->segmentId2)){
             $catSegDiscount = CategorySegmentDiscount::where(['category_segment_id'=>$request->segmentId2,'brand_id'=>$request->brandId])->first();
-            if($catSegDiscount == null) {
-                CategorySegmentDiscount::create(['category_segment_id'=>$request->segmentId2, 'amount'=>$request->segmentprice2, 'brand_id'=>$request->brandId]);
-            } else {
-                $catSegDiscount->update([ 'amount'=>$request->segmentprice2]);
+            if($request->segmentprice2 != null and $request->segmentprice2 > 0) {
+				if($catSegDiscount == null) {
+					CategorySegmentDiscount::create(['category_segment_id'=>$request->segmentId2, 'amount'=>$request->segmentprice2, 'brand_id'=>$request->brandId]);
+				} else {
+					$catSegDiscount->update([ 'amount'=>$request->segmentprice2]);
+				}
             }
         }
 		 if(isset($request->default_duty)){
