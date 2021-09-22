@@ -150,14 +150,6 @@ class TmpTaskController extends Controller
 
     public function testPushProduct(Request $request)
     {
-       
-        $emailAddresses = \App\EmailAddress::orderBy('id', 'asc')->get();
-        
-        foreach ($emailAddresses as $emailAddress) {
-           FetchEmail::dispatch($emailAddress);
-               break;
-        } 
-
       
        /* $queueName = [
             "1" => "mageone",
