@@ -68,6 +68,7 @@ class errorAlertMessage extends Command
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add([
+                                    'log_keyword_id' => $logKeyword->id,
                                     'priority'    => self::CRON_ISSUE_PRIORITY,
                                     'issue'       => $message,
                                     'status'      => self::CRON_ISSUE_STATUS,

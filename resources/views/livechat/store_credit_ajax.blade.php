@@ -1,3 +1,4 @@
+
 @foreach ($customers_all as $c) 
 @php 
          $used_credit = \App\CreditHistory::where('customer_id',$c->id)->where('type','MINUS')->sum('used_credit');
@@ -18,4 +19,4 @@
            
            </tr>
          @endforeach
-      
+

@@ -220,6 +220,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/crop-references-grid/getBrands', 'CroppedImageReferenceController@getBrands');
     Route::get('/crop-references-grid/getSupplier', 'CroppedImageReferenceController@getSupplier');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+    Route::get('/crop-references-grid/log-instance', 'CroppedImageReferenceController@loginstance');
+    
 
     Route::get('/magento/status', 'MagentoController@addStatus');
     Route::post('/magento/status/save', 'MagentoController@saveStatus')->name('magento.save.status');

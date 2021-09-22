@@ -12,6 +12,9 @@
              <div class="col">
                  <button class="btn btn-secondary add-instance">ADD</button>
              </div>
+             <div class="col">
+                 <input type="date" name="date" id="date11">
+             </div>
          </div>
      </form>
  </div>
@@ -39,6 +42,7 @@
                                <button type="button" data-id="{{$i->id}}" class="btn btn-start-manage-instances"><i class="fa fa-play" aria-hidden="true"></i></button>
                                <button type="button" data-id="{{$i->id}}" class="btn btn-stop-manage-instances"><i class="fa fa-stop" aria-hidden="true"></i></button>
                                <button type="button" data-id="{{$i->id}}" class="btn btn-delete-manage-instances"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                               <button type="button" data-id="{{$i->instance_id}}" class="btn btn-log-instances"><i class="fa fa-history" aria-hidden="true"></i></button>
                            </td>
                          </tr>
                    @endforeach
