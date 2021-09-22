@@ -27,6 +27,10 @@
                                 <td>{{ $magentoSetting->name }}</td>
                                 <td>{{ $magentoSetting->path }}</td>
                                 <td>{{ $magentoSetting->value }}</td>
+								<td  style="width:6% !important;">@if(isset($newValues[$magentoSetting['id']]))
+										{{ $newValues[$magentoSetting['id']] }}
+									@endif
+								</td>
                                 <td>{{ $magentoSetting->created_at }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
                                 <td>

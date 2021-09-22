@@ -758,7 +758,7 @@ class ReturnExchangeController extends Controller
 
             if(in_array('sms', $request->message_via)){
                 $receiverNumber = $returnExchange->customer->phone;
-                \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $bodyText);
+                \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $bodyText, $returnExchange->customer->store_website_id);
             }
         }
         

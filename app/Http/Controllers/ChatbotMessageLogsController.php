@@ -16,7 +16,11 @@ class ChatbotMessageLogsController extends Controller
         $logListMagentos->leftjoin('customers', function($join)
         {
             $join->on('chatbot_message_logs.model_id', '=', 'customers.id');
+<<<<<<< HEAD
             $join->where('model','=', \App\Customer::class);
+=======
+            $join->where('model','=', 'customers');
+>>>>>>> 90f33185744acea8d0d164ae4b05ccabca476f38
         });
 
             if ($request->name !='')
