@@ -121,16 +121,9 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
              <td>{{ $c->credit  + $credit_in }}</td>
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>
-            <td><a href="#" onclick="getLogs('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
-             
-           
+             <td><a href="#" onclick="getLogs('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
            </tr>
          @endforeach
-      
- 
-      
- 
-       
        </tbody>
      </table>
    </div>
