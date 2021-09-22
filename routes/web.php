@@ -1157,6 +1157,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('chat-messages/dnd-list/move-dnd', 'ChatMessagesController@moveDnd')->name('chat.dndList.moveDnd');
     // Customers
     Route::get('customer/credit', 'CustomerController@storeCredit');
+    Route::get('customer/credit/logs/{id}', 'LiveChatController@customerCreditLogs');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');

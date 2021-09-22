@@ -411,7 +411,8 @@
             
             var customer_id = typeId;
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-
+            //var message= $('#message0').val();
+           
             if(type === 'customer'){
 
                 data.append("customer_id", typeId);

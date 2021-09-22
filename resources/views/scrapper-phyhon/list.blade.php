@@ -112,6 +112,9 @@
                                 <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
                             </div>
                             <div class="col-md-3 pr-0">
+                               <?php echo Form::select("store_website_id",[null => "- select website -"] + \App\StoreWebsite::pluck('title','id')->toArray(),request('store_website_id'),["class" => "form-control"]) ?>
+                            </div>
+                            <div class="col-md-3 pr-0">
                                <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
                                     <option value="">Select Website</option>
 
