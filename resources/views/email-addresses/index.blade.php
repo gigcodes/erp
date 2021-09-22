@@ -82,7 +82,7 @@
           </tr>
         </thead>
 
-        <tbody>
+        <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
           @foreach ($emailAddress as $server)
             <tr>
                <td>
@@ -130,9 +130,10 @@
                   {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!}
-                   <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts">Show Account</a>
+                   <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts" title="Show Account"><i class="fa fa-eye" aria-hidden="true"></i>
+</a>
                    
-				   <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" >Send to Whatsapp</button></td>
+				   <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp"><i class="fa fa-send-o"></i></button></td>
             
 					<div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
 						<div class="modal-dialog">
@@ -174,9 +175,9 @@
         </tbody>
       </table>
     </div>
+    <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
-    {!! $emailAddress->appends(Request::except('page'))->links() !!}
-
+   
 <div id="emailAddressModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -823,4 +824,49 @@ function sendtoWhatsapp(password_id) {
 		$("#sendToWhatsapp"+ password_id +"" ).modal('show');
 	}
   </script>
+  <script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('email-addresses')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+
+  </script>     
 @endsection
