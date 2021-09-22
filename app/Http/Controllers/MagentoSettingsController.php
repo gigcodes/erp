@@ -346,7 +346,15 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
-                        $status=''; 
+                        $status='Error';
+                        for ($i=0;$i<count($allOutput);$i++)
+                           {
+                               if ($allOutput[$i]=="Pull Request Successfully merged")
+                                  {
+                                    $status='Success';
+                                    break;
+                                  }
+                           }
                         $m_setting->status = $status;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id'=> $storeWebsite['id'],'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
@@ -399,7 +407,15 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
-                        $status=''; 
+                        $status='Error';
+                        for ($i=0;$i<count($allOutput);$i++)
+                           {
+                               if ($allOutput[$i]=="Pull Request Successfully merged")
+                                  {
+                                    $status='Success';
+                                    break;
+                                  }
+                           }
                         $m_setting->status = $status;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id'=>$websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
@@ -455,7 +471,15 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
-                        $status=''; 
+                        $status='Error';
+                        for ($i=0;$i<count($allOutput);$i++)
+                           {
+                               if ($allOutput[$i]=="Pull Request Successfully merged")
+                                  {
+                                    $status='Success';
+                                    break;
+                                  }
+                           }
                         $m_setting->status = $status;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id'=> $websiteStoresView->websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
