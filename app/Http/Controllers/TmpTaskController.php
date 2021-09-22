@@ -152,9 +152,10 @@ class TmpTaskController extends Controller
     {
        
         $emailAddresses = \App\EmailAddress::orderBy('id', 'asc')->get();
-
+        
         foreach ($emailAddresses as $emailAddress) {
-            FetchEmail::dispatch($emailAddress);
+           FetchEmail::dispatch($emailAddress);
+               break;
         } 
 
       

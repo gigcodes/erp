@@ -319,7 +319,7 @@ class FetchEmail implements ShouldQueue
                 'message'          => $e->getMessage(),
             ];
             EmailRunHistories::create($historyParam);
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+            \App\CronJob::insertLastError("fetch:all_emails", $e->getMessage());
         }
        
     }
