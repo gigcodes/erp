@@ -1,6 +1,12 @@
 @extends('layouts.app')
  
 @section('styles')
+<style>
+div#credit_logs .modal-dialog table { table-layout: fixed; }
+div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
+
+</style>
+
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
  
@@ -93,13 +99,14 @@
            <th>Credit</th>
            <th>Utilised</th>
            <th>Balance</th>
+           <th>View logs</th>
           
            
          </tr>
        </thead>
  
        <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
-         @foreach ($customers_all as $c)
+         @foreach ($customers_all as $c) 
          @php
          $used_credit = \App\CreditHistory::where('customer_id',$c->id)->where('type','MINUS')->sum('used_credit');
          $credit_in = \App\CreditHistory::where('customer_id',$c->id)->where('type','ADD')->sum('used_in');
@@ -114,7 +121,7 @@
              <td>{{ $c->credit  + $credit_in }}</td>
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>
-            
+            <td><a href="#" onclick="getLogs('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
              
            
            </tr>
@@ -129,7 +136,33 @@
    </div>
  
    <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
- 
+ <div id="credit_logs" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Credit Logs</h5>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            
+                    <div class="col-md-12" id="">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width='25%'>Date</th>
+                                    <th width='25%'>Request </th>
+                                    <th width='25%'>Response</th>
+                                    <th width='25%'>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="display_logs"></tbody>
+                        </table>
+                    </div>
+                
+                </div>
+        </div>
+    </div>
+</div>
  
  
  
@@ -181,7 +214,21 @@
        });
  
      
- 
+		function getLogs(customerId) {
+			$('#display_logs').html('');
+               $.ajax({
+                   url: window.location.origin+'/customer/credit/logs/'+customerId,
+                   type: 'GET',
+                   success: function (data) {
+                       $('#display_logs').html(data.data);
+					   $('#credit_logs').modal('show');
+                   },
+                   error: function () {
+                       $loader.hide();
+                       isLoading = false;
+                   }
+               });
+           }    
  </script>  
  @endsection
  

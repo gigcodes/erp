@@ -2950,7 +2950,6 @@ class CustomerController extends Controller
 
     public function storeCredit (Request $request) {
 
-       
         $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id');
         $customers_all->select("customers.*","store_websites.title");
         $customers_all->orderBy("customers.created_at","desc");
