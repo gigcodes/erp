@@ -11,6 +11,7 @@ class MagentoSettingPushLog extends Model
         'store_website_id',
         'setting_id',
         'command',
-        'command_output'
+        'command_output',
+        'status',
 	];
 }

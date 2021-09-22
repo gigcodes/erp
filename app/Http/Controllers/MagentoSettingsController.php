@@ -287,7 +287,6 @@ class MagentoSettingsController extends Controller
         $name = $request->name;
         $path = $request->path;
         $value = $request->value;
-        $git_repository = $request->git_repository;
         $is_live = isset($request->live);
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
@@ -317,7 +316,7 @@ class MagentoSettingsController extends Controller
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->orWhere('website', $request->website)->get();
 
             foreach($storeWebsites as $storeWebsite){
-                
+                $git_repository=$storeWebsite->repository;
                 $magento_url = $storeWebsite->magento_url;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
@@ -346,8 +345,11 @@ class MagentoSettingsController extends Controller
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command   
-                        MagentoSettingPushLog::create(['store_website_id'=> $storeWebsite['id'],'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput)]);
+                        $result      = exec($cmd, $allOutput); //Execute command  
+                        $status=''; 
+                        $m_setting->status = $status;
+                        $m_setting->save();
+                        MagentoSettingPushLog::create(['store_website_id'=> $storeWebsite['id'],'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
 						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
@@ -367,7 +369,7 @@ class MagentoSettingsController extends Controller
             })->orWhere('id', $entity->scope_id)->get();
 
             foreach($websiteStores as $websiteStore){
-
+                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
@@ -397,7 +399,10 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
-                        MagentoSettingPushLog::create(['store_website_id'=>$websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput)]);
+                        $status=''; 
+                        $m_setting->status = $status;
+                        $m_setting->save();
+                        MagentoSettingPushLog::create(['store_website_id'=>$websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
 						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
@@ -419,6 +424,7 @@ class MagentoSettingsController extends Controller
             })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
 
             foreach($websiteStoresViews as $websiteStoresView){
+                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
@@ -449,7 +455,10 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
-                        MagentoSettingPushLog::create(['store_website_id'=> $websiteStoresView->websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput)]);
+                        $status=''; 
+                        $m_setting->status = $status;
+                        $m_setting->save();
+                        MagentoSettingPushLog::create(['store_website_id'=> $websiteStoresView->websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
 						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
