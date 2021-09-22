@@ -493,7 +493,7 @@ class ProductPriceController extends Controller
                 $brands->orderBy('cs.name',$request->order);
             }
         }
-
+$numcount=$brands->count();
         $brands = $brands->skip($skip * Setting::get('pagination'))
         ->limit(Setting::get('pagination'))->get()->toArray();
 
@@ -605,7 +605,7 @@ class ProductPriceController extends Controller
                 $final_price1 = 100;
                 $final_price2 = 100;
             }
-        return array('product_list'=>$product_list,'category_segments'=>$category_segments,'categories'=>$categories);
+        return array('product_list'=>$product_list,'category_segments'=>$category_segments,'categories'=>$categories,'numcount'=>$numcount);
     }
 	
 	public function genericPricing(Request $request) {
@@ -613,11 +613,12 @@ class ProductPriceController extends Controller
         $product_price = 100;
         $final_price = 100;
         $ids = $request->all();
-
+        $cats=StoreWebsite::select('id','title')->get();
         if(!isset($ids['id'])){
             $data = $this->genericPricingAll($request);
             $product_list =$data['product_list'];
             $category_segments =$data['category_segments'];
+            $numcount =$data['numcount'];
             $categories =$data['categories'];
 
             if ($request->ajax()) {
@@ -627,7 +628,7 @@ class ProductPriceController extends Controller
 
                 return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
             }
-            return view('product_price.generic_price', compact('product_list', 'category_segments','categories'));
+            return view('product_price.generic_price', compact('product_list', 'category_segments', 'cats', 'categories', 'numcount'));
         }
 
         $categoryIds = Category::pluck('id')->toArray(); 
@@ -661,12 +662,26 @@ class ProductPriceController extends Controller
                 $q->on("categories.category_segment_id", "cs.id");
             })
             ->whereNotNull('brands.name')
-            ->where('products.category', $cat_id)
             ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId',
 			'store_websites.id as store_websites_id','store_websites.website as product_website',
 			'categories.title as cate_title','cs.name as country_segment','products.id as pid')
 			->groupBy('categories.id', 'store_websites.id')->having(DB::raw('count(*)'), '>=', 1);
+			
+			if($request->id!=''){
+				$brands->where('products.category', $cat_id);
+			}
 
+			if($request->brand_segment!=''){
+				$brands->where('brands.brand_segment',$request->brand_segment);
+			}
+
+			if($request->category_segments!=''){
+				$brands->where('cs.name',$request->category_segments);
+			}
+
+			if($request->website!=''){
+				$brands->where('store_websites.id',$request->website);
+			}
         if(isset($request->order) && isset($request->input)){
             if($request->input=='category'){
                 $brands->orderBy('cate_title',$request->order);
@@ -685,7 +700,7 @@ class ProductPriceController extends Controller
             }
         }
 
-
+		$numcount=$brands->count();
         $brands = $brands->skip($skip * Setting::get('pagination'))
         ->limit(Setting::get('pagination'))->get()->toArray();
 		$i = 0;
@@ -795,7 +810,7 @@ class ProductPriceController extends Controller
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
 		
-		return view('product_price.generic_price', compact('product_list', 'category_segments','categories'));
+		return view('product_price.generic_price', compact('product_list', 'category_segments','categories', 'cats', 'numcount'));
 	}
 
     public function updateProduct(Request $request) { 
