@@ -5,6 +5,8 @@ use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Http\Request;
 use App\ChatbotMessageLog;
 use App\Setting;
+use App\ChatbotQuestionExample;
+
 use Illuminate\Support\Facades\Validator;
 
 class ChatbotMessageLogsController extends Controller
@@ -205,8 +207,8 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
+                $this->createdialog($request->value);
                 return redirect()->back();
-            
             }
 
             if($request->keyword_or_question == 'entity') {
@@ -214,6 +216,7 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
+                $this->createdialog($request->value);
                 return redirect()->back();
             }
 
@@ -228,6 +231,20 @@ class ChatbotMessageLogsController extends Controller
 
        
     } 
+
+    public function createdialog($name)
+    {
+        $params = [
+            "name"      =>$name,
+            "parent_id" => 0,
+            "dialog_type" =>'node',
+            "response_type"=> "standard",
+            "previous_sibling"=>0
+        ];
+        
+        $dialog = \App\ChatbotDialog::create($params);
+        //$result        = json_decode(WatsonManager::pushDialog($dialog->id));
+    }
 
     
 

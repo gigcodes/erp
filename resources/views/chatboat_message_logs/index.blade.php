@@ -163,6 +163,7 @@
                              
                          }
                     @endphp
+                     <input type="hidden" name="question[]" value={{$message}} >
                     <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 6, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$message}}</span>
                   </td>
