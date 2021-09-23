@@ -246,7 +246,8 @@ class ResponsePurify
                     \Log::info("Steps for check 3");
                     if ($lastOrder->status) {
                         \Log::info("Steps for check 4");
-                        return ["text" => str_replace(["#{order_id}", "#{order_status}"], [$lastOrder->order_id, $lastOrder->status->status], "Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.")];
+                        $replyText = !empty($text) ? $text : "Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.";
+                        return ["text" => str_replace(["#{order_id}", "#{order_status}"], [$lastOrder->order_id, $lastOrder->status->status], $replyText)];
                     }
                 }
             }
