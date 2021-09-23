@@ -39,6 +39,7 @@ class DialogController extends Controller
 
     public function save(Request $request)
     {
+        
         $params         = $request->all();
         $params["name"] = str_replace(" ", "_", $params["name"]);
 
@@ -152,6 +153,7 @@ class DialogController extends Controller
 
     public function saveAjax(Request $request)
     {
+        
         $params          = $request->all();
         $params["name"]  = str_replace(" ", "_", $params["title"]);
         $responseType    = $request->get("response_type", false);
@@ -461,6 +463,7 @@ class DialogController extends Controller
 
     public function restCreate(Request $request)
     {
+        
         $params = [
             "name"      => $request->get("dialog_type", 'node') == "node" ? "solo_" . time() : "solo_project_" . time(),
             "parent_id" => $request->get("parent_id", 0),
