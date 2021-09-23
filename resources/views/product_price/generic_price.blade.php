@@ -477,6 +477,7 @@ $(document).on('click', '.UpdateProduct', function () {
         catId:    $(this).attr('data-catid'),
 		add_profit : $(tr).find('td .add_profit').val(),
 		country_code : $(tr).attr('data-country_code'),
+		brand_segment : $(tr).attr('data-brand-segment'),
     }; 
 
     $.ajax({

@@ -556,16 +556,19 @@ $numcount=$brands->count();
 				
                 $cost1 = $final_price1;
                 $cost2 = $final_price2;
-				$profit = 0;
+				$profit = 0;$profit_per = 0;
 				if(isset($price['promotion'])) {
 					$profit =  number_format($price['promotion'],2,'.','');
 				}
+				if(isset($price['promotion_per'])) {
+					$profit_per =  $price['promotion_per'];;
+				}
 				
 				if($profit){
-                    $profitCost = ($final_price1 * $profit)/100;
+                    $profitCost = ($final_price1 * $profit_per)/100;
 					$final_price1 = $final_price1 + $profitCost;
 					
-					$profitCost = ($final_price2 * $profit)/100;
+					$profitCost = ($final_price2 * $profit_per)/100;
 					$final_price2 = $final_price2 + $profitCost;
                 }
 				
@@ -584,11 +587,11 @@ $numcount=$brands->count();
                     'product_website'=>$brand['product_website'],
                     'country'=>$country,
                     'product_price'=>100,
-                    'add_profit' => number_format($price['promotion'],2,'.',''),
-                    'add_profit_per'=> (float)$price['promotion_per'],
-                    'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
-                    'final_price1'=>$final_price1,
-                    'final_price2'=>$final_price2,
+                   'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
+                    'final_price1'=>number_format($final_price1,2,'.',''),
+					'add_profit' => number_format($profit,2,'.',''),
+                    'add_profit_per'=> (float)$profit_per,
+                    'final_price2'=>number_format($final_price2,2,'.',''),
                     'cost1'=>$cost1,
                     'cost2'=>$cost2,
                     'cate_segment_discount'=>isset($category_segment_discount->amount) ? $category_segment_discount->amount : 0,
@@ -756,19 +759,28 @@ $numcount=$brands->count();
 					$final_price2 = $final_price2 + $dutyDisc;
                 }
 
-               $country['dutySegment']= isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
+                $country['dutySegment']= isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
+				$product = Product::find($brand['pid']);
+                $dutyPrice = $product->getDuty($country['country_code']);
+                $category_segment = isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
+                $price = $product->getPrice($brand['store_websites_id'],$country['country_code'],null, true,$dutyPrice, null, null, null, isset($product->suppliers_info[0]) ?  $product->suppliers_info[0]->price : 0, $category_segment);
+				
 				$cost1 = $final_price1;
                 $cost2 = $final_price2;
-				$profit = 0;
+				$profit = 0;$profit_per = 0;
+				
 				if(isset($price['promotion'])) {
 					$profit =  number_format($price['promotion'],2,'.','');
 				}
+				if(isset($price['promotion_per'])) {
+					$profit_per =  $price['promotion_per'];;
+				}
 				
 				if($profit){
-                    $profitCost = ($final_price1 * $profit)/100;
+                    $profitCost = ($final_price1 * $profit_per)/100;
 					$final_price1 = $final_price1 + $profitCost;
 					
-					$profitCost = ($final_price2 * $profit)/100;
+					$profitCost = ($final_price2 * $profit_per)/100;
 					$final_price2 = $final_price2 + $profitCost;
                 }
                 
@@ -785,10 +797,11 @@ $numcount=$brands->count();
                     'product_price'=>100,
                     'less_IVA'=>\App\Product::IVA_PERCENTAGE."%",
                     'cost1'=>$cost1,
-                    'cost2'=>$cost2,'final_price1'=>$final_price1,
-					'add_profit' => number_format($price['promotion'],2,'.',''),
-                    'add_profit_per'=> (float)$price['promotion_per'],
-                    'final_price2'=>$final_price2,
+                    'cost2'=>$cost2,
+					'final_price1'=>number_format($final_price1,2,'.',''),
+					'add_profit' => number_format($profit,2,'.',''),
+                    'add_profit_per'=> (float)$profit_per,
+                    'final_price2'=>number_format($final_price2,2,'.',''),
                     'cate_segment_discount'=>isset($category_segment_discount->amount) ? $category_segment_discount->amount : 0,
                     'cate_segment_discount_type'=>isset($category_segment_discount->amount_type) ? $category_segment_discount->amount_type : 0,
                ];
@@ -870,8 +883,63 @@ $numcount=$brands->count();
             }
 			
 			if($request->add_profit  > 0) {
-				PriceOverride::create(['store_website_id'=>$request->websiteId, 'brand_id'=>$request->input('brandId'), 'category_id'=>$request->input('catId'), 
+				/*PriceOverride::create(['store_website_id'=>$request->websiteId, 'brand_id'=>$request->input('brandId'), 'category_id'=>$request->input('catId'), 
 					'country_code'=>$request->input('country_code'), 'type'=>'PERCENTAGE', 'calculated'=>'+', 'value'=>$request->add_profit]);
+				*/
+				$priceRecords   = null;
+				$brand = $request->brand_segment;
+				$category = $request->input('catId');
+				$country = $request->input('country_code');
+				$priceModal  = \App\PriceOverride::where("store_website_id", $request->websiteId);
+				$updated_add_profit = $request->add_profit;
+				if (!empty($brand) && !empty($category) && !empty($country)) {
+					$priceRecords = $priceModal->where("country_code", $country)->where("brand_segment", $brand)->where("category_id", $category)->first();
+				}
+
+				if (!$priceRecords) {
+					$priceModal   = \App\PriceOverride::where("store_website_id", $request->websiteId);
+					$priceRecords = $priceModal->where(function ($q) use ($brand, $category, $country) {
+						$q->orWhere(function ($q) use ($brand, $category) {
+							$q->where("brand_segment", $brand)->where("category_id", $category);
+						})->orWhere(function ($q) use ($brand, $country) {
+							$q->where("brand_segment", $brand)->where("country_code", $country);
+						})->orWhere(function ($q) use ($country, $category) {
+							$q->where("country_code", $country)->where("category_id", $category);
+						});
+					})->first();
+				}
+
+				if (!$priceRecords) {
+					$priceModal   = \App\PriceOverride::where("store_website_id", $request->websiteId);
+					$priceRecords = $priceModal->where("brand_segment", $brand)->first();
+				}
+
+
+				if (!$priceRecords) {
+					$priceModal   = \App\PriceOverride::where("store_website_id", $request->websiteId);
+					$priceRecords = $priceModal->where("category_id", $category)->first();
+				}
+
+				if (!$priceRecords) {
+					$priceModal   = \App\PriceOverride::where("store_website_id", $request->websiteId);
+					$priceRecords = $priceModal->where("country_code", $country)->first();
+				}
+				$updated = 0;
+				if($priceRecords) {
+					if($updated_add_profit and $priceRecords->type == 'PERCENTAGE'){
+						$updated_add_profit_row =  \DB::table("price_overrides")->where('id', $priceRecords->id)->update(
+							 [
+								 'calculated' => $updated_add_profit >= 0 ? '+' : '-',
+								 'value' => $updated_add_profit,
+							 ]
+						);
+						$updated = 1;
+					} 
+				} 
+				if($updated == 0) {
+					PriceOverride::create(['store_website_id'=>$request->websiteId, 'brand_id'=>$request->input('brandId'), 'category_id'=>$request->input('catId'), 
+					'country_code'=>$request->input('country_code'), 'type'=>'PERCENTAGE', 'calculated'=>'+', 'value'=>$request->add_profit]);
+				}
 			}	
 			$ps= \App\Product::select('products.id','store_website_product_prices.store_website_id')
 			->leftJoin('store_website_product_prices', 'store_website_product_prices.product_id', '=', 'products.id')
