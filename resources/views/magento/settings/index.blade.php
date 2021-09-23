@@ -87,6 +87,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             <th>Value</th>
                             <th style="width:6% !important;">Value On Magento</th>
                             <th>Date</th>
+                            <th>Status</th>
                             <th>Created By</th>
                             <th>Action</th>
                         </tr>
@@ -124,6 +125,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 									@endif
 								</td>
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
+                                <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
@@ -279,16 +281,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <label for="">Value</label>
                         <input type="text" class="form-control" name="value" placeholder="Enter setting value">
                     </div>
-                    <div class="form-group">
-                        <label for="git_repository">Github Repository</label><br>
-                        <select class="form-control" name="git_repository" data-placeholder="Select github repository" style="width: 100%">
-                            @php $i=0;  @endphp
-                            @foreach(\App\Github\GithubRepository::all() as $w)
-                            <option value="{{ $w->name }}" @if($i==0) selected @endif >{{ $w->name }}</option>
-                                @php $i+=1; @endphp
-                            @endforeach
-                        </select>                        
-                    </div>
+                   
                     <div class="form-group">
                         <label for="">Websites (This setting will apply to following websites)</label><br>
                         <select class="form-control website select2 websites" name="websites[]" multiple data-placeholder="Select setting websites" style="width: 100%">
@@ -388,6 +381,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 					  <tr>
 						<th>Date</th>
 						<th>Command</th>
+                        <th>Status</th>
 						<th>Command Output</th>
 					  </tr>
 					</thead>

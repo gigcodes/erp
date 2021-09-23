@@ -3,6 +3,7 @@
 @section('title','Product pricing')
 
 @section('content')
+
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
 <style>.hidden {
     display:none;
@@ -20,16 +21,16 @@
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
-        <h2 class="page-heading">Product pricing</h2>
+        <h2 class="page-heading">Product pricing ({{$numcount}}) </h2>
     </div>
 </div>
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
-            <form class="form-inline filter_form" action="" method="GET">
+            <form id="form1" class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
-                    <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
-                    <option value="">Select Websites</option>
+                    <select class="form-control globalSelect2" data-placeholder="Select Category" name="id" id="categoryForGenericPrices">
+                    <option value="">Select Category</option>       
                     @php
                     $selectcate ='';
                     if(isset($_GET['id'])){
@@ -38,14 +39,64 @@
                     @endphp
                         @if ($categories)
                             @foreach($categories as $category)
-                                <option value="{{ $category['id'] }}" @if($selectcate == $category['id']) selected @endif  >{{ $category['title'] }}</option>
+                            @php
+                    $selectcate ='';
+                    if(isset($_GET['id']) && $_GET['id']==$category['id']){
+                      $selectcate ="selected='selected'";
+                    }
+                    @endphp
+                                <option  {{$selectcate}} value="{{ $category['id'] }}"   >{{ $category['title'] }}</option>
                             @endforeach
                         @endif
                     </select>
                 </div>
 
                 <div class="form-group mr-3">
-                    <a onClick="showgenerice()" class="btn btn-secondary">Show Generic Prices</a>
+                    <select class="form-control "  name="website" >
+                    <option value="">Select Website</option>
+                   
+                            @foreach($cats as $c)
+                            @php
+                    $selectcate ='';
+                    if(isset($_GET['website']) && $_GET['website']==$c->id){
+                      $selectcate ="selected='selected'";
+                    }
+                    @endphp
+                                <option {{$selectcate}} value="{{$c->id}}" >{{$c->title}}</option>
+                            @endforeach
+                       
+                    </select>
+                </div> 
+                <div class="form-group mr-3">
+                    <select class="form-control "  name="brand_segment" >
+                    <option value="">Select Brand segment</option>
+                              
+                           
+                                <option <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='A') { echo "selected='selected'";} ?> value="A" >A</option>
+                                <option  <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='B') { echo "selected='selected'";} ?> value="B" >B</option>
+                                <option  <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='C') { echo "selected='selected'";} ?> value="C" >C</option>
+                                <option  <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='D') { echo "selected='selected'";} ?> value="D" >D</option>
+                            
+                       
+                    </select>
+                </div> 
+                <div class="form-group mr-3">
+                    <select class="form-control "  name="category_segments" >
+                    <option value="">Select Country segment</option>
+                              
+                           
+                    <option <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='A') { echo "selected='selected'";} ?> value="A" >A</option>
+                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='B') { echo "selected='selected'";} ?> value="B" >B</option>
+                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='C') { echo "selected='selected'";} ?> value="C" >C</option>
+                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='D') { echo "selected='selected'";} ?> value="D" >D</option>
+                            
+                            
+                       
+                    </select>
+                </div> 
+
+                <div class="form-group mr-3">
+                    <a onClick="$('#form1').submit();" class="btn btn-secondary">Show Generic Prices</a>
                 </div>
             </form>
         </div>
@@ -426,6 +477,7 @@ $(document).on('click', '.UpdateProduct', function () {
         catId:    $(this).attr('data-catid'),
 		add_profit : $(tr).find('td .add_profit').val(),
 		country_code : $(tr).attr('data-country_code'),
+		brand_segment : $(tr).attr('data-brand-segment'),
     }; 
 
     $.ajax({

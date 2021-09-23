@@ -219,6 +219,21 @@
         </div>
     </div>
 
+    <div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Instances</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
  @include('partials.modals.task-module')
  @include('partials.modals.large-image-modal')
    
@@ -567,7 +582,7 @@
 
         $(document).on("click",".btn-instances-manage",function() {
             $.ajax({
-                url: '/crop-references-grid/manage-instances',
+                url: '{{url('crop-references-grid/manage-instances')}}',
                 success: function (data) {
                     $("#manage-crop-instance").find(".modal-body").html(data);
                     $("#manage-crop-instance").modal("show");
@@ -603,7 +618,25 @@
             });
         });
 
+        $(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            var $date=  $('#date11').val();
+            $.ajax({
+                url: '{{url('crop-references-grid/log-instance')}}',
+                method:"get",
+                data : {
+                    id : $id,
+                    date : $date
+                },
+                success: function (data) {
+                   $("#manage-log-instance").find(".modal-body").html(data);
+                   $("#manage-log-instance").modal('show'); 
+                },
+            });
+        });
 
+       
         $(document).on("click",".btn-start-manage-instances",function(e) {
             e.preventDefault();
             var $id = $(this).data("id");
@@ -649,6 +682,7 @@
                 }
             });
         });
+
 
         $('#show-http-status').on('show.bs.modal', function (e) {
             $(this).find('.request-body').text(JSON.stringify($(e.relatedTarget).data('request')));

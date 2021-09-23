@@ -24,8 +24,7 @@ use Illuminate\Http\Request;
 use Mail;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-
-
+use App\CreditLog;
 
 
 class LiveChatController extends Controller
@@ -1456,7 +1455,7 @@ class LiveChatController extends Controller
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
-			if($customer->store_website_id != null) {
+			if($customer->store_website_id != null and $customer->platform_id != null) {
 				$websiteDetails = StoreWebsite::where('id', $customer->store_website_id)->select('magento_url', 'api_token')->first();
 				if($websiteDetails != null and $websiteDetails['magento_url'] != null and $websiteDetails['api_token'] != null and $request->credit > 0) {
 					$websiteUrl = $websiteDetails['magento_url'];
@@ -1468,23 +1467,36 @@ class LiveChatController extends Controller
 							$web = 'www.'.$bits['host'];
 						}
 						$websiteUrl = 'https://'.$web;
+						$post = array(
+							'transaction[amount]' =>$request->credit,
+							'transaction[type]' => 'add',
+							'transaction[summary]' => 'test',
+							'transaction[suppress_notification]' => '1'
+						);
 						
 						$ch = curl_init();
-						$url = $websiteUrl."/rest/V1/swarming/credits/add-store-credit/".$customer_id."?transaction[amount]=".$request->credit."&transaction[type]=add&transaction[summary]=test";
+						$url = $websiteUrl."/rest/V1/swarming/credits/add-store-credit/".$customer->platform_id;
 						curl_setopt($ch, CURLOPT_URL, $url);
+						//curl_setopt($ch, CURLOPT_URL, 'https://dev3.sololuxury.com/rest/V1/swarming/credits/add-store-credit/50');
 						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 						curl_setopt($ch, CURLOPT_POST, 1);
+						
+						curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 
 						$headers = array();
+						//$headers[] = 'Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie';
 						$headers[] = 'Authorization: Bearer '.$api_token;
-						$headers[] = 'Cache-Control: no-cache';
-						$headers[] = 'Content-Type: application/json';
-						$headers[] = 'Postman-Token: 8bb5a8ac-9dd2-4e88-3d69-33518eca24cb';
+						$headers[] = 'Cookie: PHPSESSID=m261vs1h58pprpilkr720tqtog; country_code=IN; private_content_version=6f2c1b0f27956af2f0669199874878ed';
 						curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 						$result = curl_exec($ch);
 						
 						curl_close($ch);
+						$status = "failure"; 
+						if($result == "[]") {
+							$status = "success";
+						}
+						CreditLog::create(['customer_id'=>$customer->id, 'request'=>json_encode($post), 'response'=>json_encode($result), 'status'=>$status]);						
 					}
 				}
 			}
@@ -1493,6 +1505,20 @@ class LiveChatController extends Controller
         }
         return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
     }
+	
+	public function customerCreditLogs($customerId) {
+		$logs = CreditLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
+		$creditLogs = '';
+		foreach($logs as $log) {
+			$creditLogs .= "<tr>
+			<td width='25%'>".$log['created_at']."</td>
+			<td width='25%'>".$log['request']."</td>
+			<td width='25%'>".$log['response']."</td>
+			<td width='25%'>".$log['status']."</td>
+			</tr>";
+		}
+		return response()->json(['data'=>$creditLogs, 'code' => 200, 'status' => 'success']);
+	}
 
     public function getCreditsData(Request $request)
     {
