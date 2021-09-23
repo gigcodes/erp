@@ -56,7 +56,10 @@ class OrderCancellationMail extends Mailable
             $template = \App\MailinglistTemplate::getOrderCancellationTemplate();
         }
 
+      
         if ($template) {
+            if ($template->from_email!='')
+                $this->fromMailer = $template->from_email;
             $this->subject = $template->subject;
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
