@@ -32,6 +32,7 @@
 									@endif
 								</td>
                                 <td>{{ $magentoSetting->created_at }}</td>
+                                <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
