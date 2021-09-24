@@ -158,7 +158,7 @@ class GTMetrixDataToQueue extends Command{
 
                 }
                 \Log::info('GTMetrix :: successfully');
-                // return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
+                return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
 
                 // $client = new GTMetrixClient();
                 // $client->setUsername(env('GTMETRIX_USERNAME'));

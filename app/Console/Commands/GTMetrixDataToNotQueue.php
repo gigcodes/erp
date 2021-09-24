@@ -54,7 +54,7 @@ class GTMetrixDataToNotQueue extends Command{
             ->paginate();
         if($lists){
             foreach ($lists as $key => $list) {
-                if(!empty($list->id) && $list->status == 'queued'){
+                if($list->status == '' || $list->status == 'queued'){
 
                     $gtmetrix = StoreViewsGTMetrix::where('id',$list->id)->first();
                     $update = [
