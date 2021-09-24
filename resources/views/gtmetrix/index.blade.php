@@ -209,6 +209,10 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                <td colspan="12">
+                    {{ $list->links() }}
+                </td>
             </div>
         </div>
         <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
