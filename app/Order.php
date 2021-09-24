@@ -302,6 +302,33 @@ class Order extends Model
         return $this->hasOne(\App\WebsiteStore::class, 'website_id','store_id');
     }
 
+    public function getWebsiteTitle()
+    {
+        $storeWebsiteOrder = $this->storeWebsiteOrder;
+
+        if($storeWebsiteOrder) {
+            $website = $storeWebsiteOrder->storeWebsite;
+            if($website) {
+                return $website->title;
+            }
+        }
+
+        return false;
+    }
+
+    public function totalWayBills()
+    {
+        $waybills =  $this->waybills;
+        $awbno = [];
+        if(!$waybills->isEmpty()) {
+            foreach($waybills as $waybill) {
+                $awbno[] = $waybill->awb;
+            }
+        }
+
+        return implode(",",$awbno);
+    }
+
 
     // public function calculateTotal($order)
     // {

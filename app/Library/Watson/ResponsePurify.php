@@ -92,7 +92,7 @@ class ResponsePurify
         // if match action then assign
         if (!empty($medias["match"]) && $medias["match"] == true) {
             return ["action" => "send_product_images", "reply_text" => $text, "response" => $this->response, "medias" => $medias["medias"]];
-        }else{
+        } else {
             if (isset($this->logId)) {
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $this->logId,
@@ -109,7 +109,7 @@ class ResponsePurify
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
                 'request'                => "",
-                'response'               => "Watson assistant function send message customer function order status => ".json_encode($orderStatus),
+                'response'               => "Watson assistant function send message customer function order status => " . json_encode($orderStatus),
                 'status'                 => 'success',
             ]);
         }
@@ -124,7 +124,7 @@ class ResponsePurify
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
                 'request'                => "",
-                'response'               => "Watson assistant function send message customer function refund status => ".json_encode($refundStatus),
+                'response'               => "Watson assistant function send message customer function refund status => " . json_encode($refundStatus),
                 'status'                 => 'success',
             ]);
         }
@@ -136,7 +136,7 @@ class ResponsePurify
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
                 'request'                => "",
-                'response'               => "Watson assistant function send message customer function text => ".$text,
+                'response'               => "Watson assistant function send message customer function text => " . $text,
                 'status'                 => 'success',
             ]);
         }
@@ -240,14 +240,31 @@ class ResponsePurify
             if (in_array($intents, array_keys($this->intents))) {
                 \Log::info("Steps for check 2");
                 // check the last order of customer and send the message status
-                $customer  = $this->customer;
-                $lastOrder = $customer->latestOrder();
+                $customer = $this->customer;
+                if (empty($lastOrder)) {
+                    $lastOrder = $customer->latestOrder();
+                }
                 if (!empty($lastOrder)) {
                     \Log::info("Steps for check 3");
                     if ($lastOrder->status) {
                         \Log::info("Steps for check 4");
+
+                        if (!empty($lastOrder->status->message_text_tpl)) {
+                            $text = $lastOrder->status->message_text_tpl;
+                        }
+
+                        $paramsToReplace = [
+                            "#{order_id}"      => $lastOrder->order_id,
+                            "#{order_status}"  => $lastOrder->status->status,
+                            "#{website}"       => $lastOrder->getWebsiteTitle(),
+                            "#{estimate_date}" => $lastOrder->estimated_delivery_date,
+                            "#{delivery_date}" => $lastOrder->date_of_delivery,
+                            "#{awb_number}"    => $lastOrder->totalWayBills(),
+                        ];
+
                         $replyText = !empty($text) ? $text : "Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.";
-                        return ["text" => str_replace(["#{order_id}", "#{order_status}"], [$lastOrder->order_id, $lastOrder->status->status], $replyText)];
+
+                        return ["text" => str_replace(array_keys($paramsToReplace), array_values($paramsToReplace), $replyText)];
                     }
                 }
             }
