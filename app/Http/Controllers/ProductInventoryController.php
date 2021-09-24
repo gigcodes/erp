@@ -2864,4 +2864,23 @@ class ProductInventoryController extends Controller
 		]);
 		
 	}
+
+	public function scrapelog(Request $request)
+    {
+        // Get results
+
+        $logs = DB::table('scraped_product_missing_log');
+               
+        $logs = $logs->paginate(Setting::get('pagination'));
+        $total_count     = $logs->total();
+        // Show results
+        if ($request->ajax()) {
+            return view('products.scrape_log_ajax', compact('logs', 'total_count'));
+                
+        } else {
+            return view('products.scrape_log', compact('logs', 'total_count'));
+               
+        }
+
+    }
 }
