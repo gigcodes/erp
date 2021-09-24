@@ -56,7 +56,8 @@
   </div>
   <div class="row m-0">
     <div class="col-lg-12 margin-tb p-0">
-      <h2 class="page-heading">Chat Bot Message Log ({{ $total_count }})
+      <h2 class="page-heading">Chat Bot Message Log ({{ $total_count }}) <br>
+      {!! Session::has('msg') ? Session::get("msg") : '' !!}
       <div class="pull-right">
         <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
       </div>
@@ -163,7 +164,7 @@
                              
                          }
                     @endphp
-                     <input type="hidden" name="question[]" value={{$message}} >
+                     <input type="hidden" name="question[]" value="{{$message}}" >
                     <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 6, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$message}}</span>
                   </td>

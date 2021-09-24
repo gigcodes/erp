@@ -208,6 +208,7 @@ class ChatbotMessageLogsController extends Controller
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
                 $this->createdialog($request->value);
+                session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
 
@@ -217,6 +218,7 @@ class ChatbotMessageLogsController extends Controller
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
                 $this->createdialog($request->value);
+                session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
 
