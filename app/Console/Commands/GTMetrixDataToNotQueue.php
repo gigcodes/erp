@@ -22,7 +22,7 @@ class GTMetrixDataToNotQueue extends Command{
      *
      * @var string
      */
-    protected $signature = 'gt_metrix_data_to_not_queue';
+    protected $signature = 'command:gt_metrix_data_to_not_queue';
 
     /**
      * The console command description.
@@ -64,6 +64,7 @@ class GTMetrixDataToNotQueue extends Command{
                     $gtmetrix->update($update);
                 }
             }
+            \Log::info('GTMetrix :: successfully');
         }
 
     }

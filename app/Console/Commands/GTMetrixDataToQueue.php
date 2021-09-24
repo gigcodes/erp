@@ -22,7 +22,7 @@ class GTMetrixDataToQueue extends Command{
      *
      * @var string
      */
-    protected $signature = 'gt_metrix_data_to_queue';
+    protected $signature = 'command:gt_metrix_data_to_queue';
 
     /**
      * The console command description.
@@ -52,8 +52,9 @@ class GTMetrixDataToQueue extends Command{
             ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
             ->paginate();
         if($lists){
+
             foreach ($lists as $key => $list) {
-                if(!empty($list->id) && $list->status == 'not_queued'){
+                if($list->status == '' || $list->status == 'not_queued'){
                     $this->inQueue($list->id);
                 }
             }
@@ -64,7 +65,7 @@ class GTMetrixDataToQueue extends Command{
 
     	$gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
         $gtmatrix = StoreViewsGTMetrix::where('id',$id)->first();
-        
+
         if ($gtmatrix) {
             $gt_metrix['store_view_id'] = $gtmatrix->store_view_id;
             $gt_metrix['website_url'] = $gtmatrix->website_url;
@@ -156,28 +157,29 @@ class GTMetrixDataToQueue extends Command{
                     }
 
                 }
-                
+                \Log::info('GTMetrix :: successfully');
                 // return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
 
-                $client = new GTMetrixClient();
+                // $client = new GTMetrixClient();
                 // $client->setUsername(env('GTMETRIX_USERNAME'));
                 // $client->setAPIKey(env('GTMETRIX_API_KEY'));
-                $client->setUsername('yogeshmordani@icloud.com');
-                $client->setAPIKey('38f30c5659ac91e72711d2e8f3031a0a');
-                $client->getLocations();
-                $client->getBrowsers();
-                $test   = $client->startTest($gtmetrix->website_url);
+                // $client->setUsername('yogeshmordani@icloud.com');
+                // $client->setAPIKey('38f30c5659ac91e72711d2e8f3031a0a');
+                // $client->getLocations();
+                // $client->getBrowsers();
+                // $test   = $client->startTest($gtmetrix->website_url);
 
-                $update = [
-                    'test_id' => $test->getId(),
-                    'status'  => 'queued',
-                    //'account_id'  => 'queued',
-                ];
-                $gtmetrix->update($update);
+                // $update = [
+                //     'test_id' => $test->getId(),
+                //     'status'  => 'queued',
+                //     //'account_id'  => 'queued',
+                // ];
+                // $gtmetrix->update($update);
 
             } 
             catch (\Exception $e) {
                 // return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
+                \Log::info('GTMetrix :: successfully'.$e->getMessage());
             }
         }
     }
