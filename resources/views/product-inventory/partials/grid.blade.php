@@ -12,8 +12,14 @@
       ?>
       <div class="col-md-3 col-xs-6 text-left mb-5">
           <a href="{{ route( 'products.show', $product->id ) }}">
-            <img style="object-fit: cover;max-width:75%;" src="{{ $product->getMedia(config('constants.attach_image_tag'))->first() ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
-              : '' }}" class="img-responsive grid-image" alt="...">
+            @php
+              $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+              $image = "";
+              if($imageDetails) {
+                $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+              }
+            @endphp
+            <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
           </a>      
           <div class="card-body">
             <a href="{{ route( 'products.show', $product->id ) }}">
