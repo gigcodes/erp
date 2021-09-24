@@ -284,7 +284,7 @@ class ResponsePurify
                 $latestRefund = $customer->latestRefund();
                 if (!empty($latestRefund)) {
                     if ($latestRefund->returnExchangeStatus) {
-                        return ["text" => str_replace(["#{id}", "#{status}"], [$latestRefund->id, $latestRefund->returnExchangeStatus->status_name], $text)];
+                        return ["text" => str_replace(["#{id}", "#{status}"], [$latestRefund->id, $latestRefund->returnExchangeStatus->status_name], $latestRefund->returnExchangeStatus->message)];
                     }
                 }
             }
