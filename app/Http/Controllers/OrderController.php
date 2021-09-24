@@ -3806,8 +3806,48 @@ class OrderController extends Controller
                 $template = $statusModal->message_text_tpl;
             }
         }
+
+
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
-        return response()->json(["code" => 200, "template" => $template]);
+        $from="customercare@sololuxury.co.in";
+        if (strtolower($statusModal->status) == "cancel") {
+
+            $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            if ($storeWebsiteOrder) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                if($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+                
+            } 
+             $preview="<table><tr>
+               <td> To </td> <td>".$order->customer->email."</td> </tr><tr>
+               <td> From </td> <td>".$from."</td></tr><tr>
+               <td> Preview </td> <td>".$emailClass->render()."</td></tr></table>
+
+            ";   
+        } 
+        else
+        {
+            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            if ($storeWebsiteOrder) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                if($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+            }
+            $preview="<table><tr>
+               <td> To </td> <td>".$order->customer->email."</td> </tr><tr>
+               <td> From </td> <td>".$from."</td></tr><tr>
+               <td> Preview </td> <td>".$emailClass->render()."</td></tr></table>
+
+            ";   
+        }
+       
+
+        return response()->json(["code" => 200, "template" => $template ,'preview'=>$preview]);
     }
 
     public function getInvoiceDetails(Request $request, $invoiceId)

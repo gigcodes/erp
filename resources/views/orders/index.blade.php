@@ -609,15 +609,22 @@
                         </div>
                       </div>
                       <div class="col-md-12">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <div class="checkbox">
-                            <label><input class="msg_platform" type="checkbox" value="email">Email</label>
+                            <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
                           </div>
                           <div class="checkbox">
                             
                             <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
                           </div>
                         </div>
+                </div>
+                <div class="col-md-8">
+                       <div id="preview" style="display:none">
+                             
+                       </div>
+                </div>
                       </div>
                     </div>
                 </div>
@@ -905,7 +912,7 @@
       $(document).on("change",".order-status-select",function() {
           var id = $(this).data("id");
           var status = $(this).val();
-
+          $("#preview").hide();
           $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -923,6 +930,7 @@
             $("loading-image").hide();
             if(response.code == 200) {
               $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
               $("#order-status-id-status-tpl").val(status);
               $("#order-template-status-tpl").val(response.template);
               $(".msg_platform").prop('checked', false);
@@ -1568,6 +1576,14 @@
             });
 
         });
+
+        function loadpreview(t)
+        {
+          $("#preview").hide();
+          if (t.checked == true){
+            $("#preview").show();
+          }
+        }
 
   </script>
 @endsection
