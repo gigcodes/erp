@@ -495,13 +495,15 @@ class MessageHelper
 
                         }
 
-                        $data = [
-                            'chatbot_message_log_id' => $params['chat_message_log_id'],
-                            'request' => "",
-                            'response' => "Lead price send to customer.",
-                            'status' => 'success'
-                        ];
-                        $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        if(isset($params['chat_message_log_id'])) {
+                            $data = [
+                                'chatbot_message_log_id' => $params['chat_message_log_id'],
+                                'request' => "",
+                                'response' => "Lead price send to customer.",
+                                'status' => 'success'
+                            ];
+                            $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
+                        }
 
                         $requestData = new Request();
                         $requestData->setMethod('POST');
@@ -670,7 +672,8 @@ class MessageHelper
                         'status' => 'success'
                     ]);
                 }
-                $watsonmanager_response = WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType,$params['chat_message_log_id']);
+
+                $watsonmanager_response = WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType,isset($params['chat_message_log_id']) ? $params['chat_message_log_id'] : null);
 
                 if(isset($params['chat_message_log_id'])) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
