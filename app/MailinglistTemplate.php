@@ -75,6 +75,13 @@ class MailinglistTemplate extends Model
         }
     }
 
+    public static function getOrderDeliveryDateChangeTemplate($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Order Delivery Date Change')->first();
+
+        return self::getTemplate($category, $store);
+    }
+
     public static function getMailTemplate($order_status,$store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', $order_status)->first();
@@ -159,8 +166,8 @@ class MailinglistTemplate extends Model
     }
 
     public static function getTemplate($category, $store = null)
-    {
-        if ($store) {
+    { 
+     	if ($store) {
             return self::where('store_website_id', $store)->where('category_id', $category->id)->first();
         } else {
             return self::where(function($q) {

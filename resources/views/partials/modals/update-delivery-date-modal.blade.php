@@ -13,8 +13,19 @@
        
         <div class="form-group">
           <input type="hidden" id="orderid" name="orderid" value="">
+		  
           <input type="text" class="form-control date-picker" id="newdeldate" name="newdeldate" placeholder="select a date to update estimate delivery date">
           <input type="hidden" id="fieldname" name="fieldname" value="estimated_delivery_date">
+        </div>
+		<div class="col-md-12">
+            <div class="form-group">
+                 <div class="checkbox">
+                      <label><input class="msg_platform_del" type="checkbox" value="email" id="del_date_email">Email</label>
+                  </div>
+                  <div class="checkbox">
+                     <label><input class="msg_platform_del" type="checkbox" value="sms">SMS</label>
+                 </div>
+             </div>
         </div>
       </div>
       <div class="modal-footer">
