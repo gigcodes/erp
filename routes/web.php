@@ -2610,7 +2610,20 @@ Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewD
 Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo');
 
 });
-
+//Routes for flows
+Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
+    Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/{flow_code}', 'FlowController@editFlow')->name('flow.edit');
+    Route::get('/detail/{flow_id}', 'FlowController@flowDetail')->name('flow.detail');
+    Route::post('/create', 'FlowController@createFlow')->name('flow-create');
+    Route::post('/update', 'FlowController@updateFlow')->name('flow-update');
+    Route::post('/delete', 'FlowController@flowDelete')->name('flow-delete');
+    Route::post('/action/delete', 'FlowController@flowActionDelete')->name('flow-action-delete');
+    Route::post('/update/actions', 'FlowController@updateFlowActions')->name('flow-actions-update');
+    Route::get('/action/message/{action_id}', 'FlowController@getActionMessage')->name('flow-action-message-view');
+    Route::post('/update/action/message', 'FlowController@updateActionMessage')->name('flow-action-message');
+    Route::post('/create/type', 'FlowController@createType')->name('flow-type-create');
+});
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
