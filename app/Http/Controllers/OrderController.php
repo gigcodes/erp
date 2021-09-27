@@ -3573,7 +3573,7 @@ class OrderController extends Controller
     }
 
     public function updateDelDate(request $request)
-    {
+    { 
         $orderid                                  = $request->input('orderid');
         $newdeldate                               = $request->input('newdeldate');
         $fieldname                                = $request->input('fieldname');
@@ -3587,8 +3587,43 @@ class OrderController extends Controller
         $estimated_delivery_histories->updated_by = $userId;
         $estimated_delivery_histories->old_value  = $oldOrderDelDate;
         $estimated_delivery_histories->new_value  = $newdeldate;
+		$order_via = $request->order_via;
+		
+       
         if ($estimated_delivery_histories->save()) {
             $oldOrderDelData->update(['estimated_delivery_date' => $newdeldate]);
+			 $order = \App\Order::where("id", $orderid)->first();
+		
+			if(in_array('email', $order_via)){
+			  $emailClass = (new \App\Mails\Manual\OrderDeliveryDateChangeMail($order))->build();
+			  $storeWebsiteOrder = $order->storeWebsiteOrder;
+              $email             = Email::create([
+                  'model_id'         => $order->id,
+                  'model_type'       => Order::class,
+                  'from'             => $emailClass->fromMailer,
+                  'to'               => $order->customer->email,
+                  'subject'          => $emailClass->subject,
+                  'message'          => $emailClass->render(),
+                  'template'         => 'order-status-update',
+                  'additional_data'  => $order->id,
+                  'status'           => 'pre-send',
+                  'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                  'is_draft'         => 0,
+             ]);
+			\App\Jobs\SendEmail::dispatch($email);
+        }
+		$message = "Order delivery date has been changed to ".$newdeldate; 
+        if(in_array('sms', $order_via)){
+             if(isset($order->storeWebsiteOrder)){
+					 $receiverNumber = $order->contact_detail;
+					 if($storeWebsiteOrder->store_website_id) {
+						\App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $message, $storeWebsiteOrder->store_website_id);
+					 }
+            }
+        }
+		
+		 UpdateOrderStatusMessageTpl::dispatch($order->id, $message)->onQueue("customer_message");
+			
             return response()->json(["code" => 200, "data" => [], "message" => "Delivery Date Updated Successfully"]);
         }
         return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);

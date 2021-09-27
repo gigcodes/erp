@@ -1260,16 +1260,22 @@
         })
         $(document).on('click','.update-del-date',function(e){
           e.preventDefault();
+		   var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           var newdeldate = $('#newdeldate').val();
           if(!newdeldate){
             toastr['error']('Estimate delivery date field cannot be empty !');
             return;
           }
             var form = $("#updateDelDateForm");
+			var data = form.serialize();
+			
             $.ajax({
                 type: form.attr("method"),
                 url: form.attr("action"),
-                data: form.serialize(),
+                data: {'orderid':$('#orderid').val(), 'newdeldate':$('#newdeldate').val(), 'fieldname':$('#fieldname').val(), 'order_via':selected_array},
                 dataType:"json",
                 beforeSend:function(data){
                   $('.ajax-loader').show();
