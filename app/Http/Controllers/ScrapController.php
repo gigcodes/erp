@@ -312,7 +312,10 @@ class ScrapController extends Controller
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images         = $request->get('images') ?? [];
+        $scPrice = (float) $request->get('price');
+        $scPrice = floor($scPrice / 100) * 100;
         if ($scrapedProduct) {
+
             // Add scrape statistics
             // $scrapStatistics = new ScrapStatistics();
             // $scrapStatistics->supplier = $request->get('website');
@@ -331,9 +334,9 @@ class ScrapController extends Controller
             $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->brand_id    = $brand->id;
             $scrapedProduct->currency    = $request->get('currency');
-            $scrapedProduct->price       = (float) $request->get('price');
+            $scrapedProduct->price       = (float) $scPrice;
             if ($request->get('currency') == 'EUR') {
-                $scrapedProduct->price_eur = (float) $request->get('price');
+                $scrapedProduct->price_eur = (float) $scPrice;
             }
             $scrapedProduct->discounted_price  = $request->get('discounted_price');
             $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
@@ -378,10 +381,10 @@ class ScrapController extends Controller
             $scrapedProduct->description      = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->properties       = $propertiesExt;
             $scrapedProduct->currency         = ProductHelper::getCurrency($request->get('currency'));
-            $scrapedProduct->price            = (float) $request->get('price');
+            $scrapedProduct->price            = (float) $scPrice;
             $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             if ($request->get('currency') == 'EUR') {
-                $scrapedProduct->price_eur = (float) $request->get('price');
+                $scrapedProduct->price_eur = (float) $scPrice;
             }
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->website           = $request->get('website');
