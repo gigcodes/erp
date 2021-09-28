@@ -326,7 +326,7 @@ class ScrapController extends Controller
             \Log::info("Having problem with this price" .$scPrice. " and get message is ".$e->getMessage());
         }
 
-        $scPrice = floor($scPrice / 100) * 100;
+        $scPrice = ceil($scPrice / 10) * 10;
         
         if ($scrapedProduct) {
 
