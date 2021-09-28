@@ -472,7 +472,9 @@ class ProductPriceController extends Controller
             ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId',
 			'store_websites.id as store_websites_id','store_websites.website as product_website',
 			'categories.title as cate_title','cs.name as country_segment','products.id as pid')
-			->groupBy('categories.id', 'store_websites.id')->having(DB::raw('count(*)'), '>=', 1);
+			->groupBy('categories.id', 'store_websites.id', 'brands.brand_segment')
+			//->groupBy('store_websites.id', 'brands.brand_segment')
+			->having(DB::raw('count(*)'), '>=', 1);
                 
         $i = 0;
 
@@ -493,7 +495,7 @@ class ProductPriceController extends Controller
                 $brands->orderBy('cs.name',$request->order);
             }
         }
-$numcount=$brands->count();
+		$numcount=$brands->count();
         $brands = $brands->skip($skip * Setting::get('pagination'))
         ->limit(Setting::get('pagination'))->get()->toArray();
 
@@ -547,9 +549,12 @@ $numcount=$brands->count();
 					
 					$dutyDisc = ($final_price2 * $country['default_duty'])/100;
 					$final_price2 = $final_price2 + $dutyDisc;
-                }
+                } 
 
-                $product = Product::find($brand['pid']);
+                $product = Product::find($brand['pid']); 
+				if( $product == null) {
+					continue;
+				}
                 $dutyPrice = $product->getDuty($country['country_code']);
                 $category_segment = isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
                 $price = $product->getPrice($brand['store_websites_id'],$country['country_code'],null, true,$dutyPrice, null, null, null, isset($product->suppliers_info[0]) ?  $product->suppliers_info[0]->price : 0, $category_segment);
@@ -576,7 +581,7 @@ $numcount=$brands->count();
 
                 $categoryDetail = Category::where('id',$brand['catId'])->select('id', 'title')->first();
                 
-                $product_list[$categoryDetail->id.'_'.$brand['store_websites_id']] = [
+                $product_list[$categoryDetail->id.'_'.$brand['store_websites_id'].'_'.$brand['brand_segment']] = [
                     'catId'=>$categoryDetail ? $categoryDetail->id :'', 
                     'categoryName'=> $categoryDetail ? $categoryDetail->title :'', 
                     'product'=>'Product For Brand', 
@@ -668,7 +673,8 @@ $numcount=$brands->count();
             ->select('brands.id', 'brands.name','brands.brand_segment','products.category as catId',
 			'store_websites.id as store_websites_id','store_websites.website as product_website',
 			'categories.title as cate_title','cs.name as country_segment','products.id as pid')
-			->groupBy('categories.id', 'store_websites.id')->having(DB::raw('count(*)'), '>=', 1);
+			->groupBy('categories.id', 'store_websites.id','brands.brand_segment')
+			->having(DB::raw('count(*)'), '>=', 1);
 			
 			if($request->id!=''){
 				$brands->where('products.category', $cat_id);
@@ -784,7 +790,7 @@ $numcount=$brands->count();
 					$final_price2 = $final_price2 + $profitCost;
                 }
                 
-				$product_list[$categoryDetail->id.'_'.$brand['store_websites_id']] = [
+				$product_list[$categoryDetail->id.'_'.$brand['store_websites_id'].'_'.$brand['brand_segment']] = [
                     'catId'=>$categoryDetail->id, 
                     'categoryName'=>$categoryDetail->title, 
                     'product'=>'Product For Brand', 
