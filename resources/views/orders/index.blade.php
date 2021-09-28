@@ -600,21 +600,33 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="col-md-2">
-                            <strong>Message:</strong>
-                        </div>
-                        <div class="col-md-8">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
                         <div class="form-group">
                           <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
                         </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <div class="checkbox">
+                            <label><input class="msg_platform" type="checkbox" value="email">Email</label>
+                          </div>
+                          <div class="checkbox">
+                            
+                            <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
+                          </div>
                         </div>
+                      </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
-                <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
+                <button type="button" class="btn btn-primary update-status-with-message">Submit</button>
+                <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
+                <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
             </div>
         </form>
       </div>
@@ -913,6 +925,7 @@
               $("#order-id-status-tpl").val(id);
               $("#order-status-id-status-tpl").val(status);
               $("#order-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
               $("#update-status-message-tpl").modal("show");
             }
             
@@ -923,7 +936,16 @@
 
       $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
-          $.ajax({
+          var selected_array = [];
+          $('.msg_platform:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
+          
+          if(selected_array.length == 0){
+            alert('Please at least select one option');
+            return;
+          }else{
+            $.ajax({
             url: "/order/change-status",
             type: "GET",
             async : false,
@@ -932,12 +954,15 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              order_via: selected_array,
             }
-          }).done( function(response) {
+            }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
-          }).fail(function(errObj) {
-            alert("Could not change status");
-          });
+            }).fail(function(errObj) {
+              alert("Could not change status");
+            });
+          }
+          
       });
 
       $(document).on("click",".update-status-without-message",function() {
@@ -1235,16 +1260,22 @@
         })
         $(document).on('click','.update-del-date',function(e){
           e.preventDefault();
+		   var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           var newdeldate = $('#newdeldate').val();
           if(!newdeldate){
             toastr['error']('Estimate delivery date field cannot be empty !');
             return;
           }
             var form = $("#updateDelDateForm");
+			var data = form.serialize();
+			
             $.ajax({
                 type: form.attr("method"),
                 url: form.attr("action"),
-                data: form.serialize(),
+                data: {'orderid':$('#orderid').val(), 'newdeldate':$('#newdeldate').val(), 'fieldname':$('#fieldname').val(), 'order_via':selected_array},
                 dataType:"json",
                 beforeSend:function(data){
                   $('.ajax-loader').show();

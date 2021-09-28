@@ -75,10 +75,56 @@ class MagentoSettingsController extends Controller
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
-		
+		$data = $magentoSettings;
+		$data = $data->groupBy('store_website_id')->toArray();
+		$newValues = [];
+		foreach($data as $websiteId=>$settings) {
+			$websiteUrl = StoreWebsite::where('id', $websiteId)->pluck('magento_url')->first();
+			if($websiteUrl != null and $websiteUrl != '') {
+				$bits = parse_url($websiteUrl); 
+				if(isset($bits['host'])) {
+					$web = $bits['host'];
+					if (!str_contains($websiteUrl, 'www')) { 
+						$web = 'www.'.$bits['host'];
+					}
+					$websiteUrl = 'https://'.$web;
+					$conf['data'] = [];
+					foreach($settings as $setting) { 
+						$conf['data'][] = ['path'=>$setting['path'], 'scope'=>$setting['scope'], 'scope_id'=>$setting['scope_id']];
+					} 
+					$curl = curl_init();
+					// Set cURL options
+					curl_setopt_array($curl, array(
+						CURLOPT_URL => $websiteUrl."/rest/V1/configvalue/get",
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_ENCODING => "",
+						CURLOPT_MAXREDIRS => 10,
+						CURLOPT_TIMEOUT => 300,
+						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						CURLOPT_CUSTOMREQUEST => "POST",
+						CURLOPT_POSTFIELDS => json_encode($conf),
+						CURLOPT_HTTPHEADER => array(
+							"content-type: application/json",
+						),
+					));
+
+					// Get response
+					$response = curl_exec($curl);
+						
+					$response = json_decode($response, true);
+					
+					foreach($settings as $key=>$setting) { 
+						$newValues[$setting['id']] = isset($response[$key])  ? $response[$key]['value'] : null;
+					} 
+					curl_close($curl);
+				}
+			}
+		}
+	
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
                 'magentoSettings' => $magentoSettings,
+                'newValues' => $newValues,
                 'storeWebsites' => $storeWebsites,
                 'websitesStores' => $websitesStores ,
                 'websiteStoreViews' => $websiteStoreViews,
@@ -90,6 +136,7 @@ class MagentoSettingsController extends Controller
         
         return view('magento.settings.index', [
             'magentoSettings' => $magentoSettings,
+			'newValues' => $newValues,
             'storeWebsites' => $storeWebsites,
             'websitesStores' => $websitesStores ,
             'websiteStoreViews' => $websiteStoreViews,
@@ -240,7 +287,6 @@ class MagentoSettingsController extends Controller
         $name = $request->name;
         $path = $request->path;
         $value = $request->value;
-        $git_repository = $request->git_repository;
         $is_live = isset($request->live);
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
@@ -270,7 +316,7 @@ class MagentoSettingsController extends Controller
             $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->orWhere('website', $request->website)->get();
 
             foreach($storeWebsites as $storeWebsite){
-                
+                $git_repository=$storeWebsite->repository;
                 $magento_url = $storeWebsite->magento_url;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
@@ -299,8 +345,20 @@ class MagentoSettingsController extends Controller
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command   
-                        \Log::info(print_r(["Command Output",$allOutput],true));
+                        $result      = exec($cmd, $allOutput); //Execute command  
+                        $status='Error';
+                        for ($i=0;$i<count($allOutput);$i++)
+                           {
+                               if ($allOutput[$i]=="Pull Request Successfully merged")
+                                  {
+                                    $status='Success';
+                                    break;
+                                  }
+                           }
+                        $m_setting->status = $status;
+                        $m_setting->save();
+                        MagentoSettingPushLog::create(['store_website_id'=> $storeWebsite['id'],'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
+						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -319,7 +377,7 @@ class MagentoSettingsController extends Controller
             })->orWhere('id', $entity->scope_id)->get();
 
             foreach($websiteStores as $websiteStore){
-
+                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
@@ -349,7 +407,19 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
-                        \Log::info(print_r(["Command Output",$allOutput],true));
+                        $status='Error';
+                        for ($i=0;$i<count($allOutput);$i++)
+                           {
+                               if ($allOutput[$i]=="Pull Request Successfully merged")
+                                  {
+                                    $status='Success';
+                                    break;
+                                  }
+                           }
+                        $m_setting->status = $status;
+                        $m_setting->save();
+                        MagentoSettingPushLog::create(['store_website_id'=>$websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
+						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -370,6 +440,7 @@ class MagentoSettingsController extends Controller
             })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
 
             foreach($websiteStoresViews as $websiteStoresView){
+                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
@@ -400,7 +471,19 @@ class MagentoSettingsController extends Controller
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
-                        \Log::info(print_r(["Command Output",$allOutput],true));
+                        $status='Error';
+                        for ($i=0;$i<count($allOutput);$i++)
+                           {
+                               if (strtolower($allOutput[$i])== strtolower("Pull Request Successfully merged"))
+                                  {
+                                    $status='Success';
+                                    break;
+                                  }
+                           }
+                        $m_setting->status = $status;
+                        $m_setting->save();
+                        MagentoSettingPushLog::create(['store_website_id'=> $websiteStoresView->websiteStore->website->storeWebsite->id,'command'=>$cmd, 'setting_id'=>$m_setting['id'], 'command_output'=>json_encode($allOutput),'status'=>$status]);
+						\Log::info(print_r(["Command Output",$allOutput],true));
                     else:
                         return response()->json(["code" => 500 , "message" => "Request has been failed on stage server please check laravel log"]);
                     endif;
@@ -441,9 +524,10 @@ class MagentoSettingsController extends Controller
 			$cmd = 'bash ' . 'magento-config-deployment.sh -r '.$storeWebsiteDetails['repo_name'].' -f '.$filePath;
             $allOutput   = array();
             $allOutput[] = $cmd;
-            $result      = exec($cmd, $allOutput); //Execute command  
+            $result      = exec($cmd, $allOutput); //Execute command   
+			
             \Log::info(print_r(["Command Output",$allOutput],true));
-			MagentoSettingPushLog::create(['store_website_id'=>$store_website_id,'command'=>$cmd]);
+			MagentoSettingPushLog::create(['store_website_id'=>$store_website_id,'command'=>$cmd, 'setting_id'=>$magentoSetting['id'], 'command_output'=>json_encode($allOutput)]);
 		} 
 		return redirect(route('magento.setting.index'));
 	}
@@ -485,8 +569,22 @@ class MagentoSettingsController extends Controller
        }
        $table.="</tbody></table>";
        echo $table;
-
-
     }
+	
+	public function magentoPushLogs($settingId) {
+		$logs = MagentoSettingPushLog::where('setting_id', $settingId)->get(); 
+		$data = '';
+		foreach($logs as $log) {
+			$cmdOutputs = json_decode($log['command_output']);
+			$data .= '<tr><td>'. $log['created_at'].'</td><td>'.$log['command'].'</td><td>'.$log['status'].'</td><td>';
+            if(!empty($cmdOutputs)) {
+    		 	foreach($cmdOutputs as $cmdOutput) {
+    				$data .= $cmdOutput .'<br/>';
+    			}
+            }
+			$data .= '</td></tr>';
+		} 
+		echo $data;
+	}
     
 }

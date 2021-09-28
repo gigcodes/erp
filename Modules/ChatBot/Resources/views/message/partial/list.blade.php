@@ -63,14 +63,14 @@ padding: 3px 2px;
         <th width="4%">From</th>
         <th width="17%">Shortcuts</th>
         <th width="6%">Action</th>
-
+       
     </tr>
     </thead>
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) { ?>
     <tr class="customer-raw-line">
-
+          
 
         @php
 
@@ -92,7 +92,7 @@ padding: 3px 2px;
         @endphp
 
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}">
-
+        {{$pam->id}}
             @if($pam->supplier_id > 0)
                 @if (strlen($pam->supplier_name) > 5)
                <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,6)   }}...</p>
@@ -159,12 +159,12 @@ padding: 3px 2px;
         <td class="message-input pr-2 pt-2" style="padding-bottom: 5px">
             <div style="display: flex" class=" cls_textarea_subbox">
                 <div class=" cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>
                 </div>
 
                 <div style="display: flex;" class="cls_remove_allpadding row-flex">
                     <span style="display: flex;align-items:  center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
-                    <button class="btn btn-image send-message1 p-0" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                    <button class="btn btn-image send-message1 p-0" id="send-message_{{ $pam->id }}" data-id="{{ $pam->id }}"  data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->task_id > 0 )
                         <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @elseif($pam->developer_task_id > 0 )
@@ -174,6 +174,9 @@ padding: 3px 2px;
                     @else
                         <button  style="padding:0 ;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                         <button  style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                    @endif
+                    @if($pam->is_email==1 )
+                    <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image editmessagebcc"  data-to_email="{{$pam->to_email}}" data-from_email="{{$pam->from_email}}" data-id="{{$pam->id}}" data-cc_email="{{$pam->cc_email}}" data-all="1" title=""><i class="fa fa-edit"></i></button>
                     @endif
                 </div>
             </div>
@@ -389,14 +392,106 @@ padding: 3px 2px;
     </div>
 </div>
 
+<div id="editmessagebcc" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Email/Message</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <form method="post" action="<?php echo route("chatbot.question.save"); ?>">
+                <?php echo csrf_field(); ?>
+                
+                <div class="modal-body">
+
+                    <input type="hidden" name="chat_id"  id="chat_id">
+                    <div class="form-group">
+                            <label for="value">To</label>
+                            <input type="email" name="to_email" id="to_email" class="form-control"  placeholder="Enter To Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="value">From</label>
+                            <input type="email" name="from_email"  id="from_email" class="form-control"  placeholder="Enter from email" required>
+                        </div> 
+                        <div class="form-group">
+                            <label for="value">Cc</label>
+                            <input type="email" name="cc_email"  id="cc_email" class="form-control"  placeholder="Enter cc">
+                        </div> 
+                        <div class="form-group">
+                            <label for="value">Message</label>
+                            <input type="email" name="message1"  id="message1" class="form-control"  placeholder="Enter cc">
+                        </div>    
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary form-edit-email-btn">Save changes</button>
+                </div>
+            </form>
+            </div>
+           
+        </div>
+
+    </div>
+</div>
+
 
 
 <script type="text/javascript">
 
     $(document).on('click','.log-message-popup',function(){
+       
         $('#logMessageModel').modal('show');
-        $('#logMessageModel p').text($(this).data('log_message'));
+        
     })
+
+    $(document).on('click','.editmessagebcc',function(){
+        $('#chat_id').val($(this).data('id'));
+        $('#from_email').val($(this).data('from_email'));
+        $('#to_email').val($(this).data('to_email'));
+        $('#cc_email').val($(this).data('cc_email'));
+        
+        var message = $(this).closest(".cls_textarea_subbox").find("textarea").val();
+        $('#message1').val(message);
+        $('#editmessagebcc').modal('show');
+      
+    })
+
+    $(document).on("click",".form-edit-email-btn",function () {
+        let chatID =  $('#chat_id').val();
+        let fromemail=$('#from_email').val();
+        let toemail=$('#to_email').val();
+        let ccemail=$('#cc_email').val();
+        $('#message_'+chatID).val($('#message1').val());
+         $.ajax({
+            type: "GET",
+            url: "{{url('/chatbot/messages/update-emailaddress')}}",
+            data: {
+                chat_id : chatID,
+                fromemail:fromemail,
+                toemail:toemail,
+                ccemail:ccemail
+               
+            },
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                    $('#send-message_'+chatID).trigger('click');
+                    $('#editmessagebcc').modal('hide');
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Record not Update successfully!');
+            }
+        });
+    });
+
+    
 
     $(document).on('click','.bot-reply-popup',function(){
         $('#botReply').modal('show');

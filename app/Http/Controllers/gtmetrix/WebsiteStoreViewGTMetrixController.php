@@ -32,11 +32,13 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $query->where('store_views_gt_metrix.status', request('status'));
         }
 
-        $columns = ['error', 'report_url', 'report_url', 'html_load_time', 'html_bytes', 'page_load_time', 'page_bytes', 'page_elements', 'pagespeed_score', 'yslow_score'];
+        $columns = ['error', 'report_url', 'report_url', 'html_load_time', 'html_bytes', 'page_load_time', 'page_bytes', 'page_elements', 'pagespeed_score', 'yslow_score','website_url'];
         if (request('keyword')) {
-            foreach ($columns as $column) {
-                $query->orWhere('store_views_gt_metrix.' . $column, 'LIKE', '%' . request('keyword') . '%');
-            }
+            $query->where(function($q) use ($columns) {
+                foreach ($columns as $column) {
+                    $q->orWhere('store_views_gt_metrix.' . $column, 'LIKE', '%' . request('keyword') . '%');
+                }
+            });
         }
         if (request('sortby') && request('ord'))
               $query->orderBy(request('sortby'),request('ord'));

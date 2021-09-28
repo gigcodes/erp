@@ -72,10 +72,21 @@
                             </div>
                     </div>
 
-        <div class="form-group">
-          <input type="checkbox" name="credited" id="credited" {{ $returnExchange->credited ? 'checked' : '' }}>
-          <label for="credited">Mark as Credited</label>
-        </div>
+                    <div class="form-group">
+                      <input type="checkbox" name="credited" id="credited" {{ $returnExchange->credited ? 'checked' : '' }}>
+                      <label for="credited">Mark as Credited</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Message via: </label>
+                        <div class="checkbox">
+                            <label><input class="msg_platform" name="message_via[]" type="checkbox" value="email">Email</label>
+                        </div>
+                        <div class="checkbox">
+                            <label><input class="msg_platform" name="message_via[]" type="checkbox" value="sms">SMS</label>
+                        </div>
+                    </div>
+        
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

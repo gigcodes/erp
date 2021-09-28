@@ -36,7 +36,7 @@ use App\Mails\Manual\DocumentEmail;
 
 class HubstaffActivitiesController extends Controller
 {
-    use hubstaffTrait;
+    use HubstaffTrait;
 
     /**
      * Display a listing of the resource.
