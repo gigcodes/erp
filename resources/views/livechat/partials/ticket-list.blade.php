@@ -147,11 +147,14 @@
         
          
        ?>
-            <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
             <i class="fa fa-envelope" style="margin-left: -10px"></i>
         </a>
             <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
-                <i class="fa fa-trash" style="margin-left: -10px"></i></button>
+                <i class="fa fa-trash" style="margin-left: -10px"></i></button> 
+				
+		<button type="button" class="btn no_pd" onclick="showEmails('{{$ticket->id}}')">
+                <i class="fa fa-eye" style="margin-left: -10px"></i></button>
 
         </div>
     </td>

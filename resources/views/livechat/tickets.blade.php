@@ -314,6 +314,43 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+	
+	 <div id="ticketsEmails" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+               
+                    <div class="modal-header">
+                        <h4 class="modal-title">Emails sent</h4>
+                    </div>
+                    <div class="modal-body" >
+						<div class="table-responsive" style="margin-top:20px;">
+							<table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+								<thead>
+								  <tr>
+									<th>Bulk <br> Action</th>
+									<th>Date</th>
+									<th>Sender</th>
+									<th>Receiver</th>
+									<th>Mail <br> Type</th>
+									<th>Subject</th>
+									<th>Body</th>
+									<th>Status</th>
+									<th>Draft</th>
+									<th>Action</th>
+								  </tr>
+								</thead>
+								<tbody id="ticketEmailData">
+								
+								</tbody>
+							  </table>
+						</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
@@ -344,7 +381,36 @@
             );
         };
 
-
+		function showEmails(ticketId) {
+			$('#ticketEmailData').html('');
+		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){ 
+				$('#ticketEmailData').html(data);
+				$('#ticketsEmails').modal('show');
+		    });
+		}
+		$(document).on('click', '.resend-email-btn', function(e) {
+      e.preventDefault();
+      var $this = $(this);
+      var type = $(this).data('type');
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/email/resendMail/'+$this.data("id"),
+          type: 'post',
+          data: {
+            type:type
+          },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          toastr['success'](response.message);
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
         function loadMore(page) {
 
             var url = "/livechat/tickets?page="+page;

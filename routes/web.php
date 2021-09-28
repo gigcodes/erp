@@ -1988,6 +1988,8 @@ Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->
 Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
 Route::post('tickets/delete_tickets','LiveChatController@delete_tickets')->name('livetickets.delete');
 
+Route::get('tickets/emails/{ticketId}','LiveChatController@fetchEmailsOnTicket')->name('livetickets.fetchEmailsOnTicket');
+
 
 
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
