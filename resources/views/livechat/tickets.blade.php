@@ -351,6 +351,19 @@
             </div>
         </div>
     </div>
+<div id="viewMore" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View More</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><span id="more-content"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
@@ -388,29 +401,32 @@
 				$('#ticketsEmails').modal('show');
 		    });
 		}
+		function opnModal(message){
+		  $(document).find('#more-content').html(message);
+		}
 		$(document).on('click', '.resend-email-btn', function(e) {
-      e.preventDefault();
-      var $this = $(this);
-      var type = $(this).data('type');
-        $.ajax({
-          headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          },
-          url: '/email/resendMail/'+$this.data("id"),
-          type: 'post',
-          data: {
-            type:type
-          },
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
-        }).done( function(response) {
-          toastr['success'](response.message);
-          $("#loading-image").hide();
-        }).fail(function(errObj) {
-          $("#loading-image").hide();
-        });
-    });
+		    e.preventDefault();
+		    var $this = $(this);
+		    var type = $(this).data('type');
+			$.ajax({
+			  headers: {
+				  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  },
+			  url: '/email/resendMail/'+$this.data("id"),
+			  type: 'post',
+			  data: {
+				type:type
+			  },
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+			}).done( function(response) {
+			  toastr['success'](response.message);
+			  $("#loading-image").hide();
+			}).fail(function(errObj) {
+			  $("#loading-image").hide();
+			});
+		});
         function loadMore(page) {
 
             var url = "/livechat/tickets?page="+page;
