@@ -314,12 +314,16 @@ class ScrapController extends Controller
         $images         = $request->get('images') ?? [];
         $scPrice        = (float) $request->get('price');
 
-        if(strlen($scPrice) > 4 && strlen($scPrice) < 6) {
-            $scPrice = substr($scPrice,0,3);
-            $scPrice = $scPrice.".00";
-        }elseif(strlen($scPrice) > 5 && strlen($scPrice) < 7) {
-            $scPrice = substr($scPrice,0,4);
-            $scPrice = $scPrice.".00";
+        try{
+            if(strlen($scPrice) > 4 && strlen($scPrice) < 6) {
+                $scPrice = substr($scPrice,0,3);
+                $scPrice = $scPrice.".00";
+            }elseif(strlen($scPrice) > 5 && strlen($scPrice) < 7) {
+                $scPrice = substr($scPrice,0,4);
+                $scPrice = $scPrice.".00";
+            }
+        }catch(\Exception $e) {
+            \Log::info("Having problem with this price" .$scPrice. " and get message is ".$e->getMessage());
         }
 
         $scPrice = floor($scPrice / 100) * 100;
