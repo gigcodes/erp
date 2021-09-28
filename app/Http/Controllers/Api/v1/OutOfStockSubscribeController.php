@@ -81,7 +81,7 @@ class OutOfStockSubscribeController extends Controller
                                 [
                                     "type"    => "text",
                                     "delay"   => 1000,
-                                    "message" => "Thanks for contacting us Your order is right now on ".$statusMessage,
+                                    "message" => "Thanks for contacting us Your order is right now on ".ucwords($statusMessage),
                                 ],
                             ],
                         ];
