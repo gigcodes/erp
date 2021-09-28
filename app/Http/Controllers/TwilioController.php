@@ -1243,6 +1243,10 @@ class TwilioController extends FindByNumberController
 
                         $response->say('Thank you.');
 
+                        $response->say('Do you need any futher support.');
+
+                        $response->redirect(route('ivr', ['count'=>0], false));
+
                         $response->hangup();
                     
                         return $response;
@@ -1257,7 +1261,9 @@ class TwilioController extends FindByNumberController
 
                         $response->say('Thank you.');
 
-                        $response->hangup();
+                        $response->say('Do you need any futher support.');
+
+                        $response->redirect(route('ivr', ['count'=>0], false));
                     
                         return $response;
                     }else{
@@ -1301,8 +1307,10 @@ class TwilioController extends FindByNumberController
 
             $response->say('Your Order Status is '.$order_status);
 
-
             $response->say('Thank you.');
+            $response->say('Do you need any futher support.');
+
+            $response->redirect(route('ivr', ['count'=>0], false));
 
             $response->hangup();
         
