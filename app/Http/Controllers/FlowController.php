@@ -94,15 +94,18 @@ class FlowController extends Controller{
 	
 	public function updateFlowActions(Request $request) {
 		$inputs = $request->input();
-		foreach($inputs['action_id'] as $key=>$actionId) {
-			if($inputs['action_type'][$actionId] == "Time Delay") {
-				$data = ['time_delay'=>$inputs['time_delay'][$actionId], 'time_delay_type'=>$inputs['time_delay_type'][$actionId], 'rank'=>$key];
-				FlowAction::where('id', $actionId)->update($data);
-			} else {
-				$data = [ 'rank'=>$key];
-				FlowAction::where('id', $actionId)->update($data);
+		if(isset($inputs['action_id'])) {
+			foreach($inputs['action_id'] as $key=>$actionId) {
+				if($inputs['action_type'][$actionId] == "Time Delay") {
+					$data = ['time_delay'=>$inputs['time_delay'][$actionId], 'time_delay_type'=>$inputs['time_delay_type'][$actionId], 'rank'=>$key];
+					FlowAction::where('id', $actionId)->update($data);
+				} else {
+					$data = [ 'rank'=>$key];
+					FlowAction::where('id', $actionId)->update($data);
+				}
 			}
 		}
+		
 		return ['message'=>"Successfully updated", 'statusCode'=>200];
 		//return $this->flowDetail($inputs['flow_id']);
 	}

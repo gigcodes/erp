@@ -63,7 +63,6 @@
 								<td>{{ $flow['flow_name'] }}</td>
 								<td>{{ $flow['flow_description'] }}</td>
                                 <td>
-									<a href="{{route('flow.edit', ['flow_code'=>$flow['flow_code']])}}">Edit Flow </a>
 									<a href="#" onclick="showFlow('{{$flow->id}}')">  Flow Detail</a>
 									<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('flow-delete')}}" data-id="{{$flow->id}}" aria-hidden="true"></i>
 								</td>
