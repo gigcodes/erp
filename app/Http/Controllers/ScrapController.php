@@ -312,8 +312,22 @@ class ScrapController extends Controller
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images         = $request->get('images') ?? [];
-        $scPrice = (float) $request->get('price');
+        $scPrice        = (float) $request->get('price');
+
+        try{
+            if(strlen($scPrice) > 4 && strlen($scPrice) < 6) {
+                $scPrice = substr($scPrice,0,3);
+                $scPrice = $scPrice.".00";
+            }elseif(strlen($scPrice) > 5 && strlen($scPrice) < 7) {
+                $scPrice = substr($scPrice,0,4);
+                $scPrice = $scPrice.".00";
+            }
+        }catch(\Exception $e) {
+            \Log::info("Having problem with this price" .$scPrice. " and get message is ".$e->getMessage());
+        }
+
         $scPrice = floor($scPrice / 100) * 100;
+        
         if ($scrapedProduct) {
 
             // Add scrape statistics
