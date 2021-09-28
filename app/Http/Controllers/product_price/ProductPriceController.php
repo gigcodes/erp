@@ -864,6 +864,7 @@ $numcount=$brands->count();
             //$duty->default_duty =$request->default_duty;
             $duty->status=0;
             SimplyDutyCountryHistory::insert($data);
+			$dutyPricesProducts = 0;
             if ($duty->save()) {
 				$amount = $request->input('duty'); $code = $duty->country_code;
 				$ps= \App\StoreWebsiteProductPrice::select('store_website_product_prices.id','store_website_product_prices.duty_price',
@@ -880,6 +881,7 @@ $numcount=$brands->count();
 						   \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
 					   }
 					}
+				$dutyPricesProducts = count($ps);
             }
 			
 			if($request->add_profit  > 0) {
@@ -959,7 +961,7 @@ $numcount=$brands->count();
 			}
 						  
         }
-        return ['status'=>true, 'count'=>count($ps)];
+        return ['status'=>true, 'count'=>count($ps)+$dutyPricesProducts];
     }
 
 	

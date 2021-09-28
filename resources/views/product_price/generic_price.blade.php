@@ -411,56 +411,6 @@ $(document).on('click', '.expand-row', function () {
   }
 });
 
-$(document).on('keyup', '.add_profit', function () {
-        if (event.keyCode != 13) {
-            return;
-        }
-        let add_profit = $(this).val().replace('%', '');
-        let ref_name = $(this).data('ref');
-        let rows = $('.'+ref_name).closest('tr');
-        let product_array = [];
-        for(let i=0; i< rows.length; i++){
-            product_array[i] = {
-                'row_id' : $(rows[i]).attr('data-id'),
-                'storewebsitesid' : $(rows[i]).attr('data-storewebsitesid'),
-                'product_id' : $(rows[i]).closest('tr').find('.product_id').text(),
-                'add_duty' : $(rows[i]).closest('tr').find('.add_duty').val().replace('%', ''),
-                'product_id' : $(rows[i]).find('.product_id').text(),
-                'add_profit' : $(rows[i]).closest('tr').find('.add_profit').val().replace('%', ''),
-                'country_code' : $(rows[i]).attr('data-country_code'), 
-            };
-        }
-
-        $.ajax({
-            url: "{{route('product.pricing.update.add_profit')}}",
-            type: 'post',
-            data: {
-                _token: '{{csrf_token()}}',
-                product_array: JSON.stringify(product_array),
-                add_profit: add_profit,
-                row_id: $(this).closest('tr').attr('data-id'),
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            }
-        }).done(function(response) {
-            $("#loading-image").hide();
-            if(response.status == false){
-                toastr["error"](response.message + " is not exist!", "Message");
-            }else{
-                response.data.forEach(function(item, index) {
-                    if(item.status){
-                        let row = $(`.tr_${item.row_id}`); 
-                        $(row).find('td:nth-child(12) span').html(item.add_profit);
-                        $(row).find('.add_profit').val(add_profit);
-                        $(row).find('td:nth-child(13)').html(item.price);
-                    }
-                }); 
-                toastr["success"]("profit updated successfully!", "Message");
-            }
-        });
-
-    }); 
 
 $(document).on('click', '.UpdateProduct', function () {
 	var tr = $(this).closest('tr'); 
