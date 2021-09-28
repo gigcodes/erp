@@ -151,7 +151,7 @@
                         </select>
                     </div>
                     <div class="form-group col-md-2 mr-5 ">
-                        <?php echo Form::select("platform",[null => "- Select Platform -","attach" => "Attached Image", "lead" => "Lead"],request("platform"),["class" => "form-control"]) ?>
+                        <?php echo Form::select("platform",[null => "- Select Platform -","attachment" => "Attached Image", "lead" => "Lead"],request("platform"),["class" => "form-control"]) ?>
                     </div>
                     <div class="col-md-1 no-pd">
                     <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
