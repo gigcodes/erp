@@ -372,6 +372,14 @@ class OrderController extends Controller
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
     }
 
+    public function orderPreviewSentMails(Request $request){
+        
+        $id = $request->id;
+        $lists = Email::where('model_id',$id)->get();
+
+        return response()->json(["code" => 200, "data" => $lists]);
+    }
+
 
     public function charity_order(Request $request)
     {

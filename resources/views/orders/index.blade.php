@@ -375,6 +375,8 @@
                     <i class="fa fa-truck" aria-hidden="true"></i>
                   </a>
 
+                  <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+
                   <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-address-card" aria-hidden="true"></i>
                   </a>
@@ -669,6 +671,7 @@
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
+@include("partials.modals.preview_sent_mails_modal")
 @include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
@@ -851,6 +854,66 @@
 
             $("#generateAWBMODAL").find("[name='order_id']").val(order_id);
             $("#generateAWBMODAL").modal("show");
+      });
+
+
+
+
+      $(document).on("click",".preview_sent_mails",function() {
+
+          var id = $(this).data("order-id");
+          
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/preview-sent-mails",
+            type: "post",
+            data : {
+              id: id,
+            },
+            beforeSend: function() {
+
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+
+            $("loading-image").hide();
+
+            if(response.code == 200) {
+            var items = response.data;
+            console.log(response.data);
+            if(items.length > 0) {
+              var itemsHtml = '';
+              $.each(items, function(k,v) {
+                  itemsHtml += `<tr class="in-background filter-message reviewed_msg" data-message="Greetings from Solo Luxury Ref: order number 1730030 we have updated your order with status : prepaid.">
+                      <td >`+v.created_at+`</td>
+                      <td >`+v.from+`</td>
+                      <td >`+v.to+`</td>
+                      <td >`+v.model_type+`</td>
+                      <td >`+v.subject+`</td>
+                      <td >`+v.status+`</td>
+                      <td >`+v.is_draft+`</td>
+                      <td >`+v.message+`</td>
+                      <td >`+v.email_category_id+`</td>
+                    </tr>`;
+
+                });
+              
+              $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+            }
+
+            $("#previewSendMailsModal").modal("show");
+
+            }
+            
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+
+
+
+
       });
 
 
