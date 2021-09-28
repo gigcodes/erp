@@ -4922,6 +4922,10 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->whereIn("p.brand",$request->brand);
         }
 
+        if($request->platform != null) {
+            $suggestedProducts = $suggestedProducts->where("suggested_products.platform",$request->platform);
+        }
+
         if(!empty($term)) {
             $suggestedProducts = $suggestedProducts->where(function($q) use($term){
                 $q->orWhere("p.sku","LIKE","%".$term."%")->orWhere("p.id","LIKE","%".$term."%");
