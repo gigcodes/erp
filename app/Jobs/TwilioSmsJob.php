@@ -79,7 +79,7 @@ class TwilioSmsJob implements ShouldQueue
             "user_id" => \Auth::id(),
             'approved'=>1,
             'is_delivered'=>1,
-            'customer_id'=>1,
+            'customer_id'=>$custId,
             ];
             ChatMessage::create($chat);
         } catch (Exception $e) {

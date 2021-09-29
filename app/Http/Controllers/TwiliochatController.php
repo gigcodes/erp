@@ -28,15 +28,10 @@ class TwiliochatController extends Controller
                         $agent       = User::where('id', $chat->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
 
-                        if (!$chat->approved) {
-                            $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span><input type="hidden" id="message-id" name="message-id" value="' . $chatId . '"><input type="hidden" id="message-value" name="message-value" value="' . $message->message . '"><div class="d-flex  mb-4"><button id="' . $message->id . '" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
-                        } else {
-                             $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
-
-                        }
+                        $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
 
                     } else {
-                         $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
+                         $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
                     }
                 }
             }
