@@ -102,12 +102,12 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         <?php
                         $srno=1;
                         ?>
-                         @if(isset($chatIds) && !empty($chatIds))
-                            @foreach ($chatIds as $chatId)
-                                @php
+                         @if(isset($chat_message) && !empty($chat_message))
+                            @foreach ($chat_message as $chatId)
+                               {{-- @php
                                 $customer = \App\Customer::where('id',$chatId->customer_id)->first();
                                 $customerInital = substr($customer->name, 0, 1);
-                                @endphp
+                                @endphp --}}
                                    <tr>
                                     <td><?php echo $srno;?></td>
                                     <td><?php echo $chatId->send_by;?></td>
