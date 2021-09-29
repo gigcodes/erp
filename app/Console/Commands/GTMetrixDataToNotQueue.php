@@ -50,8 +50,7 @@ class GTMetrixDataToNotQueue extends Command{
 
     	$query = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
 		$lists = $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
-            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
-            ->paginate();
+            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->get();
         if($lists){
             foreach ($lists as $key => $list) {
                 if($list->status == '' || $list->status == 'completed'){
