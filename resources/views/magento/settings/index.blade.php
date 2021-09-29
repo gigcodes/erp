@@ -101,8 +101,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 @if($magentoSetting->scope === 'default')
 
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{  substr($magentoSetting->website->website, 0,10) }} @if(strlen($magentoSetting->website->website) > 10) ... @endif</td>
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('sololuxurydubai@gmail.com')" >-</td>
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('sololuxurydubai@gmail.com')" >-</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
                                 
