@@ -559,7 +559,7 @@ class MagentoSettingsController extends Controller
     public function  namehistrory($id){
          
        $ms= MagentoSettingNameLog::select('magento_setting_name_logs.*','users.name')->leftJoin('users','magento_setting_name_logs.updated_by','users.id')->where('magento_settings_id',$id)->get();
-       $table="<table class='table table-bordered'> <thead><tr><th>Date</th><th>Old Value</old><th>New Value</th><th>Created By</th><tr><thead><tbody";
+       $table="<table class='table table-bordered text-nowrap' style='border: 1px solid #ddd;'><thead><tr><th>Date</th><th>Old Value</th><th>New Value</th><th>Created By</th></tr></thead><tbody>";
        foreach($ms as $m)
        {
            $table.="<tr><td>".$m->updated_at."</td>";

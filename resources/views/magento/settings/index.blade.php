@@ -73,8 +73,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         <div class="pull-left"></div>
         <div class="pull-right"></div>
         <div class="col-12 pl-3 pr-3">
-            <div class="table-responsive">
-                <table class="table table-bordered">
+            <div class="table-responsive" style="margin-top:20px;">
+                  <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -100,30 +100,39 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
                                 @if($magentoSetting->scope === 'default')
 
-                                        <td>{{ $magentoSetting->website->website }}</td>
-                                        <td>-</td>
-                                        <td>-</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{  substr($magentoSetting->website->website, 0,10) }} @if(strlen($magentoSetting->website->website) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('sololuxurydubai@gmail.com')" >-</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('sololuxurydubai@gmail.com')" >-</td>
 
                                 @elseif($magentoSetting->scope === 'websites')
                                 
-                                        <td>{{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }}</td>
-                                        <td>{{ $magentoSetting->store->website->name }}</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' ; ?>')" >
+                                            {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }} ...
+                                        </td>
+                                        <td ata-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
                                         <td>-</td>
                                         
                                 @else
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
-                                        <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-' }}</td>
+                                        <td ata-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{   substr($magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-', 0,10) }}</td>
                                         <td>{{ $magentoSetting->storeview->code }}</td>
                                 @endif
 
                                 <td>{{ $magentoSetting->scope }}</td>
-                                <td>{{ $magentoSetting->name }}</td>
-                                <td>{{ $magentoSetting->path }}</td>
-                                <td>{{ $magentoSetting->value }}</td>
-                                <td  style="width:6% !important;">@if(isset($newValues[$magentoSetting['id']]))
-										{{ $newValues[$magentoSetting['id']] }}
-									@endif
-								</td>
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->name ; ?>')" >{{ substr($magentoSetting->name,0,12) }} @if(strlen($magentoSetting->name) > 12) ... @endif</td>
+
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->path ; ?>')" >{{ substr($magentoSetting->path,0,12) }} @if(strlen($magentoSetting->path) > 12) ... @endif</td>
+
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->value ; ?>')" >{{ substr($magentoSetting->value,0,12) }} @if(strlen($magentoSetting->value) > 12) ... @endif</td>
+
+                                <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php if(isset($newValues[$magentoSetting['id']])) {echo  $newValues[$magentoSetting['id']];   } ?>')">
+
+
+                                    @if(isset($newValues[$magentoSetting['id']])) {{ substr( $newValues[$magentoSetting['id']], 0,10) }} @if(strlen($newValues[$magentoSetting['id']]) > 10) ... @endif @endif
+
+
+                                </td>
+
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
@@ -310,8 +319,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 </div>
 
 <div id="namepopup" class="modal fade" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <!-- <div class="modal-dialog for-name-history" role="document" style="margin-right: 50%;"> -->
+    <div class="modal-dialog for-name-history" role="document" style="margin-right: 50%;">
+        <div class="modal-content" style="width: fit-content;" >
                 <div class="modal-header">
                     <h5 class="modal-title">Name History</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -366,6 +376,21 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         </div>
     </div>
 </div>
+
+<div id="viewMore" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View More</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><span id="more-content"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="settingsPushLogsModal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
 		<!-- Modal content-->
@@ -608,6 +633,9 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         });
     });
 
+    function opnModal(message){
+      $(document).find('#more-content').html(message);
+    }
 
     $(document).on('change', '#add-setting-popup .website_store', function(){
         var scope = $('#add-setting-popup .scope:checked').val(); 
