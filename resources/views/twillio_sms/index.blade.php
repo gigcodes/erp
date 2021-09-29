@@ -27,47 +27,14 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Managing Group</h2>
                     <button type="button" class="btn btn-primary float-right" data-toggle="modal"
-                            data-target="#exampleModalCenter"> Add Members </button>
+                            data-target="#messageGroup"> Add Messaging Group </button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <div class="modal fade" id="ModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Edit</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body edit-modal-body" id="edit-modal">
-                    <form action="post" id="">
-                        @csrf
-                        <input type="hidden" id="serviceId" name="serviceId" value="">
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Name</label>
-                            <input required name="name" type="text" class="form-control" id="name"
-                                   aria-describedby="emailHelp" placeholder="Enter name">
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputPassword1">Description</label>
-                            <textarea required name="description" class="form-control" id="textarea"
-                                      rows="5"></textarea>
-                        </div>
-                        <button id="btnedit" type="submit" class="btn btn-primary">Save changes</button>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+    <div class="modal fade" id="messageGroup" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -78,7 +45,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{route('create.mailinglist')}}"  method="POST">
+                    <form action="{{route('create.message.group')}}"  method="POST" class="ajax-submit">
                         @csrf
                         <div class="form-group">
                             <label >Name</label>
@@ -86,21 +53,47 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Store Website</label>
-                            <select name="store_website_id"  class="form-control textarea" required >
-                                @foreach($websites as $index => $website)
-                                    <option value="{{$website->id}}" >{{$website->website}}</option>
-                                @endforeach
-                            </select>
+							{{ Form::select('store_website_id', $websites, null, array('class'=>'form-control', 'required')) }}
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Select Service</label>
-                            <select name="service_id" required class="form-control textarea" >
-                                <option disabled="true" >Please Select Service</option>
-                                <option value="1" >Twillio</option>
-                            </select>
+                           {{ Form::select('service_id', $services, null, array('class'=>'form-control', 'required')) }}
                         </div>
-
-
+                        <button id="btn" type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+    <div class="modal fade" id="messageTitle" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Message Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('create.marketing.group')}}"  method="POST" class="ajax-submit">
+                        @csrf
+                        <div class="form-group">
+                            <label >Title</label>
+                            <input required name="title" type="text" class="form-control name" placeholder="Enter title">
+                        </div>
+						<div id="append_fields">
+						</div>
+                        
+						<!--
+						<div class="form-group">
+                            <label for="exampleInputPassword1">Store Website</label>
+						 </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Select Service</label>
+                        </div> -->
+						
                         <button id="btn" type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
@@ -109,26 +102,8 @@
     </div>
 
 
-
-    {{--    @if ($message = Session::get('success'))
-            <div class="alert alert-success">
-                <p>{{ $message }}</p>
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif--}}
-
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="passwords-table">
+        {<table class="table table-bordered" id="passwords-table">
             <thead>
             <tr>
                 <th style="">ID</th>
@@ -144,8 +119,10 @@
                     <td id="name">{{$value->name}}</td>
                     <td id="description">{{$value->store_website_id}}</td>
                     <td id="description">{{$value->service_id}}</td>
-                    <td><i id="{{$value->id}}" class="fa fa-pencil-square-o change" title="Edit" aria-hidden="true"></i>
-                        <i id="{{$value->id}}" class="fa fa-trash remove" aria-hidden="true"></i>
+                    <td>
+					    <a href="{{route('customer.group', ['groupId'=>$value->id])}}"><i class="fa fa-user-plus change" title="Add user" aria-hidden="true" ></i></a>
+					    <a data-toggle="modal" data-target="#messageTitle" href="javascript:void(0);" onclick="showMessageTitleModal('{{$value->id}}');"><i class="fa fa-plus change" title="Add Marketing Message" aria-hidden="true" ></i></a>
+					    <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-task-queue')}}" data-id="{{$value->id}}" aria-hidden="true"></i>
                     </td>
                 </tr>
             @endforeach
@@ -165,99 +142,67 @@
             crossorigin="anonymous"></script>
 
     <script>
-        $('.change').on('click', function () {
-           var id = $(this).attr("id");
+		var base_url = window.location.origin+'/';
+	    $('.ajax-submit').on('submit', function(e) { 
+			e.preventDefault(); 
+			$.ajax({
+                type: $(this).attr('method'),
+				url: $(this).attr('action'),
+				data: new FormData(this),
+				processData: false,
+				contentType: false,
+				success: function(data) { 
+					if(data.statusCode == 500) { 
+						toastr["error"](data.message);
+					} else {
+						toastr["success"](data.message);
+						setTimeout(function(){
+                          location.reload();
+                        }, 1000);
+					}
+				},
+				done:function(data) {
+					console.log('success '+data);
+				}
+            });
+		}); 
 
-           $(".edit-modal-body #serviceId").val(id);
-
-           var name = $(this).closest('tr').find('#name').text();
-           $(".edit-modal-body #name").val(name);
-
-           var desc = $(this).closest('tr').find('#description').text();
-           $(".edit-modal-body #textarea").html(desc);
-           $('.editModal').click();
-        });
-
-        $('.remove').on('click', function (e) {
-            e.preventDefault();
-            var id = e.target.id
-            if (confirm("Are you sure?")) {
-
-                $.ajax({
-                    url: '/marketing/services/destroy',
-                    type: 'POST',
-                    data: {
-                        id: id
-                    },
-                    beforeSend: function (request) {
-                        return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
-                    },
-                    success: function (data) {
-                        $('.' + data).remove();
+	    $('.trigger-delete').on('click', function(e) {
+			var id = $(this).attr('data-id');
+			e.preventDefault(); 
+			var option = { _token: "{{ csrf_token() }}", id:id };
+			var route = $(this).attr('data-route');
+			$("#loading-image").show();
+			$.ajax({
+				type: 'post',
+				url: route,
+				data: option,
+				success: function(response) {
+					$("#loading-image").hide();
+					if(response.code == 200) {
+						$(this).closest('tr').remove();
+                        toastr["success"](response.message); 
+                    }else if(response.statusCode == 500){
+                        toastr["error"](response.message);
                     }
-                });
-            }
-        });
+					setTimeout(function(){
+                          location.reload();
+                        }, 1000);
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+			}); 
+		});	
 
-        $('#btnedit').on('click', function (e) {
-            e.preventDefault();
-            var id = $('#serviceId').val();
-            var name = $('#name').val();
-            var text = $('#textarea').val();
-
-
-            $.ajax({
-                url: '/marketing/services/update',
-                type: 'POST',
-                data: {
-                    id: id,
-                    name: name,
-                    description: text
-                },
-                beforeSend: function (request) {
-                    return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
-                },
-                success: function (data) {
-                    alert(data[0]["description"]);
-                    $('tr[class="' + data[0]["id"] + '"]').find('#name').text(data[0]["name"]);
-                    $('tr[class="' + data[0]["id"] + '"]').find('#description').html(data[0]["description"]);
-
-                    $('.close').click();
-                    $('#name').val('');
-                    $('#textarea').val('');
-                }
-            });
-        });
-
-        $('#btn').on('click', function (e) {
-            e.preventDefault();
-            var name = $('.name').val();
-            var text = $('.textarea').val();
-            $.ajax({
-                url: '/marketing/services/store',
-                type: 'POST',
-                data: {
-                    name: name,
-                    text: text
-                },
-                beforeSend: function (request) {
-                    return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
-                },
-                success: function (data) {
-                    console.log(data);
-                    $('tbody').prepend(`
-                    <tr>
-                    <td>` + data[0]['id'] + ` </td>
-                    <td>` + data[0]['name'] + `</td>
-                    <td>` + data[0]['description'] + `</td>
-                    <td><a href=""><i class="fa fa-pencil-square-o" title="Edit" aria-hidden="true"></i></a></td>
-                    </tr>
-                    `)
-                    $('.close').click();
-                    $('#name').val('');
-                    $('#textarea').val('');
-                }
-            });
-        })
+	function showMessageTitleModal(groupId){
+		
+		var fields = ' <input type="hidden" name="message_group_id" value="'+groupId+'" > ';
+		fields += ' <input type="hidden" name="is_sent" value="0" > ';
+		fields += ' <div class="form-group"><label >Scheduled Time</label><input required name="scheduled_at" type="datetime-local" class="form-control scheduled_at" ></div> ';
+		$('#append_fields').html(fields);
+		
+	}
     </script>
 @endsection

@@ -3248,11 +3248,15 @@ Route::prefix('referfriend')->middleware('auth')->group(static function () {
 });
 
 //Twillio-SMS
-Route::prefix('twillio-sms')->middleware('auth')->group(static function () {
-    Route::get('/', 'TwillioSmsController@index');
-    Route::post('create/mailinglist', 'TwillioSmsController@createMailinglist')->name('create.mailinglist');
+Route::prefix('twillio-message')->middleware('auth')->group(static function () {
+    Route::get('/', 'TwillioMessageController@index');
+    Route::get('customers/{groupId}', 'TwillioMessageController@showCustomerList');
+    Route::post('create/list', 'TwillioMessageController@createMailinglist')->name('create.message.group');
+    Route::post('add/customer', 'TwillioMessageController@addCustomer')->name('add.customer.group');
+    Route::post('add/message', 'TwillioMessageController@addMessage')->name('add.message');
+	Route::any('create/marketing/group', 'TwillioMessageController@createMarketingGroup')->name('create.marketing.group');
 });
-
+ Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(static function () {
     Route::get('/list', 'ReferralProgramController@index')->name('referralprograms.list');
