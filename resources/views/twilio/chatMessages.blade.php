@@ -91,10 +91,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 <table class="table table-striped table-bordered" id="keywordassign_table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">Sr. No.</th>
-                            <th style="width: 10%;">Sender Number</th>
-                            <th style="width: 10%;">Receiver Number</th>
-                            <th style="width: 10%;">Message</th>
+                            <th style="width: 2%;">Sr. No.</th>
+                            <th style="width: 2%;">Sender Number</th>
+                            <th style="width: 2%;">Receiver Number</th>
+                            <th style="width: 15%;">Message</th>
                             <!-- <th style="width: 10%;">Actions</th> -->
                         </tr>
                     </thead>

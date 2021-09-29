@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Twilio\Rest\Client;
 use App\ChatMessage;
+use App\Customer;
 use Exception;
 
 class TwilioSmsJob implements ShouldQueue
@@ -62,28 +63,25 @@ class TwilioSmsJob implements ShouldQueue
     public function handle()
     {
         //
-                        
-        try {
-            
+       try {
             $client = new Client($this->account_sid, $this->auth_token);
-                            
             $client->messages->create($this->receiverNumber, [
-                'from' => $this->twilio_number,
-                'body' => $this->message
+            'from' => $this->twilio_number,
+            'body' => $this->message
             ]);
-
+            $phone = str_replace('+', '', $this->receiverNumber); 
+            $custId = Customer::where('phone', 'like', '%'.$phone.'%')->pluck('id')->first();
             $chat =[
-                'message_application_id'=>3,
-                'message'=>$this->message,
-                'number'=>$this->receiverNumber,
-                'send_by'=>$this->twilio_number,
-                "user_id" => \Auth::id(),
-                'approved'=>1,
-                'is_delivered'=>1,
-                'customer_id'=>session()->get('chat_customer_id'),
+            'message_application_id'=>3,
+            'message'=>$this->message,
+            'number'=>$this->receiverNumber,
+            'send_by'=>$this->twilio_number,
+            "user_id" => \Auth::id(),
+            'approved'=>1,
+            'is_delivered'=>1,
+            'customer_id'=>1,
             ];
-            ChatMessage::create($chat);       
-                        
+            ChatMessage::create($chat);
         } catch (Exception $e) {
             \Log::info("Sending SMS issue #2215 ->" . $e->getMessage());
         }
