@@ -364,7 +364,20 @@
         </div>
     </div>
 </div>
-
+<div id="viewMail" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View Email</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Subject : </strong> <span id="emailSubject"></span> </p>
+              <p><strong>Message : </strong> <span id="emailMsg"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
@@ -374,6 +387,29 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+function opnMsg(email) {
+      console.log(email);
+      $('#emailSubject').html(email.subject);
+      $('#emailMsg').html(email.message);
+
+      // Mark email as seen as soon as its opened
+      if(email.seen ==0 || email.seen=='0'){
+        // Mark email as read
+        var $this = $(this);
+            $.ajax({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              url: '/email/'+email.id+'/mark-as-read',
+              type: 'put'
+            }).done( function(response) {
+
+            }).fail(function(errObj) {
+
+            });
+      }
+
+    }
 
         var page = 1;
         function getScrollTop() {
