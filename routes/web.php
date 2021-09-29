@@ -3247,6 +3247,12 @@ Route::prefix('referfriend')->middleware('auth')->group(static function () {
     Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
 });
 
+//Twillio-SMS
+Route::prefix('twillio-sms')->middleware('auth')->group(static function () {
+    Route::get('/', 'TwillioSmsController@index');
+    Route::post('create/mailinglist', 'TwillioSmsController@createMailinglist')->name('create.mailinglist');
+});
+
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(static function () {
     Route::get('/list', 'ReferralProgramController@index')->name('referralprograms.list');
