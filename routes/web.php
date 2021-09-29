@@ -1967,7 +1967,7 @@ Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('li
 
 Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
 
-
+Route::get('twilio/getChats', 'TwiliochatController@getTwilioChat')->name('twilio.get.chats');
 
 Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');
 Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewController@store')->name('brandreview.store');
