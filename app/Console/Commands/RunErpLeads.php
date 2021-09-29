@@ -74,7 +74,7 @@ class RunErpLeads extends Command
                     ->where("products.price", "!=", "");
 
                 $products = $products->where(function ($q) use ($lead) {
-                    $q->orWhere("b.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
+                    $q->where("b.id", $lead->brand_id)->where("c.id", $lead->category_id);
                 });
 
                 $allProduts = $products->select(["products.*"])->orderBy("products.created_at", "desc")->limit($lead_product_limit)->get()->pluck("id")->toArray();
