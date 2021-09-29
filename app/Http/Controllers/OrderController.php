@@ -375,7 +375,7 @@ class OrderController extends Controller
     public function orderPreviewSentMails(Request $request){
         
         $id = $request->id;
-        $lists = Email::where('model_id',$id)->get()->orderBy('id', 'DESC');
+        $lists = Email::where('model_id',$id)->orderBy('id', 'DESC')->get();
  
         return response()->json(["code" => 200, "data" => $lists]);
     }
