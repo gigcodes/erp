@@ -17,16 +17,14 @@
               <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                 <thead>
                   <tr>
-                  <th>Date <br> Action</th>
+                  <th>Date </th> 
                   <th>Sender</th>
                   <th>Receiver</th>
-                  <th>Mail <br> Type</th>
                   <th>Subject</th>
+                  <th>Message</th>
                   <th>Status</th>
                   <th>Draft</th>
                   <th>Error Message</th>
-                  <th>Message</th>
-                  <th>Category</th>
                   </tr>
                 </thead>
                 <tbody class="product-items-list">

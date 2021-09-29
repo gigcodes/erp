@@ -676,6 +676,9 @@
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
 @section('scripts')
+
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
@@ -683,7 +686,13 @@
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
   <script type="text/javascript">
+    CKEDITOR.replace('editableFile');
+  </script>
+  <script type="text/javascript">
+
+  
     $(document).on('click','.magento-order-status',function(event){ 
       event.preventDefault();
       $('#order-status-map').modal('show');
@@ -890,12 +899,11 @@
                       <td >`+v.created_at+`</td>
                       <td >`+v.from+`</td>
                       <td >`+v.to+`</td>
-                      <td >`+v.model_type+`</td>
                       <td >`+v.subject+`</td>
+                      <td >`+v.message+`</td> 
                       <td >`+v.status+`</td>
                       <td >`+v.is_draft+`</td>
-                      <td >`+v.message+`</td>
-                      <td >`+v.email_category_id+`</td>
+                      <td >`+v.error_message+`</td>
                     </tr>`;
 
                 });
@@ -994,6 +1002,7 @@
             if(response.code == 200) {
               $("#order-id-status-tpl").val(id);
               $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
               $("#order-status-id-status-tpl").val(status);
               $("#order-template-status-tpl").val(response.template);
               $(".msg_platform").prop('checked', false);
@@ -1007,7 +1016,10 @@
 
       $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
+          console.log($("#email_from_mail").val());
+          console.log($("#email_to_mail").val());
           var selected_array = [];
+          console.log(selected_array);
           $('.msg_platform:checkbox:checked').each(function() {
             selected_array.push($(this).val());
           });
@@ -1025,6 +1037,9 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              custom_email_content:$("#customEmailContent").val(),
+              from_mail:$("#email_from_mail").val(),
+              to_mail:$("#email_to_mail").val(),
               order_via: selected_array,
             }
             }).done( function(response) {
