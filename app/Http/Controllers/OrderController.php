@@ -372,6 +372,14 @@ class OrderController extends Controller
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
     }
 
+    public function orderPreviewSentMails(Request $request){
+        
+        $id = $request->id;
+        $lists = Email::where('model_id',$id)->orderBy('id', 'DESC')->get();
+ 
+        return response()->json(["code" => 200, "data" => $lists]);
+    }
+
 
     public function charity_order(Request $request)
     {
@@ -2635,6 +2643,9 @@ class OrderController extends Controller
     {
         $id     = $request->get("id");
         $status = $request->get("status");
+        $custom_email_content = $request->get("custom_email_content");
+        $to_mail_address = $request->get("to_mail");
+        $from_mail_address = $request->get("from_mail");
         $order_via = $request->order_via;
         
         if (!empty($id) && !empty($status)) {
@@ -2663,6 +2674,13 @@ class OrderController extends Controller
 
                                 $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
 
+                                if($from_mail_address !='' ){
+                                    $emailClass->fromMailer = $from_mail_address;
+                                }
+                                if($to_mail_address != ''){
+                                    $order->customer->email = $to_mail_address;
+                                }
+
                                 $storeWebsiteOrder = $order->storeWebsiteOrder;
                                 $email             = Email::create([
                                     'model_id'         => $order->id,
@@ -2670,7 +2688,8 @@ class OrderController extends Controller
                                     'from'             => $emailClass->fromMailer,
                                     'to'               => $order->customer->email,
                                     'subject'          => $emailClass->subject,
-                                    'message'          => $emailClass->render(),
+                                    'message'          => $custom_email_content,
+                                    // 'message'          => $emailClass->render(),
                                     'template'         => 'order-cancellation-update',
                                     'additional_data'  => $order->id,
                                     'status'           => 'pre-send',
@@ -2683,6 +2702,12 @@ class OrderController extends Controller
                             } else {
 
                                 $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                                if($from_mail_address !='' ){
+                                    $emailClass->fromMailer = $from_mail_address;
+                                }
+                                if($to_mail_address != ''){
+                                    $order->customer->email = $to_mail_address;
+                                }
 
                                 $storeWebsiteOrder = $order->storeWebsiteOrder;
                                 $email             = Email::create([
@@ -2691,7 +2716,8 @@ class OrderController extends Controller
                                     'from'             => $emailClass->fromMailer,
                                     'to'               => $order->customer->email,
                                     'subject'          => $emailClass->subject,
-                                    'message'          => $emailClass->render(),
+                                    'message'          => $custom_email_content,
+                                    // 'message'          => $emailClass->render(),
                                     'template'         => 'order-status-update',
                                     'additional_data'  => $order->id,
                                     'status'           => 'pre-send',
@@ -2707,7 +2733,12 @@ class OrderController extends Controller
 
                     } else {
                         $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-
+                        if($from_mail_address !='' ){
+                            $emailClass->fromMailer = $from_mail_address;
+                        }
+                        if($to_mail_address != ''){
+                            $order->customer->email = $to_mail_address;
+                        }
                         $storeWebsiteOrder = $order->storeWebsiteOrder;
                         $email             = Email::create([
                             'model_id'         => $order->id,
@@ -2715,7 +2746,8 @@ class OrderController extends Controller
                             'from'             => $emailClass->fromMailer,
                             'to'               => $order->customer->email,
                             'subject'          => $emailClass->subject,
-                            'message'          => $emailClass->render(),
+                            'message'          => $custom_email_content,
+                            // 'message'          => $emailClass->render(),
                             'template'         => 'order-status-update',
                             'additional_data'  => $order->id,
                             'status'           => 'pre-send',
@@ -3841,8 +3873,58 @@ class OrderController extends Controller
                 $template = $statusModal->message_text_tpl;
             }
         }
+
+
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
-        return response()->json(["code" => 200, "template" => $template]);
+        $from="customercare@sololuxury.co.in";
+        if (strtolower($statusModal->status) == "cancel") {
+
+            $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            if ($storeWebsiteOrder) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                if($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+                
+            } 
+            $preview="<table>
+                    <tr>
+                       <td>To</td><td>
+                       <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='".$order->customer->email."' >
+                       </td></tr><tr>
+                       <td>From </td> <td> 
+                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='".$from."' >
+                       </td></tr><tr>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$emailClass->render()."</textarea></td>
+                    </tr>
+            </table>";   
+        } 
+        else
+        {
+            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            if ($storeWebsiteOrder) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                if($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+            }
+            $preview="<table>
+                    <tr>
+                       <td>To</td><td>
+                       <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='".$order->customer->email."' >
+                       </td></tr><tr>
+                       <td>From </td> <td> 
+                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='".$from."' >
+                       </td></tr><tr>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$emailClass->render()."</textarea></td>
+                    </tr>
+            </table>";
+        }
+       
+
+        return response()->json(["code" => 200, "template" => $template ,'preview'=>$preview]);
     }
 
     public function getInvoiceDetails(Request $request, $invoiceId)
