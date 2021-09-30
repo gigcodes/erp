@@ -15,6 +15,10 @@ use App\ScrapedProducts;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\FetchEmail;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class TmpTaskController extends Controller
 {
@@ -149,8 +153,7 @@ class TmpTaskController extends Controller
 
     public function testPushProduct(Request $request)
     {
-       
-       
+             
         $queueName = [
             "1" => "mageone",
             "2" => "magetwo",

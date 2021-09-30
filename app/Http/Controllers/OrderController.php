@@ -68,6 +68,8 @@ use Session;
 use Storage;
 use \SoapClient;
 use Illuminate\Database\Eloquent\Builder;
+use Twilio\Rest\Client;
+use Exception;
 
 
 class OrderController extends Controller
@@ -75,11 +77,11 @@ class OrderController extends Controller
 
     public function __construct()
     {
-
         //      $this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
         //      $this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
         //      $this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
         //      $this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
+
     }
 
     /**
@@ -368,6 +370,14 @@ class OrderController extends Controller
         $orderStatusList = OrderStatus::all();
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
+    }
+
+    public function orderPreviewSentMails(Request $request){
+        
+        $id = $request->id;
+        $lists = Email::where('model_id',$id)->orderBy('id', 'DESC')->get();
+ 
+        return response()->json(["code" => 200, "data" => $lists]);
     }
 
 
@@ -2633,7 +2643,11 @@ class OrderController extends Controller
     {
         $id     = $request->get("id");
         $status = $request->get("status");
-
+        $custom_email_content = $request->get("custom_email_content");
+        $to_mail_address = $request->get("to_mail");
+        $from_mail_address = $request->get("from_mail");
+        $order_via = $request->order_via;
+        
         if (!empty($id) && !empty($status)) {
             $order   = \App\Order::where("id", $id)->first();
             $statuss = OrderStatus::where("id", $status)->first();
@@ -2644,87 +2658,122 @@ class OrderController extends Controller
                 $order->order_status_id = $status;
                 $order->save();
 
-                $history             = new OrderStatusHistory;
+                $history = new OrderStatusHistory;
                 $history->order_id   = $order->id;
                 $history->old_status = $old_status;
                 $history->new_status = $status;
                 $history->user_id    = Auth::user()->id;
                 $history->save();
-                if (isset($request->sendmessage) && $request->sendmessage == '1') {
-                    //Sending Mail on changing of order status
-                    try {
-                        // send order canellation email
-                        if (strtolower($statuss->status) == "cancel") {
 
-                            $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+                if(in_array('email', $order_via)){
+                    if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                        //Sending Mail on changing of order status
+                        try {
+                            // send order canellation email
+                            if (strtolower($statuss->status) == "cancel") {
 
-                            $storeWebsiteOrder = $order->storeWebsiteOrder;
-                            $email             = Email::create([
-                                'model_id'         => $order->id,
-                                'model_type'       => Order::class,
-                                'from'             => $emailClass->fromMailer,
-                                'to'               => $order->customer->email,
-                                'subject'          => $emailClass->subject,
-                                'message'          => $emailClass->render(),
-                                'template'         => 'order-cancellation-update',
-                                'additional_data'  => $order->id,
-                                'status'           => 'pre-send',
-                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
-                                'is_draft'         => 0,
-                            ]);
+                                $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
 
-                            \App\Jobs\SendEmail::dispatch($email);
+                                if($from_mail_address !='' ){
+                                    $emailClass->fromMailer = $from_mail_address;
+                                }
+                                if($to_mail_address != ''){
+                                    $order->customer->email = $to_mail_address;
+                                }
 
-                        } else {
+                                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                                $email             = Email::create([
+                                    'model_id'         => $order->id,
+                                    'model_type'       => Order::class,
+                                    'from'             => $emailClass->fromMailer,
+                                    'to'               => $order->customer->email,
+                                    'subject'          => $emailClass->subject,
+                                    'message'          => $custom_email_content,
+                                    // 'message'          => $emailClass->render(),
+                                    'template'         => 'order-cancellation-update',
+                                    'additional_data'  => $order->id,
+                                    'status'           => 'pre-send',
+                                    'store_website_id' => (isset($storeWebsiteOrder)) ? $storeWebsiteOrder->store_website_id : null,
+                                    'is_draft'         => 0,
+                                ]);
 
-                            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                                \App\Jobs\SendEmail::dispatch($email);
 
-                            $storeWebsiteOrder = $order->storeWebsiteOrder;
-                            $email             = Email::create([
-                                'model_id'         => $order->id,
-                                'model_type'       => Order::class,
-                                'from'             => $emailClass->fromMailer,
-                                'to'               => $order->customer->email,
-                                'subject'          => $emailClass->subject,
-                                'message'          => $emailClass->render(),
-                                'template'         => 'order-status-update',
-                                'additional_data'  => $order->id,
-                                'status'           => 'pre-send',
-                                'is_draft'         => 0,
-                            ]);
+                            } else {
 
-                            \App\Jobs\SendEmail::dispatch($email);
+                                $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                                if($from_mail_address !='' ){
+                                    $emailClass->fromMailer = $from_mail_address;
+                                }
+                                if($to_mail_address != ''){
+                                    $order->customer->email = $to_mail_address;
+                                }
+
+                                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                                $email             = Email::create([
+                                    'model_id'         => $order->id,
+                                    'model_type'       => Order::class,
+                                    'from'             => $emailClass->fromMailer,
+                                    'to'               => $order->customer->email,
+                                    'subject'          => $emailClass->subject,
+                                    'message'          => $custom_email_content,
+                                    // 'message'          => $emailClass->render(),
+                                    'template'         => 'order-status-update',
+                                    'additional_data'  => $order->id,
+                                    'status'           => 'pre-send',
+                                    'is_draft'         => 0,
+                                ]);
+
+                                \App\Jobs\SendEmail::dispatch($email);
+                            }
+
+                        } catch (\Exception $e) {
+                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
                         }
 
-                    } catch (\Exception $e) {
-                        \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                    } else {
+                        $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                        if($from_mail_address !='' ){
+                            $emailClass->fromMailer = $from_mail_address;
+                        }
+                        if($to_mail_address != ''){
+                            $order->customer->email = $to_mail_address;
+                        }
+                        $storeWebsiteOrder = $order->storeWebsiteOrder;
+                        $email             = Email::create([
+                            'model_id'         => $order->id,
+                            'model_type'       => Order::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $order->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $custom_email_content,
+                            // 'message'          => $emailClass->render(),
+                            'template'         => 'order-status-update',
+                            'additional_data'  => $order->id,
+                            'status'           => 'pre-send',
+                            'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                            'is_draft'         => 0,
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($email);
+
                     }
-
-                } else {
-                    $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-
-                    $storeWebsiteOrder = $order->storeWebsiteOrder;
-                    $email             = Email::create([
-                        'model_id'         => $order->id,
-                        'model_type'       => Order::class,
-                        'from'             => $emailClass->fromMailer,
-                        'to'               => $order->customer->email,
-                        'subject'          => $emailClass->subject,
-                        'message'          => $emailClass->render(),
-                        'template'         => 'order-status-update',
-                        'additional_data'  => $order->id,
-                        'status'           => 'pre-send',
-                        'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
-                        'is_draft'         => 0,
-                    ]);
-
-                    \App\Jobs\SendEmail::dispatch($email);
-
                 }
 
-                // }catch(\Exception $e) {
-                //   \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
-                // }
+                if(in_array('sms', $order_via)){
+                
+                    if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                        if(isset($order->storeWebsiteOrder)){
+
+                            $website = \App\Website::where('id', $order->storeWebsiteOrder->website_id)->first();
+                            
+                            $receiverNumber = $order->contact_detail;
+                            \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $request->message, $website->store_website_id);
+                        }
+                        
+                    }
+                }
+                
             }
             //Sending Mail on changing of order status
             if (isset($request->sendmessage) && $request->sendmessage == '1') {
@@ -3556,7 +3605,7 @@ class OrderController extends Controller
     }
 
     public function updateDelDate(request $request)
-    {
+    { 
         $orderid                                  = $request->input('orderid');
         $newdeldate                               = $request->input('newdeldate');
         $fieldname                                = $request->input('fieldname');
@@ -3570,8 +3619,43 @@ class OrderController extends Controller
         $estimated_delivery_histories->updated_by = $userId;
         $estimated_delivery_histories->old_value  = $oldOrderDelDate;
         $estimated_delivery_histories->new_value  = $newdeldate;
+		$order_via = $request->order_via;
+		
+       
         if ($estimated_delivery_histories->save()) {
             $oldOrderDelData->update(['estimated_delivery_date' => $newdeldate]);
+			 $order = \App\Order::where("id", $orderid)->first();
+		
+			if(in_array('email', $order_via)){
+			  $emailClass = (new \App\Mails\Manual\OrderDeliveryDateChangeMail($order))->build();
+			  $storeWebsiteOrder = $order->storeWebsiteOrder;
+              $email             = Email::create([
+                  'model_id'         => $order->id,
+                  'model_type'       => Order::class,
+                  'from'             => $emailClass->fromMailer,
+                  'to'               => $order->customer->email,
+                  'subject'          => $emailClass->subject,
+                  'message'          => $emailClass->render(),
+                  'template'         => 'order-status-update',
+                  'additional_data'  => $order->id,
+                  'status'           => 'pre-send',
+                  'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                  'is_draft'         => 0,
+             ]);
+			\App\Jobs\SendEmail::dispatch($email);
+        }
+		$message = "Order delivery date has been changed to ".$newdeldate; 
+        if(in_array('sms', $order_via)){
+             if(isset($order->storeWebsiteOrder)){
+					 $receiverNumber = $order->contact_detail;
+					 if($storeWebsiteOrder->store_website_id) {
+						\App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $message, $storeWebsiteOrder->store_website_id);
+					 }
+            }
+        }
+		
+		 UpdateOrderStatusMessageTpl::dispatch($order->id, $message)->onQueue("customer_message");
+			
             return response()->json(["code" => 200, "data" => [], "message" => "Delivery Date Updated Successfully"]);
         }
         return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
@@ -3789,8 +3873,58 @@ class OrderController extends Controller
                 $template = $statusModal->message_text_tpl;
             }
         }
+
+
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
-        return response()->json(["code" => 200, "template" => $template]);
+        $from="customercare@sololuxury.co.in";
+        if (strtolower($statusModal->status) == "cancel") {
+
+            $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            if ($storeWebsiteOrder) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                if($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+                
+            } 
+            $preview="<table>
+                    <tr>
+                       <td>To</td><td>
+                       <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='".$order->customer->email."' >
+                       </td></tr><tr>
+                       <td>From </td> <td> 
+                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='".$from."' >
+                       </td></tr><tr>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$emailClass->render()."</textarea></td>
+                    </tr>
+            </table>";   
+        } 
+        else
+        {
+            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            if ($storeWebsiteOrder) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                if($emailAddress) {
+                    $from = $emailAddress->from_address;
+                }
+            }
+            $preview="<table>
+                    <tr>
+                       <td>To</td><td>
+                       <input type='email' required id='email_to_mail' class='form-control' name='to_mail' value='".$order->customer->email."' >
+                       </td></tr><tr>
+                       <td>From </td> <td> 
+                       <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='".$from."' >
+                       </td></tr><tr>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >".$emailClass->render()."</textarea></td>
+                    </tr>
+            </table>";
+        }
+       
+
+        return response()->json(["code" => 200, "template" => $template ,'preview'=>$preview]);
     }
 
     public function getInvoiceDetails(Request $request, $invoiceId)

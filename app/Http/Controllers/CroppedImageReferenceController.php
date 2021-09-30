@@ -266,10 +266,30 @@ class CroppedImageReferenceController extends Controller
 
     public function manageInstance(Request $request)
     {
+        
         $instances = \App\CroppingInstance::all();
 
         return view("image_references.partials.manage-instance", compact('instances'));
     }
+    public function loginstance(Request $request)
+    {
+        $url = 'http://173.212.203.50:100/get-logs';
+        $date=$request->date;
+        $id=$request->id;
+
+
+        $data = ['instance_id' => $id,'date'=>$date];
+        $data = json_encode($data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($ch);
+        echo $result;
+        
+    }
+    
 
     public function addInstance(Request $request)
     {

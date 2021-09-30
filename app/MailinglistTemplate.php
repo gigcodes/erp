@@ -21,7 +21,7 @@ class MailinglistTemplate extends Model
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      */
-    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id'];
+    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id','from_email'];
 
     public function file()
     {
@@ -73,6 +73,13 @@ class MailinglistTemplate extends Model
         return self::getTemplate($category_default, $store);
             
         }
+    }
+
+    public static function getOrderDeliveryDateChangeTemplate($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Order Delivery Date Change')->first();
+
+        return self::getTemplate($category, $store);
     }
 
     public static function getMailTemplate($order_status,$store = null)
@@ -159,8 +166,8 @@ class MailinglistTemplate extends Model
     }
 
     public static function getTemplate($category, $store = null)
-    {
-        if ($store) {
+    { 
+     	if ($store) {
             return self::where('store_website_id', $store)->where('category_id', $category->id)->first();
         } else {
             return self::where(function($q) {

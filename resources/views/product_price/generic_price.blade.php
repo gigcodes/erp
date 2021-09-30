@@ -3,6 +3,7 @@
 @section('title','Product pricing')
 
 @section('content')
+
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
 <style>.hidden {
     display:none;
@@ -20,16 +21,16 @@
 </style>
 <div class = "row m-0">
     <div class="col-lg-12 margin-tb p-0">
-        <h2 class="page-heading">Product pricing</h2>
+        <h2 class="page-heading">Product pricing ({{$numcount}}) </h2>
     </div>
 </div>
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
-            <form class="form-inline filter_form" action="" method="GET">
+            <form id="form1" class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
-                    <select class="form-control globalSelect2" data-placeholder="Select Category" name="category_id" id="categoryForGenericPrices">
-                    <option value="">Select Websites</option>
+                    <select class="form-control globalSelect2" data-placeholder="Select Category" name="id" id="categoryForGenericPrices">
+                    <option value="">Select Category</option>       
                     @php
                     $selectcate ='';
                     if(isset($_GET['id'])){
@@ -38,14 +39,64 @@
                     @endphp
                         @if ($categories)
                             @foreach($categories as $category)
-                                <option value="{{ $category['id'] }}" @if($selectcate == $category['id']) selected @endif  >{{ $category['title'] }}</option>
+                            @php
+                    $selectcate ='';
+                    if(isset($_GET['id']) && $_GET['id']==$category['id']){
+                      $selectcate ="selected='selected'";
+                    }
+                    @endphp
+                                <option  {{$selectcate}} value="{{ $category['id'] }}"   >{{ $category['title'] }}</option>
                             @endforeach
                         @endif
                     </select>
                 </div>
 
                 <div class="form-group mr-3">
-                    <a onClick="showgenerice()" class="btn btn-secondary">Show Generic Prices</a>
+                    <select class="form-control "  name="website" >
+                    <option value="">Select Website</option>
+                   
+                            @foreach($cats as $c)
+                            @php
+                    $selectcate ='';
+                    if(isset($_GET['website']) && $_GET['website']==$c->id){
+                      $selectcate ="selected='selected'";
+                    }
+                    @endphp
+                                <option {{$selectcate}} value="{{$c->id}}" >{{$c->title}}</option>
+                            @endforeach
+                       
+                    </select>
+                </div> 
+                <div class="form-group mr-3">
+                    <select class="form-control "  name="brand_segment" >
+                    <option value="">Select Brand segment</option>
+                              
+                           
+                                <option <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='A') { echo "selected='selected'";} ?> value="A" >A</option>
+                                <option  <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='B') { echo "selected='selected'";} ?> value="B" >B</option>
+                                <option  <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='C') { echo "selected='selected'";} ?> value="C" >C</option>
+                                <option  <?php if (isset($_GET['brand_segment']) && $_GET['brand_segment']=='D') { echo "selected='selected'";} ?> value="D" >D</option>
+                            
+                       
+                    </select>
+                </div> 
+                <div class="form-group mr-3">
+                    <select class="form-control "  name="category_segments" >
+                    <option value="">Select Country segment</option>
+                              
+                           
+                    <option <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='A') { echo "selected='selected'";} ?> value="A" >A</option>
+                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='B') { echo "selected='selected'";} ?> value="B" >B</option>
+                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='C') { echo "selected='selected'";} ?> value="C" >C</option>
+                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='D') { echo "selected='selected'";} ?> value="D" >D</option>
+                            
+                            
+                       
+                    </select>
+                </div> 
+
+                <div class="form-group mr-3">
+                    <a onClick="$('#form1').submit();" class="btn btn-secondary">Show Generic Prices</a>
                 </div>
             </form>
         </div>
@@ -360,56 +411,6 @@ $(document).on('click', '.expand-row', function () {
   }
 });
 
-$(document).on('keyup', '.add_profit', function () {
-        if (event.keyCode != 13) {
-            return;
-        }
-        let add_profit = $(this).val().replace('%', '');
-        let ref_name = $(this).data('ref');
-        let rows = $('.'+ref_name).closest('tr');
-        let product_array = [];
-        for(let i=0; i< rows.length; i++){
-            product_array[i] = {
-                'row_id' : $(rows[i]).attr('data-id'),
-                'storewebsitesid' : $(rows[i]).attr('data-storewebsitesid'),
-                'product_id' : $(rows[i]).closest('tr').find('.product_id').text(),
-                'add_duty' : $(rows[i]).closest('tr').find('.add_duty').val().replace('%', ''),
-                'product_id' : $(rows[i]).find('.product_id').text(),
-                'add_profit' : $(rows[i]).closest('tr').find('.add_profit').val().replace('%', ''),
-                'country_code' : $(rows[i]).attr('data-country_code'), 
-            };
-        }
-
-        $.ajax({
-            url: "{{route('product.pricing.update.add_profit')}}",
-            type: 'post',
-            data: {
-                _token: '{{csrf_token()}}',
-                product_array: JSON.stringify(product_array),
-                add_profit: add_profit,
-                row_id: $(this).closest('tr').attr('data-id'),
-            },
-            beforeSend: function () {
-                $("#loading-image").show();
-            }
-        }).done(function(response) {
-            $("#loading-image").hide();
-            if(response.status == false){
-                toastr["error"](response.message + " is not exist!", "Message");
-            }else{
-                response.data.forEach(function(item, index) {
-                    if(item.status){
-                        let row = $(`.tr_${item.row_id}`); 
-                        $(row).find('td:nth-child(12) span').html(item.add_profit);
-                        $(row).find('.add_profit').val(add_profit);
-                        $(row).find('td:nth-child(13)').html(item.price);
-                    }
-                }); 
-                toastr["success"]("profit updated successfully!", "Message");
-            }
-        });
-
-    }); 
 
 $(document).on('click', '.UpdateProduct', function () {
 	var tr = $(this).closest('tr'); 
@@ -426,6 +427,7 @@ $(document).on('click', '.UpdateProduct', function () {
         catId:    $(this).attr('data-catid'),
 		add_profit : $(tr).find('td .add_profit').val(),
 		country_code : $(tr).attr('data-country_code'),
+		brand_segment : $(tr).attr('data-brand-segment'),
     }; 
 
     $.ajax({
