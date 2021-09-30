@@ -51,7 +51,7 @@
                         </button> -->
                         
 
-                        <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $store->id,'web_id' => $list->id,'code' => $item->code, 'startDate' => $current_date, 'endDate' => $current_date ]) }}" title="Open Images"
+                        <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $store->id,'web_id' => $list->id,'code' => $item->code]) }}" title="Open Images"
                             type="button" class="btn show-scrape-images btn-image no-pd"
                             data-suggestedproductid="{{ $store->id }}">
                             <img src="/images/forward.png" style="cursor: default;">
