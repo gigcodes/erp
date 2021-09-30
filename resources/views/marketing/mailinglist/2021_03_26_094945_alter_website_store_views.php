@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddApiKeyInStoreWebsiteTable extends Migration
+class AlterWebsiteStoreViews extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('api_token')->nullable()->after("magento_password");
-            
+        Schema::table('website_store_views', function (Blueprint $table) {
+            $table->integer("site_submit_webmaster")->default(0)->nullable();
         });
     }
 
@@ -26,8 +25,8 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            //
+        Schema::table('website_store_views', function (Blueprint $table) {
+            $table->dropField("site_submit_webmaster");
         });
     }
 }

@@ -133,6 +133,13 @@
                             <?php echo Form::select("store_website", ["-- None --"] + $storeWebSites, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]); ?>
                             <span class="text-danger"></span>
                         </div>
+						
+						
+                        <div class="form-group">
+                            <label for="mail_tpl">Store Website</label>
+							{{ Form::checkbox("store_website", null, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]) }}
+                            <span class="text-danger"></span>
+                        </div>
 
                         <!-- <div class="form-group">
                             <label for="exampleInputImageCount">Image Count</label>

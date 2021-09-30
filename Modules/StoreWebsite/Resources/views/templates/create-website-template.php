@@ -9,7 +9,7 @@
 		      </button>
 		   </div>
 		   <div class="modal-body">
-		      <div class="form-row">
+		      <div class="form-row"> 
 		         {{if data}}
 		         	<input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
 		         {{/if}}
@@ -21,12 +21,34 @@
 		            <label for="website">Website</label>
 		            <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
 		         </div>
+
 		         <div class="form-group col-md-4">
 		            <label for="website">Semrush Project Id</label>
 		            <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="website" placeholder="Enter Semrush Project Id">
 		         </div>
 		      </div>
 
+
+		         <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="country_duty">Mailing Service Id</label>
+	                        <select name="mailing_service_id" class="form-control">
+	                           <option disabled>-- N/A --</option>
+	                           		
+	                           <?php
+		                           if(isset($services)){
+		                           foreach($services as $service){
+	                           ?>
+	                       			<option value="<?php echo $service->id;  ?> {{if data}}{{:data.website==}}<?php echo $service->id ; ?> SELECTED {{/if}} "><?php echo $service->name; ?>  </option>
+	                       		<?php
+	                       			}
+	                           			}
+	                       		?>
+	                           
+	                        </select>
+		                </div>
+                    </div>
+		      </div>
 
 		      <div class="row">
 		        <div class="col-md-4">

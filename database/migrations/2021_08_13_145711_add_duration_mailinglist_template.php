@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddApiKeyInStoreWebsiteTable extends Migration
+class AddDurationMailinglistTemplate extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('api_token')->nullable()->after("magento_password");
-            
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
+            $table->boolean('auto_send')->default(0);
+            $table->string('duration');
+            $table->string('duration_in');
         });
     }
 
@@ -26,7 +27,7 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
+        Schema::table('mailinglist_templates', function (Blueprint $table) {
             //
         });
     }

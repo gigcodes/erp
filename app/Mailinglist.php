@@ -43,5 +43,69 @@ class Mailinglist extends Model
     {
         return $this->belongsToMany(Customer::class, 'list_contacts', 'list_id', 'customer_id')->withTimestamps();
     }
+	
+	public function sendAutoEmails($mailingList, $mailing_item, $service) { 
+		$mailing_item->customer = $mailingList;
+		$emailClass = (new \App\Mail\MailingListMails($mailing_item))->build(); 
+		
+		if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) { 
+			//if(!empty($mailing_item['static_template'])) { 
+				$emailEvent = EmailEvent::create(["list_contact_id"=>$mailingList->list_contact_id, 'template_id'=> $mailing_item->id]);
+				$htmlContent = $emailClass['template'];
+				$data = [
+					"to" => [0=>["email"=>$mailingList->email]],
+					"sender" => [
+						"email" => $emailClass['from_email']
+					],
+					"subject" => $mailing_item->subject,
+					"htmlContent" => $htmlContent, 
+					"tag" => $emailEvent->id
+				];  
+				$curl = curl_init();
+				curl_setopt_array($curl, array(
+				CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/email",
+
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "POST",
+				CURLOPT_POSTFIELDS => json_encode($data),
+				CURLOPT_HTTPHEADER => array(
+					"api-key:".env('SEND_IN_BLUE_SMTP_EMAIL_API'),
+					"Content-Type: application/json"
+					),
+				));
+				$response = curl_exec($curl);
+				$response = json_decode($response);
+				curl_close($curl);
+				
+			//}
+		}else if(strpos($service->name, 'AcelleMail') !== false) {  
+			//if(!empty($mailing_item['static_template'])) { 
+				$htmlContent = $emailClass['template'];
+				$curl = curl_init();
+
+				curl_setopt_array($curl, array(
+				 CURLOPT_URL => "https://acelle.theluxuryunlimited.com/api/v1/campaign/create/".$mailingList->remote_id."?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 0,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "POST",
+				CURLOPT_POSTFIELDS => array('name' => $mailing_item->subject,'subject' => $mailing_item->subject, 'run_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s') , 'template_content' => $htmlContent),
+				));
+
+                            $response = curl_exec($curl);   
+                            $response = json_decode($response);
+							curl_close($curl);
+			//}
+                           
+		}
+		
+	}
 
 }

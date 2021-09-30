@@ -16,6 +16,12 @@ use App\Helpers\TwilioHelper;
 Auth::routes();
 
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
+Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
+Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
+Route::get('send_auto_emails', 'Marketing\MailinglistController@sendAutoEmails');
+
+Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
+
 
 //Route::get('unused_category', 'TestingController@Demo');
 
@@ -189,21 +195,7 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
-Route::prefix('seo')->middleware('auth')->group(function () {
-    Route::get('/', 'SeoToolController@index')->name('seo-tool');
-    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
-   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
-    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
-    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
-    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
-	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
-	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
-	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
-	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
-	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
-	Route::get('project-list', 'SeoToolController@projectList');
-	Route::post('save-keyword', 'SeoToolController@saveKeyword');
-});
+
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
@@ -332,11 +324,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
     Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
     Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
+
     Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
     Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
     
 
     Route::get('customer-charity/get-website-store/{charity_id}', 'CustomerCharityController@getCharityWebsiteStores')->name('charity.website.stores');
+
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');

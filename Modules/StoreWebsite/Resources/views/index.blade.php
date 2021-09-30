@@ -92,7 +92,7 @@
       </div>    
 			</div>
 		</div>
-	</div>
+	</div> 
 </div>
 
 <div id="buildHistoryModal" class="modal fade" role="dialog">
@@ -175,7 +175,7 @@
 <script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/store-website.js') }}"></script>
 
-<script type="text/javascript">
+<script type="text/javascript">  
 	page.init({
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"

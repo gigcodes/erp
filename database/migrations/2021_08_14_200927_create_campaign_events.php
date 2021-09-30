@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddApiKeyInStoreWebsiteTable extends Migration
+class CreateCampaignEvents extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('api_token')->nullable()->after("magento_password");
-            
+        Schema::create('campaign_events', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('email');
+            $table->string('event');
+            $table->string('date_event');
+            $table->timestamps();
         });
     }
 
@@ -26,8 +29,6 @@ class AddApiKeyInStoreWebsiteTable extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            //
-        });
+        //
     }
 }

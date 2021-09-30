@@ -6,6 +6,7 @@
 		      	<th width="2%">Id</th>
 		        <th width="5%">Title</th>
 		        <th width="10%">Website</th>
+		        <th width="10%">Mailing service id</th>
 		        <th width="2%">Remote software</th>
 		        <th width="5%">Facebook</th>
 		        <th width="5%">Instagram</th>
@@ -27,6 +28,7 @@
 			        	<b>Country Duty : </b>{{:prop.country_duty}}<br>
 			        	<b>Description : </b>{{:prop.description}}<br>
 			        </td>
+			        <td>{{:prop.mailing_service_id}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
