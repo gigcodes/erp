@@ -45,53 +45,47 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-				{{ Form::open(array('url'=>route('add.customer.group'), 'class'=>'ajax-submit')) }}
-                <div class="modal-body edit-modal-body" id="edit-modal">
+				
+                {{ Form::open(array('url'=>route('add.customer.group'), 'class'=>'ajax-submit')) }}
+				<div class="modal-body edit-modal-body" id="edit-modal">
 					<input type="hidden" id="message_group_id" name="message_group_id" value="{{$messageGroupId}}">
                     <div class="form-group">
                         <label for="exampleInputEmail1">Customer Name</label>
                         {{ Form::select('customer_id', [], null, array('class'=>'form-control customer-select', 'required')) }}
-                    </div>                      
-                </div>
+                    </div>     
+				</div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>                    
                 </div>
-				</form>
+				</form>	
             </div>
         </div>
     </div>
 
-    {{--   <div class="table-responsive mt-3">
+    <div class="table-responsive mt-3">
         <table class="table table-bordered" id="passwords-table">
             <thead>
             <tr>
                 <th style="">ID</th>
                 <th style="">Name</th>
-                <th style="">Store Website</th>
-                <th style="">Service</th>
+                <th style="">Email</th>
                 <th style="">Action</th>
             </thead>
             <tbody>
-            @foreach($data as $value)
+            @foreach($customers as $value)
                 <tr class="{{$value->id}}">
                     <td id="id">{{$value->id}}</td>
                     <td id="name">{{$value->name}}</td>
-                    <td id="description">{{$value->store_website_id}}</td>
-                    <td id="description">{{$value->service_id}}</td>
-                    <td>
-					    <i class="fa fa-user-plus change" title="Add user" aria-hidden="true" onclick="showCustomerForm('{{$value->id}}')"></i>
-					    <i class="fa fa-pencil-square-o change" title="Edit" aria-hidden="true"></i>
-                        <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-task-queue')}}" data-id="{{$value->id}}" aria-hidden="true"></i>
-                    </td>
+                    <td id="description">{{$value->email}}</td>
+                    <td><a href="#" data-route="{{route('remove.customer.group')}}" data-id="{{$value->groupCustomerId}}" class="trigger-delete"><i style="cursor: pointer;" class="fa fa-trash "   aria-hidden="true"></i>
+                   </a></td>
                 </tr>
             @endforeach
             </tbody>
         </table>
-        @if(isset($data))
-            {{ $data->links() }}
-        @endif
-    </div>--}}
+      
+    </div>
 @endsection
 
 
@@ -156,6 +150,7 @@
 
 		$(document).ready(function() {
 		$(".customer-select").select2({
+			dropdownParent: $("#addCustomer"),
 			ajax: {
 				url: base_url+"fetch/customers",
 				dataType: 'json',
@@ -165,16 +160,16 @@
 						q: params.term // search term
 					};
 				},
-				processResults: function(data, params) {
+				processResults: function(data, params) { 
 					var resData = [];
 					data.forEach(function(value) {
-						if (value.name.indexOf(params.term) != -1)
+						if (value.email.indexOf(params.term) != -1)
 							resData.push(value)
-					})
+					});
 					return {
 						results: $.map(resData, function(item) {
 							return {
-								text: item.name,
+								text: item.email,
 								id: item.id
 							}
 						})

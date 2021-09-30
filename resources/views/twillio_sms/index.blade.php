@@ -26,12 +26,39 @@
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Managing Group</h2>
-                    <button type="button" class="btn btn-primary float-right" data-toggle="modal"
-                            data-target="#messageGroup"> Add Messaging Group </button>
+                  &nbsp;  <button type="button" class="btn btn-primary float-right" data-toggle="modal"
+                            data-target="#messageGroup"> Add Messaging Group </button>  &nbsp;
+							&nbsp;<button type="button" class="btn btn-primary float-right" data-toggle="modal"
+                            data-target="#serviceModal"> Add Service </button>&nbsp;
                 </div>
             </div>
         </div>
 
+    </div>
+	
+	<div class="modal fade" id="serviceModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Service</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('create.message.service')}}"  method="POST" class="ajax-submit">
+                        @csrf
+                        <div class="form-group">
+                            <label >Name</label>
+                            <input required name="name" type="text" class="form-control name" placeholder="Enter name">
+                        </div>
+                       
+                        <button id="btn" type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="messageGroup" tabindex="-1" role="dialog"
@@ -76,26 +103,10 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form action="{{route('create.marketing.group')}}"  method="POST" class="ajax-submit">
-                        @csrf
-                        <div class="form-group">
-                            <label >Title</label>
-                            <input required name="title" type="text" class="form-control name" placeholder="Enter title">
-                        </div>
-						<div id="append_fields">
-						</div>
-                        
-						<!--
-						<div class="form-group">
-                            <label for="exampleInputPassword1">Store Website</label>
-						 </div>
-                        <div class="form-group">
-                            <label for="exampleInputPassword1">Select Service</label>
-                        </div> -->
-						
-                        <button id="btn" type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                <div class="modal-body" >
+                    {{Form::open(array('url'=>route('create.marketing.message'), 'class'=>'ajax-submit'))}}
+					<div id="messageTitleForm"></div>
+					</form>
                 </div>
             </div>
         </div>
@@ -103,7 +114,7 @@
 
 
     <div class="table-responsive mt-3">
-        {<table class="table table-bordered" id="passwords-table">
+        <table class="table table-bordered" id="passwords-table">
             <thead>
             <tr>
                 <th style="">ID</th>
@@ -113,16 +124,16 @@
                 <th style="">Action</th>
             </thead>
             <tbody>
-            @foreach($data as $value)
+            @foreach($data as $key=>$value)
                 <tr class="{{$value->id}}">
-                    <td id="id">{{$value->id}}</td>
+                    <td id="id">{{$key+1}}</td>
                     <td id="name">{{$value->name}}</td>
-                    <td id="description">{{$value->store_website_id}}</td>
-                    <td id="description">{{$value->service_id}}</td>
+                    <td id="description">{{$value->website}}</td>
+                    <td id="description">{{$value->service}}</td>
                     <td>
 					    <a href="{{route('customer.group', ['groupId'=>$value->id])}}"><i class="fa fa-user-plus change" title="Add user" aria-hidden="true" ></i></a>
 					    <a data-toggle="modal" data-target="#messageTitle" href="javascript:void(0);" onclick="showMessageTitleModal('{{$value->id}}');"><i class="fa fa-plus change" title="Add Marketing Message" aria-hidden="true" ></i></a>
-					    <i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('delete-twilio-task-queue')}}" data-id="{{$value->id}}" aria-hidden="true"></i>
+						<a data-route="{{route('delete.message.group')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                     </td>
                 </tr>
             @endforeach
@@ -136,11 +147,6 @@
 
 
 @section('scripts')
-    <script
-            src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous"></script>
-
     <script>
 		var base_url = window.location.origin+'/';
 	    $('.ajax-submit').on('submit', function(e) { 
@@ -196,13 +202,12 @@
 			}); 
 		});	
 
-	function showMessageTitleModal(groupId){
-		
-		var fields = ' <input type="hidden" name="message_group_id" value="'+groupId+'" > ';
-		fields += ' <input type="hidden" name="is_sent" value="0" > ';
-		fields += ' <div class="form-group"><label >Scheduled Time</label><input required name="scheduled_at" type="datetime-local" class="form-control scheduled_at" ></div> ';
-		$('#append_fields').html(fields);
-		
-	}
+		function showMessageTitleModal(groupId){
+			$('#message_group_id').val(groupId);
+			$.get(base_url+"twillio/marketing/message/"+groupId, function(data, status){ 
+				$('#messageTitleForm').html(data);
+			});
+			$('#messageTitle').modal('show');			
+		}
     </script>
 @endsection
