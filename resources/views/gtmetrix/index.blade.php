@@ -209,6 +209,10 @@
                         @endforeach
                     </tbody>
                 </table>
+<!-- 
+                <td colspan="12">
+                    {{ $list->links() }}
+                </td> -->
             </div>
         </div>
         <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
@@ -451,25 +455,37 @@
                 }
             });
 
-            function loadMore() {
-                if (isLoading)
+            function loadMore() { 
+              if (isLoading)
                     return;
                 isLoading = true;
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
-                const params = new URLSearchParams(window.location.search)
+                const params = new URLSearchParams(window.location.search); 
                 keyword = params.get('keyword');
                 status = params.get('status');
                 date = params.get('date');
+                if(keyword == null) {
+                    keyword = '';
+                }
+                if(status == null || status == 'null') { 
+                    status = '';
+                }
+                if(date == null) {
+                    date = '';
+                }
+                 var url = "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword;
+                
+                console.log(url);
+
                 $.ajax({
-                    url: "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword,
+                    url: url,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {
                         $loader.show();
                     },
                     success: function (data) {
-                        
                         $loader.hide();
                         if('' === data.trim())
                             return;
