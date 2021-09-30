@@ -40,7 +40,7 @@
                     <button type="button" data-toggle="modal" data-target="#flowModal" class="btn btn-secondary">Flow</button>
                 </a>
 
-                <a class="ml-2">
+                <a class="ml-2" style="display:none;">
                     <button type="button" data-toggle="modal" data-target="#flowTypeModal" class="btn btn-secondary">Flow Type</button>
                 </a>
 

@@ -78,6 +78,10 @@ class FlowController extends Controller{
 		$inputs = $request->input(); 
 		$flowDetail = Flow::where('id', $inputs['flow_id'])->first();
 		$flowTypeId = FlowType::where('type', $inputs['action_type'])->pluck('id')->first();
+		if($flowTypeId == null) {
+			$flowDetail = FlowType::create(['type'=>$inputs['action_type']]); 
+			$flowTypeId = $flowDetail['id'];
+		}
 		$rank = FlowAction::where(['path_id'=>$inputs['path_id']])->orderBy('rank', 'desc')->whereNotNull('rank')->pluck('rank')->first();
 		if($rank == null) {
 			$rank = 1;
