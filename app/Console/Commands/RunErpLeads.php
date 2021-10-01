@@ -96,7 +96,7 @@ class RunErpLeads extends Command
                         array_push($Brand_ids,$lead->brand_id);
                     }
                     // $q->where("b.id", $lead->brand_id)->where("c.id", $lead->category_id);
-                    $q->whereIn("b.id", $Category_ids)->whereIn("c.id", $Brand_ids);
+                    $q->whereIn("b.id", $Brand_ids)->whereIn("c.id", $Category_ids);
                 });
 
                 $allProduts = $products->select(["products.*"])->orderBy("products.created_at", "desc")->limit($lead_product_limit)->get()->pluck("id")->toArray();
