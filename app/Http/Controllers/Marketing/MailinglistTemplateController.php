@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Validator;
 use Qoraiche\MailEclipse\MailEclipse;
 use View;
 
+
 class MailinglistTemplateController extends Controller
 {
     public function index()
     {
        
         
-       
-        
+      
         $mailings = MailinglistTemplate::with('category', 'storeWebsite')->paginate(20);
 
         // get first all mail class
@@ -53,10 +53,11 @@ class MailinglistTemplateController extends Controller
             ->pluck('title','id')
             ->toArray();
 
+		
         return view("marketing.mailinglist.templates.index", compact('mailings', 'rViewMail', 'MailingListCategory', 'storeWebSites'));
 
     }
-    public function ajax(Request $request)
+    public function ajax(Request $request) 
     {
 
         $query = MailinglistTemplate::query();
@@ -142,6 +143,8 @@ class MailinglistTemplateController extends Controller
 
         $mailing_item->salutation  = $request->salutation;
         $mailing_item->introduction  = $request->introduction;
+
+        $mailing_item->from_email  = $request->from_email;
 
 
         $mailing_item->save();

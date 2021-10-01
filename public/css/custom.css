@@ -1,3 +1,18 @@
+
+/**17-09-2021**/
+div#workflowModal .modal-lg {     width: 100%;     max-width: 90%; }
+div#workflowModal .modal-content {     padding: 30px 20px; }
+div#workflowModal .Twilio_Workflow_Model_btn button.btn.btn-secondary {     width: auto;     float: left;     padding: 0 30px;     height: 45px; }
+div#workflowModal .Twilio_Workflow_Model_btn {     width: auto;     float: left;     margin: 25px 0 0 0; }
+div#workflowModal .modal-content .modal-body label {     width: 100%;     float: left;     margin: 0 0 6px 0; }
+div#taskQueueModal .Twilio_Task_Queue_btn {     width: auto;     float: left; margin:25px 0 0 0;}
+div#workflowModal .modal-content .modal-body .form-control {     width: 100%;     float: left;     margin: 0 0 15px 0; height: 45px;}
+div#taskQueueModal .modal-content .modal-body .form-control {     width: 100%;     float: left;     margin: 0 0 15px 0;     height: 45px; }    
+div#taskQueueModal .modal-content .modal-body button.btn.btn-secondary {     margin: 0 15px;     height: 45px;     padding: 0 30px;     font-size: 16px; }
+div#taskQueueModal .modal-content .modal-body label {     width: 100%;     float: left;     margin: 0 0 6px 0; }
+
+
+
   .project-tab {
   padding: 10%;
   margin-top: -8%;

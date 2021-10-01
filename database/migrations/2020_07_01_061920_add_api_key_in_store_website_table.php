@@ -15,6 +15,7 @@ class AddApiKeyInStoreWebsiteTable extends Migration
     {
         Schema::table('store_websites', function (Blueprint $table) {
             $table->string('api_token')->nullable()->after("magento_password");
+            
         });
     }
 

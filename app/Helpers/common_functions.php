@@ -8,17 +8,17 @@ function printStatusView()
 
 function changeTimeZone($dateString, $timeZoneSource = null, $timeZoneTarget = null)
 {
-  if (empty($timeZoneSource)) {
-    $timeZoneSource = date_default_timezone_get();
-  }
-  if (empty($timeZoneTarget)) {
-    $timeZoneTarget = date_default_timezone_get();
-  }
+    if (empty($timeZoneSource)) {
+        $timeZoneSource = date_default_timezone_get();
+    }
+    if (empty($timeZoneTarget)) {
+        $timeZoneTarget = date_default_timezone_get();
+    }
 
-  $dt = new DateTime($dateString, new DateTimeZone($timeZoneSource));
-  $dt->setTimezone(new DateTimeZone($timeZoneTarget));
+    $dt = new DateTime($dateString, new DateTimeZone($timeZoneSource));
+    $dt->setTimezone(new DateTimeZone($timeZoneTarget));
 
-  return $dt->format("Y-m-d H:i:s");
+    return $dt->format("Y-m-d H:i:s");
 }
 
 /**
@@ -130,8 +130,8 @@ if (!function_exists('getInstance')) {
     {
         $number = !empty($number) ? $number : 0;
         return isset(config("apiwha.instances")[$number])
-            ? config("apiwha.instances")[$number]
-            : config("apiwha.instances")[0];
+        ? config("apiwha.instances")[$number]
+        : config("apiwha.instances")[0];
     }
 }
 
@@ -215,46 +215,47 @@ function formatDuration($seconds_time)
     if ($seconds_time < 24 * 60 * 60) {
         return gmdate('H:i:s', $seconds_time);
     } else {
-        $hours = floor($seconds_time / 3600);
+        $hours   = floor($seconds_time / 3600);
         $minutes = floor(($seconds_time - $hours * 3600) / 60);
         $seconds = floor($seconds_time - ($hours * 3600) - ($minutes * 60));
         return "$hours:$minutes:$seconds";
     }
 }
 
-
 function get_field_by_number($no, $field = "name")
 {
-    $no  = explode("@", $no);
+    $no = explode("@", $no);
 
-    if(!empty($no[0])) {
+    if (!empty($no[0])) {
 
-        $customer = \App\Customer::where("phone",$no[0])->first();
-        if($customer) {
-            return $customer->{$field}. " (Customer)";
+        $customer = \App\Customer::where("phone", $no[0])->first();
+        if ($customer) {
+            return $customer->{$field} . " (Customer)";
         }
 
-        $vendor = \App\Vendor::where("phone",$no[0])->first();
-        if($vendor) {
-            return $vendor->{$field}. " (Vendor)";
+        $vendor = \App\Vendor::where("phone", $no[0])->first();
+        if ($vendor) {
+            return $vendor->{$field} . " (Vendor)";
         }
 
-        $supplier = \App\Supplier::where("phone",$no[0])->first();
-        if($supplier) {
-            return $supplier->{$field}. "(Supplier)";
+        $supplier = \App\Supplier::where("phone", $no[0])->first();
+        if ($supplier) {
+            return $supplier->{$field} . "(Supplier)";
         }
     }
 
     return "";
 }
 
-function splitTextIntoSentences($text){
+function splitTextIntoSentences($text)
+{
     return preg_split('/(?<=[.?!])\s+(?=[a-z])/i', $text);
 }
 
-function isJson($string) {
-     json_decode($string);
-     return (json_last_error() == JSON_ERROR_NONE);
+function isJson($string)
+{
+    json_decode($string);
+    return (json_last_error() == JSON_ERROR_NONE);
 }
 
 function array_find($needle, array $haystack)
@@ -269,8 +270,7 @@ function array_find($needle, array $haystack)
 
 function GUID()
 {
-    if (function_exists('com_create_guid') === true)
-    {
+    if (function_exists('com_create_guid') === true) {
         return trim(com_create_guid(), '{}');
     }
 
@@ -282,16 +282,16 @@ function replace_dash($string)
 
     $string = str_replace(' ', '_', strtolower($string)); // Replaces all spaces with hyphens.
     $string = str_replace('-', '_', strtolower($string)); // Replaces all spaces with hyphens.
-    
+
     //$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
-    
-    return preg_replace('/\s+/', '_', strtolower($string));;
+
+    return preg_replace('/\s+/', '_', strtolower($string));
 }
 
 function storeERPLog($erpData)
 {
 
-    if(!empty($erpData)) {
+    if (!empty($erpData)) {
 
         $erpData['request']  = json_encode($erpData['request']);
         $erpData['response'] = json_encode($erpData['response']);
@@ -302,103 +302,105 @@ function storeERPLog($erpData)
 function getStr($srt)
 {
 
-
-    preg_match("/\[(.*)\]/", $srt , $matches);
-    if($matches && $matches[0] !== ''){
+    preg_match("/\[(.*)\]/", $srt, $matches);
+    if ($matches && $matches[0] !== '') {
         return true;
-    };
+    }
+    ;
     return false;
 
 }
 
-function string_convert($msg2){
-    
+function string_convert($msg2)
+{
+
     // $message = str_replace('||',"\n",$msg2);
     // $message = json_encode($msg2);
-    $message = explode("||",$msg2);
+    $message = explode("||", $msg2);
 
     return $message;
 }
 
+function convertToThumbUrl($url, $extension)
+{
+    $arr                  = explode("/", $url);
+    $arr[count($arr) - 1] = 'thumbnail/' . $arr[count($arr) - 1];
 
-function  convertToThumbUrl($url,$extension){
-        $arr =explode("/",$url);
-        $arr[count($arr)-1]= 'thumbnail/' . $arr[count($arr)-1];
+    $converted_str = implode('/', $arr);
 
-        $converted_str =   implode('/',$arr);
-
-            return   str_replace('.'.$extension,'_thumb.'.$extension,$converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
+    return str_replace('.' . $extension, '_thumb.' . $extension, $converted_str); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with in /thumbnaiil folder of relateable folder path.
 }
 
-function resizeCropImage($max_width=150, $max_height=150, $source_file, $dst_dir = null, $quality = 80)
-  {
+function resizeCropImage($max_width = 150, $max_height = 150, $source_file, $dst_dir = null, $quality = 80)
+{
 
-      if ($dst_dir === null) {
-          $dst_dir = $source_file;
-      }
-      $imgsize = getimagesize($source_file);
-      $width = $imgsize[0];
-      $height = $imgsize[1];
-      $mime = $imgsize['mime'];
+    if ($dst_dir === null) {
+        $dst_dir = $source_file;
+    }
+    $imgsize = getimagesize($source_file);
+    $width   = $imgsize[0];
+    $height  = $imgsize[1];
+    $mime    = $imgsize['mime'];
 
-      switch ($mime) {
-          case 'image/gif':
-              $image_create = "imagecreatefromgif";
-              $image = "imagegif";
-              break;
+    switch ($mime) {
+        case 'image/gif':
+            $image_create = "imagecreatefromgif";
+            $image        = "imagegif";
+            break;
 
-          case 'image/png':
-              $image_create = "imagecreatefrompng";
-              $image = "imagepng";
-              $quality = 7;
-              break;
+        case 'image/png':
+            $image_create = "imagecreatefrompng";
+            $image        = "imagepng";
+            $quality      = 7;
+            break;
 
-          case 'image/jpeg':
-              $image_create = "imagecreatefromjpeg";
-              $image = "imagejpeg";
-              $quality = 80;
-              break;
+        case 'image/jpeg':
+            $image_create = "imagecreatefromjpeg";
+            $image        = "imagejpeg";
+            $quality      = 80;
+            break;
 
-          default:
-              return false;
-              break;
-      }
+        default:
+            return false;
+            break;
+    }
 
-      $dst_img = imagecreatetruecolor($max_width, $max_height);
-      $src_img = $image_create($source_file);
+    $dst_img = imagecreatetruecolor($max_width, $max_height);
+    $src_img = $image_create($source_file);
 
-      imagealphablending($dst_img, false);
-      imagesavealpha($dst_img, true);
+    imagealphablending($dst_img, false);
+    imagesavealpha($dst_img, true);
 
-      $width_new = $height * $max_width / $max_height;
-      $height_new = $width * $max_height / $max_width;
-      //if the new width is greater than the actual width of the image, then the height is too large and the rest cut off, or vice versa
-      if ($width_new > $width) {
-          //cut point by height
+    $width_new  = $height * $max_width / $max_height;
+    $height_new = $width * $max_height / $max_width;
+    //if the new width is greater than the actual width of the image, then the height is too large and the rest cut off, or vice versa
+    if ($width_new > $width) {
+        //cut point by height
         $h_point = (($height - $height_new) / 2);
-          //copy image
-        $imagecopyresampled =  imagecopyresampled($dst_img, $src_img, 0, 0, 0, $h_point, $max_width, $max_height, $width, $height_new);
-          // return true;
-      } else {
-          //cut point by width
-          $w_point = (($width - $width_new) / 2);
-      $imagecopyresampled = imagecopyresampled($dst_img, $src_img, 0, 0, $w_point, 0, $max_width, $max_height, $width_new, $height);
-          // return true;
+        //copy image
+        $imagecopyresampled = imagecopyresampled($dst_img, $src_img, 0, 0, 0, $h_point, $max_width, $max_height, $width, $height_new);
+        // return true;
+    } else {
+        //cut point by width
+        $w_point            = (($width - $width_new) / 2);
+        $imagecopyresampled = imagecopyresampled($dst_img, $src_img, 0, 0, $w_point, 0, $max_width, $max_height, $width_new, $height);
+        // return true;
 
-      }
+    }
 
-  //    if($image === 'imagepng'){
-  //        imagesavealpha($dst_img, true);
-  //    }
-  // dd($dst_img, $dst_dir, $quality);
-      $image($dst_img, $dst_dir, $quality);
+    //    if($image === 'imagepng'){
+    //        imagesavealpha($dst_img, true);
+    //    }
+    // dd($dst_img, $dst_dir, $quality);
+    $image($dst_img, $dst_dir, $quality);
 
-      if ($dst_img)
-      $imagedestroy  = imagedestroy($dst_img);
+    if ($dst_img) {
+        $imagedestroy = imagedestroy($dst_img);
+    }
 
-      if ($src_img)
-      $imagedestroy =   imagedestroy($src_img);
+    if ($src_img) {
+        $imagedestroy = imagedestroy($src_img);
+    }
 
-return @file_get_contents($dst_dir);
-  }
-
+    return @file_get_contents($dst_dir);
+}

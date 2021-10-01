@@ -16,6 +16,12 @@ use App\Helpers\TwilioHelper;
 Auth::routes();
 
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
+Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
+Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
+Route::get('send_auto_emails', 'Marketing\MailinglistController@sendAutoEmails');
+
+Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
+
 
 //Route::get('unused_category', 'TestingController@Demo');
 
@@ -189,21 +195,7 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
-Route::prefix('seo')->middleware('auth')->group(function () {
-    Route::get('/', 'SeoToolController@index')->name('seo-tool');
-    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
-   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
-    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
-    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
-    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
-	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
-	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
-	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
-	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
-	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
-	Route::get('project-list', 'SeoToolController@projectList');
-	Route::post('save-keyword', 'SeoToolController@saveKeyword');
-});
+
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
@@ -220,6 +212,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/crop-references-grid/getBrands', 'CroppedImageReferenceController@getBrands');
     Route::get('/crop-references-grid/getSupplier', 'CroppedImageReferenceController@getSupplier');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+    Route::get('/crop-references-grid/log-instance', 'CroppedImageReferenceController@loginstance');
+    
 
     Route::get('/magento/status', 'MagentoController@addStatus');
     Route::post('/magento/status/save', 'MagentoController@saveStatus')->name('magento.save.status');
@@ -330,11 +324,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
     Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
     Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
+
     Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
     Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
     
 
     Route::get('customer-charity/get-website-store/{charity_id}', 'CustomerCharityController@getCharityWebsiteStores')->name('charity.website.stores');
+
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -414,7 +410,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/change-size-system', 'ProductInventoryController@changeSizeSystem')->name('productinventory.change-size-system');
     Route::post('productinventory/change-product-status', 'ProductInventoryController@updateStatus')->name('productinventory.update-status');
     Route::post('productinventory/store-erp-size', 'ProductInventoryController@changeErpSize')->name('productinventory.change-erp-size');
-
+    Route::get('productinventory/scrape-log', 'ProductInventoryController@scrapelog');
+  
     Route::get('productinventory/inventory-history/{id}', 'ProductInventoryController@inventoryHistory')->name('productinventory.inventory-history');
     Route::post('productinventory/merge-scrap-brand', 'ProductInventoryController@mergeScrapBrand')->name('productinventory.merge-scrap-brand');
 
@@ -794,6 +791,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
+    Route::post('order/preview-sent-mails', 'OrderController@orderPreviewSentMails');
     Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
@@ -1988,6 +1986,8 @@ Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->
 Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
 Route::post('tickets/delete_tickets','LiveChatController@delete_tickets')->name('livetickets.delete');
 
+Route::get('tickets/emails/{ticketId}','LiveChatController@fetchEmailsOnTicket')->name('livetickets.fetchEmailsOnTicket');
+
 
 
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
@@ -2160,6 +2160,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('hashtag/queue/status', 'HashtagController@checkStatusCommand')->name('hashtag.command.status');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+    Route::get('influencers/get-log', 'HashtagController@loginstance');
     Route::post('influencers/history', 'HashtagController@history')->name('influencers.index.history');
     Route::post('influencers/reply/add', 'HashtagController@addReply')->name('influencers.reply.add');
     Route::post('influencers/reply/delete', 'HashtagController@deleteReply')->name('influencers.reply.delete');

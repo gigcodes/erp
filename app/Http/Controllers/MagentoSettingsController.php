@@ -474,7 +474,7 @@ class MagentoSettingsController extends Controller
                         $status='Error';
                         for ($i=0;$i<count($allOutput);$i++)
                            {
-                               if ($allOutput[$i]=="Pull Request Successfully merged")
+                               if (strtolower($allOutput[$i])== strtolower("Pull Request Successfully merged"))
                                   {
                                     $status='Success';
                                     break;
@@ -559,7 +559,7 @@ class MagentoSettingsController extends Controller
     public function  namehistrory($id){
          
        $ms= MagentoSettingNameLog::select('magento_setting_name_logs.*','users.name')->leftJoin('users','magento_setting_name_logs.updated_by','users.id')->where('magento_settings_id',$id)->get();
-       $table="<table class='table table-bordered'> <thead><tr><th>Date</th><th>Old Value</old><th>New Value</th><th>Created By</th><tr><thead><tbody";
+       $table="<table class='table table-bordered text-nowrap' style='border: 1px solid #ddd;'><thead><tr><th>Date</th><th>Old Value</th><th>New Value</th><th>Created By</th></tr></thead><tbody>";
        foreach($ms as $m)
        {
            $table.="<tr><td>".$m->updated_at."</td>";
@@ -576,7 +576,7 @@ class MagentoSettingsController extends Controller
 		$data = '';
 		foreach($logs as $log) {
 			$cmdOutputs = json_decode($log['command_output']);
-			$data .= '<tr><td>'. $log['created_at'].'</td><td>'.$log['command'].'</td><td>';
+			$data .= '<tr><td>'. $log['created_at'].'</td><td>'.$log['command'].'</td><td>'.$log['status'].'</td><td>';
             if(!empty($cmdOutputs)) {
     		 	foreach($cmdOutputs as $cmdOutput) {
     				$data .= $cmdOutput .'<br/>';

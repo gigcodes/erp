@@ -89,6 +89,11 @@
                             <span class="text-danger"></span>
                         </div>
                         <div class="form-group">
+                            <label for="form_subject">From Email</label>
+                            <input required type="text" name="from_email" class="form-control" id="form_from_email" placeholder="Enter From Email">
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
                             <label for="form_subject">Salutation</label>
                             <input required type="text" name="salutation" class="form-control" id="form_salutation" placeholder="Enter salutation">
                             <span class="text-danger"></span>
@@ -126,6 +131,13 @@
                         <div class="form-group">
                             <label for="mail_tpl">Store Website</label>
                             <?php echo Form::select("store_website", ["-- None --"] + $storeWebSites, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]); ?>
+                            <span class="text-danger"></span>
+                        </div>
+						
+						
+                        <div class="form-group">
+                            <label for="mail_tpl">Store Website</label>
+							{{ Form::checkbox("store_website", null, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]) }}
                             <span class="text-danger"></span>
                         </div>
 
@@ -257,7 +269,7 @@
             </thead>
             <tbody>
             @foreach($mailings as $value)
-                <tr>
+                   <tr>
                     <td>{{$value["name"]}}</td>
                     <td>{{$value["mail_tpl"]}}</td>
                     <td>{{$value["subject"]}}</td>
@@ -432,11 +444,12 @@
 
 
             $(".template-modal").modal("show");
+           
         });
 
         $(document).on("click", ".create-new-template-btn", function () {
             document.getElementById("form-store").reset();
-            $(".template-modal").modal("show");
+           // $(".template-modal").modal("show");
         });
 
 

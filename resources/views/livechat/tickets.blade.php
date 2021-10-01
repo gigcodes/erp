@@ -331,7 +331,70 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
-
+	
+	 <div id="ticketsEmails" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+               
+                    <div class="modal-header">
+                        <h4 class="modal-title">Emails sent</h4>
+                    </div>
+                    <div class="modal-body" >
+						<div class="table-responsive" style="margin-top:20px;">
+							<table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+								<thead>
+								  <tr>
+									<th>Bulk <br> Action</th>
+									<th>Date</th>
+									<th>Sender</th>
+									<th>Receiver</th>
+									<th>Mail <br> Type</th>
+									<th>Subject</th>
+									<th>Body</th>
+									<th>Status</th>
+									<th>Draft</th>
+									<th>Action</th>
+								  </tr>
+								</thead>
+								<tbody id="ticketEmailData">
+								
+								</tbody>
+							  </table>
+						</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+<div id="viewMore" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View More</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><span id="more-content"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="viewMail" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View Email</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Subject : </strong> <span id="emailSubject"></span> </p>
+              <p><strong>Message : </strong> <span id="emailMsg"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 @endsection
 
@@ -341,6 +404,29 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+function opnMsg(email) {
+      console.log(email);
+      $('#emailSubject').html(email.subject);
+      $('#emailMsg').html(email.message);
+
+      // Mark email as seen as soon as its opened
+      if(email.seen ==0 || email.seen=='0'){
+        // Mark email as read
+        var $this = $(this);
+            $.ajax({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              url: '/email/'+email.id+'/mark-as-read',
+              type: 'put'
+            }).done( function(response) {
+
+            }).fail(function(errObj) {
+
+            });
+      }
+
+    }
 
         var page = 1;
         function getScrollTop() {
@@ -361,7 +447,39 @@
             );
         };
 
-
+		function showEmails(ticketId) {
+			$('#ticketEmailData').html('');
+		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){ 
+				$('#ticketEmailData').html(data);
+				$('#ticketsEmails').modal('show');
+		    });
+		}
+		function opnModal(message){
+		  $(document).find('#more-content').html(message);
+		}
+		$(document).on('click', '.resend-email-btn', function(e) {
+		    e.preventDefault();
+		    var $this = $(this);
+		    var type = $(this).data('type');
+			$.ajax({
+			  headers: {
+				  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  },
+			  url: '/email/resendMail/'+$this.data("id"),
+			  type: 'post',
+			  data: {
+				type:type
+			  },
+				beforeSend: function () {
+					$("#loading-image").show();
+				},
+			}).done( function(response) {
+			  toastr['success'](response.message);
+			  $("#loading-image").hide();
+			}).fail(function(errObj) {
+			  $("#loading-image").hide();
+			});
+		});
         function loadMore(page) {
 
             var url = "/livechat/tickets?page="+page;

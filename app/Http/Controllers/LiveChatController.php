@@ -1365,8 +1365,8 @@ class LiveChatController extends Controller
         return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
 
     }
-
-    public function createTickets(Request $request)
+	
+	public function createTickets(Request $request)
     {
         $data              = [];
         $data['ticket_id'] = "T" . date("YmdHis");
@@ -1620,7 +1620,7 @@ class LiveChatController extends Controller
                     $mail->bcc($bcc);
                 }
 
-                $mail->send(new PurchaseEmail($request->subject . $ticketIdString, $request->message, $file_paths, ["from" => $fromEmail]));
+               $mail->send(new PurchaseEmail($request->subject . $ticketIdString, $request->message, $file_paths, ["from" => $fromEmail]));
             } else {
                 return redirect()->back()->withErrors('Please select an email');
             }
@@ -1645,7 +1645,14 @@ class LiveChatController extends Controller
             return redirect()->back()->withSuccess('You have successfully sent an email!');
         }
     }
+	
+	public function fetchEmailsOnTicket($ticketId) {
+		$emails = Email::where('model_id', $ticketId)->where('model_type', 'App\Tickets')->get();
+		$email_status = DB::table('email_status')->get();
+		return view('livechat.partials.ticket-email', compact('emails','email_status'));
+	}
 
+    
     public function AssignTicket(Request $request)
     {
         $this->validate($request, [

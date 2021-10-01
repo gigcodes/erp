@@ -35,7 +35,6 @@ class EmailController extends Controller
     //Purpose : Add Email Parameter - DEVTASK-18283
     public function index(Request $request,$email = null)
     {
-        
         // Set default type as incoming
         $type = "incoming";
 		$seen = '0';

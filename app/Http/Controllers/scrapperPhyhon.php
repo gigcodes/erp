@@ -181,7 +181,7 @@ class scrapperPhyhon extends Controller
                         $images = $images->whereDate('created_at','>=',date($request->startDate))
                         ->whereDate('created_at','<=',date($request->endDate));
                     }else{
-                       $images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                       //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
                     }
 
                     if(isset($request->device) && ($request->device == 'mobile' || $request->device == 'tablet'))
@@ -192,8 +192,6 @@ class scrapperPhyhon extends Controller
                         $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
                     }
 
-                   
-                    
                     $images = $images->get()
                     ->toArray();
                 }

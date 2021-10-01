@@ -13,6 +13,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\MailinglistTemplate;
+use App\EmailEvent;
+use Validator;
 
 class MailinglistController extends Controller
 {
@@ -20,7 +23,7 @@ class MailinglistController extends Controller
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
-    {
+    {		
 		$services = Service::all();
         $list = Mailinglist::paginate(15);
         $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
@@ -31,14 +34,54 @@ class MailinglistController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
+
+    public function textcurl(){
+
+        $curl = curl_init();
+        $name = "newemail";
+        $email = "technodeviser05@gmail.com";
+		$ch = curl_init();
+
+        //curl_setopt($ch, CURLOPT_URL, 'http://acelle.wsl/api/v1/lists');
+       // curl_setopt($ch, CURLOPT_URL, 'https://demo.acellemail.com/api/v1/lists');
+         curl_setopt($ch, CURLOPT_URL, 'http://165.232.42.174/api/v1/lists');
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, 
+        CURLOPT_POSTFIELDS, "api_token=".getenv('ACELLE_MAIL_API_TOKEN')."&name=List+1&from_email=admin@abccorp.org&from_name=ABC+Corp.&default_subject=Welcome+to+ABC+Corp.&contact[company]=ABC+Corp.&contact[state]=Armagh&contact[address_1]=14+Tottenham+Court+Road+London+England&contact[address_2]=44-46+Morningside+Road+Edinburgh+Scotland&contact[city]=Noname&contact[zip]=80000&contact[phone]=123+456+889&contact[country_id]=1&contact[email]=info@abccorp.org&contact[url]=http://www.abccorp.org&subscribe_confirmation=1&send_welcome_email=1&unsubscribe_notification=1");
+
+        $headers = array();
+        $headers[] = 'Accept: application/json';
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch); dd(json_decode($result));
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+    }
+
     public function create(Request $request)
-    {
+    { 
+		$rules = [
+            'service_id'=>'required',
+            'website_id'=>'required',
+            'email'=>'required',
+            'name'=>'required',
+            'subject'=>'required',
+        ];
+        $validation = Validator::make($request->all(), $rules);
+        if ($validation->fails())
+        {
+            return array('status'=>false, 'messages'=>$validation->getMessageBag());
+        }
         $website_id = $request->website_id;
-        //FInd Service 
+        //Find Service 
         $service = Service::find($request->service_id);
 
         if($service){
-            //dd($service->name);
+          
             if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) {
                 $curl = curl_init();
                 $data = [
@@ -86,7 +129,7 @@ class MailinglistController extends Controller
 
                 curl_setopt_array($curl, array(
                 //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
-                CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => "https://acelle.theluxuryunlimited.com/api/v1/lists?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => "",
                   CURLOPT_MAXREDIRS => 10,
@@ -94,12 +137,12 @@ class MailinglistController extends Controller
                   CURLOPT_FOLLOWLOCATION => true,
                   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                   CURLOPT_CUSTOMREQUEST => "POST",
-                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'from_email' => $request->email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $request->email),
+                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'default_subject'=>$request->subject,'from_email' => $request->email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $request->email),
                 ));
 
                 $response = curl_exec($curl);
-
-                curl_close($curl);
+                 
+                curl_close($curl); 
                 $res = json_decode($response);
                 if($res->status == 1){
                     //getting last id
@@ -118,21 +161,12 @@ class MailinglistController extends Controller
                         'remote_id' => $res->list_uid,
                     ]); 
                     return response()->json(true);
-                }
-                
-
-                
+                }   
             }
-
-
-
         }else{
              return response()->json(false);
         }
-            
-        
-
-        return response()->json(true);
+         return response()->json(true);
     }
 
     /**
@@ -691,4 +725,51 @@ class MailinglistController extends Controller
         $customer->save();
         return response()->json(true);
     }
+	
+	public function notifyUrl(Request $request) {
+		$update = [];
+		$id = str_replace('["', '',$request->tag);
+		$id = str_replace('"]', '',$id);
+		if($request->event == "sent") {
+			$update = ["sent"=>1];
+		}else if($request->event == "delivered") {
+			$update = ["delivered"=>1];
+		}else if($request->event == "opened") {
+			$update = ["opened"=>1];
+		}else if($request->event == "blocked" || $request->event == "unsubscribed" || $request->event == "spam") {
+			$update = ["spam"=>1, 'spam_date'=>Carbon::now()->format('Y-m-d H:i:s')];
+		}
+		if(count($update) > 0) {
+			EmailEvent::where(['id'=>$id])->update($update);
+		}
+		
+		
+	}
+	
+	public function sendAutoEmails() {
+		$mailing_templates = MailinglistTemplate::where('auto_send', 1)->where('duration', '>', 0)->get();
+		foreach($mailing_templates as $mailing_item) { 
+			$now = Carbon::now();
+			if($mailing_item) {
+				if($mailing_item->duration_in == "hours") {
+					$customer_created_at = $now->subHours($mailing_item['duration'])->format('Y-m-d H:i:s');
+				} else{
+					$customer_created_at = $now->subDays($mailing_item['duration'])->format('Y-m-d H:i:s');
+				}
+				$spamedListContactIds = EmailEvent::where('spam',1)->pluck('id')->toArray();
+				
+				$mailingLists = MailingList::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
+				->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')
+				->where('mailinglists.created_at', '<',  Carbon::parse($customer_created_at)->addMinutes(60))
+				->where('mailinglists.created_at', '>=', $customer_created_at)
+				->whereNotIn('list_contacts.id', $spamedListContactIds)->whereNotNull('list_contacts.id')
+				->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'customers.name', 'list_contacts.id as list_contact_id')->get();
+				foreach($mailingLists as $mailingList) {
+					(new Mailinglist)->sendAutoEmails($mailingList, $mailing_item);
+				}
+			}
+		}
+	}
+	
+	
 }

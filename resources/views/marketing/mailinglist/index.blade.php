@@ -11,6 +11,9 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+		.error {
+			color:red;
+		}
     </style>
 @endsection
 
@@ -76,8 +79,14 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="text" name="name" class="form-control name" placeholder="Name">
+                            <input type="text" name="name" id="name" class="form-control name" placeholder="Name">
                         </div>
+
+                        <div class="form-group">
+                            <input type="text" name="subject" id="subject" class="form-control name" placeholder="Subject">
+                        </div>
+						  <div class="form-group error" id="mailing_errors">
+						  </div>
                     </form>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -114,6 +123,8 @@
                 <th style="">Email</th>
                 <!--th style="">Service</th-->
                 <th style="">RemoteID</th>
+                <th style="">Is Master</th>
+                <th style="">Spam Date</th>
                 <th style="">Actions</th>
             </thead>
             <tbody>
@@ -124,6 +135,8 @@
                     <td>{{$value['email']}}</td>
                     <!--td><?php //$value->service->name?></td-->
                     <td>{{$value['remote_id']}}</td>
+                    <td>{{$value['is_master']}}</td>
+                    <td>{{$value['spam_date']}}</td>
                     <td>
                         <a href="{{route('mailingList.single', [ 'remoteID' => $value['remote_id'], 'store_id' => $value['website_id']])}}">
                             <i class="fa fa-list"></i>
@@ -141,24 +154,35 @@
         </table>
     </div>
 @endsection
-@section('scripts')
+@section('scripts') 
 <script>
     jQuery(document).ready(function(){
         $(document).on("click",".save_list",function (e) {
+			$('#mailing_errors').html('');
             var _this = jQuery(this).parents(".modal-body").find("form");
             e.preventDefault();
             $.ajax({
-                url: jQuery(_this).attr("action"),
+                url: jQuery(_this).attr("action"), 
                 type: 'POST',
                 data: jQuery(_this).serialize(),
                 beforeSend: function (request) {
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
-                success: function (data) {
-                    if (true) {
-                        location.reload();
-                    }
+                success: function (data) { 
+					if(data.status == false) {
+						var error = ''; 
+						$.each(data.messages, function( index, value ) {
+						   error += value + "<br>";
+						});
+						$('#mailing_errors').html(error);
+					} else{
+						location.reload();
+					}
+                    /*if (true) {
+						   // location.reload();
+					} else */
                 }
+			
             });
         });
         jQuery(".edit_maillist").on("click",function (e){

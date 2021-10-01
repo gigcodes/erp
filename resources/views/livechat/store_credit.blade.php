@@ -117,7 +117,7 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
              <td>{{ $c->email }}</td>
              <td>{{ $c->phone }}</td>
              <td>{{ $c->title }}</td>
-             <td>{{ date("d-m-Y",strtotime($c->created_at)) }}</td>
+             <td>@if($c->date != null) {{ date("d-m-Y",strtotime($c->date)) }} @endif</td>
              <td>{{ $c->credit  + $credit_in }}</td>
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>

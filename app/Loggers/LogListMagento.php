@@ -23,7 +23,7 @@ class LogListMagento extends Model
         'languages',
         'user_id',
         'tried',
-        'total_request_assigned'
+        'total_request_assigned',
     ];
 
     public static function log($productId, $message, $severity = 'info', $storeWebsiteId = null, $syncStatus = null, $languages = null)
@@ -38,6 +38,7 @@ class LogListMagento extends Model
         $logListMagento->store_website_id = $storeWebsiteId;
         $logListMagento->sync_status      = $syncStatus;
         $logListMagento->languages        = $languages;
+        $logListMagento->user_id          = @\Auth::user()->id;
         $logListMagento->save();
 
         // Return
@@ -63,6 +64,6 @@ class LogListMagento extends Model
 
     public function screenshot()
     {
-        return \App\StoreWebsiteProductScreenshot::where("product_id",$this->product_id)->where("store_website_id",$this->store_website_id)->get();
+        return \App\StoreWebsiteProductScreenshot::where("product_id", $this->product_id)->where("store_website_id", $this->store_website_id)->get();
     }
 }
