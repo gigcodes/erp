@@ -16,6 +16,77 @@
 			margin: 6px 0 0 0;
 		}
     </style>
+	<style type="text/css">
+      
+
+        /* The switch - the box around the slider */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .show_select {
+            display: none;
+        }
+    </style>
+
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet">
 @endsection
 
@@ -29,8 +100,7 @@
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Customers</h2>
-                    <button type="button" class="btn btn-primary float-right" data-toggle="modal"
-                            data-target="#addCustomer"> Add Customers </button>
+                   
                 </div>
             </div>
         </div>
@@ -78,8 +148,15 @@
                     <td id="id">{{$value->id}}</td>
                     <td id="name">{{$value->name}}</td>
                     <td id="description">{{$value->email}}</td>
-                    <td><a href="#" data-route="{{route('remove.customer.group')}}" data-id="{{$value->groupCustomerId}}" class="trigger-delete"><i style="cursor: pointer;" class="fa fa-trash "   aria-hidden="true"></i>
-                   </a></td>
+                    <td>
+					<label class="switch" style="margin: 0px">
+                        <input type="checkbox" class="checkbox __toggle" value="{{$value->id}}"  data-id="{{$value->id}}" @if(in_array($value->id, $customerAdded)) checked @endif>
+                        <span class="slider round">
+						</span>
+                    </label>
+					<!--<a href="#" data-route="{{route('remove.customer.group')}}" data-id="{{$value->groupCustomerId}}" class="trigger-delete"><i style="cursor: pointer;" class="fa fa-trash "   aria-hidden="true"></i>
+                   </a>-->
+				   </td>
                 </tr>
             @endforeach
             </tbody>
@@ -91,33 +168,30 @@
 
 @section('scripts')
 
-
-
     <script>
-		var base_url = window.location.origin+'/';
-	    $('.ajax-submit').on('submit', function(e) { 
-			e.preventDefault(); 
+	
+	
+		$('body').on('click', '.__toggle', function(e) {
+			var id = $(this).attr('data-id');
+			var message_group_id = $('#message_group_id').val();
+			e.preventDefault();
+			var option = { _token: token, _method: 'post', customer_id:id, 'message_group_id': message_group_id };
+			var route = "{{route('add.customer.group')}}";
 			$.ajax({
-                type: $(this).attr('method'),
-				url: $(this).attr('action'),
-				data: new FormData(this),
-				processData: false,
-				contentType: false,
-				success: function(data) { 
-					if(data.statusCode == 500) { 
-						toastr["error"](data.message);
-					} else {
-						toastr["success"](data.message);
-						setTimeout(function(){
+				type: 'post',
+				url: route,
+				data: option,
+				success: function(response) {
+					toastr["success"](response.message); 
+					setTimeout(function(){
                           location.reload();
-                        }, 1000);
-					}
+                    }, 1000);
 				},
-				done:function(data) {
-					console.log('success '+data);
+				error: function(data) {
+					alert('An error occurred.');
 				}
-            });
-		}); 
+			});
+		});
 
 	    $('.trigger-delete').on('click', function(e) {
 			var id = $(this).attr('data-id');

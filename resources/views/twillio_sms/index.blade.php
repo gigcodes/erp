@@ -26,9 +26,9 @@
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Managing Group</h2>
-                  &nbsp;  <button type="button" class="btn btn-primary float-right" data-toggle="modal"
+                  &nbsp;  <button type="button" class="btn btn-secondary float-right" data-toggle="modal"
                             data-target="#messageGroup"> Add Messaging Group </button>  &nbsp;
-							&nbsp;<button type="button" class="btn btn-primary float-right" data-toggle="modal"
+							&nbsp;<button type="button" class="btn btn-secondary float-right" data-toggle="modal"
                             data-target="#serviceModal"> Add Service </button>&nbsp;
                 </div>
             </div>

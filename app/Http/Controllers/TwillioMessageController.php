@@ -13,6 +13,7 @@ use App\Customer;
 use Validator;
 
 class TwillioMessageController extends Controller{
+	
     public function index() {
         $data = MessagingGroup::leftJoin('sms_service', 'sms_service.id', '=', 'messaging_groups.service_id')
 		->leftJoin('store_websites', 'store_websites.id', '=', 'messaging_groups.store_website_id')->select('messaging_groups.*', 'sms_service.name as service', 'store_websites.title as website')->orderBy('messaging_groups.id', 'desc')->paginate(15);
@@ -68,9 +69,15 @@ class TwillioMessageController extends Controller{
     }
 
 	public function showCustomerList($messageGroupId) {
-		$customers = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
+		$messageGroupDetails = MessagingGroup::find($messageGroupId);
+		$customers = Customer::where('store_website_id', $messageGroupDetails['store_website_id'])->get();
+		/*$customersAdded = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
 					->where('messaging_group_customers.message_group_id', $messageGroupId)->select('customers.*', 'messaging_group_customers.id as groupCustomerId')->get();
-		return view('twillio_sms.customer', compact('customers','messageGroupId'));
+		*/
+		$customerAdded = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
+					->where('messaging_group_customers.message_group_id', $messageGroupId)->pluck( 'customers.id')->toArray();
+				
+		return view('twillio_sms.customer', compact('customers','messageGroupId', 'customerAdded'));
 	}
 	
 	public function removeCustomer(Request $request) {
@@ -118,9 +125,16 @@ class TwillioMessageController extends Controller{
 			}
             return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
         }
-		MessagingGroupCustomer::updateOrCreate(['message_group_id'=>$request->message_group_id, 'customer_id'=>$request->customer_id], ['message_group_id'=>$request->message_group_id, 'customer_id'=>$request->customer_id]);
+		$customerExist = MessagingGroupCustomer::where(['message_group_id'=>$request->message_group_id, 'customer_id'=>$request->customer_id])->first();
+		if($customerExist == null ) {
+			MessagingGroupCustomer::create(['message_group_id'=>$request->message_group_id, 'customer_id'=>$request->customer_id]);
+			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Customer added successfully']);
+		} else {
+			MessagingGroupCustomer::where(['message_group_id'=>$request->message_group_id, 'customer_id'=>$request->customer_id])->delete();
+			return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Customer deleted successfully']);
+		}
 		
-      	return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Customer added successfully']);
+      	
 	}
 	
 	public function createMarketingMessage(Request $request){
