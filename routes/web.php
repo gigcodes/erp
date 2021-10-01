@@ -2220,7 +2220,9 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
      Route::post('direct/history', 'DirectMessageController@history')->name('direct.history');
      Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
-
+     
+	 Route::post('send/email/influencers', 'HashtagController@sendMailToInfluencers')->name('send.mail-influencer');
+   
 });
 
 // logScraperVsAiController

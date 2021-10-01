@@ -20,6 +20,7 @@ use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Customer;
+use App\MailinglistTemplate;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -687,9 +688,46 @@ class HashtagController extends Controller
         }
 
         $replies = \App\Reply::where("model", "influencers")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
-
-        return view('instagram.hashtags.influencers', compact('accounts', 'replies', 'influencers', 'keywords', 'posts', 'followers', 'following', 'term'));
+		$mailingListTemplates = MailinglistTemplate::pluck('name', 'id')->toArray();
+        return view('instagram.hashtags.influencers', compact('accounts', 'replies', 'influencers', 'keywords', 'posts', 'followers', 'mailingListTemplates','following', 'term'));
     }
+	
+	public function sendMailToInfluencers(Request $request) {
+		$ids = explode(",",$request->selectedInfluencers);
+		foreach($ids as $id) {
+			$customer = ScrapInfluencer::find($id);
+			$templateData = MailinglistTemplate::where('id', $request->mailing_list )->first();
+			if($templateData->static_template) {
+                 $arrToReplace = ['{FIRST_NAME}'];
+                 $valToReplace = [$customer->name];
+                 $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+            } else {
+                 $bodyText  = @(string)view($templateData->mail_tpl);
+            }  
+
+			 $storeEmailAddress = \App\EmailAddress::first();			
+			 $emailData['subject'] = $templateData->subject;
+             $emailData['template'] = $bodyText;
+             $emailData['from'] = $storeEmailAddress->from_address;
+			 
+			 $emailClass = (new  \App\Mail\SendInfluencerEmail($emailData))->build(); 
+			 $email = \App\Email::create([
+                              'model_id'        => $customer->id,
+                              'model_type'      => \App\ScrapInfluencer::class,
+                              'from'            => $emailClass->fromMailer,
+                              'to'              => $customer->email,
+                              'subject'         => $templateData->subject,
+                              'message'         => $emailClass->render(),
+                              'template'        => 'scrapper-email',
+                              'additional_data' => '',
+                              'status'          => 'pre-send',
+                              'is_draft'        => 1,
+                           ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+		}
+		   return response()->json(['message' => 'Successfull.'],200);
+	}
 
     public function addReply(Request $request)
     {
