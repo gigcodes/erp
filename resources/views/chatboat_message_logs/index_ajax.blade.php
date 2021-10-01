@@ -32,10 +32,10 @@
                 <option value="priority-customer">Priority Customer</option>
             </select> </td>
             <td> 
-            <input type="text" name="value"  placeholder="Enter your value">
+            <input type="text" name="value"  placeholder="Enter your value" required>
            </td>
            <td> 
-            <input type="text" name="suggested_reply"  placeholder="Suggested Reply">
+            <input type="text" name="suggested_reply"  placeholder="Suggested Reply" required>
            </td>
            
                   <td>  <select name="category_id" id="" class="form-control">
