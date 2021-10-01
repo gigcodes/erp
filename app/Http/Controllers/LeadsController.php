@@ -1177,13 +1177,17 @@ class LeadsController extends Controller
     }
 
     public function manageLeadsCategory(Request $request){
+        
+        $category_id= ErpLeadsCategory::where('erp_lead_id',$request->get('lead_id'))->where('category_id','!=','')->pluck('category_id')->toArray();
+
         $categories = Category::all()->toArray();
-        return view("leads.erp.create_category", compact('categories'));
+        return view("leads.erp.create_category", compact('categories','category_id'));
     }
 
-    public function manageLeadsBrand(){
+    public function manageLeadsBrand(Request $request){
+        $brand_ids = ErpLeadsBrand::where('erp_lead_id',$request->get('lead_id'))->where('brand_id','!=','')->pluck('brand_id')->toArray();
         $brands = Brand::all()->toArray();
-        return view("leads.erp.create_brand", compact('brands'));
+        return view("leads.erp.create_brand", compact('brands','brand_ids'));
     }
 
     public function saveLeadsBrands(Request $request){
@@ -1194,7 +1198,7 @@ class LeadsController extends Controller
         ErpLeadsBrand::where('erp_lead_id',$input['lead_id'])->delete();
         // $message = json_encode($input);
         
-            foreach ($input['brand_id'] as $brand) {
+            foreach ($input['brand_ids'] as $brand) {
                 ErpLeadsBrand::create([
                     'erp_lead_id' => $input['lead_id'],
                     'brand_id'    => $brand

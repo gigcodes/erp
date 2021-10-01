@@ -476,6 +476,8 @@
         placeholder: "Select Category",
         // allowClear: true
     });
+
+      
       
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
@@ -777,12 +779,18 @@
 
       $.ajax({
             type: "GET",
-            url: url
+            url: url+'?lead_id='+lead_id
         }).done(function (data) {
             console.log(data);
            $("#erp_leads_manage_category_brand_form").html(data);
            $("#lead_create_brands").append('<input type="hidden" name="lead_id" value='+lead_id+'>');
            $("#erp_leads_manage_category_brand").modal("show");
+
+           $('.multi_lead_status_brands').select2({
+              placeholder: "Select Brand",
+              // allowClear: true
+          });
+
         }).fail(function (response) {
             console.log(response);
         });

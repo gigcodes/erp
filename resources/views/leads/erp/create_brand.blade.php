@@ -4,10 +4,10 @@
   
   <div class="form-group">
     <label for="brand_ids">Brand:</label>
-    <select placeholder="Brand" class="form-control lead_brand multi_lead_status brand_ids input-size" id="brand_ids" name="brand_ids[]" multiple="" style="width: 150px; border-radius: 2px;">
+    <select placeholder="Brand" class="form-control multi_lead_status_brands input-size" id="brand_ids" name="brand_ids[]" multiple="" style="width: 150px; border-radius: 2px;">
         <option disabled="true" >Select Brand</option>
         @foreach($brands as $brand_item)
-          <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+          <option value="{{$brand_item['id']}}" @if(in_array($brand_item['id'], $brand_ids) ) selected="true" @endif  >{{$brand_item['name']}}</option>
         @endforeach
     </select>
   </div>
