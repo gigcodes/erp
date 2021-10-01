@@ -311,6 +311,23 @@
             </div>
         </div>
     </div>
+
+    <div id="model_email" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:1000px">
+            <div class="modal-content"  style="width:1000px">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email</h4>
+                </div>
+                <div class="modal-body" id="model_email_txt">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
@@ -798,6 +815,37 @@ function opnMsg(email) {
            });
        }
    });
+</script>
+<script>
+ function message_show(t)
+ {
+    $('#model_email_txt ').html($(t).data('content'));
+    $("#model_email").modal("show");
+ }   
+
+  $(document).on('click', '.resend-email-btn', function(e) {
+      e.preventDefault();
+      var $this = $(this);
+      var type = $(this).data('type');
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/email/resendMail/'+$this.data("id"),
+          type: 'post',
+          data: {
+            type:type
+          },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          toastr['success'](response.message);
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });  
 </script>
 @endsection
 
