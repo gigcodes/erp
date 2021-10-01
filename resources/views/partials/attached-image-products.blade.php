@@ -17,9 +17,15 @@ style="padding: 0px 10px;">
                     $pr = $list->getMedia;
                     $image_key = $imageDetails->getKey();
                     $selected_all = true;
+
+                    $image = "";
+                    if($imageDetails) {
+                      $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+                    }
+
                     $im = [
                         'abs' => $imageDetails->getAbsolutePath(),
-                        'url' => $imageDetails->getUrl(),
+                        'url' => $image,
                         // 'url' => convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension),
                         'id' => $imageDetails->getKey(),
                     ];
@@ -172,9 +178,13 @@ style="padding: 0px 10px;">
                         $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
                         $image_key = $imageDetails->getKey();
                         $selected_all = true;
+                        $image = "";
+                        if($imageDetails) {
+                          $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+                        }
                         $im = [
                             'abs' => $imageDetails->getAbsolutePath(),
-                            'url' => $imageDetails->getUrl(),
+                            'url' => $image,
                                 //  'url' => convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension),
 
                             'id' => $imageDetails->getKey(),
