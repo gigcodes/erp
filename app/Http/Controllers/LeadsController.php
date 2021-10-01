@@ -951,6 +951,10 @@ class LeadsController extends Controller
         $source = $source->get();
 
         foreach ($source as $key => $value) {
+            
+            $curr_cat_title = $value->cat_title;
+            $curr_brand_name = $value->brand_name;
+
             $source[$key]->media_url = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
@@ -976,10 +980,14 @@ class LeadsController extends Controller
                     $cat_titles[] =  $a;
                 }
             }
-
+            if(!empty($curr_cat_title)){
+                array_push($cat_titles , $curr_cat_title);
+            }
             //if($cat_titles != null) {
                 $value['cat_title'] =  implode(',', $cat_titles);
            // }
+            
+
             $brandList = [];
             $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
             foreach ($brand_names as $key => $row) {
@@ -988,6 +996,9 @@ class LeadsController extends Controller
 				   $brandList[] = $a;
                    //$brand .=  $a.','; 
                 }
+            }
+            if(!empty($curr_brand_name)){
+                array_push($brandList , $curr_brand_name);
             }
 			if($brandList != null) {
                 $value['brand_name'] =  implode(',', $brandList);

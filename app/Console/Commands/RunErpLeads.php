@@ -83,9 +83,17 @@ class RunErpLeads extends Command
                     if(count($Category_ids)==0){
                         $Category_ids = [];
                     }
+                    if(!in_array($lead->category_id, $Category_ids)){
+                        array_push($Category_ids , $lead->category_id);
+                    }
+
+
                     $Brand_ids = ErpLeadsBrand::where('erp_lead_id',$lead->id)->where('brand_id','!=','')->pluck('brand_id')->toArray();
                     if(count($Brand_ids)==0){
                         $Brand_ids = [];
+                    }
+                    if(!in_array($lead->brand_id, $Brand_ids)){
+                        array_push($Brand_ids,$lead->brand_id);
                     }
                     // $q->where("b.id", $lead->brand_id)->where("c.id", $lead->category_id);
                     $q->whereIn("b.id", $Category_ids)->whereIn("c.id", $Brand_ids);

@@ -635,6 +635,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
     Route::post('erp-lead-block-customer', 'LeadsController@blockcustomerlead')->name('leads.block.customer');
 
+    //Manage Brand Category
+    Route::get('erp-manage/category', 'LeadsController@manageLeadsCategory')->name('manage.leads.category');
+    Route::get('erp-manage/brand', 'LeadsController@manageLeadsBrand')->name('manage.leads.brand'); 
+    Route::post('erp-manage/save/leads/brands', 'LeadsController@saveLeadsBrands')->name('save.leads.brands');
+    Route::post('erp-manage/save/leads/categories', 'LeadsController@saveLeadsCategories')->name('save.leads.categories');
+    
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
     Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
