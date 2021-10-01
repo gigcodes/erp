@@ -87,9 +87,12 @@ class TwillioMessageController extends Controller{
 			$marketing_message = MarketingMessage::where('message_group_id', $messageGroupCustomer['message_group_id'])->first();
 			if($marketing_message != null) {
 				MarketingMessageCustomer::where(['marketing_message_id'=> $marketing_message->id, 'customer_id'=>$customerId])->delete();
-				$messageGroupCustomer->delete();
+				
 			}
+			$messageGroupCustomer->delete();
 		}
+			
+			
 		return response()->json(['code' => 200, 'message' => 'Customer removed from message group successfully']);
 	}
 	
@@ -103,8 +106,9 @@ class TwillioMessageController extends Controller{
 				MarketingMessageCustomer::where('marketing_message_id', $marketing_message->id)->delete();
 				$marketing_message->delete();
 			}
+			$messageGroup->delete();
 		}
-		$messageGroup->delete();
+		
 		return response()->json(['code' => 200, 'message' => 'Message group deleted successfully']);
 	}
 	
