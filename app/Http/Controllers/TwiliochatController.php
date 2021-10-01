@@ -63,7 +63,7 @@ class TwiliochatController extends Controller{
         
         $id = $request->id;
         ChatMessage::where('id',$id)->delete();
-        return redirect('twilio/getChats')->with('flash_type', 'alert-info')->with('message', 'Email Leads are importing in queue, existing records will be skipped.');
+        return redirect('twilio/getChats')->with('flash_type', 'alert-info')->with('message', 'Deleted Successfully.');
         
     }
 
