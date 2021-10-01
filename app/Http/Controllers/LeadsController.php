@@ -1193,14 +1193,14 @@ class LeadsController extends Controller
 
         ErpLeadsBrand::where('erp_lead_id',$input['lead_id'])->delete();
         // $message = json_encode($input);
-        // if(is_array($input['brand_ids'])){
+        
             foreach ($input['brand_id'] as $brand) {
                 ErpLeadsBrand::create([
                     'erp_lead_id' => $input['lead_id'],
                     'brand_id'    => $brand
                 ]);
             }
-        // }
+        
         
         return response()->json(['code' => 200,'message' => $message]); 
     }
