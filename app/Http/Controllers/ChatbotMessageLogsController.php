@@ -115,7 +115,6 @@ class ChatbotMessageLogsController extends Controller
             }
         }
         
-
         $chatbotQuestion = \App\ChatbotQuestion::create($params);
         if (!empty($params["question"])) {
             foreach($params["question"] as $qu) {
@@ -129,7 +128,7 @@ class ChatbotMessageLogsController extends Controller
             }
         }
 
-
+// dd('001');
         if (array_key_exists("types",$params) && $params["types"] != NULL && array_key_exists("type",$params) && $params["type"] != NULL) {
             $chatbotQuestionExample = null;
             if(!empty($params["value_name"])) {
@@ -156,7 +155,7 @@ class ChatbotMessageLogsController extends Controller
             }
         }
 
-
+// dd('2');
         if($request->keyword_or_question  == 'simple' || $request->keyword_or_question  == 'priority-customer') {
             $exploded = explode(',', $request->keyword);
     
@@ -183,7 +182,7 @@ class ChatbotMessageLogsController extends Controller
                 }
             }
         }
-
+// dd('here');
 
         if( $params['watson_account'] > 0 ){
             $wotson_account_ids =  \App\WatsonAccount::where( 'id', $request->watson_account )->get();
@@ -207,7 +206,7 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
-                $this->createdialog($request->value);
+                $this->createdialog($request->value,  $id->store_website_id);
                 session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
@@ -217,7 +216,7 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
-                $this->createdialog($request->value);
+                $this->createdialog($request->value,  $id->store_website_id);
                 session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
@@ -234,14 +233,16 @@ class ChatbotMessageLogsController extends Controller
        
     } 
 
-    public function createdialog($name)
+    public function createdialog($name, $websiteId=null)
     {
+        // dd('enter');
         $params = [
             "name"      =>$name,
             "parent_id" => 0,
             "dialog_type" =>'node',
             "response_type"=> "standard",
-            "previous_sibling"=>0
+            "previous_sibling"=>0,
+            "store_website_id"=>$websiteId
         ];
         
         $dialog = \App\ChatbotDialog::create($params);
