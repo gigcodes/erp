@@ -39,6 +39,9 @@ use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
+use App\ErpLeadsBrand;
+use App\ErpLeadsCategory;
+
 class LeadsController extends Controller
 {
     /**
@@ -853,7 +856,7 @@ class LeadsController extends Controller
     }
 
     public function erpLeads(Request $request)
-    {
+    { 
         /*$shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
                                     ->whereNotNull('shoe_size')
                                     ->groupBy('shoe_size')
@@ -912,12 +915,19 @@ class LeadsController extends Controller
             $source = $source->whereIn('erp_leads.brand_id', $request->get('lead_brand'));
         }
 
+        if ($request->get('brand_id')) {
+            $leadIds = ErpLeadsBrand::whereIn('brand_id', $request->get('brand_id'))->pluck('erp_lead_id')->toArray(); 
+            $source = $source->whereIn('erp_leads.id', $leadIds);
+        }
+
         if ($request->get('lead_status')) {
             $source = $source->whereIn('erp_leads.lead_status_id', $request->get('lead_status'));
         }
 
         if ($request->get('lead_category')) {
-            $source = $source->where('cat.title', 'like', "%" . $request->get('lead_category') . "%");
+            $leadIds = ErpLeadsCategory::leftJoin('categories', 'categories.id', '=', 'erp_leads_categories.category_id')
+                     ->where('title','like','%'.$request->get('lead_category').'%')->pluck('erp_lead_id')->toArray(); 
+           $source = $source->whereIn('erp_leads.id', $leadIds);
         }
 
         if ($request->get('lead_color')) {
@@ -954,9 +964,38 @@ class LeadsController extends Controller
                 //     $source[$key]->media_url = $media->getUrl();
                 // }
             }
+
+             $cat_titles = array();
+            $cat_title = $value['cat_title'];
+          
+            $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id',$value['id'])->where('category_id','!=','')->get()->pluck('category_id');
+
+            foreach ($value['cat_title'] as $key => $title) {
+                $titles = Category::where('id',$title)->pluck('title')->toArray();
+                foreach($titles as $a){
+                    $cat_titles[] =  $a;
+                }
+            }
+
+            //if($cat_titles != null) {
+                $value['cat_title'] =  implode(',', $cat_titles);
+           // }
+            $brandList = [];
+            $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
+            foreach ($brand_names as $key => $row) {
+                $brands_names = Brand::where('id',$row)->pluck('name')->toArray();
+                foreach($brands_names as $a){ 
+				   $brandList[] = $a;
+                   //$brand .=  $a.','; 
+                }
+            }
+			if($brandList != null) {
+                $value['brand_name'] =  implode(',', $brandList);
+            }
+           //$value['brand_name'] = $brand;
         }
-
-
+       
+      
 
         foreach ($source as $value) {
             $srcArr = json_decode(json_encode($value), true);
@@ -973,15 +1012,20 @@ class LeadsController extends Controller
 
         if (!is_numeric($perPage)) {
             $perPage = 2;
-        }
+        } 
 
 
+ 
         $currentItems = array_slice($sourcePaginateArr, $perPage * ($currentPage - 1), $perPage);
 
         $sourcePaginateArr = new LengthAwarePaginator($currentItems, count($sourcePaginateArr), $perPage, $currentPage, [
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
-        // echo "<pre>";print_r($sourcePaginateArr);die;
+        
+
+       
+     
+
         return view("leads.erp.index", [
             //'shoe_size_group' => $shoe_size_group,
             //'clothing_size_group' => $clothing_size_group,
@@ -1130,6 +1174,50 @@ class LeadsController extends Controller
         $colors = \App\ColorNamesReference::pluck("erp_name", "erp_name")->toArray();
         $status = \App\ErpLeadStatus::pluck("name", "id")->toArray();
         return view("leads.erp.create", compact('customerList', 'brands', 'category', 'colors', 'status'));
+    }
+
+    public function manageLeadsCategory(Request $request){
+        $categories = Category::all()->toArray();
+        return view("leads.erp.create_category", compact('categories'));
+    }
+
+    public function manageLeadsBrand(){
+        $brands = Brand::all()->toArray();
+        return view("leads.erp.create_brand", compact('brands'));
+    }
+
+    public function saveLeadsBrands(Request $request){
+        
+        $input = $request->all();
+        $message = "Successsfully Added";
+
+        ErpLeadsBrand::where('erp_lead_id',$input['lead_id'])->delete();
+        // $message = json_encode($input);
+        // if(is_array($input['brand_ids'])){
+            foreach ($input['brand_id'] as $brand) {
+                ErpLeadsBrand::create([
+                    'erp_lead_id' => $input['lead_id'],
+                    'brand_id'    => $brand
+                ]);
+            }
+        // }
+        
+        return response()->json(['code' => 200,'message' => $message]); 
+    }
+
+    public function saveLeadsCategories(Request $request){
+        $input = $request->all();
+        // $message = json_encode($input);
+        $message = "Successsfully Added";
+        ErpLeadsCategory::where('erp_lead_id',$input['lead_id'])->delete();
+        foreach ($input['categories'] as $category) {
+            ErpLeadsCategory::create([
+                'erp_lead_id' => $input['lead_id'],
+                'category_id'    => $category
+            ]);
+        }
+        
+        return response()->json(['code' => 200,'message' => $message]); 
     }
 
     public function erpLeadsEdit()

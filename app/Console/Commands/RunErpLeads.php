@@ -6,6 +6,9 @@ use App\ErpLeadSendingHistory;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
+use App\ErpLeadsBrand;
+use App\ErpLeadsCategory;
+
 class RunErpLeads extends Command
 {
     /**
@@ -53,14 +56,16 @@ class RunErpLeads extends Command
 
         \Log::channel('customer')->info("Found leads" . $leads->count());
         \Log::info("Found leads" . $leads->count());
-
+        
         if (!$leads->isEmpty()) {
             foreach ($leads as $lead) {
+                
                 $limitLead = $lead_product_limit;
                 if ($lead->lead_product_freq > 0) {
                     $limitLead = $lead->lead_product_freq;
                 }
 
+                
                 $products = \App\Product::where(function ($q) {
                     $q->where("stock", ">", 0)->orWhere("supplier", "in-stock");
                 });
@@ -74,7 +79,16 @@ class RunErpLeads extends Command
                     ->where("products.price", "!=", "");
 
                 $products = $products->where(function ($q) use ($lead) {
-                    $q->where("b.id", $lead->brand_id)->where("c.id", $lead->category_id);
+                    $Category_ids = ErpLeadsCategory::where('erp_lead_id',$lead->id)->where('category_id','!=','')->pluck('category_id')->toArray();
+                    if(count($Category_ids)==0){
+                        $Category_ids = [];
+                    }
+                    $Brand_ids = ErpLeadsBrand::where('erp_lead_id',$lead->id)->where('brand_id','!=','')->pluck('brand_id')->toArray();
+                    if(count($Brand_ids)==0){
+                        $Brand_ids = [];
+                    }
+                    // $q->where("b.id", $lead->brand_id)->where("c.id", $lead->category_id);
+                    $q->whereIn("b.id", $Category_ids)->whereIn("c.id", $Brand_ids);
                 });
 
                 $allProduts = $products->select(["products.*"])->orderBy("products.created_at", "desc")->limit($lead_product_limit)->get()->pluck("id")->toArray();

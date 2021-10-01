@@ -209,18 +209,18 @@
                 <th width="7%">Product name</th>
                 <th width="5%">Brand</th>
                 <th width="5%">Brand Segment</th>
-                <th width="10%">Category</th> 
+                <th width="5%">Category</th> 
                 <th width="5%">Color</th>
                 <th width="2%">Size</th>
-                <th width="20%">Communication</th>
-                <th width="5%">Action</th>
+                <th width="10%">Communication</th>
+                <th width="3%">Action</th>
             </tr>
             </thead>
 
             <tbody id="vendor-body">
 
               @foreach ($sourceData as $source)
-                <tr>
+                <tr> 
                   <!-- <td>{{$source['id']}}</td> -->
                   <td class="tblcell"><div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div></td>
@@ -249,9 +249,31 @@
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_name']}}</label></div></td>
                   <!-- 08-09-2021 end -->
 
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}</label></div></td>
+
+
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew">
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}
+                      </label>
+                    </div>
+                    <a class="btn btn-secondary  multi_brand_category_create" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">+</a>
+                  </td>
+
+
+
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div></td>
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['cat_title']}}</label></div></td>
+
+
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew">
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['cat_title'] != null){{$source['cat_title']}}@endif</label>
+                      </div>
+                      <a class="btn btn-secondary multi_brand_category_create" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">+</a>
+                    </td>
+
+
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div></td>
                   <td class="tblcell communication-td">
@@ -262,16 +284,16 @@
                     @endif
                   </td>
                   <td class="tblcell"><a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details"><i class="fa fa-shopping-cart"></i></a></td>
-                </tr>
+                </tr> 
               @endforeach
 
             </tbody>
         </table>
-    </div>
+    </div>   
     {{ $sourceData->appends(Request::except('page'))->links() }}
 
     </div>
-   
+
   </div>
 </div>
 {{-- //modal  --}}
@@ -304,6 +326,20 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="erp_leads_manage_category_brand" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="set_heading" >Erp Leads</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body erp-leads-modal" id="erp_leads_manage_category_brand_form">
 
       </div>
     </div>
@@ -731,6 +767,58 @@
 
       });
     };
+
+    //scrip
+
+    $(document).on('click', '.multi_brand_category_create', function () {
+       
+      var url = $(this).attr('data-url');
+      var lead_id = $(this).attr('data-id');
+
+      $.ajax({
+            type: "GET",
+            url: url
+        }).done(function (data) {
+            console.log(data);
+           $("#erp_leads_manage_category_brand_form").html(data);
+           $("#lead_create_brands").append('<input type="hidden" name="lead_id" value='+lead_id+'>');
+           $("#erp_leads_manage_category_brand").modal("show");
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+
+
+    $(document).on('click', '.lead-button-submit-for-category-brand', function (e) {
+      e.preventDefault();
+      var $this = $(this);
+      
+      var url = $('#lead_create_brands').attr('action');
+
+      var formData = new FormData(document.getElementById("lead_create_brands"));
+      $.ajax({
+            type: "POST",
+            data : formData,
+            url: url,
+            contentType: false,
+            processData: false
+        }).done(function (data) {
+          console.log(data);
+           if(data.code == 200) {
+               $("#erp_leads_manage_category_brand").find(".modal-body").html("");
+               $("#erp_leads_manage_category_brand").modal("hide");
+               location.reload(true);
+           }else{
+              alert(data.message);
+           }
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+
+
 
     $(document).on('click', '.editor_create', function () {
        var $this = $(this);
