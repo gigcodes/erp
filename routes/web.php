@@ -1968,6 +1968,9 @@ Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('li
 Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
 
 Route::get('twilio/getChats', 'TwiliochatController@getTwilioChat')->name('twilio.get.chats');
+Route::get('twilio/chats/delete/{id}', 'TwiliochatController@chatsDelete')->name('twilio.chats.delete');
+Route::get('twilio/chats/edit', 'TwiliochatController@twilioChatsEdit')->name('twilio.chats.edit'); 
+Route::any('twilio/chats/update', 'TwiliochatController@twilioChatsUpdate')->name('twilio.chats.update'); 
 
 Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');
 Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewController@store')->name('brandreview.store');

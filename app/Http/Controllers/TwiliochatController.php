@@ -7,43 +7,82 @@ use App\ChatMessage;
 use App\Customer;
 use App\User;
 
-class TwiliochatController extends Controller
-{
-    public function getTwilioChat()
-    {
-        $store_websites = [];//StoreWebsite::all();
-        $website_stores = [];//WebsiteStore::with('storeView')->get();
+class TwiliochatController extends Controller{
 
-        // if (session()->has('chat_customer_id')) {
-            //$chatId       = session()->get('chat_customer_id');
-            $chat_message = ChatMessage::where('message_application_id', 3)->orderBy("id", "desc")->get();
-            //getting customer name from chat
-            // $customer       = Customer::findorfail($chatId);
-            // $name           = $customer->name;
-            $customerInital = '';//substr($name, 0, 1);
+
+    public function getTwilioChat(Request $request){
+
+            $store_websites = [];
+            $website_stores = [];
+            
+            $query = ChatMessage::query();
+
+            if($request->number){
+                $query = $query->where('number', 'LIKE','%'.$request->number.'%');
+            }
+            if($request->send_by){
+                $query = $query->where('send_by', 'LIKE','%'.$request->send_by.'%');
+            }
+            if($request->message){
+                $query = $query->where('message', 'LIKE','%'.$request->message.'%');
+            }
+
+            $chat_message = $query->where('message_application_id', 3)->orderBy("id", "desc")->paginate(25);
+            // $chat_message = ChatMessage::where('message_application_id', 3)->orderBy("id", "desc")->paginate(25);
+            
             if (count($chat_message) > 0) {
                 foreach ($chat_message as $chat) {
                     if ($chat->user_id != 0) {
                         // Finding Agent
+                        if($chat->customer_id!='') {
+                            $obj = Customer::where('id',$chat->customer_id)->first();
+                            $chat->customer_name = $obj->name;
+                            $chat->customer_email = $obj->email;
+                        }
+                        
                         $agent       = User::where('id', $chat->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
 
                         $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
 
                     } else {
+                        if($chat->customer_id!='') {
+                            $obj = Customer::where('id',$chat->customer_id)->first();
+                            $chat->customer_name = $obj->name;
+                            $chat->customer_email = $obj->email;
+                        }
                          $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
                     }
                 }
             }
-            //echo "<pre>";print_r($message);die;
-            // $count = CustomerLiveChat::where('seen', 0)->count();
             return view('twilio.chatMessages', compact('chat_message', 'name', 'customerInital', 'store_websites', 'website_stores'));
-        // } else {
-        //     $count          = 0;
-        //     $message        = '';
-        //     $customerInital = '';
-        //     $name           = '';
-        //     return view('twilio.chatMessages', compact('message', 'name', 'customerInital', 'store_websites', 'website_stores'));
-        // }
     }
+
+
+    public function chatsDelete(Request $request){
+        
+        $id = $request->id;
+        ChatMessage::where('id',$id)->delete();
+        return redirect('twilio/getChats')->with('flash_type', 'alert-info')->with('message', 'Email Leads are importing in queue, existing records will be skipped.');
+        
+    }
+
+    public function twilioChatsEdit(Request $request){
+        $id = $request->id;
+        $data = ChatMessage::where('id',$id)->first();
+        return view('twilio.edit', compact('data'));
+    }
+
+
+    public function twilioChatsUpdate(Request $request){
+        $input = $request->all();
+        $data = ChatMessage::where('id',$input['id'])->first();
+
+        $data->update($input);
+
+        return response()->json(['code'=>'200']);
+    }
+
+
+
 }
