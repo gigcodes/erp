@@ -138,7 +138,19 @@ class WebsiteStoreViewGTMetrixController extends Controller
     {
         $title = 'History';
         if ($id) {
-            $history = StoreViewsGTMetrix::whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
+            $history = StoreViewsGTMetrix::where("website_url",$id)->whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
+
+            return view('gtmetrix.history', compact('history','title'));
+            //return response()->json(["code" => 200, "data" => $history]);
+        }
+    }
+
+    public function webHistory(Request $request)
+    {
+        $id = $request->get("id");
+        $title = 'History';
+        if ($id) {
+            $history = StoreViewsGTMetrix::where("website_url",$id)->whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
 
             return view('gtmetrix.history', compact('history','title'));
             //return response()->json(["code" => 200, "data" => $history]);
