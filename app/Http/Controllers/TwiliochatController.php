@@ -14,6 +14,8 @@ class TwiliochatController extends Controller{
 
             $store_websites = [];
             $website_stores = [];
+            $name = "";
+            $customerInital = "";
             
             $query = ChatMessage::query();
 
