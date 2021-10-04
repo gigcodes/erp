@@ -207,7 +207,7 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $request->watson_account, $id->store_website_id));
-                $this->createdialog($request->value,  $id->store_website_id);
+                $this->createdialog($request->value, $request->suggested_reply,  $request->watson_account, $id->store_website_id);
                 session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
@@ -217,7 +217,7 @@ class ChatbotMessageLogsController extends Controller
                 \App\ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $request->watson_account, $id->store_website_id));
-                $this->createdialog($request->value,  $id->store_website_id);
+                $this->createdialog($request->value, $request->suggested_reply,  $request->watson_account, $id->store_website_id);
                 session()->flash('msg', 'Successfully done the operation.');
                 return redirect()->back();
             }
@@ -234,7 +234,7 @@ class ChatbotMessageLogsController extends Controller
        
     } 
 
-    public function createdialog($name, $watson_account, $websiteId=null)
+    public function createdialog($name, $suggested_reply, $watson_account, $websiteId=null)
     {
         // dd('enter');
         $params = [
@@ -252,12 +252,13 @@ class ChatbotMessageLogsController extends Controller
 		 $params["name"]              = str_replace(" ", "_", $name);
          $params["chatbot_dialog_id"] = $dialog->id;
 	        $params["response_type"]          = "text";
+	        $params["value"]          = "suggested_reply";
                 $params["message_to_human_agent"] = 1;
 
                 $chatbotDialogResponse = new ChatbotDialogResponse;
                 $chatbotDialogResponse->fill($params);
                 $chatbotDialogResponse->save();
-        $result        = json_decode(WatsonManager::pushDialog($dialog->id, $watson_account, $watson_account));
+        $result  = json_decode(WatsonManager::pushDialog($dialog->id, $watson_account, $watson_account));
     }
 
     
