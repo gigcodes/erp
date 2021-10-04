@@ -866,6 +866,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
 
 
+    
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
     Route::post('meeting/create', 'Meeting\ZoomMeetingController@createMeeting');

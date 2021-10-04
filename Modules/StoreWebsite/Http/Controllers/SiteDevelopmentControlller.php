@@ -25,6 +25,7 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
+        
 		$input = $request->input();
 		$masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
         //Getting Website Details

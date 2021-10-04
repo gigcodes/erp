@@ -2512,6 +2512,7 @@ class TaskModuleController extends Controller
         }
     }
 
+    
     public function previewTaskImage($id)
     {
         $task = Task::find($id);

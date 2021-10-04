@@ -238,6 +238,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
 });
 
+
 Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {

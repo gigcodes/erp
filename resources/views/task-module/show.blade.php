@@ -3288,6 +3288,7 @@ $(document).on("click",".btn-save-documents",function(e){
 		});
     });
     
+    
     $(document).on('click', '.preview-img-btn', function (e) {
             e.preventDefault();
 			id = $(this).data('id');
