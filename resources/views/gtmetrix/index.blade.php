@@ -187,7 +187,7 @@
                                 <td>{{ $key->created_at }}</td>
                                 <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
                                 <td>  
-                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.history',[ 'id'=>$key->store_view_id ])}}">
+                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.web-hitstory',[ 'id'=>$key->website_url ])}}">
                                         <i class="fa fa-history"></i>
                                     </button>
                                     <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
