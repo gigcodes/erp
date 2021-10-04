@@ -3269,6 +3269,19 @@ Route::prefix('referfriend')->middleware('auth')->group(static function () {
     Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
 });
 
+//Twillio-SMS
+Route::prefix('twillio')->middleware('auth')->group(static function () {
+    Route::get('/', 'TwillioMessageController@index');
+    Route::get('customers/{groupId}', 'TwillioMessageController@showCustomerList')->name('customer.group');
+    Route::get('marketing/message/{groupId}', 'TwillioMessageController@messageTitle')->name('marketing.message');
+    Route::post('create/service', 'TwillioMessageController@createService')->name('create.message.service');
+    Route::post('create/message/group', 'TwillioMessageController@createMessagingGroup')->name('create.message.group');
+    Route::post('add/customer', 'TwillioMessageController@addCustomer')->name('add.customer.group');
+    Route::post('remove/customer', 'TwillioMessageController@removeCustomer')->name('remove.customer.group');
+    Route::post('delete/message/group', 'TwillioMessageController@deleteMessageGroup')->name('delete.message.group');
+    Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
+});
+ Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(static function () {
     Route::get('/list', 'ReferralProgramController@index')->name('referralprograms.list');
