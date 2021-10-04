@@ -3505,6 +3505,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log','ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::post('pushwaston','ChatbotMessageLogsController@pushwaston');
 Route::get('chatbot-message-log/{id}/history','ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
 
