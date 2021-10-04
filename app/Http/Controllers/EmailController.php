@@ -1077,4 +1077,19 @@ class EmailController extends Controller
         }
         fclose($file);
     }
+	
+	public function getEmailEvents($originId) {
+		$exist = Email::where('origin_id', $originId)->first();
+		$events = []; $eventData = '';
+		if($exist != null) {
+			$events = \App\SendgridEvent::where('sg_message_id', $originId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+		}
+		foreach($events as $event) {
+			$eventData .= "<tr><td>". $event['timestamp']."</td><td>".$event['event']."</td></tr>";
+		}
+		if($eventData == '') {
+			$eventData = '<tr><td>No data found.</td></tr>';
+		}
+		return $eventData;
+ 	}
 }

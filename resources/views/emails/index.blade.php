@@ -571,7 +571,32 @@
       </div>
     </div>
   </div>
+<div id="emailEvents" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Email reply</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+           <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Event</th>
+              </tr>
+            </thead>
 
+            <tbody id="emailEventData">
+            
+			</tbody>
+          </table>
+        </div>
+            </div>
+        </div>
+    </div>
+</div>
 @include('partials.modals.remarks')
 
 @endsection
@@ -580,6 +605,20 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
+	
+		function fetchEvents(originId) {
+			if(originId == ''){
+				$('#emailEventData').html('<tr><td>No Data Found.</td></tr>');
+				$('#emailEvents').modal('show');
+				return;
+			} else{
+				$.get(window.location.origin+"/email/events/"+originId, function(data, status){
+					$('#emailEventData').html(data);
+					$('#emailEvents').modal('show');
+				});
+			}
+		}
+	
 
         //$("#unread-tab").trigger("click");
 

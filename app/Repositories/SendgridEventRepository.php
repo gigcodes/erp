@@ -43,7 +43,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
         $newEvent->payload = $event;
 
         $emailData = new Email();
-         if (Email::where('origin_id', '=', Input::get($event['sg_message_id']))->exists()) {
+         if (Email::where('origin_id', '=', $event['sg_message_id'])->exists()) {
                     Email::where('origin_id', $event['sg_message_id'])
                 ->update(['status' => $event['event']]
                         );

@@ -78,7 +78,11 @@
                   <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
                 </a>
                 <button style="padding:3px;" type="button" class="btn btn-image make-label d-inline" data-toggle="modal" data-target="#labelingModal" data-id="{{ $email->id }}"><i class="fa fa-tags" aria-hidden="true"></i></button>
-            </td>
+            
+				<a class="btn btn-image btn-ht" onclick="fetchEvents('{{$email['origin_id']}}')">
+                  <i class="fa fa-eye" aria-hidden="true"></i>      
+                </a>
+			</td>  
         </tr>
     @endforeach
     {{-- {{$emails->links()}} --}}
