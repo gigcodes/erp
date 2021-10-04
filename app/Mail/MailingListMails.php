@@ -43,6 +43,7 @@ class MailingListMails extends Mailable
 		if($template->from_email != null) {
 			$this->fromMailer = $template->from_email;
 		}
-        return ['template'=>$html, 'from_email'=>$this->fromMailer];
+
+        return $this->from($this->fromMailer)->html($html, 'text/html');
     }
 }
