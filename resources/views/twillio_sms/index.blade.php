@@ -132,7 +132,7 @@
                     <td id="description">{{$value->service}}</td>
                     <td>
 					    <a href="{{route('customer.group', ['groupId'=>$value->id])}}"><i class="fa fa-user-plus change" title="Add user" aria-hidden="true" ></i></a>
-					    <a data-toggle="modal" data-target="#messageTitle" href="javascript:void(0);" onclick="showMessageTitleModal('{{$value->id}}');"><i class="fa fa-plus change" title="Add Marketing Message" aria-hidden="true" ></i></a>
+					    <a  href="javascript:void(0);" onclick="showMessageTitleModal('{{$value->id}}');"><i class="fa fa-plus change" title="Add Marketing Message" aria-hidden="true" ></i></a>
 						<a data-route="{{route('delete.message.group')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                     </td>
                 </tr>

@@ -140,6 +140,7 @@
                 <th style="">ID</th>
                 <th style="">Name</th>
                 <th style="">Email</th>
+                <th style="">Message Sent</th>
                 <th style="">Action</th>
             </thead>
             <tbody>
@@ -148,9 +149,10 @@
                     <td id="id">{{$value->id}}</td>
                     <td id="name">{{$value->name}}</td>
                     <td id="description">{{$value->email}}</td>
+                    <td>@if(isset( $customerAdded[$value->id]) and $customerAdded[$value->id] == 1 ) Yes @else No @endif</td>
                     <td>
 					<label class="switch" style="margin: 0px">
-                        <input type="checkbox" class="checkbox __toggle" value="{{$value->id}}"  data-id="{{$value->id}}" @if(in_array($value->id, $customerAdded)) checked @endif>
+                        <input type="checkbox" class="checkbox __toggle" value="{{$value->id}}"  data-id="{{$value->id}}" @if(isset( $customerAdded[$value->id])) checked @endif>
                         <span class="slider round">
 						</span>
                     </label>
