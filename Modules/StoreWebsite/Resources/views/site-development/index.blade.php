@@ -46,12 +46,12 @@
 		color: #757575;
 		background-color: #fff !important;
 	}
-	/*.modal {
+	.modal {
 		overflow-y:auto;
 	}
 	body.overflow-hidden{
 		overflow: hidden;
-	}*/
+	}
 
 	span.user_point_none button, span.admin_point_none button{
 		pointer-events: none;
@@ -68,7 +68,7 @@
 <div id="myDiv">
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
-<div class="row" id="common-page-layout">
+<div class="row" id="common-page-layout" style="overflow: hidden">
 	<div class="col-lg-12 margin-tb p-0">
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
@@ -1724,8 +1724,8 @@
 				}
 				table = table + '</table></div>';
 				$("#loading-image").hide();
-				//$(".modal").css("overflow-x", "hidden");
-				//$(".modal").css("overflow-y", "auto");
+				$(".modal").css("overflow-x", "hidden");
+				$(".modal").css("overflow-y", "auto");
 				$("#dev_task_statistics_content").html(table);
 			},
 			error: function(error) {
