@@ -470,6 +470,10 @@ class SiteDevelopmentController extends Controller
                     ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
                     ->upload();
                 $site->attachMedia($media, config('constants.media_tags'));
+
+                if(!empty($media->filename)){
+                    DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+                }
             }
 
             return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
