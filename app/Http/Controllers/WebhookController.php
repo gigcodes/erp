@@ -16,6 +16,7 @@ use App\Email;
 use App\Repositories\SendgridEventRepositoryInterface;
 use Psr\Log\LogLevel;
 
+
 /**
  * Class WebhookController
  * Ingresses any Sendgrid webhooks
@@ -48,8 +49,9 @@ class WebhookController extends Controller
      */
     public function post(Request $request)
     {
-        $payload = $request->json()->all();
-        $validator = Validator::make(
+		$payload = $request->json()->all();
+       
+		$validator = Validator::make(
             $payload,
             [
                 '*.email' => 'required|email',
@@ -65,13 +67,17 @@ class WebhookController extends Controller
                 '*.category.*' => 'string',
             ]
         );
+		
         if ($validator->fails()) {
             $this->logMalformedPayload($payload, $validator->errors()->all());
             throw new ValidationException($validator);
         }
 
         foreach ($payload as $event) {
-            $this->processEvent($event);
+			/*SendgridEvent::create(['email'=>$event['email'], 'event'=>$event['event'], 
+			'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'], 
+			'categories'=>$event['category']]);*/
+           $this->processEvent($event);
         }
     }
 
