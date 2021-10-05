@@ -502,6 +502,34 @@
 	</div>
 </div>
 
+<div id="preview-task-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered" style="table-layout: fixed">
+					    <thead>
+					      <tr>
+					        <th style="width: 5%;">Sl no</th>
+					        <th style=" width: 30%">Files</th>
+					        <th style="word-break: break-all; width: 40%">Send to</th>
+					        <th style="width: 10%">User</th>
+					        <th style="width: 10%">Created at</th>
+                            <th style="width: 15%">Action</th>
+					      </tr>
+					    </thead>
+					    <tbody class="task-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="status-history-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -1586,7 +1614,7 @@
 					if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
 					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""></div><div class="col-md-2"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
 					table = table + '| <a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a>';
-					table = table + '| <button type="button" class="btn btn-file-list pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list" aria-hidden="true"></i></button></td>';
+					table = table + '| <button type="button" class="btn preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list" aria-hidden="true"></i></button></td>';
 					table = table + '</tr>';
 				}
 				table = table + '</table></div>';
@@ -1650,6 +1678,27 @@
                 alert('Please enter a message first');
             }
     });
+
+	$(document).on('click', '.preview-img', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/site-development/preview-img/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#preview-task-image").modal("show");
+					$(".task-image-list-view").html(response);
+                    initialize_select2()
+                },
+                error: function () {
+                }
+            });
+        });
+
 	$(document).on("click",".delete-dev-task-btn",function() {
 		var x = window.confirm("Are you sure you want to delete this ?");
             if(!x) {

@@ -259,6 +259,7 @@ Route::middleware('auth')->group(function()
     Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
     Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     Route::get('/preview-img/{site_id}', 'SiteDevelopmentController@previewImage')->name("site-development.preview-image");
+    Route::get('/preview-img-task/{id}', 'SiteDevelopmentController@previewTaskImage')->name('site-development.preview-img');
     Route::get('/artwork-history/{site_id}', 'SiteDevelopmentController@getArtworkHistory')->name("site-development.artwork-history");
     Route::get('/status-history/{site_id}', 'SiteDevelopmentController@statusHistory')->name("site-development.status-history");
 
