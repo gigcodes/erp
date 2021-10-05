@@ -26,7 +26,7 @@ class ScheduleEmails extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Schedule Emails';
 
     /**
      * Create a new command instance.
@@ -92,6 +92,7 @@ class ScheduleEmails extends Command
 								'message'         => $message['html_content'],
 								'template'        => 'customer-simple',
 								'schedule_at'     => $created_date,
+								'is_draft'     => 1,
 							];
 
 							Email::create($params);
