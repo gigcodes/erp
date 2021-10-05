@@ -1264,6 +1264,32 @@
 		}
 	});
 
+	$(document).on("click", ".send-to-sop-page",function(){
+            var id = $(this).data("id");
+            var task_id = $(this).data("media-id");
+      
+            $.ajax({
+            url: '/site-development/send-sop',
+            type: 'POST',
+            headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+            dataType:"json",
+			data: { id : id , task_id: task_id},
+            beforeSend: function() {
+				$("#loading-image").show();
+           	},
+            success:function(response) {
+                $("#loading-image").hide();
+                toastr["success"]("File Added Successfully In Sop");
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+			
+        });
+    });
+
 	$(document).on('click', '.previewDoc', function () {
 			$('#previewDocSource').attr('src', '');
             var docUrl = $(this).data('docurl');

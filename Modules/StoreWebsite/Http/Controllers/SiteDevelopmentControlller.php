@@ -525,6 +525,27 @@ class SiteDevelopmentController extends Controller
         return response()->json(["code" => 200, "message" => "Sorry required fields is missing like id, siteid , userid"]);
     }
 
+    public function SendTaskSOP(Request $request)
+    {
+
+        $media = \Plank\Mediable\Media::find($request->id);
+        $user = \App\User::find($request->user_id);
+
+        $task = SiteDevelopment::find($request->task_id);
+        $username = User::find($task->assign_to);
+
+        // dd($username->name);
+        $userid = Auth::id();
+
+        $params = Sop::create([
+            'name' => $username->name,
+            'content' => $media->getUrl(),
+
+        ]);
+
+        return response()->json(["message" => "Data Added Successfully"]);
+    }
+
     public function remarks(Request $request, $id)
     {
         // $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
