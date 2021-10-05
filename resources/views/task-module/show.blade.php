@@ -163,6 +163,13 @@
      select.globalSelect2 + span.select2 {
     width: calc(100% - 26px) !important;
 }
+
+.modal {
+		overflow-y:auto;
+	}
+	body.overflow-hidden{
+		overflow: hidden;
+	}
     </style>
 @endsection
 

@@ -1334,6 +1334,7 @@
     });
 
 	$(document).on('click', '.previewDoc', function () {
+		    e.preventDefault();
 			$('#previewDocSource').attr('src', '');
             var docUrl = $(this).data('docurl');
             var type = $(this).data('type');
