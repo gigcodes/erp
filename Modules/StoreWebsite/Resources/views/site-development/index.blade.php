@@ -68,7 +68,7 @@
 <div id="myDiv">
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
-<div class="row" id="common-page-layout" style="overflow: hidden">
+<div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb p-0">
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
