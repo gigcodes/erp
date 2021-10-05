@@ -117,24 +117,17 @@
                             <div class="col-md-3 pr-0">
                                <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
                                     <option value="">Select Website</option>
-
                                     @foreach($allWebsites as $websiteRow)
-
-                                    @if(isset($request->website) && $websiteRow->id==$request->website)
-
-                                     <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
-
-
-                                    @else
-
-                                     <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
-
-
-                                    @endif
-
-                                   
-                                         @endforeach
-                                        </select>
+                                        @if(isset($request->website) && $websiteRow->id==$request->website)
+                                         <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
+                                        @else
+                                         <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
+                                        @endif
+                                    @endforeach
+                               </select>
+                            </div>
+                            <div class="col-md-3 pr-0">
+                               <?php echo Form::select('device',["desktop" => "Desktop" , "mobile" => "Mobile", "tablet" => "Tablet"],request('device'), ["class" => "form-control"]) ?>
                             </div>
 
                              <div class="col-md-3 pr-0">
