@@ -170,19 +170,19 @@ class GTMetrixManageQueueData extends Command
                 }
                 \Log::info('GTMetrix :: successfully');
                 
-                $client = new GTMetrixClient();
-                $client->setUsername(env('GTMETRIX_USERNAME'));
-                $client->setAPIKey(env('GTMETRIX_API_KEY'));                
-                $client->getLocations();
-                $client->getBrowsers();
-                $test   = $client->startTest($gtmetrix->website_url);
+                // $client = new GTMetrixClient();
+                // $client->setUsername(env('GTMETRIX_USERNAME'));
+                // $client->setAPIKey(env('GTMETRIX_API_KEY'));                
+                // $client->getLocations();
+                // $client->getBrowsers();
+                // $test   = $client->startTest($gtmetrix->website_url);
 
-                $update = [
-                    'test_id' => $test->getId(),
-                    'status'  => 'queued',
-                    //'account_id'  => 'queued',
-                ];
-                $gtmetrix->update($update);
+                // $update = [
+                //     'test_id' => $test->getId(),
+                //     'status'  => 'queued',
+                //     //'account_id'  => 'queued',
+                // ];
+                // $gtmetrix->update($update);
 
             } 
             catch (\Exception $e) {
