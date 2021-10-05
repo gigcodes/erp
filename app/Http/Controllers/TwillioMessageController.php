@@ -14,15 +14,32 @@ use Validator;
 
 class TwillioMessageController extends Controller{
 	
-    public function index() {
+    public function index(Request $request) {
+		$inputs = $request->input();
         $data = MessagingGroup::leftJoin('sms_service', 'sms_service.id', '=', 'messaging_groups.service_id')
 		->leftJoin('store_websites', 'store_websites.id', '=', 'messaging_groups.store_website_id')
 		->leftJoin('marketing_messages', 'marketing_messages.message_group_id', '=', 'messaging_groups.id')
 		->select('messaging_groups.*', 'marketing_messages.title', 'marketing_messages.is_sent', 'marketing_messages.scheduled_at',
-		'sms_service.name as service', 'store_websites.title as website')->orderBy('messaging_groups.id', 'desc')->paginate(15);
+		'sms_service.name as service', 'store_websites.title as website');
+		if(isset($inputs['status']) and $inputs['status'] != '') {
+			if($inputs['status'] == 'done') {
+				 $data =  $data->where('is_sent', 1);
+			}else if($inputs['status'] == 'pending') {
+				 $data =  $data->whereNull('scheduled_at');
+			}else if($inputs['status'] == 'scheduled') {
+				$data =  $data->whereNotNull('scheduled_at')->where('is_sent', 0);
+			}
+		}
+		if(isset($inputs['webiste']) and $inputs['webiste'] != '') {
+			 $data =  $data->where('messaging_groups.store_website_id', $inputs['webiste']);
+		}
+		if(isset($inputs['title'])) {
+			 $data =  $data->where('marketing_messages.title', 'like','%'.$inputs['title'].'%');
+		}
+		$data = $data->orderBy('messaging_groups.id', 'desc')->paginate(15);
         $websites = [''=>'Select Website'] + StoreWebsite::pluck('title', 'id')->toArray();
 		$services = [''=>'Select Service'] + SmsService::pluck('name', 'id')->toArray();
-        return view('twillio_sms.index', compact('data','websites', 'services'));
+        return view('twillio_sms.index', compact('data','websites', 'services', 'inputs'));
     }
 
     public function createMessagingGroup(Request $request) {

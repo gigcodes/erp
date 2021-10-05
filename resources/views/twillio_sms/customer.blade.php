@@ -140,6 +140,8 @@
                 <th style="">ID</th>
                 <th style="">Name</th>
                 <th style="">Email</th>
+                <th style="">Phone</th>
+                <th style="">Whatsapp Number</th>
                 <th style="">Message Sent</th>
                 <th style="">Action</th>
             </thead>
@@ -149,6 +151,8 @@
                     <td id="id">{{$value->id}}</td>
                     <td id="name">{{$value->name}}</td>
                     <td id="description">{{$value->email}}</td>
+                    <td >{{$value->phone}}</td>
+                    <td >{{$value->whatsapp_number}}</td>
                     <td>@if(isset( $messageSentToCustomers[$value->id]) and $messageSentToCustomers[$value->id] == 1 ) Yes @else No @endif</td>
                     <td>
 					<label class="switch" style="margin: 0px">
