@@ -198,7 +198,6 @@
                 <div class="col-md-1">
                     <select class="form-control select-multiple" id="web_device" tabindex="-1" aria-hidden="true" name="device">
                         <option value="">Select Device</option>
-
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "desktop" ? 'selected' :'' ) }} value="desktop">Desktop</option>
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "mobile" ? 'selected' :'' ) }} value="mobile">Mobile</option>
                         <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "tablet" ? 'selected' :'' ) }} value="tablet">Tablet</option>
