@@ -144,7 +144,7 @@ class SiteDevelopmentController extends Controller
 
         // $user_id = Auth::id();
         if ($request->type == 'TASK') {
-            $task = SiteDevelopment::find($request->taskdata);
+            $task = \App\Task::find($request->taskdata);
             $user = User::find($task->assign_to);
 
         } else {
@@ -523,12 +523,12 @@ class SiteDevelopmentController extends Controller
 
     public function previewTaskImage($id)
     {
-        $task = SiteDevelopment::find($id);
+        $task = \App\Task::find($id);
 
         $records = [];
         if ($task) {
             $userList = User::pluck('name', 'id')->all();
-            $task = SiteDevelopment::find($id);
+            $task = \App\Task::find($id);
             $userName = '';
             $mediaDetail = array();
             // $usrSelectBox = "";
@@ -615,7 +615,7 @@ class SiteDevelopmentController extends Controller
         $media = \Plank\Mediable\Media::find($request->id);
         $user = \App\User::find($request->user_id);
 
-        $task = SiteDevelopment::find($request->task_id);
+        $task = \App\Task::find($request->task_id);
         $username = \App\User::find($task->assign_to);
 
         // dd($username->name);
