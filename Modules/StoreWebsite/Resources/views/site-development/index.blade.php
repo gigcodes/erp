@@ -1329,7 +1329,7 @@
            	},
             success:function(response) {
                 $("#loading-image").hide();
-                toastr["success"]("File Added Successfully In Sop");
+                toastr["success"](response.message);
             },
             error: function(error) {
                 toastr["error"];
