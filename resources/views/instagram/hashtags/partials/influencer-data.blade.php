@@ -4,7 +4,7 @@
         <td>
             <input    type="checkbox" 
                       class="selectedInfluencers" 
-                      name="selectedInfluencers" 
+                      name="selectedInfluencers" autocomplete="off"
                       value="{{$influencer->id}}">
          </td>
 

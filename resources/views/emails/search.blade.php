@@ -40,18 +40,13 @@
 			</td>
             <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
             <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
-			<td>
-				@foreach ($email_categories as $category)
-					@if($category->id == $email->email_category_id)
-						{{$category->category_name}} 
-					@endif
-				@endforeach
-			</td>
+			
 			<td>
 				
                 <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
                     <i class="fa fa-repeat"></i>
                 </a>
+
                 <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
                     <i class="fa fa-reply"></i>
                 </a>
@@ -83,6 +78,6 @@
                   <i class="fa fa-eye" aria-hidden="true"></i>      
                 </a>
 			</td>  
+
         </tr>
     @endforeach
-    {{-- {{$emails->links()}} --}}

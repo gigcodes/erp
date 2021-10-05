@@ -36,16 +36,15 @@
                 </td>
             </tr>
         @endif
-
             @foreach ($store->storeViewMany as $item)
-                
+                @php $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->get()->toArray();@endphp
                 <tr class="expand-{{ $list->id }}">
                     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
                     <td>{{ $store->id }}</td>
                     <td>{{ $list->storeWebsite->website ?? '' }}</td>
                     <td>{{ $store->name }}</td>
                     <td>{{ $item->name }}({{ $item->code }})</td>
-
+                    <td>{{ count($images) }}</td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">

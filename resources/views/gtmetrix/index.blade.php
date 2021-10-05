@@ -187,7 +187,7 @@
                                 <td>{{ $key->created_at }}</td>
                                 <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
                                 <td>  
-                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.history',[ 'id'=>$key->store_view_id ])}}">
+                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.web-hitstory',[ 'id'=>$key->website_url ])}}">
                                         <i class="fa fa-history"></i>
                                     </button>
                                     <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
@@ -209,6 +209,10 @@
                         @endforeach
                     </tbody>
                 </table>
+<!-- 
+                <td colspan="12">
+                    {{ $list->links() }}
+                </td> -->
             </div>
         </div>
         <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
@@ -451,25 +455,37 @@
                 }
             });
 
-            function loadMore() {
-                if (isLoading)
+            function loadMore() { 
+              if (isLoading)
                     return;
                 isLoading = true;
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
-                const params = new URLSearchParams(window.location.search)
+                const params = new URLSearchParams(window.location.search); 
                 keyword = params.get('keyword');
                 status = params.get('status');
                 date = params.get('date');
+                if(keyword == null) {
+                    keyword = '';
+                }
+                if(status == null || status == 'null') { 
+                    status = '';
+                }
+                if(date == null) {
+                    date = '';
+                }
+                 var url = "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword;
+                
+                console.log(url);
+
                 $.ajax({
-                    url: "{{url('gtmetrix')}}?ajax=1&page="+page+"&date="+date+"&status="+status+"&keyword="+keyword,
+                    url: url,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {
                         $loader.show();
                     },
                     success: function (data) {
-                        
                         $loader.hide();
                         if('' === data.trim())
                             return;

@@ -62,7 +62,7 @@ class FetchAllEmails extends Command
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
-            FetchEmail::dispatch($emailAddress);
+            FetchEmail::dispatch($emailAddress)->onQueue('email');
         } 
     }
 

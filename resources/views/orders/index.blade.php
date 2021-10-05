@@ -375,6 +375,8 @@
                     <i class="fa fa-truck" aria-hidden="true"></i>
                   </a>
 
+                  <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+
                   <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-address-card" aria-hidden="true"></i>
                   </a>
@@ -609,15 +611,22 @@
                         </div>
                       </div>
                       <div class="col-md-12">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <div class="checkbox">
-                            <label><input class="msg_platform" type="checkbox" value="email">Email</label>
+                            <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
                           </div>
                           <div class="checkbox">
                             
                             <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
                           </div>
                         </div>
+                </div>
+                <div class="col-md-8">
+                       <div id="preview" style="display:none">
+                             
+                       </div>
+                </div>
                       </div>
                     </div>
                 </div>
@@ -662,10 +671,14 @@
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
+@include("partials.modals.preview_sent_mails_modal")
 @include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
 @section('scripts')
+
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
@@ -673,7 +686,13 @@
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
   <script type="text/javascript">
+    CKEDITOR.replace('editableFile');
+  </script>
+  <script type="text/javascript">
+
+  
     $(document).on('click','.magento-order-status',function(event){ 
       event.preventDefault();
       $('#order-status-map').modal('show');
@@ -847,6 +866,65 @@
       });
 
 
+
+
+      $(document).on("click",".preview_sent_mails",function() {
+
+          var id = $(this).data("order-id");
+          
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/preview-sent-mails",
+            type: "post",
+            data : {
+              id: id,
+            },
+            beforeSend: function() {
+
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+
+            $("loading-image").hide();
+
+            if(response.code == 200) {
+            var items = response.data;
+            console.log(response.data);
+            if(items.length > 0) {
+              var itemsHtml = '';
+              $.each(items, function(k,v) {
+                  itemsHtml += `<tr class="in-background filter-message reviewed_msg" data-message="Greetings from Solo Luxury Ref: order number 1730030 we have updated your order with status : prepaid.">
+                      <td >`+v.created_at+`</td>
+                      <td >`+v.from+`</td>
+                      <td >`+v.to+`</td>
+                      <td >`+v.subject+`</td>
+                      <td >`+v.message+`</td> 
+                      <td >`+v.status+`</td>
+                      <td >`+v.is_draft+`</td>
+                      <td >`+v.error_message+`</td>
+                    </tr>`;
+
+                });
+              
+              $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+            }
+
+            $("#previewSendMailsModal").modal("show");
+
+            }
+            
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+
+
+
+
+      });
+
+
     function ConfirmDialog(message,id,status) {
       $('<div></div>').appendTo('body')
         .html('<div><h5>' + message + '?</h5></div>')
@@ -905,7 +983,7 @@
       $(document).on("change",".order-status-select",function() {
           var id = $(this).data("id");
           var status = $(this).val();
-
+          $("#preview").hide();
           $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -923,6 +1001,8 @@
             $("loading-image").hide();
             if(response.code == 200) {
               $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
               $("#order-status-id-status-tpl").val(status);
               $("#order-template-status-tpl").val(response.template);
               $(".msg_platform").prop('checked', false);
@@ -936,7 +1016,10 @@
 
       $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
+          console.log($("#email_from_mail").val());
+          console.log($("#email_to_mail").val());
           var selected_array = [];
+          console.log(selected_array);
           $('.msg_platform:checkbox:checked').each(function() {
             selected_array.push($(this).val());
           });
@@ -954,6 +1037,9 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              custom_email_content:$("#customEmailContent").val(),
+              from_mail:$("#email_from_mail").val(),
+              to_mail:$("#email_to_mail").val(),
               order_via: selected_array,
             }
             }).done( function(response) {
@@ -1260,16 +1346,22 @@
         })
         $(document).on('click','.update-del-date',function(e){
           e.preventDefault();
+		   var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           var newdeldate = $('#newdeldate').val();
           if(!newdeldate){
             toastr['error']('Estimate delivery date field cannot be empty !');
             return;
           }
             var form = $("#updateDelDateForm");
+			var data = form.serialize();
+			
             $.ajax({
                 type: form.attr("method"),
                 url: form.attr("action"),
-                data: form.serialize(),
+                data: {'orderid':$('#orderid').val(), 'newdeldate':$('#newdeldate').val(), 'fieldname':$('#fieldname').val(), 'order_via':selected_array},
                 dataType:"json",
                 beforeSend:function(data){
                   $('.ajax-loader').show();
@@ -1568,6 +1660,14 @@
             });
 
         });
+
+        function loadpreview(t)
+        {
+          $("#preview").hide();
+          if (t.checked == true){
+            $("#preview").show();
+          }
+        }
 
   </script>
 @endsection

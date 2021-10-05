@@ -24,11 +24,15 @@
         @if ($product->hasMedia(config('constants.attach_image_tag')))
         @php
         $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+        $image = "";
+        if($imageDetails) {
+          $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+        }
         $image_key = $imageDetails->getKey();
         $selected_all = true;
         $im = [
         "abs" => $imageDetails->getAbsolutePath(),
-        "url" => $imageDetails->getUrl(),
+        "url" => $image,
         "id"  => $imageDetails->getKey()
         ];
         if (!in_array($imageDetails->getKey(), $selected_products)) {

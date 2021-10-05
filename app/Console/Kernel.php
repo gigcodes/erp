@@ -83,6 +83,7 @@ use App\Console\Commands\CheckWhatsAppActive;
 use App\Console\Commands\ParseLog;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
+use App\Http\Controllers\Marketing\MailinglistController;
 use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
@@ -330,7 +331,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
-
+		$schedule->call(function () {
+            MailinglistController::sendAutoEmails();
+        })->hourly();
+		
 
         // Store unknown categories on a daily basis
         //$schedule->command('category:missing-references')->daily();

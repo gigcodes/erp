@@ -135,6 +135,8 @@
             <?php
         $messages = \App\Email::where('model_type','App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at','desc')->get();
         $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Original</td><td>Message</td></tr></thead><tbody>";
+        $tableemail=" <table style='width:1000px' class='table table-bordered' ><thead><tr><td>Date</td><td>Sender</td><td>Receiver</td><td>Mail <br> Type</td><td>Subject</td><td>Message</td><td>Action</td></tr></thead><tbody>";
+ 
         
         foreach( $messages as $m)
         {
@@ -142,19 +144,46 @@
             $table.="<tr><td>".$m->created_at."</td>";
             $table.="<td>".$m->message."</td>";
             $table.="<td>".$m->message_en."</td></tr>";
+
+            $tableemail.="<tr><td>".$m->created_at."</td>";
+            $tableemail.="<td>".$m->from."</td>";
+            $tableemail.="<td>".$m->to."</td>";
+            $tableemail.="<td>".$m->type."</td>";
+            $tableemail.="<td>".$m->subject."</td>";
+            $tableemail.="<td>".$m->message."</td>";
+            $tableemail.='<td><a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="'.$m->id.'" >
+                    <i class="fa fa-repeat"></i> </a></td></tr>';
+            
+            
+           
+
+            
         }
         $table.="</tbody></table>";
+        $tableemail.="</tbody></table>";
         
          
        ?>
-            <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
             <i class="fa fa-envelope" style="margin-left: -10px"></i>
         </a>
+
+        <a href="javascript:void(0)" onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email" >
+            <i class="fa fa-repeat" aria-hidden="true"></i>
+
+        </a>
             <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
-                <i class="fa fa-trash" style="margin-left: -10px"></i></button>
+                <i class="fa fa-trash" style="margin-left: -10px"></i></button> 
+				
+		<button type="button" class="btn no_pd" onclick="showEmails('{{$ticket->id}}')">
+                <i class="fa fa-envelope" style="margin-left: -10px"></i></button>
 
         </div>
     </td>
 </tr>
 
 @endforeach
+
+
+
+

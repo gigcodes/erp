@@ -123,7 +123,7 @@
                         {!! $category_selection !!}
                     </div>
 
-                    <div class="form-group col-md-3 mr-3 no-pd">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         @php $brands = \App\Brand::pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple brands" name="brand[]" multiple data-placeholder="Brands...">
@@ -134,7 +134,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="form-group col-md-3 mr-3 no-pd">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
@@ -150,8 +150,9 @@
                             ?>
                         </select>
                     </div>
-
-
+                    <div class="form-group col-md-2 mr-5 ">
+                        <?php echo Form::select("platform",[null => "- Select Platform -","attachment" => "Attached Image", "lead" => "Lead"],request("platform"),["class" => "form-control"]) ?>
+                    </div>
                     <div class="col-md-1 no-pd">
                     <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">

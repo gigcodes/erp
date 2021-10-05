@@ -180,13 +180,13 @@
                 {{-- @if(count($workspace) <= 0) --}}
                 <div class="row">
 					{{ Form::open(array('url'=>route('twilio-work-space'), 'id'=>'save-workspace')) }}
-						<div class="col-md-3">
+						<div class="col-md-4">
 							<input type="text" class="form-control" name="workspace_name" placeholder="Enter Workespace Name"/>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-4">
 							<input type="text" class="form-control" name="callback_url" placeholder="Enter Callback Name" />
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-4">
 							<input type="hidden" name="account_id" value="{{ $account_id}}">
 							<button type="submit" class="btn btn-secondary create_twilio_workspace">Create Twilio Workspace</button>
 						</div>
@@ -236,7 +236,7 @@
             <div class="modal-body">
                 {{-- @if(count($workspace) <= 0) --}}
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-3">    
                         <select class="form-control worker_workspace_id" id="">
                             <option value="">Select Workspace</option>
                             @if(isset($workspace))
@@ -250,6 +250,9 @@
                         <input type="text" class="form-control twilio_worker_name" name="twilio_worker_name" placeholder="Worker Name"/>
                     </div>
                    
+                    <div class="col-md-3">
+                        <input type="text" class="form-control worker_phone" name="worker_phone" placeholder="Worker Phone Number"/>
+                    </div>
 
                     <a class="ml-2" >
                         <button type="button" class="btn btn-secondary create_twilio_worker">Create</button>
@@ -262,6 +265,7 @@
                         <tr>
                             <th scope="col" class="text-center">Workspace Name</th>
                             <th scope="col" class="text-center">Worker Name</th>
+                            <th scope="col" class="text-center">Worker Phone</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -271,6 +275,7 @@
                             <tr class="worker_row_{{$val->id}}">
                                 <td>{{$val->workspace_name}}</td>
                                 <td>{{$val->worker_name}}</td>
+                                <td>{{$val->worker_phone}}</td>
                                 <td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="{{$val->id}}" aria-hidden="true"></i></td>
                             </tr>
                             @endforeach
@@ -297,6 +302,7 @@
                 <div class="row">
 					{{ Form::open(array('url'=>route('create-twilio-workflow'), 'id'=>'create-twilio-workflow', 'class'=>'ajax-submit')) }}
 						<div class="col-md-4">
+						<label>Select Workspace</label>
 							<select class="form-control workflow_workspace_id" name="workspace_id">
 								<option value="">Select Workspace</option>
 								@if(isset($workspace))
@@ -307,21 +313,25 @@
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Task Queue Name</label>
 							<select class="form-control" name="task_queue" id="task_queue">
 								   
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Workflow Name</label>
 							<input type="hidden" name="account_id" value="{{ $account_id}}">
 							<input type="text" class="form-control " name="workflow_name" placeholder="Workflow Name"/>
 						</div>
 						<div class="col-md-4">
+						<label>Fallback Assignment</label>
 							<input type="text" class="form-control " name="fallback_assignment_callback_url" placeholder="Fallback Assignment Callback Url"/>
 						</div>
 						<div class="col-md-4">
+						<label>Assignment Callback Url</label>
 							<input type="text" class="form-control " name="assignment_callback_url" placeholder="Assignment Callback Url"/>
 						</div>
-						<button type="submit" class="btn btn-secondary">Create</button>
+						<div class="Twilio_Workflow_Model_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
 					</form>
                 </div>
 
@@ -432,6 +442,7 @@
                 <div class="row">
 					{{ Form::open(array('url'=>route('create-twilio-task-queue'), 'id'=>'create-twilio-task-queue', 'class'=>'ajax-submit')) }}
 						<div class="col-md-4">
+						<label>Select Workspace</label>
 							<select class="form-control task_queue_workspace_id" name="workspace_id">
 								<option value="">Select Workspace</option>
 								@if(isset($workspace))
@@ -442,32 +453,38 @@
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Task Queue Name</label>
 							<input type="hidden" name="account_id" value="{{ $account_id}}">
 							<input type="text" class="form-control " name="task_queue_name" placeholder="Task Queue Name"/>
 						</div>
 						<div class="col-md-4">
+						<label>First In First Out</label>
 							<select class="form-control " name="task_order">
 								<option value="FIFO">First In First Out</option>
 								<option value="LIFO">Last In First Out</option>
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Select Reservation Activity</label>
 							<select class="form-control " name="reservation_activity_id" id="reservation_activity_id">
 								<option value="">Select Reservation Activity</option>
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Select Reservation Activity</label>
 							<select class="form-control " name="assignment_activity_id" id="assignment_activity_id">
 								<option value="">Select Assignment Activity</option>
 							</select>
 						</div>
 						<div class="col-md-4">
+						<label>Quantity</label>
 							<input type="number" class="form-control " name="max_reserved_workers" placeholder="Max reserved workers" value="1"/>
 						</div>
 						<div class="col-md-4">
+						<label>QUEUE EXPRESSION</label>
 							<input type="text" class="form-control " name="queue_expression" placeholder="QUEUE EXPRESSION"/>
 						</div>
-						<button type="submit" class="btn btn-secondary">Create</button>
+						<div class="Twilio_Task_Queue_btn"><button type="submit" class="btn btn-secondary">Create</button></div>
 					</form>
                 </div>
 
@@ -615,7 +632,7 @@
                             html += '<td>'+response.data.workspace_name+'</td>';
                             html += '<td>'+response.data.activity_name+'</td>';
                             html += '<td>'+response.data.availability+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-activity')}}" aria-hidden="true"></i></td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-activity')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.activities_list').append(html);
 						}else if(data.type == "workflowList") { 
@@ -625,7 +642,7 @@
                             html += '<td>'+response.data.workflow_name+'</td>';
                             html += '<td>'+response.data.fallback_assignment_callback_url+'</td>';
                             html += '<td>'+response.data.assignment_callback_url+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-workflow')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.workflow_list').append(html);
 						}else if(data.type == "taskQueueList") { 
@@ -636,11 +653,13 @@
                             html += '<td>'+response.data.target_workers+'</td>';
                             html += '<td>'+response.data.max_reserved_workers+'</td>';
                             html += '<td>'+response.data.task_order+'</td>';
-                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'"  data-route="{{route('delete-twilio-task-queue')}}" aria-hidden="true"></i></td>';
+                            html += '<td><i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-id="'+response.data.id+'" data-id="'+response.data.id+'" data-route="{{route('delete-twilio-task-queue')}}" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.task_queue_list').append(html);
 						}
-						
+						setTimeout(function(){
+                          location.reload();
+                        }, 1000);
  
 					}
 				},
@@ -767,6 +786,7 @@
             $('.create_twilio_worker').on("click", function(){
                 var workspace_id = $('.worker_workspace_id').val();
                 var worker_name = $('.twilio_worker_name').val();
+                var worker_phone = $('.worker_phone').val();
 
                 $.ajax({
                     url: "{{ route('create-twilio-worker') }}",
@@ -774,6 +794,7 @@
                     data : {
                         workspace_id: workspace_id,
                         worker_name: worker_name,
+                        worker_phone: worker_phone,
                         account_id: '{{ $account_id }}',
                         _token : "{{ csrf_token() }}"
                     },
@@ -789,6 +810,7 @@
                             var html = '<tr>';
                             html += '<td>'+response.data.workspace_name+'</td>';
                             html += '<td>'+response.data.worker_name+'</td>';
+                            html += '<td>'+response.data.worker_phone+'</td>';
                             html += '<td><i style="cursor: pointer;" class="fa fa-trash delete_worker" data-id="'+response.data.id+'" aria-hidden="true"></i></td>';
                             html += '</tr>';
                             $('.worker_list').append(html);

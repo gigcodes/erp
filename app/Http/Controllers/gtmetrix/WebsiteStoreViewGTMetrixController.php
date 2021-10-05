@@ -21,14 +21,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    { 
         $query = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
          
-        if (request('date')) {
+        if (request('date') and request('date') != null) { 
             $query->whereDate('store_views_gt_metrix.created_at', request('date'));
         }
 
-        if (request('status')) {
+        if (request('status') and request('status') != null) {
             $query->where('store_views_gt_metrix.status', request('status'));
         }
 
@@ -40,8 +40,9 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 }
             });
         }
-        if (request('sortby') && request('ord'))
+        if (request('sortby') && request('ord') && request('sortby') != null && request('ord') != null ){
               $query->orderBy(request('sortby'),request('ord'));
+        }
 
         $list = $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
             ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
@@ -137,7 +138,19 @@ class WebsiteStoreViewGTMetrixController extends Controller
     {
         $title = 'History';
         if ($id) {
-            $history = StoreViewsGTMetrix::whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
+            $history = StoreViewsGTMetrix::where("website_url",$id)->whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
+
+            return view('gtmetrix.history', compact('history','title'));
+            //return response()->json(["code" => 200, "data" => $history]);
+        }
+    }
+
+    public function webHistory(Request $request)
+    {
+        $id = $request->get("id");
+        $title = 'History';
+        if ($id) {
+            $history = StoreViewsGTMetrix::where("website_url",$id)->whereNotNull('test_id')->orderBy("created_at", "desc")->paginate(25);
 
             return view('gtmetrix.history', compact('history','title'));
             //return response()->json(["code" => 200, "data" => $history]);

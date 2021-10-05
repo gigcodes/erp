@@ -16,6 +16,12 @@ use App\Helpers\TwilioHelper;
 Auth::routes();
 
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
+Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
+Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
+Route::get('send_auto_emails', 'Marketing\MailinglistController@sendAutoEmails');
+
+Route::get('textcurl', 'Marketing\MailinglistController@textcurl');
+
 
 //Route::get('unused_category', 'TestingController@Demo');
 
@@ -189,21 +195,7 @@ Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::resource('category', 'CustomerCategoryController');
 });
 
-Route::prefix('seo')->middleware('auth')->group(function () {
-    Route::get('/', 'SeoToolController@index')->name('seo-tool');
-    Route::post('tool/save', 'SeoToolController@saveTool')->name('save.seo-tool');
-   // Route::post('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');
-    Route::get('fetch-details', 'SeoToolController@fetchDetails')->name('fetch-seo-details');;
-    Route::get('domain-report/{id}', 'DetailsController@domainDetails')->name('domain-details');
-    Route::get('domain-report/{id}/{type}', 'DetailsController@domainDetails');
-	Route::get('compitetors-details/{id}', 'SeoToolController@compitetorsDetails')->name('compitetors-details');
-	Route::get('site-audit-details/{id}', 'DetailsController@siteAudit')->name('site-audit-details');
-	Route::get('compitetorsdetails/{id}', 'DetailsController@compitetorsDetails')->name('compitetorsdetails');
-	Route::get('backlink-details/{id}', 'DetailsController@backlinkDetails')->name('backlink-details');
-	Route::get('site-audit/{projectId}', 'SeoToolController@siteAudit');
-	Route::get('project-list', 'SeoToolController@projectList');
-	Route::post('save-keyword', 'SeoToolController@saveKeyword');
-});
+
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
@@ -332,11 +324,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer-charity-search', 'CustomerCharityController@charitySearch')->name('charity-search');
     Route::get('customer-charity-email', 'CustomerCharityController@charityEmail')->name('charity-email');
     Route::get('customer-charity-phone-number', 'CustomerCharityController@charityPhoneNumber')->name('charity-phone-number');
+
     Route::get('customer-charity/get-websites/{id}', 'CustomerCharityController@charityWebsites')->name('charity.websites');
     Route::post('customer-charity/get-websites/{id}', 'CustomerCharityController@addCharityWebsites')->name('charity.websites');
     
 
     Route::get('customer-charity/get-website-store/{charity_id}', 'CustomerCharityController@getCharityWebsiteStores')->name('charity.website.stores');
+
 
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::get('products/get-push-websites', 'ProductController@getWebsites');
@@ -416,7 +410,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/change-size-system', 'ProductInventoryController@changeSizeSystem')->name('productinventory.change-size-system');
     Route::post('productinventory/change-product-status', 'ProductInventoryController@updateStatus')->name('productinventory.update-status');
     Route::post('productinventory/store-erp-size', 'ProductInventoryController@changeErpSize')->name('productinventory.change-erp-size');
-
+    Route::get('productinventory/scrape-log', 'ProductInventoryController@scrapelog');
+  
     Route::get('productinventory/inventory-history/{id}', 'ProductInventoryController@inventoryHistory')->name('productinventory.inventory-history');
     Route::post('productinventory/merge-scrap-brand', 'ProductInventoryController@mergeScrapBrand')->name('productinventory.merge-scrap-brand');
 
@@ -634,6 +629,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
     Route::post('erp-lead-block-customer', 'LeadsController@blockcustomerlead')->name('leads.block.customer');
 
+    //Manage Brand Category
+    Route::get('erp-manage/category', 'LeadsController@manageLeadsCategory')->name('manage.leads.category');
+    Route::get('erp-manage/brand', 'LeadsController@manageLeadsBrand')->name('manage.leads.brand'); 
+    Route::post('erp-manage/save/leads/brands', 'LeadsController@saveLeadsBrands')->name('save.leads.brands');
+    Route::post('erp-manage/save/leads/categories', 'LeadsController@saveLeadsCategories')->name('save.leads.categories');
+    
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
     Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
@@ -796,6 +797,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
+    Route::post('order/preview-sent-mails', 'OrderController@orderPreviewSentMails');
     Route::get('customer/getcustomerinfo', 'CustomerController@customerinfo')->name('customer.getcustomerinfo');
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
@@ -1968,7 +1970,10 @@ Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('li
 
 Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
 
-
+Route::get('twilio/getChats', 'TwiliochatController@getTwilioChat')->name('twilio.get.chats');
+Route::get('twilio/chats/delete/{id}', 'TwiliochatController@chatsDelete')->name('twilio.chats.delete');
+Route::get('twilio/chats/edit', 'TwiliochatController@twilioChatsEdit')->name('twilio.chats.edit'); 
+Route::any('twilio/chats/update', 'TwiliochatController@twilioChatsUpdate')->name('twilio.chats.update'); 
 
 Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');
 Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewController@store')->name('brandreview.store');
@@ -1991,6 +1996,8 @@ Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->nam
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
 Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
 Route::post('tickets/delete_tickets','LiveChatController@delete_tickets')->name('livetickets.delete');
+
+Route::get('tickets/emails/{ticketId}','LiveChatController@fetchEmailsOnTicket')->name('livetickets.fetchEmailsOnTicket');
 
 
 
@@ -2164,6 +2171,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('hashtag/queue/status', 'HashtagController@checkStatusCommand')->name('hashtag.command.status');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+    Route::get('influencers/get-log', 'HashtagController@loginstance');
     Route::post('influencers/history', 'HashtagController@history')->name('influencers.index.history');
     Route::post('influencers/reply/add', 'HashtagController@addReply')->name('influencers.reply.add');
     Route::post('influencers/reply/delete', 'HashtagController@deleteReply')->name('influencers.reply.delete');
@@ -2217,7 +2225,9 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
      Route::post('direct/history', 'DirectMessageController@history')->name('direct.history');
      Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
-
+     
+	 Route::post('send/email/influencers', 'HashtagController@sendMailToInfluencers')->name('send.mail-influencer');
+   
 });
 
 // logScraperVsAiController
@@ -2615,7 +2625,20 @@ Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewD
 Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo')->name('getSupplierScrappingInfo');
 
 });
-
+//Routes for flows
+Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
+    Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/{flow_code}', 'FlowController@editFlow')->name('flow.edit');
+    Route::get('/detail/{flow_id}', 'FlowController@flowDetail')->name('flow.detail');
+    Route::post('/create', 'FlowController@createFlow')->name('flow-create');
+    Route::post('/update', 'FlowController@updateFlow')->name('flow-update');
+    Route::post('/delete', 'FlowController@flowDelete')->name('flow-delete');
+    Route::post('/action/delete', 'FlowController@flowActionDelete')->name('flow-action-delete');
+    Route::post('/update/actions', 'FlowController@updateFlowActions')->name('flow-actions-update');
+    Route::get('/action/message/{action_id}', 'FlowController@getActionMessage')->name('flow-action-message-view');
+    Route::post('/update/action/message', 'FlowController@updateActionMessage')->name('flow-action-message');
+    Route::post('/create/type', 'FlowController@createType')->name('flow-type-create');
+});
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
@@ -3248,6 +3271,19 @@ Route::prefix('referfriend')->middleware('auth')->group(static function () {
     Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
 });
 
+//Twillio-SMS
+Route::prefix('twillio')->middleware('auth')->group(static function () {
+    Route::get('/', 'TwillioMessageController@index');
+    Route::get('customers/{groupId}', 'TwillioMessageController@showCustomerList')->name('customer.group');
+    Route::get('marketing/message/{groupId}', 'TwillioMessageController@messageTitle')->name('marketing.message');
+    Route::post('create/service', 'TwillioMessageController@createService')->name('create.message.service');
+    Route::post('create/message/group', 'TwillioMessageController@createMessagingGroup')->name('create.message.group');
+    Route::post('add/customer', 'TwillioMessageController@addCustomer')->name('add.customer.group');
+    Route::post('remove/customer', 'TwillioMessageController@removeCustomer')->name('remove.customer.group');
+    Route::post('delete/message/group', 'TwillioMessageController@deleteMessageGroup')->name('delete.message.group');
+    Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
+});
+ Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(static function () {
     Route::get('/list', 'ReferralProgramController@index')->name('referralprograms.list');
@@ -3374,6 +3410,7 @@ Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@r
 Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');
 Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.history');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
+Route::get('gtmetrix/web-history', 'gtmetrix\WebsiteStoreViewGTMetrixController@webHistory')->name('gtmetrix.web-hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
 Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
@@ -3471,6 +3508,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log','ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
+Route::post('pushwaston','ChatbotMessageLogsController@pushwaston');
 Route::get('chatbot-message-log/{id}/history','ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
 

@@ -229,6 +229,9 @@ button[disabled]:hover {
                         </select>
                 </div>
                 <div class="form-group mr-3 mb-3">
+               
+                 <input type="date" name="date" id="date11">
+            
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                     <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
                 </div>
@@ -239,6 +242,9 @@ button[disabled]:hover {
                 <div class="row">
                 <div class="form-group mr-3 mb-3">    
                     <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-sm" >Ceate Mailing List</a> 
+                </div>      
+                <div class="form-group mr-3 mb-3">    
+                    <a href="#" class="btn btn-secondary btn-sm mailToInfluencers" >Send Mail</a> 
                 </div>      
                 <div class="form-group mr-3 mb-3">    
                     <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
@@ -255,6 +261,7 @@ button[disabled]:hover {
                 <div class="form-group mr-3 mb-3">
                     <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
                 </div>
+               
                 </div>
             </div>
         </div>
@@ -319,9 +326,13 @@ button[disabled]:hover {
                                    <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
                                    <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
                                    <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
-                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
+                                   <!--<button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> !-->
+                                   <button type="button" data-id="{{$keyword->name}}" class="btn btn-log-instances"><i class="fa fa-history" aria-hidden="true"></i></button>
                                    <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
-                                   </td>
+                                  
+                                 
+                  
+                                </td>
                                 </tr>
                                 @endforeach
                                 </tbody>
@@ -399,6 +410,38 @@ button[disabled]:hover {
             </div>
         </div>
     </div>
+	
+	<div id="mailingListTemplate" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+      <div class="modal-header">
+                    <h4 class="modal-title">Mailing Template</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="" id="mailToInfluencersForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Template:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+										{{Form::select('mailing_list', $mailingListTemplates, null, array('class'=>'form-control'))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Send</button>
+                    </div>
+                </form>
+      </div>
+    </div>
+    </div>
 
 
     <div id="directMessageModal" class="modal fade" role="dialog">
@@ -447,6 +490,21 @@ button[disabled]:hover {
       </div>
     </div>
 </div>
+
+<div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Instagram Logs</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @include("marketing.whatsapp-configs.partials.image")
 @include('instagram.hashtags.partials.influencer-history')
@@ -897,6 +955,15 @@ button[disabled]:hover {
           }
           $('#directMessageModal').modal('show');
         });
+		
+		 $(document).on("click",".mailToInfluencers",function(e){
+          e.preventDefault();
+          if(selectedInfluencers.length < 1) {
+            toastr['error']("Select few influencers first");
+            return;
+          }
+          $('#mailingListTemplate').modal('show');
+        });
 
         $(document).on('submit', '#directMessageForm', function (e) {
                 e.preventDefault();
@@ -914,6 +981,32 @@ button[disabled]:hover {
                         $("#data-table tr").find('.selectedInfluencers').each(function () {
                           if ($(this).prop("checked") == true) {
                             $(this).prop("checked", false);
+                          }
+                        });
+                        selectedInfluencers = [];
+                    },
+                    error: function (error) {
+                        toastr['error'](error.responseJSON.message, 'error');
+                    }
+                });
+        });
+		
+		$(document).on('submit', '#mailToInfluencersForm', function (e) {
+                e.preventDefault();
+                var data = $(this).serializeArray();
+                var account_id = $('.account-search').val();
+                data.push({name: 'selectedInfluencers', value: selectedInfluencers});
+                $.ajax({
+                    url: "{{route('send.mail-influencer')}}",
+                    type: 'POST',
+                    data: data,
+                    success: function (response) {
+                        toastr['success']('Successful', 'success'); 
+                        $('#mailingListTemplate').modal('hide');
+                        $("#mailToInfluencersForm").trigger("reset");
+                        $("#data-table tr").find('.selectedInfluencers').each(function () {
+                          if ($(this).prop("checked") == true) {
+                             $(this).prop("checked", false);
                           }
                         });
                         selectedInfluencers = [];
@@ -1042,6 +1135,25 @@ button[disabled]:hover {
                 });
             }            
         }); 
+
+
+        $(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            var $date=  $('#date11').val();
+            $.ajax({
+                url: '{{url('instagram/influencers/get-log')}}',
+                method:"get",
+                data : {
+                    id : $id,
+                    date : $date
+                },
+                success: function (data) {
+                   $("#manage-log-instance").find(".modal-body").html(data);
+                   $("#manage-log-instance").modal('show'); 
+                },
+            });
+        });
     </script>
 
 @endsection
