@@ -14,12 +14,32 @@ use Validator;
 
 class TwillioMessageController extends Controller{
 	
-    public function index() {
+    public function index(Request $request) {
+		$inputs = $request->input();
         $data = MessagingGroup::leftJoin('sms_service', 'sms_service.id', '=', 'messaging_groups.service_id')
-		->leftJoin('store_websites', 'store_websites.id', '=', 'messaging_groups.store_website_id')->select('messaging_groups.*', 'sms_service.name as service', 'store_websites.title as website')->orderBy('messaging_groups.id', 'desc')->paginate(15);
+		->leftJoin('store_websites', 'store_websites.id', '=', 'messaging_groups.store_website_id')
+		->leftJoin('marketing_messages', 'marketing_messages.message_group_id', '=', 'messaging_groups.id')
+		->select('messaging_groups.*', 'marketing_messages.title', 'marketing_messages.is_sent', 'marketing_messages.scheduled_at',
+		'sms_service.name as service', 'store_websites.title as website');
+		if(isset($inputs['status']) and $inputs['status'] != '') {
+			if($inputs['status'] == 'done') {
+				 $data =  $data->where('is_sent', 1);
+			}else if($inputs['status'] == 'pending') {
+				 $data =  $data->whereNull('scheduled_at');
+			}else if($inputs['status'] == 'scheduled') {
+				$data =  $data->whereNotNull('scheduled_at')->where('is_sent', 0);
+			}
+		}
+		if(isset($inputs['webiste']) and $inputs['webiste'] != '') {
+			 $data =  $data->where('messaging_groups.store_website_id', $inputs['webiste']);
+		}
+		if(isset($inputs['title'])) {
+			 $data =  $data->where('marketing_messages.title', 'like','%'.$inputs['title'].'%');
+		}
+		$data = $data->orderBy('messaging_groups.id', 'desc')->paginate(15);
         $websites = [''=>'Select Website'] + StoreWebsite::pluck('title', 'id')->toArray();
 		$services = [''=>'Select Service'] + SmsService::pluck('name', 'id')->toArray();
-        return view('twillio_sms.index', compact('data','websites', 'services'));
+        return view('twillio_sms.index', compact('data','websites', 'services', 'inputs'));
     }
 
     public function createMessagingGroup(Request $request) {
@@ -75,9 +95,14 @@ class TwillioMessageController extends Controller{
 					->where('messaging_group_customers.message_group_id', $messageGroupId)->select('customers.*', 'messaging_group_customers.id as groupCustomerId')->get();
 		*/
 		$customerAdded = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
-					->where('messaging_group_customers.message_group_id', $messageGroupId)->pluck( 'is_sent', 'customers.id')->toArray();
-				
-		return view('twillio_sms.customer', compact('customers','messageGroupId', 'customerAdded'));
+					->where('messaging_group_customers.message_group_id', $messageGroupId)->pluck(  'customers.id')->toArray();
+		$marketing_messageId = MarketingMessage::where('message_group_id', $messageGroupId)->pluck('id')->first();
+		$messageSentToCustomers = [];
+		if($marketing_messageId != null) {
+			$messageSentToCustomers = MarketingMessageCustomer::where(['marketing_message_id'=> $marketing_messageId])->where('is_sent', 1)->pluck('customer_id')->toArray();
+		}
+		
+		return view('twillio_sms.customer', compact('customers','messageGroupId', 'customerAdded', 'messageSentToCustomers'));
 	}
 	
 	public function removeCustomer(Request $request) {

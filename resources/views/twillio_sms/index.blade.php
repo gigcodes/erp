@@ -30,6 +30,24 @@
                             data-target="#messageGroup"> Add Messaging Group </button>  &nbsp;
 							&nbsp;<button type="button" class="btn btn-secondary float-right" data-toggle="modal"
                             data-target="#serviceModal"> Add Service </button>&nbsp;
+							
+							<div class="pull-left cls_filter_box">
+								{{Form::model( $inputs, array('method'=>'get', 'class'=>'form-inline')) }}
+									<div class="form-group ml-3 cls_filter_inputbox">
+										<label for="leads_email">Status</label>
+										{{Form::select('status', [''=>'Select','pending'=>'Pending','scheduled'=>'Scheduled', 'done'=>'Done'], null, array('class'=>'form-control'))}}
+									</div>
+									<div class="form-group ml-3 cls_filter_inputbox">
+										<label for="leads_email">Website</label>
+										{{Form::select('webiste', $websites, null, array('class'=>'form-control'))}}
+									</div>
+									<div class="form-group ml-3 cls_filter_inputbox">
+										<label for="leads_email">Title</label>
+										{{Form::text('title', null, array('class'=>'form-control'))}}
+									</div>
+									<button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="{{url('/images/filter.png')}}"/></button>
+								</form>
+							</div>
                 </div>
             </div>
         </div>
@@ -121,15 +139,24 @@
                 <th style="">Name</th>
                 <th style="">Store Website</th>
                 <th style="">Service</th>
+                <th style="">Message Title</th>
+                <th style="">Scheduled at</th>
+                <th style="">Is sent</th>
+                <th style="">Customers Added</th>
                 <th style="">Action</th>
             </thead>
             <tbody>
             @foreach($data as $key=>$value)
+			@php $customerCount = \App\MessagingGroupCustomer::where('message_group_id', $value->id)->count(); @endphp
                 <tr class="{{$value->id}}">
                     <td id="id">{{$key+1}}</td>
                     <td id="name">{{$value->name}}</td>
                     <td id="description">{{$value->website}}</td>
                     <td id="description">{{$value->service}}</td>
+                    <td id="description">{{$value->title}}</td>
+                    <td id="description">{{$value->scheduled_at}}</td>
+                    <td id="description">@if($value->scheduled_at == null)Pending @elseif($value->is_sent == 1) Done @else Scheduled @endif</td>
+                    <td id="description">{{$customerCount}}</td>
                     <td>
 					    <a href="{{route('customer.group', ['groupId'=>$value->id])}}"><i class="fa fa-user-plus change" title="Add user" aria-hidden="true" ></i></a>
 					    <a  href="javascript:void(0);" onclick="showMessageTitleModal('{{$value->id}}');"><i class="fa fa-plus change" title="Add Marketing Message" aria-hidden="true" ></i></a>
