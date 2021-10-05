@@ -1722,8 +1722,8 @@
 				}
 				table = table + '</table></div>';
 				$("#loading-image").hide();
-				$(".modal").css("overflow-x", "hidden");
-				$(".modal").css("overflow-y", "auto");
+				//$(".modal").css("overflow-x", "hidden");
+				//$(".modal").css("overflow-y", "auto");
 				$("#dev_task_statistics_content").html(table);
 			},
 			error: function(error) {
