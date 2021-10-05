@@ -40,8 +40,7 @@ class SendScheduledEmails extends Command
     public function handle()
     {
         $created_date = Carbon::now();
-		//$emails = Email::where('scheduled_at', $created_date)->whereNotNull('scheduled_at')->where('is_draft', 1)->where('type', 'outgoing')->get();
-		$emails = Email::whereNotNull('schedule_at')->where('type', 'outgoing')->get();
+		$emails = Email::where('scheduled_at', $created_date)->whereNotNull('scheduled_at')->where('is_draft', 1)->where('type', 'outgoing')->get();
 		
 		foreach ($emails as $email) {
 			  \App\Jobs\SendEmail::dispatch($email);
