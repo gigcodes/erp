@@ -263,6 +263,7 @@ Route::middleware('auth')->group(function()
     Route::get('/artwork-history/{site_id}', 'SiteDevelopmentController@getArtworkHistory')->name("site-development.artwork-history");
     Route::get('/status-history/{site_id}', 'SiteDevelopmentController@statusHistory')->name("site-development.status-history");
     Route::post('/send-sop', 'SiteDevelopmentController@SendTaskSOP')->name('site-development.sendSop');
+    Route::post('/send', 'SiteDevelopmentController@SendTask')->name('site-development.senduser');
 
     Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
     Route::get('/artwork-history/all-histories/{website_id}', 'SiteDevelopmentController@allartworkHistory')->name("site-development.artwork-history.all-histories");

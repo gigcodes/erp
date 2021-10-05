@@ -138,6 +138,86 @@ class SiteDevelopmentController extends Controller
         return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers'));
     }
 
+    public function SendTask(Request $request)
+    {
+        $id = $request->id;
+
+        // $user_id = Auth::id();
+        if ($request->type == 'TASK') {
+            $task = SiteDevelopment::find($request->taskdata);
+            $user = User::find($task->assign_to);
+
+        } else {
+            $task = DeveloperTask::find($request->taskdata);
+            $user = User::find($task->user_id);
+        }
+        $taskdata = $request->taskdata;
+
+        $media = \Plank\Mediable\Media::find($request->id);
+
+        $admin = Auth::user();
+
+        $userid = Auth::id();
+        $msg = $media->getUrl();
+        if ($user && $user->phone) {
+            if ($request->type == 'TASK') {
+
+                $params = ChatMessage::create([
+                    'id' => $id,
+                    'user_id' => $userid,
+                    'task_id' => $request->task_id,
+
+                    'sent_to_user_id' => $user->id,
+
+                    'erp_user' => $task->assign_to,
+                    'contact_id' => $task->assign_to,
+                    'message' => $media->getUrl(),
+
+                ]);
+                $params = ChatMessage::create([
+                    'id' => $id,
+                    'user_id' => $user->id,
+                    'task_id' => $taskdata,
+
+                    'sent_to_user_id' => $userid,
+
+                    'erp_user' => $task->assign_to,
+                    'contact_id' => $task->assign_to,
+                    'message' => $media->getUrl(),
+
+                ]);
+            } else {
+                $params = ChatMessage::create([
+                    'id' => $id,
+                    'user_id' => $userid,
+                    'task_id' => $request->task_id,
+                    'developer_task_id' => $task->id,
+                    'sent_to_user_id' => $user->id,
+                    'issue_id' => $task->id,
+                    'erp_user' => $task->assign_to,
+                    'contact_id' => $task->assign_to,
+                    // 'approved' => '1',
+                    // 'status' => '2',
+                    'message' => $media->getUrl(),
+
+                ]);
+            }
+
+            if ($params) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+
+                return response()->json([
+                    'message' => 'Successfully Send File',
+                ], 200);
+            }
+            return response()->json([
+                'message' => 'Something Was Wrong',
+            ], 500);
+
+            return response()->json(["message" => "Sorry required fields is missing like id , userid"], 500);
+        }
+    }
+
     public function addMasterCategory(Request $request)
     {
         if ($request->text) {
