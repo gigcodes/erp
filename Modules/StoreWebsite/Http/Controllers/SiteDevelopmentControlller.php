@@ -471,8 +471,8 @@ class SiteDevelopmentController extends Controller
                     ->upload();
                 $site->attachMedia($media, config('constants.media_tags'));
 
-                if(!empty($media->filename)){
-                    DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+                if (!empty($media->filename)) {
+                    DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id()]);
                 }
             }
 
@@ -621,13 +621,19 @@ class SiteDevelopmentController extends Controller
         // dd($username->name);
         $userid = Auth::id();
 
-        $params = \App\Sop::create([
-            'name' => $username->name,
-            'content' => $media->getUrl(),
+        if ($username) {
+            $params = \App\Sop::create([
+                'name' => $username->name,
+                'content' => $media->getUrl(),
 
-        ]);
+            ]);
 
-        return response()->json(["message" => "Data Added Successfully"]);
+            return response()->json(["message" => "Data Added Successfully"]);
+        } else {
+
+            return response()->json(["message" => "Task is not assigned to any user"]);
+        }
+
     }
 
     public function remarks(Request $request, $id)
