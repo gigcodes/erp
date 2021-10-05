@@ -46,12 +46,12 @@
 		color: #757575;
 		background-color: #fff !important;
 	}
-	.modal {
+	/*.modal {
 		overflow-y:auto;
 	}
 	body.overflow-hidden{
 		overflow: hidden;
-	}
+	}*/
 
 	span.user_point_none button, span.admin_point_none button{
 		pointer-events: none;
