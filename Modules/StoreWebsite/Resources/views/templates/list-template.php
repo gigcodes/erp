@@ -6,16 +6,15 @@
 		      	<th width="2%">Id</th>
 		        <th width="5%">Title</th>
 		        <th width="10%">Website</th>
-		        <th width="10%">Mailing service id</th>
-		        <th width="2%">Remote software</th>
-		        <th width="5%">Facebook</th>
-		        <th width="5%">Instagram</th>
-		        <th width="3%">Published</th>
-				<th width="3%">FCM Key</th>
-				<th width="3%">FCM Id</th>
-				<th width="3%">Icon</th>
-				<th width="5%">Created At</th>
-		        <th width="10%">Action</th>
+		        <th width="2%">Service id</th>
+		        <th width="5%">Remote software</th>
+		        <th width="2%">Facebook</th>
+		        <th width="2%">Instagram</th>
+		        <th width="2%">Published</th>
+				<th width="2%">FCM Key</th>
+				<th width="2%">FCM Id</th>
+				<th width="2%">Icon</th>
+		        <th width="12%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -43,7 +42,6 @@
 					<td>{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
-			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
