@@ -616,12 +616,12 @@ class SiteDevelopmentController extends Controller
         $user = \App\User::find($request->user_id);
 
         $task = SiteDevelopment::find($request->task_id);
-        $username = User::find($task->assign_to);
+        $username = \App\User::find($task->assign_to);
 
         // dd($username->name);
         $userid = Auth::id();
 
-        $params = Sop::create([
+        $params = \App\Sop::create([
             'name' => $username->name,
             'content' => $media->getUrl(),
 
