@@ -881,6 +881,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                             <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
                                             <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
+                                            <a class="dropdown-item" href="{{ url('twillio')}}">Messages</a>
                                         </li>
                                     </ul>
                                 </li>

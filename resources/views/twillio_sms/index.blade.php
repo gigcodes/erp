@@ -121,6 +121,8 @@
                 <th style="">Name</th>
                 <th style="">Store Website</th>
                 <th style="">Service</th>
+                <th style="">Message Title</th>
+                <th style="">Scheduled at</th>
                 <th style="">Action</th>
             </thead>
             <tbody>
@@ -130,6 +132,8 @@
                     <td id="name">{{$value->name}}</td>
                     <td id="description">{{$value->website}}</td>
                     <td id="description">{{$value->service}}</td>
+                    <td id="description">{{$value->title}}</td>
+                    <td id="description">{{$value->scheduled_at}}</td>
                     <td>
 					    <a href="{{route('customer.group', ['groupId'=>$value->id])}}"><i class="fa fa-user-plus change" title="Add user" aria-hidden="true" ></i></a>
 					    <a  href="javascript:void(0);" onclick="showMessageTitleModal('{{$value->id}}');"><i class="fa fa-plus change" title="Add Marketing Message" aria-hidden="true" ></i></a>

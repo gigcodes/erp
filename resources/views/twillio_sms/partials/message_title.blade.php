@@ -9,5 +9,5 @@
 						<input type="datetime-local" name="scheduled_at" value="{{ \Carbon\Carbon::parse($details['scheduled_at'])->format('Y-m-d\TH:i') }}" class="form-control scheduled_at" placeholder='Scheduled at'>
 					</div>
 						
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit </button>
                 
