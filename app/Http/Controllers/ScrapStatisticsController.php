@@ -1166,13 +1166,14 @@ class ScrapStatisticsController extends Controller
                 array_push($scraper_proc,$sp);
             }
         }
+		$users = User::limit(100)->pluck('name', 'id')->toArray();
         $scrapers = Scraper::leftJoin('users', 'users.id', '=', 'scrapers.assigned_to')->whereNotIn('id', $scraper_process->pluck('scraper_id'))->select('scrapers.*', 'users.email as assignedTo')->get();
-		return view('scrap.scraper-process-list',compact('scraper_process','scrapers'));
+		return view('scrap.scraper-process-list',compact('scraper_process','scrapers', 'users'));
     }
     //END - DEVTASK-20102
 	
 	public function assignScrapperIssue(Request $request) {
-		$assigendTo = User::where('email', $request->assigned_to)->pluck('id')->first();
+		$assigendTo = $request->assigned_to;
 		$scrapperDetails = Scraper::where('id', $request->scrapper_id)->first();
 		if($assigendTo != null and $scrapperDetails != null) {
 			$hasAssignedIssue = DeveloperTask::where("subject", $scrapperDetails->scraper_name)->where("is_resolved", 0)->first();
@@ -1197,6 +1198,6 @@ class ScrapStatisticsController extends Controller
 			
 			Scraper::where('id', $request->scrapper_id)->update(['assigned_to'=>$assigendTo]);
 		}
-		return '';
+		return 'success';
 	}
 }
