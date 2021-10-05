@@ -628,10 +628,10 @@ class SiteDevelopmentController extends Controller
 
             ]);
 
-            return response()->json(["message" => "File Added Successfully In Sop"]);
+            return response()->json(["message" => "File Added Successfully In Sop", 'success' => true]);
         } else {
 
-            return response()->json(["message" => "Task is not assigned to any user"]);
+            return response()->json(["message" => "Task is not assigned to any user", 'success' => false]);
         }
 
     }

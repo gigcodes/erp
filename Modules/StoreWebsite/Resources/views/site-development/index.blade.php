@@ -1329,7 +1329,12 @@
            	},
             success:function(response) {
                 $("#loading-image").hide();
-                toastr["success"](response.message);
+				if(response.success){
+					toastr["success"](response.message);
+				}else{
+					toastr["error"](response.message);
+				}
+
             },
             error: function(error) {
                 toastr["error"];
