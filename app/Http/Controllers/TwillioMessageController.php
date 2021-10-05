@@ -18,7 +18,8 @@ class TwillioMessageController extends Controller{
         $data = MessagingGroup::leftJoin('sms_service', 'sms_service.id', '=', 'messaging_groups.service_id')
 		->leftJoin('store_websites', 'store_websites.id', '=', 'messaging_groups.store_website_id')
 		->leftJoin('marketing_messages', 'marketing_messages.message_group_id', '=', 'messaging_groups.id')
-		->select('messaging_groups.*', 'marketing_messages.title', 'marketing_messages.scheduled_at','sms_service.name as service', 'store_websites.title as website')->orderBy('messaging_groups.id', 'desc')->paginate(15);
+		->select('messaging_groups.*', 'marketing_messages.title', 'marketing_messages.is_sent', 'marketing_messages.scheduled_at',
+		'sms_service.name as service', 'store_websites.title as website')->orderBy('messaging_groups.id', 'desc')->paginate(15);
         $websites = [''=>'Select Website'] + StoreWebsite::pluck('title', 'id')->toArray();
 		$services = [''=>'Select Service'] + SmsService::pluck('name', 'id')->toArray();
         return view('twillio_sms.index', compact('data','websites', 'services'));
