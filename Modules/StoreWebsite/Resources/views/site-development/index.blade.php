@@ -1687,7 +1687,7 @@
 				return;
 			}
             $.ajax({
-                url: "/site-development/preview-img/"+id,
+                url: "/site-development/preview-img-task/"+id,
                 type: 'GET',
                 success: function (response) {
 					$("#preview-task-image").modal("show");
