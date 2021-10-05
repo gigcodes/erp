@@ -59,6 +59,9 @@
 	}table tr:last-child td {
 		 border-bottom: 1px solid #ddd !important;
 	 }
+	 select.globalSelect2 + span.select2 {
+    width: calc(100% - 26px) !important;
+}
 
 </style>
 @endsection
