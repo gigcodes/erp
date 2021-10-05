@@ -162,7 +162,7 @@ class SiteDevelopmentController extends Controller
         if ($user && $user->phone) {
             if ($request->type == 'TASK') {
 
-                $params = ChatMessage::create([
+                $params = \App\ChatMessage::create([
                     'id' => $id,
                     'user_id' => $userid,
                     'task_id' => $request->task_id,
@@ -174,7 +174,7 @@ class SiteDevelopmentController extends Controller
                     'message' => $media->getUrl(),
 
                 ]);
-                $params = ChatMessage::create([
+                $params = \App\ChatMessage::create([
                     'id' => $id,
                     'user_id' => $user->id,
                     'task_id' => $taskdata,
@@ -187,7 +187,7 @@ class SiteDevelopmentController extends Controller
 
                 ]);
             } else {
-                $params = ChatMessage::create([
+                $params = \App\ChatMessage::create([
                     'id' => $id,
                     'user_id' => $userid,
                     'task_id' => $request->task_id,
