@@ -486,7 +486,7 @@ class SiteDevelopmentController extends Controller
 
         $records = array_reverse($records);
         $title = 'Preview images';
-        return view('site-development.partials.preview-task-images', compact('title', 'records'));
+        return view('storewebsite::site-development.partials.preview-task-images', compact('title', 'records'));
     }
 
     public function deleteDocument(Request $request)
