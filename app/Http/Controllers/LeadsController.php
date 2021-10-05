@@ -950,9 +950,6 @@ class LeadsController extends Controller
 
         $source = $source->get();
 
-        echo "This page is in progress";
-        die;
-
         foreach ($source as $key => $value) {
             
             $curr_cat_title = $value->cat_title;
