@@ -1714,7 +1714,7 @@
 			},
 			success: function(data) {
 				$("#dev_task_statistics").modal("show");
-				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Task Id</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th>Action</th></tr>';
+				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Task Id</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th width="110">Action</th></tr>';
 				for (var i = 0; i < data.taskStatistics.length; i++) {
 					var str = data.taskStatistics[i].subject;
 					var res = str.substr(0, 100);
