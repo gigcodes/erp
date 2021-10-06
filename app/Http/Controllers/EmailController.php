@@ -93,7 +93,7 @@ class EmailController extends Controller
         } elseif ($type == "pre-send") {
             $query = $query->where('status', "pre-send");
         } else {
-            $query = $query->where(function ($query) use($type) {
+            $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'outgoing');
             });
         }
@@ -153,7 +153,6 @@ class EmailController extends Controller
 
         $query = $query->orderByDesc('created_at');
 
-
         //Get All Category
         $email_status = DB::table('email_status')->get();
 
@@ -188,9 +187,59 @@ class EmailController extends Controller
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
         $digita_platfirms = DigitalMarketingPlatform::all();
-        $sender_drpdwn = Email::select('from')->distinct()->get()->toArray();
-        $receiver_drpdwn = Email::select('to')->distinct()->get()->toArray();
-        $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_address')->toArray();
+        $sender_drpdwn = Email::select('from');
+
+        if (count($usernames) > 0) {
+            $sender_drpdwn = $sender_drpdwn->where(function ($sender_drpdwn) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $sender_drpdwn->orWhere('from', 'like', '%' . $_uname . '%');
+                }
+            });
+
+            $sender_drpdwn = $sender_drpdwn->orWhere(function ($sender_drpdwn) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $sender_drpdwn->orWhere('to', 'like', '%' . $_uname . '%');
+                }
+            });
+        }
+
+        $sender_drpdwn = $sender_drpdwn->distinct()->get()->toArray();
+
+        $receiver_drpdwn = Email::select('to');
+
+        if (count($usernames) > 0) {
+            $receiver_drpdwn = $receiver_drpdwn->where(function ($receiver_drpdwn) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $receiver_drpdwn->orWhere('from', 'like', '%' . $_uname . '%');
+                }
+            });
+
+            $receiver_drpdwn = $receiver_drpdwn->orWhere(function ($receiver_drpdwn) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $receiver_drpdwn->orWhere('to', 'like', '%' . $_uname . '%');
+                }
+            });
+        }
+
+        $receiver_drpdwn = $receiver_drpdwn->distinct()->get()->toArray();
+
+        $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_name', 'username');
+
+        if (count($usernames) > 0) {
+            $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $mailboxdropdown->orWhere('from_address', 'like', '%' . $_uname . '%');
+                }
+            });
+
+            $mailboxdropdown = $mailboxdropdown->orWhere(function ($mailboxdropdown) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $mailboxdropdown->orWhere('username', 'like', '%' . $_uname . '%');
+                }
+            });
+        }
+
+        $mailboxdropdown = $mailboxdropdown->toArray();
 
         return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
