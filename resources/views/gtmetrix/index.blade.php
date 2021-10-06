@@ -48,9 +48,9 @@
         </div>
     </div>  
     <div class="col-md-2 margin-tb">
-        <div class="pull-right mt-3">
-        <button class="btn btn-secondary multi-run-test-btn btn-xs" onclick="checkCheckbox()" title="Run Test">
-            <i class="fa fa-play"></i>
+        <div class="pull-right">
+        <button class="btn multi-run-test-btn btn-xs text-dark" onclick="checkCheckbox()" title="Run Test">
+            <i class="fa fa-play" aria-hidden="true"></i>
         </button>
         <button type="button" class="btn btn-secondary" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#setCron" title="" data-id="1">
                 Add
@@ -135,37 +135,52 @@
                                  $url2=$url.$p.$ord2;
 
                             @endphp
-                            <th>Website <br><input type="checkbox" onclick="selectAll();" />&nbsp;Select All</th>
-                            <th>Test id</th>
-                            <th>Status</th>
-                            <th>Error</th>
-                            <th>Report URL</th>
-                            <th>Html load time</th>
-                            <th>Html bytes</th>
-                            <th>Page load time</th>
-                            <th>Page bytes</th>
-                            <th>Page elements</th>
-                            <th>
-
-                              <a href="{{$url1}}">  Pagespeed score</a>
+                            <th width="1%">
+                                <input type="checkbox" onclick="selectAll();" />
                             </th>
-                            <th><a href="{{$url2}}">Yslow score</a></th>
-                            <th style="width: 12%;">Resources</th>
-                            <th style="width: 7.5%;">Date</th>
-                            <th>PDF</th>
-                            <th style="width: 10.5%;">Action</th>
+                            <th width="15%">Website</th>
+                            <th width="4%">Test id</th>
+                            <th width="3%">Status</th>
+                            <th width="15%">Error</th>
+                            <th width="3%">Report</th>
+                            <th width="5%">HTML L T</th>
+                            <th width="5%">HTML BY</th>
+                            <th width="5%">PG LD TM</th>
+                            <th width="4%">PG BY</th>
+                            <th width="4%">PG ELE</th>
+                            <th width="6%">
+                                <a class="text-dark" href="{{$url1}}">PG SPD SC</a>
+                            </th>
+                            <th width="6%">
+                                <a class="text-dark" href="{{$url2}}">YSLOW SC</a>
+                            </th>
+                            <th width="8%">Resources</th>
+                            <th width="9%">Date</th>
+                            <th width="3%">PDF</th>
+                            <th width="6%">Action</th>
                         </tr>
                     </thead>
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($list as $key)
                         
                             <tr>
-                            
-                                <td> <input type="checkbox" name ="multi-run-test-type" class= "multi-run-test" value ="{{ $key->id }}"><a href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a></td>
+                                <td>
+                                    <input type="checkbox" name ="multi-run-test-type" class= "multi-run-test" value ="{{ $key->id }}">
+                                </td>
+                                <td>
+                                    <a class="text-dark" href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a>
+                                </td>
                                 <td>{{ $key->test_id }}</td>
                                 <td>{{ $key->status }}</td>
-                                <td>{{ $key->error }}</td>
-                                <td><a href="{{$key->report_url}}" target="_blank" title="Show report"> Report </a></td>
+                                
+                                <td class="expand-row-msg" data-name="error" data-id="{{$key->id}}">
+                                    <span class="show-short-error-{{$key->id}}">{{ str_limit($key->error, 35, '...')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-error-{{$key->id}} hidden">{{$key->error}}</span>
+                                </td>
+                                
+                                <td>
+                                    <a class="text-dark" href="{{$key->report_url}}" target="_blank" title="Show report"> Report </a>
+                                </td>
                                 <td>{{ $key->html_load_time }}</td>
                                 <td>{{ $key->html_bytes }}</td>
                                 <td>{{ $key->page_load_time }}</td>
@@ -185,23 +200,25 @@
                                     @endif
                                     
                                 <td>{{ $key->created_at }}</td>
-                                <td><a target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a></td>
+                                <td>
+                                    <a class="text-dark" target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a>
+                                </td>
                                 <td>  
-                                    <button class="btn btn-secondary show-history btn-xs" title="Show old history" data-url="{{ route('gtmetrix.web-hitstory',[ 'id'=>$key->website_url ])}}">
-                                        <i class="fa fa-history"></i>
+                                    <button class="btn show-history btn-xs text-dark" title="Show old history" data-url="{{ route('gtmetrix.web-hitstory',[ 'id'=>$key->website_url ])}}">
+                                        <i class="fa fa-history" aria-hidden="true"></i>
                                     </button>
-                                    <button class="btn btn-secondary run-test btn-xs" title="Run Test" data-id="{{ $key->id }}">
-                                        <i class="fa fa-play"></i>
+                                    <button class="btn run-test btn-xs text-dark" title="Run Test" data-id="{{ $key->id }}">
+                                        <i class="fa fa-play" aria-hidden="true"></i>
                                     </button>
                                     @if ($key->status == "completed")
-                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'pagespeed','id'=>$key->test_id])}}" data-type="pagespeed">
-                                            <i class="fa fa-tachometer"></i>
+                                        <button class="btn show-pagespeed btn-xs text-dark" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'pagespeed','id'=>$key->test_id])}}" data-type="pagespeed">
+                                            <i class="fa fa-tachometer" aria-hidden="true"></i>
                                         </button>
-                                        <button class="btn btn-secondary show-pagespeed btn-xs" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'yslow','id'=>$key->test_id])}}">
-                                            <i class="fa fa-compass"></i>
+                                        <button class="btn show-pagespeed btn-xs text-dark" title="Show Yslow Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'yslow','id'=>$key->test_id])}}">
+                                            <i class="fa fa-compass" aria-hidden="true"></i>
                                         </button>
-                                        <button class="btn btn-secondary show-comparison btn-xs" title="Show comparison" data-url="{{ route('gtmetrix.getstatsCmp',['id'=>$key->test_id])}}">
-                                        <i class="fa fa-balance-scale"></i>
+                                        <button class="btn show-comparison btn-xs text-dark" title="Show comparison" data-url="{{ route('gtmetrix.getstatsCmp',['id'=>$key->test_id])}}">
+                                        <i class="fa fa-balance-scale" aria-hidden="true"></i>
                                         </button>
                                     @endif
                                 </td>
@@ -256,6 +273,17 @@
     
 @section('scripts')
 <script>
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    console.log(name);
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+  });
+
 
 //$(".site-gtmetrix-data tbody>tr").append("<input type='checkbox' />");
     function setactive(id){
