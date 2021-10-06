@@ -450,7 +450,7 @@
       <form action="" method="POST" enctype="multipart/form-data" >
         @csrf
         @method('PUT')
-
+        <input type="hidden" name="email_id" id="email_id" value=''>
         <div class="modal-header">
           <h4 class="modal-title">Assign users</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -459,7 +459,7 @@
 
 		  <div class="form-group">
             	<strong>Users:</strong>
-				<Select name="users" id="users" multiple class="form-control">
+				<Select name="users" id="users" multiple class="form-control select-multiple globalSelect2">
 					<option value = ''>None</option>
 					@foreach ($users as $key => $val)
 						<option value="{{ $val->id }}">{{ $val->name }}</option>
@@ -793,7 +793,7 @@
     $(document).on('click', '.assign-users', function() {
       var emailId = $(this).data('email-id');
       var url = "{{ route('email-addresses.assign') }}/" + emailId;
-
+      $('#assignUsersModal').find('input[name="email_id"]').val(emailId);
       $('#assignUsersModal form').attr('action', url);
 
     });
