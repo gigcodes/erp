@@ -191,7 +191,7 @@
                 <th width="7%">Status</th>
                 <th width="10%">Customer</th>
                 <th width="7%">C Email</th>
-                <th width="5%">C Whatsapp</th>
+                <th width="6%">C Whatsapp</th>
                 <th width="3%">Image</th>
                 <th width="5%">Product ID</th>
                 <th width="3%">Sku</th>
