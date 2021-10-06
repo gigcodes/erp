@@ -380,19 +380,20 @@ class EmailAddressesController extends Controller
 
     public function assignUsers(Request $request)
     {
-        echo "<pre/>";
-        print_r($request->all());
-        die();
         $emailDetail = EmailAddress::find($request->email_id);
-        $user_id = $request->user_id;
-        $user = User::findorfail($user_id);
-        $number = $user->phone;
-        $whatsappnumber = '971502609192';
+        if ($request->all()) {
+            foreach ($request->users as $_user) {
+                $data = [
+                    ['user_id' => $_user, 'email_address_id' => $request->email_id],
+                ];
+            }
+        }
 
-        $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
-
-        $whatsappmessage = new WhatsAppController();
-        $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
+        echo "<pre/>";
+        print_r($data);
+        die();
+        Model::insert($data); // Eloquent approach
+        DB::table('table')->insert($data); // Query Builder approach
         \Session::flash('success', 'Password sent');
         return redirect()->back();
     }
