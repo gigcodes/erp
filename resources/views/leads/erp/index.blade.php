@@ -21,8 +21,7 @@
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
-
+      <h2 class="page-heading">Erp Leads <a class="editor_create text-dark" href="javascript:;"><i class="fa fa-plus"></i></a></h2>
   </div>
   <?php  /*
 
@@ -75,10 +74,8 @@
 <?php $base_url = URL::to('/');?>
   <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('erp-leads.erpLeads') }}" method="GET">
-                
                 @csrf
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Status</label>
                         <!-- <select style="width:100px; font-size: 12px; border-radius: 2px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
 
                          
@@ -88,7 +85,6 @@
                           @endforeach
                         </select> -->
                         <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="" style="width: 150px; border-radius: 2px;">
-                            <option value="">Select Category</option>
                             <option value="">Status</option>
                           @foreach($erpLeadStatus as $status)
                             <option value="{{$status['id']}}">{{$status['name']}}</option>
@@ -96,18 +92,15 @@
                         </select>
                       </div>
                       <div class="form-group ml-3 cls_filter_inputbox">
-                        <h2 data-toggle="modal" data-target="#addStatusModal">+</h2>
+                        <h4 data-toggle="modal" data-target="#addStatusModal" class="text-dark"><i class="fa fa-plus"></i></h4>
                       </div>
                     
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Customer</label>
                         <!-- <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                         <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" name="lead_customer" placeholder="Customer" />
 
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <label for="with_archived">Brand</label>
-                    
                        <!--  <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 100px; border-radius: 2px;">
                           <option value="">Brand</option>
                           @foreach($brands as $brand_item)
@@ -123,30 +116,25 @@
                         </select>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    <label for="with_archived">Brand Segment</label>
                        <!-- <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" name="brand_segment" placeholder="Brand Segment"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Category</label>
                         <!-- <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                         <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" name="lead_category" placeholder="Category"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_updated_by">Color</label>
                         <!-- <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                         <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" name="lead_color" placeholder="Color"/>
 
                     </div>
                     <div class="form-group ml-3 cls_filter_checkbox">
-                    <label for="with_archived">Size</label>
                        <!-- <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                        <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_shoe_size" placeholder="Size"/>
                     </div>
                     <!-- <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php //echo $base_url;?>/images/filter.png"/></button> -->
-                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <button type="submit" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
-                
             </div>
 
             <!--Add Status Modal -->
@@ -173,8 +161,8 @@
               </div>
             </div>
 
-            <div class="col-lg-12 margin-tb" style="    margin-left: 23px;">
-            <div class="pull-right mt-3" style="margin-bottom: 12px ">
+            <div class="col-lg-12 margin-tb">
+            <div class="pull-right mt-3 mb-3" >
                 <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
@@ -257,7 +245,9 @@
                         <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}
                       </label>
                     </div>
-                    <a class="btn btn-secondary  multi_brand_category_create" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">+</a>
+                    <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
+                      <i class="fa fa-plus"></i>
+                    </a>
                   </td>
 
 
@@ -270,7 +260,9 @@
                       <label class="checkbox-inline ew">
                         <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['cat_title'] != null){{$source['cat_title']}}@endif</label>
                       </div>
-                      <a class="btn btn-secondary multi_brand_category_create" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">+</a>
+                      <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
+                        <i class="fa fa-plus"></i>
+                      </a>
                     </td>
 
 
