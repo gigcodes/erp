@@ -179,7 +179,7 @@ class MagentoService
 
     private function getActiveLanguages()
     {
-        return \App\Language::where("status", 1)->pluck("code", "code")->toArray();
+        return \App\Language::where("status", 1)->where("locale","!=","en")->pluck("code", "code")->toArray();
     }
 
     private function getStoreColor()
@@ -1070,14 +1070,16 @@ class MagentoService
             ->where('l.locale', "!=", "en")
             ->where('product_translations.title', "!=", "")
             ->where('product_translations.description', "!=", "")
-            ->where('product_translations.composition', "!=", "")
-            ->where('product_translations.color', "!=", "")
-            ->where('product_translations.size', "!=", "")
-            ->where('product_translations.country_of_manufacture', "!=", "")
-            ->where('product_translations.dimension', "!=", "")
+            //->where('product_translations.composition', "!=", "")
+            //->where('product_translations.color', "!=", "")
+            //->where('product_translations.size', "!=", "")
+            //->where('product_translations.country_of_manufacture', "!=", "")
+            //->where('product_translations.dimension', "!=", "")
             ->groupBy("l.locale")
             ->select(["product_translations.*", "l.locale", "l.name as local_name", \DB::raw("group_concat(wsv.code) as store_codes")])
             ->get();
+
+        //echo "<pre>"; print_r($translations);  echo "</pre>";die;    
 
        \Log::info("Translation found =>". json_encode($translations));
 
