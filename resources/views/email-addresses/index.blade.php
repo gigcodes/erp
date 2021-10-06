@@ -124,7 +124,7 @@
               <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
 
-              <button type="button" class="btn btn-image assign-users d-inline"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal" data-email-id="{{ $server->id }}"><img src="/images/add.png" /></button>
+              <button type="button" class="btn btn-image assign-users d-inline"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}"><img src="/images/add.png" /></button>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
 
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
