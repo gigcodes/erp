@@ -35,11 +35,14 @@ class EmailController extends Controller
     {
 
         $user = Auth::user();
-        echo $admin = $user->isAdmin();
+        $admin = $user->isAdmin();
+        $usernames = [];
         $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
-        echo "<pre/>";
-        print_r($emaildetails);
-        die();
+        if ($emaildetails) {
+            foreach ($emaildetails as $_email) {
+                $usernames[] = $_email->emailAddress->username;
+            }
+        }
         // Set default type as incoming
         $type = "incoming";
         $seen = '0';
@@ -57,6 +60,20 @@ class EmailController extends Controller
         $seen = $request->seen ?? $seen;
         $query = (new Email())->newQuery();
         $trash_query = false;
+
+        if (count($usernames) > 0) {
+            $query = $query->where(function ($query) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $query->orWhere('from', 'like', '%' . $_uname . '%');
+                }
+            });
+
+            $query = $query->where(function ($query) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $query->orWhere('to', 'like', '%' . $_uname . '%');
+                }
+            });
+        }
 
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
