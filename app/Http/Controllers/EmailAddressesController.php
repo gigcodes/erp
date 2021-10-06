@@ -390,6 +390,7 @@ class EmailAddressesController extends Controller
         }
 
         if (count($data) > 0) {
+            $clear_existing_data = \App\EmailAssign::where(['email_address_id' => $request->email_id])->delete();
             $data_added = \App\EmailAssign::insert($data);
             return redirect()->back()->withSuccess('You have successfully assigned users to email address!');
         }
