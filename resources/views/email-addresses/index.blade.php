@@ -179,7 +179,46 @@
     </div>
     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
+    @foreach ($emailAddress as $server)
+    <div id="assignUsersModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="" method="POST" enctype="multipart/form-data" >
+            @csrf
+            @method('POST')
+            <input type="hidden" name="email_id" id="email_id" value=''>
+            <div class="modal-header">
+              <h4 class="modal-title">Assign users</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+          <div class="form-group">
+                  <strong>Users:</strong>
+            <Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
+              <option value = ''>None</option>
+              @foreach ($users as $key => $val)
+                <option value="{{ $val->id }}">{{ $val->name }}</option>
+              @endforeach
+            </Select>
+            @if ($errors->has('users'))
+                <div class="alert alert-danger">{{$errors->first('users')}}</div>
+            @endif
+          </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Assign</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+</div>
+@endforeach
 <div id="emailAddressModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -442,44 +481,7 @@
   </div>
 </div>
 
-<div id="assignUsersModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
 
-    <!-- Modal content-->
-    <div class="modal-content">
-      <form action="" method="POST" enctype="multipart/form-data" >
-        @csrf
-        @method('POST')
-        <input type="hidden" name="email_id" id="email_id" value=''>
-        <div class="modal-header">
-          <h4 class="modal-title">Assign users</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-
-		  <div class="form-group">
-            	<strong>Users:</strong>
-				<Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
-					<option value = ''>None</option>
-					@foreach ($users as $key => $val)
-						<option value="{{ $val->id }}">{{ $val->name }}</option>
-					@endforeach
-				</Select>
-				@if ($errors->has('users'))
-						<div class="alert alert-danger">{{$errors->first('users')}}</div>
-				@endif
-			</div>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Assign</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
 
 <div id="emailAddressEditModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
@@ -792,6 +794,7 @@
 
     $(document).on('click', '.assign-users', function() {
       var emailId = $(this).data('email-id');
+      var users = $(this).data('users');
       var url = "{{ route('email-addresses.assign') }}";
       $('#assignUsersModal').find('input[name="email_id"]').val(emailId);
       $('#assignUsersModal form').attr('action', url);
