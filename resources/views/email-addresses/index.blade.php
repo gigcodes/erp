@@ -459,14 +459,14 @@
 
 		  <div class="form-group">
             	<strong>Users:</strong>
-				<Select name="users" id="users" class="form-control">
+				<Select name="users" id="users" multiple class="form-control">
 					<option value = ''>None</option>
-					@foreach ($allStores as $key => $val)
-						<option value="{{ $val->id }}">{{ $val->title }}</option>
+					@foreach ($users as $key => $val)
+						<option value="{{ $val->id }}">{{ $val->name }}</option>
 					@endforeach
 				</Select>
-				@if ($errors->has('store_website_id'))
-						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+				@if ($errors->has('users'))
+						<div class="alert alert-danger">{{$errors->first('users')}}</div>
 				@endif
 			</div>
 
@@ -789,6 +789,15 @@
     $('#edit_encryption').val(emailAddress.encryption).trigger('change');
 
     });
+
+    $(document).on('click', '.assign-users', function() {
+      var emailId = $(this).data('email-id');
+      var url = "{{ route('email-addresses.assign') }}/" + emailId;
+
+      $('#assignUsersModal form').attr('action', url);
+
+    });
+
 
     $(document).on('click', '.view-email-history', function(e) {
         var id = $(this).attr('data-id');
