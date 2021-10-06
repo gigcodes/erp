@@ -35,11 +35,11 @@
                                <td class="expand-row" style="word-break: break-all">
 
                                    <span class="td-mini-container">
-                                        {{ strlen( $product['country']['dutySegment']) > 9 ? substr( $product['country']['dutySegment'], 0, 9).'...' :  $product['country']['dutySegment'] }}
+                                        {{ strlen( $product['country']['country_segment']) > 9 ? substr( $product['country']['country_segment'], 0, 9).'...' :  $product['country']['country_segment'] }}
                                    </span>
 
                                    <span class="td-full-container hidden">
-                                       {{ $product['country']['dutySegment'] }}
+                                       {{ $product['country']['country_segment'] }}
                                    </span>
                                </td>
                             

@@ -81,16 +81,12 @@
                     </select>
                 </div> 
                 <div class="form-group mr-3">
-                    <select class="form-control "  name="category_segments" >
+                    <select class="form-control "  name="country_segment" >
                     <option value="">Select Country segment</option>
                               
-                           
-                    <option <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='A') { echo "selected='selected'";} ?> value="A" >A</option>
-                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='B') { echo "selected='selected'";} ?> value="B" >B</option>
-                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='C') { echo "selected='selected'";} ?> value="C" >C</option>
-                                <option  <?php if (isset($_GET['category_segments']) && $_GET['category_segments']=='D') { echo "selected='selected'";} ?> value="D" >D</option>
-                            
-                            
+                    @foreach($country_segments as $country_segment)    
+						<option <?php if (isset($_GET['country_segment']) && $_GET['country_segment']==$country_segment) { echo "selected='selected'";} ?> value="{{ $country_segment }}" >{{ $country_segment }}</option>
+                    @endforeach      
                        
                     </select>
                 </div> 
