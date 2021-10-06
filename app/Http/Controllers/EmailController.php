@@ -35,8 +35,11 @@ class EmailController extends Controller
     {
 
         $user = Auth::user();
-        $admin = $user->isAdmin();
-        $emailassignes = \App\EmailAssign::where(['user_id' => $user->id])->get();
+        echo $admin = $user->isAdmin();
+        $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
+        echo "<pre/>";
+        print_r($emaildetails);
+        die();
         // Set default type as incoming
         $type = "incoming";
         $seen = '0';
