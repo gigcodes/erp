@@ -62,6 +62,9 @@ class EmailController extends Controller
         $trash_query = false;
 
         if (count($usernames) > 0) {
+            echo "<pre/>";
+            print_r($usernames);
+            die();
             $query = $query->where(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
                     $query->orWhere('from', 'like', '%' . $_uname . '%');
