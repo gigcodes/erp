@@ -36,8 +36,7 @@ class EmailController extends Controller
     public function index(Request $request,$email = null)
     {
 
-        echo "die";
-        die();
+        
         // Set default type as incoming
         $type = "incoming";
 		$seen = '0';
