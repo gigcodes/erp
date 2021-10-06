@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Email;
-use App\EmailRemark;
 use App\CronJob;
 use App\CronJobReport;
-use Webklex\IMAP\Client;
-use App\Mails\Manual\PurchaseEmail;
-use Mail;
-use Auth;
-use DB;
-use App\Mails\Manual\ReplyToEmail;
-use App\Mails\Manual\ForwardEmail;
-use Illuminate\Support\Facades\Validator;
-use App\Wetransfer;
-
-use App\EmailAddress;
-use App\EmailRunHistories;
-use EmailReplyParser\Parser\EmailParser;
-
-use Carbon\Carbon;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\DigitalMarketingPlatform;
+use App\Email;
+use App\EmailAddress;
+use App\EmailRemark;
+use App\EmailRunHistories;
+use App\Mails\Manual\ForwardEmail;
+use App\Mails\Manual\PurchaseEmail;
+use App\Mails\Manual\ReplyToEmail;
+use App\Wetransfer;
+use Auth;
+use Carbon\Carbon;
+use DB;
+use EmailReplyParser\Parser\EmailParser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Mail;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use Webklex\IMAP\Client;
 
 class EmailController extends Controller
 {
@@ -33,15 +31,17 @@ class EmailController extends Controller
      * @return \Illuminate\Http\Response
      */
     //Purpose : Add Email Parameter - DEVTASK-18283
-    public function index(Request $request,$email = null)
+    public function index(Request $request, $email = null)
     {
 
         $user = Auth::user();
+        $admin = $user->isAdmin();
+        $emailassignes = \App\EmailAssign::where(['user_id' => $user->id])->get();
         // Set default type as incoming
         $type = "incoming";
-		$seen = '0';
-        $from = '';//Purpose : Add var -  DEVTASK-18283
-		
+        $seen = '0';
+        $from = ''; //Purpose : Add var -  DEVTASK-18283
+
         $term = $request->term ?? '';
         $sender = $request->sender ?? '';
         $receiver = $request->receiver ?? '';
@@ -56,7 +56,7 @@ class EmailController extends Controller
         $trash_query = false;
 
         //START - Purpose : Add Email - DEVTASK-18283
-        if($email != '' && $receiver == ''){
+        if ($email != '' && $receiver == '') {
             $receiver = $email;
             $from = 'order_data';
             $seen = 'both';
@@ -65,98 +65,91 @@ class EmailController extends Controller
         //END - DEVTASK-18283
 
         // If type is bin, check for status only
-        if($type == "bin"){
+        if ($type == "bin") {
             $trash_query = true;
-            $query = $query->where('status',"bin");
-        }elseif($type == "draft"){
-            $query = $query->where('is_draft',1);
-        }elseif($type == "pre-send"){
-            $query = $query->where('status',"pre-send");
-        }else{
-            $query = $query->where('type',$type)->orWhere('type','outgoing') ;
+            $query = $query->where('status', "bin");
+        } elseif ($type == "draft") {
+            $query = $query->where('is_draft', 1);
+        } elseif ($type == "pre-send") {
+            $query = $query->where('status', "pre-send");
+        } else {
+            $query = $query->where('type', $type)->orWhere('type', 'outgoing');
         }
-        
-        if($date) {
-            $query = $query->whereDate('created_at',$date);
+
+        if ($date) {
+            $query = $query->whereDate('created_at', $date);
         }
-        if($term) {
+        if ($term) {
             $query = $query->where(function ($query) use ($term) {
-                $query->where('from','like','%'.$term.'%')
-                ->orWhere('to','like','%'.$term.'%')
-                ->orWhere('subject','like','%'.$term.'%')
-                ->orWhere('message','like','%'.$term.'%');
+                $query->where('from', 'like', '%' . $term . '%')
+                    ->orWhere('to', 'like', '%' . $term . '%')
+                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('message', 'like', '%' . $term . '%');
             });
         }
-		
-		if(!$term)
-		{
-			if($sender)
-			{
-				$query = $query->where(function ($query) use ($sender) {
-					$query->orWhere('from','like','%'.$sender.'%');
-				});
-			}
-			if($receiver)
-			{
-				$query = $query->where(function ($query) use ($receiver) {
-					$query->orWhere('to','like','%'.$receiver.'%');
-				});
-			}
-			if($status)
-			{
-				$query = $query->where(function ($query) use ($status) {
-					$query->orWhere('status',$status);
-				});
-			}
-			if($category)
-			{
-				$query = $query->where(function ($query) use ($category) {
-					$query->orWhere('email_category_id',$category);
-				});
-			}
-			
-		}
 
-        if(!empty($mailbox)) {
+        if (!$term) {
+            if ($sender) {
+                $query = $query->where(function ($query) use ($sender) {
+                    $query->orWhere('from', 'like', '%' . $sender . '%');
+                });
+            }
+            if ($receiver) {
+                $query = $query->where(function ($query) use ($receiver) {
+                    $query->orWhere('to', 'like', '%' . $receiver . '%');
+                });
+            }
+            if ($status) {
+                $query = $query->where(function ($query) use ($status) {
+                    $query->orWhere('status', $status);
+                });
+            }
+            if ($category) {
+                $query = $query->where(function ($query) use ($category) {
+                    $query->orWhere('email_category_id', $category);
+                });
+            }
+
+        }
+
+        if (!empty($mailbox)) {
             $query = $query->where(function ($query) use ($mailbox) {
-                $query->orWhere('to','like','%'.$mailbox.'%');
+                $query->orWhere('to', 'like', '%' . $mailbox . '%');
             });
         }
 
-        if(isset($seen)){
-            if($seen != 'both'){
-                $query = $query->where('seen',$seen);
+        if (isset($seen)) {
+            if ($seen != 'both') {
+                $query = $query->where('seen', $seen);
             }
         }
 
         // If it isn't trash query remove email with status trashed
-        if(!$trash_query){
-            $query = $query->where(function($query){ return $query->where('status','<>',"bin")->orWhereNull('status');});
+        if (!$trash_query) {
+            $query = $query->where(function ($query) {return $query->where('status', '<>', "bin")->orWhereNull('status');});
         }
-		
-		$query = $query->orderByDesc('created_at');
-		
-		
-		
-		//Get All Category
+
+        $query = $query->orderByDesc('created_at');
+
+        //Get All Category
         $email_status = DB::table('email_status')->get();
-		
-		//Get All Status
+
+        //Get All Status
         $email_categories = DB::table('email_category')->get();
-        
+
         //Get Cron Email Histroy
-		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
-        ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
-        ->whereDate('cron_job_reports.created_at','>=',Carbon::now()->subDays(10))
-        ->select(['cron_job_reports.*','cron_jobs.last_error'])->paginate(15);
+        $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
+            ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+            ->whereDate('cron_job_reports.created_at', '>=', Carbon::now()->subDays(10))
+            ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->paginate(15);
 
         $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails','date','term','type','email_categories','email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string)$emails->links(),
+                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string) $emails->links(),
                 'count' => $emails->total(),
-                'emails' => $emails
+                'emails' => $emails,
             ], 200);
         }
 
@@ -174,23 +167,21 @@ class EmailController extends Controller
         $digita_platfirms = DigitalMarketingPlatform::all();
         $sender_drpdwn = Email::select('from')->distinct()->get()->toArray();
         $receiver_drpdwn = Email::select('to')->distinct()->get()->toArray();
-        $mailboxdropdown = \App\EmailAddress::pluck('from_address','from_address')->toArray();
+        $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_address')->toArray();
 
-
-
-        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from,'mailboxdropdown'=> $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
 
-
-    public function platformUpdate(Request $request){
-        if($request->id){
-            if(Email::where('id',$request->id)->update(['digital_platfirm' => $request->platform])){
-                return redirect()->back()->with('success','Updated successfully.');
+    public function platformUpdate(Request $request)
+    {
+        if ($request->id) {
+            if (Email::where('id', $request->id)->update(['digital_platfirm' => $request->platform])) {
+                return redirect()->back()->with('success', 'Updated successfully.');
             }
-            return redirect()->back()->with('error','Records not found!');
+            return redirect()->back()->with('error', 'Records not found!');
         }
-        return redirect()->back()->with('error','Error Occured! Please try again later.');
+        return redirect()->back()->with('error', 'Error Occured! Please try again later.');
     }
     /**
      * Show the form for creating a new resource.
@@ -260,18 +251,19 @@ class EmailController extends Controller
         $message = "Email has been trashed";
 
         // If status is already trashed, move to inbox
-        if($email->status == 'bin'){
+        if ($email->status == 'bin') {
             $status = "";
             $message = "Email has been sent to inbox";
         }
 
-        $email->status= $status;
+        $email->status = $status;
         $email->update();
 
         return response()->json(['message' => $message]);
     }
 
-    public function resendMail($id, Request $request) {
+    public function resendMail($id, Request $request)
+    {
         $email = Email::find($id);
         $attachment = [];
         $imap = new Client([
@@ -281,7 +273,7 @@ class EmailController extends Controller
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
             'username' => env('IMAP_USERNAME_PURCHASE'),
             'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE')
+            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -289,7 +281,7 @@ class EmailController extends Controller
         $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
         if (array_key_exists('attachment', $array)) {
-            $temp = json_decode($email->additional_data, true)[ 'attachment' ];
+            $temp = json_decode($email->additional_data, true)['attachment'];
         }
         if (!is_array($temp)) {
             $attachment[] = $temp;
@@ -297,24 +289,25 @@ class EmailController extends Controller
             $attachment = $temp;
         }
         $customConfig = [
-            'from' =>  $email->from,
+            'from' => $email->from,
         ];
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
-        if($type == 'approve') {
+        if ($type == 'approve') {
             $email->update(['approve_mail' => 0]);
         }
         return response()->json(['message' => 'Mail resent successfully']);
-   }
+    }
 
-   /**
-    * Provide view for email reply modal
-    *
-    * @param [type] $id
-    * @return view
-    */
-    public function replyMail($id) {
+    /**
+     * Provide view for email reply modal
+     *
+     * @param [type] $id
+     * @return view
+     */
+    public function replyMail($id)
+    {
         $email = Email::find($id);
-        return view('emails.reply-modal',compact('email'));
+        return view('emails.reply-modal', compact('email'));
     }
 
     /**
@@ -323,10 +316,11 @@ class EmailController extends Controller
      * @param [type] $id
      * @return void
      */
-    public function forwardMail($id) {
+    public function forwardMail($id)
+    {
         $email = Email::find($id);
-        return view('emails.forward-modal',compact('email'));
-        }
+        return view('emails.forward-modal', compact('email'));
+    }
 
     /**
      * Handle the email reply
@@ -336,63 +330,62 @@ class EmailController extends Controller
      */
     public function submitReply(Request $request)
     {
-       $validator = Validator::make($request->all(), [
-           'message' => 'required'
-       ]);
+        $validator = Validator::make($request->all(), [
+            'message' => 'required',
+        ]);
 
-       if ($validator->fails()) {
-           return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
-       }
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+        }
 
-       $email = Email::find($request->reply_email_id);
-       Mail::send(new ReplyToEmail($email, $request->message));
+        $email = Email::find($request->reply_email_id);
+        Mail::send(new ReplyToEmail($email, $request->message));
 
-       return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
-   }
+        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+    }
 
-   /**
-    * Handle the email forward
-    *
-    * @param Request $request
-    * @return json
-    */
-   public function submitForward(Request $request)
-   {
-       $validator = Validator::make($request->all(), [
-           'email' => 'required'
-       ]);
+    /**
+     * Handle the email forward
+     *
+     * @param Request $request
+     * @return json
+     */
+    public function submitForward(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+        ]);
 
-       if ($validator->fails()) {
-           return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
-       }
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+        }
 
-       $email = Email::find($request->forward_email_id);
+        $email = Email::find($request->forward_email_id);
 
-       $emailClass = (new ForwardEmail($email, $email->message))->build();
+        $emailClass = (new ForwardEmail($email, $email->message))->build();
 
-        $email             = \App\Email::create([
-            'model_id'         => $email->id,
-            'model_type'       => \App\Email::class,
-            'from'             => @$emailClass->from[0]['address'],
-            'to'               => $request->email,
-            'subject'          => $emailClass->subject,
-            'message'          => $emailClass->render(),
-            'template'         => 'forward-email',
-            'additional_data'  => "",
-            'status'           => 'pre-send',
+        $email = \App\Email::create([
+            'model_id' => $email->id,
+            'model_type' => \App\Email::class,
+            'from' => @$emailClass->from[0]['address'],
+            'to' => $request->email,
+            'subject' => $emailClass->subject,
+            'message' => $emailClass->render(),
+            'template' => 'forward-email',
+            'additional_data' => "",
+            'status' => 'pre-send',
             'store_website_id' => null,
-            'is_draft'         => 1
+            'is_draft' => 1,
         ]);
 
         \App\Jobs\SendEmail::dispatch($email);
-       
-       //Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
-       return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
-   }
+        //Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
+        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+    }
 
-   public function getRemark(Request $request)
+    public function getRemark(Request $request)
     {
         $email_id = $request->input('email_id');
 
@@ -412,92 +405,95 @@ class EmailController extends Controller
             $remark_entry = EmailRemark::create([
                 'email_id' => $email_id,
                 'remarks' => $remark,
-                'user_name' => Auth::user()->name
+                'user_name' => Auth::user()->name,
             ]);
         }
 
         return response()->json(['remark' => $remark], 200);
     }
 
-    public function markAsRead($id){
+    public function markAsRead($id)
+    {
         $email = Email::find($id);
         $email->seen = 1;
         $email->update();
         return response()->json(['success' => true, 'message' => 'Email has been read.']);
     }
 
-    public function getAllEmails(){
-            $available_models = ["supplier" =>\App\Supplier::class,"vendor"=>\App\Vendor::class,
-                             "customer"=>\App\Customer::class,"users"=>\App\User::class];
-            $email_list = [];
-            foreach ($available_models as $key => $value) {
-                $email_list = array_merge($email_list, $value::whereNotNull('email')->pluck('email')->unique()->all());
-            }
+    public function getAllEmails()
+    {
+        $available_models = ["supplier" => \App\Supplier::class, "vendor" => \App\Vendor::class,
+            "customer" => \App\Customer::class, "users" => \App\User::class];
+        $email_list = [];
+        foreach ($available_models as $key => $value) {
+            $email_list = array_merge($email_list, $value::whereNotNull('email')->pluck('email')->unique()->all());
+        }
         // dd($email_list);
         return array_values(array_unique($email_list));
     }
-	
-	
-	public function category(Request $request){
-		$values = array('category_name' => $request->input('category_name'));
-		DB::table('email_category')->insert($values);
-		
-		session()->flash('success', 'Category added successfully');
-		return redirect('email');
 
-	}
-	
-	public function status(Request $request){
-		$email_id = $request->input('status');
-		$values = array('email_status' => $request->input('email_status'));
-		DB::table('email_status')->insert($values);
-		
-		session()->flash('success', 'Status added successfully');
-		return redirect('email');
-		
-	}
-	
-	
-	public function updateEmail(Request $request){
-		$email_id = $request->input('email_id');
-		$category = $request->input('category');
-		$status = $request->input('status');
-		
-		$email = Email::find($email_id);
+    public function category(Request $request)
+    {
+        $values = array('category_name' => $request->input('category_name'));
+        DB::table('email_category')->insert($values);
+
+        session()->flash('success', 'Category added successfully');
+        return redirect('email');
+
+    }
+
+    public function status(Request $request)
+    {
+        $email_id = $request->input('status');
+        $values = array('email_status' => $request->input('email_status'));
+        DB::table('email_status')->insert($values);
+
+        session()->flash('success', 'Status added successfully');
+        return redirect('email');
+
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $email_id = $request->input('email_id');
+        $category = $request->input('category');
+        $status = $request->input('status');
+
+        $email = Email::find($email_id);
         $email->status = $status;
         $email->email_category_id = $category;
-		
+
         $email->update();
-		
-		session()->flash('success', 'Data updated successfully');
-		return redirect('email');
-	}
+
+        session()->flash('success', 'Data updated successfully');
+        return redirect('email');
+    }
 
     public function getFileStatus(Request $request)
     {
         $id = $request->id;
         $email = Email::find($id);
-        
-        if ( isset( $email->email_excel_importer ) ) {
+
+        if (isset($email->email_excel_importer)) {
             $status = 'No any update';
 
             if ($email->email_excel_importer === 3) {
                 $status = 'File move on wetransfer';
-            }else if ($email->email_excel_importer === 2) {
+            } else if ($email->email_excel_importer === 2) {
                 $status = 'Executed but we transfer file not exist';
-            }else if ($email->email_excel_importer === 1) {
+            } else if ($email->email_excel_importer === 1) {
                 $status = 'Transfer exist';
             }
 
             return response()->json([
-                'status'      => true,
+                'status' => true,
                 'mail_status' => $status,
-                'message'     => 'Data found'
+                'message' => 'Data found',
             ], 200);
         }
         return response()->json([
-            'status'  => false,
-            'message' => 'Data not found'
+            'status' => false,
+            'message' => 'Data not found',
         ], 200);
 
     }
@@ -514,32 +510,32 @@ class EmailController extends Controller
 
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $body, $match);
 
-        if(isset($match[0])){
+        if (isset($match[0])) {
             $matches = $match[0];
             foreach ($matches as $matchLink) {
-                if(strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.tl') !== false){
+                if (strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.tl') !== false) {
 
-                    if(strpos($matchLink, 'google.com') === false){
+                    if (strpos($matchLink, 'google.com') === false) {
                         //check if wetransfer already exist
-                        $checkIfExist = Wetransfer::where('url',$matchLink)->where('supplier',$request->supplier)->first();
-                        if(!$checkIfExist){
+                        $checkIfExist = Wetransfer::where('url', $matchLink)->where('supplier', $request->supplier)->first();
+                        if (!$checkIfExist) {
                             $wetransfer = new Wetransfer();
                             $wetransfer->type = 'excel';
                             $wetransfer->url = $matchLink;
                             $wetransfer->supplier = $request->supplier;
                             $wetransfer->save();
 
-                            Email::where( 'id', $id )->update(['email_excel_importer' => 3 ]);
+                            Email::where('id', $id)->update(['email_excel_importer' => 3]);
 
                             try {
-                               self::downloadFromURL($matchLink,$request->supplier); 
+                                self::downloadFromURL($matchLink, $request->supplier);
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Something went wrong!'], 422);
                             }
                             //downloading wetransfer and generating data
 
                         }
-                        
+
                     }
 
                 }
@@ -549,10 +545,10 @@ class EmailController extends Controller
         //getting from attachments
 
         $attachments = $email->additional_data;
-        if($attachments){
+        if ($attachments) {
             $attachJson = json_decode($attachments);
             $attachs = $attachJson->attachment;
-            
+
             //getting all attachments
             //check if extension is .xls or xlsx
             foreach ($attachs as $attach) {
@@ -561,22 +557,20 @@ class EmailController extends Controller
                 if ($extension == 'xlsx' || $extension == 'xls') {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                         $excel = $request->supplier;
-                        ErpExcelImporter::excelFileProcess($attach, $excel,'');
+                        ErpExcelImporter::excelFileProcess($attach, $excel, '');
                     }
                 } elseif ($extension == 'zip') {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                         $excel = $request->supplier;
                         $attachments_array = [];
-                        $attachments       = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
-                        
+                        $attachments = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
+
                     }
                 }
             }
 
-
         }
 
-        
         return response()->json(['message' => 'Successfully Imported'], 200);
 
     }
@@ -585,10 +579,8 @@ class EmailController extends Controller
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
 
-
-
         if (strpos($url, 'https://we.tl/') !== false) {
-            
+
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -600,8 +592,8 @@ class EmailController extends Controller
             preg_match_all('/^Location:(.*)$/mi', $response, $matches);
             curl_close($ch);
 
-            if(isset($matches[1])){
-                if(isset($matches[1][0])){
+            if (isset($matches[1])) {
+                if (isset($matches[1][0])) {
                     $url = trim($matches[1][0]);
                 }
             }
@@ -616,136 +608,132 @@ class EmailController extends Controller
 
         $dataArray = explode('/', $url);
 
-        if(count($dataArray) == 2){
+        if (count($dataArray) == 2) {
             $securityhash = $dataArray[1];
             $transferId = $dataArray[0];
-        }elseif(count($dataArray) == 3){
+        } elseif (count($dataArray) == 3) {
             $securityhash = $dataArray[2];
             $recieptId = $dataArray[1];
             $transferId = $dataArray[0];
-        }else{
+        } else {
             die('Something is wrong with url');
         }
-
-
-
 
         //making post request to get the url
         $data = array();
         $data['intent'] = 'entire_transfer';
         $data['security_hash'] = $securityhash;
 
-        $curlURL = $WETRANSFER_API_URL.$transferId.'/download'; 
+        $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
-          $cookie= "cookie.txt";
-          $url='https://wetransfer.com/';
-          $ch = curl_init();
-          curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
-          curl_setopt($ch, CURLOPT_URL, $url);
-          curl_setopt($ch, CURLOPT_COOKIESESSION, true);
-          curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/'.$cookie);
-          curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/'.$cookie);
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          $response = curl_exec($ch);
-          if (curl_errno($ch)) die(curl_error($ch));
+        $cookie = "cookie.txt";
+        $url = 'https://wetransfer.com/';
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_COOKIESESSION, true);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/' . $cookie);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/' . $cookie);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            die(curl_error($ch));
+        }
 
-          $re = '/name="csrf-token" content="([^"]+)"/m';
+        $re = '/name="csrf-token" content="([^"]+)"/m';
 
-            preg_match_all($re, $response, $matches, PREG_SET_ORDER, 0);
+        preg_match_all($re, $response, $matches, PREG_SET_ORDER, 0);
 
-            if(count($matches) != 0){
-                if(isset($matches[0])){
-                    if(isset($matches[0][1])){
-                        $token = $matches[0][1];
-                    }
+        if (count($matches) != 0) {
+            if (isset($matches[0])) {
+                if (isset($matches[0][1])) {
+                    $token = $matches[0][1];
                 }
             }
+        }
 
-          $headers[] = 'Content-Type: application/json';
-          $headers[] = 'X-CSRF-Token:' .  $token;
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'X-CSRF-Token:' . $token;
 
-          curl_setopt($ch, CURLOPT_URL, $curlURL);
-          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);   
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-          curl_setopt($ch, CURLOPT_POST, true);
-          curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_URL, $curlURL);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
-          $real = curl_exec($ch);
+        $real = curl_exec($ch);
 
-          $urlResponse = json_decode($real);
+        $urlResponse = json_decode($real);
 
-          //dd($urlResponse);
+        //dd($urlResponse);
 
-          if(isset($urlResponse->direct_link)){
-               //echo $real;
-              $downloadURL = $urlResponse->direct_link;
-              
-              $d = explode('?',$downloadURL);
+        if (isset($urlResponse->direct_link)) {
+            //echo $real;
+            $downloadURL = $urlResponse->direct_link;
 
-              $fileArray = explode('/',$d[0]);
+            $d = explode('?', $downloadURL);
 
-              $filename = end($fileArray);
+            $fileArray = explode('/', $d[0]);
 
-              $file = file_get_contents($downloadURL);
+            $filename = end($fileArray);
 
-              \Storage::put($filename,$file);
+            $file = file_get_contents($downloadURL);
 
-              $storagePath  = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
-              
-              $path = $storagePath."/".$filename;
-            
-              $get = \Storage::get($filename);  
-                
-                if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                    
-                    if(strpos($filename, '.zip') !== false){
-                        $attachments = ErpExcelImporter::excelZipProcess($path, $filename , $supplier, '', '');
+            \Storage::put($filename, $file);
+
+            $storagePath = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
+
+            $path = $storagePath . "/" . $filename;
+
+            $get = \Storage::get($filename);
+
+            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+
+                if (strpos($filename, '.zip') !== false) {
+                    $attachments = ErpExcelImporter::excelZipProcess($path, $filename, $supplier, '', '');
+                }
+
+                if (strpos($filename, '.xls') !== false || strpos($filename, '.xlsx') !== false) {
+                    if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                        $excel = $supplier;
+                        ErpExcelImporter::excelFileProcess($path, $filename, '');
                     }
+                }
 
-
-                    if(strpos($filename, '.xls') !== false || strpos($filename, '.xlsx') !== false){
-                        if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                            $excel = $supplier;
-                            ErpExcelImporter::excelFileProcess($path, $filename,'');
-                        }
-                    }
-
-
-
-                }           
-          }
-
-          
+            }
+        }
 
     }
 
-    public function bluckAction(Request $request){
+    public function bluckAction(Request $request)
+    {
         $ids = $request->ids;
         $status = $request->status;
         $action_type = $request->action_type;
 
-        if($action_type == "delete"){
+        if ($action_type == "delete") {
             session()->flash('success', 'Email has been moved to trash successfully');
-            Email::whereIn('id',$ids)->update(['status' => 'bin']);
-        }else{
+            Email::whereIn('id', $ids)->update(['status' => 'bin']);
+        } else {
             session()->flash('success', 'Status has been updated successfully');
-            Email::whereIn('id',$ids)->update(['status' => $status]);
+            Email::whereIn('id', $ids)->update(['status' => $status]);
         }
 
-        return response()->json(['type' => 'success'],200);
+        return response()->json(['type' => 'success'], 200);
     }
 
-    public function changeStatus(Request $request){
-        Email::where('id',$request->email_id)->update(['status' => $request->status_id]);
+    public function changeStatus(Request $request)
+    {
+        Email::where('id', $request->email_id)->update(['status' => $request->status_id]);
         session()->flash('success', 'Status has been updated successfully');
-        return response()->json(['type' => 'success'],200);
+        return response()->json(['type' => 'success'], 200);
     }
 
     public function syncroniseEmail()
     {
 
         $report = CronJobReport::create([
-            'signature'  => "fetch:all_emails",
+            'signature' => "fetch:all_emails",
             'start_time' => \Carbon\Carbon::now(),
         ]);
 
@@ -754,13 +742,13 @@ class EmailController extends Controller
         foreach ($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
-                    'host'          => $emailAddress->host,
-                    'port'          => 993,
-                    'encryption'    => "ssl",
+                    'host' => $emailAddress->host,
+                    'port' => 993,
+                    'encryption' => "ssl",
                     'validate_cert' => false,
-                    'username'      => $emailAddress->username,
-                    'password'      => $emailAddress->password,
-                    'protocol'      => 'imap',
+                    'username' => $emailAddress->username,
+                    'password' => $emailAddress->password,
+                    'protocol' => 'imap',
                 ]);
 
                 $imap->connect();
@@ -768,20 +756,19 @@ class EmailController extends Controller
                 $types = [
                     'inbox' => [
                         'inbox_name' => 'INBOX',
-                        'direction'  => 'from',
-                        'type'       => 'incoming',
+                        'direction' => 'from',
+                        'type' => 'incoming',
                     ],
-                    'sent'  => [
+                    'sent' => [
                         'inbox_name' => 'INBOX.Sent',
-                        'direction'  => 'to',
-                        'type'       => 'outgoing',
+                        'direction' => 'to',
+                        'type' => 'outgoing',
                     ],
                 ];
 
-
                 $available_models = [
                     "supplier" => \App\Supplier::class, "vendor" => \App\Vendor::class,
-                    "customer" => \App\Customer::class, "users"  => \App\User::class,
+                    "customer" => \App\Customer::class, "users" => \App\User::class,
                 ];
                 $email_list = [];
                 foreach ($available_models as $key => $value) {
@@ -830,8 +817,8 @@ class EmailController extends Controller
 
                         //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                         $attachments_array = [];
-                        $attachments       = $email->getAttachments();
-                        $fromThis          = $email->getFrom()[0]->mail;
+                        $attachments = $email->getAttachments();
+                        $fromThis = $email->getFrom()[0]->mail;
                         $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                             $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                             file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
@@ -851,7 +838,7 @@ class EmailController extends Controller
                         });
 
                         $from = $email->getFrom()[0]->mail;
-                        $to   = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                        $to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
                         // Model is sender if its incoming else its receiver if outgoing
                         if ($type['type'] == 'incoming') {
@@ -872,55 +859,55 @@ class EmailController extends Controller
                         if (isset($subject[1]) && !empty($subject[1])) {
                             $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
                             if ($findTicket) {
-                                $model_id   = $findTicket->id;
+                                $model_id = $findTicket->id;
                                 $model_type = \App\Tickets::class;
                             }
                         }
 
                         $params = [
-                            'model_id'        => $model_id,
-                            'model_type'      => $model_type,
-                            'origin_id'       => $origin_id,
-                            'reference_id'    => $reference_id,
-                            'type'            => $type['type'],
-                            'seen'            => $email->getFlags()['seen'],
-                            'from'            => $email->getFrom()[0]->mail,
-                            'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                            'subject'         => $email->getSubject(),
-                            'message'         => $content,
-                            'template'        => 'customer-simple',
+                            'model_id' => $model_id,
+                            'model_type' => $model_type,
+                            'origin_id' => $origin_id,
+                            'reference_id' => $reference_id,
+                            'type' => $type['type'],
+                            'seen' => $email->getFlags()['seen'],
+                            'from' => $email->getFrom()[0]->mail,
+                            'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                            'subject' => $email->getSubject(),
+                            'message' => $content,
+                            'template' => 'customer-simple',
                             'additional_data' => json_encode(['attachment' => $attachments_array]),
-                            'created_at'      => $email->getDate(),
+                            'created_at' => $email->getDate(),
                         ];
 
                         Email::create($params);
 
                         if ($type['type'] == 'incoming') {
                             $message = trim($content);
-                            $reply    = (new EmailParser())->parse($message);
+                            $reply = (new EmailParser())->parse($message);
                             $fragment = current($reply->getFragments());
                             if ($reply) {
                                 $customer = \App\Customer::where('email', $from)->first();
                                 if (!empty($customer)) {
                                     // store the main message
                                     $params = [
-                                        'number'      => $customer->phone,
-                                        'message'     => $fragment->getContent(),
-                                        'media_url'   => null,
-                                        'approved'    => 0,
-                                        'status'      => 0,
-                                        'contact_id'  => null,
-                                        'erp_user'    => null,
+                                        'number' => $customer->phone,
+                                        'message' => $fragment->getContent(),
+                                        'media_url' => null,
+                                        'approved' => 0,
+                                        'status' => 0,
+                                        'contact_id' => null,
+                                        'erp_user' => null,
                                         'supplier_id' => null,
-                                        'task_id'     => null,
+                                        'task_id' => null,
                                         'dubizzle_id' => null,
-                                        'vendor_id'   => null,
+                                        'vendor_id' => null,
                                         'customer_id' => $customer->id,
-                                        'is_email'    => 1
+                                        'is_email' => 1,
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
-                                    \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params , $isEmail = true);
+                                    \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params, $isEmail = true);
                                 }
                             }
                         }
@@ -931,10 +918,9 @@ class EmailController extends Controller
 
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
-                    'is_success'       => 1,
+                    'is_success' => 1,
                 ];
 
-                
                 EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
                 session()->flash('success', 'Emails added successfully');
@@ -944,8 +930,8 @@ class EmailController extends Controller
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
-                    'is_success'       => 0,
-                    'message'          => $e->getMessage(),
+                    'is_success' => 0,
+                    'message' => $e->getMessage(),
                 ];
                 EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError("fetch:all_emails", $e->getMessage());
@@ -957,7 +943,7 @@ class EmailController extends Controller
 
     public function getModel($email, $email_list)
     {
-        $model_id   = null;
+        $model_id = null;
         $model_type = null;
 
         // Traverse all models
@@ -965,7 +951,7 @@ class EmailController extends Controller
 
             // If email exists in the DB
             if (isset($value[$email])) {
-                $model_id   = $value[$email];
+                $model_id = $value[$email];
                 $model_type = $key;
                 break;
             }
@@ -978,50 +964,50 @@ class EmailController extends Controller
     {
         $file = fopen(storage_path('app/files/email-attachments/' . $fileName), "r");
 
-        $skiprowupto           = 1; //skip first line
-        $rowincrement          = 1;
+        $skiprowupto = 1; //skip first line
+        $rowincrement = 1;
         $attachedFileDataArray = array();
         while (($data = fgetcsv($file, 4000, ",")) !== false) {
             if ($rowincrement > $skiprowupto) {
                 //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>';
                 if (isset($data[0]) && !empty($data[0])) {
                     try {
-                        $due_date              = date('Y-m-d', strtotime($data[9]));
+                        $due_date = date('Y-m-d', strtotime($data[9]));
                         $attachedFileDataArray = array(
-                            "line_type"                       => $data[0],
-                            "billing_source"                  => $data[1],
-                            "original_invoice_number"         => $data[2],
-                            "invoice_number"                  => $data[3],
-                            "invoice_identifier"              => $data[5],
-                            "invoice_type"                    => $data[6],
-                            "invoice_currency"                => $data[69],
-                            "invoice_amount"                  => $data[70],
-                            "invoice_type"                    => $data[6],
-                            "invoice_date"                    => $data[7],
-                            "payment_terms"                   => $data[8],
-                            "due_date"                        => $due_date,
-                            "billing_account"                 => $data[11],
-                            "billing_account_name"            => $data[12],
+                            "line_type" => $data[0],
+                            "billing_source" => $data[1],
+                            "original_invoice_number" => $data[2],
+                            "invoice_number" => $data[3],
+                            "invoice_identifier" => $data[5],
+                            "invoice_type" => $data[6],
+                            "invoice_currency" => $data[69],
+                            "invoice_amount" => $data[70],
+                            "invoice_type" => $data[6],
+                            "invoice_date" => $data[7],
+                            "payment_terms" => $data[8],
+                            "due_date" => $due_date,
+                            "billing_account" => $data[11],
+                            "billing_account_name" => $data[12],
                             "billing_account_name_additional" => $data[13],
-                            "billing_address_1"               => $data[14],
-                            "billing_postcode"                => $data[17],
-                            "billing_city"                    => $data[18],
-                            "billing_state_province"          => $data[19],
-                            "billing_country_code"            => $data[20],
-                            "billing_contact"                 => $data[21],
-                            "shipment_number"                 => $data[23],
-                            "shipment_date"                   => $data[24],
-                            "product"                         => $data[30],
-                            "product_name"                    => $data[31],
-                            "pieces"                          => $data[32],
-                            "origin"                          => $data[33],
-                            "orig_name"                       => $data[34],
-                            "orig_country_code"               => $data[35],
-                            "orig_country_name"               => $data[36],
-                            "senders_name"                    => $data[37],
-                            "senders_city"                    => $data[42],
-                            'created_at'                      => \Carbon\Carbon::now(),
-                            'updated_at'                      => \Carbon\Carbon::now(),
+                            "billing_address_1" => $data[14],
+                            "billing_postcode" => $data[17],
+                            "billing_city" => $data[18],
+                            "billing_state_province" => $data[19],
+                            "billing_country_code" => $data[20],
+                            "billing_contact" => $data[21],
+                            "shipment_number" => $data[23],
+                            "shipment_date" => $data[24],
+                            "product" => $data[30],
+                            "product_name" => $data[31],
+                            "pieces" => $data[32],
+                            "origin" => $data[33],
+                            "orig_name" => $data[34],
+                            "orig_country_code" => $data[35],
+                            "orig_country_name" => $data[36],
+                            "senders_name" => $data[37],
+                            "senders_city" => $data[42],
+                            'created_at' => \Carbon\Carbon::now(),
+                            'updated_at' => \Carbon\Carbon::now(),
                         );
                         if (!empty($attachedFileDataArray)) {
                             $attachresponse = \App\Waybillinvoice::create($attachedFileDataArray);
@@ -1029,41 +1015,41 @@ class EmailController extends Controller
                             // check that way bill exist not then create
                             $wayBill = \App\Waybill::where("awb", $attachresponse->shipment_number)->first();
                             if (!$wayBill) {
-                                $wayBill      = new \App\Waybill;
+                                $wayBill = new \App\Waybill;
                                 $wayBill->awb = $attachresponse->shipment_number;
 
-                                $wayBill->from_customer_name      = $data[45];
-                                $wayBill->from_city               = $data[42];
-                                $wayBill->from_country_code       = $data[44];
+                                $wayBill->from_customer_name = $data[45];
+                                $wayBill->from_city = $data[42];
+                                $wayBill->from_country_code = $data[44];
                                 $wayBill->from_customer_address_1 = $data[38];
                                 $wayBill->from_customer_address_2 = $data[39];
-                                $wayBill->from_customer_pincode   = $data[41];
-                                $wayBill->from_company_name       = $data[39];
+                                $wayBill->from_customer_pincode = $data[41];
+                                $wayBill->from_company_name = $data[39];
 
-                                $wayBill->to_customer_name      = $data[50];
-                                $wayBill->to_city               = $data[55];
-                                $wayBill->to_country_code       = $data[57];
-                                $wayBill->to_customer_phone     = "";
+                                $wayBill->to_customer_name = $data[50];
+                                $wayBill->to_city = $data[55];
+                                $wayBill->to_country_code = $data[57];
+                                $wayBill->to_customer_phone = "";
                                 $wayBill->to_customer_address_1 = $data[51];
                                 $wayBill->to_customer_address_2 = $data[52];
-                                $wayBill->to_customer_pincode   = $data[54];
-                                $wayBill->to_company_name       = "";
+                                $wayBill->to_customer_pincode = $data[54];
+                                $wayBill->to_company_name = "";
 
                                 $wayBill->actual_weight = $data[68];
                                 $wayBill->volume_weight = $data[66];
 
                                 $wayBill->cost_of_shipment = $data[70];
-                                $wayBill->package_slip     = $attachresponse->shipment_number;
-                                $wayBill->pickup_date      = date("Y-m-d", strtotime($data[24]));
+                                $wayBill->package_slip = $attachresponse->shipment_number;
+                                $wayBill->pickup_date = date("Y-m-d", strtotime($data[24]));
                                 $wayBill->save();
                             }
 
                             $cash_flow = new CashFlow();
                             $cash_flow->fill([
-                                'date'                => $attachresponse->due_date ? $attachresponse->due_date : null,
-                                'type'                => 'pending',
-                                'description'         => 'Waybill invoice details',
-                                'cash_flow_able_id'   => $attachresponse->id,
+                                'date' => $attachresponse->due_date ? $attachresponse->due_date : null,
+                                'type' => 'pending',
+                                'description' => 'Waybill invoice details',
+                                'cash_flow_able_id' => $attachresponse->id,
                                 'cash_flow_able_type' => \App\Waybillinvoice::class,
                             ])->save();
 
@@ -1078,19 +1064,21 @@ class EmailController extends Controller
         }
         fclose($file);
     }
-	
-	public function getEmailEvents($originId) {
-		$exist = Email::where('origin_id', $originId)->first();
-		$events = []; $eventData = '';
-		if($exist != null) {
-			$events = \App\SendgridEvent::where('sg_message_id', $originId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
-		}
-		foreach($events as $event) {
-			$eventData .= "<tr><td>". $event['timestamp']."</td><td>".$event['event']."</td></tr>";
-		}
-		if($eventData == '') {
-			$eventData = '<tr><td>No data found.</td></tr>';
-		}
-		return $eventData;
- 	}
+
+    public function getEmailEvents($originId)
+    {
+        $exist = Email::where('origin_id', $originId)->first();
+        $events = [];
+        $eventData = '';
+        if ($exist != null) {
+            $events = \App\SendgridEvent::where('sg_message_id', $originId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+        }
+        foreach ($events as $event) {
+            $eventData .= "<tr><td>" . $event['timestamp'] . "</td><td>" . $event['event'] . "</td></tr>";
+        }
+        if ($eventData == '') {
+            $eventData = '<tr><td>No data found.</td></tr>';
+        }
+        return $eventData;
+    }
 }
