@@ -448,17 +448,20 @@ class ProductPriceController extends Controller
         ini_set('memory_limit', -1);
         $product_list = [];
 
-        $countries = SimplyDutyCountry::select('*');
+        $countries = SimplyDutyCountry::leftJoin('simply_duty_segments', 'simply_duty_segments.id', '=', 'simply_duty_countries.segment_id')
+		->select('*', 'simply_duty_segments.segment as country_segment');
 
         if(isset($request->order) && isset($request->input)){
             if($request->input=='csegment'){
                 $countries =$countries->orderBy('country_code',$request->order);
             }
         }
+		if($request->country_segment!=''){
+            $countries->where('simply_duty_segments.segment',$request->country_segment);
+        }
 
         $countries = $countries->get()->toArray();
-        
-        
+         
         //$brands = Brand::select('id', 'name')->get()->toArray();
         $brands =\App\StoreWebsite::where('store_websites.is_published', 1)
             ->crossJoin('products')
@@ -501,7 +504,7 @@ class ProductPriceController extends Controller
 
         $countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status',1)->get();
-        
+	    if(count($countries) > 0){
             foreach($brands as $brand) {
                $country = $countries[$i];
 			   $catSegDisc1 = $catSegDisc2 = 0;
@@ -613,6 +616,7 @@ class ProductPriceController extends Controller
                 $final_price1 = 100;
                 $final_price2 = 100;
             }
+        }
         return array('product_list'=>$product_list,'category_segments'=>$category_segments,'categories'=>$categories,'numcount'=>$numcount);
     }
 	
@@ -622,6 +626,8 @@ class ProductPriceController extends Controller
         $final_price = 100;
         $ids = $request->all();
         $cats=StoreWebsite::select('id','title')->get();
+		$country_segments = SimplyDutySegment::pluck('segment')->toArray();
+		
         if(!isset($ids['id'])){
             $data = $this->genericPricingAll($request);
             $product_list =$data['product_list'];
@@ -636,7 +642,7 @@ class ProductPriceController extends Controller
 
                 return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
             }
-            return view('product_price.generic_price', compact('product_list', 'category_segments', 'cats', 'categories', 'numcount'));
+            return view('product_price.generic_price', compact('product_list', 'country_segments', 'category_segments', 'cats', 'categories', 'numcount'));
         }
 
         $categoryIds = Category::pluck('id')->toArray(); 
@@ -647,14 +653,17 @@ class ProductPriceController extends Controller
 		ini_set('memory_limit', -1);
 		$product_list = [];
 
-		$countries = SimplyDutyCountry::select('*');
+		$countries = SimplyDutyCountry::leftJoin('simply_duty_segments', 'simply_duty_segments.id', '=', 'simply_duty_countries.segment_id')
+		->select('*', 'simply_duty_segments.segment as country_segment');
 
         if(isset($request->order) && isset($request->input)){
             if($request->input=='csegment'){
                 $countries =$countries->orderBy('country_code',$request->order);
             }
         }
-
+		if($request->country_segment!=''){
+            $countries->where('simply_duty_segments.segment',$request->country_segment);
+        }
         $countries = $countries->get()->toArray();
 
 		$categoryDetail = Category::where('id',$cat_id)->select('id', 'title')->first();
@@ -684,9 +693,7 @@ class ProductPriceController extends Controller
 				$brands->where('brands.brand_segment',$request->brand_segment);
 			}
 
-			if($request->category_segments!=''){
-				$brands->where('cs.name',$request->category_segments);
-			}
+           
 
 			if($request->website!=''){
 				$brands->where('store_websites.id',$request->website);
@@ -716,7 +723,7 @@ class ProductPriceController extends Controller
 
 		$countriesCount = count($countries);
         $category_segments = \App\CategorySegment::where('status',1)->get();
-       
+        if($countriesCount > 0){
 			foreach($brands as $brand) {
 				$catSegDisc1 = $catSegDisc2 = 0;
 				$final_price1 = $final_price2 = $product_price;
@@ -822,14 +829,14 @@ class ProductPriceController extends Controller
                 $final_price1 = 100;
                 $final_price2 = 100;
             }
+        }
 
         if ($request->ajax()) {
             $count = $request->count;
             $view =view('product_price.generic_price_ajax', compact('product_list', 'category_segments'))->render();
             return response()->json(['html'=>$view, 'page'=>$request->page, 'count'=>$count]);
         }
-		
-		return view('product_price.generic_price', compact('product_list', 'category_segments','categories', 'cats', 'numcount'));
+		return view('product_price.generic_price', compact('product_list', 'category_segments', 'country_segments','categories', 'cats', 'numcount'));
 	}
 
     public function updateProduct(Request $request) { 
