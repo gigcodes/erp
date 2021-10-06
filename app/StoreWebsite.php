@@ -170,4 +170,9 @@ class StoreWebsite extends Model
     {
         return $this->hasOne('App\WebsiteProductCsv','store_website_id','id');
     }
+
+    public static function  listMagentoSite()
+    {
+        return self::where("website_source","magento")->pluck("website", "id")->toArray();
+    }
 }
