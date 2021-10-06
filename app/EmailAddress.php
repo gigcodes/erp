@@ -5,6 +5,7 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use App\StoreWebsite;
+use App\EmailAssign;
 use Illuminate\Database\Eloquent\Model;
 
 class EmailAddress extends Model
@@ -56,6 +57,11 @@ class EmailAddress extends Model
     public function email_run_history()
     {
        return $this->hasMany(EmailRunHistories::class,'email_address_id','id');
+    }
+
+    public function email_assignes()
+    {
+       return $this->hasMany(EmailAssign::class,'email_address_id','id');
     }
 
     public function history_last_message()
