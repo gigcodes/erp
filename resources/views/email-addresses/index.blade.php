@@ -459,7 +459,7 @@
 
 		  <div class="form-group">
             	<strong>Users:</strong>
-				<Select name="users" id="users" multiple class="form-control select-multiple globalSelect2">
+				<Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
 					<option value = ''>None</option>
 					@foreach ($users as $key => $val)
 						<option value="{{ $val->id }}">{{ $val->name }}</option>
