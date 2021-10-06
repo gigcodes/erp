@@ -68,7 +68,7 @@ class EmailController extends Controller
                 }
             });
 
-            $query = $query->where(function ($query) use ($usernames) {
+            $query = $query->orWhere(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
                     $query->orWhere('to', 'like', '%' . $_uname . '%');
                 }
@@ -93,7 +93,9 @@ class EmailController extends Controller
         } elseif ($type == "pre-send") {
             $query = $query->where('status', "pre-send");
         } else {
-            $query = $query->where('type', $type)->orWhere('type', 'outgoing');
+            $query = $query->where(function ($query) {
+                $query->where('type', $type)->orWhere('type', 'outgoing');
+            });
         }
 
         if ($date) {
