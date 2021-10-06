@@ -124,7 +124,7 @@
               <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
 
-              <button type="button" class="btn btn-image assign-users d-inline"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}"><img src="/images/add.png" /></button>
+              <button type="button" class="btn btn-image assign-users d-inline"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}"><img src="/images/add.png" /></button>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
 
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
@@ -180,7 +180,14 @@
     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
     @foreach ($emailAddress as $server)
-    <div id="assignUsersModal" class="modal fade" role="dialog">
+    @php
+      $assignids = [];
+      $assigned_users = json_decode($server->email_assignes);
+      foreach($assigned_users as $_assigned){
+        $assignids[] = $_assigned->user_id;
+      }
+    @endphp
+    <div id="assignUsersModal{{$server->id}}" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
         <!-- Modal content-->
@@ -200,7 +207,7 @@
             <Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
               <option value = ''>None</option>
               @foreach ($users as $key => $val)
-                <option value="{{ $val->id }}">{{ $val->name }}</option>
+                <option value="{{ $val->id }}" {{in_array($val->id,$assignids)?'selected':''}}>{{ $val->name }}</option>
               @endforeach
             </Select>
             @if ($errors->has('users'))
@@ -796,8 +803,8 @@
       var emailId = $(this).data('email-id');
       var users = $(this).data('users');
       var url = "{{ route('email-addresses.assign') }}";
-      $('#assignUsersModal').find('input[name="email_id"]').val(emailId);
-      $('#assignUsersModal form').attr('action', url);
+      $('#assignUsersModal'+emailId).find('input[name="email_id"]').val(emailId);
+      $('#assignUsersModal'+emailId+' form').attr('action', url);
 
     });
 
