@@ -37,12 +37,15 @@ class EmailController extends Controller
         $user = Auth::user();
         $admin = $user->isAdmin();
         $usernames = [];
-        $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
-        if ($emaildetails) {
-            foreach ($emaildetails as $_email) {
-                $usernames[] = $_email->emailAddress->username;
+        if (!$admin) {
+            $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
+            if ($emaildetails) {
+                foreach ($emaildetails as $_email) {
+                    $usernames[] = $_email->emailAddress->username;
+                }
             }
         }
+
         // Set default type as incoming
         $type = "incoming";
         $seen = '0';
@@ -226,17 +229,17 @@ class EmailController extends Controller
         $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_name', 'username');
 
         /*if (count($usernames) > 0) {
-            $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
-                foreach ($usernames as $_uname) {
-                    $mailboxdropdown->orWhere('from_address', 'like', '%' . $_uname . '%');
-                }
-            });
+        $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
+        foreach ($usernames as $_uname) {
+        $mailboxdropdown->orWhere('from_address', 'like', '%' . $_uname . '%');
+        }
+        });
 
-            $mailboxdropdown = $mailboxdropdown->orWhere(function ($mailboxdropdown) use ($usernames) {
-                foreach ($usernames as $_uname) {
-                    $mailboxdropdown->orWhere('username', 'like', '%' . $_uname . '%');
-                }
-            });
+        $mailboxdropdown = $mailboxdropdown->orWhere(function ($mailboxdropdown) use ($usernames) {
+        foreach ($usernames as $_uname) {
+        $mailboxdropdown->orWhere('username', 'like', '%' . $_uname . '%');
+        }
+        });
         }*/
 
         $mailboxdropdown = $mailboxdropdown->toArray();
