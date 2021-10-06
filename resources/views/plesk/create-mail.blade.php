@@ -23,12 +23,16 @@
               </div>
             </div>
             <div class="row">
-              <div class="col">
+              <div class="col col-md-6">
                 <div class="form-group">
-                  <strong>Password</strong>
-                    <input type="text" autocomplete="new-password" title="Should have at least 1 lowercase AND 1 uppercase AND 1 number AND 1 special character and minimum 6 character long" name="password" class="form-control" required>
+                    <strong>Password</strong>
+                    <input type="text" autocomplete="new-password" title="Should have at least 1 lowercase AND 1 uppercase AND 1 number AND 1 special character and minimum 6 character long" name="password" class="form-control btn-password-input-field" required>
+                    
                 </div>
               </div>
+              <div class="col">
+                <button class="btn btn-secondary btn-password-generator-field mt-4" data-size="8" data-character-set="a-z,A-Z,0-9,#"type="button"><i class="fa fa-key" aria-hidden="true"></i></button>
+               </div> 
             </div>
             </div>
           <div class="modal-footer">
