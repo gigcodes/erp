@@ -93,7 +93,7 @@ class EmailController extends Controller
         } elseif ($type == "pre-send") {
             $query = $query->where('status', "pre-send");
         } else {
-            $query = $query->where(function ($query) {
+            $query = $query->where(function ($query) use($type) {
                 $query->where('type', $type)->orWhere('type', 'outgoing');
             });
         }
