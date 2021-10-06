@@ -223,9 +223,9 @@ class EmailController extends Controller
 
         $receiver_drpdwn = $receiver_drpdwn->distinct()->get()->toArray();
 
-        $mailboxdropdown = \App\EmailAddress::select('from_address', 'from_name', 'username');
+        $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_name', 'username');
 
-        if (count($usernames) > 0) {
+        /*if (count($usernames) > 0) {
             $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
                 foreach ($usernames as $_uname) {
                     $mailboxdropdown->orWhere('from_address', 'like', '%' . $_uname . '%');
@@ -237,9 +237,9 @@ class EmailController extends Controller
                     $mailboxdropdown->orWhere('username', 'like', '%' . $_uname . '%');
                 }
             });
-        }
+        }*/
 
-        $mailboxdropdown = $mailboxdropdown->get()->toArray();
+        $mailboxdropdown = $mailboxdropdown->toArray();
 
         return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
