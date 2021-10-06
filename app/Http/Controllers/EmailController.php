@@ -149,7 +149,11 @@ class EmailController extends Controller
             $query = $query->where(function ($query) {return $query->where('status', '<>', "bin")->orWhereNull('status');});
         }
 
-        $query = $query->orderByDesc('created_at');
+        $query = $query->orderByDesc('created_at')->toSql();
+
+        echo "<pre/>";
+        print_r($query);
+        die();
 
         //Get All Category
         $email_status = DB::table('email_status')->get();
