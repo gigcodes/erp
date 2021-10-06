@@ -36,6 +36,7 @@ class EmailController extends Controller
     public function index(Request $request,$email = null)
     {
 
+        $user = Auth::user();
         // Set default type as incoming
         $type = "incoming";
 		$seen = '0';
