@@ -55,6 +55,9 @@ use Auth;
 use App\QuickSellGroup;
 use GuzzleHttp\Client as GuzzleClient;
 use Plank\Mediable\Media as PlunkMediable;
+use App\CustomerAddressData;
+use App\StoreWebsite;
+use App\CreditHistory;
 
 class CustomerController extends Controller
 {
@@ -75,7 +78,27 @@ class CustomerController extends Controller
 //    public function __construct() {
 //      $this->middleware('permission:customer', ['only' => ['index','show']]);
 //    }
-
+    public function add_customer_address(Request $request){
+        $apply_job =  CustomerAddressData::create([
+            'customer_id' => $request->customer_id,
+            'entity_id' => $request->entity_id,
+            'parent_id' => $request->parent_id,
+            'address_type' => $request->address_type,
+            'region' => $request->region,
+            'region_id' => $request->region_id,
+            'postcode' => $request->postcode,
+            'firstname' => $request->firstname,
+            'middlename' => $request->middlename,
+            'company' => $request->company,
+            'country_id' => $request->country_id,
+            'telephone' => $request->telephone,
+            'prefix' => $request->prefix,
+            'street' => $request->street,
+        ]);
+//        dd($apply_job);
+        $apply_job->save();
+        return $apply_job;
+    }
     public function index(Request $request)
     {
         $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
@@ -1828,6 +1851,7 @@ class CustomerController extends Controller
 
     public function issueCredit(Request $request)
     {
+
         $customer = Customer::find($request->customer_id);
 
         $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
@@ -2614,10 +2638,16 @@ class CustomerController extends Controller
 
     public function languageTranslate(Request $request) 
     {
-      $customer = Customer::find($request->id);
-      $customer->language = $request->language;
-      $customer->save();
-      return response()->json(['success' => 'Customer language updated'], 200);
+        if($request->language == '')
+            $language = 'en';
+        else
+            $language = $request->language;
+
+        $customer = Customer::find($request->id);
+        // $customer->language = $request->language;
+        $customer->language = $language;
+        $customer->save();
+        return response()->json(['success' => 'Customer language updated'], 200);
     }
 
     public function getLanguage(Request $request)
@@ -2681,5 +2711,359 @@ class CustomerController extends Controller
         $type = @$request->type;
         return view('customers.quickcustomer', ['customers'=>$results[0],'nextActionArr'=>$nextActionArr,'type'=>$type]);
     }
+
+
+    //START - Purpose : Add Customer Data - DEVTASK-19932
+    public function add_customer_data(Request $request)
+    {
+        if($request->email)
+        {
+            $email = $request->email;
+            $website = $request->website;
+
+            $website_data = StoreWebsite::where('website',$website)->first();
+
+            if($website_data)
+                $website_id = $website_data->id;
+            else
+                $website_id = '';
+
+            if($email != '' && $website_id != ''){
+                $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
+
+                if($find_customer)
+                {
+                    foreach($request->post() as $key => $value)
+                    {
+
+                        if($value['entity_id'] != "")
+                            $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
+
+
+                        if($check_record)
+
+                        {
+
+                            if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
+                            {
+                                CustomerAddressData::where('customer_id',$find_customer->id)
+                                ->where('entity_id',$value['entity_id'])
+                                ->delete();
+                            }else{
+                                CustomerAddressData::where('customer_id',$find_customer->id)
+                                ->where('entity_id',$value['entity_id'])
+                                ->update(
+                                    [
+                                        'parent_id' => ($value['parent_id'] ?? ''),
+                                        'address_type' => ($value['address_type'] ?? ''),
+                                        'region' => ($value['region'] ?? ''),
+                                        'region_id' => ($value['region_id'] ?? ''),
+                                        'postcode' => ($value['postcode'] ?? ''),
+                                        'firstname' => ($value['firstname'] ?? ''),
+                                        'middlename' => ($value['middlename'] ?? ''),
+                                        'company' => ($value['company'] ?? ''),
+                                        'country_id' => ($value['country_id'] ?? ''),
+                                        'telephone' => ($value['telephone'] ?? ''),
+                                        'prefix' => ($value['prefix'] ?? ''),
+                                        'street' => ($value['street'] ?? ''),
+                                        'updated_at' => \Carbon\Carbon::now(),
+                                    ]
+                                );
+                            }
+                        }else{
+
+                            $params[] = [
+                                'customer_id' => $find_customer->id,
+                                'entity_id' => ($value['entity_id'] ?? ''),
+                                'parent_id' => ($value['parent_id'] ?? ''),
+                                'address_type' => ($value['address_type'] ?? ''),
+                                'region' => ($value['region'] ?? ''),
+                                'region_id' => ($value['region_id'] ?? ''),
+                                'postcode' => ($value['postcode'] ?? ''),
+                                'firstname' => ($value['firstname'] ?? ''),
+                                'middlename' => ($value['middlename'] ?? ''),
+                                'company' => ($value['company'] ?? ''),
+                                'country_id' => ($value['country_id'] ?? ''),
+                                'telephone' => ($value['telephone'] ?? ''),
+                                'prefix' => ($value['prefix'] ?? ''),
+                                'street' => ($value['street'] ?? ''),
+                                'created_at' => \Carbon\Carbon::now(),
+                                'updated_at' => \Carbon\Carbon::now(),
+
+                            ];
+
+                        }
+                    }
+
+                    if(!empty($params))
+                         CustomerAddressData::insert($params);
+
+                    return response()->json(["code" => 200]);
+                }else{
+                    return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
+                }
+            }else{
+                return response()->json(["code" => 404 ,"message" => "Website Not Found!"]);
+            }
+        }
+        // if(!empty($request->customer_data))
+        // {
+        //     $email = $request->customer_data['email'];
+        //     $website_id =  $request->customer_data['website_id'];
+            
+        //     if($email != '')
+        //     {
+
+        //         $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
+
+        //         if($find_customer)
+        //         {
+        //             foreach($request->customer_data['address'] as $key => $value)
+        //             {
+        //                 if($value['entity_id'] != '')
+        //                     $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
+                        
+        //                 if($check_record)
+        //                 {
+        //                     if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
+        //                     {
+        //                         CustomerAddressData::where('customer_id',$find_customer->id)
+        //                         ->where('entity_id',$value['entity_id'])
+        //                         ->delete();
+        //                     }else{
+        //                         CustomerAddressData::where('customer_id',$find_customer->id)
+        //                         ->where('entity_id',$value['entity_id'])
+        //                         ->update(
+        //                             [
+        //                                 'address_1' => $value['address_1'],
+        //                                 'address_2' => $value['address_2'],
+        //                                 'address_3' => $value['address_3'],
+        //                                 'country' => $value['country'],
+        //                                 'city' => $value['city'],
+        //                                 'state' => $value['state'],
+        //                                 'postcode' => $value['postcode'],
+        //                                 'updated_at' => \Carbon\Carbon::now(),
+        //                             ]
+        //                         );
+        //                     }
+        //                 }else{    
+        //                     $params[] = [
+        //                         'customer_id' => $find_customer->id,
+        //                         'entity_id' => $value['entity_id'],
+        //                         'address_1' => $value['address_1'],
+        //                         'address_2' => $value['address_2'],
+        //                         'address_3' => $value['address_3'],
+        //                         'country' => $value['country'],
+        //                         'city' => $value['city'],
+        //                         'state' => $value['state'],
+        //                         'postcode' => $value['postcode'],
+        //                         'created_at' => \Carbon\Carbon::now(),
+        //                         'updated_at' => \Carbon\Carbon::now(),
+
+        //                     ];
+        //                 }
+        //             }
+
+        //             if(!empty($params))
+        //                 CustomerAddressData::insert($params);
+
+        //             return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]); 
+
+        //         }else{
+        //             return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
+        //         }
+        //     }
+        // }
+    }
+    //END - DEVTASK-19932
+
+    public function customerinfo(Request $request)
+    {
+        $customer = Customer::leftjoin('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
+        return response()->json(["status" => 200 ,"data" => $customer]);
+    }
+	
+	public function fetchCreditBalance (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+		$store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+            $store_website_id = $store_website->id; 
+			$customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();			
+			if($customer) {
+				$message = $this->generate_erp_response("credit_fetch.success",$store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 200,'status'=>'success', 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
+			} else{
+				$message = $this->generate_erp_response("credit_fetch.customer.failed",$store_website_id, $default = 'Customer not found', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
+			} 
+        } else {
+			$message = $this->generate_erp_response("credit_fetch.website.failed",$store_website_id, $default = 'Website not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
+		}
+	}
+	
+	public function deductCredit (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+        $balance = $request->amount;
+
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+             $store_website_id = $store_website->id;
+        } else {
+			$message = $this->generate_erp_response("credit_deduct.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		} 
+		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if($customer) {
+			$customer_id = $customer->id;
+			$totalCredit = $customer->credit; 
+			if($customer->credit >  $balance) {
+			   $calc_credit=$customer->credit-$balance;
+			   $customer->credit=$calc_credit;
+			   	   
+			   \App\CreditHistory::create(
+					array(
+						'customer_id'=>$customer_id,
+						'model_id'=>$customer_id,
+						'model_type'=>Customer::class,
+						'used_credit'=>(float)$totalCredit - $calc_credit,
+						'used_in'=>'MANUAL',
+						'type'=>'MINUS'
+					)
+				);
+				$customer->save();
+				$message = $this->generate_erp_response("credit_deduct.success",$store_website_id, $default = 'Credit deducted successfully', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+			} else {
+				$toAdd = $balance - $customer->credit;
+				$message = $this->generate_erp_response("credit_deduct.insufficient_balance",$store_website_id, $default = 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', request('lang_code'));
+				return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+			}
+        } else {
+			$message = $this->generate_erp_response("credit_deduct.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
+			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		}	
+		
+	}
+
+    public function storeCredit (Request $request) {
+
+        $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id')
+		->leftjoin('credit_history','customers.id','credit_history.customer_id');
+		$customers_all->select("customers.*","store_websites.title", \DB::raw("( select created_at from credit_history where credit_history.customer_id = customers.id ORDER BY id DESC LIMIT 0,1) as date"));
+        $customers_all->latest('date')->groupBy('customers.id')->orderBy("date","desc");
+		
    
+        if ($request->name !='')
+             $customers_all->where('name',$request->name);
+             if ($request->email !='')
+             $customers_all->where('email',$request->email);
+             if ($request->phone !='')
+             $customers_all->where('phone',$request->phone);
+             if ($request->store_website !='')
+             $customers_all->where('store_website_id',$request->store_website);
+
+        $customers_all=$customers_all->paginate(Setting::get('pagination'));
+        $store_website = StoreWebsite::all();
+        
+        if ($request->ajax())
+       {
+        return view('livechat.store_credit_ajax', [
+            'customers_all' => $customers_all,
+            'store_website'=>$store_website
+           
+        ]);
+       }
+       else
+       {
+        return view('livechat.store_credit', [
+            'customers_all' => $customers_all,
+            'store_website'=>$store_website
+           
+        ]);
+       }
+   }
+      
+  
+    public function accounts (Request $request) {
+        $customers_all = Customer::where('store_website_id','>',0);
+        $customers_all->select('customers.*','store_websites.title');
+        $customers_all->join('store_websites','store_websites.id','customers.store_website_id');
+
+        if ($request->name !='')
+              $customers_all->where('name',$request->name);
+              if ($request->email !='')
+              $customers_all->where('email',$request->email);
+              if ($request->phone !='')
+              $customers_all->where('phone',$request->phone); 
+              if ($request->store_website !='')
+              $customers_all->where('store_website_id',$request->store_website);
+              
+              $customers_all->orderBy('created_at','desc');      
+        $total=$customers_all->count();
+        $customers_all = $customers_all->paginate(Setting::get('pagination'));
+        $store_website = StoreWebsite::all();
+        
+        if ($request->ajax()) 
+        {
+            return view('customers.account_ajax', [
+                'customers_all' => $customers_all,
+
+                
+            ]);
+        }
+        else
+        {
+            return view('customers.account', [
+                'customers_all' => $customers_all,
+                'total'=>$total,
+                'store_website'=>$store_website,
+                
+            ]);
+        }
+
+    }
+	
+	public function addCredit (Request $request) {
+		$platform_id  = $request->platform_id;
+        $website = $request->website;
+        $credit = $request->amount;
+        $store_website = StoreWebsite::where('website',"like", $website)->first();       
+		if($store_website) {
+             $store_website_id = $store_website->id;
+        } else {
+			$message = $this->generate_erp_response("credit_add.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		} 
+		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if($customer) {
+			$customer_id = $customer->id;
+			$totalCredit = $customer->credit; 
+			if($credit >  0) {
+			   $calc_credit=$customer->credit+$credit;
+			   $customer->credit=$calc_credit;
+			   	   
+			   \App\CreditHistory::create(
+					array(
+						'customer_id'=>$customer_id,
+						'model_id'=>$customer_id,
+						'model_type'=>Customer::class,
+						'used_credit'=>(float)$credit,
+						'used_in'=>'MANUAL',
+						'type'=>'PLUS'
+					)
+				);
+				$customer->save();
+			} 
+			$message = $this->generate_erp_response("credit_add.success",$store_website_id, $default = 'Credit added successfully', request('lang_code'));
+        	return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+		} else {
+			$message = $this->generate_erp_response("credit_add.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
+			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+		}	
+		
+	}
+	
 }

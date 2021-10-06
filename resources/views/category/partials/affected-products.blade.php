@@ -15,8 +15,8 @@
     <div class="modal-footer">
         <div class="row">
             <div class="col-md-12">
-                <button type="button" data-from="{{$from}}" data-to="{{$to}}" data-whole="@if(isset($wholeString)){{$wholeString}}@endif" class="btn btn-default btn-change-composition" data-with-product="yes" data-dismiss="modal">Yes</button>
-                <button type="button" data-from="{{$from}}" data-to="{{$to}}" data-whole="@if(isset($wholeString)){{$wholeString}}@endif" class="btn btn-default btn-change-composition" data-with-product="no" data-dismiss="modal">No</button>
+                <button type="button" data-from-id="{{ $old }}" data-from="{{$from}}" data-to="{{$to}}" data-whole="@if(isset($wholeString)){{$wholeString}}@endif" class="btn btn-default btn-change-composition" data-with-product="yes" data-dismiss="modal">Yes</button>
+                <button type="button" data-from-id="{{ $old }}" data-from="{{$from}}" data-to="{{$to}}" data-whole="@if(isset($wholeString)){{$wholeString}}@endif" class="btn btn-default btn-change-composition" data-with-product="no" data-dismiss="modal">No</button>
             </div>
         </div>
     </div>

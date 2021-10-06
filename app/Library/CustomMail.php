@@ -12,7 +12,7 @@ class CustomMail implements MailSettings
 
     public function initialize($key)
     {
-        $this->config = \App\EmailAddress::where('from_address', $key)->first();
+        $this->config = \App\EmailAddress::where('from_address', $key)->where("from_address","not like","%theluxuryunlimited.com%")->first();
 
 
         if ($this->config) {
@@ -31,17 +31,25 @@ class CustomMail implements MailSettings
             ];
         }else{
             $this->provider = [
-                'host'       => env('MAIL_HOST'),
-                'port'       => env('MAIL_PORT'),
-                'encryption' => env('MAIL_ENCRYPTION'),
+                // 'host'       => env('MAIL_HOST'),
+                // 'port'       => env('MAIL_PORT'),
+                // 'encryption' => env('MAIL_ENCRYPTION'),
+                'host'       => config('env.MAIL_HOST'),
+                'port'       => config('env.MAIL_PORT'),
+                'encryption' => config('env.MAIL_ENCRYPTION'),
             ];
 
             $this->setting = [
-                'pass'          => env('MAIL_PASSWORD'),
-                'username'      => env('MAIL_USERNAME'),
-                'from_name'     => env('MAIL_FROM_NAME'),
-                'from'          => env('MAIL_FROM_ADDRESS'),
-                'reply_to_mail' => env('MAIL_FROM_ADDRESS'),
+                // 'pass'          => env('MAIL_PASSWORD'),
+                // 'username'      => env('MAIL_USERNAME'),
+                // 'from_name'     => env('MAIL_FROM_NAME'),
+                // 'from'          => env('MAIL_FROM_ADDRESS'),
+                // 'reply_to_mail' => env('MAIL_FROM_ADDRESS'),
+                'pass'          => config('env.MAIL_PASSWORD'),
+                'username'      => config('env.MAIL_USERNAME'),
+                'from_name'     => config('env.MAIL_FROM_NAME'),
+                'from'          => config('env.MAIL_FROM_ADDRESS'),
+                'reply_to_mail' => config('env.MAIL_FROM_ADDRESS'),
             ];
         }
 

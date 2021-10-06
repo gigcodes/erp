@@ -13,9 +13,10 @@ class UpdateWaybillsTable extends Migration
      */
     public function up()
     {
-        Schema::table('waybills', function (Blueprint $table) {
+        /*Schema::table('waybills', function (Blueprint $table) {
             $table->integer('order_id')->nullable()->change();
-        });
+        });*/
+        \DB::statement("ALTER TABLE `waybills` CHANGE `order_id` `order_id` INT(11) NULL;");
     }
 
     /**

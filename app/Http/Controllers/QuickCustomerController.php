@@ -95,7 +95,7 @@ class QuickCustomerController extends Controller
         
         $title         = "Quick Customer";
         $nextActionArr = \DB::table('customer_next_actions')->get();
-        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        $reply_categories = \App\ReplyCategory::orderby('name')->get();
         if(isset($_GET['page'])){
             unset($_GET['page']);
         }

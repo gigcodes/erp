@@ -26,7 +26,7 @@
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" method="post">
+		    		<form class="form-inline message-search-handler flex-end" method="post">
 					  <div class="row">
 				  		<div class="col">
 				  			<div class="form-group">
@@ -57,7 +57,34 @@
   	<div class="modal-dialog" role="document">
   	</div>	
 </div>
-
+<div id="emails" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Email List</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            	<div class="table-responsive" style="margin-top:20px;">
+	            	<table class="table table-bordered text-nowrap">
+	            		<tr>
+	            			<th>Date</th>
+	            			<th>Sender</th>
+	            			<th>Receiver</th>
+	            			<th>Mail Type</th>
+	            			<th>Subject</th>
+	            			<th width="30%">Body</th>
+	            		</tr>
+	            		<tbody class="email-content"></tbody>
+	            	</table>
+	            </div>
+            </div>
+            <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+        </div>
+    </div>
+</div>
 @include("digital-marketing.templates.list-template")
 @include("digital-marketing.templates.create-website-template")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
@@ -107,6 +134,45 @@
 		 }
 	});
 });
+	$(document).on('click','.show-emails',function(event){
+		console.log($(this).data('id'));
+		$.ajax({
+		      type: 'POST',
+		      url: '{{action("DigitalMarketingController@getEmails")}}',
+		      data: { 
+		        _token: "{{ csrf_token() }}",
+		        id: $(this).data('id'),
+		      },
+		      beforeSend: function () {
+		          $("#loading-image").show();
+		      }
+		  }).done(function (data) {
+		    console.log(data.strength);
+		      $("#plan-action").modal("hide");
+		      //toastr["success"]('Data save successfully.');
+		      var $html='';
+		      $.each(data, function(i, item) {
+		      	console.log(item);
+		          $html+="<tr>";
+		          $html+="<td>"+item.created_at+"</td>";
+		          $html+="<td>"+item.from+"</td>";
+		          $html+="<td>"+item.to+"</td>";
+		          $html+="<td>"+item.type+"</td>";
+		          $html+="<td>"+item.subject+"</td>";
+		          $html+="<td>"+item.message+"</td>";
+		          $html+="</tr>";
+		      });
+		      $('.email-content').html($html)
+		      $("#emails").modal("show");
+		      $("#loading-image").hide();
+		      //email-content
+				//#emails
+		  }).fail(function (jqXHR, ajaxOptions, thrownError) {
+		      $("#plan-action").modal("hide");
+		      toastr["error"]('No record found!');
+		      $("#loading-image").hide();
+		  });
+	});
 </script>
 
 @endsection

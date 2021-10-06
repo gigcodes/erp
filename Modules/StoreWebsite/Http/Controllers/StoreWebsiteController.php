@@ -7,6 +7,7 @@ use App\Http\Controllers\WhatsAppController;
 use App\StoreWebsite;
 use Auth;
 use Crypt;
+use App\Service;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -19,8 +20,16 @@ use App\StoreWebsiteUsers;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
+use App\StoreWebsiteUserHistory;
+use App\StoreReIndexHistory;
+use App\BuildProcessHistory;
+use Carbon\Carbon;
+use App\Github\GithubRepository;
+
+
 class StoreWebsiteController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      * @return Response
@@ -28,8 +37,9 @@ class StoreWebsiteController extends Controller
     public function index()
     {
         $title = "List | Store Website";
+        $services = Service::get();
 
-        return view('storewebsite::index', compact('title'));
+        return view('storewebsite::index', compact('title','services'));
     }
 
     public function cancellation()
@@ -143,6 +153,8 @@ class StoreWebsiteController extends Controller
     }
 
     public function saveUserInMagento(Request $request) {
+        
+
         $post = $request->all();
         $validator = Validator::make($post, [
             'username'   => 'required',
@@ -150,6 +162,7 @@ class StoreWebsiteController extends Controller
             'lastName'   => 'required',
             'userEmail'   => 'required',
             'password' => 'required',
+            'websitemode' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -196,11 +209,31 @@ class StoreWebsiteController extends Controller
             $getUser->last_name = $post['lastName'];
             $getUser->email = $post['userEmail'];
             $getUser->password = $post['password'];
+            $getUser->website_mode = $post['websitemode'];
             $getUser->save();
 
-            $magentoHelper = new MagentoHelperv2();
-            $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
-            return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
+            StoreWebsiteUserHistory::create([
+                'store_website_id' => $getUser->store_website_id,
+                'store_website_user_id' => $getUser->id,
+                'model' => 'App\StoreWebsiteUsers',
+                'attribute' => "username_password",
+                'old_value' => 'updated',
+                'new_value' => 'updated',
+                'user_id' => Auth::id(),
+            ]);
+
+
+            if($getUser->is_deleted == 0){
+                $magentoHelper = new MagentoHelperv2();
+                $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
+                return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
+            }else{
+                return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
+            }
+
+            
+
+
         } else {
             $params['username'] = $post['username'];
             $params['first_name'] = $post['firstName'];
@@ -208,7 +241,9 @@ class StoreWebsiteController extends Controller
             $params['email'] = $post['userEmail'];
             $params['password'] = $post['password'];
             $params['store_website_id'] = $post['store_id'];
-            StoreWebsiteUsers::create($params);
+            $params['website_mode'] = $post['websitemode'];
+            
+            $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
             if($post['userEmail'] && $post['password']) {
                 $message = 'Email: '.$post['userEmail'].', Password is: ' . $post['password'];
@@ -219,21 +254,46 @@ class StoreWebsiteController extends Controller
 
             $magentoHelper = new MagentoHelperv2();
             $result = $magentoHelper->addMagentouser($storeWebsite, $post);
+            
+            StoreWebsiteUserHistory::create([
+                'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                'store_website_user_id' => $StoreWebsiteUsersid->id,
+                'model' => 'App\StoreWebsiteUsers',
+                'attribute' => "username_password",
+                'old_value' => 'new_added',
+                'new_value' => 'new_added',
+                'user_id' => Auth::id(),
+            ]);    
+
+
             return response()->json(["code" => 200, "messages" => 'User details saved Sucessfully']);
         }
     }
 
     public function deleteUserInMagento(Request $request) {
-        $post = $request->all();
-        $getUser = StoreWebsiteUsers::where('id',$post['store_website_userid'])->first();
+        
+        $post     = $request->all();
+        $getUser  = StoreWebsiteUsers::where('id',$post['store_website_userid'])->first();
         $username = $getUser->username;
         $getUser->is_deleted = 1;
         $getUser->save();
 
         $storeWebsite = StoreWebsite::find($getUser->store_website_id);
-
+        
         $magentoHelper = new MagentoHelperv2();
         $result = $magentoHelper->deleteMagentouser($storeWebsite, $username);
+        
+
+        StoreWebsiteUserHistory::create([
+            'store_website_id' => $getUser->store_website_id,
+            'store_website_user_id' => $getUser->id,
+            'model' => 'App\StoreWebsiteUsers',
+            'attribute' => "username_password",
+            'old_value' => 'delete',
+            'new_value' => 'delete',
+            'user_id' => Auth::id(),
+        ]);    
+
         return response()->json(["code" => 200, "messages" => 'User Deleted Sucessfully']);
     }
 
@@ -241,14 +301,23 @@ class StoreWebsiteController extends Controller
      * Edit Page
      * @param  Request $request [description]
      * @return
-     */
-
+    */
     public function edit(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where("id", $id)->first();
-        $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->where('is_deleted',0)->get();
+        $services = Service::get();
+        //->where('is_deleted',0)
+
+        $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->get();
+        
         if ($storeWebsite) {
-            return response()->json(["code" => 200, "data" => $storeWebsite,"userdata" => $storewebsiteusers, "totaluser" => count($storewebsiteusers)]);
+            return response()->json([
+                "code" => 200, 
+                "data" => $storeWebsite,
+                "userdata" => $storewebsiteusers, 
+                "services" => $services,
+                "totaluser" => count($storewebsiteusers)]
+            );
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
@@ -596,5 +665,159 @@ class StoreWebsiteController extends Controller
         echo $content;
         die;
     }
+
+    public function magentoUserList(Request $request)
+    {
+        $users = StoreWebsiteUsers::where('is_deleted',0)->get();
+        return response()->json(["code" => 200, "data" => $users]);
+    }
+
+    public function userHistoryList(Request $request)
+    {
+        $histories = StoreWebsiteUserHistory::with('websiteuser','storewebsite')
+            ->where('store_website_id',$request->id)
+            ->latest()
+            ->get();
+
+        $resultArray = [];
+
+        foreach($histories as $history){
+            $resultArray[] = [
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
+                'website_mode' => $history->websiteuser->website_mode,
+                'username'     => $history->websiteuser->username,
+                'first_name'   => $history->websiteuser->first_name,
+                'last_name'    => $history->websiteuser->last_name,
+                'action'       => $history->new_value,
+            ];
+        }
+
+        return response()->json(["code" => 200, "data" => $resultArray]);
+    }
+    
+    public function storeReindexHistory(Request $request){
+        
+        $website = StoreWebsite::find($request->id);
+        $date = Carbon::now()->subDays(7);
+        $histories = StoreReIndexHistory::where('server_name',$website->title)->where('created_at','>=',$date)
+            ->latest()
+            ->get();
+
+        $resultArray = [];
+
+        foreach($histories as $history){
+            $resultArray[] = [
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
+                'server_name'  => $history->server_name,
+                'username'     => $history->username,
+                'action'       => $history->action,
+            ];
+        }
+
+        return response()->json(["code" => 200, "data" => $resultArray]);
+        
+    }
+    
+    
+    /**
+     * Build Process Page
+     * @param  Request $request [description]
+     * @return
+    */
+    public function buildProcess(Request $request, $id) {
+        $storeWebsite = StoreWebsite::where("id", $id)->first();
+        if ($storeWebsite) {
+            return response()->json([
+                "code" => 200, 
+                "data" => $storeWebsite,                
+            ]);
+        }
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);        
+    }
+    
+    public function buildProcessSave(Request $request){
+        
+        $post = $request->all();
+        
+        $validator = Validator::make($post, [
+            'reference' => 'required',
+            'repository' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }            
+            
+            return response()->json(["code" => 500, "error" => "Please fill required fields."]);            
+        }
+       
+        if(!empty($request->store_website_id)){
+            
+            $StoreWebsite = StoreWebsite::find($request->store_website_id);
+            
+            if($StoreWebsite != null){
+                
+                $StoreWebsite->build_name = $request->repository;
+                $StoreWebsite->repository = $request->repository;
+                $StoreWebsite->reference = $request->reference;
+                $StoreWebsite->update();
+                
+                if($StoreWebsite):
+                    
+                    $jobName = $request->repository;
+                    $repository = $request->repository;
+                    $ref = $request->reference;
+                    $staticdep = 1;
+                    
+                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
+                    $jenkins->launchJob($jobName, ['repository'=>$repository,'ref'=>$ref,'staticdep' => 0]);           
+                    if($jenkins->getJob($jobName)):
+					$job = $jenkins->getJob($jobName);
+					$builds = $job->getBuilds();
+						$buildDetail = 'Build Name: '.$jobName . '<br> Build Repository: '.$repository.'<br> Reference: '.$ref;
+						$record = ['store_website_id'=>$request->store_website_id, 'created_by'=> Auth::id(), 'text'=>$buildDetail, 'build_name'=>$jobName,'build_number'=>$builds[0]->getNumber()];
+						BuildProcessHistory::create($record);
+                        return response()->json(["code" => 200, "error" => "Process builed complete successfully."]);
+                    else:
+                        return response()->json(["code" => 500, "error" => "Please try again, Jenkins job not created"]);
+                    endif;
+                    
+                endif;
+                                
+            }
+            
+            return response()->json(["code" => 500, "error" => "Please fill required fields."]);
+            
+        }        
+    }
+	
+	public function buildProcessHistory($store_website_id) {
+		$buildHistory = BuildProcessHistory::leftJoin('users', 'users.id', '=', 'build_process_histories.created_by')->where('store_website_id', $store_website_id)->select('users.name as UserName', 'build_process_histories.*')->orderBy('id', 'desc')->get();
+		return view('storewebsite::build_history', compact('buildHistory'));
+	}
+	
+	public function syncStageToMaster($storeWebId) {
+		$websiteDetails = StoreWebsite::where('id', $storeWebId)->select('server_ip', 'repository_id')->first();
+		if($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository_id'] != null) {
+			$repo = GithubRepository::where('id', $websiteDetails['repository_id'])->pluck('name')->first();
+			if($repo != null) {
+				$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r '.$repo.' -s '.$websiteDetails['server_ip'];
+				$allOutput = array(); 
+				$allOutput[] = $cmd; 
+				$result = exec($cmd, $allOutput); //Execute command
+				\Log::info(print_r(["Command Output",$allOutput],true));
+				return response()->json(["code" => 200 , "message" => "Command executed"]);
+			} else {
+				return response()->json(["code" => 500 , "message" => "Repository Not found."]);
+			}
+		} else {
+			return response()->json(["code" => 500 , "message" => "Request has been failed."]);
+		}
+	}
 
 }

@@ -114,14 +114,6 @@
         @endif
       @endif
 
-      @if ($task->assign_to == Auth::id())
-        @if ($task->is_private == 1)
-          <button type="button" class="btn btn-image make-private-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
-        @else
-          <button type="button" class="btn btn-image make-private-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
-        @endif
-      @endif
-
       @if ($task->is_watched == 1)
         <button type="button" class="btn btn-image make-watched-task mt-3" data-taskid="{{ $task->id }}"><img src="/images/starred.png" /></button>
       @else

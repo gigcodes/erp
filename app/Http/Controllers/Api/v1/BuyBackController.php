@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\v1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Email;
 use App\Customer;
 use App\Order;
 use App\OrderProduct;
 use App\ReturnExchangeProduct;
 use App\ReturnExchange;
 use App\StoreWebsiteOrder;
+use App\AutoReply;
 use Illuminate\Validation\Rule;
 
 
@@ -62,6 +64,7 @@ class BuyBackController extends Controller
      */
     public function store(Request $request)
     {
+
         $validationsarr = [
             'order_id' => 'required',
             'website' => 'required',
@@ -128,19 +131,20 @@ class BuyBackController extends Controller
                     ];
                     $return_exchanges_data = [
                         'customer_id' => $getCustomerOrderData->customer_id,
+                        'website_id' => $storeWebsite->id,
                         'type' => $request->type,
                         'reason_for_refund' => $request->get('reason',''.ucwords($request->type).' of product from '.$storeWebsite->website),
                         'refund_amount' => $getCustomerOrderData->product_price,
                         'status' => 1,
                         'date_of_request' => date('Y-m-d H:i:s')
                     ];
-
                     $success = ReturnExchange::create($return_exchanges_data);
+                    
                     if (!$success) {
                         $message = $this->generate_erp_response("$request->type.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!', request('lang_code'));
                         return response()->json(['status' => 'failed', 'message' => $message], 500);
                     }
-
+                    $return_exchange_products_data['return_exchange_id'] = $success->id;
                     $isSuccess = true;
                     ReturnExchangeProduct::create($return_exchange_products_data);
 
@@ -165,6 +169,17 @@ class BuyBackController extends Controller
 
                         \App\Jobs\SendEmail::dispatch($email);
 
+                         // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
+
                     }else if ($request->type == "return") {
                         
                         $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
@@ -184,6 +199,17 @@ class BuyBackController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email);
+
+                        // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-return')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
 
                     }else if ($request->type == "exchange") {
                         
@@ -205,6 +231,17 @@ class BuyBackController extends Controller
 
                         \App\Jobs\SendEmail::dispatch($email);
 
+                        // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-exchange')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
+
                     }else if ($request->type == "cancellation") {
                         
                         $emailClass = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
@@ -224,6 +261,17 @@ class BuyBackController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email);
+
+                        // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-cancellation')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
 
                     }
                 }

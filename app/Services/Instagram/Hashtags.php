@@ -26,11 +26,15 @@ class Hashtags {
     /**
      * Logs in to the Instagram account
      */
-    public function login() {
+    public function login($username = false, $password = false) {
         $instagram = new Instagram();
      //   $instagram->login('rishabh_aryal', 'R1shabh@12345');
-        $username = Config('instagram.admin_account');
-        $password = Config('instagram.admin_password');
+        if(empty($username)) {
+            $username = Config('instagram.admin_account');
+        }
+        if(empty($password)) {
+            $password = Config('instagram.admin_password');
+        }
         $instagram->setProxy('http://lum-customer-sololuxury-zone-instagramtest-country-in-city-mumbai:p9j2ow55p47j@zproxy.lum-superproxy.io:22225');
         $instagram->login($username , $password);
         $this->token = Signatures::generateUUID();

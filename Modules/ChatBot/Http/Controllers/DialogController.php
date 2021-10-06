@@ -39,6 +39,7 @@ class DialogController extends Controller
 
     public function save(Request $request)
     {
+        
         $params         = $request->all();
         $params["name"] = str_replace(" ", "_", $params["name"]);
 
@@ -152,6 +153,7 @@ class DialogController extends Controller
 
     public function saveAjax(Request $request)
     {
+        
         $params          = $request->all();
         $params["name"]  = str_replace(" ", "_", $params["title"]);
         $responseType    = $request->get("response_type", false);
@@ -357,12 +359,12 @@ class DialogController extends Controller
     public function restDetails(Request $request, $id)
     {
         $details                        = [];
-        $dialog                         = ChatbotDialog::find($id);
+        $dialog                         = ChatbotDialog::find($id); 
         $store_website                         = StoreWebsite::all();
         $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
         $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
         $details["allSuggestedOptions"] = $keywords + $question;
-
+      
         if (!empty($store_website)) {
 
             foreach($store_website as $site){
@@ -375,7 +377,7 @@ class DialogController extends Controller
 
         }
         if (!empty($dialog)) {
-
+             $storewebsiteId = $dialog->store_website_id;
             $details["dialog"][] = [
                 "id" => $dialog->id,
                 "name" => $dialog->name
@@ -386,7 +388,7 @@ class DialogController extends Controller
             $details["name"]               = $dialog->name;
             $details["title"]              = $dialog->title;
             $details["dialog_type"]        = $dialog->dialog_type;
-            $details["store_website_id"]        = '';
+            $details["store_website_id"]        = $storewebsiteId;
             $details["response_condition"] = !empty($dialog->metadata) ? true : false;
 
             $matchCondition = explode(" ", $dialog->match_condition);
@@ -455,12 +457,14 @@ class DialogController extends Controller
             $details["assistant_report"] = $assistantReport;
 
         }
+        
         return response()->json(["code" => 200, "data" => $details]);
 
     }
 
     public function restCreate(Request $request)
     {
+        
         $params = [
             "name"      => $request->get("dialog_type", 'node') == "node" ? "solo_" . time() : "solo_project_" . time(),
             "parent_id" => $request->get("parent_id", 0),

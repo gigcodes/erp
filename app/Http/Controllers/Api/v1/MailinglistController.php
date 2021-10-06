@@ -100,7 +100,12 @@ class MailinglistController extends Controller
         } 
 
         // Step4
-        $mailinglist = Mailinglist::where('website_id', $store_website->id)->get();
+		$language = explode('_',$request->lang_code);
+	    $language = end($language);
+		
+		 $languageId = Language::where('locale',  $language)->pluck('id')->first();
+       $mailinglist = Mailinglist::where('website_id', $store_website->id)
+		->where('language',  $languageId)->get();
 
         // Step5
         foreach ($mailinglist as $key => $m) {
@@ -141,7 +146,8 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
-                "api-key: ".getenv('SEND_IN_BLUE_API'),
+                // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                "api-key: ".config('env.SEND_IN_BLUE_API'),
                 "Content-Type: application/json"
             ),
         ));
@@ -162,7 +168,8 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));
@@ -182,7 +189,8 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "POST",
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));

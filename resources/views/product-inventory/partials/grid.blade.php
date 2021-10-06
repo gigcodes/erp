@@ -12,8 +12,14 @@
       ?>
       <div class="col-md-3 col-xs-6 text-left mb-5">
           <a href="{{ route( 'products.show', $product->id ) }}">
-            <img style="object-fit: cover;" src="{{ $product->getMedia(config('constants.attach_image_tag'))->first() ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
-              : '' }}" class="img-responsive grid-image" alt="...">
+            @php
+              $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+              $image = "";
+              if($imageDetails) {
+                $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+              }
+            @endphp
+            <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
           </a>      
           <div class="card-body">
             <a href="{{ route( 'products.show', $product->id ) }}">
@@ -22,6 +28,7 @@
               <p class="card-text">Size : {{ $product->size }}</p>
               @if($isAdmin)
                 <p class="card-text">Price : {{ $product->price }}</p>
+                <p class="card-text">Discounted % : {{ $product->discounted_percentage }}%</p>
               @endif
               <p class="card-text">Price INR : {{ $product->price_inr }}</p>  
               <p class="card-text">Status : {{ (new \App\Stage)->getNameById( $product->stage ) }}</p>
@@ -52,6 +59,8 @@
               <p class="card-text">
                 <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
                 <a href="{{ route('product-inventory.fetch.img.google',['name'=> $product->name, 'id' => $product->id]) }}" class="btn btn-secondary btn-sm"><i class="fa fa-picture-o"></i></a>
+
+                <i class="fa fa-check-square-o add_purchase_product" title="Purchase Product" style="cursor: pointer;" data-id="{{ $product->id }}" aria-hidden="true"></i>
               </p>
             
           </div>

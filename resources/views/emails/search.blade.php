@@ -6,7 +6,7 @@
                 @endif
             </td>
             
-            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y') }}</td>
+            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
             
             <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
             {{ substr($email->from, 0,  10) }} {{strlen($email->from) > 10 ? '...' : '' }}
@@ -40,18 +40,13 @@
 			</td>
             <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
             <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
-			<td>
-				@foreach ($email_categories as $category)
-					@if($category->id == $email->email_category_id)
-						{{$category->category_name}} 
-					@endif
-				@endforeach
-			</td>
+			
 			<td>
 				
                 <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
                     <i class="fa fa-repeat"></i>
                 </a>
+
                 <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
                     <i class="fa fa-reply"></i>
                 </a>
@@ -77,7 +72,12 @@
                 <a class="btn btn-image btn-ht" href="{{route('order.generate.order-mail.pdf', ['order_id' => 'empty', 'email_id' => $email->id])}}">
                   <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
                 </a>
-            </td>
+                <button style="padding:3px;" type="button" class="btn btn-image make-label d-inline" data-toggle="modal" data-target="#labelingModal" data-id="{{ $email->id }}"><i class="fa fa-tags" aria-hidden="true"></i></button>
+            
+				<a class="btn btn-image btn-ht" onclick="fetchEvents('{{$email['origin_id']}}')">
+                  <i class="fa fa-eye" aria-hidden="true"></i>      
+                </a>
+			</td>  
+
         </tr>
     @endforeach
-    {{-- {{$emails->links()}} --}}

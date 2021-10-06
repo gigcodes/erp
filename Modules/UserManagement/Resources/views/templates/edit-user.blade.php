@@ -59,6 +59,21 @@
                             {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
                         </div>
                     </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Logout Timeout:</strong>
+                            <input type="number" name="user_timeout" class="form-control" value="{{ $user->user_timeout }}">
+                            <small>Please addd time in seconds. 1 Minute = 60 Seconds</small>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>White Listed:</strong>
+                            {!! Form::select('is_whitelisted',[0 => "No", 1 => "Yes"],$user->is_whitelisted, array('class' => 'form-control')) !!}
+                        </div>
+                    </div>
+
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Amount of Assigned Products:</strong>
@@ -120,8 +135,19 @@
                             <select class="form-control"  name="fixed_price_user_or_job">
                             <option value="">Select</option>
                             <option value="1" {{ $user->fixed_price_user_or_job == 1 ? 'selected' : '' }}>Fixed Price job</option>
-                            <option value="2" {{ $user->fixed_price_user_or_job == 2 ? 'selected' : '' }}>Salaried</option>
+                            <!-- <option value="2" {{ $user->fixed_price_user_or_job == 2 ? 'selected' : '' }}>Salaried</option> -->
+                            <option value="2" {{ $user->fixed_price_user_or_job == 2 ? 'selected' : '' }}>Horly per task </option>
+                            <option value="3" {{ $user->fixed_price_user_or_job == 3 ? 'selected' : '' }}>Salaried</option>
     
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Auto Approval:</strong>
+                            <select class="form-control"  name="is_auto_approval">
+                                <option value="0" {{ $user->is_auto_approval == 0 ? 'selected' : '' }}>No</option>
+                                <option value="1" {{ $user->is_auto_approval == 1 ? 'selected' : '' }}>Yes</option>
                             </select>
                         </div>
                     </div>

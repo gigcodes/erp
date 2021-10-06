@@ -21,6 +21,6 @@ class CustomerLiveChat extends Model
 
 
     public function customer(){
-        return $this->hasOne(Customer::class,'customer_id','id');
+        return $this->hasOne(Customer::class,'id' , 'customer_id');
     }
 }

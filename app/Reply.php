@@ -17,12 +17,14 @@ class Reply extends Model
      * @SWG\Property(property="model",type="string")
      * @SWG\Property(property="deleted_at",type="datetime")
      */
-  use SoftDeletes;
+    
+    use SoftDeletes;
 
-	protected $fillable = ['category_id','store_website_id', 'reply', 'model'];
-	protected $dates = ['deleted_at'];
+	  protected $fillable = ['category_id','store_website_id', 'reply', 'model'];
+	
+    protected $dates = ['deleted_at'];
 
-  public function category() {
-    return $this->belongsTo('App\ReplyCategory', 'category_id');
-  }
+    public function category() {
+      return $this->belongsTo('App\ReplyCategory', 'category_id');
+    }
 }

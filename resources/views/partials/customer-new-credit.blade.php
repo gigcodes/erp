@@ -27,9 +27,14 @@ $statuses = \App\ticketStatuses::all();
                     <input type="hidden" id="credit_customer_id" name="credit_customer_id">
                     <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
                     <div class="form-group">
-                        <label for="recipient-name" class="col-form-label">Credit:</label>
+                        <label for="credit" class="col-form-label">Credit:</label>
                         <input type="text" class="form-control" name="credit" id="credit">
                         <span class="text-danger" id="credit_error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency" class="col-form-label">Currency:</label>
+                        <?php echo Form::select('currency',\App\Currency::pluck('name','code')->toArray(),request('currency','EUR'),['class' => 'form-control select2','style' => "width:250px;","tabindex" => 1]);  ?>
+                        <span class="text-danger" id="currency_error"></span>
                     </div>
                 </form>
             </div>

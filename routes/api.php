@@ -25,10 +25,14 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 /**
 *Routes added by Hitesh Ends
 **/ 
+Route::post('fetch-credit-balance', 'CustomerController@fetchCreditBalance');
+Route::post('deduct-credit', 'CustomerController@deductCredit');
 
+Route::post('add-credit', 'CustomerController@addCredit');
 
+Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
-Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
+Route::post('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 Route::post('scrape/send-screenshot', 'ScrapController@sendScreenshot');
 Route::post('scrape/send-position', 'ScrapController@sendPosition');
@@ -79,6 +83,7 @@ Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCusto
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
+Route::post('new-product-template', 'ProductTemplatesController@NewApiSave');
 
 
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
@@ -95,6 +100,8 @@ Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetito
 //Scrapped facebook users
 Route::post('facebook/scrape-user','FacebookController@apiPost');
 
+Route::post('facebook/post', 'FacebookController@facebookPost');
+
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
 Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
@@ -106,6 +113,9 @@ Route::get('instagram/send-account/{token}', 'InstagramPostsController@sendAccou
 Route::get('instagram/get-comments-list/{username}', 'InstagramPostsController@getComments');
 Route::post('instagram/comment-sent', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
+
+//Get all the instagram accounts attached to keywords
+Route::get('instagram/accounts','InfluencersController@getKeywordsWithAccount');
 
 //Giving All Brands with Reference
 Route::get('brands','BrandController@brandReference');
@@ -134,8 +144,13 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
+Route::post('product-live-status','Logging\LogListMagentoController@updateLiveProductCheck');
 
 Route::post('node/restart-script','ScrapController@restartNode');
+
+Route::post('node/update-script','ScrapController@updateNode');
+
+Route::post('node/kill-script','ScrapController@killNode');
 
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
@@ -209,14 +224,17 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
+// Scraper info
+Route::get('{supplierName}/supplier-list','SupplierController@supplierList');
 
-//Store data into the laravel_logs
+//Store data into the laravel_logs 
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
 
 
 
 Route::post('templates/create/webhook','TemplatesController@createWebhook');
 Route::post('product/templates/update/webhook','ProductTemplatesController@updateWebhook')->name('api.product.update.webhook');
+
 
 //check for order cancellation
 Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
@@ -225,3 +243,15 @@ Route::post('wishlist/create','\App\Http\Controllers\Api\v1\ProductController@wi
 Route::post('wishlist/remove','\App\Http\Controllers\Api\v1\ProductController@wishListRemove');
 
 Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
+
+Route::post('scraper-images-save','scrapperPhyhon@imageSave');
+
+//New API for trust pilot reviews
+Route::get('review/get','\App\Http\Controllers\Api\v1\BrandReviewController@getAllBrandReview');
+Route::post('review/scrap' ,'\App\Http\Controllers\Api\v1\BrandReviewController@storeReview');
+Route::post('google-scrapper-data', '\App\Http\Controllers\Api\v1\GoogleScrapperController@extractedData');
+
+//Out Of Stock Subscribe
+Route::post('out-of-stock-subscription' ,'Api\v1\OutOfStockSubscribeController@Subscribe');
+Route::any('get-order-stat' ,'Api\v1\OutOfStockSubscribeController@getOrderState');
+Route::post('customer/add_cart_data' ,'Api\v1\CustomerController@add_cart_data');

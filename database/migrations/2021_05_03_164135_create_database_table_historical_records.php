@@ -24,6 +24,7 @@ class CreateDatabaseTableHistoricalRecords extends Migration
                 $table->timestamps();
             });
         }
+
     }
 
     /**

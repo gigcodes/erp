@@ -80,6 +80,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 </div>
 @endsection
 @section('scripts')
+<script src="/js/jquery-ui.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script type="text/javascript">

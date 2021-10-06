@@ -23,6 +23,7 @@ use EmailReplyParser\Parser\EmailParser;
 
 use Carbon\Carbon;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\DigitalMarketingPlatform;
 
 class EmailController extends Controller
 {
@@ -31,23 +32,35 @@ class EmailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    //Purpose : Add Email Parameter - DEVTASK-18283
+    public function index(Request $request,$email = null)
     {
-        
         // Set default type as incoming
         $type = "incoming";
-		$seen = '1';
+		$seen = '0';
+        $from = '';//Purpose : Add var -  DEVTASK-18283
 		
         $term = $request->term ?? '';
         $sender = $request->sender ?? '';
         $receiver = $request->receiver ?? '';
         $status = $request->status ?? '';
         $category = $request->category ?? '';
+        $mailbox = $request->mail_box ?? '';
+
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
         $seen = $request->seen ?? $seen;
         $query = (new Email())->newQuery();
         $trash_query = false;
+
+        //START - Purpose : Add Email - DEVTASK-18283
+        if($email != '' && $receiver == ''){
+            $receiver = $email;
+            $from = 'order_data';
+            $seen = 'both';
+            $type = 'outgoing';
+        }
+        //END - DEVTASK-18283
 
         // If type is bin, check for status only
         if($type == "bin"){
@@ -58,7 +71,7 @@ class EmailController extends Controller
         }elseif($type == "pre-send"){
             $query = $query->where('status',"pre-send");
         }else{
-            $query = $query->where('type',$type);
+            $query = $query->where('type',$type)->orWhere('type','outgoing') ;
         }
         
         if($date) {
@@ -101,6 +114,12 @@ class EmailController extends Controller
 			}
 			
 		}
+
+        if(!empty($mailbox)) {
+            $query = $query->where(function ($query) use ($mailbox) {
+                $query->orWhere('to','like','%'.$mailbox.'%');
+            });
+        }
 
         if(isset($seen)){
             if($seen != 'both'){
@@ -150,13 +169,27 @@ class EmailController extends Controller
 
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
-
+        $digita_platfirms = DigitalMarketingPlatform::all();
         $sender_drpdwn = Email::select('from')->distinct()->get()->toArray();
         $receiver_drpdwn = Email::select('to')->distinct()->get()->toArray();
-        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'receiver_drpdwn' => $receiver_drpdwn])->with('i', ($request->input('page', 1) - 1) * 5);
+        $mailboxdropdown = \App\EmailAddress::pluck('from_address','from_address')->toArray();
+
+
+
+        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from,'mailboxdropdown'=> $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
 
+
+    public function platformUpdate(Request $request){
+        if($request->id){
+            if(Email::where('id',$request->id)->update(['digital_platfirm' => $request->platform])){
+                return redirect()->back()->with('success','Updated successfully.');
+            }
+            return redirect()->back()->with('error','Records not found!');
+        }
+        return redirect()->back()->with('error','Error Occured! Please try again later.');
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -722,7 +755,7 @@ class EmailController extends Controller
                     'host'          => $emailAddress->host,
                     'port'          => 993,
                     'encryption'    => "ssl",
-                    'validate_cert' => true,
+                    'validate_cert' => false,
                     'username'      => $emailAddress->username,
                     'password'      => $emailAddress->password,
                     'protocol'      => 'imap',
@@ -1043,4 +1076,19 @@ class EmailController extends Controller
         }
         fclose($file);
     }
+	
+	public function getEmailEvents($originId) {
+		$exist = Email::where('origin_id', $originId)->first();
+		$events = []; $eventData = '';
+		if($exist != null) {
+			$events = \App\SendgridEvent::where('sg_message_id', $originId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
+		}
+		foreach($events as $event) {
+			$eventData .= "<tr><td>". $event['timestamp']."</td><td>".$event['event']."</td></tr>";
+		}
+		if($eventData == '') {
+			$eventData = '<tr><td>No data found.</td></tr>';
+		}
+		return $eventData;
+ 	}
 }

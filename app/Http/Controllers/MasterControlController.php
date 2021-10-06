@@ -41,6 +41,7 @@ class MasterControlController extends Controller
      */
     public function index(Request $request)
     {
+        
         $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
 
@@ -91,6 +92,12 @@ class MasterControlController extends Controller
         $latestRemarks = Cache::get('latestScrapRemarks');
         $latestRemarks = !empty($latestRemarks) ? $latestRemarks : [];
 
+        $todaytaskhistory = Cache::get('todaytaskhistory');
+        $todaytaskhistory = !empty($todaytaskhistory) ? $todaytaskhistory : [];
+
+        $hubstaff_notifications = Cache::get('hubstafftrackingnotiification');
+        $hubstaff_notifications = !empty($hubstaff_notifications) ? $hubstaff_notifications : [];
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -112,7 +119,9 @@ class MasterControlController extends Controller
                     'vendorReplier' => $vendorReplier,
                     'supplierReplier' => $supplierReplier,
                     'cronLastErrors' => $cronLastErrors,
-                    'latestRemarks' => $latestRemarks
+                    'latestRemarks' => $latestRemarks,
+                    'todaytaskhistory' => $todaytaskhistory,
+                    'hubstaffNotifications' => $hubstaff_notifications,
 
                 ])->render()
             ], 200);
@@ -135,7 +144,9 @@ class MasterControlController extends Controller
           'vendorReplier' => $vendorReplier,
           'supplierReplier' => $supplierReplier,
           'cronLastErrors' => $cronLastErrors,
-          'latestRemarks' => $latestRemarks
+          'latestRemarks' => $latestRemarks,
+          'todaytaskhistory' => $todaytaskhistory,
+          'hubstaffNotifications' => $hubstaff_notifications,
       ]);
     }
 

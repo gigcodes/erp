@@ -274,8 +274,12 @@ class ReferaFriend extends Controller
     public function sendMail($data=null)
     {
         if($data){
+            
             $to = $data['referee_email'];
-
+            $storeweb = StoreWebsite::where('id',$data['store_website_id'])->first(); 
+            $data['title'] = !empty($storeweb->title) ? $storeweb->title : "";
+            $data['website'] = !empty($storeweb->website) ? $storeweb->website : "";
+           
             $emailClass = (new SendReferralMail($data))->build();
             $email             = \App\Email::create([
                 'model_id'         => $data['model_id'],
@@ -292,8 +296,9 @@ class ReferaFriend extends Controller
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
+            
         }
-
+        
         return true;
     }
 }

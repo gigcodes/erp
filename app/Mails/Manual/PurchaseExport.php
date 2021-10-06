@@ -35,7 +35,7 @@ class PurchaseExport extends Mailable
      */
     public function build()
     {
-      return $this->from('buying@amourint.com')
+      return $this
                   ->bcc('customercare@sololuxury.co.in')
                   ->subject($this->subject)
                   ->text('emails.purchases.export_plain')->with(['body_message' => $this->message])

@@ -13,6 +13,10 @@ class AttachImagesSend implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+
+    public $tries = 1;
+    public $timeout = 7200;
+
     protected $_token;
     protected $send_pdf;
     protected $pdf_file_name;

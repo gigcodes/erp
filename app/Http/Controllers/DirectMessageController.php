@@ -68,14 +68,13 @@ class DirectMessageController extends Controller
     public function incomingPendingRead(Request $request)
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-
         $messege = [] ;
     	foreach ($accounts as $account) {
-            
+
     		try {
                 	$instagram = new Instagram();
                     //$instagram->setProxy($account->proxy);
-				   $instagram->login($account->last_name, $account->password);
+				   $instagram->login($account->email, $account->password);
 				   $this->instagram = $instagram;
                 } catch (\Exception $e) {
                    \Log::error($account->last_name.' :: '.$e->getMessage());
@@ -115,7 +114,7 @@ class DirectMessageController extends Controller
 		                        $userInstagram->following = 0;
 		                        $userInstagram->location = '';
 		                        $userInstagram->save(); 
-			                    
+                       
 	                        }
 	                        
 	                        $threadId = self::createThread($userInstagram , $thread , $account->id);
@@ -229,7 +228,7 @@ class DirectMessageController extends Controller
                 $isSeen = 1;
             }
             
-
+            $type = 0;
     		if ($chat['item_type'] == 'text') {
     			$type = 1;
                 $text = $chat['text'];
@@ -315,7 +314,7 @@ class DirectMessageController extends Controller
 
     }
 
-    public function sendMessage(Request $request) {
+    public function sendMessage(Request $request,$isTrue=true) {
 
         $thread = InstagramThread::find($request->thread_id);
         $agent = $thread->account;
@@ -325,15 +324,19 @@ class DirectMessageController extends Controller
             $thread->account = Account::where('id',$request->from_account_id)->whereNotNull('proxy')->first();
         }
 
-        if($agent){
-        	$status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message, $thread);
-		}
-		
-        if ($status === false) {
-            return response()->json([
-                'status' => 'error', 'code' => 413
-            ], 413);
-        }
+            if($isTrue){
+
+                if($agent){
+                    $status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message, $thread);
+                }
+                
+                if ($status === false) {
+                    return response()->json([
+                        'status' => 'error', 'code' => 413
+                    ], 413);
+                }
+                
+            }
 
         $instagramUser = InstagramUsersList::where('user_id',$thread->instagramUser->user_id)->first();
         if($instagramUser){
@@ -346,8 +349,6 @@ class DirectMessageController extends Controller
             $message->message = $request->message;
             $message->save();
         }
-        
-
 
         // $dm = new InstagramDirectMessages();
         // $dm->instagram_thread_id = $thread->id;
@@ -367,8 +368,8 @@ class DirectMessageController extends Controller
         return response()->json([
             'status' => 'success',
             'receiver_id' => $thread->instagramUser->user_id,
-            'sender_id' => $status[1],
-            'message' => $status[2]
+            'sender_id' => $status[1] ?? '',
+            'message' => $status[2] ?? ''
         ]);
 
     }
@@ -729,7 +730,7 @@ class DirectMessageController extends Controller
         $params['message'] = $request->message;
         $params['thread_id'] = $thread->id;
         $requestData->request->add($params);
-        $result = app('App\Http\Controllers\DirectMessageController')->sendMessage($requestData);
+        $result = app('App\Http\Controllers\DirectMessageController')->sendMessage($requestData,false);
         $data = $result->getData();
         if($data->status == 'error') {
             return response()->json(['message' => 'Message sending failed.'],500);

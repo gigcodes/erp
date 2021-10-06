@@ -50,6 +50,8 @@ class SendIssueCredit extends Mailable
                 $template = \App\MailinglistTemplate::getIssueCredit(null);
             }
             if ($template) {
+                if ($template->from_email!='')
+                $this->fromMailer = $template->from_email;
                 if (!empty($template->mail_tpl)) {
                     // need to fix the all email address
                     $this->subject  = $template->subject;
@@ -58,9 +60,11 @@ class SendIssueCredit extends Mailable
                             'customer'
                         ));
                 }
+                
+                return false;
             }
+            return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
         }
 
-        return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
     }
 }

@@ -19,7 +19,7 @@ class UserUpdatedAttributeHistory extends Model
      */
 
   protected $fillable = [
-    'old_value', 'new_value', 'attribute_name', 'attribute_id', 'user_id'
+    'old_value', 'new_value', 'attribute_name', 'attribute_id', 'user_id', 'need_to_skip'
   ];
 
   public function user()

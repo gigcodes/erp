@@ -4,8 +4,9 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
+
 use App\SiteDevelopment;
+use Illuminate\Database\Eloquent\Model;
 
 class SiteDevelopmentCategory extends Model
 {
@@ -13,7 +14,7 @@ class SiteDevelopmentCategory extends Model
      * @var string
 
      */
-    protected $fillable = ['title'];
+    protected $fillable = ['title', 'master_category_id'];
 
 
     public function development()
@@ -21,9 +22,20 @@ class SiteDevelopmentCategory extends Model
     	return $this->hasOne(SiteDevelopment::class,'site_development_category_id','id');
     }
 
-    public function getDevelopment($categoryId,$websiteId)
+    public function getDevelopment($categoryId,$websiteId, $id = null)
     {
-    	return SiteDevelopment::where('website_id',$websiteId)->where('site_development_category_id',$categoryId)->first();
+
+        $development =null;
+
+        if($id){
+            $development = SiteDevelopment::where('id', $id);
+        }else{
+            $development = SiteDevelopment::where('website_id',$websiteId)
+                ->where('site_development_category_id',$categoryId)
+                ->orderBy('created_at', 'DESC');
+        }
+
+    	return $development->first();
     	
     }
 }

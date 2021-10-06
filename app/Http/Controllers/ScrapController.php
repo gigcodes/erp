@@ -8,9 +8,11 @@ use App\Helpers;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\Image;
+use App\ScrapApiLog;
 use App\Imports\ProductsImport;
 use App\Loggers\LogScraper;
 use App\Product;
+use App\StoreWebsite;
 use App\ScrapedProducts;
 use App\ScrapeQueues;
 use App\Scraper;
@@ -95,7 +97,6 @@ class ScrapController extends Controller
 
                 $fileName = md5(time().microtime()) . '.png';
                 Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
-
                 $i           = new Image();
                 $i->filename = $fileName;
                 if( !empty($product_id) ){
@@ -104,7 +105,16 @@ class ScrapController extends Controller
                 $i->save();
 
                 $images[] = $fileName;
+
+                $StoreWebsite = StoreWebsite::where('id',18)->first();
+                if( $StoreWebsite ){
+                    $media = MediaUploader::fromSource($datum)->toDirectory('product-template-images')->upload();
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+                }
+
             } catch (\Exception $exception) {
+                \Log::error('Image save :: '.$exception->getMessage());
+                dd( $exception->getMessage() );
                 continue;
             }
 
@@ -180,7 +190,7 @@ class ScrapController extends Controller
     public function syncProductsFromNodeApp(Request $request)
     {
 
-        \Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
+        //\Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
 
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
@@ -302,8 +312,27 @@ class ScrapController extends Controller
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images         = $request->get('images') ?? [];
+        $scPrice        = (float) $request->get('price');
 
+        try{
+            if(strlen($scPrice) > 4 && strlen($scPrice) < 6) {
+                $scPrice = substr($scPrice,0,3);
+                $scPrice = $scPrice.".00";
+            }elseif(strlen($scPrice) > 5 && strlen($scPrice) < 7) {
+                $scPrice = substr($scPrice,0,4);
+                $scPrice = $scPrice.".00";
+            }
+        }catch(\Exception $e) {
+            \Log::info("Having problem with this price" .$scPrice. " and get message is ".$e->getMessage());
+        }
+
+        if(is_numeric($scPrice)) {
+           $scPrice = ceil($scPrice / 10) * 10;
+        }
+
+        
         if ($scrapedProduct) {
+
             // Add scrape statistics
             // $scrapStatistics = new ScrapStatistics();
             // $scrapStatistics->supplier = $request->get('website');
@@ -322,11 +351,12 @@ class ScrapController extends Controller
             $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->brand_id    = $brand->id;
             $scrapedProduct->currency    = $request->get('currency');
-            $scrapedProduct->price       = (float) $request->get('price');
+            $scrapedProduct->price       = (float) $scPrice;
             if ($request->get('currency') == 'EUR') {
-                $scrapedProduct->price_eur = (float) $request->get('price');
+                $scrapedProduct->price_eur = (float) $scPrice;
             }
             $scrapedProduct->discounted_price  = $request->get('discounted_price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             $scrapedProduct->original_sku      = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->validated         = empty($errorLog["error"]) ? 1 : 0;
@@ -368,9 +398,10 @@ class ScrapController extends Controller
             $scrapedProduct->description      = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->properties       = $propertiesExt;
             $scrapedProduct->currency         = ProductHelper::getCurrency($request->get('currency'));
-            $scrapedProduct->price            = (float) $request->get('price');
+            $scrapedProduct->price            = (float) $scPrice;
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             if ($request->get('currency') == 'EUR') {
-                $scrapedProduct->price_eur = (float) $request->get('price');
+                $scrapedProduct->price_eur = (float) $scPrice;
             }
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->website           = $request->get('website');
@@ -740,7 +771,7 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
-        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
+        //\Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
         
         // Overwrite website
         //$request->website = 'internal_scraper';
@@ -1936,7 +1967,9 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+
             //dd($url);
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -1982,7 +2015,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -1999,7 +2033,7 @@ class ScrapController extends Controller
                 if (count($matches) == 2 || count($matches) == 1 || count($matches) == 0) {
                     return response()->json(["code" => 200, "message" => "Script Is Not Running"]);
                 } else {
-                    return response()->json(["code" => 200, "message" => "Script Is Running"]);
+                    return response()->json(["code" => 200, "message" => "Script Is Running \n" . json_decode($response)->Process[0]->duration]);
                 }
 
             } else {
@@ -2009,26 +2043,90 @@ class ScrapController extends Controller
         }
     }
 
+    public function updateNode(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+ 
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            $duration = json_decode($response);
+            $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null ;            
+            if ($response) {
+                return response()->json(["code" => 200, "message" => "Script Restarted", 'duration' => $duration]);
+            } else {
+                return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+            }
+
+        }
+    }
+
+    public function killNode(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if ($response) {
+                return response()->json(["code" => 200, "message" => "Script Restarted"]);
+            } else {
+                return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+            }
+
+        }
+    }
+
     public function saveChildScraper(Request $request)
     {
-        $scraper = Scraper::where('scraper_name', $request->scraper_name)->whereNull('parent_id')->first();
+        $scrperEx = explode("#",$request->scraper_name);
+        
+        $scraper = Scraper::whereNull('parent_id');
+        
+        if(!empty($scrperEx[0])) {
+            $scraper = $scraper->where('scraper_name', $scrperEx[0]); 
+        }
+
+        if(!empty($scrperEx[1])) {
+            $scraper = $scraper->where('id', $scrperEx[1]); 
+        } 
+
+        $scraper = $scraper->first();
+
         //dd($scraper);
         if ($scraper) {
             $parentId                 = $scraper->id;
-            $checkIfChildScraperExist = Scraper::where('parent_id', $parentId)->where('scraper_name', $request->name)->first();
-            if (!$checkIfChildScraperExist) {
-                $scraperChild                  = new Scraper;
-                $scraperChild->scraper_name    = $request->name;
-                $scraperChild->supplier_id     = $scraper->supplier_id;
-                $scraperChild->parent_id       = $parentId;
-                $scraperChild->run_gap         = $request->run_gap;
-                $scraperChild->start_time      = $request->start_time;
-                $scraperChild->scraper_made_by = $request->scraper_made_by;
-                $scraperChild->server_id       = $request->server_id;
-                $scraperChild->save();
-            } else {
-                return redirect()->back()->with('message', 'Scraper Already Exist');
-            }
+            $scraperChild                  = new Scraper;
+            $scraperChild->scraper_name    = $request->name;
+            $scraperChild->supplier_id     = $scraper->supplier_id;
+            $scraperChild->parent_id       = $parentId;
+            $scraperChild->run_gap         = $request->run_gap;
+            $scraperChild->start_time      = $request->start_time;
+            $scraperChild->scraper_made_by = $request->scraper_made_by;
+            $scraperChild->server_id       = $request->server_id;
+            $scraperChild->save();
             return redirect()->back()->with('message', 'Child Scraper Saved');
         }
         return redirect()->back()->with('message', 'Scraper Not Found');
@@ -2041,10 +2139,10 @@ class ScrapController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add([
             'priority'    => 1,
-            'issue'       => $request->message, // issue detail 
+            'issue'       => $request->message, // issue detail
             'status'      => "Planned",
             'module'      => "Scraper",
-            'subject'     => $request->subject, // enter issue name 
+            'subject'     => $request->subject, // enter issue name
             'assigned_to' => 6,
         ]);
         app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
@@ -2079,6 +2177,9 @@ class ScrapController extends Controller
 
     public function sendScreenshot(Request $request)
     {
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Screenshot request has been disabled"]);
+
         if (empty($request->website)) {
             return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is required field"]);
         }
@@ -2087,7 +2188,7 @@ class ScrapController extends Controller
             return response()->json(["code" => 500, "data" => [], "message" => "Screenshot is required"]);
         }
 
-        $scraper = \App\Scraper::where("scraper_name", $request->website)->first();
+        /*$scraper = \App\Scraper::where("scraper_name", $request->website)->first();
 
         if (!$scraper) {
             return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is wrong"]);
@@ -2105,7 +2206,7 @@ class ScrapController extends Controller
         ]);
         $history->save();
 
-        $history->attachMedia($media, config('constants.media_screenshot_tag'));
+        $history->attachMedia($media, config('constants.media_screenshot_tag'));*/
 
         return response()->json(["code" => 200, "data" => [], "message" => "Screenshot saved successfully"]);
 
@@ -2173,7 +2274,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
 
             $curl = curl_init();
             
@@ -2181,12 +2283,15 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             
             $response = curl_exec($curl);
-
+            
             curl_close($curl);
             
             if (!empty($response)) {
+                
                 $response = json_decode($response);
+                
                 \Log::info(print_r($response,true));
+                
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     echo "Sorry , no log was return from server";
                     die;
@@ -2196,7 +2301,17 @@ class ScrapController extends Controller
                         header('Content-Description: File Transfer');
                         header("Content-type: application/octet-stream");
                         header("Content-disposition: attachment; filename= ".$file."");
-                        echo base64_decode($response->log);
+                        $log = base64_decode($response->log);
+
+                        if (!empty($log)) {
+
+                            $api_log = new ScrapApiLog;
+                            $api_log->scraper_id = $scraper->id;
+                            $api_log->server_id = $request->server_id;
+                            $api_log->log_messages = $log;
+                            $api_log->save();
+                        }
+
                     }
                 }
             } else {
@@ -2278,6 +2393,47 @@ class ScrapController extends Controller
         ]);
 
         return response()->json(["code" => 200, "data" => [], "message" => "History saved successfully"]);
+    }
+
+
+    public function getServerStatistics(Request $request)
+    {
+        $servers = Scraper::whereNotNull('server_id')->groupBy('server_id')->pluck('server_id', 'id')->toArray();
+        $scrapers = Scraper::whereNotNull('server_id');
+
+        if($request->has('q') && !empty($request->get('q')))
+        {
+            $scrapers->where('scraper_name','LIKE','%'.$request->get('q').'%');
+        }
+        $scrapers = $scrapers->select('id','server_id','scraper_name','scraper_start_time')->get();
+        $data = array();
+        foreach ($scrapers as $scraper) {
+            if($scraper->scraper_start_time >= 0  && $scraper->scraper_start_time <= 3){
+                $data[$scraper->server_id][3][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 3  && $scraper->scraper_start_time <= 6){
+                $data[$scraper->server_id][6][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 6  && $scraper->scraper_start_time <= 9){
+                $data[$scraper->server_id][9][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 9  && $scraper->scraper_start_time <= 12){
+                $data[$scraper->server_id][12][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 12  && $scraper->scraper_start_time <= 15){
+                $data[$scraper->server_id][15][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 15  && $scraper->scraper_start_time <= 18){
+                $data[$scraper->server_id][18][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 18  && $scraper->scraper_start_time <= 21){
+                $data[$scraper->server_id][21][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 21  && $scraper->scraper_start_time <= 24){
+                $data[$scraper->server_id][24][] = $scraper->scraper_name;
+            }
+        }
+        return view()->make('scrap.server-statistics',compact('servers', 'data'));
     }
 
 

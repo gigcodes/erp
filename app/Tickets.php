@@ -6,8 +6,12 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+
 
 class Tickets extends Model {
+    use SoftDeletes;
 
          /**
      * @var string
@@ -35,7 +39,7 @@ class Tickets extends Model {
     protected $table = 'tickets';
     protected $fillable = [
         'customer_id', 'ticket_id', 'subject', 'message', 'assigned_to', 'source_of_ticket', 'status_id', 'date', 'name', 'email','phone_no','order_no',
-        'type_of_inquiry','country','last_name','notify_on','amount','sku'
+        'type_of_inquiry','country','last_name','notify_on','amount','sku','lang_code'
     ];
 
     public function getTicketList($params = array()) {
@@ -61,5 +65,15 @@ class Tickets extends Model {
         }else{
             return $this->hasMany('App\ChatMessage', 'ticket_id')->latest();
         }
+    }
+
+    public function customer()
+    {
+      return $this->hasOne(\App\Customer::class,'id','customer_id');
+    }
+
+    public function user()
+    {
+      return $this->hasOne(\App\User::class,'id', 'assigned_to');
     }
 }

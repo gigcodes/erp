@@ -10373,7 +10373,11 @@ a.text-dark:focus {
 .invisible {
     visibility: hidden !important;
 }
-
+@media(max-width: 1350px){
+    .navbar-nav.ml-auto{
+        /*display: block !important;*/
+    }
+}
 @media print {
     *,
     *::before,

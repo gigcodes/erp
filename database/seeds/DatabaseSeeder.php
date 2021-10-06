@@ -14,5 +14,12 @@ class DatabaseSeeder extends Seeder
         $this->call(ChatMessageSeeder::class);
         $this->call(LandingPageStatusSeeder::class);
         $this->call(EmailLeadsSeeder::class);
+
+        $this->call(PaymentReceiptSeeder::class);
+        $this->call(TeamSeeder::class);
+        $this->call(SettingsUpdate::class);
+
+
+
     }
 }

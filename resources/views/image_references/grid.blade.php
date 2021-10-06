@@ -28,6 +28,8 @@
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
+                 <button class="btn btn-secondary btn-instances-manage">Instances</button>
+
                  <select class="form-control-sm form-control bg-secondary text-light" name="reject_cropping" id="reason-select">
                     <option value="0">Select...</option>
                     <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
@@ -136,7 +138,7 @@
         </div>
    
 
-        {!! $products->links() !!}
+        
         <div class="col-md-12">
             <div class="table-responsive">
                 <table class="table-striped table-bordered table" id="log-table">
@@ -147,6 +149,7 @@
                         <th>Category</th>
                         <th>Supplier</th>
                         <th>Brand</th>
+                        <th>Store Website</th>
                         <th>Original Image</th>
                         <th>Cropped Image</th>
                         <th>Time</th>
@@ -172,6 +175,57 @@
                     <h4 class="modal-title">Communication</h4>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="show-http-status" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:100%;max-width:96%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">HTTP Status</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>Request:</h4>
+                    <div class="request-body"></div>
+
+                    <h4>Response:</h4>
+                    <div class="response-body"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manage-crop-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Manage Crop Instances</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Instances</h4>
+                </div>
+                <div class="modal-body">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -286,8 +340,9 @@
 </script>
 
  <script type="text/javascript">
+ var page = 1;
         $(document).ready(function () {
-            $('#brand,#category,#crop,#supplier,#status,#filter-id').on('change', function () {
+			$('#brand,#category,#crop,#supplier,#status,#filter-id').on('change', function () {
                 $.ajax({
                     url: '/crop-references-grid',
                     dataType: "json",
@@ -298,6 +353,7 @@
                         supplier : $('#supplier').val(),
                         status : $('#status').val(),
                         filter_id : $('#filter-id').val(),
+						page: page
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
@@ -522,6 +578,164 @@
                 }
             })
         })
+
+
+        $(document).on("click",".btn-instances-manage",function() {
+            $.ajax({
+                url: '{{url('crop-references-grid/manage-instances')}}',
+                success: function (data) {
+                    $("#manage-crop-instance").find(".modal-body").html(data);
+                    $("#manage-crop-instance").modal("show");
+                },
+            });
+        });
+
+        $(document).on("click",".add-instance",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                url: '/crop-references-grid/add-instance',
+                method:"post",
+                data : $this.closest('form').serialize(),
+                success: function (data) {
+                    $("#manage-crop-instance").find(".modal-body").html(data);
+                },
+            });
+        });
+
+        $(document).on("click",".btn-delete-manage-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            $.ajax({
+                url: '/crop-references-grid/delete-instance',
+                method:"get",
+                data : {
+                    id : $id
+                },
+                success: function (data) {
+                    $("#manage-crop-instance").find(".modal-body").html(data);
+                },
+            });
+        });
+
+        $(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            var $date=  $('#date11').val();
+            $.ajax({
+                url: '{{url('crop-references-grid/log-instance')}}',
+                method:"get",
+                data : {
+                    id : $id,
+                    date : $date
+                },
+                success: function (data) {
+                   $("#manage-log-instance").find(".modal-body").html(data);
+                   $("#manage-log-instance").modal('show'); 
+                },
+            });
+        });
+
+       
+        $(document).on("click",".btn-start-manage-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            $.ajax({
+                url: '/crop-references-grid/start-instance',
+                method:"get",
+                data : {
+                    id : $id
+                },
+                dataType:"json",
+                success: function (data) {
+                    if(data.code == 200) {
+                        toastr['success'](data.message, 'Success');
+                    }else{
+                        toastr['error'](data.message, 'Error');
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    toastr['error'](jqXHR.responseText, 'Error');
+                }
+            });
+        });
+
+        $(document).on("click",".btn-stop-manage-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            $.ajax({
+                url: '/crop-references-grid/stop-instance',
+                method:"get",
+                data : {
+                    id : $id
+                },
+                dataType:"json",
+                success: function (data) {
+                    if(data.code == 200) {
+                        toastr['success'](data.message, 'Success');
+                    }else{
+                        toastr['error'](data.message, 'Error');
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    toastr['error'](jqXHR.responseText, 'Error');
+                }
+            });
+        });
+
+
+        $('#show-http-status').on('show.bs.modal', function (e) {
+            $(this).find('.request-body').text(JSON.stringify($(e.relatedTarget).data('request')));
+            $(this).find('.response-body').text(JSON.stringify($(e.relatedTarget).data('response')));
+        });
+//START - Load More functionality
+	var isLoading = false;
+	//var page = 1;
+	$(document).ready(function () {
+
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: '/crop-references-grid',
+				type: 'GET',
+				data: {
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    crop : $('#crop').val(),
+                    supplier : $('#supplier').val(),
+                    status : $('#status').val(),
+                    filter_id : $('#filter-id').val(),
+                    page : page,
+                },
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					$loader.hide();
+					$('#content_data').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
     </script>
 
 @endsection

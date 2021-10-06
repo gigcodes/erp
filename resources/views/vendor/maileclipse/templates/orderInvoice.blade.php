@@ -123,20 +123,22 @@
 <td style="text-align: right;">
 <p>{{$order->currency}} 0.00</p>
 <p>{{$order->currency}} 0.00</p>
-<p>{{$order->currency}} {{$orderTotal}}</p>
+<!-- <p>{{$order->currency}} {{$orderTotal}}</p> -->
+<p>{{$order->currency}} {{$orderTotal - $duty_tax}}</p>
 </td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total (CIF)</td>
 <td style="text-align: right;">
-<p>{{$order->currency}} {{$orderTotal}}</p>
+<!-- <p>{{$order->currency}} {{$orderTotal}}</p> -->
+<p>{{$order->currency}} {{$orderTotal - $duty_tax}}</p>
 </td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Import Duty &amp; taxes due</td>
-<td>&nbsp;</td>
+<td style="text-align: right;">{{$order->currency}} {{$duty_tax}}</td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>

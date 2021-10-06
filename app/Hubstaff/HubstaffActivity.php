@@ -52,6 +52,11 @@ class HubstaffActivity extends Model
         return self::whereNull('hubstaff_payment_account_id')->orderBy('starts_at')->first();
     }
 
+    public function developerTask()
+    {
+        return $this->hasMany('App\DeveloperTask', 'hubstaff_task_id', 'task_id');
+    }
+
 
     public static function getTrackedActivitiesBetween($start, $end,$user_id)
     {

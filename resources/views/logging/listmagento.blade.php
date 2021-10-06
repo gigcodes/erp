@@ -17,7 +17,36 @@
   input {
     width: 100px;
   }
-
+  .btn-primary, .btn-primary:hover{
+    background: #fff;
+    color:#757575;
+    border: 1px solid #ddd;
+  }
+  .select2-container{
+    width: 100% !important;
+  }
+  .select2-container--default .select2-selection--multiple{
+    border: 1px solid #ddd !important;
+  }
+  .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    padding: 5px;
+  }
+ label{
+   margin-top:5px;
+   margin-bottom:4px;
+   margin-left:3px;
+ }
+.export_btn {
+	margin: 27px 0 0 0;
+}
+@media(max-width:767px){
+	div#Export_popup .col-xs-12{padding:0;}
+	.export_btn{margin:10px 0 0 0;}
+}
+    .ac-btns button{
+      height: 20px;
+        width: auto;
+    }
 </style>
 @endsection
 
@@ -25,162 +54,185 @@
   <div id="myDiv">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
   </div>
-  <div class="row">
-    <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Log List Magento ({{ $total_count }})</h2>
+  <div class="row m-0">
+    <div class="col-lg-12 margin-tb p-0">
+      <h2 class="page-heading">Log List Magento ({{ $total_count }})
       <div class="pull-right">
-        <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+        <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
         <a href="/logging/magento-product-api-call" target="__blank">
           <button type="button" class="btn btn-image"><img src="/images/details.png" /></button>
         </a>
+
+        <button class="btn btn-primary ml-3" id="submit-show-report">
+          Show Error Report
+        </button>
+
+        <button class="btn btn-primary" id="retry-failed-job">
+          Retry failed job
+        </button>
+		
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Export_popup">Export</button>
+        
       </div>
+      </h2>
+  </div>
   </div>
 
-  <div class="col-md-12">
-    <div class="panel panel-default">
+  <div class="col-md-12 pl-3 pr-3">
+    <div class="mb-3">
 
       <div class="panel-body p-0">
-        <form action="{{ route('list.magento.logging') }}" method="GET">
-          <div class="row p-3">
-          <div class="col-md-3">
+        <form action="{{ route('list.magento.logging') }}" method="GET" class="handle-search">
+          <div class="row m-0">
+          <div class="col-md-2 pl-0">
                 <label for="select_date">Date</label>
                 <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
              
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
               <label for="product_id">Product ID</label>
-              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ old('queue') }}">
+              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
               <label for="sku">SKU</label>
-              <input type="text" class="form-control" id="sku" name="sku" value="{{ old('sku')}}">
+              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pl-0">
               <label for="sku">Brand</label>
-              <input type="text" class="form-control" id="brand" name="brand" value="{{ old('brand')}}">
+              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}">
             </div>
-            <div class="col-md-2">
-              <label for="sku">Category</label>
-              <input type="text" class="form-control" id="category" name="category" value="{{ old('category')}}">
-            </div>
-            <div class="col-md-2">
+            @php
+              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
+            @endphp
+            <div class="col-md-2 pl-0">
+                <label for="sku">Category</label>
+                    {!! $category_suggestion !!}
+                </div>
+
+            <div class="col-md-2 pl-0 pr-0">
               <label for="sku">Status</label>
               <select class="form-control" name="status">
                 <option value=''>All</option>
-                <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
-                <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
+                <option value="out_of_stock" {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
+            </div>
 
-                    </div>
-                    <div class="col-md-2">
-                        <label for="sku">Sync Status</label>
-                        <select class="form-control" name="sync_status">
-                            <option value=''>All</option>
-                            <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
-                            <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
-                        </select>
+              <div class="col-md-2 pl-0">
+                  <label for="sku">Sync Status</label>
+                  <select class="form-control" name="sync_status">
+                      <option value=''>All</option>
+                      <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
+                      <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
+                      <option value="waiting" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'waiting' ? 'selected' : '' }}>Waiting</option>
+                      <option value="started_push" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'started_push' ? 'selected' : '' }}>Sync Status</option>
+                      <option value="size_chart_needed" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'size_chart_needed' ? 'selected' : '' }}>Size chart needed</option>
+                      <option value="image_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'image_not_found' ? 'selected' : '' }}>Image not found</option>
+                      <option value="translation_not_found" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'translation_not_found' ? 'selected' : '' }}>Translation not found</option>
+                  </select>
+              </div>
+              <div class="col-md-1 pl-0">
+                  <label for="queue">Queue List</label>
+                  <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
+              </div>
 
-                    </div>
+          <div class="col-md-1 pl-0">
+            <label for="size_info">Size info</label>
+            <select class="form-control" name="size_info">
+              <option value=''>All</option>
+              <option value="yes" {{ isset($filters['size_info']) && $filters['size_info'] == 'yes' ? 'selected' : '' }}>Yes</option>
+              <option value="no" {{ isset($filters['size_info']) && $filters['size_info'] == 'no' ? 'selected' : '' }}>No</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 pl-0">
+            <label for="select_date">Date</label>
+            <input type="text" name="job_start_date" class="form-control datepicker" id="job_start_date" placeholder="Enter Job Start Date" value="{{isset($request->job_start_date) ? $request->job_start_date : ''}}">
+
+          </div>
+          <div class="col-md-2 pl-0">
+            <label for="sku">Users</label>
+            <select class="form-control" name="user">
+              <option value=''>All</option>
+              @foreach($users as $user)
+                <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
+              @endforeach
+              <option >
+            </select>
+          </div>
+
+          <div class="col-md-4 pl-0 pr-0 d-flex" style="align-items: flex-end;justify-content: space-between;">
+           <div>
+             <label for="sku">Crop Image Date</label>
+             <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
+             <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
+             <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+               <!-- <i class="fa fa-calendar"></i>&nbsp;
+               <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+               <i class="fa fa-calendar"></i>&nbsp;
+               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+             </div>
+           </div>
+            <button class="btn btn-primary " style="height: 34px" id="submit">
+              <span class="fa fa-filter"></span> Filter Results
+            </button>
+            <button class="btn btn-primary "  style="height: 34px" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
+
+          </div>
+
+{{--          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">--}}
+{{--            <button class="btn btn-primary" id="submit">--}}
+{{--              <span class="fa fa-filter"></span> Filter Results--}}
+{{--            </button>--}}
+{{--            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>--}}
+{{--          </div>--}}
+
                 </div>
-                <div class="row p-3 ">
-                  <div class="col-md-2">
-                      <label for="sku">Users</label>
-                      <select class="form-control" name="user">
-                          <option value=''>All</option>
-                          @foreach($users as $user)
-                            <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
-                          @endforeach
-                          <option >
-                      </select>
-                    </div>
-                    <div class="col-md-2">
-                    <button class="btn btn-light" id="submit">
-                        <span class="fa fa-filter"></span> Filter Results
-                    </button>
-                    </div>
-                </div>
+
             </form>
           </div>
         </form>
+  </div>
 
+
+
+
+     <div class="row m-0">
         <div class="table-responsive">
-          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed;">
+          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th style="width:7%">Product ID</th>
-              <th style="width:10%">SKU</th>
-              <th style="width:9%">Brand</th>
-              <th style="width:8%">Category</th>
-              <th style="width:7%">Price</th>
-              <th style="width:11%">Message</th>
-              <th style="width:8%">Date/Time</th>
-              <th style="width:9%">Website</th>
-              <th style="width:8%">Status</th>
-              <th style="width:8%">Language Id</th>
-              <th style="width:7%">Sync Status</th>
-              <th style="width:5%">Success</th>
+              <th style="width:5%">Product ID</th>
+              <th style="width:5%">SKU</th>
+              <th style="width:5%">Brand</th>
+              <th style="width:6%">Category</th>
+              <th style="width:5%">Price</th>
+              <th style="width:6%">Message</th>
+              <th style="width:6%">Date/  Time</th>
+              <th style="width:6%">Website</th>
+              <th style="width:5%">Status</th>
+              <th style="width:4%">Lang. Id</th>
+              <th style="width:8%">Sync Status</th>
+              <th style="width:6%">Job Start</th>
+              <th style="width:4%">Job End</th>
+              <th style="width:4%;word-break: break-all">Total Assigned</th>
+              <th style="width:4%;padding-left: 0;word-break: break-all">Success</th>
               <th style="width:5%">Failure</th>
-              <th style="width:6%">User</th>
-              <th style="width:6%">Time</th>
+              <th style="width:3%;padding-left: 0">User</th>
+              <th style="width:5%;">Time</th>
+              <th style="width:4%;padding-left: 5px">Size</th>
+              <th style="width:8%;padding-left: 2px">Queue</th>
+              <th style="width:4%">Try</th>
               <th style="width:8%">Action</th>
             </thead>
-            <tbody>
-              @foreach($logListMagentos as $item)
-                <tr>
-
-                  <td><a href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a></td>
-
-                  <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
-                    <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 5 ,'...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden"><a href="{{ $item->website_url }}/default/catalogsearch/result/?q={{ $item->sku }}" target="__blank">{{$item->sku}}</a></span>
-                  </td>
-                  <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
-                    <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->brand_name, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-brand_name-{{$item->id}} hidden">{{$item->brand_name}}</span>
-                  </td>
-                  <td class="expand-row-msg" data-name="category_title" data-id="{{$item->id}}">
-                    <span class="show-short-category_title-{{$item->id}}">{{ str_limit($item->category_home, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-category_title-{{$item->id}} hidden">{{$item->category_home}}</span>
-                  </td>
-                  <td> {{$item->price}} </td>
-                  <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 20, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
-                  </td>
-                  <td>
-                    @if(isset($item->log_created_at))
-                      {{ date('M d, Y',strtotime($item->log_created_at))}}
-                    @endif
-                  </td>
-                  <td class="expand-row-msg" data-name="website_title" data-id="{{$item->id}}">
-                    <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
-                    <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
-                  </td>
-                  <td>
-                    {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
-                  </td>
-                  <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
-                  <td> {{$item->sync_status}} </td>
-                  <td>{{$item->total_success}} </td>
-                  <td> {{$item->total_error}}</td>
-                  <td>{{$item->log_user_name}}</td>
-                  <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
-                  <td style="display:flex;justify-content: space-between;align-items: center;">
-                    <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
-                    <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
-                  </td>
-                </tr>
-              @endforeach()
+            <tbody class="infinite-scroll-pending-inner">
+				@include("logging.partials.magento_product_data")                
             </tbody>
           </table>
 
-          <div class="text-center">
-            {!! $logListMagentos->appends($filters)->links() !!}
-          </div>
+
         </div>
-      </div>
-    </div>
-  </div>
+        
+     </div>
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
@@ -204,6 +256,39 @@
             </tbody>
           </table>
 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  
+  <div id="Export_popup" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="padding: 0px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Export</h4>
+        </div>
+        <div class="modal-body">
+		  {{Form::open(array('url'=>'/logging/list-magento/export', 'method'=>'get'))}}
+				<div class="col-md-8 col-xs-12 pl-0">
+					<label for="sku">Select Date</label>
+					<input type="hidden" class="start_date" name="start_date" />
+					<input type="hidden" class="end_date" name="end_date" />
+					<div id="filter_date_range_new" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+						<!-- <i class="fa fa-calendar"></i>&nbsp;
+						<span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+						<i class="fa fa-calendar"></i>&nbsp;
+						<span class="d-none" id="date_current_show_new"></span> <p style="display:contents;" id="date_value_show_new"> </p><i class="fa fa-caret-down"></i>
+					</div>
+				</div>
+				<div class="col-md-4 pl-0 col-xs-12 export_btn">
+					<button type="submit" class="btn btn-primary">Export</button>
+				</div>
+			</form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -329,14 +414,220 @@
     <!-- /.modal-dialog -->
   </div>
 
+  <div id="show-error-count" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Error with count</h4>
+        </div>
+          <div class="modal-body">
+            
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div id="show-product-information" class="modal fade" role="dialog" style="margin: 150px;">
+    <div class="modal-dialog modal-lg" style="margin: 0px;">
+      <div class="modal-content" style="width: 1500px">
+        <div class="modal-header">
+          <h4 class="modal-title">Product information</h4>
+        </div>
+          <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                  <th width="10%">SKU</th>
+                  <th width="15%">Description</th>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Composition</th>
+                  <th>Material</th>
+                  <th>Manufracturer.</th>
+                  <th>Brand</th>
+                  <th>Sizes</th>
+                  <th>Dimensions</th>
+                  <th width="5%">Stock</th>
+                  <th width="5%">Min day</th>
+                  <th width="5%">Max day</th>
+                </thead>
+                <tbody class="product-information-data">
+
+                </tbody>
+              </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="retry-failed-job-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Retry failed job request</h4>
+            </div>
+            <form class="retry-failed-job-modal-form">
+              {!! csrf_field() !!}
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Start Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="start_date" value="" class="form-control start-date-picker">
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>End Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="end_date" value="" class="form-control end-date-picker">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Store website&nbsp;:&nbsp;</strong>
+                              <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>Product id&nbsp;:&nbsp;</strong>
+                              <input type="text" name="keyword" value="" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary pull-left btn-secondary retry-failed-job-modal-btn">Retry</button>
+              </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
+  <div id="send-live-product-check-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Send product to check website</h4>
+            </div>
+            <form class="retry-failed-job-modal-form">
+              {!! csrf_field() !!}
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Start Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="start_date" value="" class="form-control start-date-picker">
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>End Date&nbsp;:&nbsp;</strong>
+                              <input type="text" name="end_date" value="" class="form-control end-date-picker">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Store website&nbsp;:&nbsp;</strong>
+                              <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
+                          </div>
+                        </div>  
+                        <div class="col">
+                          <div class="form-group">
+                              <strong>Product id&nbsp;:&nbsp;</strong>
+                              <input type="text" name="keyword" value="" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary pull-left btn-secondary send-live-product-check-btn">Send</button>
+              </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
+  <div id="print-live-product-screenshot-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Live Screenshot</h4>
+            </div>
+           <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                  <th>SKU</th>
+                  <th>Website</th>
+                  <th>Status</th>
+                  <th>Image</th>
+                  <th>Created at</th>
+                </thead>
+                <tbody class="screenshot-modal-information-data">
+
+                </tbody>
+              </table>
+           </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+  </div>
+
+  <div id="product-translation-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="margin:0; padding: 0;">
+        <div class="modal-content" style="width: 1500px;">
+            <div class="modal-header">
+              <h4 class="modal-title">Product Translation</h4>
+            </div>
+           <div class="modal-body">
+              
+           </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+  </div>
+
+  
+
 @endsection
 
 @section('scripts')
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $("#select_date").datepicker({
-	  	format: 'yyyy-mm-dd'
-	});
+      	  	format: 'yyyy-mm-dd'
+      	});
+
+        $("#job_start_date").datepicker({
+          format: 'yyyy-mm-dd'
+        });
+
+        $(".start-date-picker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        $(".end-date-picker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        
     </script>
   <script type="text/javascript">
   var product = []
@@ -458,6 +749,282 @@
       console.log("Data Saved: ", msg);
     });
   }
+
+  $(document).on("click","#submit-show-report",function(e){
+    e.preventDefault();
+    $.ajax({
+      method: "GET",
+      url: "/logging/list-magento/error-reporting"
+    })
+    .done(function(response) {
+        $("#show-error-count").find(".modal-body").html(response);
+        $("#show-error-count").modal("show");
+    });
+  });
+
+  $(document).on("click",".show-product-information",function (e) {
+    e.preventDefault();
+    var id  = $(this).data("id");
+    $.ajax({
+      method: "GET",
+      url: "/logging/list-magento/product-information",
+      data : {
+         product_id : id
+      }
+    })
+    .done(function(response) {
+        $(".product-information-data").html(response);
+        $("#show-product-information").modal("show");
+    });
+  });
+
+  $(document).on("click","#retry-failed-job",function(e) {
+     e.preventDefault();
+     $("#retry-failed-job-modal").modal("show");
+  });
+
+  $(document).on("click",".retry-failed-job-modal-btn",function(e) {
+    e.preventDefault();
+      var form = $(this).closest('form');
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/retry-failed-job",
+        data : form.serialize(),
+        dataType:"json",
+        beforeSend : function( ) {
+           $("#loading-image").show();
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          if(response.code == 200) {
+            $("#retry-failed-job-modal").modal("hide");
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+      });
+  });
+
+  $(".select-multiple").select2({tags:true});
+
+  $(document).on("click","#send-product-for-live-checking",function(e) {
+      e.preventDefault();
+      $("#send-live-product-check-modal").modal("show");
+  });
+
+  $(document).on("click",".send-live-product-check-btn",function(e) {
+      e.preventDefault();
+      var form = $(this).closest('form');
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/send-live-product-check",
+        data : form.serialize(),
+        dataType:"json",
+        beforeSend : function( ) {
+           $("#loading-image").show();
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          if(response.code == 200) {
+            $("#send-live-product-check-modal").modal("hide");
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+      });
+  });
+
+
+  $(document).on("click",".btn-product-screenshot",function(e) {
+      var $this = $(this);
+      $.ajax({
+        method: "GET",
+        url: "/logging/list-magento/get-live-product-screenshot",
+        data : {
+          id : $this.data("id") 
+        },
+        beforeSend : function(response) {
+           $("#loading-image").show();
+           
+        }
+      })
+      .done(function(response) {
+          $("#loading-image").hide();
+          $(".screenshot-modal-information-data").html(response);
+          $("#print-live-product-screenshot-modal").modal("show");
+      });
+  });
+
+
+  let r_s = "";
+  let r_e = "";
+
+  let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+  let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+  jQuery('input[name="range_start"]').val();
+  jQuery('input[name="range_end"]').val();
+
+  function cb(start, end) {
+      $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+  }
+
+  $('#filter_date_range_').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        //parentEl: '#filter_date_range_',
+        ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+  }, cb);
+
+  //cb(start, end);
+
+
+  $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+      let startDate=   jQuery('input[name="crop_start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+      let endDate =    jQuery('input[name="crop_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+      $("#date_current_show").removeClass("d-none");
+      $("#date_value_show").css("display", "none");
+  });
+
+
+  jQuery('input[name="start_date"]').val();
+  jQuery('input[name="end_date"]').val();
+
+  function cb1(start, end) {
+      $('#filter_date_range_new span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+  }
+
+  $('#filter_date_range_new').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        ranges: {
+          'Today': [moment(), moment()],
+          'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month': [moment().startOf('month'), moment().endOf('month')],
+          'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+  }, cb1);
+
+  cb1(start, end);
+
+
+  $('#filter_date_range_new').on('apply.daterangepicker', function(ev, picker) {
+      let startDate=   jQuery('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+      let endDate =    jQuery('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+      $("#date_current_show_new").removeClass("d-none");
+      $("#date_value_show_new").css("display", "none");
+  });
+
+
+
+  $(document).on('click', '.upload-single', function () {
+      $this = $(this);
+      var id = $(this).data('id');
+      var thiss = $(this);
+      $(this).addClass('fa-spinner').removeClass('fa-upload')
+      url = "{{ url('products') }}/" + id + '/listMagento';
+      $.ajax({
+          type: 'POST',
+          url: url,
+          data: {
+              _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function () {
+              // $(thiss).text('Loading...');
+              // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+          }
+      }).done(function (response) {
+          thiss.removeClass('fa-spinner').addClass('fa-upload')
+          toastr['success']('Request Send successfully', 'Success')
+          $('#product' + id).hide();
+      }).fail(function (response) {
+          console.log(response);
+          thiss.removeClass('fa-spinner').addClass('fa-upload')
+          toastr['error']('Internal server error', 'Failure')
+          $('#product' + id).hide();
+          //alert('Could not update product on magento');
+      })
+  });
+
+  $(document).on('click', '.get-translation-product', function () {
+      $this = $(this);
+      var id = $(this).data('id');
+      var thiss = $(this);
+      url = "{{ url('products') }}/" + id + '/get-translation-product';
+      $.ajax({
+          type: 'GET',
+          url: url,
+          data: {
+              _token: "{{ csrf_token() }}",
+          },
+          beforeSend: function () {
+              $("#loading-image").show();
+          }
+      }).done(function (response) {
+          $("#loading-image").hide();
+          $("#product-translation-modal").find(".modal-body").html(response);
+          $("#product-translation-modal").modal("show");
+      }).fail(function (response) {
+          $("#loading-image").hide();
+      })
+  });
+
+
+
+
+  /** infinite loader **/
+	var isLoading = false;
+	var page = 1;
+	$(document).ready(function () {
+		$(window).scroll(function() {
+			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+				loadMore();
+			}
+		});
+
+		function loadMore() {
+			if (isLoading)
+				return;
+			isLoading = true;
+			var $loader = $('.infinite-scroll-products-loader');
+			page = page + 1;
+			$.ajax({
+				url: "/logging/list-magento?type=product_log_list&page="+page,
+				type: 'GET',
+				data: $('.handle-search').serialize(),
+				beforeSend: function() {
+					$loader.show();
+				},
+				success: function (data) {
+					//console.log(data);
+					$loader.hide();				
+					$('.infinite-scroll-pending-inner').append(data.tbody);
+					isLoading = false;
+					if(data.tbody == "") {
+						isLoading = true;
+					}
+				},
+				error: function () {
+					$loader.hide();
+					isLoading = false;
+				}
+			});
+		}
+	});
+	//End load more functionality
 </script>
 @if (Session::has('errors'))
   <script>

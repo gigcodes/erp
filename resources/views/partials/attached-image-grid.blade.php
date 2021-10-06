@@ -123,7 +123,7 @@
                         {!! $category_selection !!}
                     </div>
 
-                    <div class="form-group col-md-3 mr-3 no-pd">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         @php $brands = \App\Brand::pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple brands" name="brand[]" multiple data-placeholder="Brands...">
@@ -134,7 +134,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="form-group col-md-3 mr-3 no-pd">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
@@ -150,8 +150,9 @@
                             ?>
                         </select>
                     </div>
-
-
+                    <div class="form-group col-md-2 mr-5 ">
+                        <?php echo Form::select("platform",[null => "- Select Platform -","attachment" => "Attached Image", "lead" => "Lead"],request("platform"),["class" => "form-control"]) ?>
+                    </div>
                     <div class="col-md-1 no-pd">
                     <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
@@ -199,6 +200,7 @@
                 <th style="width:10%">Phone</th>
                 <th style="width:20%">Brand</th>
                 <th style="width:20%">Category</th>
+                <th style="width:5%">Platform</th>
                 <th style="width:20%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
@@ -293,6 +295,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-lg" id="moveToTmplModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+            <form method="post" action="{{route('attach.cus.create.tpl')}}">
+             @csrf
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="template" class="col-form-label">Template:</label>
+                        <select class="form-control" name="template_no"> 
+                            @foreach( $templateArr as $key )
+                                <option value="{{ $key->id }}">{{ $key->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                      <input type="hidden" name="product_media_id" id="product_ids_move_tmpl">
+                      <div class="form-group col-md-6">
+                        <label for="message-text" class="col-form-label">Text:</label>
+                        <input type="text" class="form-control" name="text" required>
+                      </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="template" class="col-form-label">Background:</label>
+                        <input type="color" class="form-control" name="background" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="message-text" class="col-form-label">Color:</label>
+                        <input type="color" class="form-control" name="color" required>
+                      </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </div>
+            </form>
+        </div>
+      </div>
+    </div>
+    <!-- End Modal -->
+
     @include('partials.modals.category')
     @include('partials.modals.forward-products')
     @include('partials.add-order-model')
@@ -349,6 +401,38 @@
                 });
             }
 
+            $(document).on("click", ".move-to-tmpl", function (event) {
+
+                var customer_id = $(this).data("id");
+                var suggestedproductid = $(this).data("suggestedproductid");
+                $("#forward_suggestedproductid").val(suggestedproductid);
+                /* alert(suggestedproductid); 
+                return false; */
+                var cus_cls = ".customer-"+suggestedproductid;
+                var total = $(cus_cls).find(".select-pr-list-chk").length;
+                image_array = [];
+                for (i = 0; i < total; i++) {
+                 var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
+                 var $input = $(customer_cls).eq(i);
+                var productCard = $input.parent().parent().find(".attach-photo");
+                if (productCard.length > 0) {
+                        var image = productCard.data("media");
+                        if ($input.is(":checked") === true) {
+                            image_array.push(image);
+                            image_array = unique(image_array);
+                        }
+                    }
+                }
+
+                if (image_array.length == 0) {
+                    alert('Please select some images');
+                    return;
+                }
+                
+                $('#product_ids_move_tmpl').val(image_array);
+                $("#moveToTmplModel").modal('show');
+
+            });
         // var infinteScroll = function() {
         //     $('.infinite-scroll').jscroll({
         //         autoTrigger: true,
@@ -1097,7 +1181,7 @@
             }
             
             $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
-            $('#forward-products-form').find('#forward_type').val('attach');
+            $('#forward-products-form').find('#forward_type').val('forward');
             $("#forwardProductsModal").modal('show');
             $('select.select2').select2({
                 width: "100%"
@@ -1131,7 +1215,7 @@
             }
             
             $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
-            $('#forward-products-form').find('#forward_type').val('attach');
+            $('#forward-products-form').find('#forward_type').val('forward');
             $("#forwardProductsModal").modal('show');
             $('select.select2').select2({
                 width: "100%"
@@ -1152,7 +1236,8 @@
                 success: function(result){
                      $("#loading-image").hide();
                     toastr['success'](result.message, 'success');
-                     location.reload();
+                    $("#forwardProductsModal").modal('hide');
+                     //location.reload();
              }
             });
         });

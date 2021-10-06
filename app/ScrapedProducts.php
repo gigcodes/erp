@@ -39,6 +39,7 @@ class ScrapedProducts extends Model
         'images' => 'array',
         'properties' => 'array',
     ];
+    protected static $all_afftected_scrapped_products = null;
 
     protected $fillable = [
         'sku',

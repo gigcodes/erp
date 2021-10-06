@@ -33,6 +33,7 @@ class ProductTemplate extends Model
         'font_style',
         'font_size',
         'background_color',
+        'color',
         'brand_id',
         'currency',
         'price',

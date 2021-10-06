@@ -25,6 +25,8 @@ class WebsiteStoreView extends Model
         'sort_order', 
         'platform_id', 
         'website_store_id', 
+        'store_group_id', 
+        'ref_theme_group_id'
     ];
 
     public function websiteStore()
@@ -35,5 +37,14 @@ class WebsiteStoreView extends Model
     public function scrapperImage()
     {
         return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
+    }
+
+    public function websiteStoreHasOne()
+    {
+        return $this->belongsTo(\App\WebsiteStore::class);
+    }
+
+    public function magentoSetting(){
+        return $this->hasOne(MagentoSetting::class, 'store_website_view_id', 'id');
     }
 }

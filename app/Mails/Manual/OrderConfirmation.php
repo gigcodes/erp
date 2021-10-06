@@ -55,6 +55,8 @@ class OrderConfirmation extends Mailable
         }
 
         if ($template) {
+            if ($template->from_email!='')
+                $this->fromMailer = $template->from_email;
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
@@ -72,9 +74,10 @@ class OrderConfirmation extends Mailable
             }
         }
         
-        return $this->view('emails.orders.confirmed-solo', compact(
-            'order', 'customer', 'order_products'
-        ));
-
+        if(!$storeWebsiteOrder) {
+            return $this->view('emails.orders.confirmed-solo', compact(
+                'order', 'customer', 'order_products'
+            ));
+        }
     }
 }

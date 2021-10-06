@@ -39,14 +39,14 @@
                             <div class="alert alert-danger">{{$errors->first('repository_id')}}</div>
                         @endif
                     </div>
-
+<!-- 
                     <div class="form-group">
                         <strong>Attach files:</strong>
                         <input type="file" name="images[]" class="form-control" multiple>
                         @if ($errors->has('images'))
                         <div class="alert alert-danger">{{$errors->first('images')}}</div>
                         @endif
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <label for="module_id">Module:</label>
@@ -54,7 +54,7 @@
                         <select style="width:100%" class="form-control" id="module_id" name="module_id" required>
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
-                            <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>
+                            <option value="{{ $module->id }}" {{ $module->id == old('module_id',9) ? 'selected' : '' }}>{{ $module->name }}</option>
                             @endforeach
                         </select>
 
@@ -109,7 +109,7 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <strong>Cost:</strong>
                         <input type="number" class="form-control" name="cost" value="{{ old('cost') }}" />
                         </select>
@@ -117,7 +117,7 @@
                         @if ($errors->has('cost'))
                         <div class="alert alert-danger">{{$errors->first('cost')}}</div>
                         @endif
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <strong>Status:</strong>
@@ -126,7 +126,7 @@
                             <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option> -->
                             @foreach($statusList  as $key => $status)
-                            <option value="{{$key}}" {{ old('status') == $status ? 'selected' : '' }}>{{$status}}</option>
+                            <option value="{{$key}}" {{ old('status','In Progress') == $status ? 'selected' : '' }}>{{$status}}</option>
                             @endforeach
                         </select>
 

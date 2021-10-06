@@ -16,8 +16,15 @@ class EmailRunHistories extends Model
      * @SWG\Property(property="is_success",type="boolean")
      * @SWG\Property(property="message",type="string")
      */
+    
     protected $table = 'email_run_histories';
+
     protected $fillable = [
         'email_address_id', 'is_success','message'
     ];
+
+    
+    public function email_address() {
+        return $this->belongsTo(EmailAddress::class,'email_address_id','id');
+    }
 }

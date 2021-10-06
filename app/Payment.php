@@ -5,6 +5,9 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Illuminate\Database\Eloquent\Model;
+use App\Events\PaymentCreated;
+use App\Events\PaymentUpdated;
+
 
 class Payment extends Model{
  /**
@@ -27,6 +30,11 @@ class Payment extends Model{
         'payment_receipt_id',
         'date',
         'currency'
+    ];
+
+    protected $dispatchesEvents = [
+      'created' => PaymentCreated::class,
+      //'updated' => PaymentUpdated::class,
     ];
 
     public static function getConsidatedUserPayments(){

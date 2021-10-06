@@ -297,6 +297,12 @@
                            value="{{ old('customer_credit') ? old('customer_credit') : $customer_credit }}"/>
                 </div>
             </div>
+            <div class="col">
+                 <div class="form-group">
+                    <strong>Currency:</strong>
+                    <?php echo Form::select("currency",\App\Currency::pluck('name','code')->toArray(),request("currency","INR"),["class" => "form-control"]); ?>
+                </div>
+            </div>
             <!-- end-DEVTASK-3291 -->
 
             <div class="col">
@@ -383,6 +389,27 @@
                     @endif
                 </div>
             </div>
+
+            <div class="col">
+                <div class="form-group">
+                    <strong> Monetary Account :</strong>
+                    <?php
+                        if(isset($defaultSelected["monetary_account_id"])) {
+                            $monetary_account_id = $defaultSelected["monetary_account_id"];
+                        }
+                    ?>
+                    <?php
+                    $monetaryAccount = \App\MonetaryAccount::pluck("name","id")->toArray(); 
+
+                    echo Form::select('monetary_account_id',$monetaryAccount, ( old('monetary_account_id') ? old('monetary_account_id') : $monetary_account_id ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+
+                    @if ($errors->has('monetary_account_id'))
+                        <div class="alert alert-danger">{{$errors->first('monetary_account_id')}}</div>
+                    @endif
+                </div>
+            </div>
+
+
             <div class="col"> 
                 <div class="form-group">
                     <strong>Note if any:</strong>

@@ -7,6 +7,7 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Plank\Mediable\Mediable;
 
 class StoreWebsite extends Model
 {
@@ -47,19 +48,26 @@ class StoreWebsite extends Model
      * @SWG\Property(property="is_price_override",type="boolean")
      */
     use SoftDeletes;
+    use Mediable;
     protected $fillable = [
         'title',
         'remote_software',
         'website',
+        'mailing_service_id',
         'description',
         'is_published',
+        'disable_push',
         'deleted_at',
         'created_at',
         'updated_at',
         'magento_url',
+        'stage_magento_url',
+        'dev_magento_url',
         'magento_username',
         'magento_password',
         'api_token',
+        'stage_api_token',
+        'dev_api_token',
         'cropper_color',
         'cropping_size',
         'instagram',
@@ -80,6 +88,8 @@ class StoreWebsite extends Model
         'push_web_id',
         'icon',
         'is_price_override',
+        'repository_id',
+		    'semrush_project_id'
     ];
 
     const DB_CONNECTION = [
@@ -98,7 +108,7 @@ class StoreWebsite extends Model
     // Append attributes
     protected $appends = ['website_url'];
 
-    function list() {
+    public static function list() {
         return self::pluck("website", "id")->toArray();
     }
 
@@ -154,5 +164,10 @@ class StoreWebsite extends Model
     public function websites()
     {
         return $this->hasMany('App\Website', 'store_website_id', 'id');
+    }
+
+     function productCsvPath()
+    {
+        return $this->hasOne('App\WebsiteProductCsv','store_website_id','id');
     }
 }

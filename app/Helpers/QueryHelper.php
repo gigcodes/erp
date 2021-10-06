@@ -25,4 +25,23 @@ class QueryHelper
         // Return query
         return $query;
     }
+
+    public static function approvedListingOrderFinalApproval($query)
+    {
+        // Only show products which have a stock bigger than zero
+        $query = $query->leftJoin('brands', function ($join) {
+            $join->on('products.brand', '=', 'brands.id');
+        });
+
+        $query = $query->leftJoin('suppliers', function ($join) {
+            $join->on('products.supplier_id', '=', 'suppliers.id');
+        });
+
+        $query = $query->where('stock', '>=', 1);
+
+        $query = $query->orderBy('brands.priority', 'desc')->orderBy('suppliers.priority', 'desc')->latest("products.created_at");
+
+        // Return query
+        return $query;
+    }
 }

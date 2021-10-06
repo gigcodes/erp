@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 
 use App\Account;
+use App\ChatMessage;
 use App\HashTag;
 use App\InstagramPosts;
 use App\Post;
@@ -54,9 +55,8 @@ class InstagramPostsController extends Controller
     {
 
        
-
        $images = $request->get('images', false);
-
+       $mediaIds = $request->get('media_ids', false);
 
         $productArr = null;
         if ($images) {
@@ -69,6 +69,14 @@ class InstagramPostsController extends Controller
             if (!empty($productIdsArr)) {
                 $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
             }
+        }
+
+        $mediaIdsArr = null;
+        if( $mediaIds ){
+            $mediaIdsArr = \DB::table('mediables')
+                        ->whereIn('media_id', explode(',',$mediaIds))
+                        ->where('mediable_type', 'App\StoreWebsite')
+                        ->get();
         }
         //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
         $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
@@ -120,24 +128,21 @@ class InstagramPostsController extends Controller
 
         $imagesHtml='';
         if(isset($productArr) && count($productArr)):
+            foreach($productArr as $product):
+                foreach($product->media as $media):
+                    $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                endforeach;
+            endforeach;
+        endif;
 
-                                                foreach($productArr as $product):
-
-                                                
-
-                                                foreach($product->media as $media):
-
-                                            $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
-
-                                               
-
-                                                endforeach;
-                                                 
-
-                                                endforeach;
-
-                                                endif;
-
+        if(isset($mediaIdsArr) && !empty($mediaIdsArr)):
+            foreach($mediaIdsArr as $image):
+                $media = Media::where('id',$image->media_id)->get();
+                if(!empty($media)):
+                    $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media[0]->getkey().'" data-original="'.$media[0]->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media[0]->getUrl().'" alt="Images" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                endif;
+            endforeach;
+        endif;
        
         return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts','imagesHtml'))->with('i', ($request->input('page', 1) - 1) * 5);;   
     }
@@ -363,7 +368,34 @@ class InstagramPostsController extends Controller
                         if(isset($postJson['keyword'])){
                             $influencer->keyword = $postJson['keyword'];
                         }
+                        if(isset($postJson['Email'])){
+                            $influencer->email = $postJson['Email'];
+                        }
+                        if(isset($postJson['Country'])){
+                            $influencer->country = $postJson['Country'];
+                        }
+
+                        $influencer->platform    = "Instagram";
                         $influencer->save();
+
+                        try {
+                            if (!empty($postJson[ 'Screenshot' ])) {
+                                if (!$influencer->hasMedia('instagram-screenshot')) {
+                                    $media = MediaUploader::fromString(base64_decode($postJson[ 'Screenshot' ]))
+                                        ->toDisk('uploads')
+                                        ->toDirectory('social-media/instagram-screenshot/' . floor($influencer->id / 1000))
+                                        ->useFilename($influencer->id)
+                                        ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
+                                            $model->setAttribute('extension', 'jpg');
+                                        })
+                                        ->upload();
+                                    $influencer->attachMedia($media, 'instagram-screenshot');
+                                }
+                            }
+                        } catch(\Exception $e) {
+                            \Log::info("instagram influencer page error => ".$e->getMessage());
+                        }
+                        
                     }
                 }else{
                         // Set tag
@@ -1329,6 +1361,106 @@ class InstagramPostsController extends Controller
         
     	$productCategory = InstagramLog::where("account_id", $request->account_id)->orderBy("created_at","desc")->get();
         return response()->json(["code" => 200 , "data" => $productCategory]);
+    }
+
+    public function messageQueue(Request $request)
+    {
+        $queueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
+        ->where("is_queue", ">", 0)
+        ->where("instagram_user_id", ">", 0)
+        ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
+        // ->groupBy("c.whatsapp_number")
+        // ->select(\DB::raw("count(*) as total_message"))
+        ;
+        
+        if($request->filterMessage){
+            $queueList = $queueList->where('message','LIKE','%'.$request->filterMessage.'%');
+        }
+        
+        if($request->filterFullName){
+            $queueList = $queueList->where('fullname','LIKE','%'.$request->filterFullName.'%');
+        }
+        
+
+      $queueList = $queueList->paginate(Setting::get('pagination'));
+
+
+        $accountSettingInfo = Setting::select('val')->where('name','instagram_message_queue_rate_setting')->first();
+
+$accountSettingInformation= null;
+        if($accountSettingInfo){
+            $accountSettingInformation = json_decode($accountSettingInfo->val,true);
+        }
+
+        // $instaAccounts = Account::where('platform','instagram')->whereNotNull('email')->get();
+        $instaAccounts    = Account::where('status', 1)->where('platform', 'instagram')->get();
+
+        $filterFullName = $request->filterFullName;
+        $filterMessage = $request->filterMessage;
+
+        return view('social-media.instagram-posts.message-queue',compact('instaAccounts','accountSettingInformation','queueList','filterFullName','filterMessage'));
+    }
+
+    public function messageQueueSetting(Request $request)
+    {
+
+        $updatedData =  Setting::updateOrCreate(
+            [
+                'name' => 'instagram_message_queue_rate_setting'
+            ],
+
+            [
+                'val' => json_encode(
+                    $request->except('_token')
+
+                ),
+                'type' => 'str'
+            ]
+        );
+        return response()->json(['code' => 200, 'message' => 'Data updated succesfully']);
+    }
+
+    public function messageQueueApprove(Request $request)
+    {
+        $approveQueueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
+        ->where("is_queue", 0)
+        ->where("instagram_user_id", ">", 0)
+        ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
+        ;
+        
+        if($request->filterMessage){
+            $approveQueueList = $approveQueueList->where('message','LIKE','%'.$request->filterMessage.'%');
+        }
+        
+        if($request->filterFullName){
+            $approveQueueList = $approveQueueList->where('fullname','LIKE','%'.$request->filterFullName.'%');
+        }
+        
+        
+        $approveQueueList= $approveQueueList->paginate(Setting::get('pagination'));
+
+        // dd($approveQueueList);
+        // ->groupBy("c.whatsapp_number")
+        // ->select(\DB::raw("count(*) as total_message"))
+        $filterFullName = $request->filterFullName;
+        $filterMessage = $request->filterMessage;
+
+
+        return view('social-media.instagram-posts.message-queue-approve' ,compact('approveQueueList','filterFullName','filterMessage'));
+    }
+
+    public function messageQueueApproved(Request $request)
+    {
+        $chatMessage = ChatMessage::find($request->chat_id);
+        $chatMessage->is_queue = 1;
+        $result = $chatMessage->save();
+
+            if($result){
+                return response()->json(['message'=>'Approved Successfully']);
+            }
+
+
+        return response()->json(['error'=>'Failed to change status']);
     }
 
 }

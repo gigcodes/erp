@@ -114,6 +114,11 @@ class MagentoCustomerReferenceController extends Controller
             $message = $this->generate_erp_response("customer_reference.403",0, $default = 'website is required', request('lang_code'));
             return response()->json(['message' => $message], 403);
         }
+
+        if (empty($request->platform_id)) {
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Platform id is required', request('lang_code'));
+            return response()->json(['message' => $message], 403);
+        }
         
         // if (empty($request->social)) {
         //     return response()->json(['error' => 'Social is required'], 403);
@@ -124,6 +129,7 @@ class MagentoCustomerReferenceController extends Controller
         $phone = null;
         $dob = null;
         $store_website_id = null;
+        $platform_id = null;
         $wedding_anniversery = null;
         if($request->phone) {
             $phone = $request->phone;
@@ -136,11 +142,16 @@ class MagentoCustomerReferenceController extends Controller
         }
 
          //getting reference
-         $reference = Customer::where('email',$email)->first();
-         $store_website = StoreWebsite::where('website',"like", $website)->first();
-         if($store_website) {
+         
+        $store_website = StoreWebsite::where('website',"like", $website)->first();
+        if($store_website) {
              $store_website_id = $store_website->id;
-         }
+        }
+		if($request->platform_id) {
+            $platform_id = $request->platform_id;
+        }
+
+        $reference = Customer::where('email',$email)->where("store_website_id",$store_website_id)->first();
         if(empty($reference)){
 
             $reference = new Customer();
@@ -148,25 +159,28 @@ class MagentoCustomerReferenceController extends Controller
             $reference->phone = $phone;
             $reference->email = $email;
             $reference->store_website_id = $store_website_id;
+            $reference->platform_id = $platform_id;
             $reference->dob = $dob;
             $reference->wedding_anniversery = $wedding_anniversery;
             $reference->save();
-        
-        }
-        else {
-            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Account already exists with this email', request('lang_code'));
-            return response()->json(['message' => $message], 403);
-        }
-        
-        
 
-        if($reference->phone) {
-            //get welcome message
-            $welcomeMessage = InstantMessagingHelper::replaceTags($reference, Setting::get('welcome_message'));
-            //sending message
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
-        }
+            if($reference->phone) {
+                //get welcome message
+                $welcomeMessage = InstantMessagingHelper::replaceTags($reference, Setting::get('welcome_message'));
+                //sending message
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
+            }
         
+        } else {
+            $reference->name = $name;
+            $reference->phone = $phone;
+            $reference->email = $email;
+            $reference->store_website_id = $store_website_id;
+            $reference->platform_id = $platform_id;
+            $reference->dob = $dob;
+            $reference->wedding_anniversery = $wedding_anniversery;
+            $reference->save();
+        }
 
         $message = $this->generate_erp_response("customer_reference.success",$store_website_id, $default = 'Saved successfully !', request('lang_code'));
         return response()->json(['message' => 'Saved SucessFully'], 200);

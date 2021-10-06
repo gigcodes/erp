@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\GoogleWebMasterFetchAllRecords;
 use App\Console\Commands\CheckScrapersLog;
 use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
@@ -42,6 +43,8 @@ use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
 use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
@@ -80,6 +83,7 @@ use App\Console\Commands\CheckWhatsAppActive;
 use App\Console\Commands\ParseLog;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
+use App\Http\Controllers\Marketing\MailinglistController;
 use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
@@ -87,6 +91,8 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
 use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -128,11 +134,30 @@ use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
-use App\Console\Commands\productActivity;
+use App\Console\Commands\productActivityStore;
+use App\Console\Commands\errorAlertMessage;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\SendDailyLearningReports;
 use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
+use App\Console\Commands\RemoveScrapperImages;
+use App\Console\Commands\ChangeTesterBasedOnTeamLead;
+use App\Console\Commands\AddGroupTheme;
+use App\Console\Commands\SendInstagramMessageInQueue;
+use App\Console\Commands\AddRoutesToGroups;
+use App\Console\Commands\UpdateProductInformationFromCsv;
+use App\Console\Commands\ConnectGoogleClientAccounts; 
+use App\Console\Commands\UpdateLanguageToGroup;
+
+use App\Console\Commands\ProjectFileManagerDateAndSize;
+use App\Console\Commands\UpdateCharities;
+
+use App\Console\Commands\FetchMagentoCronData;
+use App\Console\Commands\BuildStatus;
+
+
+use DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -142,6 +167,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        FetchMagentoCronData::class,
+        GoogleWebMasterFetchAllRecords::class,
         PostScheduledMedia::class,
         CheckLogins::class,
         //        SyncInstagramMessage::class,
@@ -200,6 +227,8 @@ class Kernel extends ConsoleKernel
         SendReminderToCustomerIfTheyHaventReplied::class,
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
+        SendReminderToTaskIfTheyHaventReplied::class,
+        SendReminderToDevelopmentIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
         UpdateShoeAndClothingSizeFromChatMessages::class,
         UpdateCustomerSizeFromOrder::class,
@@ -258,11 +287,25 @@ class Kernel extends ConsoleKernel
 		RunGoogleAnalytics::class,
         scrappersImages::class,
         scrappersImagesDelete::class,
-        productActivity::class,
+        productActivityStore::class,
+        errorAlertMessage::class,
         InstagramHandler::class,
         SendDailyReports::class,
+        SendDailyLearningReports::class,
         SendDailyPlannerNotification::class,
-        InsertPleskEmail::class
+        InsertPleskEmail::class,
+        StoreChatMessagesToAutoCompleteMessages::class,
+        RemoveScrapperImages::class,
+        ChangeTesterBasedOnTeamLead::class,
+        AddGroupTheme::class,
+        UpdateProductInformationFromCsv::class,
+        SendInstagramMessageInQueue::class,
+        ProjectFileManagerDateAndSize::class,
+        AddRoutesToGroups::class,
+        ConnectGoogleClientAccounts::class,
+        UpdateCharities::class,
+        UpdateLanguageToGroup::class,
+        BuildStatus::class,
     ];
 
     /**
@@ -273,13 +316,25 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->command('project:filemanagementdate')->daily();
+
+        $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');;
+
+        $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
+
+		$schedule->command('ScrapperImage:REMOVE')->hourly();  //jenkins status detail
+
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
-
+		$schedule->call(function () {
+            MailinglistController::sendAutoEmails();
+        })->hourly();
+		
 
         // Store unknown categories on a daily basis
         //$schedule->command('category:missing-references')->daily();
@@ -446,10 +501,47 @@ class Kernel extends ConsoleKernel
         // send only cron run time
         $queueStartTime = \App\ChatMessage::getStartTime();
         $queueEndTime  = \App\ChatMessage::getEndTime();
+        $queueTime  = \App\ChatMessage::getQueueTime();
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
-            $schedule->command('send:queue-pending-chat-messages')->cron('*/15 * * * *')->between($queueStartTime, $queueEndTime);
-            $schedule->command('send:queue-pending-chat-group-messages')->everyMinute();
+            if(!empty($queueTime)) {
+                foreach($queueTime as $no => $time) {
+                    if($time > 0) {
+
+
+                        $allowCounter = true;
+                        $counterNo[] = $no;
+                        $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+
+                    }
+                }
+
+
+            }
+
+            /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
+            {
+                $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
+                $numbers = array_unique($counterNo);
+                foreach ($numbers as $number)
+                {
+
+                    $tempNo = $number;
+                    $settingData = $tempSettingData[0];
+                    $messagesRules = json_decode($settingData->val);
+                    $counter = ( !empty($messagesRules->$tempNo) ? $messagesRules->$tempNo : 0);
+                    $insert_data = null;
+
+                    $insert_data = array(
+                        'counter'=>$counter,
+                        'number'=>$number,
+                        'time'=>now()
+                    );
+                    DB::table('message_queue_history')->insert($insert_data);
+
+                }
+            }*/
         }
 
 
@@ -476,12 +568,14 @@ class Kernel extends ConsoleKernel
 
         //Sync customer from magento to ERP
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
-
+        $schedule->command('fetch-all-records:start')->dailyAt('23:59')->timezone('Asia/Kolkata');
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
+        $schedule->command('memory_usage')->everyMinute();
+
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
@@ -512,7 +606,7 @@ class Kernel extends ConsoleKernel
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
-		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+		//$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
 		$schedule->command('send:daily-reports')->dailyAt('23:00');
 
 		
@@ -527,6 +621,9 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
+        $schedule->command('ScrapApi:LogCommand')->hourly();
+        $schedule->command('HubstuffActivity:Command')->daily();
+        $schedule->command('Magento-Product:Api')->cron('0 */3 * * *');
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
@@ -559,7 +656,19 @@ class Kernel extends ConsoleKernel
         $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
 
         //Cron for activity
-        $schedule->command("productActivity")->dailyAt("0:00");
+        $schedule->command("productActivityStore")->dailyAt("0:00");
+        $schedule->command("errorAlertMessage")->daily();
+
+        $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
+
+        //Instagram automation command
+        $schedule->command('InstaAutoFeedDaily')->daily();
+        //cron for updating data from csv
+        $schedule->command('update-product:from-csv')->daily();	
+        $schedule->command('send-instagram-message:in-queue')->everyMinute();	
+        //$schedule->command('ConnectGoogleClientAccounts')->hourly();
+
     }
 
     /**

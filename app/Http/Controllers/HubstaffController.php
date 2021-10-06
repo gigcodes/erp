@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Validator;
 use Storage;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
-define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+// define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+define('SEED_REFRESH_TOKEN', config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 define('STATE_MEMBERS', 'STATE_MEMBERS');
 
 class HubstaffController extends Controller
@@ -93,7 +94,9 @@ class HubstaffController extends Controller
         // start hubstaff section from here
         $hubstaff             = Hubstaff::getInstance();
         $hubstaff             = $hubstaff->authenticate();
-        $organizationProjects = $hubstaff->getRepository('organization')->getOrgProjects(env("HUBSTAFF_ORG_ID"));
+        // $organizationProjects = $hubstaff->getRepository('organization')->getOrgProjects(env("HUBSTAFF_ORG_ID"));
+        $organizationProjects = $hubstaff->getRepository('organization')->getOrgProjects(config('env.HUBSTAFF_ORG_ID'));
+
         if (!empty($organizationProjects->projects)) {
             $projects = $organizationProjects->projects;
             HubstaffProject::updateOrCreateApiProjects($projects);
@@ -198,7 +201,9 @@ class HubstaffController extends Controller
 
         $tokens = $this->getTokens();
 
-        $url        = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
+        // $url        = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
+        $url        = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
+
         $httpClient = new Client();
         try {
             $response = $httpClient->get(
@@ -643,7 +648,8 @@ class HubstaffController extends Controller
         // start hubstaff section from here
         $hubstaff             = Hubstaff::getInstance();
         $hubstaff             = $hubstaff->authenticate();
-        $organizationProjects = $hubstaff->getRepository('organization')->createOrgProjects(env("HUBSTAFF_ORG_ID"), [
+        // $organizationProjects = $hubstaff->getRepository('organization')->createOrgProjects(env("HUBSTAFF_ORG_ID"), [
+        $organizationProjects = $hubstaff->getRepository('organization')->createOrgProjects(config('env.HUBSTAFF_ORG_ID'), [
             "name"        => $request->hubstaff_project_name,
             "description" => $request->hubstaff_project_description,
         ]);

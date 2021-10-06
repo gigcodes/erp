@@ -103,13 +103,13 @@ class CheckScraperRunningStatus extends Command
                 // start to store scarper name
                 $scraperNamestr  = null;
                 $scraperStarTime = null;
-                $pid = null;
+                $pid             = null;
                 if (strpos($allO, "/root/scraper_nodejs/commands/completeScraps") !== false) {
                     $scriptNames = explode("/root/scraper_nodejs/commands/completeScraps", $allO);
                     if (!empty($scriptNames[1])) {
-                        $pidStringArr = explode(" ",$scriptNames[0]);
-                        $pid = $pidStringArr[0];
-                        $scraperStarTime = date("Y-m-d H:i:s", strtotime($pidStringArr[1]));
+                        $pidStringArr    = explode(" ", $scriptNames[0]);
+                        $pid             = $pidStringArr[0];
+                        $scraperStarTime = $pidStringArr[1];
                         $scraperName     = explode("/", $scriptNames[1]);
                         if (count($scraperName) > 2) {
                             $scraperNamestr = $scraperName[1];
@@ -125,11 +125,11 @@ class CheckScraperRunningStatus extends Command
                         "scraper_name"   => $scraperNamestr,
                         "scraper_string" => $allO,
                         "server_id"      => $serverId,
-                        "start_time"     => $scraperStarTime,
+                        "duration"       => $scraperStarTime,
                         "total_memory"   => $totalMemory,
                         "used_memory"    => $usedMemory,
                         "in_percentage"  => $inPercentage,
-                        "pid"            => $pid
+                        "pid"            => $pid,
                     ]);
                 }
             }

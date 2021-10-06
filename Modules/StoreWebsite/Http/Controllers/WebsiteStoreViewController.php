@@ -9,6 +9,7 @@ use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class WebsiteStoreViewController extends Controller
 {
@@ -22,18 +23,20 @@ class WebsiteStoreViewController extends Controller
         $title = "Website Store View | Store Website";
 
         $websiteStores = WebsiteStore::all()->pluck("name", "id")->all();
+        $websites = StoreWebsite::all()->pluck("title", "id")->all();
         $languages = \App\Language::all()->pluck("name", "name");
 
         return view('storewebsite::website-store-view.index', [
             'title'         => $title,
             'websiteStores' => $websiteStores,
+            'websites' => $websites,
             'languages' => $languages,
         ]);
     }
 
     public function records(Request $request)
     {
-        $websiteStoreViews = WebsiteStoreView::leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id');
+        $websiteStoreViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id');
 
         // Check for keyword search
         if ($request->keyword != null) {
@@ -47,6 +50,14 @@ class WebsiteStoreViewController extends Controller
             $websiteStoreViews = $websiteStoreViews->where('website_store_id',$request->website_store_id);
         }
 
+
+        if($request->website_store != null) {
+            $websiteStoreViews = $websiteStoreViews->whereHas('websiteStore', function($q) use ($request){
+                $q->whereHas('website', function($query) use ($request){
+                    $query->where('store_website_id', $request->website_store);
+                });
+            });
+        }
         $websiteStoreViews = $websiteStoreViews->select(["website_store_views.*", "ws.name as website_store_name"])->orderBy('website_store_views.id',"desc")->paginate();
 
         return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render()]);
@@ -156,6 +167,252 @@ class WebsiteStoreViewController extends Controller
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    } 
+
+    public function editGroup(Request $request, $id, $store_group_id)
+    {
+        $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/get_group';
+
+        $postData = [
+            'id' => (int) $request->store_group_id, 
+            "fields" => ["agent_priorities", "routing_status"]
+        ];
+        $postData = json_encode($postData, true);
+        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+
+        if ($result['err']) {
+            return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+        } else {
+            $response = json_decode($result['response']);
+            if (isset($response->error)) {
+                return response()->json(['status' => 'errors', $response], 403);
+            } else {
+                $response->row_id = (int) $request->id;
+                $websiteStoreView = WebsiteStoreView::find($request->id);
+                $response->type = 'edit';
+                $response->ref_theme_group_id = $websiteStoreView->ref_theme_group_id;
+                $response->agents = ($this->agents($request))->original['responseData'];
+                $response->group_route = DB::table('group_routes')->where('group_id', $websiteStoreView->store_group_id)->latest()->first();
+
+                return response()->json(['status' => 'success', 'responseData' => $response], 200);
+            }
+        } 
+    }
+
+    public function storeGroup(Request $request)
+    {
+        $postData = $request->all();
+
+        $validator = Validator::make($postData, [
+            'name'             => 'required',
+            'agents'           => 'required',
+            'priorites'        => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }
+            return response()->json(["code" => 500, "error" => $outputString]);
+        }
+
+        $agent_priorities = [];
+        foreach($request->priorites as $key => $val){
+            $agent_priorities[$postData['agents'][$key]] = $val;
+        }
+
+        $id = (int) $request->id;
+        $row_id = (int) $request->row_id;
+
+        if($id){
+            $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/update_group';
+        }else{
+            $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/create_group';
+        }
+
+        $postData = [
+            'id' => $id ?? '',
+            'name' => $request->name,
+            'language_code' => $request->language_code,
+            'agent_priorities' => $agent_priorities
+        ];
+
+        $postData = json_encode($postData, true);
+        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+ 
+        if ($result['err']) {
+            return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+        } else {
+            $response = json_decode($result['response']);
+            if (isset($response->error)) {
+                return response()->json(['status' => 'errors', 'error' => $response->error->message, $response->error->message], 200);
+            } else {
+                $websiteStoreView = WebsiteStoreView::where("id", $row_id)->first();
+                if($id){
+                    $store_group_id = $id;
+                }else{
+                    $store_group_id = $response->id;
+                }
+                $group_id = $request->group;
+                if($group_id){
+                    $postURL1  = 'https://api.livechatinc.com/v2/properties/group/'.$group_id;
+                    $result1 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL1, [], 'application/json', true, 'GET');
+                    $postURL2  = 'https://api.livechatinc.com/v2/properties/group/'.$store_group_id;
+                    $result2 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
+                    $response->group_details1 = json_decode($result1['response']);
+                    $response->group_details2 = json_decode($result2['response']);
+                }
+                if ($websiteStoreView) {
+                    $websiteStoreView->store_group_id = $store_group_id; 
+                    $websiteStoreView->ref_theme_group_id = $group_id; 
+                    $websiteStoreView->save();
+                }
+                //Create route fo group
+                
+                if(!empty($request->route_url) && !empty($request->route_domain)){
+                    $group_route = DB::table('group_routes')->where('group_id', $store_group_id)->latest()->first();
+                    if($group_route){
+                        $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/update_auto_access';
+                    }else{
+                        $postURL  = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
+                    }
+                    $domain_values["value"] = $request->route_domain;
+                    $url_values["value"] = $request->route_url;
+                    $postData = [
+                        'id' => $group_route == null ? null : $group_route->route_id,
+                        'description' => $request->route_name,
+                        'access' => [
+                            'groups' => [$store_group_id]
+                        ],
+                        'conditions' => [
+                            'domain' => [
+                                'values' => [$domain_values]
+                            ],
+                            'url' => [
+                                'values' => [$url_values]
+                            ]
+                        ]
+                    ]; 
+                    $postData = json_encode($postData, true);
+                    $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $response = json_decode($result['response']);
+                    if (!isset($response->error)) {
+                        DB::table('group_routes')->updateOrInsert([
+                            'group_id' => $store_group_id,
+                        ],[
+                            'group_id' => $store_group_id,
+                            'route_id' => $group_route != null ? $group_route->route_id : $response->id,
+                            'route_name' => $request->route_name,
+                            'domain' => $request->route_domain,
+                            'url' => $request->route_url,
+                        ]);
+                    }
+                   
+                } 
+
+                return response()->json(['status' => 'success', 'responseData' => $response, 'code' => 200], 200);
+            }
+        } 
+    }
+
+    public function deleteGroup(Request $request, $id, $store_group_id)
+    {
+        $id = (int) $request->id;
+        $store_group_id = (int) $request->store_group_id;
+
+        $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/delete_group';
+
+        $postData = [
+            'id' => $store_group_id, 
+        ];
+        $postData = json_encode($postData, true);
+        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+
+        if ($result['err']) {
+            return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+        } else {
+            $response = json_decode($result['response']);
+            if (isset($response->error)) {
+                return response()->json(['status' => 'errors', $response], 403);
+            } else {
+                $websiteStoreView = WebsiteStoreView::where("id", $id)->first();
+
+                if ($websiteStoreView) {
+                    $websiteStoreView->store_group_id = null; 
+                    $websiteStoreView->save();
+                    return response()->json(["code" => 200]);
+                }
+            }
+        } 
+
+        
+    }
+
+    public function agents(Request $request)
+    {
+        $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/list_agents';
+
+        $postData = [
+            "fields" => [ 
+                "max_chats_count",
+                "job_title"
+              ],
+              "filters" => [
+                "group_ids" => [
+                  0,
+                  1
+                ]
+              ]
+        ];
+        $postData = json_encode($postData, true);
+        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+
+        if ($result['err']) {
+            return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+        } else {
+            $response = json_decode($result['response']);
+            if (isset($response->error)) {
+                return response()->json(['status' => 'errors', $response], 403);
+            } else {
+                return response()->json(['status' => 'success', 'responseData' => $response], 200);
+            }
+        } 
+    }
+
+
+    public function groups(Request $request)
+    {
+        $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
+
+        $postData = [
+            "fields" => ["agent_priorities", "routing_status"]
+        ];
+        $postData = json_encode($postData, true);
+        $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+
+        if ($result['err']) {
+            return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+        } else {
+            $response = json_decode($result['response']);
+            $groups = [];
+            foreach($response as $res){
+                if(str_starts_with($res->name, 'theme')){
+                    $g['id'] = $res->id;
+                    $g['name'] = $res->name;
+                    $groups[] = $g;
+                } 
+            } 
+            if (isset($response->error)) {
+                return response()->json(['status' => 'errors', $response], 403);
+            } else {
+                return response()->json(['status' => 'success', 'responseData' => $groups], 200);
+            }
+        } 
     }
 
 }
+

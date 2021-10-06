@@ -433,7 +433,7 @@ $(document).on("click", "#create-dialog-btn-rest", function(e) {
     });
 });
 
-
+//this
 $(document).on("click", ".node__contents", function(e) {
     var node = $(this).data("id");
     $("#leaf-editor-model").modal("show");
@@ -446,6 +446,7 @@ $(document).on("click", ".node__contents", function(e) {
             var html = myTmpl.render({
                 "data": response.data
             });
+            console.log(html);
             $("#leaf-editor-model").find(".modal-body").html(html);
             $("[data-toggle='toggle']").bootstrapToggle('destroy')
             $("[data-toggle='toggle']").bootstrapToggle();

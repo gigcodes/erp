@@ -17,6 +17,25 @@
             </td>
           </tr>
           <tr>
+            <td>Database Table</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Table</th>
+                    <th>Size</th>
+                  </tr>
+                  @if(!empty($topFiveTables))
+                    @foreach($topFiveTables as $tft)
+                      <tr>
+                          <td>{{ $tft->database_name }}</td>
+                          <td>{{ number_format($tft->size/1024,2,'.','') }}</td>
+                      </tr>
+                    @endforeach
+                  @endif
+              </table>
+            </td>
+          </tr>
+          <tr>
             <td>Development</td>
             <td colspan="6">
               <table style="width: 100%;">
@@ -124,6 +143,29 @@
               </table>
             </td>
           </tr>
+          <tr>
+            <td>Failed Jobs</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Name</th>
+                    <th>Queue</th>
+                    <th>Status</th>
+                    <th>Failed at</th>
+                  </tr>
+                  @foreach($failedJobs as $fj) 
+                    <tr>
+                        <td>{{ $fj->name }}</td>
+                        <td>{{ $fj->queue }}</td>
+                        <td>{{ $fj->status }}</td>
+                        <td>{{ date("Y-m-d H:i:s",$fj->failed_at) }}</td>
+                    </tr>
+                  @endforeach
+                  
+              </table>
+            </td>
+          </tr>
+
 			<tr>
 				<td>Project Directory Size Management</td>
 				<td colspan="6">
@@ -136,15 +178,103 @@
 						</tr>
 						<tr>
 							@foreach($projectDirectoryData as $val)
+                <tr>
 								<td>{{ isset($val->name) ? $val->name : "" }}</td>
 								<td>{{ isset($val->parent) ? $val->parent : "" }}</td>
-								<td>{{ isset($val->size) ? number_format($val->size/1048576,0) : "" }}</td>
+                <td>{{ $val->size }}</td>
+								{{-- <td>{{ isset($val->size) ? number_format($val->size/1048576,0) : "" }}</td> --}}
 								<td>{{ isset($val->notification_at) ? number_format($val->notification_at/1048576,0) : "" }}</td>
+              </tr>
 							@endforeach
 						</tr>
 					</table>
 				</td>
 			</tr>
+        <tr>
+            <td>Memory Usage</td>
+            <td>
+
+                <table style="width: 100%;">
+                    <tr>
+                        <th>Total</th>
+                        <th>Used</th>
+                        <th>Free</th>
+                        <th>Buff & Cache</th>
+                        <th>Available</th>
+                    </tr>
+                    <tr>
+
+                        <td>{{ isset($memory_use) ? $memory_use->total  :  "" }}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->used : ""}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->free : ""}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->buff_cache : ""}}</td>
+                        <td>{{ isset($memory_use) ? $memory_use->available : ""}}</td>
+
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+        <tr>
+            <td>API error</td>
+            <td>
+
+                <table style="width: 100%;">
+                    <tr>
+                        <th>Code</th>
+                        <th>Total Error</th>
+                    </tr>
+                    @if(!empty($logRequest))
+                      @foreach($logRequest as $lr)
+                        <tr>
+                            <td>{{ $lr->status_code}}</td>
+                            <td>{{ $lr->total_error}}</td>
+                        </tr>
+                      @endforeach
+                    @endif
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>More Than 24 Hr</td>
+            <td>
+
+                <table style="width: 100%;">
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                    </tr>
+                    @if(!empty($scraper_process))
+                      @foreach($scraper_process as $i => $lr)
+                        <tr>
+                            <td>{{ $i}}</td>
+                            <td>{{ $lr->scraper_name}}</td>
+                        </tr>
+                      @endforeach
+                    @endif
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>Not Run In Last 24 Hr</td>
+            <td>
+
+                <table style="width: 100%;">
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                    </tr>
+                    @if(!empty($scrapers))
+                      @foreach($scrapers as $i => $lr)
+                        <tr>
+                            <td>{{ $i}}</td>
+                            <td>{{ $lr->scraper_name}}</td>
+                        </tr>
+                      @endforeach
+                    @endif
+                </table>
+            </td>
+        </tr>
        </tbody>
     </table>
 </div>

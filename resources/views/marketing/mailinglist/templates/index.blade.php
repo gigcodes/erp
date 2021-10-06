@@ -88,6 +88,28 @@
                             <input required type="text" name="subject" class="form-control" id="form_subject" placeholder="Enter Subject">
                             <span class="text-danger"></span>
                         </div>
+                        <div class="form-group">
+                            <label for="form_subject">From Email</label>
+                            <input required type="text" name="from_email" class="form-control" id="form_from_email" placeholder="Enter From Email">
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_subject">Salutation</label>
+                            <input required type="text" name="salutation" class="form-control" id="form_salutation" placeholder="Enter salutation">
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_subject">Introduction</label>
+                             <textarea required name="introduction" id="form_introduction" class="form-control" placeholder="Enter Introduction" rows='8'></textarea>
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_subject">Logo</label>
+                            <input type="hidden" name="old_logo" class="py-3" id="form_logo">
+                            <input required type="file" name="logo" class="py-3" id="logo">
+                               <span class="text-danger"></span>
+                        </div>
+
 						<div class="form-group">
                             <label for="form_static_template">Static Template</label>
                             <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8'></textarea>
@@ -109,6 +131,13 @@
                         <div class="form-group">
                             <label for="mail_tpl">Store Website</label>
                             <?php echo Form::select("store_website", ["-- None --"] + $storeWebSites, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]); ?>
+                            <span class="text-danger"></span>
+                        </div>
+						
+						
+                        <div class="form-group">
+                            <label for="mail_tpl">Store Website</label>
+							{{ Form::checkbox("store_website", null, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]) }}
                             <span class="text-danger"></span>
                         </div>
 
@@ -186,6 +215,33 @@
         </div>
     </div>
 
+
+    <div class="modal fade template-modal" id="addimage" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle1">Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" >
+                <form method="post" action="{{url('/marketing/mailinglist-templates/saveimagesfile')}}" enctype="multipart/form-data" >
+                {{ csrf_field() }}   
+                <input required type="file" name="image" class="py-3" id="image">
+                   <input  type="hidden" name="id"  id="i_id" value='0'>
+                   <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+
+
+                       <div id="image_body">
+
+                       </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
@@ -204,13 +260,16 @@
                 <!-- <th style="">Image Count</th>
                 <th style="">Text Count</th> -->
                 <th style="">Template Example</th>
+                <th style="">Salutation</th>
+                <th style="">Introduction</th>
+                <th style="">Logo</th>
                 <th style="">Action</th>
                 {{--  <th style="">File</th>--}}
             </tr>
             </thead>
             <tbody>
             @foreach($mailings as $value)
-                <tr>
+                   <tr>
                     <td>{{$value["name"]}}</td>
                     <td>{{$value["mail_tpl"]}}</td>
                     <td>{{$value["subject"]}}</td>
@@ -222,6 +281,13 @@
                     <td>
                         @if($value['example_image'])
                             <img style="width: 100px" src="{{ asset($value['example_image']) }}">
+                        @endif
+                    </td>
+                    <td>{{$value["salutation"]}}</td>
+                    <td>{{$value["introduction"]}}</td>
+                    <td>
+                        @if($value['logo'])
+                            <img style="width: 100px" src="{{ asset($value['logo']) }}">
                         @endif
                     </td>
                     <td>
@@ -236,6 +302,10 @@
                     | <a data-id="{{ $value['id'] }}"  class="add-content"
                             href="javascript:;">
                         <i class="fa fa-send"></i>
+                    </a>
+                    <a data-id="{{ $value['id'] }}"  class="add-image"
+                            href="javascript:;">
+                        <i class="fa fa-list"></i>
                     </a>
                     </td>
                 </tr>
@@ -374,11 +444,12 @@
 
 
             $(".template-modal").modal("show");
+           
         });
 
         $(document).on("click", ".create-new-template-btn", function () {
             document.getElementById("form-store").reset();
-            $(".template-modal").modal("show");
+           // $(".template-modal").modal("show");
         });
 
 
@@ -457,6 +528,32 @@
                     $('.content_body').html('');
                     $('.content_body').append(response.html);
                     $('#addcontent').modal('show');
+                },
+                error : function (response){
+
+                }
+            });
+        });
+
+        $('.add-image').on('click',function(){
+            let id = $(this).attr('data-id');
+            
+            $.ajax({
+                url : "{{ url('marketing/mailinglist-templates/images_file') }}",
+                type : "POST",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data : {
+                    id : id
+                },
+                success : function (response){
+                    
+                    $('#image_body').html('');
+                    $('#i_id').val(id);
+                    $('#image_body').html(response);
+                    $('#addimage').modal('show');
+                    
                 },
                 error : function (response){
 

@@ -1,28 +1,30 @@
-{!! $products->appends(Request::except('page'))->links() !!}
+{!! $products->links() !!}
 
 <div class="table-responsive">
     <table class="table table-bordered" id="users-table">
         <thead>
-        <tr>
-            <th>Image</th>
-            <th>Brand</th>
-            <th>Transist Status</th>
-            <th>Location</th>
-            <th>Sku</th>
-            <th>Id</th>
-            <th>Size</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th width="280px">Action</th>
-        </tr>
+            <tr>
+                <th>Image</th>
+                <th>Brand</th>
+                <th>Transist Status</th>
+                <th>Location</th>
+                <th>Sku</th>
+                <th>Id</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th width="10%">Created</th>
+                <th width="10%">Updated</th>
+                <th width="13%">Action</th>
+            </tr>
         </thead>
         <tbody>
         @foreach ($products as $product)
             <tr>
                 <td>
                     <a href="{{ route('products.show', $product->id) }}">
-                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.media_tags'))->first()
-                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.attach_image_tag'))->first()
+                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
                             : ''
                           }}" class="img-responsive grid-image" alt=""/>
                     </a>
@@ -30,7 +32,7 @@
                 <td>
                     {{ isset($product->brands) ? $product->brands->name : "" }}
                 </td>
-                <td class="transist_status_{{$product->id}} show-more-content-btn" data-text="{{$product->purchase_status}}">
+                <td c   lass="transist_status_{{$product->id}} show-more-content-btn" data-text="{{$product->purchase_status}}">
                     {{ strlen($product->purchase_status) > 10 ? substr($product->purchase_status, 0, 10) . '...' : $product->purchase_status }}
                 </td>
                 <td class="location_{{$product->id}} show-more-content-btn" data-text="{{$product->location}}">
@@ -43,6 +45,8 @@
                 <td><span class="text-editable" data-field-name="price_inr_special"
                           data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></td>
                 <td><?php echo Form::select("stock_status", [null => "- Select --"] + \App\Product::STOCK_STATUS, $product->stock_status, ["class" => "form-control update-product-stock-status", "data-product-id" => $product->id]); ?></td>
+                <td>{{ $product->created_at }}</td>
+                <td>{{ $product->updated_at }}</td>
                 <td>
                     <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction"
                             title="Create Dispatch / Location Change"><img src="/images/support.png"></button>
@@ -51,7 +55,7 @@
                     <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-product-dispatch"
                             title="Create Dispatch"><img src="/images/resend.png"></button>
                     <?php
-                    $getMedia = $product->getMedia(config('constants.media_tags'));
+                    $getMedia = $product->getMedia(config('constants.attach_image_tag'));
                     $image = [];
                     foreach ($getMedia as $value) {
                         $image[] = $value->id;
@@ -59,9 +63,9 @@
                     ?>
                     <button type="button" data-media-ids="{{ implode(',', $image) }}" class="btn btn-image crt-attach-images"
                             title="Attach Images to Message"><img src="/images/attach.png"></button>
-
-                    <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
-
+                    <span class="" style="padding:6px !important">
+                            <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
+                    </span>
                     @if ($type == 'private_viewing')
                         <a href="#" class="btn btn-secondary select-product" data-id="{{ $product->id }}" data-attached="0">Select</a>
                     @endif
@@ -77,8 +81,8 @@
                         {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
-                        @endif
-                        </a>
+                    @endif
+                </a>
                 </td>
             </tr>
 

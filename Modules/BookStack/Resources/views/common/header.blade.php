@@ -15,12 +15,12 @@
 
         <div class="header-search hide-under-l">
             @if (hasAppAccess())
-            <form action="{{ url('/search') }}" method="GET" class="search-box" role="search">
+            <!-- <form action="{{ url('/search') }}" method="GET" class="search-box" role="search">
                 <button id="header-search-box-button" type="submit" aria-label="{{ trans('bookstack::common.search') }}" tabindex="-1">@icon('search') </button>
                 <input id="header-search-box-input" type="text" name="term"
                        aria-label="{{ trans('bookstack::common.search') }}" placeholder="{{ trans('bookstack::common.search') }}"
                        value="{{ isset($searchTerm) ? $searchTerm : '' }}">
-            </form>
+            </form> -->
             @endif
         </div>
 
@@ -29,10 +29,10 @@
                 <div class="links text-center">
                     @if (hasAppAccess())
                         <a class="hide-over-l" href="{{ url('/kb/search') }}">@icon('search'){{ trans('bookstack::common.search') }}</a>
-                        @if(userCanOnAny('view', \Modules\BookStack\Entities\Bookshelf::class) || userCan('bookshelf-view-all') || userCan('bookshelf-view-own'))
+                        <!-- @if(userCanOnAny('view', \Modules\BookStack\Entities\Bookshelf::class) || userCan('bookshelf-view-all') || userCan('bookshelf-view-own'))
                             <a href="{{ url('/kb/shelves') }}">@icon('bookshelf'){{ trans('bookstack::entities.shelves') }}</a>
                         @endif
-                        <a href="{{ url('/kb/books') }}">@icon('books'){{ trans('bookstack::entities.books') }}</a>
+                        <a href="{{ url('/kb/books') }}">@icon('books'){{ trans('bookstack::entities.books') }}</a> -->
                         @if(signedInUser() && userCan('settings-manage'))
                             <a href="{{ url('/kb/settings') }}">@icon('settings'){{ trans('bookstack::settings.settings') }}</a>
                         @endif

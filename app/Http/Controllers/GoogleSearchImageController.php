@@ -8,6 +8,8 @@ use App\Category;
 use App\ScrapeQueues;
 use App\Setting;
 use App\Brand;
+use App\GoogleSearchImage;
+use App\GoogleSearchRelatedImage;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -15,6 +17,10 @@ use DB;
 use App\LogGoogleCse;
 use App\Helpers\ProductHelper;
 use App\Services\Search\TinEye;
+use Illuminate\Support\Str;
+
+use Illuminate\Support\Facades\Storage;
+
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -39,14 +45,18 @@ class GoogleSearchImageController extends Controller
             $data[ 'status_id' ] = $request->status_id;
         }
 
-        if ($request->brand[ 0 ] != null) {
-            $productQuery = $productQuery->whereIn('brand', $request->brand);
-            $data[ 'brand' ] = $request->brand[ 0 ];
+        if ($request->brand) {
+            if ($request->brand[ 0 ] != null) {
+                $productQuery = $productQuery->whereIn('brand', $request->brand);
+                $data[ 'brand' ] = $request->brand[ 0 ];
+            }
         }
 
-        if ($request->color[ 0 ] != null) {
-            $productQuery = $productQuery->whereIn('color', $request->color);
-            $data[ 'color' ] = $request->color[ 0 ];
+        if ($request->color) {
+            if ($request->color[ 0 ] != null) {
+                $productQuery = $productQuery->whereIn('color', $request->color);
+                $data[ 'color' ] = $request->color[ 0 ];
+            }
         }
 
         if (isset($request->category) && $request->category[ 0 ] != 1) {
@@ -91,9 +101,11 @@ class GoogleSearchImageController extends Controller
             $data[ 'price' ][ 1 ] = $max;
         }
 
-        if ($request->location[ 0 ] != null) {
-            $productQuery = $productQuery->whereIn('location', $request->location);
-            $data[ 'location' ] = $request->location[ 0 ];
+        if ($request->location) {
+            if ($request->location[ 0 ] != null) {
+                $productQuery = $productQuery->whereIn('location', $request->location);
+                $data[ 'location' ] = $request->location[ 0 ];
+            }
         }
 
         if ($request->no_locations) {
@@ -177,7 +189,6 @@ class GoogleSearchImageController extends Controller
                 $data[ 'media_id' ] = $media->id;
                 $data[ 'product_id' ] = $product_id;
             }
-
             if (!empty($data[ 'image' ])) {
                 return view('google_search_image.crop', $data);
             }
@@ -256,11 +267,46 @@ class GoogleSearchImageController extends Controller
 
             // Get product
             $product = Product::where('id', $product_id)->first();
+            $img_url_array =[];
+
+            foreach ($productImage as $key => $z) {
+
+                if($z){
+
+                    $file = asset($key);
+                    $file_name = Str::random(10).rand(1000,9999). Str::random(4).'.jpg';
+                    $status = Storage::disk('uploads')->put('search_crop_images/'.$file_name, file_get_contents($file));
+
+                    $search_img = new GoogleSearchImage;
+                    $search_img->user_id = \Auth::id();
+                    $search_img->product_id = $product_id;
+                    $search_img->crop_image = 'search_crop_images/'.$file_name;
+                    $search_img->save();
+
+                    for ($i=0; $i < count($z['pages']); $i++) {
+                        // $img_url_array['image'] = $z['pages'][$i];
+                        // $img_url_array['url'] = $z['pages_media'][$i];
+
+                        $google_img = new GoogleSearchRelatedImage;
+                        $google_img->google_search_image_id = $search_img->id;
+                        $google_img->google_image = $z['pages_media'][$i];
+                        $google_img->image_url = $z['pages'][$i];
+                        $google_img->save();
+
+                    }
+                }else{
+                    return response()->json(['status' => false, 'message' => "Image Not Found"]);
+                }
+            };
+
+            return response()->json(['status' => true, 'message' => "Search Successfully"]);
 
             // Return view
-            return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
+            // return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
         } else {
-            return redirect(route('google.search.image'))->with('message', 'Please Select Products');
+            return response()->json(['status' => false, 'message' => "Please Select Products"]);
+
+            // return redirect(route('google.search.image'))->with('message', 'Please Select Products');
         }
 
         abort(403, 'Sorry , it looks like there is no result from the request.');
@@ -802,7 +848,8 @@ class GoogleSearchImageController extends Controller
             $brand = '';
         }
 
-        $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
         if ($key != null) {
@@ -1189,7 +1236,8 @@ class GoogleSearchImageController extends Controller
             $brand = '';
         }
 
-        $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
         if ($key != null) {
@@ -1260,6 +1308,17 @@ class GoogleSearchImageController extends Controller
             return response('success', 200);
         }
 
+    }
+
+    public function searchImageList(){
+        $data['title'] = "Google Search Images";
+        $image_search = GoogleSearchImage::where('user_id',\Auth::id())
+                        ->leftjoin('products as p','p.id','=','google_search_images.product_id')
+                        ->select('google_search_images.*','p.name as product_name')
+                        ->paginate(30);
+        $data['image_search'] = $image_search;
+
+        return view('google_search_image.search_image_list',$data);
     }
 
 }

@@ -15,7 +15,8 @@ class SimplyDuty
 
     public function __construct()
     {
-        $this->apiKey = env("SIMPLY_DUTY_API_KEY");
+        // $this->apiKey = env("SIMPLY_DUTY_API_KEY");
+        $this->apiKey = config('env.SIMPLY_DUTY_API_KEY');
     }
 
     /**

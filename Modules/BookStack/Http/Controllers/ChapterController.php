@@ -51,7 +51,8 @@ class ChapterController extends Controller
     public function store($bookSlug, Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'description' => 'string|max:1000'
         ]);
 
         $book = $this->entityRepo->getBySlug('book', $bookSlug);

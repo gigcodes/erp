@@ -773,6 +773,47 @@ Content-Type: application/json
 }
 ```
 
+## Fetch Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/fetch-credit-balance
+Accept: application/json
+Content-Type: application/json
+{
+	'website':'www.sololuxury.com',
+	'platform_id':1,
+	"lang_code":"ae_ar",
+}
+Response
+{"message":"Credit Fetched Successfully",'code' => 200,"status":success,"data":{"credit_balance":400,"currency":INR}}
+```
+## save Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/deduct-credit
+Accept: application/json
+Content-Type: application/json
+{
+	'website':'www.sololuxury.com'
+	'platform_id':1,
+	'amount':50,
+	"lang_code":"ae_ar",
+}
+Response
+{"message":"Credit updated successfully","code":200,"status":"success"}
+```
+## add Customer credit
+```json
+POST https://erp.theluxuryunlimited.com/api/add-credit
+Accept: application/json
+Content-Type: application/json
+{
+	'website':'www.sololuxury.com'
+	'platform_id':1,
+	'amount':50,
+	"lang_code":"ae_ar",
+}
+Response
+{"message":"Credit added successfully","code":200,"status":"success"}
+```
 ## Store data into the laravel logs
 **Request:**
 
@@ -1338,3 +1379,138 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/remove
 }
 ```
 
+
+## Add address
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=www.brands-labels.com&email=test@gmail.com
+[{
+    "entity_id" : 12,
+    "address_type" : "shipping",
+    "region" : "EU",
+    "region_id" : "12",
+    "postcode" : "12",
+    "firstname" : "1ad",
+    "middlename" : "J",
+    "company" : "Test",
+    "country_id" :96,
+    "telephone" : "987542011",
+    "prefix" : "mr",
+    "street" : "test"
+}]
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 404
+}
+```
+
+
+## Store screenshot
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/product-live-status
+{
+    "website" : "https://sololuxury.com",
+    "sku" : "2EG286W08F0C6D",
+    "message" : "Success",
+    "image" : ""
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "Request has been stored successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
+{
+   "email":"test@gmail.com",
+   "sku" : "2EG286W08F0C6D",
+   "website" : "WWW.SOLOLUXURY.COM"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Subscribed successfully."
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Failed"
+}
+```
+
+## Add customer data in cart request
+
+Key : customercart.failed.validation, customercart.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
+{
+"name":"test",
+"lang_code":"en-US",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"item_info":[
+    {
+        "sku":"1BH018VCNK2AIXF0F6R",
+        "qty":2
+    },
+    {
+        "sku":"QW2S0A04VCE0NO",
+        "qty":2
+    }
+]
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

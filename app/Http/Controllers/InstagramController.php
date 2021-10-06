@@ -809,7 +809,17 @@ class InstagramController extends Controller
         if (strpos($request->userlink, 'instagram.com') !== false) {
            //Get username from link
             $username = str_replace(['https://www.instagram.com/','/'], '', $request->userlink);
-            $username = Helper::getUserIdFromUsername($username);
+
+            $reAccount =  $request->get("account", 0);
+            $account  = \App\Marketing\InstagramConfig::find($reAccount);
+            $usernameI = false;
+            $passwordI = false;
+            if($account) {
+                $usernameI = $account->username;
+                $passwordI = $account->password;
+            }
+
+            $username = Helper::getUserIdFromUsername($username,$usernameI,$passwordI);
             if($username['status'] == 'ok'){
                 $user = $username['user'];
                 $userList = InstagramUsersList::where('user_id',$user['pk'])->first();

@@ -16,6 +16,8 @@ class GoogleTranslateController extends Controller
 {
     public static function translateProductDetails($product,$logid=null)
     {
+		$logModel = LogListMagento::find($logid);
+       
         try {
             $measurement = ProductHelper::getMeasurements($product);
             $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
@@ -32,22 +34,11 @@ class GoogleTranslateController extends Controller
                 $product_translation->country_of_manufacture = $product->made_in;
                 $product_translation->dimension = $measurement;
                 $product_translation->save();
-            }else{
-                $msg = 'Default translation data not exists';
-
-            
-                if(!empty($logid)) {
-                    $logModel = LogListMagento::find($logid);
-                    if($logModel) {
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
-                    }
-                }
             }
             if(count($languages) > 0){
                 foreach($languages as $language) {
                     $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-        
-                    if(!$isLocaleAvailable) { //if product translation not available
+				    if(!$isLocaleAvailable || $isLocaleAvailable->dimension == '' || $isLocaleAvailable->country_of_manufacture == '' || $isLocaleAvailable->color == '' || $isLocaleAvailable->composition == '' || $isLocaleAvailable->description == '' || $product_translation->title == '') { //if product translation not available
                         $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
                         try {
 
@@ -59,21 +50,38 @@ class GoogleTranslateController extends Controller
                             $productNames = splitTextIntoSentences($product->name);
                             $productShortDescription =  splitTextIntoSentences($product->short_description);
                             //check in table is field is empty and then translate
-                            if($product_translation->title == ''){
-                                $title = self::translateProducts($googleTranslate, $language, $productNames);
-                                $product_translation->title = $title;
+							$requestData = $responseData = [];
+							if($product_translation->title == ''){
+                                 $title = self::translateProducts($googleTranslate, $language, $productNames);
+                                  if($title != '' and !empty($logid)) {
+									  $requestData['title'] = $productNames;
+									  $responseData['title'] = $title;
+								   }
+								  $product_translation->title = $title;
                             }
                             if($product_translation->description == ''){
                                 $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
                                 $product_translation->description = $description;
+								if($description != ''and !empty($logid)) {
+									  $requestData['description'] = $productShortDescription;
+									  $responseData['description'] = $description;
+								}
                             }
                             if($product_translation->composition == ''){
                                 $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
                                 $product_translation->composition = $composition;
+								if($composition != ''and !empty($logid)) {
+									$requestData['composition'] = [$product->composition];
+									$responseData['composition'] = $composition;
+								}
                             }
                             if($product_translation->color == ''){
                                 $color = self::translateProducts($googleTranslate, $language, [$product->color]);
                                 $product_translation->color = $color;
+								if($color != ''and !empty($logid)) {
+									$requestData['color'] = [$product->color];
+									$responseData['color'] = $color;
+								}
                             }
                             /*if(!$checkdata || $checkdata->size==''){
                                 $size = self::translateProducts($googleTranslate, $language, [$product->size]);
@@ -82,20 +90,30 @@ class GoogleTranslateController extends Controller
                             if($product_translation->country_of_manufacture == ''){
                                 $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
                                 $product_translation->country_of_manufacture = $country_of_manufacture;
-                            }
+								if($country_of_manufacture != ''and !empty($logid)) {
+								   $requestData['country_of_manufacture'] = [$product->made_in];
+								   $responseData['country_of_manufacture'] = $country_of_manufacture;
+								}
+							}
                             if($product_translation->dimension == ''){
                                 $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
                                 $product_translation->dimension = $dimension;
+								if($dimension != '' and !empty($logid)) {
+									$requestData['dimension'] = [$measurement];
+								    $responseData['dimension'] = $country_of_manufacture;
+								}
                             }
                             $product_translation->product_id = $product->id;
                             $product_translation->locale = $language;
                             $product_translation->save();
+							if($responseData and !empty($logid)) {
+								ProductPushErrorLog::log("",$product->id, 'Product Translated to '.$language, 'success',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+							}	
 
                          } catch (\Exception $e) {
                             
-                            $msg = $language." => ".$e->getMessage();
+                            $msg = $language." => ".$e->getMessage(); 
                             if(!empty($logid)) {
-                                $logModel = LogListMagento::find($logid);
                                 if($logModel) {
                                     ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
                                 }
@@ -120,7 +138,7 @@ class GoogleTranslateController extends Controller
             if(!empty($logid)) {
                 $logModel = LogListMagento::find($logid);
                 if($logModel) {
-                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                    ProductPushErrorLog::log("",$product->id, $msg, 'php',$logModel->store_website_id,"","",$logModel->id);
                 }
 
             }
@@ -128,7 +146,7 @@ class GoogleTranslateController extends Controller
     }
 
     public static function translateProducts(GoogleTranslate $googleTranslate,$language,$names = [],$glue=''){
-        $response = [];
+        $response = []; 
         if(count($names) > 0){
             foreach($names as $name){
                 // Check translation SEPARATE LINE exists or not

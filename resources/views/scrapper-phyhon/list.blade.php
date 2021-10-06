@@ -68,6 +68,9 @@
         .mr-3 {
             margin:3px;
         }
+        td{
+            padding: 4px !important;
+        }
     </style>
 @endsection
 
@@ -75,8 +78,8 @@
  <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
             <div class="">
 
                 <!--roletype-->
@@ -103,67 +106,176 @@
         <form method="get" action="{{route('scrapper.phyhon.index')}}">
 
      <div class="form-group">
-                        <div class="row">
+                        <div class="row m-0">
                             
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
                                 <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
+                               <?php echo Form::select("store_website_id",[null => "- select website -"] + \App\StoreWebsite::pluck('title','id')->toArray(),request('store_website_id'),["class" => "form-control"]) ?>
+                            </div>
+                            <div class="col-md-3 pr-0">
                                <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
                                     <option value="">Select Website</option>
-
                                     @foreach($allWebsites as $websiteRow)
-
-                                    @if(isset($request->website) && $websiteRow->id==$request->website)
-
-                                     <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
-
-
-                                    @else
-
-                                     <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
-
-
-                                    @endif
-
-                                   
-                                         @endforeach
-                                        </select>
+                                        @if(isset($request->website) && $websiteRow->id==$request->website)
+                                         <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
+                                        @else
+                                         <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
+                                        @endif
+                                    @endforeach
+                               </select>
+                            </div>
+                            <div class="col-md-3 pr-0">
+                               <?php echo Form::select('device',["desktop" => "Desktop" , "mobile" => "Mobile", "tablet" => "Tablet"],request('device'), ["class" => "form-control"]) ?>
                             </div>
 
-                             <div class="col-md-3">
+                             <div class="col-md-3 pr-0">
                                <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
                                     <option value="">Select Store</option>
 
                                    
                                         </select>
                             </div>
-                            <div class="col-md-1">
-                               <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+                            <div class="col-md-2">
+                               <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
+                                <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
+
                             </div>
                             <div class="col-md-1">
-                                <button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>    
                             </div>
                         </div>
 
                     </div>
 
 </form>
+
+        <form action="" method="POST" id="scrapper-python-form">
+        @csrf
+            <div class="form-group">    
+                <div class="row m-0">
+                    
+                    <div class="col-md-3 pr-0">
+                        <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
+                            <option value="">Select Website</option>
+                                @foreach($storewebsite as $web)
+                                    <option value="{{$web->website}}">{{$web->website}}</option>
+                                @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 pr-0">
+                            
+                        <input type="radio" name="name" id="start" value="start" checked>
+                        <label class="form-check-label pr-4" for="start">
+                            Start
+                        </label>
+                    
+                        <input type="radio" name="name" id="stop" value="stop">
+                        <label class="form-check-label pr-4" for="stop">
+                            Stop
+                        </label>
+
+                        <input type="radio" name="name" id="get-status" value="get-status">
+                        <label class="form-check-label pr-4" for="get-status">
+                            Get status
+                        </label>
+                            
+                    </div>
+
+                    <div class="col-md-2 pr-0">
+                            
+                        <input type="radio" name="type" id="desktop" value="desktop" checked>
+                        <label class="form-check-label pr-4" for="desktop">
+                            Desktop
+                        </label>
+                    
+                        <input type="radio" name="type" id="mobile" value="mobile">
+                        <label class="form-check-label pr-4" for="mobile">
+                            Mobile
+                        </label>
+
+                        <input type="radio" name="type" id="tablet" value="tablet">
+                        <label class="form-check-label pr-4" for="tablet">
+                            Tablet
+                        </label>
+                            
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary" >Send Request</button>
+
+                        <button type="submit" class="btn btn-secondary view_history" >History</button>
+
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+    <div id="history" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="history_img">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">History</h5>
+
+                    <div class="col-md-6">
+                        <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
+                        <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
+                        <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                            <i class="fa fa-calendar"></i>&nbsp;
+                            <span id="date_current_show"></span><i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary view_history">Submit</button>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                        <th style="width:30%">Website</th>
+                        <th style="width:20%">Device</th>
+                        <th style="width:30%">Date</th>
+                        <th style="width:20%">No. Of Images</th>
+                        </thead>
+                        <tbody  class="history_data">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
+                    <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
-            <table class="table table-bordered" style="table-layout:fixed;">
+            <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
                 <thead>
-                <th style="width:10%">Date</th>
-                <th style="width:20%">Id</th>
-                <th style="width:20%">Website</th>
-                <th style="width:45%">Name</th>
-                <th style="width:20%">Action</th>
+                <th style="width:8%">Date</th>
+                <th style="width:5%">Id</th>
+                <th style="width:35%">Website</th>
+                <th style="width:20%">Name</th>
+                <th style="width:15%">Language</th>
+                <th style="width:17%">No of Images</th>
+                <th style="width:17%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load')
                 </tbody>
             </table>
+
         </div>
+        {{ $websites->appends(request()->except('page'))->links() }}
     </div>
 
 
@@ -206,7 +318,8 @@
     {{-- @include('partials.modals.category') --}}
     {{-- @include('partials.modals.forward-products') --}}
     {{-- @include('partials.add-order-model') --}}
-    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
@@ -511,48 +624,49 @@
         });
 
 
-        $(document).on('click', '.preview-attached-img-btn', function (e) {     
-            console.log('load product');
-            e.preventDefault();
-            var customer_id = $(this).data('id');
-            var suggestedproductid = $(this).data('suggestedproductid');
-            // $.ajax({
-            //     url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
-            //     data: $('#searchForm').serialize(),
-            //     dataType: 'html',
-            // }).done(function (data) {
-            //     $('#attach-image-list-'+suggestedproductid).html(data);
-            // }).fail(function () {
-            //     alert('Error searching for products');
-            // });
+        // $(document).on('click', '.preview-attached-img-btn', function (e) {     
+        //     console.log('load product');
+        //     e.preventDefault();
+        //     var customer_id = $(this).data('id');
+        //     var suggestedproductid = $(this).data('suggestedproductid');
+        //     // $.ajax({
+        //     //     url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
+        //     //     data: $('#searchForm').serialize(),
+        //     //     dataType: 'html',
+        //     // }).done(function (data) {
+        //     //     $('#attach-image-list-'+suggestedproductid).html(data);
+        //     // }).fail(function () {
+        //     //     alert('Error searching for products');
+        //     // });
             
-            var expand = $('.expand-'+suggestedproductid);
-            $(expand).toggleClass('hidden');
+        //     var expand = $('.expand-'+suggestedproductid);
+        //     $(expand).toggleClass('hidden');
 
-            //to hide image area
-            $(expand).each(function(){
+        //     //to hide image area
+        //     $(expand).each(function(){
 
-                var imageArea=$(this).find('.show-scrape-images').attr('data-suggestedproductid');
+        //         var imageArea=$(this).find('.show-scrape-images').attr('data-suggestedproductid');
 
-                $('.expand-images-'+imageArea).addClass('hidden');
+        //         $('.expand-images-'+imageArea).addClass('hidden');
 
 
-            })
+        //     })
            
 
-        });
+        // });
 
 
         // function to show scrape images
          $(document).on('click', '.show-scrape-images', function (e) {     
             console.log('load images');
             e.preventDefault();
+             window.location.href = $(this).data('url');
            
-            var suggestedproductid = $(this).data('suggestedproductid');
-            
-            
-            var expand = $('.expand-images-'+suggestedproductid);
-            $(expand).toggleClass('hidden');
+            // var suggestedproductid = $(this).data('suggestedproductid');
+            //
+            //
+            // var expand = $('.expand-images-'+suggestedproductid);
+            // $(expand).toggleClass('hidden');
 
         });
 
@@ -1285,6 +1399,80 @@
                 })
             }
         }
+
+        let r_s = "";
+        let r_e = "";
+
+        let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(0, 'days');
+        let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+        jQuery('input[name="range_start"]').val();
+        jQuery('input[name="range_end"]').val();
+
+        function cb(start, end) {
+            $('#filter_date_range_ span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#filter_date_range_').daterangepicker({
+            startDate: start,
+            maxYear: 1,
+            endDate: end,
+            //parentEl: '#filter_date_range_',
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+
+        cb(start, end);
+
+        $('#filter_date_range_').on('apply.daterangepicker', function(ev, picker) {
+            let startDate=   jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+            let endDate =    jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        
+        $(document).on("click",".view_history",function(e) {
+            e.preventDefault();
+
+            let startDate=   jQuery('input[name="range_start"]').val();
+            let endDate =    jQuery('input[name="range_end"]').val();
+
+            $.ajax({
+                type: "GET",
+                url: "{{route('scrapper.history')}}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    startDate:startDate,
+                    endDate:endDate,
+                },
+                dataType : "json",  
+                beforeSend : function() {
+                    $(this).text('Loading...');
+                },
+            }).done(function (response) {
+                
+                var html_data = '';
+                $.each(response.history,function(k,v){
+                    html_data += '<tr>';
+                    html_data += '<td>'+v.website+'</td>';
+                    html_data += '<td>'+(v.device ?? '')+'</td>';
+                    html_data += '<td>'+ moment(v.created_date).format('YYYY-MM-DD') +'</td>';
+                    
+                    html_data += '<td>'+v.no_image+'</td>';
+                    html_data += '</tr>';
+                })
+                $('.history_data').html(html_data);
+                $('#history').modal('show');
+
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
         
 </script>
 

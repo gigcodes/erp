@@ -4,25 +4,24 @@
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Instagram Users ({{ $users->total() }})</h2>
-            <div class="pull-left">
-                 <form method="post" action="/instagram/users/save">
-                    @csrf
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <input type="text" name="userlink" class="form-control" placeholder="Enter Link" style="padding-right: 10px">
-                            </div>
-                          
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                            </div>
-
+            <form method="post" action="/instagram/users/save">
+                @csrf
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label>Link</label>
+                            <input type="text" name="userlink" class="form-control" placeholder="Enter Link" style="padding-right: 10px">
+                        </div>
+                        <div class="col-md-2">
+                            <label>Account</label>    
+                            <?php echo Form::select("account",\App\Marketing\InstagramConfig::where('provider','instagram')->pluck('username','id'),null, ["class" => "form-control"]); ?>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-secondary mt-5">Submit</button>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="pull-right">
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 

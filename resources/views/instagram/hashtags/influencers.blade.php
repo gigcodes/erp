@@ -13,6 +13,97 @@
             margin: -50px 0px 0px -50px;
         }
 
+        /* .navbar{
+          height: 60px;
+          background:#f1f1f1ad; 
+        } */
+
+
+        h1{
+            font-size:30px;
+            font-weight:600;
+            padding: 20px 0;
+
+        }
+
+h2{
+	font-size:24px;
+	font-weight:600;
+
+}
+
+h3 {
+	font-size:20px;
+	font-weight:600;
+        
+
+}
+
+p{ 
+	font-size: 14px;
+	font-weight: 400;
+	margin-bottom: 15px;
+}
+/* 
+a.navbar-brand{
+    font-size: 22px;
+	font-weight: 600;
+	color: #5a5555;  
+} */
+
+.navbar-light .navbar-nav .nav-link{
+    font-size: 14px;
+	color: #757575;
+}
+
+#search_li input{
+    height:35px !important;
+	border: 1px !important;
+	font-size:14px !important;
+	/* max-width: */
+
+}
+
+.btn{
+	padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #828282;
+    cursor: pointer;
+    
+}
+
+.btn:hover{
+ background:#565656;
+}
+
+.btn:disabled{
+	opacity : 0.5;
+    pointer-events: none;
+}
+
+button[disabled]:hover {
+    background: none;
+}
+
+.action-icon{
+    width:20px;
+    height:20px;
+	padding:3px;
+	border-radius: 4px;
+}
+
+.action-icon:hover{
+    background-color: #ccc; 
+    cursor: pointer;
+}
+
+
+
         .chat-righbox a{
             color: #555 !important;
             font-size: 18px;
@@ -64,6 +155,32 @@
     .pd-2 {
         padding:2px;
     }
+
+    table{
+        border: 1px;
+	    border-radius: 4px;  
+        /* font-size: 13px;  */
+        word-break: break-all;
+    }
+    
+    .table>thead>tr>th{
+        font-weight: normal;
+        font-size: 15px;
+        color: #000;
+    }
+
+    .table>tbody>tr>td{
+        font-weight: normal;
+        font-size: 14px;
+        color: #757575;
+    }
+
+   .form-control{
+        height:35px !important;
+	    font-size:14px !important;
+	    border-radius: 4px !important;
+    }
+
     </style>
 @endsection
 @section('large_content')
@@ -112,6 +229,9 @@
                         </select>
                 </div>
                 <div class="form-group mr-3 mb-3">
+               
+                 <input type="date" name="date" id="date11">
+            
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                     <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
                 </div>
@@ -120,6 +240,12 @@
             </div>
             <div class="pull-right">
                 <div class="row">
+                <div class="form-group mr-3 mb-3">    
+                    <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-sm" >Ceate Mailing List</a> 
+                </div>      
+                <div class="form-group mr-3 mb-3">    
+                    <a href="#" class="btn btn-secondary btn-sm mailToInfluencers" >Send Mail</a> 
+                </div>      
                 <div class="form-group mr-3 mb-3">    
                     <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
                 </div>        
@@ -135,6 +261,7 @@
                 <div class="form-group mr-3 mb-3">
                     <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
                 </div>
+               
                 </div>
             </div>
         </div>
@@ -163,6 +290,9 @@
                                 <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th>Platform</th>
+                                    <th>Wait time</th>
+                                    <th>No of Request</th>
                                     <th>Account</th>
                                     <th>Action</th>
                                 </tr>
@@ -173,17 +303,36 @@
                                    <td>{{ $keyword->name }}</td>
                                    <td>
                                         <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::select('platform',["py_instagram" => "Py Instagram", "py_facebook" => "Py Facebook"],null, ["class" => "form-control select2 platform-request"]); ?>
+                                        </div>
+                                   </td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::text('wait_time',$keyword->wait_time, ["class" => "form-control wait-time"]); ?>
+                                        </div>
+                                   </td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::text('no_of_request',$keyword->no_of_requets, ["class" => "form-control no-of-request"]); ?>
+                                        </div>
+                                   </td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
                                              <?php echo Form::select('instagram_account_id',$accountsList,$keyword->instagram_account_id, ["class" => "form-control select2","id" => 'instagram_account_id_change']); ?>
                                         </div>
                                    </td>
                                    <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
                                    <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
-                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
-                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
+                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
+                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
                                    <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
-                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
+                                   <!--<button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> !-->
+                                   <button type="button" data-id="{{$keyword->name}}" class="btn btn-log-instances"><i class="fa fa-history" aria-hidden="true"></i></button>
                                    <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
-                                   </td>
+                                  
+                                 
+                  
+                                </td>
                                 </tr>
                                 @endforeach
                                 </tbody>
@@ -205,23 +354,27 @@
             </div>
         </div>
     </div>
-            <div class="table-responsive">
+    
+            <div class="table-responsive mt-2">
                 <table class="table-striped table table-bordered" id="data-table" style="table-layout:fixed;">
                     <thead >
                     <tr>
 
-                        <th style="width:2%">#</th>
-                        <th style="width:7%">Date</th>
-                        <th style="width:10%">Username</th>
-                        <th style="width:10%">Email</th>
-                        <th style="width:10%">Hashtag</th>
-                        <th style="width:5%">Posts</th>
-                        <th style="width:7%">Followers</th>
-                        <th style="width:7%">Following</th>
-                        <th style="width:8%">Country</th>
-                        <th style="width:10%">Description</th>
-                        <th style="width:41%">Communication</th>
-                        <th style="width:6%">Action</th>
+                        <th style="width:2.5%">#</th>
+                        <th style="width:6%">Platform</th>
+                        <th style="width:6%">Date</th>
+                        <th style="width: 10%">Username</th>
+                        <th style="width:8%">Email</th>
+                        <th style="width:7%">Hashtag</th>
+                        <th style="width:5%" >Posts</th>
+                        <th style="width:5%">Followers</th>
+                        <th style="width:5%">Following</th>
+                        <th style="width:7%">Country</th>
+                        <th style="width:8%">Description</th>
+                        <th style="width:7%">Sender</th>
+                        <th style="width:17%">Communication</th>
+                        <th style="width:6%">Auto Reply</th>
+                        <th style="width:5%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
                         <th>Twitter</th>
@@ -229,7 +382,7 @@
                         <th>Keyword</th> -->
                     </tr>
                    </thead>
-                     <tbody>
+                   <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                    @include('instagram.hashtags.partials.influencer-data')
                    
                     </tbody>
@@ -241,6 +394,7 @@
 
         
     </div>
+    <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
@@ -255,6 +409,38 @@
                 </div>
             </div>
         </div>
+    </div>
+	
+	<div id="mailingListTemplate" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+      <div class="modal-header">
+                    <h4 class="modal-title">Mailing Template</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="" id="mailToInfluencersForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Template:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+										{{Form::select('mailing_list', $mailingListTemplates, null, array('class'=>'form-control'))}}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Send</button>
+                    </div>
+                </form>
+      </div>
+    </div>
     </div>
 
 
@@ -304,6 +490,21 @@
       </div>
     </div>
 </div>
+
+<div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Instagram Logs</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @include("marketing.whatsapp-configs.partials.image")
 @include('instagram.hashtags.partials.influencer-history')
@@ -566,7 +767,11 @@
                    console.log("error");
                });
           }
-          function startScript(name) {
+          function startScript(name,ele) {
+            var platform = $(ele).closest("tr").find(".platform-request").val();
+            var wait_time = $(ele).closest("tr").find(".wait-time").val();
+            var no_of_request = $(ele).closest("tr").find(".no-of-request").val();
+
             var result = confirm("You Want to start this script "+name+"?");
             if(result){
                 $.ajax({
@@ -575,6 +780,9 @@
                    dataType: 'json',
                    data: {
                         name: name,
+                        platform : platform,
+                        wait_time : wait_time,
+                        no_of_request : no_of_request,
                         "_token": "{{ csrf_token() }}",
                     },
                    })
@@ -634,7 +842,8 @@
             }
              
           }
-          function stopScript(name) {
+          function stopScript(name,ele) {
+            var platform = $(ele).closest("tr").find(".platform-request").val();
             var result = confirm("You Want to stop this script "+name+"?");
             if(result){
                 $.ajax({
@@ -643,6 +852,7 @@
                    dataType: 'json',
                    data: {
                         name: name,
+                        platform : platform,
                         "_token": "{{ csrf_token() }}",
                     },
                    })
@@ -745,6 +955,15 @@
           }
           $('#directMessageModal').modal('show');
         });
+		
+		 $(document).on("click",".mailToInfluencers",function(e){
+          e.preventDefault();
+          if(selectedInfluencers.length < 1) {
+            toastr['error']("Select few influencers first");
+            return;
+          }
+          $('#mailingListTemplate').modal('show');
+        });
 
         $(document).on('submit', '#directMessageForm', function (e) {
                 e.preventDefault();
@@ -762,6 +981,32 @@
                         $("#data-table tr").find('.selectedInfluencers').each(function () {
                           if ($(this).prop("checked") == true) {
                             $(this).prop("checked", false);
+                          }
+                        });
+                        selectedInfluencers = [];
+                    },
+                    error: function (error) {
+                        toastr['error'](error.responseJSON.message, 'error');
+                    }
+                });
+        });
+		
+		$(document).on('submit', '#mailToInfluencersForm', function (e) {
+                e.preventDefault();
+                var data = $(this).serializeArray();
+                var account_id = $('.account-search').val();
+                data.push({name: 'selectedInfluencers', value: selectedInfluencers});
+                $.ajax({
+                    url: "{{route('send.mail-influencer')}}",
+                    type: 'POST',
+                    data: data,
+                    success: function (response) {
+                        toastr['success']('Successful', 'success'); 
+                        $('#mailingListTemplate').modal('hide');
+                        $("#mailToInfluencersForm").trigger("reset");
+                        $("#data-table tr").find('.selectedInfluencers').each(function () {
+                          if ($(this).prop("checked") == true) {
+                             $(this).prop("checked", false);
                           }
                         });
                         selectedInfluencers = [];
@@ -847,7 +1092,68 @@
                 });
 
             
-        }    
+        }   
+
+
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('instagram/influencers')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-cashflow-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        }); 
+
+
+        $(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            var $date=  $('#date11').val();
+            $.ajax({
+                url: '{{url('instagram/influencers/get-log')}}',
+                method:"get",
+                data : {
+                    id : $id,
+                    date : $date
+                },
+                success: function (data) {
+                   $("#manage-log-instance").find(".modal-body").html(data);
+                   $("#manage-log-instance").modal('show'); 
+                },
+            });
+        });
     </script>
 
 @endsection

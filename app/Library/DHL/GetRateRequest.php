@@ -41,9 +41,12 @@ class GetRateRequest extends APIAbstract
     public function __construct($requestType = "soap")
     {
         parent::__construct();
-        $this->fromCountryCode = getenv('DHL_COUNTRYCODE') ?: config('dhl.tas.DHL_COUNTRYCODE');
-        $this->fromPostalCode  = getenv('DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
-        $this->fromCity        = getenv('DHL_CITY') ?: config('dhl.tas.DHL_CITY');
+        // $this->fromCountryCode = getenv('DHL_COUNTRYCODE') ?: config('dhl.tas.DHL_COUNTRYCODE');
+        // $this->fromPostalCode  = getenv('DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
+        // $this->fromCity        = getenv('DHL_CITY') ?: config('dhl.tas.DHL_CITY');
+        $this->fromCountryCode = config('env.DHL_COUNTRYCODE') ?: config('dhl.tas.DHL_COUNTRYCODE');
+        $this->fromPostalCode  = config('env.DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
+        $this->fromCity        = config('env.DHL_CITY') ?: config('dhl.tas.DHL_CITY');
         $this->timeZone        = "+02:00";
         $this->dimensionUnit   = 'CM';
         $this->weightUnit      = 'KG';

@@ -102,6 +102,10 @@ var page = {
             page.editSeoRecord($(this));
         });
 
+        page.config.bodyView.on("click",".open-build-process-template",function(e) {
+            e.preventDefault();
+            page.editBuildProcess($(this));
+        });
 
         
 
@@ -121,6 +125,11 @@ var page = {
         $(".common-modal").on("click",".update-seo-format",function(e) {
             e.preventDefault();
             page.updateSeoFormat($(this));
+        });
+
+        $(".common-modal").on("click",".update-build-process",function(e) {
+            e.preventDefault();
+            page.updateBuildProcess($(this));
         });
 
         
@@ -156,6 +165,72 @@ var page = {
         $(document).on("click",".generate-pem-file",function() {
             page.openGenerateFile();
         });
+
+        $(document).on("click",".open-store-magento-user-lising",function(href) {
+            page.openUserListing();
+            
+        });
+
+        $(document).on("click",".open-store-user-histoty",function(href) {
+            page.openUserStoreHistorListing($(this));
+            
+        });
+
+		$(document).on("click",".open-store-user-histoty",function(href) {
+            page.openUserStoreHistorListing($(this));
+        });
+
+
+    },
+    openStoreReindexHistory: function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+ele.data("id")+'/store-reindex-history',
+            method: "get",
+        }
+        this.sendAjax(_z, 'showStoreReindexHistory');
+    },
+    showStoreReindexHistory : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-store-reindex-history");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }     
+    },
+    openUserStoreHistorListing: function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+ele.data("id")+'/userhistory',
+            method: "get",
+        }
+        this.sendAjax(_z, 'showStoreUserHistoryLiting');
+    },
+    showStoreUserHistoryLiting : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-history-store-magento-user");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }        
+              
+    },
+    openUserListing: function() {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/magento-user-lising",
+            method: "get",
+        }
+        this.sendAjax(_z, 'showUserLiting');
+    },
+    showUserLiting : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-magento-user-lising");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }        
+              
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -281,6 +356,42 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
+    
+    editBuildProcess : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/build-process",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterBuildProcess');
+    },
+    afterBuildProcess: function(response) { 
+        var createWebTemplate = $.templates("#template-build-process"); 
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show"); 
+    },
+	updateBuildProcess : function(ele) { 
+       var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/build-process/save",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterUpdateBuildProcess");
+    },
+    afterUpdateBuildProcess : function(response) { 
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Build Process successfully","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
 
     editCancellationRecord : function(ele) {
         var _z = {
@@ -324,14 +435,28 @@ var page = {
         var userEmail = ele.parents('.subMagentoUser').find('.userEmail').val();
         var firstName = ele.parents('.subMagentoUser').find('.firstName').val();
         var lastName = ele.parents('.subMagentoUser').find('.lastName').val();
-        var password = ele.parent().parent().children('.sub-pass').children('.user-password').val();
+        
+        var password = ele.parents('.subMagentoUser').find('.user-password').val();
+        var websitemode = ele.parents('.subMagentoUser').find('.websiteMode').val();
+        
+       
+        //var password = ele.parent().parent().children('.sub-pass').children('.user-password').val();
+       
         var store_id = $('#store_website_id').val();
+        
+        //use in user-lising-popup
+        if(!store_id){
+            store_id = ele.parents('.subMagentoUser').find('.store_website_id').val();
+        }
+
+
         var store_website_userid = ele.attr('data-id');
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save-user-in-magento",
             method: "post",
             data : {
                 _token:$('meta[name="csrf-token"]').attr('content'),
+                websitemode:websitemode,
                 username:username,
                 userEmail:userEmail,
                 firstName:firstName,
@@ -374,10 +499,18 @@ var page = {
                       '</div>'+
                       '<div class="form-group">'+
                         '<div class="row">'+
-                             '<label class="col-sm-12" for="password">Password</label>'+
-                             '<div class="col-sm-7 sub-pass">'+
+                            '<div class="col-sm-6">'+
+                                '<labelfor="password">Password</label>'+
                                 '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
                              '</div>'+
+                            '<div class="col-sm-6">'+
+                                '<label for="website_mode">Website Mode</label>'+
+                                '<select name="website_mode" id="website_mode" class="form-control websiteMode"><option value="production">Production</option><option value="staging">Staging</option></select>'+
+                             '</div>'+    
+                        '</div>'+
+                      '</div>'+
+                      '<div class="form-group">'+
+                        '<div class="row">'+
                              '<div class="col-sm-5">'+
                                 '<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">'+
                                     '<i class="fa fa-eye" aria-hidden="true"></i>'+
@@ -653,7 +786,7 @@ var page = {
             common.find(".modal-dialog").html(tplHtml);
             common.modal("show");
               
-    }
+    },
 }
 
 $.extend(page, common);

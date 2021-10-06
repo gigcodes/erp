@@ -6,12 +6,22 @@
 
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <style>
+    .checkbox{
+      margin-left: -20px;
+      margin-top: 0px !important;
+      margin-bottom: 0px !important;
+    }
+    .erp-leads{
+      font-size: 14px;
+    }
+  </style>
   
 @section('content')
+
 <div class="row">
   <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
-
+      <h2 class="page-heading">Erp Leads <a class="editor_create text-dark" href="javascript:;"><i class="fa fa-plus"></i></a></h2>
   </div>
   <?php  /*
 
@@ -52,15 +62,20 @@
     </form>
   </div>
   */?>
+    @if(session()->has('success'))
+      <div class="col-lg-12 margin-tb">
+        <div class="alert alert-success">
+            {{ session()->get('success') }}
+        </div>
+      </div>
+    @endif
   <div class="col-md-12">
 
 <?php $base_url = URL::to('/');?>
-  <div class="pull-left cls_filter_box">
+  <div class="col-md-12 cls_filter_box">
                 <form class="form-inline" action="{{ route('erp-leads.erpLeads') }}" method="GET">
-                
                 @csrf
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Status</label>
+                    <div class="form-group cls_filter_inputbox">
                         <!-- <select style="width:100px; font-size: 12px; border-radius: 2px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
 
                          
@@ -70,24 +85,22 @@
                           @endforeach
                         </select> -->
                         <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="" style="width: 150px; border-radius: 2px;">
-                            <option value="">Select Category</option>
                             <option value="">Status</option>
                           @foreach($erpLeadStatus as $status)
                             <option value="{{$status['id']}}">{{$status['name']}}</option>
                           @endforeach
                         </select>
-                    </div>
-
+                      </div>
+                      <div class="form-group ml-3 cls_filter_inputbox">
+                        <h4 data-toggle="modal" data-target="#addStatusModal" class="text-dark"><i class="fa fa-plus"></i></h4>
+                      </div>
                     
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Customer</label>
                         <!-- <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                         <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" name="lead_customer" placeholder="Customer" />
 
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <label for="with_archived">Brand</label>
-                    
                        <!--  <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 100px; border-radius: 2px;">
                           <option value="">Brand</option>
                           @foreach($brands as $brand_item)
@@ -103,34 +116,53 @@
                         </select>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    <label for="with_archived">Brand Segment</label>
                        <!-- <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" name="brand_segment" placeholder="Brand Segment"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Category</label>
                         <!-- <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                         <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" name="lead_category" placeholder="Category"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_updated_by">Color</label>
                         <!-- <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                         <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" name="lead_color" placeholder="Color"/>
 
                     </div>
                     <div class="form-group ml-3 cls_filter_checkbox">
-                    <label for="with_archived">Size</label>
                        <!-- <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
                        <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_shoe_size" placeholder="Size"/>
                     </div>
                     <!-- <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php //echo $base_url;?>/images/filter.png"/></button> -->
-                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <button type="submit" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
-                
             </div>
 
-            <div class="col-lg-12 margin-tb" style="    margin-left: 23px;">
-            <div class="pull-right mt-3" style="margin-bottom: 12px ">
+            <!--Add Status Modal -->
+            <div class="modal fade" id="addStatusModal" role="dialog">
+              <div class="modal-dialog">
+              
+                <!-- Modal content-->
+                <div class="modal-content">
+                  <form action="{{ route('erpLeads.status.create') }}">
+                  <div class="modal-header">
+                    <h4 class="modal-title">Add Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                    <div class="modal-body">
+                      <input type="text" name="add_status" class="form-control input-blog" placeholder="Add Status" style="width: 100%" required>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-secondary">Create</button>
+                    </div>
+                  </form>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="col-lg-12 margin-tb mb-3">
+            
                 <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
@@ -143,61 +175,155 @@
                   </label>
                 <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
                 <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
-            </div>
-        </div> 
-        <div></div>
+            
+            </div> 
+          <div>
+        </div>
         <br>
         <div class="infinite-scroll">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table">
+        <table class="table table-bordered erp-leads" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%">ID</th>
-                <th width="5%">Status</th>
+                <th width="1%"></th>
+                <th width="1%">ID</th>
+                <th width="5%">Date</th>
+                <th width="7%">Status</th>
                 <th width="10%">Customer</th>
-                <th width="7%">Image</th>
-                <th width="13%">Brand</th>
-                <th width="10%">Brand Segment</th>
-                <th width="10%">Category</th> 
-               
-                <th width="5%">Color</th>
+                <th width="7%">C Email</th>
+                <th width="6%">C Whatsapp</th>
+                <th width="3%">Image</th>
+                <th width="5%">Product ID</th>
+                <th width="3%">Sku</th>
+                <th width="7%">Product name</th>
+                <th width="5%">Brand</th>
+                <th width="6%">B Segment</th>
+                <th width="8%">Category</th> 
+                <th width="2%">Color</th>
                 <th width="2%">Size</th>
+                <th width="12%">Communication</th>
+                <th width="3%">Action</th>
             </tr>
             </thead>
 
             <tbody id="vendor-body">
 
               @foreach ($sourceData as $source)
-                <tr>
+                <tr> 
                   <!-- <td>{{$source['id']}}</td> -->
-                  <td class="tblcell">
-                    
-                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}</label></div>
-                  </td>
-                  <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['status_name']}}</label></div></td>
+                  <td class="tblcell"><div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</label></div></td>
+                  <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <select class="form-control update-Erp-Status" name="ErpStatus"  data-id="{{$source['id']}}">
+                      @foreach(App\ErpLeadStatus::all() as $erp_status)
+                          <option value="{{ $erp_status->id }}" {{ $source['status_name'] == $erp_status->name ? 'selected' : '' }}>{{ $erp_status->name }}</option>
+                      @endforeach
+                  </select>
+                  </label></div></td>
                   <td class="tblcell">
                   <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></label></div></td>
 
+                  <!-- 08-09-2021 -->
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['customer_email']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['customer_whatsapp_number']}}</label></div></td>
+                  <!-- 08-09-2021  end -->
+
                   <td class="tblcell">
-                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div>
-</td>
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}</label></div></td>
+                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div></td>
+                  
+                  <!-- 08-09-2021 -->
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_id']}}</label></div></td>
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                        {{ Illuminate\Support\Str::limit($source['product_sku'], 5, '..') }}
+                      </label>
+                    </div>
+                  </td>
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                        {{ Illuminate\Support\Str::limit($source['product_name'], 10, '..') }}
+                      </label>
+                    </div>
+                  </td>
+                  <!-- 08-09-2021 end -->
+
+
+
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew">
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}
+                      </label>
+                      <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
+                        <i class="fa fa-plus"></i>
+                      </a>
+                    </div>
+                  </td>
+
+
+
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div></td>
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['cat_title']}}</label></div></td>
+
+
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew">
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['cat_title'] != null){{$source['cat_title']}}@endif
+                      </label>
+                      <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
+                        <i class="fa fa-plus"></i>
+                      </a>
+                      </div>
+                    </td>
+
+
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div></td>
-                </tr>
+                  <td class="tblcell communication-td">
+                    @if($source['customer_whatsapp_number'])
+                      <input type="text" class="form-control send-message-textbox" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." style="margin-bottom:5px;width:77%;display:inline;"/>
+                      <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$source['id']}}" ><img src="/images/filled-sent.png"/></button>
+                      <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $source['customer_id'] }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                    @endif
+                  </td>
+                  <td class="tblcell"><a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details"><i class="fa fa-shopping-cart"></i></a></td>
+                </tr> 
               @endforeach
 
             </tbody>
         </table>
-    </div>
+    </div>   
     {{ $sourceData->appends(Request::except('page'))->links() }}
 
     </div>
-   
+
   </div>
 </div>
+{{-- //modal  --}}
+
+<div id="chat-list-history" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Communication</h4>
+              <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+              <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+              <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+              <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+          </div>
+          <div class="modal-body" style="background-color: #999999;">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
 
 <div id="erp-leads" class="modal fade" role="dialog">
   <div class="modal-dialog">
@@ -206,6 +332,20 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="erp_leads_manage_category_brand" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="set_heading" >Erp Leads</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body erp-leads-modal" id="erp_leads_manage_category_brand_form">
 
       </div>
     </div>
@@ -258,6 +398,65 @@
     </div>
 </div>
 
+<div id="update-status-message-tpl" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div class="modal-header">
+          <h4 class="modal-title">Change Status</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <form action="" id="update-status-message-tpl-frm" method="POST">
+          @csrf
+          <input type="hidden" name="order_id" id="order-id-status-tpl" value="">
+          <input type="hidden" name="order_status_id" id="order-status-id-status-tpl" value="">
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
+              <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
+    padding-right: 12px;
+    padding-bottom: 0px !important;">
+    <div class="modal-dialog" style="width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;">
+      <div class="modal-content " style="
+    border: 0;
+    border-radius: 0;">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+          <div class="modal-body" id="common-contents">
+
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -283,6 +482,8 @@
         placeholder: "Select Category",
         // allowClear: true
     });
+
+      
       
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
@@ -575,6 +776,64 @@
       });
     };
 
+    //scrip
+
+    $(document).on('click', '.multi_brand_category_create', function () {
+       
+      var url = $(this).attr('data-url');
+      var lead_id = $(this).attr('data-id');
+
+      $.ajax({
+            type: "GET",
+            url: url+'?lead_id='+lead_id
+        }).done(function (data) {
+            console.log(data);
+           $("#erp_leads_manage_category_brand_form").html(data);
+           $("#lead_create_brands").append('<input type="hidden" name="lead_id" value='+lead_id+'>');
+           $("#erp_leads_manage_category_brand").modal("show");
+
+           $('.multi_lead_status_brands').select2({
+              placeholder: "Select Brand",
+              // allowClear: true
+          });
+
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+
+
+    $(document).on('click', '.lead-button-submit-for-category-brand', function (e) {
+      e.preventDefault();
+      var $this = $(this);
+      
+      var url = $('#lead_create_brands').attr('action');
+
+      var formData = new FormData(document.getElementById("lead_create_brands"));
+      $.ajax({
+            type: "POST",
+            data : formData,
+            url: url,
+            contentType: false,
+            processData: false
+        }).done(function (data) {
+          console.log(data);
+           if(data.code == 200) {
+               $("#erp_leads_manage_category_brand").find(".modal-body").html("");
+               $("#erp_leads_manage_category_brand").modal("hide");
+               location.reload(true);
+           }else{
+              alert(data.message);
+           }
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+
+
+
     $(document).on('click', '.editor_create', function () {
        var $this = $(this);
         $.ajax({
@@ -685,6 +944,177 @@
 
     }
 
+    $(document).on("change",".update-Erp-Status",function() {
+          var id = $(this).data("id");
+          var status_id = $(this).val();
+
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url:"{{ route('erpLeads.status.update') }}",
+            type: "post",
+            data:{'id':id,'status_id':status_id},
+          }).done( function(response) {
+            if(response.code == 200) {
+              $("#update-status-message-tpl").modal("show");
+              $("#order-id-status-tpl").val(id);
+              $("#order-status-id-status-tpl").val(status_id);
+              $("#order-template-status-tpl").val(response.template);
+            }
+            
+          })
+      });
+
+      $(document).on("click",".update-status-with-message",function(e) {
+          e.preventDefault();
+          $.ajax({
+            url:"{{ route('erpLeads.status.change') }}",
+            type: "GET",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'1',
+              message:$("#order-template-status-tpl").val(),
+            }
+          }).done( function(response) {
+              $("#update-status-message-tpl").modal("hide");
+          })
+      });
+
+      $(document).on("click",".update-status-without-message",function(e) {
+          e.preventDefault();
+          $.ajax({
+            url:"{{ route('erpLeads.status.change') }}",
+            type: "GET",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'0',
+              message:$("#order-template-status-tpl").html(),
+            }
+          }).done( function(response) {
+            $("#update-status-message-tpl").modal("hide");
+          }).fail(function(errObj) {
+            alert("Could not change status");
+          });
+      });
+
+
+      $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+            let customerId = textBox.attr('data-id');
+            let message = textBox.val();
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'customer')}}",
+                type: 'POST',
+                data: {
+                    "customer_id": customerId,
+                    "message": message,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + customerId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
+      $(document).on('click', '.view-supplier-details', function(e) {
+        e.preventDefault();
+        var lead_id = $(this).data('id');
+        var type = 'GET';
+          $.ajax({
+            url: '/purchase-product/lead-supplier-details/'+lead_id,
+            type: type,
+            dataType: 'html',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done( function(response) {
+              $("#loading-image").hide();
+              $("#purchaseCommonModal").modal("show");
+              $("#common-contents").html(response);
+          }).fail(function(errObj) {
+              $("#loading-image").hide();
+          });
+      });
+
+      $(document).on('keyup', '.supplier-discount', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let product_id = $(this).data('product');
+            let discount = $("#supplier_discount-"+id).val();
+            let lead_id = $(this).data('lead-id');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                type: 'POST',
+                data: {
+                  discount: discount,
+                  supplier_id: id,
+                  product_id:product_id,
+                  lead_id:lead_id
+                },
+                success: function (data) {
+                    toastr["success"]("Discount updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
+
+
+        $(document).on('keyup', '.supplier-fixed-price', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let fixed_price = $("#supplier_fixed_price_"+id).val();
+            let product_id = $(this).data('product');
+            let lead_id = $(this).data('lead-id');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                type: 'POST',
+                data: {
+                  fixed_price: fixed_price,
+                  supplier_id: id,
+                  product_id:product_id,
+                  lead_id:lead_id
+                },
+                success: function (data) {
+                    toastr["success"]("Fixed price updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
 
 
   </script>

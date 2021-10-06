@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\ChatMessage;
 use App\CronJobReport;
+use App\DailyActivity;
 use App\DailyActivitiesHistories;
 use App\UserEvent\UserEvent;
 use Carbon\Carbon;
@@ -81,7 +82,8 @@ class SendDailyPlannerNotification extends Command
                         $no             = 1;
 
                         foreach ($events as $event) {
-                            $notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+                            $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
+                            $notification[] = $no . ") [" . changeTimeZone( $dailyActivities->for_datetime, null ,$dailyActivities->timezone ) . "] => " . $event->subject;
                             $no++;
 
                             $history = [
@@ -114,7 +116,9 @@ class SendDailyPlannerNotification extends Command
                         $notification[] = "Following Event Schedule on within the next 30 min";
                         $no             = 1;
                         foreach ($events as $event) {
-                            $notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+                            $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
+                            
+                            $notification[] = $no . ") [" . changeTimeZone( $dailyActivities->for_datetime, null ,$dailyActivities->timezone ) . "] => " . $event->subject;
                             $no++;
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,

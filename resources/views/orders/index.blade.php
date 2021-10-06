@@ -153,6 +153,7 @@
 <div class="row">
         <div class="col-md-12" style="padding:0px;">
             <div class="pull-right">
+              <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
               <a href="#" class="btn btn-xs btn-secondary delete-orders">
                             Archive
               </a>
@@ -184,14 +185,21 @@
             {{-- <th style="width: 8%">Message Status</th> --}}
             {{-- <th style="width: 20%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
             <th>Waybill</th>
+            <th>Price</th>
+            <th>Shipping</th>
+            <th>Duty</th>
             <th width="10%">Action</th>
          </tr>
         </thead>
 
         <tbody style="color:font-size: small;">
 			@foreach ($orders_array as $key => $order)
+      
              @php
                $extraProducts = [];
+               $orderProductPrice = 0;
+               $productQty = 0;
+               
                if(!$order->order_product->isEmpty())  {
                   foreach($order->order_product as $orderProduct) {
                     $extraProducts[] = [
@@ -200,10 +208,14 @@
                       "product_price" => $orderProduct->product_price,
                       "name" => ($orderProduct->product) ? $orderProduct->product->name : ""
                     ];
+
+                    $orderProductPrice = $orderProduct->product_price;
+
                   }
                }
              @endphp
 
+             
             <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -215,9 +227,9 @@
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
                   <span class="td-mini-container">
-                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id : '' ?>">
-                        <?php
-                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
+                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id : 
+                  '' ?>">
+                        <?php                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
                         ?>
                      </span>
                   </span>
@@ -261,7 +273,9 @@
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
                               <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
-                                <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
+                                <a data-fancybox="gallery" href="{{ $media->getUrl() }}">#{{$order_product->product->id}}<i class="fa fa-eye"></i></a>
+                                <a class="view-supplier-details" data-id="{{$order_product->id}}" href="javascript:;"><i class="fa fa-shopping-cart"></i></a>
+                                <br/>
                               <?php break; } ?>
                               @php ++$count; @endphp	                        
                             @endif	                     
@@ -277,7 +291,11 @@
                           </span>	                 
                         @endif	                 
                       @endif	             
-                    @endforeach	            
+                    @endforeach	   
+
+                    @php
+                      $productQty = count($order->order_product);     
+                    @endphp    
                   </div>	    
                   @if (($count - 1) > 1)	           
                     <span class="ml-1">	         
@@ -330,6 +348,9 @@
                   -
                 @endif
               </td>
+              <td>{{$orderProductPrice * $productQty}}</td>
+              <td>{{$duty_shipping[$order->id]['shipping']}}</td>
+              <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
@@ -353,6 +374,8 @@
                   <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-truck" aria-hidden="true"></i>
                   </a>
+
+                  <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
 
                   <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-address-card" aria-hidden="true"></i>
@@ -397,6 +420,12 @@
                   <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
                 </a>
                 @endif
+
+                @if($order->invoice_id)
+                <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
+                  <i class="fa fa-download"></i>
+               </a>
+                @endif
                 </div>
               </td>
             </tr>
@@ -418,6 +447,47 @@
                     <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-status-map" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Magento Order Status Mapping</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th style="width: 20%;">Status</th>
+                          <th style="width: 20%;">Magento Status</th>
+                          <th>Message Text Template</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                       @foreach($orderStatusList as $orderStatus)
+                          <tr>
+                            <td>{{ $orderStatus->id }}</td>
+                            <td>{{ $orderStatus->status }}</td>
+                            <td><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
+                            <td>
+                              <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ !empty($orderStatus->message_text_tpl) ? $orderStatus->message_text_tpl : \App\Order::ORDER_STATUS_TEMPLATE }}</textarea>
+                              <button type="button" class="btn btn-image edit-vendor" onclick="updateStatus({{ $orderStatus->id }})"><i class="fa fa-arrow-circle-right fa-lg"></i></button>
+                            </td>
+                          </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -532,23 +602,64 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="col-md-2">
-                            <strong>Message:</strong>
-                        </div>
-                        <div class="col-md-8">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
                         <div class="form-group">
                           <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
                         </div>
+                      </div>
+                      <div class="col-md-12">
+                      <div class="col-md-2">
+                        <div class="form-group">
+                          <div class="checkbox">
+                            <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
+                          </div>
+                          <div class="checkbox">
+                            
+                            <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
+                          </div>
                         </div>
+                </div>
+                <div class="col-md-8">
+                       <div id="preview" style="display:none">
+                             
+                       </div>
+                </div>
+                      </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
-                <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
+                <button type="button" class="btn btn-primary update-status-with-message">Submit</button>
+                <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
+                <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
             </div>
         </form>
+      </div>
+    </div>
+</div>
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
+    padding-right: 12px;
+    padding-bottom: 0px !important;">
+    <div class="modal-dialog" style="width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;">
+      <div class="modal-content " style="
+    border: 0;
+    border-radius: 0;">
+      <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                    <div class="modal-body" id="common-contents">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
       </div>
     </div>
 </div>
@@ -560,10 +671,14 @@
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
+@include("partials.modals.preview_sent_mails_modal")
 @include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
 @section('scripts')
+
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
@@ -571,8 +686,17 @@
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+  <script type="text/javascript">
+    CKEDITOR.replace('editableFile');
+  </script>
   <script type="text/javascript">
 
+  
+    $(document).on('click','.magento-order-status',function(event){ 
+      event.preventDefault();
+      $('#order-status-map').modal('show');
+    });
     $(document).on("click",".toggle-title-box",function(ele) {
         var $this = $(this);
         if($this.hasClass("has-small")){
@@ -742,6 +866,65 @@
       });
 
 
+
+
+      $(document).on("click",".preview_sent_mails",function() {
+
+          var id = $(this).data("order-id");
+          
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/preview-sent-mails",
+            type: "post",
+            data : {
+              id: id,
+            },
+            beforeSend: function() {
+
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+
+            $("loading-image").hide();
+
+            if(response.code == 200) {
+            var items = response.data;
+            console.log(response.data);
+            if(items.length > 0) {
+              var itemsHtml = '';
+              $.each(items, function(k,v) {
+                  itemsHtml += `<tr class="in-background filter-message reviewed_msg" data-message="Greetings from Solo Luxury Ref: order number 1730030 we have updated your order with status : prepaid.">
+                      <td >`+v.created_at+`</td>
+                      <td >`+v.from+`</td>
+                      <td >`+v.to+`</td>
+                      <td >`+v.subject+`</td>
+                      <td >`+v.message+`</td> 
+                      <td >`+v.status+`</td>
+                      <td >`+v.is_draft+`</td>
+                      <td >`+v.error_message+`</td>
+                    </tr>`;
+
+                });
+              
+              $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+            }
+
+            $("#previewSendMailsModal").modal("show");
+
+            }
+            
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+
+
+
+
+      });
+
+
     function ConfirmDialog(message,id,status) {
       $('<div></div>').appendTo('body')
         .html('<div><h5>' + message + '?</h5></div>')
@@ -800,7 +983,7 @@
       $(document).on("change",".order-status-select",function() {
           var id = $(this).data("id");
           var status = $(this).val();
-
+          $("#preview").hide();
           $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -818,8 +1001,11 @@
             $("loading-image").hide();
             if(response.code == 200) {
               $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
               $("#order-status-id-status-tpl").val(status);
               $("#order-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
               $("#update-status-message-tpl").modal("show");
             }
             
@@ -830,7 +1016,19 @@
 
       $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
-          $.ajax({
+          console.log($("#email_from_mail").val());
+          console.log($("#email_to_mail").val());
+          var selected_array = [];
+          console.log(selected_array);
+          $('.msg_platform:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
+          
+          if(selected_array.length == 0){
+            alert('Please at least select one option');
+            return;
+          }else{
+            $.ajax({
             url: "/order/change-status",
             type: "GET",
             async : false,
@@ -839,12 +1037,18 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              custom_email_content:$("#customEmailContent").val(),
+              from_mail:$("#email_from_mail").val(),
+              to_mail:$("#email_to_mail").val(),
+              order_via: selected_array,
             }
-          }).done( function(response) {
+            }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
-          }).fail(function(errObj) {
-            alert("Could not change status");
-          });
+            }).fail(function(errObj) {
+              alert("Could not change status");
+            });
+          }
+          
       });
 
       $(document).on("click",".update-status-without-message",function() {
@@ -1142,16 +1346,22 @@
         })
         $(document).on('click','.update-del-date',function(e){
           e.preventDefault();
+		   var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           var newdeldate = $('#newdeldate').val();
           if(!newdeldate){
             toastr['error']('Estimate delivery date field cannot be empty !');
             return;
           }
             var form = $("#updateDelDateForm");
+			var data = form.serialize();
+			
             $.ajax({
                 type: form.attr("method"),
                 url: form.attr("action"),
-                data: form.serialize(),
+                data: {'orderid':$('#orderid').val(), 'newdeldate':$('#newdeldate').val(), 'fieldname':$('#fieldname').val(), 'order_via':selected_array},
                 dataType:"json",
                 beforeSend:function(data){
                   $('.ajax-loader').show();
@@ -1345,5 +1555,119 @@
         service_type.val(pre_from_service_type); */
     
     });
+
+    $(document).on('click', '.view-supplier-details', function(e) {
+      e.preventDefault();
+      var order_product_id = $(this).data('id');
+      var type = 'GET';
+        $.ajax({
+          url: '/purchase-product/supplier-details/'+order_product_id,
+          type: type,
+          dataType: 'html',
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+            $("#loading-image").hide();
+            $("#purchaseCommonModal").modal("show");
+            $("#common-contents").html(response);
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('keyup', '.supplier-discount', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let product_id = $(this).data('product');
+            let discount = $("#supplier_discount-"+id).val();
+            let orderProductId = $(this).data('order-product');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                type: 'POST',
+                data: {
+                  discount: discount,
+                  supplier_id: id,
+                  product_id:product_id,
+                  order_product_id:orderProductId
+                },
+                success: function (data) {
+                    toastr["success"]("Discount updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
+
+
+        $(document).on('keyup', '.supplier-fixed-price', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).data('id');
+            let fixed_price = $("#supplier_fixed_price_"+id).val();
+            let product_id = $(this).data('product');
+            let orderProductId = $(this).data('order-product');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                type: 'POST',
+                data: {
+                  fixed_price: fixed_price,
+                  supplier_id: id,
+                  product_id:product_id,
+                  order_product_id:orderProductId
+                },
+                success: function (data) {
+                    toastr["success"]("Fixed price updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
+                }
+            });
+
+        });
+
+        $(document).on('click', '.product_default_supplier', function () {
+            let supplier_id = $(this).data('id');
+            let order_product = $(this).data('order_product');
+            let product_id = $(this).data('product');
+            $.ajax({
+              headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+                url: "{{action('PurchaseProductController@saveDefaultSupplier')}}",
+                type: 'POST',
+                data: {
+                  supplier_id: supplier_id,
+                  order_product:order_product,
+                  product_id:product_id
+                },
+                success: function (res) {
+                  if(res.code == 200) {
+                    toastr["success"]("Supplier updated successfully!", "Message");
+                  }
+                  else {
+                    toastr["error"](res.message, "Message");
+                  }
+
+                }
+            });
+
+        });
+
+        function loadpreview(t)
+        {
+          $("#preview").hide();
+          if (t.checked == true){
+            $("#preview").show();
+          }
+        }
+
   </script>
 @endsection

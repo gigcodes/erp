@@ -40,15 +40,16 @@ var page = {
                 $("#loading-image").hide();
             }
         }
-        this.sendAjax(_z, "doneAjax");
+        this.sendAjax(_z, "doneAjax",ele);
 
     },
-    doneAjax :function(response) {
+    doneAjax :function(response,ele) {
         $("#loading-image").hide();
         if(response.code == 200) {
             toastr["success"](response.message,"");
         }else {
             toastr["error"](response.message,"");
+            ele.prop("checked",false);
         }
     }
 }

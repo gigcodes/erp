@@ -8,6 +8,11 @@
             <h2 class="page-heading">Color References</h2>
         </div>
         <div class="col-md-12">
+            <div class="col-md-4 mt-5">
+                <a href="{{ route('erp-color-fix-cmd') }}" class="btn btn-default ml-2 small-field-btn">Fix Color Issue</a>
+
+            
+            </div>
             <div class="col-md-4 mt-5 float-right">
                 {!! Form::open(["class" => "form-inline" , "route" => 'color-reference.index',"method" => "GET"]) !!}    
                   <div class="form-group">

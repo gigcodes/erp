@@ -252,11 +252,11 @@
                    data: row,
                    method:'post',
                    beforeSend: function () {
-   
+                      $("#loading-image").show();
                    },
    
                }).done(function (res) {
-   
+                      $("#loading-image").hide();
                      $('#noresult_tr').remove();
    
    

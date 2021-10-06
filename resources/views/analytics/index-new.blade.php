@@ -34,7 +34,7 @@
     </div>
 </div>
 <form action="" method="get">
-    <div class="row ">
+    
         <div class="col-md-2">
             <label > Select website: </label>
             <div class="form-group">
@@ -60,22 +60,23 @@
         </div>
         <div class="form-group col-md-3 pt-4" style="">
             <label >  </label>
-            <button class="btn btn-secondary">Search</button>
-            <a href="{{ url('/display/analytics-data') }}" class="btn btn-secondary">
-                Clear
+            <button class="btn btn-image search"><img src="https://erp.theluxuryunlimited.com/images/search.png" alt="Search" style="cursor: nwse-resize; width: 0px;"></button>
+            <a href="{{ url('/display/analytics-data') }}" class="btn btn-image">
+                <i class="fa fa-history" aria-hidden="true"></i>
             </a>
         </div>
-    </div>
 </form>
 
-<div class="col-lg-12 mb-5">
-    <button class="btn btn-secondary show-history"> Show history </button>
+<div class="mt-1">
+    <button class="btn btn-default show-history"> Show history </button>
 </div>
+
+
 
 @include('partials.flash_messages')
 @include('analytics.history')
 
-<div class="col-md-12">
+{{-- <div class="col-md-12">
     <div id="exTab2" >
         <ul class="nav nav-tabs">
             <li class="{{ request('geo-network') || request('audience-per-page') || request('user-per-page') || request('tracking-per-page') ? '' : 'active' }}"><a  href="#browser" data-toggle="tab">Platform or Device</a></li>
@@ -264,6 +265,61 @@
     </div>
 
     
+</div> --}}
+
+<div class="col-md-12">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th style="width:3%">Website</th>
+                <th style="width:3%">Browser</th>
+                <th style="width:3%">OS</th>
+                <th style="width:3%">Country</th>
+                <th style="width:3%">Iso Code</th>
+                <th style="width:3%">User Type</th>
+                <th style="width:10%">Page</th>
+                <th style="width:7%">Avg Time</th>
+                <th style="width:7%">Page Views</th>
+                <th style="width:4%">U. Page Views</th>
+                <th style="width:4%">Exist Rate</th>
+                <th style="width:4%">Entrances</th>
+                <th style="width:5%">Entrance Rate</th>
+                <th style="width:3%">Age</th>
+                <th style="width:3%">Gender</th>
+                <th style="width:4%">Session</th>
+                <th style="width:4%">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($google_analytics_data as $data)
+                <tr>
+                    <td>{{ $data->website }}</td>
+                    <td>{{ $data->browser }}</td>
+                    <td>{{ $data->os }}</td>
+                    <td>{{ $data->country }}</td>
+                    <td>{{ $data->iso_code }}</td>
+                    <td>{{ $data->user_type }}</td>
+                    <td>{{ $data->page }}</td>
+                    <td>{{ round($data->avg_time_page, 4) }}</td>
+                    <td>{{ $data->page_view }}</td>
+                    <td>{{ $data->unique_page_views }}</td>
+                    <td>{{ $data->exit_rate }}</td>
+                    <td>{{ $data->entrances }}</td>
+                    <td>{{ $data->entrance_rate }}</td>
+                    <td>{{ $data->age }}</td>
+                    <td>{{ $data->gender }}</td>
+                    <td>{{ $data->session }}</td>
+                    <td>{{ $data->created_at->format('Y-m-d') }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+        @if (count($google_analytics_data) === 0)
+            <div style="text-align:center"><h3 style="color: gray">No Data Availble</h3></div>    
+        @endif
+    <div>
+        <tr>{{ $google_analytics_data->links() }}</tr>
+    </div>
 </div>
 <div class="row mt-5">
     <div class="container-fluid">
@@ -293,7 +349,7 @@
                     $.each(result.data,function(k,v) {
                         t += `<tr><td>`+v.id+`</td>`;
                         t += `<td>`+v.website+`</td>`;
-                        t += `<td>`+v.title+`</td>`;
+                        t += `<td data-title = "`+v.title+`">`+v.title+`</td>`;
                         t += `<td>`+v.description+`</td>`;
                         t += `<td>`+v.created_at+`</td></tr>`;
                     });
@@ -317,5 +373,26 @@
         $('.url').text(fullpath);
         $('#fullUrlModal').modal('show');
     }
+    
+
+    $(document).on('change','.category-history-filter',function(){
+        var value = $(this).val();
+        if (value == 'error') {
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').hide();
+        }
+        if (value == 'success') {
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').hide();
+        }
+        if (!value) {
+            $('#category-history-modal').find('td[data-title="success"]').closest('tr').show();
+            $('#category-history-modal').find('td[data-title="error"]').closest('tr').show();
+        }
+    })
+
+    $('#category-history-modal').on('hidden.bs.modal', function () {
+        $('#category-history-modal').find('.category-history-filter').val('');
+    })
 </script>
 @endsection

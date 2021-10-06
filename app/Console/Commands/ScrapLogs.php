@@ -48,7 +48,8 @@ class ScrapLogs extends Command
         $searchVal = "";
         $dateVal = "";
         $file_list = [];
-        $files = \File::allFiles(env('SCRAP_LOGS_FOLDER'));
+        // $files = \File::allFiles(env('SCRAP_LOGS_FOLDER'));
+        $files = \File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
         /*$date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
         if($date == 01) 
         {
@@ -58,7 +59,9 @@ class ScrapLogs extends Command
         foreach ($files as $key => $val) {
             $day_of_file = explode('-', $val->getFilename());
             if(str_contains(end($day_of_file), $yesterdayDate) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-                $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+                // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+                $file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+
                 $file = file($file_path_new);
 
                 $log_msg = "";

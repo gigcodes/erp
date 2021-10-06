@@ -25,14 +25,14 @@ class ColorNamesReference extends Model
         if (isset($productObject->properties['color']) || isset($productObject->properties->color)) {
             $colerRef = $productObject->properties['color'];
             foreach ($mainColorNames as $colorName) {
-                if(!empty($colerRef) && !empty($colorName->color_name)) {
+                if(!empty($colerRef) && is_string($colerRef) && !empty($colorName->color_name)) {
                     if (stristr($colerRef, $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
                 }
             }
             // in this case color refenrece we don't found so we need to add that one
-            if(!empty($colerRef)) {
+            if(!empty($colerRef) && is_string($colerRef)) {
                 $creferenceModel = ColorNamesReference::where('color_name',$colerRef)->first();
                 if(!$creferenceModel) {
                     ColorNamesReference::create([

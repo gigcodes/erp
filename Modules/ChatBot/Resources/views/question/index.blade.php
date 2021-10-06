@@ -86,7 +86,7 @@
 			      <th class="th-sm" style="width:13%">Intent / entity</th>
 			      <th class="th-sm" style="width:5%">Type</th>
 			      <th class="th-sm" style="width:30%">User Intent / entity</th>
-                  <th class="th-sm" style="width:10%">Erp/Watson</th>
+                  <th class="th-sm" style="width:5%">Erp/Watson</th>
                   <th class="th-sm" style="width:10%">Suggested Response</th>
 			      <th class="th-sm" style="width:9%">Category</th>
 			      <th class="th-sm" style="width:9%">Status</th>

@@ -276,6 +276,7 @@
     @include('vendors.partials.modal-emailToAll')
     @include('common.commonEmailModal')
     @include('vendors.partials.vendor-modals')
+    @include('vendors.partials.charity-modals')
     @include('vendors.partials.add-vendor-info-modal')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
@@ -1459,14 +1460,19 @@
                 _token: "{{ csrf_token() }}",
                 message: $("#send_message").find("#message_to_all_field").val(),
                 vendors: vendors
+            },
+            dataType:"json",
+            beforeSend: function () {
+              $("#create_broadcast").modal("hide");
+              $("#loading-image").show();
             }
-        }).done(function () {
-            window.location.reload();
+        }).done(function (response) {
+            $("#loading-image").hide();
+            //window.location.reload();
+            toastr['success'](response.message);
         }).fail(function (response) {
-            $(thiss).text('No');
-
-            alert('Could not say No!');
-            console.log(response);
+            $("#loading-image").hide();
+            toastr['error']("Request was failed due to some reason please check log for more information");
         });
     });
 

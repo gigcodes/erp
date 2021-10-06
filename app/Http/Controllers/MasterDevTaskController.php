@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Library\Github\GithubClient;
+use App\MemoryUsage;
 use Illuminate\Http\Request;
 use ProjectDirectory;
+use Laravel\Horizon\Contracts\JobRepository;
+use App\ScraperProcess;
+use App\Scraper;
 
 class MasterDevTaskController extends Controller
 {
@@ -34,6 +38,12 @@ class MasterDevTaskController extends Controller
      */
     public function index(Request $request)
     {
+
+        $memory_use = MemoryUsage::
+                whereDate('created_at', now()->format('Y-m-d'))
+                ->orderBy('used','desc')
+                ->first();
+
         $currentSize = \DB::table("database_historical_records")->orderBy("created_at", "desc")->first();
         //echo '<pre>'; print_r($currentSize); echo '</pre>';exit;
         $sizeBefore  = null;
@@ -43,6 +53,7 @@ class MasterDevTaskController extends Controller
                 ->first();
         }
 
+        $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at',date("Y-m-d"))->groupBy('database_name')->orderBy('size','desc')->limit(5)->get();
         // find the open branches
         //$github     = new GithubClient;
         //$repository = $github->getRepository();
@@ -134,10 +145,37 @@ class MasterDevTaskController extends Controller
         $scrapeData = \DB::select($sql);
 		
 		//DB Image size management#3118
-		$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
+		//$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
+        $projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at or display_dev_master = 1";
 
-		$projectDirectoryData = \DB::select($projectDirectorySql);	 
+        
+
+
+        $projectDirectoryData = \DB::select($projectDirectorySql);
+
+
+        $logRequest = \App\LogRequest::where('status_code',"!=",200)->whereDate("created_at",date("Y-m-d"))->groupBy('status_code')->select(["status_code",\DB::raw("count(*) as total_error")])->get();
+
+        $failedJobs = app(JobRepository::class)->getFailed();
+
+
+        $scraper_proc = [];
+
+        $scraper_process = ScraperProcess::where("scraper_name","!=","")->orderBy('started_at','DESC')->get()->unique('scraper_id');
+        foreach ($scraper_process as $key => $sp) {
+            $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
+            $from = \Carbon\Carbon::now();
+            $diff_in_hours = $to->diffInMinutes($from);
+            if ($diff_in_hours > 1440) {
+                array_push($scraper_proc,$sp);
+            }
+        }
+        $scrapers = Scraper::where("scraper_name","!=","")->whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
+
+
+
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs','scraper_process','scrapers'));
     }
+
 }

@@ -56,11 +56,13 @@ class MonetaryAccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
+           'name' => 'required',
            'currency' => 'required',
            'date' => 'required|date',
            'amount' => 'required|numeric',
         ]);
         $account = MonetaryAccount::create([
+            'name' => $request->get('name'),
             'date' => $request->get('date'),
             'currency' => $request->get('currency'),
             'amount' => $request->get('amount'),
@@ -105,11 +107,13 @@ class MonetaryAccountController extends Controller
     public function update(Request $request, MonetaryAccount $monetary_account)
     {
         $this->validate($request,[
+            'name' => 'required',
             'currency' => 'required',
             'date' => 'required|date',
             'amount' => 'required|numeric',
         ]);
         $monetary_account->fill([
+            'name' => $request->get('name'),
             'date' => $request->get('date'),
             'currency' => $request->get('currency'),
             'amount' => $request->get('amount'),
@@ -136,5 +140,47 @@ class MonetaryAccountController extends Controller
             return redirect()->back()->withErrors('Couldn\'t delete data');
         }
         return redirect()->back()->withSuccess('You have successfully deleted account detail');
+    }
+
+    public function history(Request $request, $id)
+    {
+        $account = \App\MonetaryAccount::find($id);
+        if($account) {
+            $daterange=$request->daterange; 
+            $pricerange=$request->pricerange;
+            $search=$request->search;
+            $history = \App\MonetaryAccountHistory::where("monetary_account_id",$id);
+            $where=" monetary_account_id = $id ";
+            if ($daterange!='')
+            {
+               $date=explode("-", $daterange);
+               //$where.=" AND (date beetween date('$date[0]') and date('$date[1]') ) ";
+               $datefrom=date('Y-m-d',strtotime($date[0]));
+               $dateto=date('Y-m-d',strtotime($date[1]));
+               $history->whereRaw("date(created_at) between date('$datefrom') and date('$dateto')");
+            }
+            if ($pricerange!='')
+            {
+               if ($pricerange==1)
+                  $history->whereBetween('amount',array(0,1000));
+               if ($pricerange==2)
+               $history->whereBetween('amount',array(1000,2000));   
+                  if ($pricerange==3)
+                  $history->whereBetween('amount',array(2000,5000));
+                  if ($pricerange==4)
+                  $history->whereBetween('amount',array(5000,10000));
+                  if ($pricerange==5)
+                  $history->where('amount','>',10000);     
+            }
+
+             
+           
+
+            $history =$history->latest()->paginate();
+
+            return view("monetary-account.history",compact('history','account'));
+        }else{
+            return abort(404);
+        }
     }
 }

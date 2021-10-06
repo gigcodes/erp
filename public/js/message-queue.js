@@ -58,7 +58,10 @@ var msQueue = {
             msQueue.submitLimit($(this));
         });
 
-        
+        $(document).on("click",".btn-send-time",function(e) {
+            e.preventDefault();
+            msQueue.submitTime($(this));
+        });
 
         msQueue.config.bodyView.on("click",".select-all-records",function(e) {
             msQueue.config.bodyView.find(".select-id-input").trigger("click");
@@ -229,6 +232,25 @@ var msQueue = {
             toastr['error']('Oops.something went wrong', 'error');
         }
     },
+    submitTime: function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/setting/update-time",
+            method: "post",
+            data : $(".message-queue-time-handler").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterTime");
+    },
+    afterTime : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200){
+            toastr['success']('Message time updated successfully', 'success');
+        }else{
+            toastr['error']('Oops.something went wrong', 'error');
+        }
+    }, 
     filterReport: function(href) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/report",

@@ -159,6 +159,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 	    Collective\Html\HtmlServiceProvider::class,
 	    Spatie\Permission\PermissionServiceProvider::class,
@@ -193,7 +194,10 @@ return [
         App\Providers\WhatsappConfigProvider::class,
         Webklex\IMAP\Providers\LaravelServiceProvider::class,
         Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
+        seo2websites\ErpCustomer\ErpCustomerServiceProvider::class,
         //LaravelFCM\FCMServiceProvider::class,
+
+        App\Providers\EmailServiceProvider::class,
     ],
 
     /*

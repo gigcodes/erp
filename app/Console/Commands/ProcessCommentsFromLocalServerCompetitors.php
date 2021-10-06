@@ -93,7 +93,16 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
             }
 
             $hash = new Hashtags();
-            $hash->login();
+            $username = $password = false;
+            if($hashtag->instagram_account_id > 0) {
+                $account = \App\Marketing\InstagramConfig::find($hashtag->instagram_account_id);
+                if($account) {
+                    $username = $account->username;
+                    $password = $account->password;
+                }
+            }
+
+            $hash->login($username,$password);
             $maxId = '';
 
             $keywords = Keywords::get()->pluck('text')->toArray();

@@ -13,14 +13,14 @@
 	}
 	.form-group-extended-fifteen{
 		margin-bottom: 5px !important;
-		width:15%  !important;
+		width:17%  !important;
 	}
 	.form-group-extended-four{
 		margin-bottom: 5px !important;
-		width:4%  !important;
+		width:2%  !important;
 	}
 	.form-group-extended input[type=text]{
-		width:99%  !important;
+		width:100%  !important;
 	}
 
 	.modal-dialog-wide{ 
@@ -33,17 +33,41 @@
 	}.no_pd {
 		padding: 0px !important;
 	}
+		.btn-secondary{
+			border: 1px solid #ddd;
+			color:#757575;
+			background: #fff;
+			padding: 4px 10px !important;
+		}
+	.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+		padding:3px 8px;
+	}
 	</style>
 @endsection
 
 @section('large_content')
 
 <div class="row" id="return-exchange-page">
-	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Return Exchange <span id="total-counter"></span></h2>
+	<div class="col-lg-12 margin-tb p-0">
+        <h2 class="page-heading mb-3">Return Exchange <span id="total-counter"></span>
+			<div class="pull-right pr-3">
+				<a href="#" class="btn btn-xs btn-secondary delete-orders" id="bulk_delete">
+					Delete
+				</a>
+				<a href="#" class="btn btn-xs update-customer btn-secondary" id="bulk_update">
+					Update
+				</a>
+				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_status">
+					Create Status
+				</a>
+				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_refund">
+					Create Refund
+				</a>
+			</div>
+		</h2>
     </div>
     <br>
-    <div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb pl-3">
     	<div class="row" style="margin-bottom:0px;">
 	    	<div class="col-md-12">
 		    	<div class="h" style="margin-bottom:0px;">
@@ -121,8 +145,8 @@
 		    </div>
 	    </div>	
 		<div class="row">
-			<div class="col-md-12 mt-2 mb-2">
-				<div class="pull-right">
+			<div class="col-md-12 mb-1">
+				<div class="pull-right" style="display:none;">
 				  <a href="#" class="btn btn-xs btn-secondary delete-orders" id="bulk_delete">
 						Delete
 				  </a>

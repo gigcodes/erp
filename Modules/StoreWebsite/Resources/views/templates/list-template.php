@@ -6,15 +6,15 @@
 		      	<th width="2%">Id</th>
 		        <th width="5%">Title</th>
 		        <th width="10%">Website</th>
-		        <th width="2%">Remote software</th>
-		        <th width="5%">Facebook</th>
-		        <th width="5%">Instagram</th>
-		        <th width="3%">Published</th>
-				<th width="3%">FCM Key</th>
-				<th width="3%">FCM Id</th>
-				<th width="3%">Icon</th>
-				<th width="5%">Created At</th>
-		        <th width="10%">Action</th>
+		        <th width="2%">Service id</th>
+		        <th width="5%">Remote software</th>
+		        <th width="2%">Facebook</th>
+		        <th width="2%">Instagram</th>
+		        <th width="2%">Published</th>
+				<th width="2%">FCM Key</th>
+				<th width="2%">FCM Id</th>
+				<th width="2%">Icon</th>
+		        <th width="12%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -27,6 +27,7 @@
 			        	<b>Country Duty : </b>{{:prop.country_duty}}<br>
 			        	<b>Description : </b>{{:prop.description}}<br>
 			        </td>
+			        <td>{{:prop.mailing_service_id}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
@@ -41,28 +42,52 @@
 					<td>{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
-			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category">
 			        		<i class="fa fa-paperclip" aria-hidden="true"></i>
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands">	
 			        		<img width="15px" title="Attach Brands" src="/images/purchase.png">
 			        	</button>
+
 			        	<button type="button" data-id="{{>prop.id}}" class="btn">
-			        		<a href="/site-development/{{>prop.id}}">
-			        			<img width="15px" title="Site Development" src="/images/project.png">
-			        		</a>
-						</button> 
-						<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
-						<button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
-						<button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
+                                            <a href="/site-development/{{>prop.id}}">
+                                                    <img width="15px" title="Site Development" src="/images/project.png">
+                                            </a>
+                                        </button> 
+
+                                        <button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
+
+                                        <button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
+
+                                        <button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
+
+                                        <button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty">
+                                                <a href="javascript:;"><i class="fa fa-info-circle"></i></a>
+                                        </button> 
+
+                                        <button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history">
+                                                <a href="javascript:;"><i class="fa fa-history"></i></a>
+                                        </button>
+                                        
+                                        <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template">
+                                            <a href="javascript:void(0);"><i class="fa fa-simplybuilt"></i></a>
+                                        </button>   
+										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
+                                            <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+                                        </button> 
+										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master">
+                                            <a href="javascript:void(0);"><i class="fa fa-refresh"></i></a>
+                                        </button> 										
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -213,7 +238,7 @@
 		    	{{props data}}
 			      <tr id="preview-category-{{:prop.id}}">
 			      	<td><input class="preview-checkbox" type="checkbox" name="push_category" value="{{:prop.id}}"></td>
-			      	<td>{{:prop.title}}</td>
+			      	<td>{{:prop.website_mode}}</td>
 			        <td>
 			        	<button type="button" data-category-id="{{:prop.id}}" class="btn btn-delete-preview-category">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
@@ -366,4 +391,217 @@
 			</div>
 		</div>
 	</div>
+</script>
+
+
+<script type="text/x-jsrender" id="template-magento-user-lising">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">User Listing</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row mt-5">		
+				<div class="col-lg-12">
+					<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					      	<th>Stote Website Id</th>
+					        <th>Website Mode</th>
+					        <th>Username</th>
+					        <th>Email</th>
+					        <th>First Name</th>
+					        <th>Last Name</th>
+					        <th>Password</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					    	{{props data}}
+						      <tr class='subMagentoUser'>
+
+						      	<td>
+						      		{{:prop.store_website_id}}
+						      		<input type="hidden" class="store_website_id"  value="{{:prop.store_website_id}}"/>
+
+						      	</td>
+						        <td>
+						        	<select name="website_mode" id="website_mode" class="form-control websiteMode">
+					               
+								       <option {{if prop.website_mode == 'production' }}selected {{/if}} value="production">Production</option>
+								       
+								       <option {{if prop.website_mode == 'staging' }} selected {{/if}} value="staging">Staging</option>
+									</select>
+						        </td>
+						        
+						        <td>
+						        	<input type="text" name="username" value="{{if prop}}{{:prop.username}}{{/if}}" class="form-control userName" id="username" placeholder="Enter Username" readonly>
+						        </td>
+						        
+						        <td>
+						        	<input type="email" name="userEmail" value="{{if prop}}{{:prop.email}}{{/if}}" class="form-control userEmail" id="userEmail" placeholder="Enter Email">
+						        </td>
+						        
+						        <td>
+								    <input type="text" name="firstName" value="{{if prop}}{{:prop.first_name}}{{/if}}" class="form-control firstName" id="firstName" placeholder="Enter First Name">
+						        </td>
+						        
+						        <td>
+						        	<input type="text" name="lastName" value="{{if prop}}{{:prop.last_name}}{{/if}}" class="form-control lastName" id="lastName" placeholder="Enter Last Name">
+						        </td>
+						        
+						        <td>
+						        	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password">
+						        </td>
+
+						        <td>
+						        
+					 	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
+							<i class="fa fa-eye" aria-hidden="true"></i>
+						</button>
+
+					    <button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">
+							<i class="fa fa-clone" aria-hidden="true"></i>
+						</button>
+
+					    <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">
+							<i class="fa fa-check" aria-hidden="true"></i>
+						</button>
+						
+						<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+						</button>
+
+
+
+						        </td>
+						      </tr>
+						    {{/props}}  
+					    </tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>	
+</script>
+
+
+<script type="text/x-jsrender" id="template-history-store-magento-user">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Magento Store User History</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">		
+				<div class="col-lg-12">
+					<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					      	<th>Date</th>
+					      	<th>Website_mode</th>
+					        <th>Username</th>
+					        <th>First name</th>
+					        <th>Last name</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					    	{{props data}}
+						      <tr>
+						      	<td>{{if prop}}{{:prop.date}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.website_mode}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.username}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.first_name}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.last_name}}{{/if}}</td>
+						      	<td>{{if prop}}{{:prop.action}}{{/if}}</td>
+						      </tr>
+						    {{/props}}  
+					    </tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>	
+</script>
+
+<script type="text/x-jsrender" id="template-store-reindex-history">
+    <div class="modal-content">
+        <div class="modal-header">
+           <h5 class="modal-title">Store Reindex History</h5>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">		
+                <div class="col-lg-12">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Servername</th>
+                            <th>Username</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {{props data}}
+                                  <tr>
+                                    <td>{{if prop}}{{:prop.date}}{{/if}}</td>
+                                    <td>{{if prop}}{{:prop.server_name}}{{/if}}</td>
+                                    <td>{{if prop}}{{:prop.username}}{{/if}}</td>
+                                    <td>{{if prop}}{{:prop.action}}{{/if}}</td>
+                                  </tr>
+                            {{/props}}
+                        </tbody>
+                    </table>
+                </div>	
+            </div>
+         </div>
+    </div>	
+</script>
+<script type="text/x-jsrender" id="template-build-process">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Build Process</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form class="build-process">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
+                        <div class="row">
+                            
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="build_repository">Repository</label>
+                                    <input type="text" name="repository" id="build_repository" value="{{:data.repository}}" placeholder="Enter Repository Name" class="form-control mt-0" />
+                                </div>
+                            </div>                            
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="build_reference">Reference</label>
+                                    <input type="text" name="reference" id="build_reference" value="{{:data.reference}}" placeholder="Enter Repository Name" class="form-control mt-0" />
+                                </div> 
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button data-id="{{:data.id}}"class="btn btn-secondary update-build-process">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </script>

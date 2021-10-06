@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
-use App\Helpers\hubstaffTrait;
+use App\Helpers\HubstaffTrait;
 use App\Library\Hubstaff\Src\Hubstaff;
 use Carbon\Carbon;
 use DB;
@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class SendHubstaffReport extends Command
 {
-    use hubstaffTrait;
+    use HubstaffTrait;
 
     private $client;
 
@@ -39,7 +39,8 @@ class SendHubstaffReport extends Command
     {
         parent::__construct();
         $this->client = new Client();
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
     /**
@@ -114,7 +115,8 @@ class SendHubstaffReport extends Command
         $hubstaff        = Hubstaff::getInstance();
         $hubstaff        = $hubstaff->authenticate();
         $organizationAct = $hubstaff->getRepository('organization')->getActivity(
-            env("HUBSTAFF_ORG_ID"),
+            // env("HUBSTAFF_ORG_ID"),
+            config('env.HUBSTAFF_ORG_ID'),
             $startTime,
             $endTime
         );

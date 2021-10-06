@@ -43,17 +43,20 @@ class OrderStatusChangeMail extends Mailable
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
+        $order_status  = $order->order_status;
         if ($storeWebsiteOrder) {
             $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
             if($emailAddress) {
                 $this->fromMailer = $emailAddress->from_address;
             }
-            $template = \App\MailinglistTemplate::getOrderStatusChangeTemplate($storeWebsiteOrder->website_id);
+            $template = \App\MailinglistTemplate::getOrderStatusChangeTemplate($order_status,$storeWebsiteOrder->website_id);
         } else {
-            $template = \App\MailinglistTemplate::getOrderStatusChangeTemplate();
+            $template = \App\MailinglistTemplate::getOrderStatusChangeTemplate($order_status);
         }
 
         if ($template) {
+            if ($template->from_email!='')
+                $this->fromMailer = $template->from_email;
             $this->subject = $template->subject;
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
@@ -76,8 +79,11 @@ class OrderStatusChangeMail extends Mailable
             }
         }
 
-        return $this->view('emails.orders.update-status', compact(
-            'order', 'customer', 'order_products'
-        ));
+        if (!$storeWebsiteOrder) { 
+            return $this->view('emails.orders.update-status', compact(
+                'order', 'customer', 'order_products'
+            ));
+        }
+
     }
 }

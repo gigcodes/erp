@@ -13,7 +13,8 @@ trait githubTrait
     private function getGithubClient()
     {
         return new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
@@ -69,7 +70,9 @@ trait githubTrait
     private function inviteUser(string $email)
     {
         // /orgs/:org/invitations
-        $url = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/invitations';
+        // $url = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/invitations';
+        $url = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/invitations';
+
         try {
             $this->getGithubClient()->post(
                 $url,
