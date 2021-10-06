@@ -792,7 +792,7 @@
 
     $(document).on('click', '.assign-users', function() {
       var emailId = $(this).data('email-id');
-      var url = "{{ route('email-addresses.assign') }}/" + emailId;
+      var url = "{{ route('email-addresses.assign') }}";
       $('#assignUsersModal').find('input[name="email_id"]').val(emailId);
       $('#assignUsersModal form').attr('action', url);
 

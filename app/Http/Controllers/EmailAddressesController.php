@@ -378,4 +378,23 @@ class EmailAddressesController extends Controller
         return redirect()->back();
     }
 
+    public function assignUsers(Request $request)
+    {
+        echo "<pre/>";
+        print_r($request->all());
+        die();
+        $emailDetail = EmailAddress::find($request->email_id);
+        $user_id = $request->user_id;
+        $user = User::findorfail($user_id);
+        $number = $user->phone;
+        $whatsappnumber = '971502609192';
+
+        $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
+
+        $whatsappmessage = new WhatsAppController();
+        $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
+        \Session::flash('success', 'Password sent');
+        return redirect()->back();
+    }
+
 }
