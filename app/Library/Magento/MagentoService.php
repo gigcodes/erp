@@ -1079,6 +1079,8 @@ class MagentoService
             ->select(["product_translations.*", "l.locale", "l.name as local_name", \DB::raw("group_concat(wsv.code) as store_codes")])
             ->get();
 
+       \Log::info("Translation found =>". json_encode($translations));
+
         $tdata = [];
         if (!$translations->isEmpty()) {
             foreach ($translations as $translation) {
