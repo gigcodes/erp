@@ -384,7 +384,7 @@ class EmailAddressesController extends Controller
         $data = [];
         if ($request->all()) {
             foreach ($request->users as $_user) {
-                $data[] = ['user_id' => $_user, 'email_address_id' => $request->email_id];
+                $data[] = ['user_id' => $_user, 'email_address_id' => $request->email_id, 'created_at' => Carbon::today(), 'updated_at' => Carbon::today()];
 
             }
         }
