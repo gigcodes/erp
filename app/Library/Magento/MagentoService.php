@@ -126,12 +126,12 @@ class MagentoService
 
         $this->translations = $this->getTranslations();
 		if(!$this->translations) {
+            $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
 			 return false;
 		}
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         if (!$this->validateTranslation()) {
-            \Log::info("stopped from here");
             return false;
         }
 
@@ -1152,7 +1152,6 @@ class MagentoService
 
     private function validateTranslation()
     {
-        \Log::info("Error found for #".$this->product->id." where total active language : ".count($this->activeLanguages)." and total translation found".count($this->translations));
         if (count($this->activeLanguages) != count($this->translations)) {
             $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->activeLanguages) . " and total found " . count($this->translations), null, null, [
                 "languages" => json_encode($this->aclanguagecode),
