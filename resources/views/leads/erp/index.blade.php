@@ -72,10 +72,10 @@
   <div class="col-md-12">
 
 <?php $base_url = URL::to('/');?>
-  <div class="pull-left cls_filter_box">
+  <div class="col-md-12 cls_filter_box">
                 <form class="form-inline" action="{{ route('erp-leads.erpLeads') }}" method="GET">
                 @csrf
-                    <div class="form-group ml-3 cls_filter_inputbox">
+                    <div class="form-group cls_filter_inputbox">
                         <!-- <select style="width:100px; font-size: 12px; border-radius: 2px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
 
                          
@@ -161,8 +161,8 @@
               </div>
             </div>
 
-            <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-3 mb-3" >
+            <div class="col-lg-12 margin-tb mb-3">
+            
                 <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
@@ -175,9 +175,10 @@
                   </label>
                 <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
                 <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
-            </div>
-        </div> 
-        <div></div>
+            
+            </div> 
+          <div>
+        </div>
         <br>
         <div class="infinite-scroll">
     <div class="table-responsive mt-3">
@@ -186,21 +187,21 @@
             <tr>
                 <th width="1%"></th>
                 <th width="1%">ID</th>
-                <th width="7%">Date</th>
-                <th width="10%">Status</th>
+                <th width="5%">Date</th>
+                <th width="7%">Status</th>
                 <th width="10%">Customer</th>
-                <th width="7%">Customer email</th>
-                <th width="7%">Customer whatsapp no.</th>
-                <th width="5%">Image</th>
+                <th width="7%">C Email</th>
+                <th width="5%">C Whatsapp</th>
+                <th width="3%">Image</th>
                 <th width="5%">Product ID</th>
-                <th width="5%">Sku</th>
+                <th width="3%">Sku</th>
                 <th width="7%">Product name</th>
                 <th width="5%">Brand</th>
-                <th width="5%">Brand Segment</th>
-                <th width="5%">Category</th> 
-                <th width="5%">Color</th>
+                <th width="6%">B Segment</th>
+                <th width="8%">Category</th> 
+                <th width="2%">Color</th>
                 <th width="2%">Size</th>
-                <th width="10%">Communication</th>
+                <th width="12%">Communication</th>
                 <th width="3%">Action</th>
             </tr>
             </thead>
@@ -233,8 +234,20 @@
                   
                   <!-- 08-09-2021 -->
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_id']}}</label></div></td>
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_sku']}}</label></div></td>
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_name']}}</label></div></td>
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                        {{ Illuminate\Support\Str::limit($source['product_sku'], 5, '..') }}
+                      </label>
+                    </div>
+                  </td>
+                  <td class="tblcell">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                        {{ Illuminate\Support\Str::limit($source['product_name'], 10, '..') }}
+                      </label>
+                    </div>
+                  </td>
                   <!-- 08-09-2021 end -->
 
 
@@ -244,10 +257,10 @@
                       <label class="checkbox-inline ew">
                         <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}
                       </label>
+                      <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
+                        <i class="fa fa-plus"></i>
+                      </a>
                     </div>
-                    <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
-                      <i class="fa fa-plus"></i>
-                    </a>
                   </td>
 
 
@@ -258,11 +271,12 @@
                   <td class="tblcell">
                     <div class="checkbox">
                       <label class="checkbox-inline ew">
-                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['cat_title'] != null){{$source['cat_title']}}@endif</label>
-                      </div>
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['cat_title'] != null){{$source['cat_title']}}@endif
+                      </label>
                       <a class="multi_brand_category_create text-dark" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
                         <i class="fa fa-plus"></i>
                       </a>
+                      </div>
                     </td>
 
 
