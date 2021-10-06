@@ -948,7 +948,7 @@ class LeadsController extends Controller
 
 
 
-        $source = $source->get();
+        /*$source = $source->get();
 
         foreach ($source as $key => $value) {
             
@@ -1031,7 +1031,70 @@ class LeadsController extends Controller
 
         $sourcePaginateArr = new LengthAwarePaginator($currentItems, count($sourcePaginateArr), $perPage, $currentPage, [
             'path'  => LengthAwarePaginator::resolveCurrentPath()
-        ]);
+        ]);*/
+
+        //$source = $source->get();
+
+        $source = $source->paginate(Setting::get('pagination'));
+        $source->getCollection()->transform(function ($value) {
+            // Your code here
+            
+            $curr_cat_title = $value['cat_title'];
+            $curr_brand_name = $value['brand_name'];
+
+            $value['media_url'] = null;
+            $media = $value->getMedia(config('constants.media_tags'))->first();
+            if ($media) {
+                $value['media_url'] = $media->getUrl();
+            }
+
+            if (empty($value['media_url']) && $value['product_id']) {
+                $product = Product::find($value['product_id']);
+                // $media = $product->getMedia(config('constants.media_tags'))->first();
+                // if ($media) {
+                //     $source[$key]->media_url = $media->getUrl();
+                // }
+            }
+
+            $cat_titles = array();
+            $cat_title = $value['cat_title'];
+          
+            $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id',$value['id'])->where('category_id','!=','')->get()->pluck('category_id');
+
+            foreach ($value['cat_title'] as $key => $title) {
+                $titles = Category::where('id',$title)->pluck('title')->toArray();
+                foreach($titles as $a){
+                    $cat_titles[] =  $a;
+                }
+            }
+            if(!empty($curr_cat_title)){
+                array_push($cat_titles , $curr_cat_title);
+            }
+            //if($cat_titles != null) {
+                $value['cat_title'] =  implode(',', $cat_titles);
+            // }
+            
+
+            $brandList = [];
+            $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
+            foreach ($brand_names as $key => $row) {
+                $brands_names = Brand::where('id',$row)->pluck('name')->toArray();
+                foreach($brands_names as $a){ 
+				   $brandList[] = $a;
+                   //$brand .=  $a.','; 
+                }
+            }
+            if(!empty($curr_brand_name)){
+                array_push($brandList , $curr_brand_name);
+            }
+			if($brandList != null) {
+                $value['brand_name'] =  implode(',', $brandList);
+            }
+           //$value['brand_name'] = $brand;
+
+
+            return $value;
+        });
         
 
        
@@ -1043,7 +1106,7 @@ class LeadsController extends Controller
             'brands'   => $brands,
             'erpLeadStatus'   => $erpLeadStatus,
             'recordsTotal' => $total,
-            'sourceData' => $sourcePaginateArr,
+            'sourceData' => $source,
             'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
