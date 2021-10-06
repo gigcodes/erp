@@ -238,6 +238,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
 });
 
+
 Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {
@@ -258,9 +259,11 @@ Route::middleware('auth')->group(function()
     Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
     Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     Route::get('/preview-img/{site_id}', 'SiteDevelopmentController@previewImage')->name("site-development.preview-image");
+    Route::get('/preview-img-task/{id}', 'SiteDevelopmentController@previewTaskImage')->name('site-development.preview-img');
     Route::get('/artwork-history/{site_id}', 'SiteDevelopmentController@getArtworkHistory')->name("site-development.artwork-history");
     Route::get('/status-history/{site_id}', 'SiteDevelopmentController@statusHistory')->name("site-development.status-history");
-
+    Route::post('/send-sop', 'SiteDevelopmentController@SendTaskSOP')->name('site-development.sendSop');
+    Route::post('/send', 'SiteDevelopmentController@SendTask')->name('site-development.senduser');
 
     Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
     Route::get('/artwork-history/all-histories/{website_id}', 'SiteDevelopmentController@allartworkHistory')->name("site-development.artwork-history.all-histories");

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use App\ReviewBrandList;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 
 class BrandReviewController extends Controller
 {
@@ -20,32 +20,35 @@ class BrandReviewController extends Controller
         return view('brand-review.index');
     }
 
-    public function store(Request $request){
-        if($request->name){
+    public function store(Request $request)
+    {
+        if ($request->name) {
             ReviewBrandList::insert([
                 'name' => $request->name,
-                'url' => $request->url
+                'url' => $request->url,
             ]);
             return response()->json(['status' => '200']);
         }
         return response()->json(['status' => '500']);
-        
+
     }
-    public function getAllBrandReview(){
-        $data = ReviewBrandList::select('name','url')->get();
+    public function getAllBrandReview()
+    {
+        $data = ReviewBrandList::select('name', 'url')->get();
         return $data;
     }
-    public function storeReview(Request $request){
+    public function storeReview(Request $request)
+    {
         $data = Input::all();
-        if($data){
+        if ($data) {
             foreach ($data as $key => $value) {
-               
-               $exists =  DB::table('brand_reviews')
-                ->where('brand',$value['brand'])
-                ->where('review_url',$value['review_url'])
-                ->first(); 
 
-               if(!$exists){
+                $exists = DB::table('brand_reviews')
+                    ->where('brand', $value['brand'])
+                    ->where('review_url', $value['review_url'])
+                    ->first();
+
+                if (!$exists) {
                     DB::table('brand_reviews')->insert([
                         'website' => $value['website'],
                         'brand' => $value['brand'],
@@ -53,9 +56,9 @@ class BrandReviewController extends Controller
                         'username' => $value['username'],
                         'title' => $value['title'],
                         'body' => $value['body'],
-                        'stars' => $value['stars']
+                        'stars' => $value['stars'],
                     ]);
-                }    
+                }
             }
             return response()->json([
                 "code" => 200,

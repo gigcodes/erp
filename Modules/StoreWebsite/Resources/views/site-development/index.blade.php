@@ -59,6 +59,9 @@
 	}table tr:last-child td {
 		 border-bottom: 1px solid #ddd !important;
 	 }
+	 select.globalSelect2 + span.select2 {
+    width: calc(100% - 26px) !important;
+}
 
 </style>
 @endsection
@@ -102,11 +105,11 @@
 							<div class="row">
 								<div class="col">
 									<div class="form-group">
-										<?php /* <label for="keyword">Add Category:</label> */ ?>
+										<?php /* <label for="keyword">Add Category:</label> */?>
 										<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Add Category", "id" => "add-category"]) ?>
 									</div>
 									<div class="form-group">
-									<?php /* <label for="button">&nbsp;</label> */ ?>
+									<?php /* <label for="button">&nbsp;</label> */?>
 										<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 											<img src="/images/send.png" style="cursor: default;">
 										</button>
@@ -125,9 +128,9 @@
 										<div class="modal-footer">
 											<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 											<button style="display: inline-block;width: 10%" class="btn btn-default btn-image btn-search-action">
-												Save 
+												Save
 											</button>
-											
+
 										</div>
 									</div>
 								</div>
@@ -136,15 +139,15 @@
 
 						<form class="form-inline handle-search" style="display:inline-block;">
 							<div class="form-group" style="margin-right:10px;">
-								<?php /* <label for="keyword">Search keyword:</label> */ ?>
+								<?php /* <label for="keyword">Search keyword:</label> */?>
 								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", ["" => "All Status"] + $allStatus, request("status"), ["class" => "form-control globalSelect2", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
-								<?php /* <label for="button">&nbsp;</label> */ ?>
+								<?php /* <label for="button">&nbsp;</label> */?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 									<img src="/images/send.png" style="cursor: default;">
 								</button>
@@ -162,9 +165,9 @@
 			<div class="col-md-12">
 				<div class="collapse" id="statusFilterCount">
 					<div class="card card-body">
-						<?php if (!empty($statusCount)) { ?>
+						<?php if (!empty($statusCount)) {?>
 							<div class="row col-md-12">
-								<?php foreach ($statusCount as $sC) { ?>
+								<?php foreach ($statusCount as $sC) {?>
 									<div class="col-md-2">
 										<div class="card">
 											<div class="card-header">
@@ -175,11 +178,11 @@
 											</div>
 										</div>
 									</div>
-								<?php } ?>
+								<?php }?>
 							</div>
 						<?php } else {
-							echo "Sorry , No data available";
-						} ?>
+    echo "Sorry , No data available";
+}?>
 					</div>
 				</div>
 			</div>
@@ -381,6 +384,10 @@
 		</div>
 	</div>
 </div>
+
+
+
+
 <div id="dev_task_statistics" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -502,6 +509,34 @@
 	</div>
 </div>
 
+<div id="preview-task-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered" style="table-layout: fixed">
+					    <thead>
+					      <tr>
+					        <th style="width: 5%;">Sl no</th>
+					        <th style=" width: 30%">Files</th>
+					        <th style="word-break: break-all; width: 40%">Send to</th>
+					        <th style="width: 10%">User</th>
+					        <th style="width: 10%">Created at</th>
+                            <th style="width: 15%">Action</th>
+					      </tr>
+					    </thead>
+					    <tbody class="task-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="status-history-modal" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -548,9 +583,24 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-secondary" onClick="saveMasterCategory()">Create</button>
-        </div>    
+        </div>
     </div>
   </div>
+</div>
+
+<div id="previewDoc" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<iframe src="" id="previewDocSource" width='700' height='550' allowfullscreen webkitallowfullscreen></iframe>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -590,7 +640,7 @@
 	function saveCategory() {
 		var websiteId = $('#website_id_data').val();//$('#website_id').val()
 		var text = $('#add-category').val();
-		var masterCategoryId = $('#master_category_id').val(); 
+		var masterCategoryId = $('#master_category_id').val();
 		if(masterCategoryId == null || masterCategoryId == '') {
 			$('#masterCategory').modal('show');
 			return false;
@@ -631,7 +681,7 @@
 
 		}
 	}
-	
+
 	function saveMasterCategory() {
 		var text = $('#masterCategorySingle').val()
 		if (text === '') {
@@ -664,7 +714,7 @@
 
 		}
 	}
-	
+
 	$(function() {
 		$(document).on("focusout", ".save-item", function() {
 			websiteId = $('#website_id').val()
@@ -799,7 +849,7 @@
 			var id = $("#remark-field").data("id");
 			var cat_id = $("#remark_cat_id").val();
 			var website_id = $("#remark_website_id").val();
-			
+
 			var val = $("#remark-field").val();
 			$.ajax({
 				url: '/site-development/' + id + '/remarks',
@@ -809,7 +859,7 @@
 				},
 				data: {
 					remark: val,
-					cat_id: cat_id, 
+					cat_id: cat_id,
 					website_id : website_id
 				},
 				beforeSend: function() {
@@ -838,11 +888,11 @@
 		});
 	});
 
-	function saveRemarks(rowId) { 
+	function saveRemarks(rowId) {
 		var siteId = $("#remark_"+rowId).data("siteid");
 		var cat_id = $("#remark_"+rowId).data("catid");
 			var website_id = $("#remark_"+rowId).data("websiteid");
-			
+
 			var val = $("#remark_"+rowId).val();
 			var data = {remark: val,cat_id: cat_id,website_id : website_id};
 			$.ajax({
@@ -869,12 +919,12 @@
 					html += "</tr>";
 				});
 				$("#remark-area-list").find(".remark-action-list-view").html(html);
-			
+
 			}).fail(function(jqXHR, ajaxOptions, thrownError) {
 				toastr["error"]("Oops,something went wrong");
 				$("#loading-image").hide();
 			});
-	} 
+	}
 
 	function editCategory(id) {
 		$('#editCategory' + id).modal('show');
@@ -972,7 +1022,7 @@
 		$this = $(this);
 		var id = $(this).data("id");
 		var val = $(this).siblings('input').val();
-		
+
 		$.ajax({
 			url: '/site-development/' + id + '/remarks',
 			type: 'POST',
@@ -1219,6 +1269,97 @@
 		}
 	});
 
+	$(document).on("click",".link-send-task",function(e) {
+
+		var id = $(this).data("id");
+        var task_id = $(this).data("media-id");
+        var taskdata = $(this).parent().find("#selector_id").val();
+
+        console.log(task_id, taskdata);
+
+        var type = $(this).parent().find('#selector_id option[value="'+ taskdata +'"]').html().includes('DEVTASK') ? 'DEVTASK' : 'TASK';
+
+        if($(this).parent().find("#selector_id").val() == ''){
+            toastr["error"]('Please Select Task Or DevTask', "Message")
+            return false;
+        }
+
+        // $(this).parent().find("#selector_id").val(' ').change();
+        // $(this).parent().find("#selector_id").html(' ').change();
+
+// console.log($(this).parent().find("#selector_id").html(), type);
+
+		$.ajax({
+            url: '/site-development/send',
+            type: 'POST',
+            headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+            dataType:"json",
+			data: { id : id , task_id: task_id , taskdata: taskdata, type: type},
+            beforeSend: function() {
+				$("#loading-image").show();
+           	},
+            success:function(response) {
+                $("#loading-image").hide();
+                toastr["success"]("File sent successfully");
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+
+        });
+
+	});
+
+	$(document).on("click", ".send-to-sop-page",function(){
+            var id = $(this).data("id");
+            var task_id = $(this).data("media-id");
+
+            $.ajax({
+            url: '/site-development/send-sop',
+            type: 'POST',
+            headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+            dataType:"json",
+			data: { id : id , task_id: task_id},
+            beforeSend: function() {
+				$("#loading-image").show();
+           	},
+            success:function(response) {
+                $("#loading-image").hide();
+				if(response.success){
+					toastr["success"](response.message);
+				}else{
+					toastr["error"](response.message);
+				}
+
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+
+        });
+    });
+
+	$(document).on('click', '.previewDoc', function () {
+			$('#previewDocSource').attr('src', '');
+            var docUrl = $(this).data('docurl');
+            var type = $(this).data('type');
+			var type = jQuery.trim(type);
+			if(type == "image") {
+				$('#previewDocSource').attr('src', docUrl);
+			} else {
+				$('#previewDocSource').attr('src', "https://docs.google.com/gview?url="+docUrl+"&embedded=true");
+			}
+			$('#previewDoc').modal('show');
+        });
+
+	$("#previewDoc").on("hidden", function () {
+		$('#previewDocSource').attr('src', '');
+	});
+
 	$(document).on("click", ".btn-store-development-remark", function(e) {
 		var id = $(this).data("site-id");
 		var cat_id = $(this).data("site-category-id");
@@ -1237,10 +1378,10 @@
 			$("#loading-image").hide();
 			toastr["success"]("Remarks fetched successfully");
 
-			var html = "";			
+			var html = "";
 			const shorter = (a,b)=>  a.id>b.id ? -1: 1;
 			response.data.flat().sort(shorter)
-			
+
 			$.each(response.data.flat().sort(shorter), function(k, v) {
 				html += "<tr>";
 				html += "<td>" + v.id + "</td>";
@@ -1317,7 +1458,7 @@
 		});
 	});
 
-	$('#latest-remarks-modal').on('shown.bs.modal', function() { 
+	$('#latest-remarks-modal').on('shown.bs.modal', function() {
 		$(this).find('.SearchStatus').val('');
 	});
 
@@ -1350,13 +1491,13 @@
 					for(var j = 0; j < response.status.length;j++){
 						option_data+=`<option value="${response.status[j].id}" ${response.status[j].id == status ? 'selected' : ''}>${response.status[j].name}</option>`
 					}
-					<?php if (Auth::user()->isAdmin()) { ?>
+					<?php if (Auth::user()->isAdmin()) {?>
 						var admin_permission = 'admin_changable';
 						var user_permission = 'user_point_none';
-					<?php } else { ?>
+					<?php } else {?>
 						var admin_permission = 'admin_point_none';
 						var user_permission = 'user_changable';
-					<?php } ?>
+					<?php }?>
 
 
 					tr += '<tr><td>';
@@ -1401,7 +1542,7 @@
 					for(var j = 0; j < response.status.length;j++){
 						option_data+=`<option value="${response.status[j].id}" ${response.status[j].id == site.status ? 'selected' : ''}>${response.status[j].name}</option>`
 					}
-					
+
 				$('.save-item-select[ data-site = '+site.id+']').html(option_data);
 
 			}
@@ -1578,14 +1719,15 @@
 			},
 			success: function(data) {
 				$("#dev_task_statistics").modal("show");
-				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Task Id</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th>Action</th></tr>';
+				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Task Id</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th width="110">Action</th></tr>';
 				for (var i = 0; i < data.taskStatistics.length; i++) {
 					var str = data.taskStatistics[i].subject;
 					var res = str.substr(0, 100);
 					var status = data.taskStatistics[i].status;
 					if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
-					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""></div><div class="col-md-2"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
-					table = table + '| <a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a></td>';
+					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><textarea style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" rows="5" placeholder="Message"></textarea></div><div class="d-flex p-0"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
+					table = table + '| <a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a>';
+					table = table + '| <button type="button" class="btn preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list" aria-hidden="true"></i></button></td>';
 					table = table + '</tr>';
 				}
 				table = table + '</table></div>';
@@ -1627,7 +1769,7 @@
                         }
                     }).done(function (response) {
                         thiss.closest('tr').find('.quick-message-field').val('');
-                        
+
 
                         // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
                         //   .done(function( data ) {
@@ -1649,6 +1791,27 @@
                 alert('Please enter a message first');
             }
     });
+
+	$(document).on('click', '.preview-img', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/site-development/preview-img-task/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#preview-task-image").modal("show");
+					$(".task-image-list-view").html(response);
+                    initialize_select2()
+                },
+                error: function () {
+                }
+            });
+        });
+
 	$(document).on("click",".delete-dev-task-btn",function() {
 		var x = window.confirm("Are you sure you want to delete this ?");
             if(!x) {
@@ -1728,7 +1891,7 @@
 				success: function (data) {
 					//console.log(data);
 					$loader.hide();
-					
+
 					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
 					if(data.tbody == "") {
@@ -1743,14 +1906,14 @@
 		}
 	});
 	//End load more functionality
-	
+
 	$("#order_query").change(function(){
 		var url = window.location.href;
 		if(url.indexOf('?order=') != -1) {
-			var new_url = removeParam('order', url); 
+			var new_url = removeParam('order', url);
 			window.location = new_url+'?order='+$(this).val();
 		} else if(url.indexOf('&order=') != -1) {
-			var new_url = removeParam('order', url); 
+			var new_url = removeParam('order', url);
 			window.location = new_url+'&order='+$(this).val();
 		}else{
 			if(url.indexOf('?') != -1) {
@@ -1758,11 +1921,11 @@
 			} else{
 				window.location =  window.location.href+'?order='+$(this).val();
 			}
-			
-		} 
-		
+
+		}
+
 	});
-	
+
 	function removeParam(key, sourceURL) {
     var rtn = sourceURL.split("?")[0],
         param,
