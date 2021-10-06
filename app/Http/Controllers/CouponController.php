@@ -461,9 +461,9 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
-        \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters)],true));
         $response = curl_exec($ch);
         $result   = json_decode($response);
+        \Log::channel('listMagento')->info(print_r([$url,$store_website->api_token,json_encode($parameters),$response],true));
         curl_close($ch); // Close the connection
         if($result != false){
             if (isset($result->code)) {

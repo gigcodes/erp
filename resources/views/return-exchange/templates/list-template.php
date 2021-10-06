@@ -90,6 +90,7 @@
               		<td>{{:prop.created_at_formated}}</td>
 			        <td class="action" align="center">
 						<div class="cls_action_btn">
+						<button type="button" class="btn re-generate-coupon no_pd" data-id="{{>prop.id}}" title="re-generate coupon"><i class="fa fa-gift"></i></button>
 			        	<button type="button" class="btn btn-delete-template no_pd" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
 			        	<button type="button" class="btn btn-edit-template no_pd" data-id="{{>prop.id}}"><img width="15px" src="/images/edit.png"></button>
 			        	<button type="button" class="btn btn-history-template no_pd" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>

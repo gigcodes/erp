@@ -335,21 +335,24 @@ class ReturnExchangeController extends Controller
                 // dd($returnExchange->customer->storeWebsite->id);
 
                 $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+                
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add([
                     'name'             => $code,
                     'store_website_id' => $returnExchange->customer->storeWebsite->id,
-                    'website_ids'      => array($storeList[0]['platform_id'] ?? 0),
+                    'website_ids'      => [0  => 0],
                     'start'            => date('Y-m-d H:i:s'),
                     'active'           => '1',
                     'uses_per_coustomer' => 1,
-                    'customer_groups' => [0],
+                    'customer_groups' => [0 => 0],
                     'coupon_type' => 'SPECIFIC_COUPON',
                     'code' => $code,
                     'simple_action' => 'by_fixed',
                     'discount_amount' => $request->refund_amount,
                 ]);
+
+
                 try {
 
                     $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
@@ -373,8 +376,6 @@ class ReturnExchangeController extends Controller
                     
                     \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :'.$code, $returnExchange->customer->storeWebsite->id);
                     
-                    
-                    
                     $response = json_decode($response->getContent());
                     if( $response->type == 'error' ){
                         return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
@@ -389,14 +390,12 @@ class ReturnExchangeController extends Controller
 
             //Sending Mail on changing of order status
             if (isset($request->send_message) && $request->send_message == '1') {
-                // return $returnExchange->type;
                 //sending order message to the customer
                 UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message', null))->onQueue("customer_message");
                 try {
                     if ($returnExchange->type == "refund") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                        // return $emailClass->render();
                         $email = \App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
