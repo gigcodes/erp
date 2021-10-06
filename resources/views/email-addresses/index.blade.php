@@ -449,7 +449,7 @@
     <div class="modal-content">
       <form action="" method="POST" enctype="multipart/form-data" >
         @csrf
-        @method('PUT')
+        @method('POST')
         <input type="hidden" name="email_id" id="email_id" value=''>
         <div class="modal-header">
           <h4 class="modal-title">Assign users</h4>
