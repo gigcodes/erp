@@ -382,11 +382,8 @@ class EmailAddressesController extends Controller
     {
         $emailDetail = EmailAddress::find($request->email_id);
         $data = [];
-        echo "<pre/>";
-        print_r($request->all());
-        die();
         $clear_existing_data = \App\EmailAssign::where(['email_address_id' => $request->email_id])->delete();
-        if ($request->users) {
+        if (isset($request->users)) {
             foreach ($request->users as $_user) {
                 $data[] = ['user_id' => $_user, 'email_address_id' => $request->email_id, 'created_at' => Carbon::today(), 'updated_at' => Carbon::today()];
 
