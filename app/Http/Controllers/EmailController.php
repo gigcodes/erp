@@ -223,7 +223,7 @@ class EmailController extends Controller
 
         $receiver_drpdwn = $receiver_drpdwn->distinct()->get()->toArray();
 
-        $mailboxdropdown = \App\EmailAddress::pluck('from_address', 'from_name', 'username');
+        $mailboxdropdown = \App\EmailAddress::select('from_address', 'from_name', 'username');
 
         if (count($usernames) > 0) {
             $mailboxdropdown = $mailboxdropdown->where(function ($mailboxdropdown) use ($usernames) {
@@ -239,7 +239,7 @@ class EmailController extends Controller
             });
         }
 
-        $mailboxdropdown = $mailboxdropdown->toArray();
+        $mailboxdropdown = $mailboxdropdown->get()->toArray();
 
         return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
