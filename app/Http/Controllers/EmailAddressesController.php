@@ -23,8 +23,8 @@ class EmailAddressesController extends Controller
     {
         $query = EmailAddress::query();
 
-        $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->with(['email_assignes'=>function($q){
-            $q->select('user_id');
+        $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->with(['email_assignes' => function ($q) {
+            $q->select('id', 'user_id');
         }]);
 
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
