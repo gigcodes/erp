@@ -381,19 +381,19 @@ class EmailAddressesController extends Controller
     public function assignUsers(Request $request)
     {
         $emailDetail = EmailAddress::find($request->email_id);
+        $data = [];
         if ($request->all()) {
             foreach ($request->users as $_user) {
                 $data[] = ['user_id' => $_user, 'email_address_id' => $request->email_id];
-                
+
             }
         }
 
-        echo "<pre/>";
-        print_r($data);
-        die();
-        Model::insert($data); // Eloquent approach
-        DB::table('table')->insert($data); // Query Builder approach
-        \Session::flash('success', 'Password sent');
+        if (count($data) > 0) {
+            $data_added = \App\EmailAssign::insert($data);
+            return redirect()->back()->withSuccess('You have successfully assigned users to email address!');
+        }
+
         return redirect()->back();
     }
 
