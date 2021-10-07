@@ -53,7 +53,7 @@ class ScheduleEmails extends Command
 			$flowActions =FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 			->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 			->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-            ->select('flow_actions.id as action_id','flow_actions.time_delay','flow_types.type','flow_actions.time_delay_type', 'flows.flow_name')
+            ->select('flow_actions.id as action_id','flow_actions.time_delay','flow_actions.message_title','flow_types.type','flow_actions.time_delay_type', 'flows.flow_name')
 			->where('flows.id', '=', $flow['id'])->orderBy('flow_actions.rank', 'asc')
 			->get();
 			
@@ -73,9 +73,9 @@ class ScheduleEmails extends Command
 					
 					if($key == 0 and $flow['name'] == 'add_to_cart') {
 						$leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','erp_leads.created_at as order_date',
-						'customers.name as customer_name','customers.email as customer_email')
+						'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
 								->leftJoin('customers','erp_leads.customer_id','=','customers.id')
-							   ->where('erp_leads.created_at', 'like', Carbon::now()->format('Y-m-d').'%')
+							    ->where('erp_leads.created_at', 'like', Carbon::now()->format('Y-m-d').'%')
 							    ->where("customers.store_website_id",$flow['store_website_id'])
 								->whereNotNull('customers.email')
 								->get(); 
@@ -85,7 +85,7 @@ class ScheduleEmails extends Command
 						$leads = \App\CustomerBasketProduct::join("customer_baskets as cb", "cb.id", "customer_basket_products.customer_basket_id")
 						->where("cb.store_website_id",$flow['store_website_id'])
 						->where('customer_basket_products.created_at', 'like', Carbon::now()->format('Y-m-d').'%')
-						->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email')
+						->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
 						->get();
 						$modalType =  CustomerBasketProduct::class;
 					} else if($key == 0 and $flow['name'] == 'delivered_order') {
@@ -93,7 +93,7 @@ class ScheduleEmails extends Command
 						->where("customers.store_website_id",$flow['store_website_id'])
 						->whereIn('orders.order_status', ['delivered', 'Delivered'])
 						->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
-						->select('orders.id', 'customers.name as customer_name','customers.email as customer_email')
+						->select('orders.id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
 						->get();
 						$modalType =  Orders::class;
 					} 
@@ -131,7 +131,23 @@ class ScheduleEmails extends Command
 								Email::create($params);
 							}
 						}
-					}					
+					} else if($flowAction['type'] == 'Whatsapp' || $flowAction['type'] == 'SMS') {	
+						foreach($leads as $lead) {
+						 $insertParams = [
+                                        "customer_id"            => $lead->customer_id,
+                                        "message"                => $flowAction['message_title'],
+                                        "status"                 => 1,
+                                        "is_queue"               => 1,
+                                        "approved"               => 1,
+                                        "user_id"                => 6,
+                                        "number"                 => null,
+                                        "message_application_id" => 10001,
+										'scheduled_at'     => $created_date,
+                                       ];
+
+                                    $chatMessage = \App\ChatMessage::create($insertParams);
+						}
+					}				
 				}
 			}
 		}
