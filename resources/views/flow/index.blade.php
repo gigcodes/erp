@@ -34,7 +34,7 @@
         </div>
     </div>
 	<div class="row mb-3">
-        <div class="col-md-12 col-sm-12">
+        <div class="mt-3 col-md-12">
             <div class="row">
                 <a class="ml-2">
                     <button type="button" data-toggle="modal" data-target="#flowModal" class="btn btn-secondary">Flow</button>
@@ -46,8 +46,8 @@
 
             </div>
         </div>
-		<div class="col-md-12 col-sm-12">
-		    <table class="table table-bordered table-hover mt-5">
+		<div class="mt-3 col-md-12">
+		    <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">Website</th>
@@ -90,7 +90,7 @@
 							</div>
 							<div class="col-md-3">
 								<label>Flow Name</label>
-								<input type="text" class="form-control " name="flow_name" placeholder="Flow Name"/>
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order'], null, array('class'=>'form-control')) }}
 							</div>
 							<div class="col-md-4">
 								<label>Flow Description</label>
@@ -141,8 +141,11 @@
 					<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body" id="message_content">
-				
+				<div class="modal-body" id="">
+				{{ Form::open(array('url'=>route('flow-action-message'), 'class'=>'ajax-submit', 'novalidate'=>'true', 'id'=>'message_content_form')) }}
+					<div id="message_content">
+					</div>
+				</form>
 				</div>
 			</div>
 		</div>
@@ -204,9 +207,7 @@
 @endsection
 
 @section('scripts')
-<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
+
 <script src="https://cdn.tiny.cloud/1/8lx26kd08fse8eckrno8tqi4pkf298s9d9hunvvzy4ri6ru4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
   tinymce.init({
@@ -281,7 +282,9 @@ jQuery(document).ready(function($){
 			$('#flowPathModal').removeClass('in');
 			$('#messageModal').modal('show');
 			$('#messageModal').addClass('in');
-			
+			tinymce.init({
+				selector: '#html_content'
+			});
 		});
 	}
 	$('.ajax-submit').on('submit', function(e) { 
