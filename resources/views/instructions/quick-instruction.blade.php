@@ -76,7 +76,7 @@
                     <div class="row customer-raw-line">
                         <div class="col-12 d-inline form-inline">
                             <h3 style="display: inline" >Customer</h3>
-                            <a class="btn btn-secondary send-whatsapp" href="javascript:;">Send WhatsAppzzzzz</a>
+                            <a class="btn btn-secondary send-whatsapp" href="javascript:;">Send WhatsApp</a>
                         </div>
                         <div class="col-md-12">
                             <table class="table table-striped">
