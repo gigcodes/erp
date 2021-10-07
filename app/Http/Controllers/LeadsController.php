@@ -872,11 +872,12 @@ class LeadsController extends Controller
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
         $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
             ->leftJoin("customers as c", "c.id", "erp_leads.customer_id")
+            ->leftJoin("store_websites as SW", "SW.id", "c.store_website_id")
             ->leftJoin("erp_lead_status as els", "els.id", "erp_leads.lead_status_id")
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-           ->select(["erp_leads.*","products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number","c.email as customer_email"]);
+           ->select(["erp_leads.*","products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number","c.email as customer_email","SW.website"]);
 
 
         /*$term = $request->get('term');
@@ -1095,10 +1096,6 @@ class LeadsController extends Controller
 
             return $value;
         });
-        
-
-       
-     
 
         return view("leads.erp.index", [
             //'shoe_size_group' => $shoe_size_group,
