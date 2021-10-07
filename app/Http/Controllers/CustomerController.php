@@ -101,6 +101,8 @@ class CustomerController extends Controller
     }
     public function index(Request $request)
     {
+        echo "hello123";
+        die();
         $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
         $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'order_status_id', 'created_at'])->get()->groupBy('customer_id')->toArray();
@@ -244,8 +246,6 @@ class CustomerController extends Controller
 
         $groups = QuickSellGroup::select('id','name','group')->orderby('name','asc')->get();
 
-        echo "hello";
-        die();
         return view('customers.index', [
             'customers' => $results[ 0 ],
             'customers_all' => $customers_all,
@@ -277,6 +277,8 @@ class CustomerController extends Controller
 
     public function getCustomersIndex(Request $request)
     {
+        echo "hellllo";
+        die();
         // Set search term
         $term = $request->term;
 
@@ -978,6 +980,8 @@ class CustomerController extends Controller
             'brands' => $brands,
         ]);
 
+        echo "hello";
+        die();
         return view('customers.index', [
             'customers' => $new_customers,
             'customers_all' => $customers_all,
