@@ -54,8 +54,6 @@ class Controller extends BaseController
                 }
             }
         }
-        echo $message;
-        die();
         return $message;
     }
 }
