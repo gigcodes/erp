@@ -2706,8 +2706,6 @@ class CustomerController extends Controller
     }
     public function quickcustomer(Request $request)
     {
-        echo "as";
-        die();
         $results = $this->getCustomersIndex($request);
         $nextActionArr = DB::table('customer_next_actions')->get();
         $type = @$request->type;
