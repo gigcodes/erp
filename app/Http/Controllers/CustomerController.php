@@ -244,6 +244,8 @@ class CustomerController extends Controller
 
         $groups = QuickSellGroup::select('id','name','group')->orderby('name','asc')->get();
 
+        echo "hello";
+        die();
         return view('customers.index', [
             'customers' => $results[ 0 ],
             'customers_all' => $customers_all,
