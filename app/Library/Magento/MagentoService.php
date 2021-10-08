@@ -1387,7 +1387,7 @@ class MagentoService
                         }
                     else
                         {
-                            $brand=$this->$brand;
+                            $brand=$this->brand;
                             $product_discount3=StoreWebsiteSalesPrice::where('type','brand')
                             ->where('type_id',$brand->id)
                             ->where('supplier_id',$supplier_id)
