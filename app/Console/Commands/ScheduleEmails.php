@@ -132,9 +132,9 @@ class ScheduleEmails extends Command
 							}
 						}
 					} else if($flowAction['type'] == 'Whatsapp' || $flowAction['type'] == 'SMS') {	
-						$messageApplicationId = 3;
-						if($flowAction['type'] == 'Whatsapp') {
-							$messageApplicationId = 10001;
+						$messageApplicationId = '';
+						if($flowAction['type'] == 'SMS') {
+							$messageApplicationId = 3;
 						}
 						foreach($leads as $lead) {
 						 $insertParams = [
