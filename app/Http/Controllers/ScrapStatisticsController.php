@@ -1176,7 +1176,8 @@ class ScrapStatisticsController extends Controller
 		$assigendTo = $request->assigned_to;
 		$scrapperDetails = Scraper::where('id', $request->scrapper_id)->first();
 		if($assigendTo != null and $scrapperDetails != null) {
-			$hasAssignedIssue = DeveloperTask::where("subject", $scrapperDetails->scraper_name)->where("is_resolved", 0)->first();
+			$hasAssignedIssue = DeveloperTask::where("scraper_id", $scrapperDetails->scrapper_id)->where("assigned_to", $assigendTo)
+								->where("is_resolved", 0)->first();
 			if (!$hasAssignedIssue) {
 				$requestData = new Request(); 
 				$requestData->setMethod('POST');
