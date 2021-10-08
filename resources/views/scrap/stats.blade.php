@@ -992,7 +992,7 @@
 
       <!-- Modal -->
     <div class="modal fade" id="scrapper_process_log" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="">Scraper Process List</h5>
@@ -1007,6 +1007,7 @@
                             <th style="width:15%">No.</th>
                             <th style="width:40%">Scraper Name</th>
                             <th style="width:45%">Status</th>
+                            <th style="width:45%">Assign To </th>
                         </tr>
                     </thead>
                     <tbody class="ScraperProcess">
@@ -1030,6 +1031,25 @@
     <script type="text/javascript" src="/js/bootstrap-datepicker.min.js"></script>
     <script src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
+	
+	    function saveAssignedTo(fieldId, scrapperId) {
+			var assignedTo = $('#'+fieldId).val();
+			if(assignedTo == '') {
+				alert('Please select user.');
+				return false;
+			}
+			$.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{route('scrap.assign')}}",
+                    method: "POST",
+                    data: {scrapper_id: scrapperId, assigned_to: assignedTo},
+					success: function (response) {
+						toastr['success']('Scrapper assigned.');
+					},
+				});
+		}
 
         $(".total-info").html("({{$totalCountedUrl}})");
 
@@ -1092,8 +1112,6 @@
                             });
                             $(selecto).select2({tags: true});
                         });
-
-
                     }
 
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {

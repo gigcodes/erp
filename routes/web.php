@@ -2335,6 +2335,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('servers/statistics','ScrapController@getServerStatistics')->name('scrap.servers.statistics');
 
     Route::get('logdata/view_scrappers_data','ScrapStatisticsController@view_scrappers_data')->name('scrap.logdata.view_scrappers_data');//Purpose : Add Route - DEVTASK-20102
+    Route::post('assign/scrapper','ScrapStatisticsController@assignScrapperIssue')->name('scrap.assign');//Purpose : Add Route - DEVTASK-20102
  
 });
 
