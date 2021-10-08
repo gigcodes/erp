@@ -27,50 +27,45 @@
       {{if data}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <label >Copy To Page</label>
           <select class="form-control globalSelect2" id="website-page-copy-to">
-          <option value="">-- Select --</option>
+          <option value="">Copy To Page</option>
             <?php foreach($pages as $k => $page) { ?>
               <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
             <?php } ?>
           </select>
 				</div>
-			  <div class="form-group col-md-9 pt-5">
-          <input type="checkbox" name="cttitle" id="cttitle"> <label for="cttitle"> Meta title </label>
-          <input type="checkbox" name="ctkeyword" id="ctkeyword"> <label for="ctkeyword"> Meta Keywords </label>
-          <input type="checkbox" name="ctdesc" id="ctdesc"> <label for="ctdesc">Meta Description</label>
-          <input type="checkbox" name="site_url" id="site_urls"> <label for="site_urls"> Entire site urls </label>
-					<button class="btn btn-secondary btn-xs copy-to-btn" title="Copy to" type="button"><i class="fa fa-clone" ></i> Copy</button>
+			  <div class="form-group col-md-9 pt-2">
+          <input type="checkbox" name="cttitle" id="cttitle" class="font-weight-normal"> <label for="cttitle" class="font-weight-normal"> Meta title </label>
+          <input type="checkbox" name="ctkeyword" id="ctkeyword" class="font-weight-normal"> <label for="ctkeyword" class="font-weight-normal"> Meta Keywords </label>
+          <input type="checkbox" name="ctdesc" id="ctdesc"> <label for="ctdesc" class="font-weight-normal">Meta Description</label>
+          <input type="checkbox" name="site_url" id="site_urls"> <label for="site_urls" class="font-weight-normal"> Entire site urls </label>
+					<button class="btn btn-sm copy-to-btn text-dark" title="Copy to" type="button"><i class="fa fa-clone" ></i> Copy</button>
         </div>
       </div>
 			<hr>
 			{{/if}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <label for="page">Copy From Page</label>
           <select name="page" class="form-control website-page-change">
-            <option value="">-- Select --</option>
+            <option value="">Copy From Page</option>
               <?php foreach($pages as $k => $page) { ?>
                 <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
               <?php } ?>
           </select>
         </div>
         <div class="form-group col-md-3">
-            <label for="language">Language</label>
             <select name="language" class="form-control website-language-change">
-              <option value="">-- Select --</option>
+              <option value="">Language</option>
                 <?php foreach($languages as $k => $language) { ?>
                   <option value="<?php echo $language; ?>"><?php echo $language; ?></option>
                 <?php } ?>
             </select> 
         </div>
-        <div class="form-group col-md-6">
-          <div class="pt-5">
-					  <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle"> Meta title </label>
-					  <input type="checkbox" name="ckeyword" id="ckeyword"> <label for="ckeyword"> Meta Keywords </label>
-					  <input type="checkbox" name="cdesc" id="cdesc"> <label for="cdesc">Meta Description</label>
-					  <button class="btn btn-secondary btn-xs reload-page-data" title="Reload page data" type="button"><i class="fa fa-refresh" ></i></button>
-          </div>
+        <div class="form-group col-md-6 pt-2">
+          <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle" class="font-weight-normal"> Meta title </label>
+          <input type="checkbox" name="ckeyword" id="ckeyword"> <label for="ckeyword" class="font-weight-normal"> Meta Keywords </label>
+          <input type="checkbox" name="cdesc" id="cdesc"> <label for="cdesc" class="font-weight-normal">Meta Description</label>
+          <button class="btn btn-sm reload-page-data text-dark" title="Reload page data" type="button"><i class="fa fa-refresh" ></i></button>
         </div>
       </div>
       <div class="form-row">
@@ -83,8 +78,8 @@
           <div class="form-row">
             <div class="form-group col-md-12">
               <div class="d-flex justify-content-between">
-                <label for="name" class="mt-2">Title</label>
-                <button type="button" class="btn btn-primary btn-sm mb-2" id="keyword-search-btn"> <l class="fa fa-search"></i> </button>
+                <label for="name" class="mt-2 font-weight-normal">Title</label>
+                <button type="button" class="btn btn-sm mb-2 text-dark" id="keyword-search-btn"> <l class="fa fa-search"></i> </button>
               </div>
               <div class="input-group">
                 <input type="text" name="title" id="title-page" value="{{if data}}{{:data.title}}{{/if}}" class="form-control" placeholder="Enter title">
@@ -93,7 +88,7 @@
           </div>
           <div class="form-row">
             <div class="form-group col-md-12 mt-3">
-              <label for="meta_title">Meta Title</label>
+              <label for="meta_title" class="font-weight-normal">Meta Title</label>
               <input type="text" name="meta_title" value="{{if data}}{{:data.meta_title}}{{/if}}" class="form-control" id="meta_title" placeholder="Enter Meta title">
             </div>
           </div>
@@ -102,7 +97,7 @@
           <div class="form-row">
               <div class="form-group col-md-12">
                 <div class="d-flex justify-content-between">
-                  <label for="meta_keywords">Meta Keywords</label>
+                  <label for="meta_keywords" class="font-weight-normal">Meta Keywords</label>
                   <span id="meta_keywords_count"></span>
                 </div>
                 <textarea name="meta_keywords" oninput="auto_grow(this)" id="meta_keywords" class="form-control" placeholder="Enter Keywords">{{if data}}{{:data.meta_keywords}}{{/if}}</textarea>
@@ -111,7 +106,7 @@
           <div class="form-row">
               <div class="form-group col-md-12">
                 <div class="d-flex justify-content-between">
-                  <label for="meta_keyword_avg_monthly">Meta Keywords avg.monthly</label>
+                  <label for="meta_keyword_avg_monthly" class="font-weight-normal">Meta Keywords avg.monthly</label>
                 </div>
                 <textarea name="meta_keyword_avg_monthly" oninput="auto_grow(this)" class="form-control" id="meta_keyword_avg_monthly" readOnly>{{if data}}{{:data.meta_keyword_avg_monthly}}{{/if}}</textarea>
               </div>
@@ -121,19 +116,19 @@
       <div class="form-row">
         <div class="form-group col-md-12">
 					<div class="d-flex justify-content-between">
-						<label for="meta_description">Meta Description</label>
+						<label for="meta_description" class="font-weight-normal">Meta Description</label>
 						<span id="meta_desc_count"></span>
 					</div>
           <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group col-md-6 mb-0">
+        <div class="form-group col-md-6 mb-0 mt-4">
           <div class="form-group">
             <div class="justify-content-end pt-2 input-group">
               <input type="text" value="" class="hide form-control  w-75" id="extra-keyword-search">
               <div class="input-group-append">
-                <button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
+                <button type="button" class="hide btn text-dark" id="extra-keyword-search-btn" style="margin: 0px !important; height:35px;"> <l class="fa fa-search"></i> </button>
               </div>
             </div>
             <div class="pt-3 suggestList" style="display:none">
@@ -152,27 +147,27 @@
             </div>
         </div>
         <div class="form-group col-md-3">
-          <label for="content_heading">Content heading</label>
+          <label for="content_heading" class="font-weight-normal">Content heading</label>
           <input type="text" name="content_heading" value="{{if data}}{{:data.content_heading}}{{/if}}" class="form-control" id="content_heading" placeholder="Enter content_heading">
         </div>
         <div class="form-group col-md-3">
-          <label for="platform_id">Platform ID</label>
+          <label for="platform_id" class="font-weight-normal">Platform ID</label>
           <input type="text" name="platform_id" value="{{if data}}{{:data.platform_id}}{{/if}}" class="form-control" id="content_heading" placeholder="Enter Platform ID">
         </div>
       </div>
               <div class="form-row">
                 <div class="form-group col-md-12 mb-0">
-                  <label for="content">Content</label>
+                  <label for="content" class="font-weight-normal">Content</label>
                   <textarea name="content" class="form-control content-preview" id="google_translate_element" placeholder="Enter content">{{if data}}{{:data.content}}{{/if}}</textarea>
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group col-md-4">
-                  <label for="layout">layout</label>
+                  <label for="layout" class="font-weight-normal">layout</label>
                   <input type="text" name="layout" value="{{if data}}{{:data.layout}}{{/if}}" class="form-control" id="layout" placeholder="Enter layout">
                 </div>
                 <div class="form-group col-md-4">
-                     <label for="active">Active</label>
+                     <label for="active" class="font-weight-normal">Active</label>
                      <select name="active" class="form-control store-website-change">
                         <option value="">-- N/A --</option>
                         <?php
@@ -183,7 +178,7 @@
                      </select>
                   </div>
                   <div class="form-group col-md-4">
-                     <label for="language">Language</label>
+                     <label for="language" class="font-weight-normal">Language</label>
                      <select name="language" class="form-control store-website-language">
                         <option value="">-- N/A --</option>
                         <?php
@@ -199,7 +194,7 @@
                     <input type="text" name="stores_str" value="{{if data}}{{:data.stores}}{{/if}}" class="form-control" placeholder="Enter Stores comma seperate">
                 {{else}}
                   <div class="form-group col-md-6">
-                     <label for="store_website_id">Store website</label>
+                     <label for="store_website_id" class="font-weight-normal">Store website</label>
                      <select name="store_website_id" class="form-control store-website-change">
                         <option value="">-- N/A --</option>
                         <?php
@@ -210,7 +205,7 @@
                      </select>
                   </div>
                   <div class="form-group col-md-6">
-                     <label for="stores">Stores</label>
+                     <label for="stores" class="font-weight-normal">Stores</label>
                      <select name="stores[]" class="form-control store-selection" multiple="multiple">
                      </select>
                   </div>
@@ -218,8 +213,8 @@
               </div>
            </div>
            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary submit-store-site">Save changes</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary btn-sm submit-store-site">Save changes</button>
            </div>
           </form>
         </div>
