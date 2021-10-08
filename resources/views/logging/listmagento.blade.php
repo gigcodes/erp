@@ -183,28 +183,28 @@
         <div class="table-responsive">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th style="width:4%">ID</th>
-              <th style="width:4%">SKU</th>
-              <th style="width:5%">Brand</th>
-              <th style="width:6%">Category</th>
-              <th style="width:5%">Price</th>
-              <th style="width:6%">Message</th>
-              <th style="width:6%">Date/  Time</th>
-              <th style="width:6%">Website</th>
-              <th style="width:5%">Status</th>
-              <th style="width:4%">Lang Id</th>
-              <th style="width:8%">Sync Sts</th>
-              <th style="width:6%">Job Start</th>
-              <th style="width:6%">Job End</th>
-              <th style="width:3%">Total</th>
-              <th style="width:4%;">Success</th>
-              <th style="width:4%">Failure</th>
-              <th style="width:3%;">User</th>
-              <th style="width:3%;">Time</th>
-              <th style="width:3%;">Size</th>
-              <th style="width:5%;">Queue</th>
-              <th style="width:2%">Try</th>
-              <th style="width:10%">Action</th>
+              <th width="4%">ID</th>
+              <th width="4%">SKU</th>
+              <th width="5%">Brand</th>
+              <th width="6%">Category</th>
+              <th width="5%">Price</th>
+              <th width="6%">Message</th>
+              <th width="4%">D&T</th>
+              <th width="6%">Website</th>
+              <th width="5%">Status</th>
+              <th width="5%">Lang Id</th>
+              <th width="6%">Sync Sts</th>
+              <th width="6%">Job Start</th>
+              <th width="6%">Job End</th>
+              <th width="3%">Total</th>
+              <th width="4%;">Success</th>
+              <th width="4%">Failure</th>
+              <th width="3%;">User</th>
+              <th width="3%;">Time</th>
+              <th width="3%;">Size</th>
+              <th width="5%;">Queue</th>
+              <th width="2%">Try</th>
+              <th width="10%">Action</th>
             </thead>
             <tbody class="infinite-scroll-pending-inner">
 				@include("logging.partials.magento_product_data")                
