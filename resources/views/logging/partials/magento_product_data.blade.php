@@ -40,10 +40,10 @@
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'No Stk' }}
                   </td>
                   <td class="expand-row-msg" data-name="languages" data-id="{{$item->id}}"> 
-                    <span class="show-short-queue-{{$item->id}}">
+                    <span class="show-short-languages-{{$item->id}}">
                       @if(!empty($item->languages)) {{ str_limit(implode(", ",json_decode($item->languages)), 2, '..')}} @endif
                     </span>
-                    <span style="word-break:break-all;" class="show-full-queue-{{$item->id}} hidden">
+                    <span style="word-break:break-all;" class="show-full-languages-{{$item->id}} hidden">
                     @if(!empty($item->languages)) {{ implode(", ",json_decode($item->languages)) }} @endif
                   </span>
                   </td>
@@ -71,7 +71,7 @@
                         <span style="word-break:break-all;" class="show-full-log_user_name-{{$item->id}} hidden">{{$item->log_user_name}}</span>
                   </td>
                   <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
-                  <td>@if(!empty($item->size_chart_url)) <a href="{{$item->size_chart_url}}" target="__blank">Yes</a> @else No @endif</td>
+                  <td>@if(!empty($item->size_chart_url)) <a class="text-dark" href="{{$item->size_chart_url}}" target="__blank">Yes</a> @else No @endif</td>
                   <td class="expand-row-msg" data-name="queue" data-id="{{$item->id}}">
                     <span class="show-short-queue-{{$item->id}}">@if($item->queue) {{ str_limit('#'.$item->queue_id.'('.$item->queue.')', 6, '..')}} @else - @endif</span>
                     <span style="word-break:break-all;" class="show-full-queue-{{$item->id}} hidden">@if($item->queue) {{ '#'.$item->queue_id.'('.$item->queue.')'}} @else - @endif</span>
