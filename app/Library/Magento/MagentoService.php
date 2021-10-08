@@ -1370,7 +1370,7 @@ class MagentoService
                 }
                 else
                 {
-                    $category=$this->$category;
+                    $category=$this->category;
                     $product_discount2=StoreWebsiteSalesPrice::where('type','category')
                     ->where('type_id',$category->id)
                     ->where('supplier_id',$supplier_id)
