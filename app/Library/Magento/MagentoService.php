@@ -187,7 +187,7 @@ class MagentoService
         ->where("languages.status", 1)
         ->where("languages.locale","!=","en")
         ->groupBy("languages.locale")
-        ->pluck("code", "code")
+        ->pluck("languages.code", "languages.code")
         ->toArray();
 
         //return \App\Language::where("status", 1)->where("locale","!=","en")->pluck("code", "code")->toArray();
@@ -1095,11 +1095,11 @@ class MagentoService
             ->where('l.locale', "!=", "en")
             ->where('product_translations.title', "!=", "")
             ->where('product_translations.description', "!=", "")
-            //->where('product_translations.composition', "!=", "")
-            //->where('product_translations.color', "!=", "")
+            ->where('product_translations.composition', "!=", "")
+            ->where('product_translations.color', "!=", "")
+            ->where('product_translations.dimension', "!=", "")
             //->where('product_translations.size', "!=", "")
             //->where('product_translations.country_of_manufacture', "!=", "")
-            //->where('product_translations.dimension', "!=", "")
             ->groupBy("l.locale")
             ->select(["product_translations.*", "l.locale", "l.name as local_name", \DB::raw("group_concat(wsv.code) as store_codes")])
             ->get();
