@@ -132,6 +132,10 @@ class ScheduleEmails extends Command
 							}
 						}
 					} else if($flowAction['type'] == 'Whatsapp' || $flowAction['type'] == 'SMS') {	
+						$messageApplicationId = 3;
+						if($flowAction['type'] == 'Whatsapp') {
+							$messageApplicationId = 10001;
+						}
 						foreach($leads as $lead) {
 						 $insertParams = [
                                         "customer_id"            => $lead->customer_id,
@@ -141,7 +145,7 @@ class ScheduleEmails extends Command
                                         "approved"               => 1,
                                         "user_id"                => 6,
                                         "number"                 => null,
-                                        "message_application_id" => 10001,
+                                        "message_application_id" => $messageApplicationId,
 										'scheduled_at'     => $created_date,
                                        ];
 
