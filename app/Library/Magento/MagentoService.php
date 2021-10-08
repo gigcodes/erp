@@ -223,6 +223,11 @@ class MagentoService
                     return $sizeCharts[0];
                 }
 
+                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat(0, $categoryparent->id, $this->storeWebsite->id, false);
+                if(!empty($sizeCharts)) {
+                    return $sizeCharts[0];
+                }
+
                 return $categoryparent->getSizeChart($this->storeWebsite->id);
             }
 
