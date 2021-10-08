@@ -163,6 +163,7 @@
      select.globalSelect2 + span.select2 {
     width: calc(100% - 26px) !important;
 }
+
     </style>
 @endsection
 
@@ -3287,6 +3288,7 @@ $(document).on("click",".btn-save-documents",function(e){
 			$("#loading-image").hide();
 		});
     });
+    
     
     $(document).on('click', '.preview-img-btn', function (e) {
             e.preventDefault();
