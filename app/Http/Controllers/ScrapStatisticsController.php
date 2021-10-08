@@ -1166,7 +1166,7 @@ class ScrapStatisticsController extends Controller
                 array_push($scraper_proc,$sp);
             }
         }
-		$users = User::limit(100)->pluck('name', 'id')->toArray();
+		$users = User::pluck('name', 'id')->toArray();
         $scrapers = Scraper::leftJoin('users', 'users.id', '=', 'scrapers.assigned_to')->whereNotIn('id', $scraper_process->pluck('scraper_id'))->select('scrapers.*', 'users.email as assignedTo')->get();
 		return view('scrap.scraper-process-list',compact('scraper_process','scrapers', 'users'));
     }

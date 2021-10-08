@@ -15,7 +15,7 @@
         <td>{{ $scraper->scraper_name }}</td>
         <td>Not Run In Last 24 Hr</td>
         <td>
-			{{Form::select('assigned_to', [''=>'Select']+$users, $scraper->assigned_to, array('class'=>'form_control', 'id'=>'scraper_'.$key))}} 
+			{{Form::select('assigned_to', [''=>'Select']+$users, $scraper->assigned_to, array('class'=>'form_control', 'style'=>'width: 75% !important; padding: 5px;', 'id'=>'scraper_'.$key))}} 
 			<button class="btn-xs btn-secondary" onclick="saveAssignedTo('scraper_{{$key}}', '{{$scraper->id}}')">Assign</button>
 		</td>
    </tr>
