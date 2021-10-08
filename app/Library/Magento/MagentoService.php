@@ -1341,7 +1341,9 @@ class MagentoService
              $supplier_id=$supplier->id;
          $product_discount=StoreWebsiteSalesPrice::where('type','product')
             ->where('type_id',$product->id)
-            ->whereRaw('$date between date(start_date) and date(end_date)')
+            ->whereDate("start_date",">=",$date)
+            ->whereDate("end_date","<=",$date)
+            //->whereRaw($date.' between date(start_date) and date(end_date)')
             ->first();
          if ($product_discount)
            {
@@ -1355,7 +1357,9 @@ class MagentoService
                 $storeWebsite=$this->storeWebsite;
                 $product_discount1=StoreWebsiteSalesPrice::where('type','store_website')
                 ->where('type_id',$storeWebsite->id)
-                ->whereRaw('$date between date(start_date) and date(end_date)')
+                ->whereDate("start_date",">=",$date)
+                ->whereDate("end_date","<=",$date)
+                //->whereRaw($date.' between date(start_date) and date(end_date)')
                 ->first();
                 if ($product_discount1)
                 {
@@ -1370,7 +1374,9 @@ class MagentoService
                     $product_discount2=StoreWebsiteSalesPrice::where('type','category')
                     ->where('type_id',$category->id)
                     ->where('supplier_id',$supplier_id)
-                    ->whereRaw('$date between date(start_date) and date(end_date)')
+                    ->whereDate("start_date",">=",$date)
+                    ->whereDate("end_date","<=",$date)
+                    //->whereRaw($date.' between date(start_date) and date(end_date)')
                     ->first();
                     if ($product_discount2)
                         {
@@ -1385,7 +1391,9 @@ class MagentoService
                             $product_discount3=StoreWebsiteSalesPrice::where('type','brand')
                             ->where('type_id',$brand->id)
                             ->where('supplier_id',$supplier_id)
-                            ->whereRaw('$date between date(start_date) and date(end_date)')
+                            ->whereDate("start_date",">=",$date)
+                            ->whereDate("end_date","<=",$date)
+                            //->whereRaw($date .' between date(start_date) and date(end_date)')
                             ->first();
                                 if ($product_discount3)
                                 {
