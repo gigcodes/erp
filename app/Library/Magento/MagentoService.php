@@ -1097,7 +1097,7 @@ class MagentoService
             ->where('product_translations.description', "!=", "")
             ->where('product_translations.composition', "!=", "")
             ->where('product_translations.color', "!=", "")
-            ->where('product_translations.dimension', "!=", "")
+            //->where('product_translations.dimension', "!=", "")
             //->where('product_translations.size', "!=", "")
             //->where('product_translations.country_of_manufacture', "!=", "")
             ->groupBy("l.locale")
