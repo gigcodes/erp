@@ -179,7 +179,18 @@ class MagentoService
 
     private function getActiveLanguages()
     {
-        return \App\Language::where("status", 1)->where("locale","!=","en")->pluck("code", "code")->toArray();
+        return \App\Language::leftJoin("website_store_views as wsv","wsv.name","languages.name")
+        ->leftJoin("website_stores as ws","ws.id","wsv.website_store_id")
+        ->leftJoin("websites as w","w.id","ws.website_id")
+        ->where("languages.status", 1)
+        ->where("w.store_website_id", $this->storeWebsite->id)
+        ->where("languages.status", 1)
+        ->where("languages.locale","!=","en")
+        ->groupBy("languages.locale")
+        ->pluck("code", "code")
+        ->toArray();
+
+        //return \App\Language::where("status", 1)->where("locale","!=","en")->pluck("code", "code")->toArray();
     }
 
     private function getStoreColor()
@@ -205,10 +216,24 @@ class MagentoService
         if ($categorym) {
             $categoryparent = $categorym->parent;
             if ($categoryparent && $categoryparent->size_chart_needed == 1) {
+                
+                // check for the brand wise size chart first
+                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($this->product->brand, $categoryparent->id, $this->storeWebsite->id, false);
+                if(!empty($sizeCharts)) {
+                    return $sizeCharts[0];
+                }
+
                 return $categoryparent->getSizeChart($this->storeWebsite->id);
             }
 
             if ($categorym && $categorym->size_chart_needed == 1) {
+
+                // check for the brand wise size chart first
+                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($this->product->brand, $categorym->id, $this->storeWebsite->id, false);
+                if(!empty($sizeCharts)) {
+                    return $sizeCharts[0];
+                }
+
                 return $categorym->getSizeChart($this->storeWebsite->id);
             }
         }
