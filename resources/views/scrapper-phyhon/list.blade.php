@@ -228,11 +228,11 @@
                 <thead>
                 <th style="width:5%">Date</th>
                 <th style="width:5%">Id</th>
-                <th style="width:20%">Website</th>
-                <th style="width:20%">Name</th>
-                <th style="width:15%">Language</th>
-                <th style="width:15%">No of Images</th>
-                <th style="width:15%">Action</th>
+                <th style="width:17%">Website</th>
+                <th style="width:10%">Name</th>
+                <th style="width:10%">Language</th>
+                <th style="width:35%">No of Images</th>
+                <th style="width:10%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load')
@@ -288,6 +288,7 @@
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
+         
 
             $('.customer-search').select2({
                 width: "100%"
@@ -1197,6 +1198,8 @@
                     }
     })
 
+    
+
     $('#customer-search').select2({
             tags: true,
             width : '100%',
@@ -1328,6 +1331,15 @@
         $(document).ready(function()
         {
             $('[name="website"]').trigger('change');
+
+            $(document).on('click', '.expand-row-msg', function () {
+                var name = $(this).data('name');
+                var id = $(this).data('id');
+                var full = '.expand-row-msg .show-short-'+name+'-'+id;
+                var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+                $(full).toggleClass('hidden');
+                $(mini).toggleClass('hidden');
+            });
         })
 
         function showStores(selector)
