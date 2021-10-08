@@ -81,139 +81,104 @@
     <div class="row m-0">
         <div class="col-lg-12 margin-tb p-0">
             <div class="">
-
                 <!--roletype-->
                 <h2 class="page-heading">Scrapper python list<span id="products_count"></span> </h2>
-
                 <!--pending products count-->
-
-            <!--attach Product-->
-            <!--Product Search Input -->
-            
+                <!--attach Product-->
+                <!--Product Search Input -->
             </div>
         </div>
-
-
     </div>
 
     @include('partials.flash_messages')
-    
-    <div>
 
-       
-    </div>
-
-        <form method="get" action="{{route('scrapper.phyhon.index')}}">
-
-     <div class="form-group">
-                        <div class="row m-0">
-                            
-                            <div class="col-md-3 pr-0">
-                                <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
-                            </div>
-                            <div class="col-md-3 pr-0">
-                               <?php echo Form::select("store_website_id",[null => "- select website -"] + \App\StoreWebsite::pluck('title','id')->toArray(),request('store_website_id'),["class" => "form-control"]) ?>
-                            </div>
-                            <div class="col-md-3 pr-0">
-                               <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
-                                    <option value="">Select Website</option>
-                                    @foreach($allWebsites as $websiteRow)
-                                        @if(isset($request->website) && $websiteRow->id==$request->website)
-                                         <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
-                                        @else
-                                         <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
-                                        @endif
-                                    @endforeach
-                               </select>
-                            </div>
-                            <div class="col-md-3 pr-0">
-                               <?php echo Form::select('device',["desktop" => "Desktop" , "mobile" => "Mobile", "tablet" => "Tablet"],request('device'), ["class" => "form-control"]) ?>
-                            </div>
-
-                             <div class="col-md-3 pr-0">
-                               <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
-                                    <option value="">Select Store</option>
-
-                                   
-                                        </select>
-                            </div>
-                            <div class="col-md-2">
-                               <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
-                                <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
-
-                            </div>
-                            <div class="col-md-1">
-                            </div>
+    <div class="row m-0">
+        <div class="col-md-12 margin-tb p-0">
+            <form method="get" action="{{route('scrapper.phyhon.index')}}">
+                <div class="form-group">
+                    <div class="row m-0">
+                        <div class="col-md-2">
+                            <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
                         </div>
-
-                    </div>
-
-</form>
-
-        <form action="" method="POST" id="scrapper-python-form">
-        @csrf
-            <div class="form-group">    
-                <div class="row m-0">
-                    
-                    <div class="col-md-3 pr-0">
-                        <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
-                            <option value="">Select Website</option>
-                                @foreach($storewebsite as $web)
-                                    <option value="{{$web->website}}">{{$web->website}}</option>
+                        <div class="col-md-2">
+                            <?php echo Form::select("store_website_id",[null => "- select website -"] + \App\StoreWebsite::pluck('title','id')->toArray(),request('store_website_id'),["class" => "form-control"]) ?>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
+                                <option value="">Select Website</option>
+                                @foreach($allWebsites as $websiteRow)
+                                    @if(isset($request->website) && $websiteRow->id==$request->website)
+                                        <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
+                                    @else
+                                    <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
+                                    @endif
                                 @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 pr-0">
-                            
-                        <input type="radio" name="name" id="start" value="start" checked>
-                        <label class="form-check-label pr-4" for="start">
-                            Start
-                        </label>
-                    
-                        <input type="radio" name="name" id="stop" value="stop">
-                        <label class="form-check-label pr-4" for="stop">
-                            Stop
-                        </label>
-
-                        <input type="radio" name="name" id="get-status" value="get-status">
-                        <label class="form-check-label pr-4" for="get-status">
-                            Get status
-                        </label>
-                            
-                    </div>
-
-                    <div class="col-md-2 pr-0">
-                            
-                        <input type="radio" name="type" id="desktop" value="desktop" checked>
-                        <label class="form-check-label pr-4" for="desktop">
-                            Desktop
-                        </label>
-                    
-                        <input type="radio" name="type" id="mobile" value="mobile">
-                        <label class="form-check-label pr-4" for="mobile">
-                            Mobile
-                        </label>
-
-                        <input type="radio" name="type" id="tablet" value="tablet">
-                        <label class="form-check-label pr-4" for="tablet">
-                            Tablet
-                        </label>
-                            
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary" >Send Request</button>
-
-                        <button type="submit" class="btn btn-secondary view_history" >History</button>
-
-                    </div>
-                    <div class="col-md-1">
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <?php echo Form::select('device',["desktop" => "Desktop" , "mobile" => "Mobile", "tablet" => "Tablet"],request('device'), ["class" => "form-control"]) ?>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
+                                <option value="">Select Store</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
+                            <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-
-
+            </form>
+        </div>
+    </div>
+    <div class="row m-0">
+        <div class="col-md-12 margin-tb p-0">
+            <form action="" method="POST" id="scrapper-python-form">
+                @csrf
+                <div class="form-group">    
+                    <div class="row m-0">
+                        <div class="col-md-2">
+                            <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
+                                <option value="">Select Website</option>
+                                @foreach($storewebsite as $web)
+                                <option value="{{$web->website}}">{{$web->website}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="mt-2" type="radio" name="name" id="start" value="start" checked>
+                            <label class="form-check-label pr-4 mt-2" for="start">
+                                Start
+                            </label>
+                            <input class="mt-2" type="radio" name="name" id="stop" value="stop">
+                            <label class="form-check-label pr-4 mt-2" for="stop">
+                                Stop
+                            </label>
+                            <input class="mt-2" type="radio" name="name" id="get-status" value="get-status">
+                            <label class="form-check-label pr-4 mt-2" for="get-status">
+                                Get status
+                            </label>
+                            <input class="mt-2" type="radio" name="type" id="desktop" value="desktop" checked>
+                            <label class="form-check-label pr-4 mt-2" for="desktop">
+                                Desktop
+                            </label>
+                            <input class="mt-2" type="radio" name="type" id="mobile" value="mobile">
+                            <label class="form-check-label pr-4 mt-2" for="mobile">
+                                Mobile
+                            </label>
+                            <input class="mt-2" type="radio" name="type" id="tablet" value="tablet">
+                            <label class="form-check-label pr-4 mt-2" for="tablet">
+                                Tablet
+                            </label>
+                            <button type="submit" class="btn btn-secondary btn-xs" >Send Request</button>
+                            <button type="submit" class="btn btn-secondary view_history btn-xs" >History</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="history" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="history_img">
             <div class="modal-content">
@@ -261,13 +226,13 @@
         <div class="table-responsive">
             <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
                 <thead>
-                <th style="width:8%">Date</th>
+                <th style="width:5%">Date</th>
                 <th style="width:5%">Id</th>
-                <th style="width:35%">Website</th>
+                <th style="width:20%">Website</th>
                 <th style="width:20%">Name</th>
                 <th style="width:15%">Language</th>
-                <th style="width:17%">No of Images</th>
-                <th style="width:17%">Action</th>
+                <th style="width:15%">No of Images</th>
+                <th style="width:15%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load')
