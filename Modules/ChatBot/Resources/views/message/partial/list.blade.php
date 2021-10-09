@@ -55,14 +55,14 @@ padding: 3px 2px;
 <table class="table table-bordered chatbot page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="5%">Name</th>
+        <th width="2%">Name</th>
         <th width="2%">Website</th>
-        <th width="9%">User input</th>
-        <th width="9%">Bot Replied</th>
-        <th width="25%">Message Box </th>
-        <th width="4%">From</th>
-        <th width="17%">Shortcuts</th>
-        <th width="6%">Action</th>
+        <th width="8%">User input</th>
+        <th width="8%">Bot Replied</th>
+        <th width="30%">Message Box </th>
+        <th width="2%">From</th>
+        <th width="2%">Shortcuts</th>
+        <th width="2%">Action</th>
        
     </tr>
     </thead>
@@ -94,7 +94,7 @@ padding: 3px 2px;
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}">
             @if($pam->supplier_id > 0)
                 @if (strlen($pam->supplier_name) > 5)
-               <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,6)   }}...</p>
+               <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,4)   }}..</p>
                 @else
                 <p class="p-0 m-0">{{  /*"#".$pam->supplier_id." ".*/$pam->supplier_name  }}</p>
                 @endif
@@ -102,7 +102,7 @@ padding: 3px 2px;
 
              @else
             @if (isset($pam->taskUser) && ( strlen($pam->taskUser->name) > 5) || strlen($pam->customer_name) > 5 || $pam->vendor_id > 0 && strlen($pam->vendors_name) > 5)
-            <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}" class="user-inputt p-0 m-0">{{  ($pam->vendor_id > 0 ) ? substr($pam->vendors_name,0,6) : ( $pam->taskUser ? substr($pam->taskUser->name,0,6) : substr($pam->customer_name,0,6)  )  }}...</p>
+            <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}" class="user-inputt p-0 m-0">{{  ($pam->vendor_id > 0 ) ? substr($pam->vendors_name,0,6) : ( $pam->taskUser ? substr($pam->taskUser->name,0,4) : substr($pam->customer_name,0,4)  )  }}..</p>
             @else
                 <p class="p-0 m-0">{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name  : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}</p>
             @endif
