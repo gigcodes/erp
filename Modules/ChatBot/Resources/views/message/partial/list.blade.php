@@ -111,7 +111,7 @@ padding: 3px 2px;
             @endif
                 @if (strlen($pam->website_title) > 5)
                     <td  data-log_message="{{ $pam->website_title }}" class="log-website-popup user-iput">
-                        <p>{{ substr($pam->website_title,0,5) }}...</p>
+                        <p class="p-0 m-0">{{ substr($pam->website_title,0,5) }}...</p>
                     </td>
                 @else
                     <td>{{ $pam->website_title }}</td>
@@ -159,11 +159,11 @@ padding: 3px 2px;
             @endif
 
 
-        <td class="message-input">
+        <td class="message-input p-0 pt-2 pl-3">
             <div class=" cls_textarea_subbox">
                 <div class="btn-toolbar" role="toolbar">
                     <div class="w-75">
-                        <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>
+                        <input type="text" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message">
                     </div>
                     <div class="w-25 pl-2" role="group" aria-label="First group">
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1">
@@ -190,7 +190,7 @@ padding: 3px 2px;
             </div>
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
-        <td style="/*padding: 5px 7px;*/" class="communication pr-0 pt-2 pb-2">
+        <td class="communication p-0 pt-2 pl-3">
           <div class="row m-0">
               <div class="col-6 d-inline form-inline p-0">
                   <div style="float:left;width: calc(100% - 5px)">
