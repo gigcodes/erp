@@ -156,8 +156,10 @@
             <div class="modal-content ">
 				<div class="modal-header">
 					<h5 class="modal-title">Flow Type</h5>
-					<a href="#" id="sendEmail">Add Email</a>
-					<a href="#" id="dateTime">Add Time Delay</a>
+					<a href="#" id="sendEmail"> Add Email </a>
+					<a href="#" id="dateTime"> Add Time Delay </a>
+					<a href="#" id="whatsapp"> &nbsp;Add Whatsapp </a> 
+					<a href="#" id="sms"> &nbsp;Add SMS</a> 
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 					</button>
@@ -204,6 +206,30 @@
 		</div>
 	</div>
 </div>
+<div id="whatsapp" style="display:none;">
+	<div class="col-md-12 cross cross_first" >
+		<div class="col-md-10 cross_first_label_time">
+			<label>Whatsapp Message</label>
+			{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
+			<input type="hidden" name="action_type[]" value="Whatsapp">
+		</div>
+		<div class="col-md-2 cross_first_remove">
+			<i class="fa fa-remove"></i>  
+		</div>
+	</div>
+</div>
+<div id="sms" style="display:none;">
+	<div class="col-md-12 cross cross_first" >
+		<div class="col-md-10 cross_first_label_time">
+			<label>SMS</label>
+			{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
+			<input type="hidden" name="action_type[]" value="SMS">
+		</div>
+		<div class="col-md-2 cross_first_remove">
+			<i class="fa fa-remove"></i>  
+		</div>
+	</div>
+</div>
 @endsection
 
 @section('scripts')
@@ -238,6 +264,22 @@ jQuery(document).ready(function($){
 	    var flowId = $('#flow_id').val();
 		var pathId = $('#path_id').val();
 	   saveFlowAction(flowId, pathId, 'Send Message');
+    });
+	
+	$('#whatsapp').on('click', function(){
+       var sendWhatapp = $('#whatsapp').html();
+       $('#Collector').append(sendWhatapp);
+	    var flowId = $('#flow_id').val();
+		var pathId = $('#path_id').val();
+	   saveFlowAction(flowId, pathId, 'Whatsapp');
+    });
+	
+	$('#sms').on('click', function(){
+       var sendSms = $('#sms').html();
+       $('#Collector').append(sendSms);
+	    var flowId = $('#flow_id').val();
+		var pathId = $('#path_id').val();
+	   saveFlowAction(flowId, pathId, 'SMS');
     });
 
   /*  $(document).on('click','.cross div i',function(){
