@@ -94,7 +94,7 @@ padding: 3px 2px;
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}">
             @if($pam->supplier_id > 0)
                 @if (strlen($pam->supplier_name) > 5)
-               <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,4)   }}..</p>
+               <p data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,4)   }}..</p>
                 @else
                 <p class="p-0 m-0">{{  /*"#".$pam->supplier_id." ".*/$pam->supplier_name  }}</p>
                 @endif
@@ -102,7 +102,7 @@ padding: 3px 2px;
 
              @else
             @if (isset($pam->taskUser) && ( strlen($pam->taskUser->name) > 5) || strlen($pam->customer_name) > 5 || $pam->vendor_id > 0 && strlen($pam->vendors_name) > 5)
-            <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}" class="user-inputt p-0 m-0">{{  ($pam->vendor_id > 0 ) ? substr($pam->vendors_name,0,6) : ( $pam->taskUser ? substr($pam->taskUser->name,0,4) : substr($pam->customer_name,0,4)  )  }}..</p>
+            <p  data-log_message="{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}" class="user-inputt p-0 m-0">{{  ($pam->vendor_id > 0 ) ? substr($pam->vendors_name,0,6) : ( $pam->taskUser ? substr($pam->taskUser->name,0,4) : substr($pam->customer_name,0,4)  )  }}..</p>
             @else
                 <p class="p-0 m-0">{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name  : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}</p>
             @endif
@@ -110,7 +110,7 @@ padding: 3px 2px;
            </td>
             @endif
                 @if (strlen($pam->website_title) > 5)
-                    <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->website_title }}" class="log-website-popup user-iput">
+                    <td  data-log_message="{{ $pam->website_title }}" class="log-website-popup user-iput">
                         <p>{{ substr($pam->website_title,0,5) }}...</p>
                     </td>
                 @else
@@ -119,7 +119,7 @@ padding: 3px 2px;
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
         @if (strlen($pam->question) > 10)
-            <td style="word-break: break-word;padding: 8px 5px;"  class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
+            <td   class="log-message-popup user-input" data-log_message="{!!$pam->question!!}">{{ substr($pam->question,0,15) }}...
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <i class="fa fa-check-square-o text-dark"></i>
@@ -133,7 +133,7 @@ padding: 3px 2px;
                 @endif
             </td>
         @else
-            <td class="user-input" style="padding: 8px 5px;">{{ $pam->question }}
+            <td class="user-input" >{{ $pam->question }}
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <i class="fa fa-check-square-o text-dark"></i>
@@ -151,7 +151,7 @@ padding: 3px 2px;
 
 
         @if (strlen($pam->answer) > 10)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,15) }}...
+            <td  data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,15) }}...
             </td>
         @else
             <td class="boat-replied">{{ $pam->answer }}
@@ -161,7 +161,7 @@ padding: 3px 2px;
 
         <td class="message-input">
             <div class=" cls_textarea_subbox">
-                <div class="btn-toolbar mb-3" role="toolbar">
+                <div class="btn-toolbar" role="toolbar">
                     <div class="w-75">
                         <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>
                     </div>
