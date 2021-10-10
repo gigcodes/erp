@@ -25,6 +25,7 @@ class ErpLeads extends Model
      * @SWG\Property(property="max_price",type="float")
      * @SWG\Property(property="brand_segment",type="string")
      * @SWG\Property(property="gender",type="string")
+     * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
    
@@ -43,6 +44,7 @@ class ErpLeads extends Model
         'max_price',
         'brand_segment',
         'gender',
+        'type',
         'created_at',
         'updated_at',
     ];
