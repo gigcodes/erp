@@ -58,7 +58,7 @@
                 <textarea  rows="1" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
             </div>
             <div class="w-25">
-                <button class="btn btn-xs send-message1 text-dark "
+                <button class="btn btn-xs send-message1"
                         data-ticketid="{{ $ticket->id }}">
                     <i class="fa fa-paper-plane"></i>
                 </button>
@@ -73,7 +73,7 @@
                     }
                     $table.="</tbody></table>";
                 ?>
-                <a href="javascript:void(0)" class="row-ticket btn btn-xs text-dark" data-content="{{ $table }}">
+                <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-content="{{ $table }}">
                     <i class="fa fa-comments-o"></i>
                 </a>
             </div>
@@ -98,7 +98,7 @@
     <td>
         <div class="">
           <button type="button"
-                  class="btn btn-xs send-email-to-vender text-dark"
+                  class="btn btn-xs send-email-to-vender "
                   data-subject="{{ $ticket->subject }}"
                   data-message="{{ $ticket->message }}"
                   data-email="{{ $ticket->email }}"
@@ -107,7 +107,7 @@
           </button>
 
           <button type="button"
-                  class="btn btn-xs load-communication-modal text-dark"
+                  class="btn btn-xs load-communication-modal "
                   data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
                   data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
                   data-object="ticket" data-id="{{$ticket->id}}"
@@ -118,7 +118,7 @@
           </button>
 
           <button type="button"
-                  class="btn btn-xs btn-assigned-to-ticket text-dark"
+                  class="btn btn-xs btn-assigned-to-ticket "
                   data-id="{{$ticket->id}}">
                 <i class="fa fa-comments-o"></i>
             </button>
@@ -155,18 +155,18 @@
         
          
        ?>
-        <a href="javascript:void(0)" class="btn btn-xs  row-ticket text-dark" data-content="{{ $table}}">
+        <a href="javascript:void(0)" class="btn btn-xs  row-ticket " data-content="{{ $table}}">
             <i class="fa fa-envelope"></i>
         </a>
 
-        <a href="javascript:void(0)" class="btn btn-xs text-dark" onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email" >
+        <a href="javascript:void(0)" class="btn btn-xs " onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email" >
             <i class="fa fa-repeat" aria-hidden="true"></i>
 
         </a>
-            <button type="button" class="btn btn-xs text-dark btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
+            <button type="button" class="btn btn-xs  btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
                 <i class="fa fa-trash"></i></button> 
 				
-		<button type="button" class="btn btn-xs text-dark no_pd" onclick="showEmails('{{$ticket->id}}')">
+		<button type="button" class="btn btn-xs  no_pd" onclick="showEmails('{{$ticket->id}}')">
                 <i class="fa fa-envelope" ></i></button>
 
         </div>
