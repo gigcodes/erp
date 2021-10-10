@@ -72,7 +72,6 @@ a.navbar-brand{
     white-space: nowrap;
     border-radius: 4px;
     color: #fff;
-    background-color: #828282;
     cursor: pointer;
     
 }
@@ -190,78 +189,79 @@ button[disabled]:hover {
     <div class="row">
         <div class="col-md-12">
            <h2 class="page-heading">Influencers (<span id="total">{{ $influencers->total() }}</span>)</h2>
-            <div class="pull-left">
-            <form class="form-inline" action="{{ route('influencers.index') }}" method="GET">
-                <div class="row">
-                <div class="form-group mr-3 mb-3">
-                        <input name="term" type="text" class="form-control" id="term"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search...">
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-inline" action="{{ route('influencers.index') }}" method="GET">
+                        <div class="form-group mr-2">
+                            <input name="term" type="text" class="form-control" id="term"
+                                value="{{ isset($term) ? $term : '' }}"
+                                placeholder="Search...">
+                        </div>
+                        <div class="form-group mr-2">
+                            <select class="form-control" name="posts" id="">
+                                <option value="">Posts</option>
+                                <option value="10" {{$posts == 10 ? 'selected' : ''}}>Greater than 10</option>
+                                <option value="20" {{$posts == 20 ? 'selected' : ''}}>Greater than 20</option>
+                                <option value="30" {{$posts == 30 ? 'selected' : ''}}>Greater than 30</option>
+                                <option value="50" {{$posts == 50 ? 'selected' : ''}}>Greater than 50</option>
+                                <option value="100" {{$posts == 100 ? 'selected' : ''}}>Greater than 100</option>
+                            </select>
+                        </div>
+                        <div class="form-group mr-2">
+                            <select class="form-control" name="followers" id="">
+                                <option value="">Followers</option>
+                                <option value="10" {{$followers == 10 ? 'selected' : ''}}>Greater than 10</option>
+                                <option value="20" {{$followers == 20 ? 'selected' : ''}}>Greater than 20</option>
+                                <option value="30" {{$followers == 30 ? 'selected' : ''}}>Greater than 30</option>
+                                <option value="50" {{$followers == 50 ? 'selected' : ''}}>Greater than 50</option>
+                                <option value="100" {{$followers == 100 ? 'selected' : ''}}>Greater than 100</option>
+                            </select>
+                        </div>
+                        <div class="form-group mr-2">
+                            <select class="form-control" name="following" id="">
+                                <option value="">Following</option>
+                                <option value="10" {{$following == 10 ? 'selected' : ''}}>Greater than 10</option>
+                                <option value="20" {{$following == 20 ? 'selected' : ''}}>Greater than 20</option>
+                                <option value="30" {{$following == 30 ? 'selected' : ''}}>Greater than 30</option>
+                                <option value="50" {{$following == 50 ? 'selected' : ''}}>Greater than 50</option>
+                                <option value="100" {{$following == 100 ? 'selected' : ''}}>Greater than 100</option>
+                            </select>
+                        </div>
+                        <div class="form-group mr-2">
+                            <input type="date" name="date" id="date11" class="form-control">
+                            <button type="submit" class="btn btn-image3 btn-sm text-dark">
+                                <i class="fa fa-filter"></i>
+                            </button>
+                            <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group mr-3 mb-3">
-                        <select class="form-control" name="posts" id="">
-                            <option value="">Posts</option>
-                            <option value="10" {{$posts == 10 ? 'selected' : ''}}>Greater than 10</option>
-                            <option value="20" {{$posts == 20 ? 'selected' : ''}}>Greater than 20</option>
-                            <option value="30" {{$posts == 30 ? 'selected' : ''}}>Greater than 30</option>
-                            <option value="50" {{$posts == 50 ? 'selected' : ''}}>Greater than 50</option>
-                            <option value="100" {{$posts == 100 ? 'selected' : ''}}>Greater than 100</option>
-                        </select>
-                </div>
-                <div class="form-group mr-3 mb-3">
-                        <select class="form-control" name="followers" id="">
-                            <option value="">Followers</option>
-                            <option value="10" {{$followers == 10 ? 'selected' : ''}}>Greater than 10</option>
-                            <option value="20" {{$followers == 20 ? 'selected' : ''}}>Greater than 20</option>
-                            <option value="30" {{$followers == 30 ? 'selected' : ''}}>Greater than 30</option>
-                            <option value="50" {{$followers == 50 ? 'selected' : ''}}>Greater than 50</option>
-                            <option value="100" {{$followers == 100 ? 'selected' : ''}}>Greater than 100</option>
-                        </select>
-                </div>
-                <div class="form-group mr-3 mb-3">
-                        <select class="form-control" name="following" id="">
-                            <option value="">Following</option>
-                            <option value="10" {{$following == 10 ? 'selected' : ''}}>Greater than 10</option>
-                            <option value="20" {{$following == 20 ? 'selected' : ''}}>Greater than 20</option>
-                            <option value="30" {{$following == 30 ? 'selected' : ''}}>Greater than 30</option>
-                            <option value="50" {{$following == 50 ? 'selected' : ''}}>Greater than 50</option>
-                            <option value="100" {{$following == 100 ? 'selected' : ''}}>Greater than 100</option>
-                        </select>
-                </div>
-                <div class="form-group mr-3 mb-3">
-               
-                 <input type="date" name="date" id="date11">
-            
-                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
-                    <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
-                </div>
-                </div>
-                </form>
             </div>
-            <div class="pull-right">
-                <div class="row">
-                <div class="form-group mr-3 mb-3">    
-                    <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-sm" >Ceate Mailing List</a> 
-                </div>      
-                <div class="form-group mr-3 mb-3">    
-                    <a href="#" class="btn btn-secondary btn-sm mailToInfluencers" >Send Mail</a> 
-                </div>      
-                <div class="form-group mr-3 mb-3">    
-                    <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
-                </div>        
-                <div class="form-group mr-3 mb-3">
-                     <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
-                </div>
-                @php
-                    $accountsList = ["" => "N/A"] + \App\Account::where('platform','instagram')->where('email',"!=",'')->get()->pluck('email','id')->toArray();
-                @endphp
-                <div class="form-group mr-3 mb-3">
-                     <?php echo Form::select('instagram_account_id',$accountsList,null, ["class" => "form-control select2","id" => 'instagram_account_id']); ?>
-                </div>
-                <div class="form-group mr-3 mb-3">
-                    <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
-                </div>
-               
+            <div class="row">
+                <div class="col-md-12 form-inline">
+                    <div class="form-group mr-2">    
+                        <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-xs" >Ceate Mailing List</a> 
+                    </div>      
+                    <div class="form-group mr-2">    
+                        <a href="#" class="btn btn-secondary btn-xs mailToInfluencers" >Send Mail</a> 
+                    </div>      
+                    <div class="form-group mr-2">    
+                        <button class="btn btn-secondary btn-xs" onclick="sortData()">Sort Data</button> 
+                    </div>        
+                    <div class="form-group mr-2">
+                            <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
+                    </div>
+                    @php
+                        $accountsList = ["" => "------ N/A ------"] + \App\Account::where('platform','instagram')->where('email',"!=",'')->get()->pluck('email','id')->toArray();
+                    @endphp
+                    <div class="form-group mr-2">
+                            <?php echo Form::select('instagram_account_id',$accountsList,null, ["class" => "form-control select2","id" => 'instagram_account_id']); ?>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-image btn-xs text-dark" onclick="submitKeywork()"><i class="fa fa-plus"></i></button> 
+                    </div>
                 </div>
             </div>
         </div>
@@ -302,33 +302,33 @@ button[disabled]:hover {
                                 <tr data-keyword-id="{{$keyword->id}}" data-keyword-name="{{ $keyword->name }}">
                                    <td>{{ $keyword->name }}</td>
                                    <td>
-                                        <div class="form-group mr-3 mb-3">
+                                        <div class="">
                                              <?php echo Form::select('platform',["py_instagram" => "Py Instagram", "py_facebook" => "Py Facebook"],null, ["class" => "form-control select2 platform-request"]); ?>
                                         </div>
                                    </td>
                                    <td>
-                                        <div class="form-group mr-3 mb-3">
+                                        <div class="">
                                              <?php echo Form::text('wait_time',$keyword->wait_time, ["class" => "form-control wait-time"]); ?>
                                         </div>
                                    </td>
                                    <td>
-                                        <div class="form-group mr-3 mb-3">
+                                        <div class="">
                                              <?php echo Form::text('no_of_request',$keyword->no_of_requets, ["class" => "form-control no-of-request"]); ?>
                                         </div>
                                    </td>
                                    <td>
-                                        <div class="form-group mr-3 mb-3">
+                                        <div class="">
                                              <?php echo Form::select('instagram_account_id',$accountsList,$keyword->instagram_account_id, ["class" => "form-control select2","id" => 'instagram_account_id_change']); ?>
                                         </div>
                                    </td>
-                                   <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
-                                   <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
-                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
-                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
-                                   <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
-                                   <!--<button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> !-->
-                                   <button type="button" data-id="{{$keyword->name}}" class="btn btn-log-instances"><i class="fa fa-history" aria-hidden="true"></i></button>
-                                   <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
+                                   <td><button class="btn btn-link btn-xs text-dark" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
+                                   <button  class="btn btn-link btn-xs text-dark" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
+                                   <button class="btn btn-link btn-xs text-dark" onclick="startScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
+                                   <button class="btn btn-link btn-xs text-dark" onclick="stopScript('{{ $keyword->name }}',this)" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
+                                   <button class="btn btn-link btn-xs text-dark" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
+                                   <!--<button class="btn btn-link btn-xs text-dark" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> !-->
+                                   <button type="button" data-id="{{$keyword->name}}" class="btn btn-log-instances btn-xs text-dark"><i class="fa fa-history" aria-hidden="true"></i></button>
+                                   <button class="btn btn-link btn-xs task-history text-dark" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
                                   
                                  
                   
@@ -360,21 +360,21 @@ button[disabled]:hover {
                     <thead >
                     <tr>
 
-                        <th style="width:2.5%">#</th>
+                        <th style="width:2%">#</th>
                         <th style="width:6%">Platform</th>
-                        <th style="width:6%">Date</th>
-                        <th style="width: 10%">Username</th>
-                        <th style="width:8%">Email</th>
+                        <th style="width:5%">Date</th>
+                        <th style="width:7%">Username</th>
+                        <th style="width:7%">Email</th>
                         <th style="width:7%">Hashtag</th>
-                        <th style="width:5%" >Posts</th>
-                        <th style="width:5%">Followers</th>
-                        <th style="width:5%">Following</th>
-                        <th style="width:7%">Country</th>
+                        <th style="width:5%">Posts</th>
+                        <th style="width:7%">Followers</th>
+                        <th style="width:7%">Following</th>
+                        <th style="width:6%">Country</th>
                         <th style="width:8%">Description</th>
-                        <th style="width:7%">Sender</th>
-                        <th style="width:17%">Communication</th>
-                        <th style="width:6%">Auto Reply</th>
-                        <th style="width:5%">Action</th>
+                        <th style="width:9%">Sender</th>
+                        <th style="width:13%">Communication</th>
+                        <th style="width:11%">Auto Reply</th>
+                        <th style="width:6%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
                         <th>Twitter</th>
