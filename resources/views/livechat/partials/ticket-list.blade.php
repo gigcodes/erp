@@ -8,28 +8,28 @@
 @foreach ($data as $key => $ticket)
 <tr>
     <td class="pl-2"><input type="checkbox" class="selected-ticket-ids" name="ticket_ids[]" value="{{ $ticket->id }}"></td>
-    <td>{{ ++$i }}</td>
+
     <td>{{ substr($ticket->ticket_id, -5) }}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
-            {{ str_limit($ticket->source_of_ticket,10)}}
+            {{ str_limit($ticket->source_of_ticket,4,'..')}}
         </a>
     </td>
-    <td>{{ $ticket->name}}</td>
+    <td>{{ str_limit($ticket->name,6,'..')}}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">
-            {{ str_limit($ticket->email,7)}}
+            {{ str_limit($ticket->email,6,'..')}}
         </a>
     </td>
     <td class="pr-1">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">
-            {{ str_limit($ticket->subject,6)}}
+            {{ str_limit($ticket->subject,6,'..')}}
         </a>
     </td>
     <td>
        
         
-            {{ str_limit($ticket->message,6)}}
+            {{ str_limit($ticket->message,6,'..')}}
        
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>
@@ -48,46 +48,36 @@
     </td>
     <td class="pl-2">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">
-         {{ str_limit($ticket->phone_no,13)}}
+         {{ str_limit($ticket->phone_no,7,'..')}}
         </a>
     </td>
 
-    <td class="table-hover-cell pr-0 pb-0">
-        <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between">
-            <div style="flex-grow: 1">
-                <textarea  style="height:34px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+    <td>
+        <div class="btn-toolbar" role="toolbar">
+            <div class="w-75">
+                <textarea  rows="1" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
             </div>
-            <div style="width: min-content">
-
-                <button class="btn btn-xs btn-image send-message1 " style="margin-left:6px;"
+            <div class="w-25">
+                <button class="btn btn-xs send-message1 text-dark "
                         data-ticketid="{{ $ticket->id }}">
-                    <img src="<?php echo $base_url;?>/images/filled-sent.png"/>
+                    <i class="fa fa-paper-plane"></i>
                 </button>
-
-               
                 <?php
-        $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
-        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
-        
-        foreach( $messages as $m)
-        {
-                                  
-            $table.="<tr><td>".$m->created_at."</td>";
-            $table.="<td>".$m->message."</td>";
-            $table.="<td>".$m->message_en."</td></tr>";
-        }
-        $table.="</tbody></table>";
-        
-         
-       ?>
-       <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table }}">
-       <i class="fa fa-comments-o"></i>
-        </a>
-       
-                
-
+                    $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
+                    $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
+                    foreach( $messages as $m)
+                    {                  
+                        $table.="<tr><td>".$m->created_at."</td>";
+                        $table.="<td>".$m->message."</td>";
+                        $table.="<td>".$m->message_en."</td></tr>";
+                    }
+                    $table.="</tbody></table>";
+                ?>
+                <a href="javascript:void(0)" class="row-ticket btn btn-xs text-dark" data-content="{{ $table }}">
+                    <i class="fa fa-comments-o"></i>
+                </a>
             </div>
-       </div>
+        </div>
     </td>
 
     <td>
@@ -101,13 +91,14 @@
     </td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
-            {{ str_limit($ticket->created_at,10)}}
+            {{ str_limit(date('d-m-y', strtotime($ticket->created_at)),5,'..')}}
+            
         </a>
         </td>
     <td>
-        <div class=" d-flex">
+        <div class="">
           <button type="button"
-                  class="btn btn-xs send-email-to-vender"
+                  class="btn btn-xs send-email-to-vender text-dark"
                   data-subject="{{ $ticket->subject }}"
                   data-message="{{ $ticket->message }}"
                   data-email="{{ $ticket->email }}"
@@ -116,7 +107,7 @@
           </button>
 
           <button type="button"
-                  class="btn btn-xs load-communication-modal"
+                  class="btn btn-xs load-communication-modal text-dark"
                   data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
                   data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
                   data-object="ticket" data-id="{{$ticket->id}}"
@@ -127,7 +118,7 @@
           </button>
 
           <button type="button"
-                  class="btn btn-xs btn-assigned-to-ticket"
+                  class="btn btn-xs btn-assigned-to-ticket text-dark"
                   data-id="{{$ticket->id}}">
                 <i class="fa fa-comments-o"></i>
             </button>
@@ -164,19 +155,19 @@
         
          
        ?>
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $table}}">
-            <i class="fa fa-envelope" style="margin-left: -10px"></i>
+        <a href="javascript:void(0)" class="btn btn-xs  row-ticket text-dark" data-content="{{ $table}}">
+            <i class="fa fa-envelope"></i>
         </a>
 
-        <a href="javascript:void(0)" onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email" >
+        <a href="javascript:void(0)" class="btn btn-xs text-dark" onclick="message_show(this);" data-content="{{ $tableemail}}" title="Resend Email" >
             <i class="fa fa-repeat" aria-hidden="true"></i>
 
         </a>
-            <button type="button" class="btn btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
-                <i class="fa fa-trash" style="margin-left: -10px"></i></button> 
+            <button type="button" class="btn btn-xs text-dark btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
+                <i class="fa fa-trash"></i></button> 
 				
-		<button type="button" class="btn no_pd" onclick="showEmails('{{$ticket->id}}')">
-                <i class="fa fa-envelope" style="margin-left: -10px"></i></button>
+		<button type="button" class="btn btn-xs text-dark no_pd" onclick="showEmails('{{$ticket->id}}')">
+                <i class="fa fa-envelope" ></i></button>
 
         </div>
     </td>
