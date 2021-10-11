@@ -65,7 +65,7 @@
                                     </tr>
                                     @forelse ($item->size_charts as $key => $size)
                                         <tr>
-                                            <th>{{ $size['brands']['name'] }}</th>
+                                            <th>{{ ($size['brands']['name'])?$size['brands']['name']:'No Brand' }}</th>
                                             @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
                                                 <td>
                                                 @forelse ($sizeChart as $chartitem)
