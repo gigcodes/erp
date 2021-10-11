@@ -38,6 +38,13 @@ class MasterDevTaskController extends Controller
      */
     public function index(Request $request)
     {
+        $enddate = date("Y-m-d 23:59:59");
+        $startdate = date("Y-m-d 00:00:00",strtotime("-7 day", strtotime($enddate)));
+
+        $productErrors = \App\ProductPushErrorLog::latest('count')->groupBy('message')->select(\DB::raw('*,COUNT(message) AS count'));
+        $productErrors->whereDate('created_at','>=',$startdate)->whereDate('created_at','<=',$enddate);
+        $productErrors->where("response_status","!=","success");
+        $productErrors = $productErrors->get();
 
         $memory_use = MemoryUsage::
                 whereDate('created_at', now()->format('Y-m-d'))
@@ -175,7 +182,7 @@ class MasterDevTaskController extends Controller
 
 
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs','scraper_process','scrapers'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs','scraper_process','scrapers','productErrors'));
     }
 
 }
