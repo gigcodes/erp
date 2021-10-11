@@ -9,8 +9,8 @@
 				<th width="1%">Mobile</th>
 				<th width="20%">Next Action</th>
 				<th width="20%">Shortcuts</th>
-				<th width="35%">Communication</th>
-				<th width="10%">Actions</th>
+				<th width="10%">Communication</th>
+				<th width="8%">Actions</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -39,14 +39,14 @@
 					</td>
 					
 					<td class="communication">			        	
-						<div class="row">
+						<div class="row pl-3 pr-3">
 						    <div class="col-md-12">
 						        <div class="row mb-1">
-						            <div class="col-6 form-inline pr-0 m-0">
+						            <div class="col-3 form-inline  p-0 m-0">
 						                <input type="text" name="category_name" placeholder="Add New Category" class="form-control w-75 quick_category">
 						                <button class="btn btn-xs quick_category_add w-25 m-0"><i class="fa fa-plus"></i></button>
 						            </div>
-						            <div class="col-6 form-inline pl-0 m-0">
+						            <div class="col-3 form-inline p-0 m-0">
 						                    <select name="quickCategory" class="form-control quickCategory w-75">
 						                        <option value="">Select Category</option>
 													@foreach($reply_categories as $category)
@@ -55,13 +55,12 @@
 						                    </select>
 						                    <a class="btn btn-xs delete_category w-25"><i class="fa fa-trash"></i></a>
 						            </div>
-								</div>
-								<div class="row">
-						            <div class="col-6 form-inline pr-0 m-0">
+								
+						            <div class="col-3 form-inline  p-0 m-0">
 						                <input type="text" name="quick_comment" placeholder="Enter New Comment" class="form-control quick_comment w-75">
 						                <button class="btn btn-xs quick_comment_add w-25 m-0"><i class="fa fa-plus"></i></button>
 						            </div>
-						            <div class="col-6 form-inline pl-0 m-0">
+						            <div class="col-3 form-inline  p-0 m-0">
 										<select name="quickComment" class="form-control quickComment w-75">
 											<option value="">Select Reply</option>
 										</select>
