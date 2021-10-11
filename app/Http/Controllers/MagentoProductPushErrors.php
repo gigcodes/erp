@@ -96,9 +96,12 @@ class MagentoProductPushErrors extends Controller
 //                'response_status' => $row->response_status,
                 'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">
                 <option value="" ></option>
+                <option value="success" '.($row->response_status == 'success' ? 'selected' : '' ).'>Success</option>
                 <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
                 <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
                 <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
+                <option value="message" '.($row->response_status == 'message' ? 'selected' : '' ).'>Message</option>
+                <option value="translation_not_found" '.($row->response_status == 'translation_not_found' ? 'selected' : '' ).'>Translation not found</option>
                 </select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
                 <i class="fa fa-info-circle"></i>
             </button></div>',
