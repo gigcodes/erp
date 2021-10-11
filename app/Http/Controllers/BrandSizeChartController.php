@@ -23,6 +23,9 @@ class BrandSizeChartController extends Controller
         $storeWebsite = \App\StoreWebsite::get();
         $sizeChart = BrandCategorySizeChart::get();
 
+        echo "<pre/>";
+        print_r($storeWebsite);
+        die();
         return view('brand-size-chart.index', compact('storeWebsite', 'sizeChart'));
     }
 
