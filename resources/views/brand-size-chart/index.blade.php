@@ -63,7 +63,7 @@
                                             <th></th>
                                         @endforelse
                                     </tr>
-                                    @if($item->brand_id)
+                                    @if($item->sizeBrand->unique())
                                     @forelse ($item->sizeBrand->unique() as $brandkey => $branditem)
                                         <tr>
                                             <th>{{ $branditem->name }}</th>
