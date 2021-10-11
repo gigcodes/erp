@@ -87,6 +87,9 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
+                                        <?php echo Form::select("response_status",["" => "All" ,"error" => "Error" , "success" => "success" ,"php" => "PHP", "translation_not_found" => "Translation not found", "magento" => "Magento"],request('response_status'), ["class" => "form-control"]); ?>
+                                    </div>
+                                    <div class="form-group">
                                         {{-- <label for="button">&nbsp;</label> --}}
                                         <button style="display: inline-block;width: 10%"
                                             class="btn btn-sm btn-image btn-secondary btn-search-action">

@@ -36,9 +36,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             margin-left: -8px;
             background: none;
         }
-        .send_btn {
-            margin-left: -5px; 
-        }
+        
         .cls_message_textarea{
             height: 35px !important;
             width: 100% !important;
@@ -66,13 +64,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         textarea{
             border: 1px solid #ddd !important;
         }
-        .send_btn{
-            background-color: transparent !important;
-
-        }
-        .send_btn i{
-            color: #808080;
-        }
+        
     </style>
 @endsection
         <div class="row">
@@ -80,7 +72,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 <h2 class="page-heading">Live Chat</h2>
                 <div class="pull-right">
                     <div style="text-align: right; margin-bottom: 10px;">
-                        <button type="button" class="btn btn-primary" onclick="createCoupon()">New Coupon</button>
+                        <button type="button" class="btn btn-xs btn-secondary" onclick="createCoupon()">New Coupon</button>
                         <span>&nbsp;</span>                        
                     </div>
                 </div>
@@ -91,9 +83,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 <table class="table table-striped table-bordered" id="keywordassign_table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">Sr. No.</th>
-                            <th style="width: 5%;">Site Name</th>
-                            <th style="width: 5%;">Visitor Name</th>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 5%;">Website</th>
+                            <th style="width: 5%;">Customer</th>
                             <th style="width: 5%;">Email</th>
                             <th style="width: 10%;">Phone Number</th>
                             <th style="width: 10%;">Translation Language</th>
@@ -141,20 +133,22 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                     </td>
                                     <td>
                                         <div class="typing-indicator" id="typing-indicator"></div>
+                                         
+
                                         <div class="row">
-                                            <div class="col-md-11 cls_remove_rightpadding">
+                                            <div class="col-md-10 cls_remove_rightpadding">
                                                 <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message"></textarea>
                                                 <input type="hidden" id="message-id" name="message-id" />
                                             </div>
-                                            <div class="col-md-1 cls_remove_padding">
+                                            <div class="col-md-2">
                                                 <div class="input-group-append">
-                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="btn btn-image px-1">
-                                                        <img src="{{asset('images/attach.png')}}"/>
+                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark">
+                                                        <i class="fa fa-paperclip"></i>
                                                     </a>
-                                                    <a class="btn btn-image px-1" href="javascript:;">
-                                                        <span data-id="{{ @$customer->id }}" class="send_btn">
+                                                    <a class="mt-2 mr-2 btn-xs text-dark send_btn" href="javascript:;" data-id="{{ @$customer->id }}">
+                                                        
                                                             <i class="fa fa-location-arrow"></i>
-                                                        </span>
+                                                        
                                                     </a>
                                                 </div>
                                             </div>                                          
@@ -184,7 +178,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                         <input type="text" name="quick_comment" placeholder="New Quick Comment" class="form-control quick_comment">
                                                     </div>
                                                     <div class="col-md-3 cls_quick_commentadd_box">
-                                                        <button class="btn quick_comment_add"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                        <button class="mt-2 btn btn-xs quick_comment_add text-dark ml-2"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -198,14 +192,19 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="chat-righbox pt-3">
-                                            <a href="javascript:;" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" ><i class="fa fa-info" aria-hidden="true"></i></a>
-                                            &nbsp;
-                                            <a href="javascript:;" title="Visited Pages" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" ><i class="fa fa-map-marker" aria-hidden="true"></i></a>
-                                            &nbsp;
-                                            <a href="javascript:;" class="btn btn-image cls_addition_info" title="Additional info" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" ><img src="{{asset('images/remark.png')}}"/></a>
-                                            &nbsp;
-                                            <a href="javascript:;" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" ><i class="fa fa-lightbulb-o" aria-hidden="true"></i></a>
+                                        <div >
+                                            <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" >
+                                            <i class="fa fa-info" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Visited Pages" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" >
+                                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" class="btn cls_addition_info" title="Additional info" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" >
+                                            <i class="fa fa-clipboard"></i>
+                                        </a>
+                                        <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" >
+                                            <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                        </a>
 
 
                                             

@@ -219,7 +219,12 @@ class MagentoService
 
                 // check for the brand wise size chart first
                 $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($this->product->brand, $categoryparent->id, $this->storeWebsite->id, false);
-                if (!empty($sizeCharts)) {
+                if (empty($sizeCharts)) {
+                    $sizeChartsWithoutBrand = \App\BrandCategorySizeChart::getSizeChat(0, $categoryparent->id, $this->storeWebsite->id, false);
+                    if (!empty($sizeChartsWithoutBrand)) {
+                        return $sizeChartsWithoutBrand[0];
+                    }
+                } else {
                     return $sizeCharts[0];
                 }
 
@@ -230,7 +235,12 @@ class MagentoService
 
                 // check for the brand wise size chart first
                 $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($this->product->brand, $categorym->id, $this->storeWebsite->id, false);
-                if (!empty($sizeCharts)) {
+                if (empty($sizeCharts)) {
+                    $sizeChartsWithoutBrand = \App\BrandCategorySizeChart::getSizeChat(0, $categorym->id, $this->storeWebsite->id, false);
+                    if (!empty($sizeChartsWithoutBrand)) {
+                        return $sizeChartsWithoutBrand[0];
+                    }
+                } else {
                     return $sizeCharts[0];
                 }
 

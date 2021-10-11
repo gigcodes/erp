@@ -97,7 +97,7 @@
                     
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <!-- <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                        <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" name="lead_customer" placeholder="Customer" />
+                        <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" value="{{@$lead_customer}}" name="lead_customer" placeholder="Customer" />
 
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
@@ -111,26 +111,29 @@
                          Brand
                             <option value="" default >Brand</option>
                           @foreach($brands as $brand_item)
-                            <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+                            <option value="{{$brand_item['id']}}" {{($brand_id)?in_array($brand_item['id'],$brand_id)?'selected':'':''}}>{{$brand_item['name']}}</option>
                           @endforeach
                         </select>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <!-- <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                       <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" name="brand_segment" placeholder="Brand Segment"/>
+                       <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" value="{{@$brand_segment}}" name="brand_segment" placeholder="Brand Segment"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <!-- <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" name="lead_category" placeholder="Category"/>
+                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" value="{{@$lead_category}}" name="lead_category" placeholder="Category"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <!-- <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" name="lead_color" placeholder="Color"/>
+                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" value="{{@$lead_color}}" name="lead_color" placeholder="Color"/>
 
                     </div>
                     <div class="form-group ml-3 cls_filter_checkbox">
                        <!-- <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_shoe_size" placeholder="Size"/>
+                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{@$lead_shoe_size}}" name="lead_shoe_size" placeholder="Size"/>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_checkbox">
+                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_type" value="{{@$lead_type}}" placeholder="Type"/>
                     </div>
                     <!-- <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php //echo $base_url;?>/images/filter.png"/></button> -->
                     <button type="submit" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -202,6 +205,7 @@
                 <th width="8%">Category</th> 
                 <th width="2%">Color</th>
                 <th width="2%">Size</th>
+                <th width="2%">Type</th>
                 <th width="12%">Communication</th>
                 <th width="3%">Action</th>
             </tr>
@@ -316,6 +320,7 @@
 
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{ucwords(str_replace('-',' ',$source['type']))}}</label></div></td>
                   <td class="tblcell communication-td">
                     @if($source['customer_whatsapp_number'])
                       <input type="text" class="form-control send-message-textbox" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." style="margin-bottom:5px;width:77%;display:inline;"/>

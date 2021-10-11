@@ -163,7 +163,7 @@ padding: 3px 2px;
             <div class=" cls_textarea_subbox">
                 <div class="btn-toolbar" role="toolbar">
                     <div class="w-75">
-                        <input type="text" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message">
+                        <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-id="{{ $pam->id }}" data-customer-id="{{ $pam->customer_id }}" name="message" id="message_{{$pam->id}}" placeholder="Message"></textarea>    
                     </div>
                     <div class="w-25 pl-2" role="group" aria-label="First group">
                         <button type="button" class="btn btn-sm m-0 p-0 mr-1">
