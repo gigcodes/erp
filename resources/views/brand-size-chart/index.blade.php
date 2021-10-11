@@ -40,7 +40,7 @@
 
     <div class="row">
         <div class="col-12">
-            <div id="exTab1" class="container">	
+            <div id="exTab1" class="container">
                 <ul  class="nav nav-pills">
                     @forelse ($storeWebsite as $key => $item)
                         <li class="@if($loop->first) active @endif">
@@ -49,7 +49,7 @@
                     @empty
                     @endforelse
                 </ul>
-        
+
                 <div class="tab-content clearfix">
                     @forelse ($storeWebsite as $key => $item)
                         <div class="tab-pane @if($loop->first) active @endif" id="tab_div_{{ $key + 1 }}">
@@ -86,8 +86,37 @@
                                             @endforelse
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <th></th>
+                                    <tr>
+                                        <th>No Brand</th>
+                                        @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
+                                            <td>
+                                            @forelse ($sizeChart as $chartitem)
+                                                @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
+                                                    @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
+                                                        <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
+                                                            <span class="td-mini-container">
+                                                                <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
+                                                            </span>
+                                                        </a>
+                                                    @endif
+                                                @endif
+                                            @empty
+                                            @endforelse
+                                            </td>
+                                        @empty
+                                        <td>
+                                            @forelse ($sizeChart as $chartitem)
+                                                @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
+                                                    <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
+                                                        <span class="td-mini-container">
+                                                            <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
+                                                        </span>
+                                                    </a>
+                                                @endif
+                                            @empty
+                                            @endforelse
+                                            </td>
+                                        @endforelse
                                         </tr>
                                     @endforelse
                                 </table>
