@@ -40,6 +40,7 @@
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'No Stk' }}
                   </td>
                   <td class="expand-row-msg" data-name="languages" data-id="{{$item->id}}"> 
+                    <i data-id="{{$item->product_id}}" class="fa fa-info get-translation-product"></i>
                     <span class="show-short-languages-{{$item->id}}">
                       @if(!empty($item->languages)) {{ str_limit(implode(", ",json_decode($item->languages)), 2, '..')}} @endif
                     </span>
@@ -50,9 +51,6 @@
                   <td class="expand-row-msg" data-name="sync_status" data-id="{{$item->id}}">
                     <span class="show-short-sync_status-{{$item->id}}">{{ str_limit($item->sync_status, 6, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-sync_status-{{$item->id}} hidden">{{$item->sync_status}}</span>
-                    @if($item->sync_status == "translation_not_found")
-                      <i data-id="{{$item->product_id}}" class="fa fa-info get-translation-product"></i>
-                    @endif
                   </td>
 
                   <td class="expand-row-msg" data-name="job_start_time" data-id="{{$item->id}}">
