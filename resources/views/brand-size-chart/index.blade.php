@@ -92,27 +92,28 @@
                                         </tr>
                                     @endforelse
                                     @else
-                                    <tr>
-                                        <th>No Brand</th>
-                                        @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
-                                            <td>
-                                            @forelse ($sizeChart as $chartitem)
-                                                @if($chartitem->category_id == $catitem->id)
-                                                    @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
-                                                        <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
-                                                            <span class="td-mini-container">
-                                                                <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
-                                                            </span>
-                                                        </a>
+                                        <tr>
+                                            <th>{{ $branditem->name }}</th>
+                                            @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
+                                                <td>
+                                                @forelse ($sizeChart as $chartitem)
+                                                    @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
+                                                        @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
+                                                            <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
+                                                                <span class="td-mini-container">
+                                                                    <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
+                                                                </span>
+                                                            </a>
+                                                        @endif
                                                     @endif
-                                                @endif
+                                                @empty
+                                                @endforelse
+                                                </td>
                                             @empty
+                                                <td></td>
                                             @endforelse
-                                            </td>
-                                        @empty
-                                            <td></td>
-                                        @endforelse
-                                    </tr>
+                                        </tr>
+                                  
                                     @endif
                                 </table>
                             </div>
