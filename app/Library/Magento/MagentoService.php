@@ -153,6 +153,9 @@ class MagentoService
         $this->images = $this->getImages();
         \Log::info($this->product->id . " #12 => " . date("Y-m-d H:i:s"));
         $this->storeWebsiteSize = $this->storeWebsiteSize();
+        if (!$this->validateStoreWebsiteSize()) {
+            return false;
+        }
         \Log::info($this->product->id . " #13 => " . date("Y-m-d H:i:s"));
         $this->storeWebsiteColor = $this->storeWebsiteColor();
         \Log::info($this->product->id . " #14 => " . date("Y-m-d H:i:s"));
@@ -1191,6 +1194,19 @@ class MagentoService
         }
 
         $this->category = $category;
+
+        return true;
+
+    }
+
+    private function validateStoreWebsiteSize()
+    {
+        $website_sizes = $this->storeWebsiteSize;
+
+        if (count($website_sizes) <= 0) {
+            $this->storeLog("error", "Product has no store website sizes available");
+            return false;
+        }
 
         return true;
 
