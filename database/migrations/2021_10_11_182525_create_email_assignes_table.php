@@ -13,6 +13,7 @@ class CreateEmailAssignesTable extends Migration
      */
     public function up()
     {
+        
         Schema::create('email_assignes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('email_address_id')->nullable();
@@ -20,6 +21,7 @@ class CreateEmailAssignesTable extends Migration
             $table->integer('status')->default(1);
             $table->timestamps();
         });
+
     }
 
     /**
