@@ -14,9 +14,9 @@ use App\ProductReference;
 use App\Product_translation;
 use App\StoreWebsite;
 use App\StoreWebsiteAttributes;
+use App\StoreWebsiteSalesPrice;
 use App\Supplier;
 use Carbon\Carbon;
-use App\StoreWebsiteSalesPrice;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -53,42 +53,42 @@ class MagentoService
     public $storeColor;
     public $productType;
     public $imageIds;
-    public $languagecode    = [];
-    public $aclanguagecode  = [];
+    public $languagecode = [];
+    public $aclanguagecode = [];
     public $activeLanguages = [];
-    public $charity ;
+    public $charity;
 
     const SKU_SEPERATOR = "-";
 
     public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null)
     {
-        $this->product      = $product;
+        $this->product = $product;
         $this->storeWebsite = $storeWebsite;
-        $this->log          = $log;
-        $this->charity=0;
-        $p                     = \App\CustomerCharity::where('product_id', $this->product->id)->first();
-        if ($p)
-          $this->charity=1;
+        $this->log = $log;
+        $this->charity = 0;
+        $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
+        if ($p) {
+            $this->charity = 1;
+        }
+
     }
 
     public function pushProduct()
     {
         // start to send request if there is token
 
-        
-
         if (!$this->validateToken()) {
             return false;
         }
-        
+
         // started to check for the category
-        if ($this->charity==0 && !$this->validateCategory()) {
+        if ($this->charity == 0 && !$this->validateCategory()) {
             return false;
         }
-       
+
         // started to check the product rediness test
-         if (!$this->validateReadiness()) {
-        return false;
+        if (!$this->validateReadiness()) {
+            return false;
         }
 
         if (!$this->validateBrand()) {
@@ -100,7 +100,7 @@ class MagentoService
         }
 
         // assign reference
-        
+
         $this->assignReference();
 
         return $this->assignOperation();
@@ -108,7 +108,7 @@ class MagentoService
 
     private function assignOperation()
     {
-       
+
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
         $this->websiteIds = $this->getWebsiteIds();
@@ -116,19 +116,18 @@ class MagentoService
         $this->websiteAttributes = $this->getWebsiteAttributes();
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
-        
+
         $this->startTranslation();
-        
 
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
         $this->meta = $this->getMeta();
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
 
         $this->translations = $this->getTranslations();
-		if(!$this->translations) {
+        if (!$this->translations) {
             $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
-			 return false;
-		}
+            return false;
+        }
         // after the translation that validate translation from her
         $this->activeLanguages = $this->getActiveLanguages();
         if (!$this->validateTranslation()) {
@@ -167,10 +166,8 @@ class MagentoService
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
-        
-        $this->getPricing();
 
-        
+        $this->getPricing();
 
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
@@ -179,16 +176,16 @@ class MagentoService
 
     private function getActiveLanguages()
     {
-        return \App\Language::leftJoin("website_store_views as wsv","wsv.name","languages.name")
-        ->leftJoin("website_stores as ws","ws.id","wsv.website_store_id")
-        ->leftJoin("websites as w","w.id","ws.website_id")
-        ->where("languages.status", 1)
-        ->where("w.store_website_id", $this->storeWebsite->id)
-        ->where("languages.status", 1)
-        ->where("languages.locale","!=","en")
-        ->groupBy("languages.locale")
-        ->pluck("languages.code", "languages.code")
-        ->toArray();
+        return \App\Language::leftJoin("website_store_views as wsv", "wsv.name", "languages.name")
+            ->leftJoin("website_stores as ws", "ws.id", "wsv.website_store_id")
+            ->leftJoin("websites as w", "w.id", "ws.website_id")
+            ->where("languages.status", 1)
+            ->where("w.store_website_id", $this->storeWebsite->id)
+            ->where("languages.status", 1)
+            ->where("languages.locale", "!=", "en")
+            ->groupBy("languages.locale")
+            ->pluck("languages.code", "languages.code")
+            ->toArray();
 
         //return \App\Language::where("status", 1)->where("locale","!=","en")->pluck("code", "code")->toArray();
     }
@@ -216,10 +213,15 @@ class MagentoService
         if ($categorym) {
             $categoryparent = $categorym->parent;
             if ($categoryparent && $categoryparent->size_chart_needed == 1) {
-                
+
                 // check for the brand wise size chart first
                 $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($this->product->brand, $categoryparent->id, $this->storeWebsite->id, false);
-                if(!empty($sizeCharts)) {
+                if (empty($sizeCharts)) {
+                    $sizeChartsWithoutBrand = \App\BrandCategorySizeChart::getSizeChat(0, $categoryparent->id, $this->storeWebsite->id, false);
+                    if (!empty($sizeChartsWithoutBrand)) {
+                        return $sizeChartsWithoutBrand[0];
+                    }
+                } else {
                     return $sizeCharts[0];
                 }
 
@@ -230,7 +232,12 @@ class MagentoService
 
                 // check for the brand wise size chart first
                 $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($this->product->brand, $categorym->id, $this->storeWebsite->id, false);
-                if(!empty($sizeCharts)) {
+                if (empty($sizeCharts)) {
+                    $sizeChartsWithoutBrand = \App\BrandCategorySizeChart::getSizeChat(0, $categorym->id, $this->storeWebsite->id, false);
+                    if (!empty($sizeChartsWithoutBrand)) {
+                        return $sizeChartsWithoutBrand[0];
+                    }
+                } else {
                     return $sizeCharts[0];
                 }
 
@@ -244,7 +251,7 @@ class MagentoService
     private function getEstimateMinimumDays()
     {
         $estimated_minimum_days = 0;
-        $supplier               = Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
+        $supplier = Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
             ->where('product_suppliers.product_id', $this->product->id)
             ->select('suppliers.*')
             ->first();
@@ -267,7 +274,7 @@ class MagentoService
         $arsizes = [];
 
         foreach ($arrSizes as $arSize) {
-            $e         = preg_replace("/\s+/", " ", $arSize);
+            $e = preg_replace("/\s+/", " ", $arSize);
             $arsizes[] = trim($e);
         }
 
@@ -322,19 +329,17 @@ class MagentoService
 
     private function assignProductOperation()
     {
-        $product  = $this->product;
-        $brand    = $this->brand;
+        $product = $this->product;
+        $brand = $this->brand;
         $category = $this->category;
-        $website  = $this->storeWebsite;
-        $meta     = $this->meta;
-        $token    = $this->token;
+        $website = $this->storeWebsite;
+        $meta = $this->meta;
+        $token = $this->token;
 
         // start operation for simple or configurable
         $mainCategory = $this->category;
 
         $pushSingle = false;
-
-
 
         if ($mainCategory->push_type == 0 && !is_null($mainCategory->push_type)) {
             \Log::info("Product push type single via category");
@@ -358,9 +363,9 @@ class MagentoService
                 $pushSingle = true;
             }
         }
-        
+
         if ($pushSingle) {
-              $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
+            $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
                 $this->log->total_request_assigned = $totalRequest;
                 $this->log->save();
@@ -375,53 +380,43 @@ class MagentoService
             }
             $result = $this->_pushConfigurableProductWithChildren();
         }
-       
-        // started to check that request issue
-        $platform_id=0;
-        if (isset($result->id))
-        {
-            $platform_id=$result->id;
-            $sp=\App\StoreWebsiteProduct::where('product_id',$this->product->id)
-              ->where('store_website_id',$this->storeWebsite->id)->first();
-            if ($sp)
-            {
-                  $sp->platform_id=$platform_id;
-                  $sp->updated_at=date("Y-m-d H:i:s");
-                  $sp->save();
 
-            }
-            else
-            {
-                $data['product_id']=$this->product->id;
-                $data['store_website_id']=$this->storeWebsite->id;
-                $data['platform_id']=$platform_id;
-                $data['created_at']=date("Y-m-d H:i:s");
+        // started to check that request issue
+        $platform_id = 0;
+        if (isset($result->id)) {
+            $platform_id = $result->id;
+            $sp = \App\StoreWebsiteProduct::where('product_id', $this->product->id)
+                ->where('store_website_id', $this->storeWebsite->id)->first();
+            if ($sp) {
+                $sp->platform_id = $platform_id;
+                $sp->updated_at = date("Y-m-d H:i:s");
+                $sp->save();
+
+            } else {
+                $data['product_id'] = $this->product->id;
+                $data['store_website_id'] = $this->storeWebsite->id;
+                $data['platform_id'] = $platform_id;
+                $data['created_at'] = date("Y-m-d H:i:s");
                 \App\StoreWebsiteProduct::insert($data);
             }
-            
-        }
-            
 
-       
-       
-        
+        }
+
         if ($this->log) {
-            $totalReq     = $this->log->total_request_assigned;
+            $totalReq = $this->log->total_request_assigned;
             $totalSuccess = \App\ProductPushErrorLog::where('log_list_magento_id', $this->log->id)->where('response_status', 'success')->count();
             if ($totalSuccess < $totalReq) {
                 $this->log->magento_status = "error";
-                $this->log->message        = "Product has been failed to push as total request is not matching with current request";
+                $this->log->message = "Product has been failed to push as total request is not matching with current request";
                 $this->log->save();
             } else {
-               
+
                 $this->pushdiscountprice();
-                $this->product->status_id        = StatusHelper::$inMagento;
-                $this->product->isUploaded       = 1;
+                $this->product->status_id = StatusHelper::$inMagento;
+                $this->product->isUploaded = 1;
                 $this->product->is_uploaded_date = Carbon::now();
-                $this->product->isListed         = 1;
+                $this->product->isListed = 1;
                 $this->product->save();
-                
-                
 
                 $this->log->languages = json_encode($this->languagecode);
                 $this->log->save();
@@ -441,7 +436,7 @@ class MagentoService
                 similar_text($this->product->name, $brandName, $brandProductMatch);
                 if ($brandProductMatch < 70) {
                     $this->product->name = $brandName . ' ' . $this->product->name;
-                    $productNamelength   = strlen($this->product->name);
+                    $productNamelength = strlen($this->product->name);
                 }
             }
             if (isset($this->product->categories->title) and $this->product->categories->title != "Select Category") {
@@ -458,19 +453,19 @@ class MagentoService
 
         $e = [
             'product' => array(
-                'sku'                  => $data['sku'], // Simple products to associate
-                'name'                 => html_entity_decode(strtoupper($this->product->name), ENT_QUOTES, 'UTF-8'),
-                'attribute_set_id'     => $data['attribute_set_id'],
-                'price'                => $this->product->price,
-                'status'               => $data['status'],
-                'weight'               => $data['weight'],
-                'type_id'              => $data['type_id'],
+                'sku' => $data['sku'], // Simple products to associate
+                'name' => html_entity_decode(strtoupper($this->product->name), ENT_QUOTES, 'UTF-8'),
+                'attribute_set_id' => $data['attribute_set_id'],
+                'price' => $this->product->price,
+                'status' => $data['status'],
+                'weight' => $data['weight'],
+                'type_id' => $data['type_id'],
                 'extension_attributes' => [
-                    'website_ids'    => $data['website_ids'],
+                    'website_ids' => $data['website_ids'],
                     'category_links' => $this->categories,
-                    'stock_item'     => $data['stock_item'],
+                    'stock_item' => $data['stock_item'],
                 ],
-                'custom_attributes'    => [
+                'custom_attributes' => [
                     ['attribute_code' => 'description', 'value' => $data['description']],
                     ['attribute_code' => 'short_description', 'value' => $data['description']],
                     ['attribute_code' => 'composition', 'value' => $this->product->composition],
@@ -487,7 +482,7 @@ class MagentoService
 
     private function _pushProduct($productType, $sku, $data = [], $size = null)
     {
-        $assku   = $sku . (!empty($size) ? '-' . $size : '');
+        $assku = $sku . (!empty($size) ? '-' . $size : '');
         $product = $this->product;
 
         $this->productType = $productType;
@@ -496,10 +491,10 @@ class MagentoService
             $data['product']['visibility'] = 1;
         }
 
-        $data['product']['sku']                  = $assku;
+        $data['product']['sku'] = $assku;
         $data['product']['custom_attributes'][8] = [
             'attribute_code' => 'url_key',
-            'value'          => self::createURL($product->name . "-" . $assku),
+            'value' => self::createURL($product->name . "-" . $assku),
         ];
 
         $data['product']['media_gallery_entries'] = [];
@@ -513,19 +508,19 @@ class MagentoService
             if (isset($this->storeWebsiteSize[$size])) {
                 $data['product']['custom_attributes'][9] = [
                     'attribute_code' => 'size_v2',
-                    'value'          => $this->storeWebsiteSize[$size],
+                    'value' => $this->storeWebsiteSize[$size],
                 ];
             }
         }
 
         $data['product']['custom_attributes'][10] = [
             'attribute_code' => 'dimensions',
-            'value'          => $this->measurement,
+            'value' => $this->measurement,
         ];
 
         $data['product']['custom_attributes'][11] = [
             'attribute_code' => 'estimated_minimum_days',
-            'value'          => $this->estMinimumDays,
+            'value' => $this->estMinimumDays,
         ];
 
         $catLinks = [];
@@ -535,51 +530,48 @@ class MagentoService
             }
         }
         $data['product']['extension_attributes']['category_links'] = $catLinks;
-        $data['product']['custom_attributes'][12]                  = [
+        $data['product']['custom_attributes'][12] = [
             'attribute_code' => 'meta_title',
-            'value'          => $this->meta['meta_title'],
+            'value' => $this->meta['meta_title'],
         ];
 
         $data['product']['custom_attributes'][13] = [
             'attribute_code' => 'meta_description',
-            'value'          => $this->meta['meta_description'],
+            'value' => $this->meta['meta_description'],
         ];
 
         $data['product']['custom_attributes'][14] = [
             'attribute_code' => 'meta_keyword',
-            'value'          => $this->meta['meta_keyword'],
+            'value' => $this->meta['meta_keyword'],
         ];
 
         if (!empty($this->sizeChart)) {
             $data['product']['custom_attributes'][22] = [
                 'attribute_code' => "size_chart_url",
-                'value'          => $this->sizeChart,
+                'value' => $this->sizeChart,
             ];
         }
         //add maximum days for the custom attributes
         $data['product']['custom_attributes'][] = [
             'attribute_code' => 'estimated_maximum_days',
-            'value'          => $this->estMinimumDays + 7,
+            'value' => $this->estMinimumDays + 7,
         ];
 
         if (!empty($this->storeColor)) {
             $data['product']['custom_attributes'][] = [
                 'attribute_code' => 'color_v2',
-                'value'          => $this->storeColor,
+                'value' => $this->storeColor,
             ];
         }
-        
-        $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/", $this->token, $data);
-        
-        $res              = json_decode($functionResponse['res']);
-        $returnres=$res;
-        
 
-         
+        $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/", $this->token, $data);
+
+        $res = json_decode($functionResponse['res']);
+        $returnres = $res;
 
         // store image function has been done
         if ($functionResponse['httpcode'] == 200) {
-          if ($this->charity==0 && ($this->productType == "configurable" || $this->productType == "single")) {
+            if ($this->charity == 0 && ($this->productType == "configurable" || $this->productType == "single")) {
                 if (array_key_exists('media_gallery_entries', $res) && !empty($res->media_gallery_entries)) {
                     foreach ($res->media_gallery_entries as $key => $image) {
                         $this->imageIds[] = $image->id;
@@ -596,25 +588,25 @@ class MagentoService
 
                 if (!empty($this->prices['samePrice'])) {
                     foreach ($this->prices['samePrice'] as $kp => $sp) {
-                        $url     = $this->storeWebsite->magento_url . "/rest/V1/multistore/productprice/" . $data['product']['sku'];
+                        $url = $this->storeWebsite->magento_url . "/rest/V1/multistore/productprice/" . $data['product']['sku'];
                         $resData = [
                             "countrycode" => implode(",", $sp),
-                            "prices"      => ["base_price" => number_format($kp, 2, '.', ',')],
+                            "prices" => ["base_price" => number_format($kp, 2, '.', ',')],
                         ];
                         $functionResponse = $this->sendRequest($url, $this->token, $resData, "PUT");
-                        $priceRes         = json_decode($functionResponse['res']);
+                        $priceRes = json_decode($functionResponse['res']);
                     }
                 }
 
                 if (!empty($this->prices['specialPrice'])) {
                     foreach ($this->prices['specialPrice'] as $kp => $sp) {
-                        $url     = $this->storeWebsite->magento_url . "/rest/V1/multistore/productprice/" . $data['product']['sku'];
+                        $url = $this->storeWebsite->magento_url . "/rest/V1/multistore/productprice/" . $data['product']['sku'];
                         $resData = [
                             "countrycode" => implode(",", $sp),
-                            "prices"      => ["base_price" => number_format($kp, 2, '.', ',')],
+                            "prices" => ["base_price" => number_format($kp, 2, '.', ',')],
                         ];
                         $functionResponse = $this->sendRequest($url, $this->token, $resData, "PUT");
-                        $priceRes         = json_decode($functionResponse['res']);
+                        $priceRes = json_decode($functionResponse['res']);
                     }
                 }
 
@@ -622,10 +614,10 @@ class MagentoService
                 if (!empty($this->translations)) {
                     $extrarequest = [];
                     foreach ($this->translations as $t => $translation) {
-                        $extrarequest['product']['name']                 = $translation['title'];
+                        $extrarequest['product']['name'] = $translation['title'];
                         $extrarequest['product']['custom_attributes'][0] = [
                             'attribute_code' => 'description',
-                            'value'          => $translation['description'],
+                            'value' => $translation['description'],
                         ];
 
                         $extrarequest['product']['custom_attributes'][1] = ['attribute_code' => 'short_description', 'value' => $translation['short_description']];
@@ -656,7 +648,7 @@ class MagentoService
 
                         $functionResponse = $this->sendRequest($url, $this->token, $extrarequest, "PUT");
 
-                        $res      = $functionResponse['res'];
+                        $res = $functionResponse['res'];
                         $result[] = $res;
                         $httpcode = $functionResponse['httpcode'];
 
@@ -691,7 +683,7 @@ class MagentoService
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $token));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result = curl_exec($ch);
-        $err    = curl_error($ch);
+        $err = curl_error($ch);
         \Log::channel('listMagento')->info(json_encode([$url, $token, $data, $result, "setSimpleProductToConfig"]));
         $response = json_decode($result);
 
@@ -703,11 +695,11 @@ class MagentoService
         $product = $this->product;
         $website = $this->storeWebsite;
 
-        $request           = [];
+        $request = [];
         $request["option"] = [
-            "attribute_id"   => $this->websiteAttributes['size_v2'],
-            "label"          => "Size",
-            "position"       => 0,
+            "attribute_id" => $this->websiteAttributes['size_v2'],
+            "label" => "Size",
+            "position" => 0,
             "is_use_default" => true,
         ];
 
@@ -735,13 +727,13 @@ class MagentoService
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $this->token));
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            $result   = curl_exec($ch);
-            $err      = curl_error($ch);
+            $result = curl_exec($ch);
+            $err = curl_error($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             \Log::info(print_r([$url, $token, $data, $result], true));
             if ($httpcode != 200) {
                 if ($this->log) {
-                    $this->log->message     = "Product push to magento failed for product ID " . $product->id . ' messaage : ' . $result;
+                    $this->log->message = "Product push to magento failed for product ID " . $product->id . ' messaage : ' . $result;
                     $this->log->sync_status = "error";
                     $this->log->save();
                 } else {
@@ -774,7 +766,7 @@ class MagentoService
 
         if ($httpcode != 200) {
             if ($this->log) {
-                $this->log->message     = $res;
+                $this->log->message = $res;
                 $this->log->sync_status = "error";
                 $this->log->save();
             } else {
@@ -802,33 +794,32 @@ class MagentoService
 
     private function _pushSingleProduct()
     {
-        $d                     = [];
-        $d['sku']              = $this->sku;
-        $d['weight']           = 0;
+        $d = [];
+        $d['sku'] = $this->sku;
+        $d['weight'] = 0;
         $d['attribute_set_id'] = 4;
-        $d['status']           = 1;
-        $d['type_id']          = 'simple';
-        $p                     = \App\CustomerCharity::where('product_id', $this->product->id)->first();
+        $d['status'] = 1;
+        $d['type_id'] = 'simple';
+        $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
         if ($p) {
             $d['type_id'] = 'donation';
         }
 
         $d['website_ids'] = $this->websiteIds;
-        $d['stock_item']  = [
+        $d['stock_item'] = [
             'use_config_manage_stock' => 1,
-            'manage_stock'            => 1,
-            'qty'                     => 1,
-            'is_in_stock'             => 1,
+            'manage_stock' => 1,
+            'qty' => 1,
+            'is_in_stock' => 1,
         ];
-        $d['description']  = $this->description;
+        $d['description'] = $this->description;
         $d['tax_class_id'] = 2;
-       
-        
+
         $data = $this->defaultData($d);
-        
+
         $result = $this->_pushProduct('single', $this->sku, $data, '', $this->storeWebsite, $this->token, $this->product);
         // Return result
-        
+
         return $result;
     }
 
@@ -836,26 +827,26 @@ class MagentoService
     {
 
         // Get all the sizes
-        $product  = $this->product;
-        $website  = $this->storeWebsite;
+        $product = $this->product;
+        $website = $this->storeWebsite;
         $arrSizes = explode(',', $product->size_eu);
 
-        $data                     = [];
-        $data['sku']              = $this->sku;
+        $data = [];
+        $data['sku'] = $this->sku;
         $data['attribute_set_id'] = $this->websiteAttributes['attribute_set_id'];
-        $data['status']           = 1;
-        $data['weight']           = 0;
-        $data['type_id']          = 'configurable';
-        $data['website_ids']      = $this->websiteIds;
-        $data['stock_item']       = [
+        $data['status'] = 1;
+        $data['weight'] = 0;
+        $data['type_id'] = 'configurable';
+        $data['website_ids'] = $this->websiteIds;
+        $data['stock_item'] = [
             'use_config_manage_stock' => 1,
-            'manage_stock'            => 1,
-            'qty'                     => 1,
-            'is_in_stock'             => 1,
+            'manage_stock' => 1,
+            'qty' => 1,
+            'is_in_stock' => 1,
         ];
-        $data['description']  = $this->description;
+        $data['description'] = $this->description;
         $data['tax_class_id'] = 2;
-        $data['color']        = 0;
+        $data['color'] = 0;
         // Set product data for Magento
 
         $datarequest = $this->defaultData($data);
@@ -868,18 +859,18 @@ class MagentoService
         if (!empty($arrSizes)) {
             foreach ($arrSizes as $size) {
                 // Create a new product reference for this size
-                $reference             = new ProductReference;
+                $reference = new ProductReference;
                 $reference->product_id = $product->id;
-                $reference->sku        = $product->sku;
-                $reference->color      = $product->color;
-                $reference->size       = $size;
+                $reference->sku = $product->sku;
+                $reference->color = $product->color;
+                $reference->size = $size;
                 $reference->save();
 
                 $attributeSetid = $this->websiteAttributes['attribute_set_id'];
 
-                $data['type_id']          = 'simple';
+                $data['type_id'] = 'simple';
                 $data['attribute_set_id'] = $attributeSetid;
-                $productData              = $this->defaultData($data);
+                $productData = $this->defaultData($data);
                 // Push simple product to Magento
                 $result = $this->_pushProduct('simple_configurable', $this->sku, $productData, $size, $website, $this->token, $product);
             }
@@ -892,16 +883,16 @@ class MagentoService
 
     private function getMeta()
     {
-        $product  = $this->product;
-        $brand    = $this->brand;
+        $product = $this->product;
+        $brand = $this->brand;
         $category = $this->category;
-        $website  = $this->storeWebsite;
+        $website = $this->storeWebsite;
 
-        $meta                = [];
+        $meta = [];
         $meta['description'] = 'Shop ' . $brand->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $category->title . ' Largest collection of luxury products in the world from ' . ucwords($website->title) . ' at special prices';
 
-        $categories     = $this->categories;
-        $catLinks       = [];
+        $categories = $this->categories;
+        $catLinks = [];
         $metakeywordarr = [];
         if (!empty($categories)) {
             foreach ($categories as $category) {
@@ -914,10 +905,10 @@ class MagentoService
 
         $metakeywords = implode(',', $metakeywordarr);
 
-        $seoFormat      = \App\StoreWebsiteSeoFormat::where("store_website_id", $this->storeWebsite->id)->first();
-        $seoTitle       = $product->name . ' | ' . $brand->name;
+        $seoFormat = \App\StoreWebsiteSeoFormat::where("store_website_id", $this->storeWebsite->id)->first();
+        $seoTitle = $product->name . ' | ' . $brand->name;
         $seoDescription = $this->description;
-        $seoKeywords    = ($metakeywords != '') ? $metakeywords . ',' . $this->storeWebsite->title : $this->storeWebsite->title;
+        $seoKeywords = ($metakeywords != '') ? $metakeywords . ',' . $this->storeWebsite->title : $this->storeWebsite->title;
         if ($seoFormat) {
             //$metaTitle = $seoFormat->meta_title;
             @eval("\$dbseoTitle = \"$seoFormat->meta_title\";");
@@ -936,9 +927,9 @@ class MagentoService
             }
         }
 
-        $meta['meta_title']       = $seoTitle;
+        $meta['meta_title'] = $seoTitle;
         $meta['meta_description'] = $seoDescription;
-        $meta['meta_keyword']     = $seoKeywords;
+        $meta['meta_keyword'] = $seoKeywords;
 
         return $meta;
     }
@@ -951,25 +942,25 @@ class MagentoService
     private function getPricing()
     {
         $website = $this->storeWebsite;
-        $id      = $this->product->id;
-        $p       = \App\CustomerCharity::where('product_id', $id)->first();
+        $id = $this->product->id;
+        $p = \App\CustomerCharity::where('product_id', $id)->first();
         if ($p) {
             $webStores = \App\CharityProductStoreWebsite::join('websites', 'charity_product_store_websites.website_id', 'websites.id')->where('charity_id', $p->id)->get();
         } else {
             $webStores = \App\Website::where("store_website_id", $website->id)->get();
         }
 
-        $product   = $this->product;
+        $product = $this->product;
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
             foreach ($webStores as $key => $webStore) {
 
                 if ($p) {
-                    $countries    = CharityCountry::where('charity_id', $p->id)->get();
+                    $countries = CharityCountry::where('charity_id', $p->id)->get();
                     $magentoPrice = round($webStore->price, -1 * (strlen($webStore->price) - 1), PHP_ROUND_HALF_UP);
-                    $price        = $magentoPrice;
+                    $price = $magentoPrice;
                     $specialPrice = 0;
-                    $totalAmount  = 0;
+                    $totalAmount = 0;
 
                     foreach ($countries as $c) {
 
@@ -979,7 +970,7 @@ class MagentoService
                         }
 
                         $pricesArr[$c->country_code] = [
-                            "price"         => $price,
+                            "price" => $price,
                             "special_price" => $specialPrice,
                         ];
 
@@ -997,7 +988,8 @@ class MagentoService
                             }
                         }
                         // pricing check for the discount case
-                        $ovverridePrice = 0;$segmentDiscount=0;
+                        $ovverridePrice = 0;
+                        $segmentDiscount = 0;
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
                                 $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
@@ -1011,12 +1003,12 @@ class MagentoService
 
                         $magentoPrice = \App\Product::getIvaPrice($product->price);
                         if ($magentoPrice > 0) {
-                            $totalAmount  = $magentoPrice * $dutyPrice / 100;
+                            $totalAmount = $magentoPrice * $dutyPrice / 100;
                             $magentoPrice = $magentoPrice + $totalAmount;
                         }
                         $specialPrice = 0;
                         if ($magentoPrice > $ovverridePrice) {
-                            $price        = $magentoPrice;
+                            $price = $magentoPrice;
                             $specialPrice = $ovverridePrice;
                         } else {
                             $price = $magentoPrice;
@@ -1027,7 +1019,7 @@ class MagentoService
                     foreach ($countries as $c) {
 
                         $pricesArr[$c] = [
-                            "price"         => $price,
+                            "price" => $price,
                             "special_price" => $specialPrice,
                         ];
 
@@ -1035,21 +1027,21 @@ class MagentoService
 
                     $d = \App\StoreWebsiteProductPrice::where('product_id', $product->id)->where('web_store_id', $webStore->id)->where('store_website_id', $website->id)->first();
                     if ($d) {
-                        $d->default_price  = $magentoPrice;
-                        $d->duty_price     = $dutyPrice;
+                        $d->default_price = $magentoPrice;
+                        $d->duty_price = $dutyPrice;
                         $d->override_price = $ovverridePrice;
                         $d->segment_discount = $segmentDiscount;
 
                         $d->save();
                     } else {
                         $data = [
-                            'product_id'       => $product->id,
-                            'default_price'    => $magentoPrice,
+                            'product_id' => $product->id,
+                            'default_price' => $magentoPrice,
                             'segment_discount' => $segmentDiscount,
-                            'duty_price'       => $dutyPrice,
-                            'override_price'   => $ovverridePrice,
-                            'status'           => '1',
-                            'web_store_id'     => $webStore->id,
+                            'duty_price' => $dutyPrice,
+                            'override_price' => $ovverridePrice,
+                            'status' => '1',
+                            'web_store_id' => $webStore->id,
                             'store_website_id' => $website->id,
 
                         ];
@@ -1063,7 +1055,7 @@ class MagentoService
         Log::info("pricesArr " . json_encode($pricesArr));
 
         // start to matching price fix
-        $samePrice    = [];
+        $samePrice = [];
         $specialPrice = [];
         if (!empty($pricesArr)) {
             foreach ($pricesArr as $k => $pa) {
@@ -1095,18 +1087,18 @@ class MagentoService
             ->where('l.locale', "!=", "en")
             ->where('product_translations.title', "!=", "")
             ->where('product_translations.description', "!=", "")
-            //->where('product_translations.composition', "!=", "")
-            //->where('product_translations.color', "!=", "")
-            //->where('product_translations.dimension', "!=", "")
-            //->where('product_translations.size', "!=", "")
-            //->where('product_translations.country_of_manufacture', "!=", "")
+        //->where('product_translations.composition', "!=", "")
+        //->where('product_translations.color', "!=", "")
+        //->where('product_translations.dimension', "!=", "")
+        //->where('product_translations.size', "!=", "")
+        //->where('product_translations.country_of_manufacture', "!=", "")
             ->groupBy("l.locale")
             ->select(["product_translations.*", "l.locale", "l.name as local_name", \DB::raw("group_concat(wsv.code) as store_codes")])
             ->get();
 
-        //echo "<pre>"; print_r($translations);  echo "</pre>";die;    
+        //echo "<pre>"; print_r($translations);  echo "</pre>";die;
 
-       \Log::info("Translation found =>". json_encode($translations));
+        \Log::info("Translation found =>" . json_encode($translations));
 
         $tdata = [];
         if (!$translations->isEmpty()) {
@@ -1139,17 +1131,17 @@ class MagentoService
                 );
 
                 $tdata[$translation->locale] = [
-                    "title"                  => $translation->title,
-                    "description"            => $translation->description,
-                    "short_description"      => $translation->description,
-                    "composition"            => $translation->composition,
-                    "color"                  => $translation->color,
+                    "title" => $translation->title,
+                    "description" => $translation->description,
+                    "short_description" => $translation->description,
+                    "composition" => $translation->composition,
+                    "color" => $translation->color,
                     "country_of_manufacture" => $translation->country_of_manufacture,
-                    "dimensions"             => $translation->dimension,
-                    "meta_title"             => !empty($translatetSeoTitle) ? $translatetSeoTitle : $this->meta["meta_title"],
-                    "meta_description"       => !empty($translatetSeoDescription) ? $translatetSeoDescription : $this->meta["meta_description"],
-                    "meta_keyword"           => !empty($translatetSeoKeywords) ? $translatetSeoKeywords : $this->meta["meta_keyword"],
-                    "store_codes"            => $translation->store_codes,
+                    "dimensions" => $translation->dimension,
+                    "meta_title" => !empty($translatetSeoTitle) ? $translatetSeoTitle : $this->meta["meta_title"],
+                    "meta_description" => !empty($translatetSeoDescription) ? $translatetSeoDescription : $this->meta["meta_description"],
+                    "meta_keyword" => !empty($translatetSeoKeywords) ? $translatetSeoKeywords : $this->meta["meta_keyword"],
+                    "store_codes" => $translation->store_codes,
                 ];
             }
         }
@@ -1160,7 +1152,7 @@ class MagentoService
     private function startTranslation()
     {
         \App\Http\Controllers\GoogleTranslateController::translateProductDetails($this->product, $this->log->id);
-	}
+    }
 
     private function getWebsiteAttributes()
     {
@@ -1170,7 +1162,7 @@ class MagentoService
     private function getWebsiteIds()
     {
         $id = $this->product->id;
-        $p  = \App\CustomerCharity::where('product_id', $id)->first();
+        $p = \App\CustomerCharity::where('product_id', $id)->first();
         if ($p) {
             return \App\CharityProductStoreWebsite::join('websites', 'charity_product_store_websites.website_id', 'websites.id')->where('charity_id', $p->id)->where('platform_id', '>', 0)->get()->pluck('platform_id')->toArray();
         } else {
@@ -1227,10 +1219,10 @@ class MagentoService
         }
 
         // Create a new product reference (without sizes)
-        $reference             = new ProductReference;
+        $reference = new ProductReference;
         $reference->product_id = $product->id;
-        $reference->sku        = $product->sku;
-        $reference->color      = $product->color;
+        $reference->sku = $product->sku;
+        $reference->color = $product->color;
         $reference->save();
     }
 
@@ -1249,7 +1241,7 @@ class MagentoService
 
     private function changeProductStatus($status)
     {
-        $product            = $this->product;
+        $product = $this->product;
         $product->status_id = $status;
         $product->save();
 
@@ -1291,11 +1283,11 @@ class MagentoService
 
     public function storeLog($type, $message, $request = null, $response = null, $extraFiels = [])
     {
-        $product      = $this->product;
+        $product = $this->product;
         $storeWebsite = $this->storeWebsite;
 
         if ($this->log) {
-            $this->log->message     = $message;
+            $this->log->message = $message;
             $this->log->sync_status = $type;
             if (!empty($extraFiels)) {
                 foreach ($extraFiels as $k => $ext) {
@@ -1324,127 +1316,113 @@ class MagentoService
         return $string;
     }
 
-    public  function pushdiscountprice()
+    public function pushdiscountprice()
     {
-         $product = $this->product; 
-         $discount=0;
-         $discount_type='amount';
-         $start_date=date('Y-m-d');
-         $end_date=date('Y-m-d');
-         $date=date('Y-m-d');
-         $supplier_id=0;
-         $supplier               = Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
-         ->where('product_suppliers.product_id', $this->product->id)
-         ->select('suppliers.*')
-         ->first();
-         if ($supplier)
-             $supplier_id=$supplier->id;
-         $product_discount=StoreWebsiteSalesPrice::where('type','product')
-            ->where('type_id',$product->id)
-            ->whereDate("start_date",">=",$date)
-            ->whereDate("end_date","<=",$date)
-            //->whereRaw($date.' between date(start_date) and date(end_date)')
+        $product = $this->product;
+        $discount = 0;
+        $discount_type = 'amount';
+        $start_date = date('Y-m-d');
+        $end_date = date('Y-m-d');
+        $date = date('Y-m-d');
+        $supplier_id = 0;
+        $supplier = Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
+            ->where('product_suppliers.product_id', $this->product->id)
+            ->select('suppliers.*')
             ->first();
-         if ($product_discount)
-           {
-                $discount=$product_discount->amount;
-                $discount_type=$product_discount->amount_type;
-                $start_date=date('Y-m-d',strtotime($product_discount->start_date));
-                $end_date=date('Y-m-d',strtotime($product_discount->end_date));
-           }
-         else 
-         {
-                $storeWebsite=$this->storeWebsite;
-                $product_discount1=StoreWebsiteSalesPrice::where('type','store_website')
-                ->where('type_id',$storeWebsite->id)
-                ->whereDate("start_date",">=",$date)
-                ->whereDate("end_date","<=",$date)
-                //->whereRaw($date.' between date(start_date) and date(end_date)')
+        if ($supplier) {
+            $supplier_id = $supplier->id;
+        }
+
+        $product_discount = StoreWebsiteSalesPrice::where('type', 'product')
+            ->where('type_id', $product->id)
+            ->whereDate("start_date", ">=", $date)
+            ->whereDate("end_date", "<=", $date)
+        //->whereRaw($date.' between date(start_date) and date(end_date)')
+            ->first();
+        if ($product_discount) {
+            $discount = $product_discount->amount;
+            $discount_type = $product_discount->amount_type;
+            $start_date = date('Y-m-d', strtotime($product_discount->start_date));
+            $end_date = date('Y-m-d', strtotime($product_discount->end_date));
+        } else {
+            $storeWebsite = $this->storeWebsite;
+            $product_discount1 = StoreWebsiteSalesPrice::where('type', 'store_website')
+                ->where('type_id', $storeWebsite->id)
+                ->whereDate("start_date", ">=", $date)
+                ->whereDate("end_date", "<=", $date)
+            //->whereRaw($date.' between date(start_date) and date(end_date)')
                 ->first();
-                if ($product_discount1)
-                {
-                    $discount=$product_discount1->amount;
-                    $discount_type=$product_discount1->amount_type;
-                    $start_date=date('Y-m-d',strtotime($product_discount1->start_date));
-                    $end_date=date('Y-m-d',strtotime($product_discount1->end_date));
-                }
-                else
-                {
-                    $category=$this->category;
-                    $product_discount2=StoreWebsiteSalesPrice::where('type','category')
-                    ->where('type_id',$category->id)
-                    ->where('supplier_id',$supplier_id)
-                    ->whereDate("start_date",">=",$date)
-                    ->whereDate("end_date","<=",$date)
-                    //->whereRaw($date.' between date(start_date) and date(end_date)')
+            if ($product_discount1) {
+                $discount = $product_discount1->amount;
+                $discount_type = $product_discount1->amount_type;
+                $start_date = date('Y-m-d', strtotime($product_discount1->start_date));
+                $end_date = date('Y-m-d', strtotime($product_discount1->end_date));
+            } else {
+                $category = $this->category;
+                $product_discount2 = StoreWebsiteSalesPrice::where('type', 'category')
+                    ->where('type_id', $category->id)
+                    ->where('supplier_id', $supplier_id)
+                    ->whereDate("start_date", ">=", $date)
+                    ->whereDate("end_date", "<=", $date)
+                //->whereRaw($date.' between date(start_date) and date(end_date)')
                     ->first();
-                    if ($product_discount2)
-                        {
-                            $discount=$product_discount2->amount;
-                            $discount_type=$product_discount2->amount_type;
-                            $start_date=date('Y-m-d',strtotime($product_discount2->start_date));
-                            $end_date=date('Y-m-d',strtotime($product_discount2->end_date));
-                        }
-                    else
-                        {
-                            $brand=$this->brand;
-                            $product_discount3=StoreWebsiteSalesPrice::where('type','brand')
-                            ->where('type_id',$brand->id)
-                            ->where('supplier_id',$supplier_id)
-                            ->whereDate("start_date",">=",$date)
-                            ->whereDate("end_date","<=",$date)
-                            //->whereRaw($date .' between date(start_date) and date(end_date)')
-                            ->first();
-                                if ($product_discount3)
-                                {
-                                    $discount=$product_discount3->amount;
-                                    $discount_type=$product_discount3->amount_type;
-                                    $start_date=date('Y-m-d',strtotime($product_discount3->start_date));
-                                    $end_date=date('Y-m-d',strtotime($product_discount3->end_date));
-                                }
-                        }    
+                if ($product_discount2) {
+                    $discount = $product_discount2->amount;
+                    $discount_type = $product_discount2->amount_type;
+                    $start_date = date('Y-m-d', strtotime($product_discount2->start_date));
+                    $end_date = date('Y-m-d', strtotime($product_discount2->end_date));
+                } else {
+                    $brand = $this->brand;
+                    $product_discount3 = StoreWebsiteSalesPrice::where('type', 'brand')
+                        ->where('type_id', $brand->id)
+                        ->where('supplier_id', $supplier_id)
+                        ->whereDate("start_date", ">=", $date)
+                        ->whereDate("end_date", "<=", $date)
+                    //->whereRaw($date .' between date(start_date) and date(end_date)')
+                        ->first();
+                    if ($product_discount3) {
+                        $discount = $product_discount3->amount;
+                        $discount_type = $product_discount3->amount_type;
+                        $start_date = date('Y-m-d', strtotime($product_discount3->start_date));
+                        $end_date = date('Y-m-d', strtotime($product_discount3->end_date));
+                    }
                 }
-         }  
+            }
+        }
 
-         if ($discount>0)
-         {
-             if ($discount_type=='percentage')
-                   $discount=($this->prices/100) * $discount;
+        if ($discount > 0) {
+            if ($discount_type == 'percentage') {
+                $discount = ($this->prices / 100) * $discount;
+            }
 
-                $assku   = $this->sku . (!empty($this->size) ? '-' . $this->size : '');
+            $assku = $this->sku . (!empty($this->size) ? '-' . $this->size : '');
 
-                $data['prices']['sku']   = $assku;
-                $data['prices']['price']  = $discount;
-                $data['prices']['price_from'] = $start_date;
-                $data['prices']['price_to'] = $end_date;
-                $data['prices']['store_id']=0;
+            $data['prices']['sku'] = $assku;
+            $data['prices']['price'] = $discount;
+            $data['prices']['price_from'] = $start_date;
+            $data['prices']['price_to'] = $end_date;
+            $data['prices']['store_id'] = 0;
 
+            $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/special-price/", $this->token, $data);
+            $httpcode = $functionResponse['httpcode'];
 
-             $functionResponse = $this->sendRequest($this->storeWebsite->magento_url . "/rest/V1/products/special-price/", $this->token, $data);
-             $httpcode = $functionResponse['httpcode'];
+            if ($httpcode != 200) {
 
-                if ($httpcode != 200) {
-
-                    if ($this->log) {
-                        $this->log->message     = "Product Discount push to magento failed for product ID " . $product->id ;
-                        $this->log->sync_status = "error";
-                        $this->log->save();
-                    }    
+                if ($this->log) {
+                    $this->log->message = "Product Discount push to magento failed for product ID " . $product->id;
+                    $this->log->sync_status = "error";
+                    $this->log->save();
                 }
-                else
-                {
-                    if ($this->log) {
-                        $this->log->message     = "Product Discount push to magento Done for product ID " . $product->id ;
-                        $this->log->sync_status = "message";
-                        $this->log->save();
-                    }   
+            } else {
+                if ($this->log) {
+                    $this->log->message = "Product Discount push to magento Done for product ID " . $product->id;
+                    $this->log->sync_status = "message";
+                    $this->log->save();
                 }
+            }
 
-
-
-         }
+        }
 
     }
-
 
 }

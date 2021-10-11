@@ -23,6 +23,7 @@
                                 (new \App\Category)->attr([
                                     'name' => 'category_id', 
                                     'class' => 'form-control select2',
+                                    'required' => true,
                                     'data-placeholder' => 'Select Category'
                                 ])->selected(request('category'))->renderAsDropdown()
                             !!}
@@ -36,7 +37,7 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Brand</strong>
-                            <select name="brand_id" class="form-control select2" id="brand_id" required>
+                            <select name="brand_id" class="form-control select2" id="brand_id">
                                 <option value="">Select Brand</option>
                                 @forelse ($brands as $key => $item)
                                     <option value="{{ $key }}">{{ $item }}</option>
