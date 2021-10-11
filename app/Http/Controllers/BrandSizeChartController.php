@@ -23,7 +23,7 @@ class BrandSizeChartController extends Controller
         $storeWebsite = \App\StoreWebsite::get();
         if ($storeWebsite) {
             foreach ($storeWebsite as $k => $_website) {
-                $sizeChart = BrandCategorySizeChart::where('store_website_id', $_website->id)->get()->toArray();
+                $sizeChart = BrandCategorySizeChart::where('store_website_id', $_website->id)->with('brands')->get()->toArray();
                 $storeWebsite[$k]['size_charts'] = $sizeChart;
             }
         }

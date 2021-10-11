@@ -43,4 +43,9 @@ class BrandCategorySizeChart extends Model
         
         return $img;
     }
+
+    public function brands()
+    {
+        return $this->belongsToMany('App\Brand', 'store_website_brands', 'store_website_id', 'brand_id');
+    }
 }
