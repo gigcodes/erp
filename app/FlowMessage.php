@@ -16,6 +16,7 @@ class FlowMessage extends Model
 		'html_content',
 		'reply_to_email',
 		'sender_email_as_reply_to',
+		'mail_tpl',
 		'deleted',
 	];
 }

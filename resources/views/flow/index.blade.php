@@ -34,7 +34,7 @@
         </div>
     </div>
 	<div class="row mb-3">
-        <div class="col-md-12 col-sm-12">
+        <div class="mt-3 col-md-12">
             <div class="row">
                 <a class="ml-2">
                     <button type="button" data-toggle="modal" data-target="#flowModal" class="btn btn-secondary">Flow</button>
@@ -46,8 +46,8 @@
 
             </div>
         </div>
-		<div class="col-md-12 col-sm-12">
-		    <table class="table table-bordered table-hover mt-5">
+		<div class="mt-3 col-md-12">
+		    <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">Website</th>
@@ -90,7 +90,7 @@
 							</div>
 							<div class="col-md-3">
 								<label>Flow Name</label>
-								<input type="text" class="form-control " name="flow_name" placeholder="Flow Name"/>
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order'], null, array('class'=>'form-control')) }}
 							</div>
 							<div class="col-md-4">
 								<label>Flow Description</label>
@@ -141,8 +141,11 @@
 					<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<div class="modal-body" id="message_content">
-				
+				<div class="modal-body" id="">
+				{{ Form::open(array('url'=>route('flow-action-message'), 'class'=>'ajax-submit', 'novalidate'=>'true', 'id'=>'message_content_form')) }}
+					<div id="message_content">
+					</div>
+				</form>
 				</div>
 			</div>
 		</div>
@@ -153,8 +156,10 @@
             <div class="modal-content ">
 				<div class="modal-header">
 					<h5 class="modal-title">Flow Type</h5>
-					<a href="#" id="sendEmail">Add Email</a>
-					<a href="#" id="dateTime">Add Time Delay</a>
+					<a href="#" id="sendEmail"> Add Email </a>
+					<a href="#" id="dateTime"> Add Time Delay </a>
+					<a href="#" id="whatsapp"> &nbsp;Add Whatsapp </a> 
+					<a href="#" id="sms"> &nbsp;Add SMS</a> 
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 					</button>
@@ -201,12 +206,34 @@
 		</div>
 	</div>
 </div>
+<div id="whatsapp" style="display:none;">
+	<div class="col-md-12 cross cross_first" >
+		<div class="col-md-10 cross_first_label_time">
+			<label>Whatsapp Message</label>
+			{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
+			<input type="hidden" name="action_type[]" value="Whatsapp">
+		</div>
+		<div class="col-md-2 cross_first_remove">
+			<i class="fa fa-remove"></i>  
+		</div>
+	</div>
+</div>
+<div id="sms" style="display:none;">
+	<div class="col-md-12 cross cross_first" >
+		<div class="col-md-10 cross_first_label_time">
+			<label>SMS</label>
+			{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
+			<input type="hidden" name="action_type[]" value="SMS">
+		</div>
+		<div class="col-md-2 cross_first_remove">
+			<i class="fa fa-remove"></i>  
+		</div>
+	</div>
+</div>
 @endsection
 
 @section('scripts')
-<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
+
 <script src="https://cdn.tiny.cloud/1/8lx26kd08fse8eckrno8tqi4pkf298s9d9hunvvzy4ri6ru4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
   tinymce.init({
@@ -237,6 +264,22 @@ jQuery(document).ready(function($){
 	    var flowId = $('#flow_id').val();
 		var pathId = $('#path_id').val();
 	   saveFlowAction(flowId, pathId, 'Send Message');
+    });
+	
+	$('#whatsapp').on('click', function(){
+       var sendWhatapp = $('#whatsapp').html();
+       $('#Collector').append(sendWhatapp);
+	    var flowId = $('#flow_id').val();
+		var pathId = $('#path_id').val();
+	   saveFlowAction(flowId, pathId, 'Whatsapp');
+    });
+	
+	$('#sms').on('click', function(){
+       var sendSms = $('#sms').html();
+       $('#Collector').append(sendSms);
+	    var flowId = $('#flow_id').val();
+		var pathId = $('#path_id').val();
+	   saveFlowAction(flowId, pathId, 'SMS');
     });
 
   /*  $(document).on('click','.cross div i',function(){
@@ -281,7 +324,9 @@ jQuery(document).ready(function($){
 			$('#flowPathModal').removeClass('in');
 			$('#messageModal').modal('show');
 			$('#messageModal').addClass('in');
-			
+			tinymce.init({
+				selector: '#html_content'
+			});
 		});
 	}
 	$('.ajax-submit').on('submit', function(e) { 

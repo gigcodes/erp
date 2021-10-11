@@ -67,7 +67,7 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-
+		$now = Carbon::now()->format('Y-m-d H:i:s');
         try {
 
             $report = \App\CronJobReport::create([
@@ -105,6 +105,8 @@ class SendQueuePendingChatMessages extends Command
                             ->where("c.whatsapp_number", $number)
                             ->where(function ($q) {
                                 $q->orWhere("chat_messages.group_id", "<=", 0)->orWhereNull("chat_messages.group_id")->orWhere("chat_messages.group_id", "");
+                            })->where(function ($q) {
+                                $q->whereNull("chat_messages.scheduled_at")->orWhere("chat_messages.scheduled_at", '<=', $now);
                             })
                             ->select("chat_messages.*")
                             ->limit($sendLimit)->get();

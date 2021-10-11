@@ -210,22 +210,21 @@
                 <thead>
                 <tr>
                     <th style="width: 2%;"></th>
-                    <th style="width: 3%;">#</th>
-                    <th style="width: 5%;">Tickit Id</th>
+                    <th style="width: 4%;">Id</th>
                     <th style="width: 5%;">Source</th>
-                    <th style="width: 7%;">Name</th>
-                    <th style="width: 7%;">Email</th>
-                    <th style="width: 6%;">Subject</th>
-                    <th style="width: 7%;">Message</th>
-                    <th style="width: 6%;">Assigned name</th>
+                    <th style="width: 5%;">Name</th>
+                    <th style="width: 5%;">Email</th>
+                    <th style="width: 5%;">Subject</th>
+                    <th style="width: 6%;">Message</th>
+                    <th style="width: 6%;">Asg name</th>
                     <th style="width: 5%;">Brand</th>
                     <th style="width: 5%;">Country</th>
-                    <th style="width: 5%;">Order no</th>
-                    <th style="width: 9%;">Phone no</th>
-                    <th style="width: 13%;">Message Box</th>
-                    <th style="width: 7%;">Status</th>
-                    <th style="width: 8%;">Created</th>
-                    <th style="width: 8%;">Action</th>
+                    <th style="width: 5%;">Ord no</th>
+                    <th style="width: 6%;">Ph no</th>
+                    <th style="width: 13%;">Msg Box</th>
+                    <th style="width: 6%;">Status</th>
+                    <th style="width: 5%;">Created</th>
+                    <th style="width: 12%;">Action</th>
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">

@@ -2,45 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\Notification;
-use App\Leads;
-use App\Status;
-use App\Setting;
-use App\User;
 use App\Brand;
-use App\Product;
-use App\Message;
-use App\ChatMessage;
-use App\Task;
-use App\Image;
-use App\AutoReply;
-use App\Reply;
-use App\Customer;
-use App\StatusChange;
-use App\CallRecording;
-use App\ErpLeads;
-use App\ErpLeadStatus;
-use App\CommunicationHistory;
-use App\ReplyCategory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Pagination\LengthAwarePaginator;
-use App\Helpers;
-use Validator;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use GuzzleHttp\Client as GuzzleClient;
-
-use App\CallBusyMessage;
-use App\MessageQueue;
 use App\BroadcastImage;
-use App\Http\Controllers\WhatsAppController;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
-
+use App\CallBusyMessage;
+use App\CallRecording;
+use App\Category;
+use App\ChatMessage;
+use App\CommunicationHistory;
+use App\Customer;
+use App\ErpLeads;
 use App\ErpLeadsBrand;
 use App\ErpLeadsCategory;
+use App\ErpLeadStatus;
+use App\Helpers;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\WhatsAppController;
+use App\Image;
+use App\Leads;
+use App\Message;
+use App\MessageQueue;
+use App\Product;
+use App\ReplyCategory;
+use App\Setting;
+use App\Status;
+use App\StatusChange;
+use App\Task;
+use App\User;
+use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class LeadsController extends Controller
 {
@@ -177,7 +170,6 @@ class LeadsController extends Controller
         $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control select-multiple', 'id' => 'multi_category'])->selected()->renderAsDropdown();
         $status = array_flip((new status)->all());
 
-
         return view('leads.index', compact('leads', 'leads_array', 'term', 'orderby', 'brand', 'rating', 'type', 'category_select', 'status'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
@@ -244,7 +236,7 @@ class LeadsController extends Controller
             'size',
             'leadsourcetxt',
             'created_at' => 'required|date_format:"Y-m-d H:i"',
-            'whatsapp_number'
+            'whatsapp_number',
         ]);
 
         $data = $request->except('_token');
@@ -290,14 +282,15 @@ class LeadsController extends Controller
                 //array_push($brand_array, $product->brand);
                 //array_push($category_array, $product->category);
                 $lead = \App\ErpLeads::create([
-                    "customer_id"       => $request->customer_id,
-                    "product_id"        => $product_id,
-                    "brand_id"          => $product->brand,
-                    "brand_segment"     => !empty($product->brands->brand_segment) ? $product->brands->brand_segment : '',
-                    "category_id"       => $product->category,
-                    "color"             => $product->color,
-                    "size"              => $product->size_value,
-                    "lead_status_id"    => 1
+                    "customer_id" => $request->customer_id,
+                    "product_id" => $product_id,
+                    "brand_id" => $product->brand,
+                    "brand_segment" => !empty($product->brands->brand_segment) ? $product->brands->brand_segment : '',
+                    "category_id" => $product->category,
+                    "color" => $product->color,
+                    "size" => $product->size_value,
+                    'type' => 'new_erp_lead',
+                    "lead_status_id" => 1,
                 ]);
 
                 if ($request->hasfile('image')) {
@@ -329,9 +322,6 @@ class LeadsController extends Controller
                 }
             }
         }
-
-
-
 
         // if(!empty($request->input('assigned_user'))){
         //
@@ -374,9 +364,9 @@ class LeadsController extends Controller
 
         if ($request->ajax()) {
             $message = "Lead created successfully";
-			return response()->json(['lead' => $lead, "message" => $message]);
+            return response()->json(['lead' => $lead, "message" => $message]);
         }
-        
+
         return redirect()->route('leads.create')
             ->with('success', 'Lead created successfully.');
     }
@@ -469,7 +459,6 @@ class LeadsController extends Controller
             ]);
         }
 
-
         // if (  $request->input( 'assigned_user' ) != $leads->assigned_user && !empty($request->input( 'assigned_user' ))  ) {
         //
         //   NotificationQueueController::createNewNotification([
@@ -511,7 +500,6 @@ class LeadsController extends Controller
             $leads->whatsapp_number = $request->whatsapp_number;
         }
 
-
         if ($request->status != $leads->status) {
             $lead_status = (new status)->all();
             StatusChange::create([
@@ -519,7 +507,7 @@ class LeadsController extends Controller
                 'model_type' => Leads::class,
                 'user_id' => Auth::id(),
                 'from_status' => array_search($leads->status, $lead_status),
-                'to_status' => array_search($request->status, $lead_status)
+                'to_status' => array_search($request->status, $lead_status),
             ]);
         }
 
@@ -585,15 +573,15 @@ class LeadsController extends Controller
             'number' => null,
             'user_id' => Auth::id() ?? 6,
             'approved' => 0,
-            'status' => 8
+            'status' => 8,
         ];
-        if($request->lead_id){
-            $params['lead_id']= $request->lead_id;
+        if ($request->lead_id) {
+            $params['lead_id'] = $request->lead_id;
         }
         $isQueue = false;
-        if($request->is_queue > 0) {
-          $isQueue = true;
-          $params['is_queue']= 1;
+        if ($request->is_queue > 0) {
+            $isQueue = true;
+            $params['is_queue'] = 1;
         }
 
         $customer = Customer::find($request->customer_id);
@@ -610,15 +598,15 @@ class LeadsController extends Controller
             $brand_name = $product->brands->name ?? '';
             $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
             $dutyPrice = $product->getDuty($cnt);
-            $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+            $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
             if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
                 $special_price = $discountPrice['total'];
                 $brand = $product->brands;
-                if($brand) {
+                if ($brand) {
                     if (!empty($brand->euro_to_inr)) {
-                        $special_price = (float)$brand->euro_to_inr * (float)trim($discountPrice['total']);
+                        $special_price = (float) $brand->euro_to_inr * (float) trim($discountPrice['total']);
                     } else {
-                        $special_price = (float)Setting::get('euro_to_inr') * (float)trim($discountPrice['total']);
+                        $special_price = (float) Setting::get('euro_to_inr') * (float) trim($discountPrice['total']);
                     }
                 }
             }
@@ -666,19 +654,19 @@ class LeadsController extends Controller
                             $mediaPrice = MediaUploader::fromSource($textImage)
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))->upload();
                             //$chat_message->media_url = $textImage;
-                            $chat_message->attachMedia($mediaPrice,  config('constants.media_tags'));
+                            $chat_message->attachMedia($mediaPrice, config('constants.media_tags'));
                             $chat_message->save();
                         }
                     }
                     // send message now
                     // uncomment this one to send message immidiatly
-                    if(!$isQueue) {
+                    if (!$isQueue) {
                         app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                     }
                 }
             }
 
-            if(!$isQueue) {
+            if (!$isQueue) {
                 $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
                 \Log::channel('customer')->info("Send price started : " . $chat_message->id);
 
@@ -694,11 +682,10 @@ class LeadsController extends Controller
         }
 
         if ($request->has('dimension') || $request->has('detailed')) {
-            if(!$isQueue) {
+            if (!$isQueue) {
                 app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
             }
         }
-
 
         $histories = CommunicationHistory::where('model_id', $customer->id)->where('model_type', Customer::class)->where('type', 'initiate-followup')->where('is_stopped', 0)->get();
 
@@ -711,7 +698,7 @@ class LeadsController extends Controller
             'model_id' => $customer->id,
             'model_type' => Customer::class,
             'type' => 'initiate-followup',
-            'method' => 'whatsapp'
+            'method' => 'whatsapp',
         ]);
 
         return response('success');
@@ -719,7 +706,6 @@ class LeadsController extends Controller
 
     public function removeImage($old_image)
     {
-
 
         if ($old_image != 0) {
 
@@ -741,7 +727,7 @@ class LeadsController extends Controller
             'model_type' => Leads::class,
             'user_id' => Auth::id(),
             'from_status' => array_search($lead->status, $lead_status),
-            'to_status' => array_search($request->status, $lead_status)
+            'to_status' => array_search($request->status, $lead_status),
         ]);
 
         $lead->status = $request->status;
@@ -803,12 +789,11 @@ class LeadsController extends Controller
         }
 
         $new_leads = new LengthAwarePaginator($currentItems, count($new_leads), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         return view('leads.image-grid')->withLeads($new_leads);
     }
-
 
     public function saveLeaveMessage(Request $request)
     {
@@ -856,55 +841,55 @@ class LeadsController extends Controller
     }
 
     public function erpLeads(Request $request)
-    { 
+    {
         /*$shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
-                                    ->whereNotNull('shoe_size')
-                                    ->groupBy('shoe_size')
-                                    ->pluck('counts', 'shoe_size');
+        ->whereNotNull('shoe_size')
+        ->groupBy('shoe_size')
+        ->pluck('counts', 'shoe_size');
 
         $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
-                                        ->whereNotNull('clothing_size')
-                                        ->groupBy('clothing_size')
-                                        ->pluck('counts', 'clothing_size');*/
+        ->whereNotNull('clothing_size')
+        ->groupBy('clothing_size')
+        ->pluck('counts', 'clothing_size');*/
         $brands = Brand::all()->toArray();
         $sourcePaginateArr = array();
         // print_r($brands);
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
         $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
             ->leftJoin("customers as c", "c.id", "erp_leads.customer_id")
+            ->leftJoin("store_websites as SW", "SW.id", "c.store_website_id")
             ->leftJoin("erp_lead_status as els", "els.id", "erp_leads.lead_status_id")
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-           ->select(["erp_leads.*","products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number","c.email as customer_email"]);
-
+            ->select(["erp_leads.*", "products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number", "c.email as customer_email", "SW.website"]);
 
         /*$term = $request->get('term');
         if (!empty($term)) {
-            $source = $source->where(function($q) use($term){
-                $q->where("c.name","like","%{$term}%")
-                  ->orWhere("c.phone","like","%{$term}%")
-                  ->orWhere("c.instahandler","like","%{$term}%")
-                  ->orWhere("products.name","like","%{$term}%")
-                  ->orWhere("products.name","like","%{$term}%")
-                  ->orWhere("erp_leads.id","like","%{$term}%");
-            });
+        $source = $source->where(function($q) use($term){
+        $q->where("c.name","like","%{$term}%")
+        ->orWhere("c.phone","like","%{$term}%")
+        ->orWhere("c.instahandler","like","%{$term}%")
+        ->orWhere("products.name","like","%{$term}%")
+        ->orWhere("products.name","like","%{$term}%")
+        ->orWhere("erp_leads.id","like","%{$term}%");
+        });
         }
 
         if ($request->get('shoe_size')) {
-            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
+        $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
         }
 
         if ($request->get('clothing_size')) {
-            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
+        $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
         }
 
         if ($request->get('shoe_size_group')) {
-            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
+        $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
         }
 
         if ($request->get('clothing_size_group')) {
-            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
+        $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
         }*/
 
         if ($request->get('lead_customer')) {
@@ -916,7 +901,7 @@ class LeadsController extends Controller
         }
 
         if ($request->get('brand_id')) {
-            $leadIds = ErpLeadsBrand::whereIn('brand_id', $request->get('brand_id'))->pluck('erp_lead_id')->toArray(); 
+            $leadIds = ErpLeadsBrand::whereIn('brand_id', $request->get('brand_id'))->pluck('erp_lead_id')->toArray();
             $source = $source->whereIn('erp_leads.id', $leadIds);
         }
 
@@ -926,8 +911,8 @@ class LeadsController extends Controller
 
         if ($request->get('lead_category')) {
             $leadIds = ErpLeadsCategory::leftJoin('categories', 'categories.id', '=', 'erp_leads_categories.category_id')
-                     ->where('title','like','%'.$request->get('lead_category').'%')->pluck('erp_lead_id')->toArray(); 
-           $source = $source->whereIn('erp_leads.id', $leadIds);
+                ->where('title', 'like', '%' . $request->get('lead_category') . '%')->pluck('erp_lead_id')->toArray();
+            $source = $source->whereIn('erp_leads.id', $leadIds);
         }
 
         if ($request->get('lead_color')) {
@@ -938,6 +923,10 @@ class LeadsController extends Controller
             $source = $source->where('erp_leads.size', '=', $request->get('lead_shoe_size'));
         }
 
+        if ($request->get('lead_type')) {
+            $source = $source->where('erp_leads.type', 'like', '%' . $request->get('lead_type') . '%');
+        }
+
         if ($request->get('brand_segment')) {
             $source = $source->where('erp_leads.brand_segment', '=', $request->get('brand_segment'));
         }
@@ -946,91 +935,84 @@ class LeadsController extends Controller
         $source2 = clone $source;
         $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
 
-
-
         /*$source = $source->get();
 
         foreach ($source as $key => $value) {
-            
-            $curr_cat_title = $value->cat_title;
-            $curr_brand_name = $value->brand_name;
 
-            $source[$key]->media_url = null;
-            $media = $value->getMedia(config('constants.media_tags'))->first();
-            if ($media) {
-                $source[$key]->media_url = $media->getUrl();
-            }
+        $curr_cat_title = $value->cat_title;
+        $curr_brand_name = $value->brand_name;
 
-            if (empty($source[$key]->media_url) && $value->product_id) {
-                $product = Product::find($value->product_id);
-                // $media = $product->getMedia(config('constants.media_tags'))->first();
-                // if ($media) {
-                //     $source[$key]->media_url = $media->getUrl();
-                // }
-            }
-
-             $cat_titles = array();
-            $cat_title = $value['cat_title'];
-          
-            $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id',$value['id'])->where('category_id','!=','')->get()->pluck('category_id');
-
-            foreach ($value['cat_title'] as $key => $title) {
-                $titles = Category::where('id',$title)->pluck('title')->toArray();
-                foreach($titles as $a){
-                    $cat_titles[] =  $a;
-                }
-            }
-            if(!empty($curr_cat_title)){
-                array_push($cat_titles , $curr_cat_title);
-            }
-            //if($cat_titles != null) {
-                $value['cat_title'] =  implode(',', $cat_titles);
-           // }
-            
-
-            $brandList = [];
-            $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
-            foreach ($brand_names as $key => $row) {
-                $brands_names = Brand::where('id',$row)->pluck('name')->toArray();
-                foreach($brands_names as $a){ 
-				   $brandList[] = $a;
-                   //$brand .=  $a.','; 
-                }
-            }
-            if(!empty($curr_brand_name)){
-                array_push($brandList , $curr_brand_name);
-            }
-			if($brandList != null) {
-                $value['brand_name'] =  implode(',', $brandList);
-            }
-           //$value['brand_name'] = $brand;
+        $source[$key]->media_url = null;
+        $media = $value->getMedia(config('constants.media_tags'))->first();
+        if ($media) {
+        $source[$key]->media_url = $media->getUrl();
         }
-       
-      
+
+        if (empty($source[$key]->media_url) && $value->product_id) {
+        $product = Product::find($value->product_id);
+        // $media = $product->getMedia(config('constants.media_tags'))->first();
+        // if ($media) {
+        //     $source[$key]->media_url = $media->getUrl();
+        // }
+        }
+
+        $cat_titles = array();
+        $cat_title = $value['cat_title'];
+
+        $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id',$value['id'])->where('category_id','!=','')->get()->pluck('category_id');
+
+        foreach ($value['cat_title'] as $key => $title) {
+        $titles = Category::where('id',$title)->pluck('title')->toArray();
+        foreach($titles as $a){
+        $cat_titles[] =  $a;
+        }
+        }
+        if(!empty($curr_cat_title)){
+        array_push($cat_titles , $curr_cat_title);
+        }
+        //if($cat_titles != null) {
+        $value['cat_title'] =  implode(',', $cat_titles);
+        // }
+
+        $brandList = [];
+        $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
+        foreach ($brand_names as $key => $row) {
+        $brands_names = Brand::where('id',$row)->pluck('name')->toArray();
+        foreach($brands_names as $a){
+        $brandList[] = $a;
+        //$brand .=  $a.',';
+        }
+        }
+        if(!empty($curr_brand_name)){
+        array_push($brandList , $curr_brand_name);
+        }
+        if($brandList != null) {
+        $value['brand_name'] =  implode(',', $brandList);
+        }
+        //$value['brand_name'] = $brand;
+        }
 
         foreach ($source as $value) {
-            $srcArr = json_decode(json_encode($value), true);
-            array_push($sourcePaginateArr, $srcArr);
+        $srcArr = json_decode(json_encode($value), true);
+        array_push($sourcePaginateArr, $srcArr);
         }
         // echo "<pre>";print_r($sourcePaginateArr);die('ss');
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
-            $perPage = count($sourcePaginateArr);
-            $currentPage = 1;
+        $perPage = count($sourcePaginateArr);
+        $currentPage = 1;
         }
 
         if (!is_numeric($perPage)) {
-            $perPage = 2;
-        } 
+        $perPage = 2;
+        }
 
-
- 
         $currentItems = array_slice($sourcePaginateArr, $perPage * ($currentPage - 1), $perPage);
 
         $sourcePaginateArr = new LengthAwarePaginator($currentItems, count($sourcePaginateArr), $perPage, $currentPage, [
-            'path'  => LengthAwarePaginator::resolveCurrentPath()
+        'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);*/
 
         //$source = $source->get();
@@ -1038,7 +1020,7 @@ class LeadsController extends Controller
         $source = $source->paginate(Setting::get('pagination'));
         $source->getCollection()->transform(function ($value) {
             // Your code here
-            
+
             $curr_cat_title = $value['cat_title'];
             $curr_brand_name = $value['brand_name'];
 
@@ -1058,55 +1040,56 @@ class LeadsController extends Controller
 
             $cat_titles = array();
             $cat_title = $value['cat_title'];
-          
-            $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id',$value['id'])->where('category_id','!=','')->get()->pluck('category_id');
+
+            $value['cat_title'] = ErpLeadsCategory::where('erp_lead_id', $value['id'])->where('category_id', '!=', '')->get()->pluck('category_id');
 
             foreach ($value['cat_title'] as $key => $title) {
-                $titles = Category::where('id',$title)->pluck('title')->toArray();
-                foreach($titles as $a){
-                    $cat_titles[] =  $a;
+                $titles = Category::where('id', $title)->pluck('title')->toArray();
+                foreach ($titles as $a) {
+                    $cat_titles[] = $a;
                 }
             }
-            if(!empty($curr_cat_title)){
-                array_push($cat_titles , $curr_cat_title);
+            if (!empty($curr_cat_title)) {
+                array_push($cat_titles, $curr_cat_title);
             }
             //if($cat_titles != null) {
-                $value['cat_title'] =  implode(',', $cat_titles);
+            $value['cat_title'] = implode(',', $cat_titles);
             // }
-            
 
             $brandList = [];
-            $brand_names = ErpLeadsBrand::where('erp_lead_id',$value['id'])->where('brand_id','!=','')->pluck('brand_id')->toArray();
+            $brand_names = ErpLeadsBrand::where('erp_lead_id', $value['id'])->where('brand_id', '!=', '')->pluck('brand_id')->toArray();
             foreach ($brand_names as $key => $row) {
-                $brands_names = Brand::where('id',$row)->pluck('name')->toArray();
-                foreach($brands_names as $a){ 
-				   $brandList[] = $a;
-                   //$brand .=  $a.','; 
+                $brands_names = Brand::where('id', $row)->pluck('name')->toArray();
+                foreach ($brands_names as $a) {
+                    $brandList[] = $a;
+                    //$brand .=  $a.',';
                 }
             }
-            if(!empty($curr_brand_name)){
-                array_push($brandList , $curr_brand_name);
+            if (!empty($curr_brand_name)) {
+                array_push($brandList, $curr_brand_name);
             }
-			if($brandList != null) {
-                $value['brand_name'] =  implode(',', $brandList);
+            if ($brandList != null) {
+                $value['brand_name'] = implode(',', $brandList);
             }
-           //$value['brand_name'] = $brand;
-
+            //$value['brand_name'] = $brand;
 
             return $value;
         });
-        
-
-       
-     
 
         return view("leads.erp.index", [
             //'shoe_size_group' => $shoe_size_group,
             //'clothing_size_group' => $clothing_size_group,
-            'brands'   => $brands,
-            'erpLeadStatus'   => $erpLeadStatus,
+            'brands' => $brands,
+            'erpLeadStatus' => $erpLeadStatus,
             'recordsTotal' => $total,
             'sourceData' => $source,
+            'lead_type' => @$request->get('lead_type'),
+            'lead_shoe_size' => $request->get('lead_shoe_size'),
+            'lead_color' => $request->get('lead_color'),
+            'lead_category' => $request->get('lead_category'),
+            'brand_segment' => $request->get('brand_segment'),
+            'lead_customer' => $request->get('lead_customer'),
+            'brand_id' => $request->get('brand_id'),
             'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
@@ -1125,35 +1108,34 @@ class LeadsController extends Controller
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-            ->select(["erp_leads.*","products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number","c.email as customer_email"]);
-
+            ->select(["erp_leads.*", "products.sku as product_sku", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number", "c.email as customer_email"]);
 
         /*$term = $request->get('term');
         if (!empty($term)) {
-            $source = $source->where(function($q) use($term){
-                $q->where("c.name","like","%{$term}%")
-                  ->orWhere("c.phone","like","%{$term}%")
-                  ->orWhere("c.instahandler","like","%{$term}%")
-                  ->orWhere("products.name","like","%{$term}%")
-                  ->orWhere("products.name","like","%{$term}%")
-                  ->orWhere("erp_leads.id","like","%{$term}%");
-            });
+        $source = $source->where(function($q) use($term){
+        $q->where("c.name","like","%{$term}%")
+        ->orWhere("c.phone","like","%{$term}%")
+        ->orWhere("c.instahandler","like","%{$term}%")
+        ->orWhere("products.name","like","%{$term}%")
+        ->orWhere("products.name","like","%{$term}%")
+        ->orWhere("erp_leads.id","like","%{$term}%");
+        });
         }
 
         if ($request->get('shoe_size')) {
-            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
+        $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
         }
 
         if ($request->get('clothing_size')) {
-            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
+        $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
         }
 
         if ($request->get('shoe_size_group')) {
-            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
+        $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
         }
 
         if ($request->get('clothing_size_group')) {
-            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
+        $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
         }*/
 
         if ($request->get('lead_customer')) {
@@ -1178,6 +1160,10 @@ class LeadsController extends Controller
 
         if ($request->get('lead_shoe_size')) {
             $source = $source->where('erp_leads.size', '=', $request->get('lead_shoe_size'));
+        }
+
+        if ($request->get('lead_type')) {
+            $source = $source->where('erp_leads.type', 'like', '%' . $request->get('lead_type') . '%');
         }
 
         if ($request->get('brand_segment')) {
@@ -1234,7 +1220,7 @@ class LeadsController extends Controller
 
             $customer->save();
             $message = "Leads for Customer are blocked";
-			return response()->json([
+            return response()->json([
                 'status' => 200,
                 'message' => $message,
             ]);
@@ -1250,52 +1236,55 @@ class LeadsController extends Controller
         return view("leads.erp.create", compact('customerList', 'brands', 'category', 'colors', 'status'));
     }
 
-    public function manageLeadsCategory(Request $request){
-        
-        $category_id= ErpLeadsCategory::where('erp_lead_id',$request->get('lead_id'))->where('category_id','!=','')->pluck('category_id')->toArray();
+    public function manageLeadsCategory(Request $request)
+    {
+
+        $category_id = ErpLeadsCategory::where('erp_lead_id', $request->get('lead_id'))->where('category_id', '!=', '')->pluck('category_id')->toArray();
 
         $categories = Category::all()->toArray();
-        return view("leads.erp.create_category", compact('categories','category_id'));
+        return view("leads.erp.create_category", compact('categories', 'category_id'));
     }
 
-    public function manageLeadsBrand(Request $request){
-        $brand_ids = ErpLeadsBrand::where('erp_lead_id',$request->get('lead_id'))->where('brand_id','!=','')->pluck('brand_id')->toArray();
+    public function manageLeadsBrand(Request $request)
+    {
+        $brand_ids = ErpLeadsBrand::where('erp_lead_id', $request->get('lead_id'))->where('brand_id', '!=', '')->pluck('brand_id')->toArray();
         $brands = Brand::all()->toArray();
-        return view("leads.erp.create_brand", compact('brands','brand_ids'));
+        return view("leads.erp.create_brand", compact('brands', 'brand_ids'));
     }
 
-    public function saveLeadsBrands(Request $request){
-        
+    public function saveLeadsBrands(Request $request)
+    {
+
         $input = $request->all();
         $message = "Successsfully Added";
 
-        ErpLeadsBrand::where('erp_lead_id',$input['lead_id'])->delete();
+        ErpLeadsBrand::where('erp_lead_id', $input['lead_id'])->delete();
         // $message = json_encode($input);
-        
-            foreach ($input['brand_ids'] as $brand) {
-                ErpLeadsBrand::create([
-                    'erp_lead_id' => $input['lead_id'],
-                    'brand_id'    => $brand
-                ]);
-            }
-        
-        
-        return response()->json(['code' => 200,'message' => $message]); 
+
+        foreach ($input['brand_ids'] as $brand) {
+            ErpLeadsBrand::create([
+                'erp_lead_id' => $input['lead_id'],
+                'brand_id' => $brand,
+            ]);
+        }
+
+        return response()->json(['code' => 200, 'message' => $message]);
     }
 
-    public function saveLeadsCategories(Request $request){
+    public function saveLeadsCategories(Request $request)
+    {
         $input = $request->all();
         // $message = json_encode($input);
         $message = "Successsfully Added";
-        ErpLeadsCategory::where('erp_lead_id',$input['lead_id'])->delete();
+        ErpLeadsCategory::where('erp_lead_id', $input['lead_id'])->delete();
         foreach ($input['categories'] as $category) {
             ErpLeadsCategory::create([
                 'erp_lead_id' => $input['lead_id'],
-                'category_id'    => $category
+                'category_id' => $category,
             ]);
         }
-        
-        return response()->json(['code' => 200,'message' => $message]); 
+
+        return response()->json(['code' => 200, 'message' => $message]);
     }
 
     public function erpLeadsEdit()
@@ -1316,12 +1305,12 @@ class LeadsController extends Controller
     public function erpLeadsStore(Request $request)
     {
         $id = request()->get("id", 0);
-        $productId =  request()->get("product_id", 0);
+        $productId = request()->get("product_id", 0);
 
         $customer = \App\Customer::where("id", request()->get("customer_id", 0))->first();
         if (!$customer) {
             $message = "Please select valid customer";
-		    return response()->json(["code" => 0, "data" => [], "message" => $message]);
+            return response()->json(["code" => 0, "data" => [], "message" => $message]);
         }
 
         $product = \App\Product::where("id", $productId)->first();
@@ -1332,7 +1321,7 @@ class LeadsController extends Controller
         $params = request()->all();
         $params["product_id"] = $productId;
         if (isset($params["brand_segment"])) {
-            $params["brand_segment"] = implode(",", (array)$params["brand_segment"]);
+            $params["brand_segment"] = implode(",", (array) $params["brand_segment"]);
         }
 
         if ($product) {
@@ -1359,6 +1348,7 @@ class LeadsController extends Controller
             $params["size"] = $customer->size;
         }
 
+        $params["type"] = 'store-erp-lead';
         $erpLeads = \App\ErpLeads::where("id", $id)->first();
         if (!$erpLeads) {
             $erpLeads = new \App\ErpLeads;
@@ -1398,8 +1388,8 @@ class LeadsController extends Controller
             $erpLeads->attachMedia($media, config('constants.media_tags'));
         }
 
-        $message =  "Erp lead created successfully";
-		 return response()->json(["code" => 1, "data" => [], "message" => $message ]);
+        $message = "Erp lead created successfully";
+        return response()->json(["code" => 1, "data" => [], "message" => $message]);
     }
 
     public function erpLeadDelete()
@@ -1410,9 +1400,9 @@ class LeadsController extends Controller
         if ($erpLeads) {
             $erpLeads->delete();
         }
-        
-       $message = "Erp lead deleted successfully";
-		return response()->json(["code" => 1, "data" => [], "message" => $message ]);
+
+        $message = "Erp lead deleted successfully";
+        return response()->json(["code" => 1, "data" => [], "message" => $message]);
     }
 
     public function customerSearch()
@@ -1431,9 +1421,9 @@ class LeadsController extends Controller
 
             // check if the data has more values for the prmotions
             $startTime = $request->get("product_start_date", "");
-            $endTime   = $request->get("product_end_date", "");
+            $endTime = $request->get("product_end_date", "");
 
-            $product =  new \App\Product;
+            $product = new \App\Product;
 
             $fireQ = false;
             if (!empty($startTime)) {
@@ -1452,13 +1442,13 @@ class LeadsController extends Controller
                 }
             }
 
-            $broadcast_image =  new BroadcastImage();
-            $broadcast_image->products =  json_encode($productIds);
+            $broadcast_image = new BroadcastImage();
+            $broadcast_image->products = json_encode($productIds);
             $broadcast_image->save();
             $max_group_id = MessageQueue::max('group_id') + 1;
 
             $sendingData = [
-                "message"  => $request->get('message', ''),
+                "message" => $request->get('message', ''),
             ];
 
             if ($request->hasFile('image')) {
@@ -1468,7 +1458,7 @@ class LeadsController extends Controller
                 foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
                     $sendingData["image"][] = [
                         "key" => $brod_image->getKey(),
-                        "url" => $brod_image->getUrl()
+                        "url" => $brod_image->getUrl(),
                     ];
                 }
             } else {
@@ -1476,22 +1466,22 @@ class LeadsController extends Controller
             }
 
             $params = [
-                'sending_time'  => $request->get('sending_time', ''),
+                'sending_time' => $request->get('sending_time', ''),
                 'user_id' => Auth::id(),
                 'phone' => null,
                 'type' => 'message_all',
                 'data' => json_encode($sendingData),
-                'group_id' => $max_group_id
+                'group_id' => $max_group_id,
             ];
 
-            foreach ($customerArr as  $customer) {
+            foreach ($customerArr as $customer) {
                 $params['customer_id'] = $customer->id;
                 MessageQueue::create($params);
             }
         }
         $message = "Message sent successfully";
-        return response()->json(["code" => 1, "data" => [], "message" =>$message ]);
-        
+        return response()->json(["code" => 1, "data" => [], "message" => $message]);
+
     }
 
     public function updateErpStatus(Request $request, $id)
@@ -1504,7 +1494,7 @@ class LeadsController extends Controller
                 'model_type' => \App\ErpLeads::class,
                 'user_id' => Auth::id(),
                 'from_status' => $lead_status[$lead->lead_status_id],
-                'to_status' => $lead_status[$request->status]
+                'to_status' => $lead_status[$request->status],
             ]);
 
             $lead->lead_status_id = $request->status;
@@ -1516,7 +1506,7 @@ class LeadsController extends Controller
     {
         $product = Product::find($request->get('product_id'));
         $customer = Customer::find($request->get('customer_id'));
-        $mediaArr =  $product ? $product->getMedia(config('constants.media_tags')) : [];
+        $mediaArr = $product ? $product->getMedia(config('constants.media_tags')) : [];
         $media = [];
 
         foreach ($mediaArr as $value) {
@@ -1535,7 +1525,7 @@ class LeadsController extends Controller
             'shoe_size' => $customer ? $customer->shoe_size : '',
             'gender' => $customer ? $customer->gender : '',
             'media' => $media,
-            'price' => $price
+            'price' => $price,
         ]);
     }
 
@@ -1543,7 +1533,7 @@ class LeadsController extends Controller
     {
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
         // \DB::enableQueryLog();
-        $source =  \App\ErpLeadSendingHistory::leftjoin("products", "products.id", "erp_lead_sending_histories.product_id")
+        $source = \App\ErpLeadSendingHistory::leftjoin("products", "products.id", "erp_lead_sending_histories.product_id")
             ->leftJoin("customers as c", "c.id", "erp_lead_sending_histories.customer_id")
             ->leftJoin("erp_leads", "erp_leads.id", "erp_lead_sending_histories.lead_id")
             ->leftJoin("erp_lead_status", "erp_leads.lead_status_id", "erp_lead_status.id")
@@ -1555,7 +1545,7 @@ class LeadsController extends Controller
         }
 
         if ($request->get('product_name')) {
-            $source = $source->where('products.name', 'like',  "%" . $request->get('product_name') . "%");
+            $source = $source->where('products.name', 'like', "%" . $request->get('product_name') . "%");
         }
 
         if ($request->get('lead_status')) {
@@ -1563,36 +1553,39 @@ class LeadsController extends Controller
         }
 
         if ($request->get('created_at')) {
-            $source = $source->whereDate('erp_lead_sending_histories.created_at', '=',  $request->get('created_at'));
+            $source = $source->whereDate('erp_lead_sending_histories.created_at', '=', $request->get('created_at'));
         }
         $source = $source->paginate(5);
         session()->flashInput($request->input());
         return view("leads.erp.history", [
             'sourceData' => $source,
-            'erpLeadStatus' => $erpLeadStatus
+            'erpLeadStatus' => $erpLeadStatus,
         ]);
     }
 
-    public function erpLeadsStatusCreate(Request $request){
+    public function erpLeadsStatusCreate(Request $request)
+    {
         $status = new ErpLeadStatus;
         $status->name = $request->add_status;
         $status->save();
-        return redirect()->back()->with('success','Status Added Successsfully');
+        return redirect()->back()->with('success', 'Status Added Successsfully');
     }
-    public function erpLeadsStatusUpdate(Request $request){
+    public function erpLeadsStatusUpdate(Request $request)
+    {
         $statusModal = ErpLeadStatus::where("id", $request->status_id)->first()->name;
-        
+
         $template = "Greetings from Solo Luxury Ref: order number $request->id we have updated your order with status : $statusModal.";
         $erp_leads = ErpLeads::find($request->id);
 
-            $history = new \App\ErpLeadStatusHistory;
-            $history->lead_id = $request->id;
-            $history->old_status = $erp_leads->lead_status_id;
-            $history->new_status = $request->status_id;
-            $history->user_id = Auth::id();
-            $history->save();
-        
+        $history = new \App\ErpLeadStatusHistory;
+        $history->lead_id = $request->id;
+        $history->old_status = $erp_leads->lead_status_id;
+        $history->new_status = $request->status_id;
+        $history->user_id = Auth::id();
+        $history->save();
+
         $erp_leads->lead_status_id = $request->status_id;
+        $erp_leads->type = 'erp-lead-status-update';
         $erp_leads->save();
 
         // $user = Auth::user();
@@ -1604,38 +1597,38 @@ class LeadsController extends Controller
         //                         ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false);
         // }
         $message = "Status Updated Successsfully";
-        return response()->json(['code' => 200,'message' => $message, 'template' => $template]);
+        return response()->json(['code' => 200, 'message' => $message, 'template' => $template]);
     }
 
     public function erpLeadStatusChange(Request $request)
     {
-        $id     = $request->get("id");
+        $id = $request->get("id");
         $status = $request->get("status");
 
         if (!empty($id) && !empty($status)) {
-            $order   = \App\ErpLeads::find($id);
+            $order = \App\ErpLeads::find($id);
             $statuss = ErpLeadStatus::find($status);
 
             if ($order->customer->email) {
                 if (isset($request->sendmessage) && $request->sendmessage == '1') {
                     //Sending Mail on changing of order status
                     try {
-                            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                        $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 
-                            $email             = \App\Email::create([
-                                'model_id'         => $order->id,
-                                'model_type'       => ErpLeads::class,
-                                'from'             => $emailClass->fromMailer,
-                                'to'               => $order->customer->email,
-                                'subject'          => $emailClass->subject,
-                                'message'          => $emailClass->render(),
-                                'template'         => 'erp-lead-status-update',
-                                'additional_data'  => $order->id,
-                                'status'           => 'pre-send',
-                                'is_draft'         => 0,
-                            ]);
+                        $email = \App\Email::create([
+                            'model_id' => $order->id,
+                            'model_type' => ErpLeads::class,
+                            'from' => $emailClass->fromMailer,
+                            'to' => $order->customer->email,
+                            'subject' => $emailClass->subject,
+                            'message' => $emailClass->render(),
+                            'template' => 'erp-lead-status-update',
+                            'additional_data' => $order->id,
+                            'status' => 'pre-send',
+                            'is_draft' => 0,
+                        ]);
 
-                            \App\Jobs\SendEmail::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email);
 
                     } catch (\Exception $e) {
                         \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
@@ -1644,17 +1637,17 @@ class LeadsController extends Controller
                 } else {
                     $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 
-                    $email             = \App\Email::create([
-                        'model_id'         => $order->id,
-                        'model_type'       => ErpLeads::class,
-                        'from'             => $emailClass->fromMailer,
-                        'to'               => $order->customer->email,
-                        'subject'          => $emailClass->subject,
-                        'message'          => $emailClass->render(),
-                        'template'         => 'erp-lead-status-update',
-                        'additional_data'  => $order->id,
-                        'status'           => 'pre-send',
-                        'is_draft'         => 0,
+                    $email = \App\Email::create([
+                        'model_id' => $order->id,
+                        'model_type' => ErpLeads::class,
+                        'from' => $emailClass->fromMailer,
+                        'to' => $order->customer->email,
+                        'subject' => $emailClass->subject,
+                        'message' => $emailClass->render(),
+                        'template' => 'erplead-status-update',
+                        'additional_data' => $order->id,
+                        'status' => 'pre-send',
+                        'is_draft' => 0,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email);
@@ -1665,10 +1658,10 @@ class LeadsController extends Controller
                 //   \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
                 // }
             }
-           
+
         }
         $message = "Status Changed Successsfully";
-        return response()->json(['Sucess', 200,'message' => $message]);
+        return response()->json(['Sucess', 200, 'message' => $message]);
 
     }
 }

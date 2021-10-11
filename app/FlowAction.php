@@ -12,6 +12,7 @@ class FlowAction extends Model
 		'type_id',
 		'rank',
 		'after_seconds',
+		'message_title',
 		'deleted',
 	];
 

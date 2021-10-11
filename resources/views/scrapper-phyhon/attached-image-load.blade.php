@@ -43,7 +43,10 @@
                 <tr class="expand-{{ $list->id }}">
                     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
                     <td>{{ $store->id }}</td>
-                    <td>{{ $list->storeWebsite->website ?? '' }}</td>
+                    <td class="expand-row-msg" data-name="storeWebsite" data-id="{{$store->id}}">
+                        <span class="show-short-storeWebsite-{{$store->id}}">{{ str_limit($list->storeWebsite->website, 30, '..')}}</span>
+                        <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
+                    </td>
                     <td>{{ $store->name }}</td>
                     <td>{{ $item->name }}({{ $item->code }})</td>
                     <td>
@@ -51,7 +54,6 @@
                             @foreach($images as $d => $img) 
                                 @if(request('device') == null  ||  strtolower(request('device')) == strtolower($img['device']))
                                     {{ucwords($img['device'])." : ".$img['total']}}
-                                    {!!"<br/>"!!}
                                 @endif
                             @endforeach
                         @else

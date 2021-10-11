@@ -97,7 +97,7 @@
                     
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <!-- <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                        <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" name="lead_customer" placeholder="Customer" />
+                        <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" value="{{@$lead_customer}}" name="lead_customer" placeholder="Customer" />
 
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
@@ -111,26 +111,29 @@
                          Brand
                             <option value="" default >Brand</option>
                           @foreach($brands as $brand_item)
-                            <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+                            <option value="{{$brand_item['id']}}" {{($brand_id)?in_array($brand_item['id'],$brand_id)?'selected':'':''}}>{{$brand_item['name']}}</option>
                           @endforeach
                         </select>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                        <!-- <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                       <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" name="brand_segment" placeholder="Brand Segment"/>
+                       <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" value="{{@$brand_segment}}" name="brand_segment" placeholder="Brand Segment"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <!-- <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" name="lead_category" placeholder="Category"/>
+                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" value="{{@$lead_category}}" name="lead_category" placeholder="Category"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <!-- <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" name="lead_color" placeholder="Color"/>
+                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" value="{{@$lead_color}}" name="lead_color" placeholder="Color"/>
 
                     </div>
                     <div class="form-group ml-3 cls_filter_checkbox">
                        <!-- <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
-                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_shoe_size" placeholder="Size"/>
+                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{@$lead_shoe_size}}" name="lead_shoe_size" placeholder="Size"/>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_checkbox">
+                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_type" value="{{@$lead_type}}" placeholder="Type"/>
                     </div>
                     <!-- <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php //echo $base_url;?>/images/filter.png"/></button> -->
                     <button type="submit" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -187,11 +190,12 @@
             <tr>
                 <th width="1%"></th>
                 <th width="1%">ID</th>
-                <th width="5%">Date</th>
+                <th width="4%">Date</th>
                 <th width="7%">Status</th>
-                <th width="10%">Customer</th>
-                <th width="7%">C Email</th>
+                <th width="5%">Customer</th>
+                <th width="5%">C Email</th>
                 <th width="6%">C Whatsapp</th>
+                <th width="5%">Store</th>
                 <th width="3%">Image</th>
                 <th width="5%">Product ID</th>
                 <th width="3%">Sku</th>
@@ -201,6 +205,7 @@
                 <th width="8%">Category</th> 
                 <th width="2%">Color</th>
                 <th width="2%">Size</th>
+                <th width="2%">Type</th>
                 <th width="12%">Communication</th>
                 <th width="3%">Action</th>
             </tr>
@@ -213,7 +218,14 @@
                   <!-- <td>{{$source['id']}}</td> -->
                   <td class="tblcell"><div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div></td>
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</label></div></td>
+                  <td class="tblcell expand-row-msg" data-name="date" data-id="{{$source['id']}}">
+                    <div class="checkbox">
+                      <label class="checkbox-inline">
+                        <span class="show-short-date-{{$source['id']}}">{{ str_limit(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y'), 5, '..')}}</span>
+                        <span style="word-break:break-all;" class="show-full-date-{{$source['id']}} hidden">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</span>
+                      </label>
+                    </div>
+                  </td>
                   <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
                     <select class="form-control update-Erp-Status" name="ErpStatus"  data-id="{{$source['id']}}">
                       @foreach(App\ErpLeadStatus::all() as $erp_status)
@@ -221,13 +233,39 @@
                       @endforeach
                   </select>
                   </label></div></td>
-                  <td class="tblcell">
-                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></label></div></td>
+                  <td class="tblcell expand-row-msg" data-name="customer_name" data-id="{{$source['id']}}">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew">
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                        <a href="/customer/' + data.customer_id + '" target="_blank">
+                          <span class="show-short-customer_name-{{$source['id']}}">{{ str_limit($source['customer_name'], 10, '..')}}</span>
+                          <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
+                        </a>
+                      </label>
+                    </div>
+                  </td>
 
                   <!-- 08-09-2021 -->
-                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['customer_email']}}</label></div></td>
+                  <td class="tblcell expand-row-msg" data-name="customer_email" data-id="{{$source['id']}}">
+                    <div class="checkbox">
+                      <label class="checkbox-inline ew">
+                        <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                        <span class="show-short-customer_email-{{$source['id']}}">{{ str_limit($source['customer_email'], 10, '..')}}</span>
+                        <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
+                      </label>
+                    </div>
+                  </td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['customer_whatsapp_number']}}</label></div></td>
                   <!-- 08-09-2021  end -->
+
+                  <td class="tblcell expand-row-msg" data-name="website" data-id="{{$source['id']}}">
+                    <div class="checkbox">
+                      <label class="checkbox-inline">
+                      <span class="show-short-website-{{$source['id']}}">{{ str_limit($source['website'], 15, '..')}}</span>
+                        <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
+                      </label>
+                    </div>
+                  </td>
 
                   <td class="tblcell">
                   <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div></td>
@@ -282,6 +320,7 @@
 
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{ucwords(str_replace('-',' ',$source['type']))}}</label></div></td>
                   <td class="tblcell communication-td">
                     @if($source['customer_whatsapp_number'])
                       <input type="text" class="form-control send-message-textbox" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." style="margin-bottom:5px;width:77%;display:inline;"/>
@@ -467,6 +506,16 @@
   <script src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
+
+  $(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    console.log(name);
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+  });
 
 
     var customers = [];

@@ -10,6 +10,7 @@ use App\ScrapRemark;
 use App\ScraperProcess;
 use App\ScrapStatistics;
 use App\Supplier;
+use App\DeveloperTask;
 use App\User;
 use Auth;
 use Exception;
@@ -1165,9 +1166,39 @@ class ScrapStatisticsController extends Controller
                 array_push($scraper_proc,$sp);
             }
         }
-        $scrapers = Scraper::whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
-
-        return view('scrap.scraper-process-list',compact('scraper_process','scrapers'));
+		$users = User::pluck('name', 'id')->toArray();
+        $scrapers = Scraper::leftJoin('users', 'users.id', '=', 'scrapers.assigned_to')->whereNotIn('id', $scraper_process->pluck('scraper_id'))->select('scrapers.*', 'users.email as assignedTo')->get();
+		return view('scrap.scraper-process-list',compact('scraper_process','scrapers', 'users'));
     }
     //END - DEVTASK-20102
+	
+	public function assignScrapperIssue(Request $request) {
+		$assigendTo = $request->assigned_to;
+		$scrapperDetails = Scraper::where('id', $request->scrapper_id)->first();
+		if($assigendTo != null and $scrapperDetails != null) {
+			$hasAssignedIssue = DeveloperTask::where("scraper_id", $scrapperDetails->scrapper_id)->where("assigned_to", $assigendTo)
+								->where("is_resolved", 0)->first();
+			if (!$hasAssignedIssue) {
+				$requestData = new Request(); 
+				$requestData->setMethod('POST');
+				$requestData->request->add([
+					'priority'    => 1,
+					'issue'       => "Scraper didn't Run In Last 24 Hr",
+					'status'      => 'Planned',
+					'module'      => 'Scraper',
+					'subject'     => $scrapperDetails->scraper_name,
+					'assigned_to' => $assigendTo,
+				]);
+				app('\App\Http\Controllers\DevelopmentController')->issueStore($requestData,  $assigendTo);
+			} else{
+				$requestData = new Request();
+				$requestData->setMethod('POST');
+				$requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Scraper didn't Run In Last 24 Hr", 'status' => 1]);
+				app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+			}
+			
+			Scraper::where('id', $request->scrapper_id)->update(['assigned_to'=>$assigendTo]);
+		}
+		return 'success';
+	}
 }

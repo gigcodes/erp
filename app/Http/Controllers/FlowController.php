@@ -12,7 +12,7 @@ use App\FlowMessage;
 use App\StoreWebsite;
 use Validator;
 use Illuminate\Support\Str;
-
+use Qoraiche\MailEclipse\MailEclipse;
 
 class FlowController extends Controller{
 
@@ -103,15 +103,16 @@ class FlowController extends Controller{
 				if($inputs['action_type'][$actionId] == "Time Delay") {
 					$data = ['time_delay'=>$inputs['time_delay'][$actionId], 'time_delay_type'=>$inputs['time_delay_type'][$actionId], 'rank'=>$key];
 					FlowAction::where('id', $actionId)->update($data);
-				} else {
+				} else if($inputs['action_type'][$actionId] == "Whatsapp" || $inputs['action_type'][$actionId] == "SMS") {
+					$data = ['message_title'=>$inputs['message_title'][$actionId], 'rank'=>$key];
+					FlowAction::where('id', $actionId)->update($data);
+				}  else {
 					$data = [ 'rank'=>$key];
 					FlowAction::where('id', $actionId)->update($data);
 				}
 			}
-		}
-		
+		}		
 		return ['message'=>"Successfully updated", 'statusCode'=>200];
-		//return $this->flowDetail($inputs['flow_id']);
 	}
 	
 	public function flowDetail($flowId) {
@@ -127,7 +128,7 @@ class FlowController extends Controller{
 		$codeExist = Flow::where('flow_code', $random)->first();
 		if($codeExist) {
 			$this->randomFlowCode();
-		}else {
+		} else {
 			return $random;
 		}
 	}
@@ -146,16 +147,51 @@ class FlowController extends Controller{
 	
 	public function getActionMessage($actionId) {
 		$flowMessage = FlowMessage::where(['action_id'=>$actionId])->first();
-		return view('flow.message', compact('flowMessage'));
+		
+		if($flowMessage == null || $flowMessage['sender_name'] == null || $flowMessage['sender_email_address'] == null) {
+			$flowMessage = FlowAction::leftJoin('flow_paths', 'flow_paths.id', '=', 'flow_actions.path_id')
+					  ->leftJoin('flows', 'flows.id', '=', 'flow_paths.flow_id')
+					  ->leftJoin('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
+					  ->where('flow_actions.id', $actionId)->select('store_websites.title as sender_name', 'store_websites.username as sender_email_address')->first();
+		}
+		if(!isset($flowMessage['subject'])) {
+			$flowMessage['subject'] = '';
+		}
+		if(!isset($flowMessage['mail_tpl'])) {
+			$flowMessage['mail_tpl'] = '';
+		}
+		if(!isset($flowMessage['html_content'])) {
+			$flowMessage['html_content'] = '';
+		}
+		if(!isset($flowMessage['action_id'])) {
+			$flowMessage['action_id'] =  $actionId;
+		}
+		if(!isset($flowMessage['id'])) {
+			$flowMessage['id'] =  '';
+		}
+		
+		$mailEclipseTpl = MailEclipse::getTemplates();
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $v             = MailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
+                $rViewMail[$v] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+		return view('flow.message', compact('flowMessage', 'rViewMail'));
 	}
 	
 	public function updateActionMessage(Request $request) {
 		$validator = Validator::make($request->all(), [
             'sender_name'=>'required',
 			'sender_email_address'=>'required',
+			'mail_tpl' => 'required_without:html_content',
+			'html_content' => 'required_without:mail_tpl',
 			'subject'=>'required',
-			'html_content'=>'required',
-        ]);
+		 ], [  
+			'mail_tpl.required_without' => 'Please provide email content or select Email Template.', 
+			'html_content.required_without' => 'Please provide email content or select Email Template.', 
+		]);
 		
 		if ($validator->fails()) {  
 			$errors = $validator->getMessageBag();
@@ -168,8 +204,7 @@ class FlowController extends Controller{
         }
 		$inputs = $request->input();
 		FlowMessage::updateOrCreate(['id'=>$inputs['id']], $inputs);
-		return redirect()->back();
-		//return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Message Saved successfully']);
+		return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Message Saved successfully']);
 	}
 
 	public function flowDelete(Request $request){
@@ -188,7 +223,7 @@ class FlowController extends Controller{
 		return ['message'=>"Flow Successfully Deleted", 'statusCode'=>200];
 	}
 
-	public function flowActionDelete(Request $request){
+	public function flowActionDelete(Request $request) {
 		FlowAction::where('id', $request->input('id'))->delete();
 		FlowMessage::where('action_id', $request->input('id'))->delete();
 		return ['message'=>"Flow Successfully Deleted", 'statusCode'=>200];

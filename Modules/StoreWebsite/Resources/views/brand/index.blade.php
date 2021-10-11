@@ -105,17 +105,47 @@
 		<div class="col-md-12 margin-tb" id="page-view-result">
 			<div class="row">
 				<table class="table table-bordered">
+				<thead>
+				      <tr>
+				      	<th width="3%">Id</th>
+				        <th width="10%">Brand</th>
+				        <th width="5%">Min Price</th>
+				        <th width="5%">Max Price</th>
+				        <?php foreach($storeWebsite as $k => $title) { ?>
+							<?php 
+							$title= str_replace(' & ','&',$title);
+							$title= str_replace(' - ','-',$title);
+							$title= str_replace('&',' & ',$title);
+							$title= str_replace('-',' - ',$title);
+							$words = explode(' ', $title);
+							$is_short_title=0;
+							if (count($words) >= 2) {
+								$title='';
+								foreach($words as $word){
+									$title.=strtoupper(substr($word, 0, 1));
+								}
+								$is_short_title=1;
+							}
+							
+							?>
+				        	<th data-id="{{$k}}" width="4%">
+								<?php echo $title; ?>
+								<br>
+				        		<a class="brand-history text-dark"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+				        		<a class="missing-brand-history text-dark" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
+				        	</th>
+				        <?php } ?>	
+				      </tr>
+				    </thead>
 				    <thead>
 				      <tr>
-				      	<th width="5%">Id</th>
-				        <th width="10%">Brand</th>
-				        <th width="10%">Min Price</th>
-				        <th width="10%">Max Price</th>
+				      	<th colspan="4"></th>
 				        <?php foreach($storeWebsite as $k => $title) { ?>
-				        	<th data-id="{{$k}}" width="10%"><?php echo $title; ?> 
-				        		<a class="brand-history"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-				        		<a class="missing-brand-history" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
-				        	</th>
+						<th data-id="{{$k}}" width="4%">
+							<?php if(isset($apppliedResultCount[$k])){ ?> 
+							{{count($apppliedResultCount[$k])}}
+							<?php } ?>
+						</th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>

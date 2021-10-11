@@ -2,67 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\Complaint;
-use Dompdf\Dompdf;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use App\Imports\CustomerImport;
-use App\Exports\CustomersExport;
-use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Mails\Manual\CustomerEmail;
-use App\Mails\Manual\RefundProcessed;
-use App\Mails\Manual\OrderConfirmation;
-use App\Mails\Manual\AdvanceReceipt;
-use App\Mails\Manual\IssueCredit;
-use Illuminate\Support\Facades\Mail;
-use App\Customer;
-use App\Suggestion;
-use App\SuggestedProduct;
-use App\Setting;
-use App\Leads;
-use App\ErpLeads;
-use App\Order;
-use App\Status;
-use App\Product;
-use App\Brand;
-use App\Supplier;
 use App\ApiKey;
+use App\Brand;
 use App\Category;
-use App\User;
-use App\MessageQueue;
-use App\Message;
-use App\Helpers;
-use App\Reply;
-use App\Email;
-use App\Instruction;
 use App\ChatMessage;
-use App\ReplyCategory;
-use App\CallRecording;
 use App\CommunicationHistory;
+use App\Complaint;
+use App\CreditHistory;
+use App\Customer;
+use App\CustomerAddressData;
+use App\Email;
+use App\EmailAddress;
+use App\ErpLeads;
+use App\Exports\CustomersExport;
+use App\Helpers;
+use App\Imports\CustomerImport;
+use App\Instruction;
 use App\InstructionCategory;
+use App\Leads;
+use App\Mails\Manual\AdvanceReceipt;
+use App\Mails\Manual\CustomerEmail;
+use App\Mails\Manual\IssueCredit;
+use App\Mails\Manual\OrderConfirmation;
+use App\Mails\Manual\RefundProcessed;
+use App\Message;
+use App\MessageQueue;
+use App\Order;
 use App\OrderStatus as OrderStatuses;
+use App\Product;
+use App\QuickSellGroup;
 use App\ReadOnly\PurchaseStatus;
 use App\ReadOnly\SoloNumbers;
-use App\EmailAddress;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Carbon\Carbon;
-use Webklex\IMAP\Client;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Auth;
-use App\QuickSellGroup;
-use GuzzleHttp\Client as GuzzleClient;
-use Plank\Mediable\Media as PlunkMediable;
-use App\CustomerAddressData;
+use App\Reply;
+use App\ReplyCategory;
+use App\Setting;
+use App\Status;
 use App\StoreWebsite;
-use App\CreditHistory;
+use App\SuggestedProduct;
+use App\Suggestion;
+use App\Supplier;
+use App\User;
+use Auth;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Plank\Mediable\Media as PlunkMediable;
 
 class CustomerController extends Controller
 {
-	
-	CONST DEFAULT_FOR = 1; //For Customer
+
+    const DEFAULT_FOR = 1; //For Customer
 
     public function __construct()
     {
@@ -76,10 +69,11 @@ class CustomerController extends Controller
      */
 
 //    public function __construct() {
-//      $this->middleware('permission:customer', ['only' => ['index','show']]);
-//    }
-    public function add_customer_address(Request $request){
-        $apply_job =  CustomerAddressData::create([
+    //      $this->middleware('permission:customer', ['only' => ['index','show']]);
+    //    }
+    public function add_customer_address(Request $request)
+    {
+        $apply_job = CustomerAddressData::create([
             'customer_id' => $request->customer_id,
             'entity_id' => $request->entity_id,
             'parent_id' => $request->parent_id,
@@ -124,7 +118,7 @@ class CustomerController extends Controller
             'delivered',
             'cancel',
             'refund to be processed',
-            'refund credited'
+            'refund credited',
         ];
 
         $finalOrderStats = [];
@@ -167,7 +161,7 @@ class CustomerController extends Controller
                     '#232b2b',
                     '#34495e',
                     '#7f8c8d',
-                ][ $key ]
+                ][$key],
             );
         }
 
@@ -199,7 +193,7 @@ class CustomerController extends Controller
         $brands = Brand::all()->toArray();
 
         foreach ($customer_names as $name) {
-            $search_suggestions[] = $name[ 'name' ];
+            $search_suggestions[] = $name['name'];
         }
 
         $users_array = Helpers::getUserArray(User::all());
@@ -212,7 +206,7 @@ class CustomerController extends Controller
         $start_time = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->subDay();
         $end_time = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
 
-        $allCustomers = $results[ 0 ]->pluck("id")->toArray();
+        $allCustomers = $results[0]->pluck("id")->toArray();
 
         // Get all sent broadcasts from the past month
         $sbQuery = DB::select("select MIN(group_id) AS minGroup, MAX(group_id) AS maxGroup from message_queues where sent = 1 and created_at>'" . date('Y-m-d H:i:s', strtotime('1 month ago')) . "'");
@@ -221,8 +215,8 @@ class CustomerController extends Controller
         $broadcasts = [];
         if ($sbQuery !== null) {
             // Get min and max
-            $minBroadcast = $sbQuery[ 0 ]->minGroup;
-            $maxBroadcast = $sbQuery[ 0 ]->maxGroup;
+            $minBroadcast = $sbQuery[0]->minGroup;
+            $maxBroadcast = $sbQuery[0]->maxGroup;
 
             // Deduct 2 from min
             $minBroadcast = $minBroadcast - 2;
@@ -233,21 +227,21 @@ class CustomerController extends Controller
         }
 
         $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
-                                    ->whereNotNull('shoe_size')
-                                    ->groupBy('shoe_size')
-                                    ->pluck('counts', 'shoe_size');
+            ->whereNotNull('shoe_size')
+            ->groupBy('shoe_size')
+            ->pluck('counts', 'shoe_size');
 
         $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
-                                        ->whereNotNull('clothing_size')
-                                        ->groupBy('clothing_size')
-                                        ->pluck('counts', 'clothing_size');
+            ->whereNotNull('clothing_size')
+            ->groupBy('clothing_size')
+            ->pluck('counts', 'clothing_size');
 
-        $groups = QuickSellGroup::select('id','name','group')->orderby('name','asc')->get();
+        $groups = QuickSellGroup::select('id', 'name', 'group')->orderby('name', 'asc')->get();
 
         return view('customers.index', [
-            'customers' => $results[ 0 ],
+            'customers' => $results[0],
             'customers_all' => $customers_all,
-            'customer_ids_list' => json_encode($results[ 1 ]),
+            'customer_ids_list' => json_encode($results[1]),
             'users_array' => $users_array,
             'instructions' => $instructions,
             'term' => $term,
@@ -263,7 +257,7 @@ class CustomerController extends Controller
             'brands' => $brands,
             'start_time' => $start_time,
             'end_time' => $end_time,
-            'leads_data' => $results[ 2 ],
+            'leads_data' => $results[2],
             'order_stats' => $order_stats,
             'complaints' => $complaints,
             'shoe_size_group' => $shoe_size_group,
@@ -288,7 +282,7 @@ class CustomerController extends Controller
             'Product Shiped form Italy',
             'In Transist from Italy',
             'Product shiped to Client',
-            'Delivered'
+            'Delivered',
         ];
 
         // Set empty clauses for later usage
@@ -303,27 +297,27 @@ class CustomerController extends Controller
         }
 
         if ($request->get('shoe_size')) {
-            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size')."'";
+            $searchWhereClause .= " AND customers.shoe_size = '" . $request->get('shoe_size') . "'";
         }
 
         if ($request->get('clothing_size')) {
-            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size')."'";
+            $searchWhereClause .= " AND customers.clothing_size = '" . $request->get('clothing_size') . "'";
         }
 
         if ($request->get('shoe_size_group')) {
-            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size_group')."'";
+            $searchWhereClause .= " AND customers.shoe_size = '" . $request->get('shoe_size_group') . "'";
         }
 
         if ($request->get('clothing_size_group')) {
-            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
+            $searchWhereClause .= " AND customers.clothing_size = '" . $request->get('clothing_size_group') . "'";
         }
 
         if ($request->get('customer_id')) {
-            $searchWhereClause .= " AND customers.id LIKE '%".$request->get('customer_id')."%'";
+            $searchWhereClause .= " AND customers.id LIKE '%" . $request->get('customer_id') . "%'";
         }
 
         if ($request->get('customer_name')) {
-            $searchWhereClause .= " AND customers.name LIKE '%".$request->get('customer_name')."%'";
+            $searchWhereClause .= " AND customers.name LIKE '%" . $request->get('customer_name') . "%'";
         }
 
         $orderby = 'DESC';
@@ -341,11 +335,11 @@ class CustomerController extends Controller
             'lead_created' => 'lead_created',
             'order_created' => 'order_created',
             'rating' => 'rating',
-            'communication' => 'communication'
+            'communication' => 'communication',
         ];
 
-        if (isset($sortBys[ $request->input('sortby') ])) {
-            $sortby = $sortBys[ $request->input('sortby') ];
+        if (isset($sortBys[$request->input('sortby')])) {
+            $sortby = $sortBys[$request->input('sortby')];
         }
 
         $start_time = $request->range_start ? "$request->range_start 00:00" : '';
@@ -464,8 +458,8 @@ class CustomerController extends Controller
                         chat_messages
                     ' . $messageWhereClause . '
                 ) AS chat_messages
-            ON 
-                customers.id=chat_messages.customer_id AND 
+            ON
+                customers.id=chat_messages.customer_id AND
                 chat_messages.message_id=(
                     SELECT
                         MAX(id)
@@ -478,45 +472,45 @@ class CustomerController extends Controller
                 )
             LEFT JOIN
                 (
-                    SELECT 
-                        MAX(orders.id) as order_id, 
-                        orders.customer_id, 
-                        MAX(orders.created_at) as order_created, 
-                        orders.order_status as order_status 
-                    FROM 
+                    SELECT
+                        MAX(orders.id) as order_id,
+                        orders.customer_id,
+                        MAX(orders.created_at) as order_created,
+                        orders.order_status as order_status
+                    FROM
                         orders
-                    ' . $orderWhereClause . ' 
-                    GROUP BY 
+                    ' . $orderWhereClause . '
+                    GROUP BY
                         customer_id
                 ) as orders
             ON
                 customers.id=orders.customer_id
             LEFT JOIN
                 (
-                    SELECT 
-                        order_products.order_id as purchase_order_id, 
+                    SELECT
+                        order_products.order_id as purchase_order_id,
                         order_products.purchase_status
-                    FROM 
-                        order_products 
-                    GROUP BY 
+                    FROM
+                        order_products
+                    GROUP BY
                         purchase_order_id
                 ) as order_products
-            ON 
+            ON
                 orders.order_id=order_products.purchase_order_id
             LEFT JOIN
                 (
-                    SELECT 
-                        MAX(id) as lead_id, 
-                        leads.customer_id, 
-                        leads.rating as lead_rating, 
-                        MAX(leads.created_at) as lead_created, 
+                    SELECT
+                        MAX(id) as lead_id,
+                        leads.customer_id,
+                        leads.rating as lead_rating,
+                        MAX(leads.created_at) as lead_created,
                         leads.status as lead_status
-                    FROM 
+                    FROM
                         leads
-                    GROUP BY 
+                    GROUP BY
                         customer_id
                 ) AS leads
-            ON 
+            ON
                 customers.id = leads.customer_id
             WHERE
                 customers.deleted_at IS NULL AND
@@ -538,130 +532,130 @@ class CustomerController extends Controller
               *
             FROM
             (
-                SELECT 
-                    customers.id, 
-                    customers.frequency, 
-                    customers.reminder_message, 
-                    customers.name, 
-                    customers.phone, 
-                    customers.is_blocked, 
-                    customers.is_flagged, 
-                    customers.is_error_flagged, 
-                    customers.is_priority, 
-                    customers.deleted_at, 
+                SELECT
+                    customers.id,
+                    customers.frequency,
+                    customers.reminder_message,
+                    customers.name,
+                    customers.phone,
+                    customers.is_blocked,
+                    customers.is_flagged,
+                    customers.is_error_flagged,
+                    customers.is_priority,
+                    customers.deleted_at,
                     customers.instruction_completed_at,
                     order_status,
                     purchase_status,
                     (
-                    SELECT 
-                            mm5.status 
-                        FROM 
-                            leads mm5 
-                        WHERE 
+                    SELECT
+                            mm5.status
+                        FROM
+                            leads mm5
+                        WHERE
                             mm5.id=lead_id
                     ) AS lead_status,
                     lead_id,
                     (
                     SELECT
-                            mm3.id 
-                        FROM 
-                            chat_messages mm3 
-                        WHERE 
+                            mm3.id
+                        FROM
+                            chat_messages mm3
+                        WHERE
                             mm3.id=message_id
                     ) AS message_id,
                     (
-                    SELECT 
-                            mm1.message 
-                        FROM 
-                            chat_messages mm1 
+                    SELECT
+                            mm1.message
+                        FROM
+                            chat_messages mm1
                         WHERE mm1.id=message_id
                     ) as message,
                     (
                     SELECT
-                            mm2.status 
-                        FROM 
-                            chat_messages mm2 
+                            mm2.status
+                        FROM
+                            chat_messages mm2
                         WHERE
                             mm2.id = message_id
                     ) AS message_status,
                     (
-                    SELECT 
-                            mm4.sent 
-                        FROM 
-                            chat_messages mm4 
-                        WHERE 
+                    SELECT
+                            mm4.sent
+                        FROM
+                            chat_messages mm4
+                        WHERE
                             mm4.id = message_id
                     ) AS message_type,
                     (
-                    SELECT 
-                            mm2.created_at 
-                        FROM 
-                            chat_messages mm2 
-                        WHERE 
+                    SELECT
+                            mm2.created_at
+                        FROM
+                            chat_messages mm2
+                        WHERE
                             mm2.id = message_id
                     ) as last_communicated_at
                 FROM
                     (
                         SELECT
                             *
-                        FROM 
+                        FROM
                             customers
                         LEFT JOIN
                             (
-                                SELECT 
-                                    MAX(id) as lead_id, 
-                                    leads.customer_id as lcid, 
-                                    leads.rating as lead_rating, 
-                                    MAX(leads.created_at) as lead_created, 
+                                SELECT
+                                    MAX(id) as lead_id,
+                                    leads.customer_id as lcid,
+                                    leads.rating as lead_rating,
+                                    MAX(leads.created_at) as lead_created,
                                     leads.status as lead_status
-                                FROM 
+                                FROM
                                     leads
-                                GROUP BY 
+                                GROUP BY
                                     customer_id
                             ) AS leads
-                        ON 
+                        ON
                             customers.id = leads.lcid
                         LEFT JOIN
                             (
-                                SELECT 
-                                    MAX(id) as order_id, 
-                                    orders.customer_id as ocid, 
-                                    MAX(orders.created_at) as order_created, 
-                                    orders.order_status as order_status 
-                                FROM 
-                                    orders ' . $orderWhereClause . ' 
-                                GROUP BY 
+                                SELECT
+                                    MAX(id) as order_id,
+                                    orders.customer_id as ocid,
+                                    MAX(orders.created_at) as order_created,
+                                    orders.order_status as order_status
+                                FROM
+                                    orders ' . $orderWhereClause . '
+                                GROUP BY
                                     customer_id
                             ) as orders
                         ON
                             customers.id = orders.ocid
                         LEFT JOIN
                             (
-                                SELECT 
-                                    order_products.order_id as purchase_order_id, 
-                                    order_products.purchase_status 
-                                FROM 
-                                    order_products 
-                                GROUP BY 
+                                SELECT
+                                    order_products.order_id as purchase_order_id,
+                                    order_products.purchase_status
+                                FROM
+                                    order_products
+                                GROUP BY
                                     purchase_order_id
                             ) as order_products
-                        ON 
+                        ON
                             orders.order_id = order_products.purchase_order_id
                         ' . $join . ' JOIN
                             (
-                                SELECT 
-                                    MAX(id) as message_id, 
-                                    customer_id, 
-                                    message, 
-                                    MAX(created_at) as message_created_At 
-                                FROM 
-                                    chat_messages ' . $messageWhereClause . ' 
-                                GROUP BY 
-                                    customer_id 
-                                ORDER BY 
+                                SELECT
+                                    MAX(id) as message_id,
+                                    customer_id,
+                                    message,
+                                    MAX(created_at) as message_created_At
+                                FROM
+                                    chat_messages ' . $messageWhereClause . '
+                                GROUP BY
+                                    customer_id
+                                ORDER BY
                                     chat_messages.created_at ' . $orderby . '
                             ) AS chat_messages
-                        ON 
+                        ON
                             customers.id = chat_messages.customer_id
                     ) AS customers
                 WHERE
@@ -678,7 +672,7 @@ class CustomerController extends Controller
         // dd($customers);
 
         // $customers = DB::select('
-        // 						SELECT * FROM
+        //                         SELECT * FROM
         //             (SELECT *
         //
         //             FROM (
@@ -707,8 +701,7 @@ class CustomerController extends Controller
         //             ' . $searchWhereClause . '
         //           ) AS customers
         //           ' . $filterWhereClause . $leadsWhereClause . ';
-        // 				');
-
+        //                 ');
 
         // dd($customers);
 
@@ -728,7 +721,6 @@ class CustomerController extends Controller
                       GROUP BY lead_final_status;
   							');
 
-
         // dd($leads_data);
         $ids_list = [];
 
@@ -742,7 +734,6 @@ class CustomerController extends Controller
                 // $leads_data[$lead_status] += 1;
             }
         }
-
 
         // dd($leads_data);
 
@@ -759,7 +750,7 @@ class CustomerController extends Controller
         $perPage = empty(Setting::get('pagination')) ? 25 : Setting::get('pagination');
         $currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
         $customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         return [$customers, $ids_list, $leads_data];
@@ -790,7 +781,7 @@ class CustomerController extends Controller
         $brands = Brand::all()->toArray();
 
         foreach ($customer_names as $name) {
-            $search_suggestions[] = $name[ 'name' ];
+            $search_suggestions[] = $name['name'];
         }
 
         $users_array = Helpers::getUserArray(User::all());
@@ -799,7 +790,6 @@ class CustomerController extends Controller
 
         $queues_total_count = MessageQueue::where('status', '!=', 1)->where('group_id', $last_set_id)->count();
         $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
-
 
         $term = $request->input('term');
         // $customers = DB::table('customers');
@@ -812,7 +802,7 @@ class CustomerController extends Controller
             'Product Shiped form Italy',
             'In Transist from Italy',
             'Product shiped to Client',
-            'Delivered'
+            'Delivered',
         ];
 
         $orderWhereClause = '';
@@ -862,11 +852,11 @@ class CustomerController extends Controller
             'lead_created' => 'lead_created',
             'order_created' => 'order_created',
             'rating' => 'rating',
-            'communication' => 'communication'
+            'communication' => 'communication',
         ];
 
-        if (isset($sortBys[ $request->input('sortby') ])) {
-            $sortby = $sortBys[ $request->input('sortby') ];
+        if (isset($sortBys[$request->input('sortby')])) {
+            $sortby = $sortBys[$request->input('sortby')];
         }
 
         $start_time = $request->input('range_start') ?? '';
@@ -930,14 +920,12 @@ class CustomerController extends Controller
                   ' . $filterWhereClause . ';
   							');
 
-
         // dd($new_customers);
 
         $ids_list = [];
         foreach ($new_customers as $customer) {
             $ids_list[] = $customer->id;
         }
-
 
         // if ($start_time != '' && $end_time != '') {
         //   $customers = $customers->whereBetween('chat_message_created_at', [$start_time, $end_time])->paginate(Setting::get('pagination'));
@@ -953,9 +941,8 @@ class CustomerController extends Controller
         $currentItems = array_slice($new_customers, $perPage * ($currentPage - 1), $perPage);
 
         $new_customers = new LengthAwarePaginator($currentItems, count($new_customers), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
-
 
         dd([
             'customers' => $new_customers,
@@ -1026,7 +1013,7 @@ class CustomerController extends Controller
         }
 
         return response()->json([
-            'messages' => $messages
+            'messages' => $messages,
         ]);
     }
 
@@ -1059,7 +1046,7 @@ class CustomerController extends Controller
                 'message' => "https://www.sololuxury.co.in/advance-payment-product.html",
                 'user_id' => Auth::id(),
                 'approve' => 0,
-                'status' => 1
+                'status' => 1,
             ];
 
             ChatMessage::create($params);
@@ -1081,7 +1068,7 @@ class CustomerController extends Controller
             'model_id' => $id,
             'model_type' => Customer::class,
             'type' => 'initiate-followup',
-            'method' => 'whatsapp'
+            'method' => 'whatsapp',
         ]);
 
         return redirect()->route('customer.show', $id)->with('success', 'You have successfully initiated follow up sequence!');
@@ -1150,7 +1137,6 @@ class CustomerController extends Controller
 
         return response()->json(['in_w_list' => $customer->in_w_list]);
     }
-    
 
     public function prioritize(Request $request)
     {
@@ -1178,7 +1164,7 @@ class CustomerController extends Controller
             'number' => null,
             'user_id' => Auth::id(),
             'message' => 'In Stock Products',
-            'status' => 1
+            'status' => 1,
         ];
 
         $chat_message = ChatMessage::create($params);
@@ -1197,7 +1183,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'first_customer' => $first_customer,
-            'second_customer' => $second_customer
+            'second_customer' => $second_customer,
         ]);
     }
 
@@ -1212,7 +1198,7 @@ class CustomerController extends Controller
             'address' => 'sometimes|nullable|min:3|max:255',
             'city' => 'sometimes|nullable|min:3|max:255',
             'country' => 'sometimes|nullable|min:3|max:255',
-            'pincode' => 'sometimes|nullable|max:6'
+            'pincode' => 'sometimes|nullable|max:6',
         ]);
 
         $first_customer = Customer::find($request->first_customer_id);
@@ -1274,7 +1260,7 @@ class CustomerController extends Controller
     public function import(Request $request)
     {
         $this->validate($request, [
-            'file' => 'required|mimes:xls,xlsx'
+            'file' => 'required|mimes:xls,xlsx',
         ]);
 
         (new CustomerImport)->queue($request->file('file'));
@@ -1292,7 +1278,7 @@ class CustomerController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.create', [
-            'solo_numbers' => $solo_numbers
+            'solo_numbers' => $solo_numbers,
         ]);
     }
 
@@ -1321,19 +1307,17 @@ class CustomerController extends Controller
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-		if(empty($request->whatsapp_number))
-		{
-			//get default whatsapp number for vendor from whatsapp config
-			$task_info = DB::table('whatsapp_configs')
-						->select('*')
-						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
-						->first();
-		
-			$data["whatsapp_number"] = $task_info->number;
+        if (empty($request->whatsapp_number)) {
+            //get default whatsapp number for vendor from whatsapp config
+            $task_info = DB::table('whatsapp_configs')
+                ->select('*')
+                ->whereRaw("find_in_set(" . self::DEFAULT_FOR . ",default_for)")
+                ->first();
+
+            $data["whatsapp_number"] = $task_info->number;
         }
-	
-	
-		$customer->whatsapp_number = $request->whatsapp_number;
+
+        $customer->whatsapp_number = $request->whatsapp_number;
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->address = $request->address;
@@ -1359,7 +1343,7 @@ class CustomerController extends Controller
         $customer->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
@@ -1374,7 +1358,7 @@ class CustomerController extends Controller
         $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
         $emails = [];
-        $lead_status = (New status)->all();
+        $lead_status = (new status)->all();
         $users_array = Helpers::getUserArray(User::all());
         $brands = Brand::all()->toArray();
         $reply_categories = ReplyCategory::all();
@@ -1384,7 +1368,7 @@ class CustomerController extends Controller
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
-        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number","number")->toArray();
+        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number", "number")->toArray();
         $suppliers = Supplier::select(['id', 'supplier'])
             ->whereRaw("suppliers.id IN (SELECT product_suppliers.supplier_id FROM product_suppliers)")->get();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
@@ -1412,7 +1396,7 @@ class CustomerController extends Controller
             'category_suggestion' => $category_suggestion,
             'suppliers' => $suppliers,
             'facebookMessages' => $facebookMessages,
-            'broadcastsNumbers' => $broadcastsNumbers
+            'broadcastsNumbers' => $broadcastsNumbers,
         ]);
     }
 
@@ -1432,22 +1416,19 @@ class CustomerController extends Controller
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
-		
-		
-		//$emails = Email::select()->where('to', $customer->email)->paginate(15);
-		
-		
+
+        //$emails = Email::select()->where('to', $customer->email)->paginate(15);
+
         $searchedMessages = null;
         if ($request->get('sm')) {
             $searchedMessages = ChatMessage::where('customer_id', $id)->where('message', 'LIKE', '%' . $request->get('sm') . '%')->get();
         }
 
-
         $customer_ids = json_decode($request->customer_ids ?? "[0]");
         $key = array_search($id, $customer_ids);
 
         if ($key != 0) {
-            $previous_customer_id = $customer_ids[ $key - 1 ];
+            $previous_customer_id = $customer_ids[$key - 1];
         } else {
             $previous_customer_id = 0;
         }
@@ -1455,11 +1436,11 @@ class CustomerController extends Controller
         if ($key == (count($customer_ids) - 1)) {
             $next_customer_id = 0;
         } else {
-            $next_customer_id = $customer_ids[ $key + 1 ];
+            $next_customer_id = $customer_ids[$key + 1];
         }
 
         $emails = [];
-        $lead_status = (New status)->all();
+        $lead_status = (new status)->all();
         $users_array = Helpers::getUserArray(User::all());
         $brands = Brand::all()->toArray();
         $reply_categories = ReplyCategory::orderby('id', 'DESC')->get();
@@ -1470,7 +1451,7 @@ class CustomerController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
         $suppliers = Supplier::select(['id', 'supplier'])->get();
-        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number","number")->toArray();
+        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number", "number")->toArray();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
             ->renderAsDropdown();
 
@@ -1478,7 +1459,7 @@ class CustomerController extends Controller
         if ($customer->facebook_id) {
             $facebookMessages = $customer->facebookMessages()->get();
         }
-        
+
         return view('customers.show', [
             'customer_ids' => json_encode($customer_ids),
             'previous_customer_id' => $previous_customer_id,
@@ -1500,7 +1481,7 @@ class CustomerController extends Controller
             'suppliers' => $suppliers,
             'facebookMessages' => $facebookMessages,
             'searchedMessages' => $searchedMessages,
-            'broadcastsNumbers' => $broadcastsNumbers
+            'broadcastsNumbers' => $broadcastsNumbers,
         ]);
     }
 
@@ -1514,13 +1495,13 @@ class CustomerController extends Controller
     public function emailInbox(Request $request)
     {
         /*$imap = new Client([
-            'host' => env('IMAP_HOST'),
-            'port' => env('IMAP_PORT'),
-            'encryption' => env('IMAP_ENCRYPTION'),
-            'validate_cert' => env('IMAP_VALIDATE_CERT'),
-            'username' => env('IMAP_USERNAME'),
-            'password' => env('IMAP_PASSWORD'),
-            'protocol' => env('IMAP_PROTOCOL')
+        'host' => env('IMAP_HOST'),
+        'port' => env('IMAP_PORT'),
+        'encryption' => env('IMAP_ENCRYPTION'),
+        'validate_cert' => env('IMAP_VALIDATE_CERT'),
+        'username' => env('IMAP_USERNAME'),
+        'password' => env('IMAP_PASSWORD'),
+        'protocol' => env('IMAP_PROTOCOL')
         ]);
 
         $imap->connect();
@@ -1528,66 +1509,64 @@ class CustomerController extends Controller
         $customer = Customer::find($request->customer_id);
 
         if ($request->type == 'inbox') {
-            $inbox_name = 'INBOX';
-            $direction = 'from';
+        $inbox_name = 'INBOX';
+        $direction = 'from';
         } else {
-            $inbox_name = 'INBOX.Sent';
-            $direction = 'to';
+        $inbox_name = 'INBOX.Sent';
+        $direction = 'to';
         }
 
         $inbox = $imap->getFolder($inbox_name);
 
         $emails = $inbox->messages()->where($direction, $customer->email);
         $emails = $emails->setFetchFlags(false)
-            ->setFetchBody(false)
-            ->setFetchAttachment(false)->leaveUnread()->get();
-
+        ->setFetchBody(false)
+        ->setFetchAttachment(false)->leaveUnread()->get();
 
         $emails_array = [];
         $count = 0;
 
         foreach ($emails as $key => $email) {
-            $emails_array[ $key ][ 'uid' ] = $email->getUid();
-            $emails_array[ $key ][ 'subject' ] = $email->getSubject();
-            $emails_array[ $key ][ 'date' ] = $email->getDate();
+        $emails_array[ $key ][ 'uid' ] = $email->getUid();
+        $emails_array[ $key ][ 'subject' ] = $email->getSubject();
+        $emails_array[ $key ][ 'date' ] = $email->getDate();
 
-            $count++;
+        $count++;
         }
 
         if ($request->type != 'inbox') {
-            $db_emails = $customer->emails;
+        $db_emails = $customer->emails;
 
-            foreach ($db_emails as $key2 => $email) {
-                $emails_array[ $count + $key2 ][ 'id' ] = $email->id;
-                $emails_array[ $count + $key2 ][ 'subject' ] = $email->subject;
-                $emails_array[ $count + $key2 ][ 'date' ] = $email->created_at;
-            }
+        foreach ($db_emails as $key2 => $email) {
+        $emails_array[ $count + $key2 ][ 'id' ] = $email->id;
+        $emails_array[ $count + $key2 ][ 'subject' ] = $email->subject;
+        $emails_array[ $count + $key2 ][ 'date' ] = $email->created_at;
+        }
         }
 
         $emails_array = array_values(array_sort($emails_array, function ($value) {
-            return $value[ 'date' ];
+        return $value[ 'date' ];
         }));*/
-		
-		$inbox = "to";
-		if ($request->type != 'inbox') {
-			$inbox = 'from';
-		}
-		
-		$customer = Customer::find($request->customer_id);
-		
-		$emails = Email::select()->where($inbox,$customer->email)->get();
-		
-		
-		$count = count($emails);
-		foreach ($emails as $key => $email) {
-			$emails_array[ $count + $key ][ 'id' ] = $email->id;
-			$emails_array[ $count + $key ][ 'subject' ] = $email->subject;
-			$emails_array[ $count + $key ][ 'type' ] = $email->type;
-			$emails_array[ $count + $key ][ 'message' ] = $email->message;
-			$emails_array[ $count + $key ][ 'date' ] = $email->created_at;
-		}
-		$emails_array = array_values(array_sort($emails_array, function ($value) {
-            return $value[ 'date' ];
+
+        $inbox = "to";
+        if ($request->type != 'inbox') {
+            $inbox = 'from';
+        }
+
+        $customer = Customer::find($request->customer_id);
+
+        $emails = Email::select()->where($inbox, $customer->email)->get();
+
+        $count = count($emails);
+        foreach ($emails as $key => $email) {
+            $emails_array[$count + $key]['id'] = $email->id;
+            $emails_array[$count + $key]['subject'] = $email->subject;
+            $emails_array[$count + $key]['type'] = $email->type;
+            $emails_array[$count + $key]['message'] = $email->message;
+            $emails_array[$count + $key]['date'] = $email->created_at;
+        }
+        $emails_array = array_values(array_sort($emails_array, function ($value) {
+            return $value['date'];
         }));
         $emails_array = array_reverse($emails_array);
 
@@ -1595,12 +1574,12 @@ class CustomerController extends Controller
         $perPage = 5;
         $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
         $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage, ['path' => LengthAwarePaginator::resolveCurrentPath()]);
-		//echo url($request->path());exit;
-		//$emails->setPath($request->path());
-//print_r($emails);
+        //echo url($request->path());exit;
+        //$emails->setPath($request->path());
+        //print_r($emails);
         $view = view('customers.email', [
             'emails' => $emails,
-            'type' => $request->type
+            'type' => $request->type,
         ])->render();
 
         return response()->json(['emails' => $view]);
@@ -1609,66 +1588,66 @@ class CustomerController extends Controller
     public function emailFetch(Request $request)
     {
         /*$imap = new Client([
-            'host' => env('IMAP_HOST'),
-            'port' => env('IMAP_PORT'),
-            'encryption' => env('IMAP_ENCRYPTION'),
-            'validate_cert' => env('IMAP_VALIDATE_CERT'),
-            'username' => env('IMAP_USERNAME'),
-            'password' => env('IMAP_PASSWORD'),
-            'protocol' => env('IMAP_PROTOCOL')
+        'host' => env('IMAP_HOST'),
+        'port' => env('IMAP_PORT'),
+        'encryption' => env('IMAP_ENCRYPTION'),
+        'validate_cert' => env('IMAP_VALIDATE_CERT'),
+        'username' => env('IMAP_USERNAME'),
+        'password' => env('IMAP_PASSWORD'),
+        'protocol' => env('IMAP_PROTOCOL')
         ]);
 
         $imap->connect();
 
         if ($request->type == 'inbox') {
-            $inbox = $imap->getFolder('INBOX');
+        $inbox = $imap->getFolder('INBOX');
         } else {
-            $inbox = $imap->getFolder('INBOX.Sent');
-            $inbox->query();
+        $inbox = $imap->getFolder('INBOX.Sent');
+        $inbox->query();
         }
 
         if ($request->email_type == 'server') {
-            $email = $inbox->getMessage($uid = $request->uid, null, null, true, true, true);
-            // dd($email);
-            if ($email->hasHTMLBody()) {
-                $content = $email->getHTMLBody();
-            } else {
-                $content = $email->getTextBody();
-            }
+        $email = $inbox->getMessage($uid = $request->uid, null, null, true, true, true);
+        // dd($email);
+        if ($email->hasHTMLBody()) {
+        $content = $email->getHTMLBody();
+        } else {
+        $content = $email->getTextBody();
+        }
         } else {*/
-            //$email = Email::find($request->uid);
-            $email = Email::find($request->id);
-			$content = $email->message;
+        //$email = Email::find($request->uid);
+        $email = Email::find($request->id);
+        $content = $email->message;
 
-            if ($email->template == 'customer-simple') {
-                $content = (new CustomerEmail($email->subject, $email->message, $email->from))->render();
+        if ($email->template == 'customer-simple') {
+            $content = (new CustomerEmail($email->subject, $email->message, $email->from))->render();
+        } else {
+            if ($email->template == 'refund-processed') {
+                $details = json_decode($email->additional_data, true);
+
+                $content = (new RefundProcessed($details['order_id'], $details['product_names']))->render();
             } else {
-                if ($email->template == 'refund-processed') {
-                    $details = json_decode($email->additional_data, true);
+                if ($email->template == 'order-confirmation') {
+                    $order = Order::find($email->additional_data);
 
-                    $content = (new RefundProcessed($details[ 'order_id' ], $details[ 'product_names' ]))->render();
+                    $content = (new OrderConfirmation($order))->render();
                 } else {
-                    if ($email->template == 'order-confirmation') {
+                    if ($email->template == 'advance-receipt') {
                         $order = Order::find($email->additional_data);
 
-                        $content = (new OrderConfirmation($order))->render();
+                        $content = (new AdvanceReceipt($order))->render();
                     } else {
-                        if ($email->template == 'advance-receipt') {
-                            $order = Order::find($email->additional_data);
+                        if ($email->template == 'issue-credit') {
+                            $customer = Customer::find($email->model_id);
 
-                            $content = (new AdvanceReceipt($order))->render();
+                            $content = (new IssueCredit($customer))->render();
                         } else {
-                            if ($email->template == 'issue-credit') {
-                                $customer = Customer::find($email->model_id);
-
-                                $content = (new IssueCredit($customer))->render();
-                            } else {
-                                $content = 'No Template';
-                            }
+                            $content = 'No Template';
                         }
                     }
                 }
             }
+        }
         //}
 
         return response()->json(['email' => $content]);
@@ -1678,30 +1657,30 @@ class CustomerController extends Controller
     {
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
-            'message' => 'required'
+            'message' => 'required',
         ]);
-		
-		$customer = Customer::find($request->customer_id);
 
-		//Store ID Email
-		$emailAddressDetails = EmailAddress::select()->where(['store_website_id'=>$customer->store_website_id])->first();
-		
+        $customer = Customer::find($request->customer_id);
+
+        //Store ID Email
+        $emailAddressDetails = EmailAddress::select()->where(['store_website_id' => $customer->store_website_id])->first();
+
         if ($request->order_id != '') {
             $order_data = json_encode(['order_id' => $request->order_id]);
         }
 
         $emailClass = (new CustomerEmail($request->subject, $request->message, $emailAddressDetails->from_address))->build();
 
-        $email             = Email::create([
-            'model_id'         => $customer->id,
-            'model_type'       => Customer::class,
-            'from'             => $emailAddressDetails->from_address,
-            'to'               => $customer->email,
-            'subject'          => $request->subject,
-            'message'          => $emailClass->render(),
-            'template'         => 'customer-simple',
-            'additional_data'  => isset($order_data) ? $order_data : '',
-            'status'           => 'pre-send',
+        $email = Email::create([
+            'model_id' => $customer->id,
+            'model_type' => Customer::class,
+            'from' => $emailAddressDetails->from_address,
+            'to' => $customer->email,
+            'subject' => $request->subject,
+            'message' => $emailClass->render(),
+            'template' => 'customer-simple',
+            'additional_data' => isset($order_data) ? $order_data : '',
+            'status' => 'pre-send',
             'store_website_id' => null,
         ]);
 
@@ -1717,21 +1696,21 @@ class CustomerController extends Controller
 
         return view('customers.edit', [
             'customer' => $customer,
-            'solo_numbers' => $solo_numbers
+            'solo_numbers' => $solo_numbers,
         ]);
     }
 
     public function updateReminder(Request $request)
     {
         $customer = Customer::find($request->get('customer_id'));
-        $customer->frequency            = $request->get('frequency');
-        $customer->reminder_message     = $request->get('message');
-        $customer->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
-        $customer->reminder_last_reply  = $request->get('reminder_last_reply',0);
+        $customer->frequency = $request->get('frequency');
+        $customer->reminder_message = $request->get('message');
+        $customer->reminder_from = $request->get('reminder_from', "0000-00-00 00:00");
+        $customer->reminder_last_reply = $request->get('reminder_last_reply', 0);
         $customer->save();
 
         return response()->json([
-            'success'
+            'success',
         ]);
     }
 
@@ -1784,8 +1763,8 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 'on') {
-             \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
-             MessageQueue::where('customer_id', $customer->id)->delete();
+            \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name . " " . $customer->number . ": Added To DND");
+            MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
             //   $message_queue->status = 1; // message stopped
@@ -1821,7 +1800,7 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 1) {
-             \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+            \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name . " " . $customer->number . ": Added To DND");
             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
@@ -1831,14 +1810,14 @@ class CustomerController extends Controller
         }
 
         return response()->json([
-            'do_not_disturb' => $customer->do_not_disturb
+            'do_not_disturb' => $customer->do_not_disturb,
         ]);
     }
 
     public function updatePhone(Request $request, $id)
     {
         $this->validate($request, [
-            'phone' => 'required|numeric|unique:customers,phone'
+            'phone' => 'required|numeric|unique:customers,phone',
         ]);
 
         $customer = Customer::find($id);
@@ -1856,16 +1835,16 @@ class CustomerController extends Controller
 
         $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
 
-        $email             = Email::create([
-            'model_id'         => $customer->id,
-            'model_type'       => Customer::class,
-            'from'             => $emailClass->fromMailer,
-            'to'               => $customer->email,
-            'subject'          => $emailClass->subject,
-            'message'          => $emailClass->render(),
-            'template'         => 'issue-credit',
-            'additional_data'  => '',
-            'status'           => 'pre-send'
+        $email = Email::create([
+            'model_id' => $customer->id,
+            'model_type' => Customer::class,
+            'from' => $emailClass->fromMailer,
+            'to' => $customer->email,
+            'subject' => $emailClass->subject,
+            'message' => $emailClass->render(),
+            'template' => 'issue-credit',
+            'additional_data' => '',
+            'status' => 'pre-send',
         ]);
 
         \App\Jobs\SendEmail::dispatch($email);
@@ -1881,10 +1860,9 @@ class CustomerController extends Controller
             'model_id' => $customer->id,
             'model_type' => Customer::class,
             'type' => 'issue-credit',
-            'method' => 'whatsapp'
+            'method' => 'whatsapp',
         ]);
 
-       
     }
 
     public function sendSuggestion(Request $request)
@@ -1896,30 +1874,30 @@ class CustomerController extends Controller
             'brands' => '',
             'categories' => '',
             'size' => '',
-            'supplier' => ''
+            'supplier' => '',
         ];
 
-        if ($request->brand[ 0 ] != null) {
+        if ($request->brand[0] != null) {
             $products = Product::whereIn('brand', $request->brand);
 
-            $params[ 'brands' ] = json_encode($request->brand);
+            $params['brands'] = json_encode($request->brand);
         }
 
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+        if ($request->category[0] != null && $request->category[0] != 1) {
             $categorySel = $request->category;
-            $category = \App\Category::whereIn("parent_id",$categorySel)->get()->pluck("id")->toArray();
-            $categorySelected = array_merge($categorySel,$category);
-            if ($request->brand[ 0 ] != null) {
+            $category = \App\Category::whereIn("parent_id", $categorySel)->get()->pluck("id")->toArray();
+            $categorySelected = array_merge($categorySel, $category);
+            if ($request->brand[0] != null) {
                 $products = $products->whereIn('category', $categorySelected);
             } else {
                 $products = Product::whereIn('category', $categorySelected);
             }
 
-            $params[ 'categories' ] = json_encode($request->category);
+            $params['categories'] = json_encode($request->category);
         }
 
-        if ($request->size[ 0 ] != null) {
-            if ($request->brand[ 0 ] != null || ($request->category[ 0 ] != 1 && $request->category[ 0 ] != null)) {
+        if ($request->size[0] != null) {
+            if ($request->brand[0] != null || ($request->category[0] != 1 && $request->category[0] != null)) {
                 $products = $products->where(function ($query) use ($request) {
                     foreach ($request->size as $size) {
                         $query->orWhere('size', 'LIKE', "%$size%");
@@ -1937,44 +1915,44 @@ class CustomerController extends Controller
                 });
             }
 
-            $params[ 'size' ] = json_encode($request->size);
+            $params['size'] = json_encode($request->size);
         }
 
-        if ($request->supplier[ 0 ] != null) {
-            if ($request->brand[ 0 ] != null || ($request->category[ 0 ] != 1 && $request->category[ 0 ] != null) || $request->size[ 0 ] != null) {
-                $products = $products->join("product_suppliers as ps","ps.sku","products.sku");
-                $products = $products->whereIn("ps.supplier_id",$request->supplier);
+        if ($request->supplier[0] != null) {
+            if ($request->brand[0] != null || ($request->category[0] != 1 && $request->category[0] != null) || $request->size[0] != null) {
+                $products = $products->join("product_suppliers as ps", "ps.sku", "products.sku");
+                $products = $products->whereIn("ps.supplier_id", $request->supplier);
                 $products = $products->groupBy("products.id");
                 /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
-                    return $query->where(function ($q) use ($request) {
-                        foreach ($request->supplier as $supplier) {
-                            $q->orWhere('suppliers.id', $supplier);
-                        }
-                    });
-                });*/
+            return $query->where(function ($q) use ($request) {
+            foreach ($request->supplier as $supplier) {
+            $q->orWhere('suppliers.id', $supplier);
+            }
+            });
+            });*/
             } else {
-                $products = $products->join("product_suppliers as ps","ps.sku","products.sku");
-                $products = $products->whereIn("ps.supplier_id",$request->supplier);
+                $products = $products->join("product_suppliers as ps", "ps.sku", "products.sku");
+                $products = $products->whereIn("ps.supplier_id", $request->supplier);
                 $products = $products->groupBy("products.id");
                 /*$products = Product::whereHas('suppliers', function ($query) use ($request) {
-                    return $query->where(function ($q) use ($request) {
-                        foreach ($request->supplier as $supplier) {
-                            $q->orWhere('suppliers.id', $supplier);
-                        }
-                    });
-                });*/
+            return $query->where(function ($q) use ($request) {
+            foreach ($request->supplier as $supplier) {
+            $q->orWhere('suppliers.id', $supplier);
+            }
+            });
+            });*/
             }
 
-            $params[ 'supplier' ] = json_encode($request->supplier);
+            $params['supplier'] = json_encode($request->supplier);
         }
 
-        if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null) && $request->size[ 0 ] == null && $request->supplier[ 0 ] == null) {
+        if ($request->brand[0] == null && ($request->category[0] == 1 || $request->category[0] == null) && $request->size[0] == null && $request->supplier[0] == null) {
             $products = (new Product)->newQuery();
         }
 
         $price = explode(',', $request->get('price'));
 
-        $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
+        $products = $products->whereBetween('price_inr_special', [$price[0], $price[1]]);
 
         $products = $products->where('category', '!=', 1)->select(["products.*"])->latest()->take($request->number)->get();
 
@@ -1992,7 +1970,7 @@ class CustomerController extends Controller
                 'approved' => 0,
                 'status' => 1,
                 'message' => 'Suggested images',
-                'customer_id' => $customer->id
+                'customer_id' => $customer->id,
             ];
 
             $count = 0;
@@ -2001,7 +1979,7 @@ class CustomerController extends Controller
                 if (!$product->suggestions->contains($suggestion->id)) {
                     if ($image = $product->getMedia(config('constants.attach_image_tag'))->first()) {
                         if ($count == 0) {
-                            $params["status"] = ChatMessage::CHAT_SUGGESTED_IMAGES; 
+                            $params["status"] = ChatMessage::CHAT_SUGGESTED_IMAGES;
                             $chat_message = ChatMessage::create($params);
                             $suggestion->chat_message_id = $chat_message->id;
                             $suggestion->save();
@@ -2016,7 +1994,7 @@ class CustomerController extends Controller
             }
         }
 
-        if($request->ajax()) {
+        if ($request->ajax()) {
             return response()->json(["code" => 200, "data" => [], "message" => "Your records has been update successfully"]);
         }
 
@@ -2027,12 +2005,11 @@ class CustomerController extends Controller
     {
         $customer = Customer::find($request->customer_id);
         $products = new Product;
-        if ($request->brand[ 0 ] != null) {
+        if ($request->brand[0] != null) {
             $products = $products->whereIn('brand', $request->brand);
         }
 
-
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+        if ($request->category[0] != null && $request->category[0] != 1) {
             // if ($request->brand[ 0 ] != null) {
             //     $products = $products->whereIn('category', $request->category);
             // } else {
@@ -2045,7 +2022,7 @@ class CustomerController extends Controller
         //     $products = (new Product)->newQuery();
         // }
         $total_images = $request->total_images;
-        if(!$total_images) {
+        if (!$total_images) {
             $total_images = 20;
         }
         $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take($total_images)->get();
@@ -2056,7 +2033,7 @@ class CustomerController extends Controller
                 'approved' => 0,
                 'status' => 1,
                 'message' => 'Suggested images',
-                'customer_id' => $customer->id
+                'customer_id' => $customer->id,
             ];
 
             $count = 0;
@@ -2087,28 +2064,28 @@ class CustomerController extends Controller
         $roletype = $request->input('roletype');
         $model_type = $request->input('model_type');
 
-        $data[ 'term' ] = $term;
-        $data[ 'roletype' ] = $roletype;
+        $data['term'] = $term;
+        $data['roletype'] = $roletype;
 
         $doSelection = $request->input('doSelection');
 
         if (!empty($doSelection)) {
 
-            $data[ 'doSelection' ] = true;
-            $data[ 'model_id' ] = $request->input('model_id');
-            $data[ 'model_type' ] = $request->input('model_type');
+            $data['doSelection'] = true;
+            $data['model_id'] = $request->input('model_id');
+            $data['model_type'] = $request->input('model_type');
 
-            $data[ 'selected_products' ] = ProductController::getSelectedProducts($data[ 'model_type' ], $data[ 'model_id' ]);
+            $data['selected_products'] = ProductController::getSelectedProducts($data['model_type'], $data['model_id']);
         }
 
-        if ($request->brand[ 0 ] != null) {
+        if ($request->brand[0] != null) {
             $productQuery = (new Product())->newQuery()
                 ->latest()->whereIn('brand', $request->brand);
 
         }
 
-        if ($request->color[ 0 ] != null) {
-            if ($request->brand[ 0 ] != null) {
+        if ($request->color[0] != null) {
+            if ($request->brand[0] != null) {
                 $productQuery = $productQuery->whereIn('color', $request->color);
             } else {
                 $productQuery = (new Product())->newQuery()
@@ -2116,7 +2093,7 @@ class CustomerController extends Controller
             }
         }
 
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+        if ($request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
@@ -2143,7 +2120,7 @@ class CustomerController extends Controller
                 }
             }
 
-            if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null) {
+            if ($request->brand[0] != null || $request->color[0] != null) {
                 $productQuery = $productQuery->whereIn('category', $category_children);
             } else {
                 $productQuery = (new Product())->newQuery()
@@ -2153,11 +2130,11 @@ class CustomerController extends Controller
 
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
-            $min = $exploded[ 0 ];
-            $max = $exploded[ 1 ];
+            $min = $exploded[0];
+            $max = $exploded[1];
 
             if ($min != '0' || $max != '400000') {
-                if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1)) {
+                if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
                     $productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
                 } else {
                     $productQuery = (new Product())->newQuery()
@@ -2166,10 +2143,10 @@ class CustomerController extends Controller
             }
         }
 
-        if ($request->supplier[ 0 ] != null) {
+        if ($request->supplier[0] != null) {
             $suppliers_list = implode(',', $request->supplier);
 
-            if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) || $request->price != "0,400000") {
+            if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000") {
                 $productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
             } else {
                 $productQuery = (new Product())->newQuery()->with('Suppliers')
@@ -2178,7 +2155,7 @@ class CustomerController extends Controller
         }
 
         if (trim($request->size) != '') {
-            if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) || $request->price != "0,400000" || $request->supplier[ 0 ] != null) {
+            if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null) {
                 $productQuery = $productQuery->whereNotNull('size')->where('size', 'LIKE', "%$request->size%");
             } else {
                 $productQuery = (new Product())->newQuery()
@@ -2186,25 +2163,25 @@ class CustomerController extends Controller
             }
         }
 
-        if ($request->location[ 0 ] != null) {
-            if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) || $request->price != "0,400000" || $request->supplier[ 0 ] != null || trim($request->size) != '') {
+        if ($request->location[0] != null) {
+            if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '') {
                 $productQuery = $productQuery->whereIn('location', $request->location);
             } else {
                 $productQuery = (new Product())->newQuery()
                     ->latest()->whereIn('location', $request->location);
             }
 
-            $data[ 'location' ] = $request->location[ 0 ];
+            $data['location'] = $request->location[0];
         }
 
-        if ($request->type[ 0 ] != null) {
-            if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) || $request->price != "0,400000" || $request->supplier[ 0 ] != null || trim($request->size) != '' || $request->location[ 0 ] != null) {
+        if ($request->type[0] != null) {
+            if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null) {
                 if (count($request->type) > 1) {
                     $productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
                 } else {
-                    if ($request->type[ 0 ] == 'scraped') {
+                    if ($request->type[0] == 'scraped') {
                         $productQuery = $productQuery->where('is_scraped', 1);
-                    } elseif ($request->type[ 0 ] == 'imported') {
+                    } elseif ($request->type[0] == 'imported') {
                         $productQuery = $productQuery->where('status', 2);
                     } else {
                         $productQuery = $productQuery->where('isUploaded', 1);
@@ -2215,10 +2192,10 @@ class CustomerController extends Controller
                     $productQuery = (new Product())->newQuery()
                         ->latest()->where('is_scraped', 1)->orWhere('status', 2);
                 } else {
-                    if ($request->type[ 0 ] == 'scraped') {
+                    if ($request->type[0] == 'scraped') {
                         $productQuery = (new Product())->newQuery()
                             ->latest()->where('is_scraped', 1);
-                    } elseif ($request->type[ 0 ] == 'imported') {
+                    } elseif ($request->type[0] == 'imported') {
                         $productQuery = (new Product())->newQuery()
                             ->latest()->where('status', 2);
                     } else {
@@ -2228,12 +2205,12 @@ class CustomerController extends Controller
                 }
             }
 
-            $data[ 'type' ] = $request->type[ 0 ];
+            $data['type'] = $request->type[0];
         }
 
         if ($request->date != '') {
-            if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) || $request->price != "0,400000" || $request->supplier[ 0 ] != null || trim($request->size) != '' || $request->location[ 0 ] != null || $request->type[ 0 ] != null) {
-                if ($request->type[ 0 ] != null && $request->type[ 0 ] == 'uploaded') {
+            if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1) || $request->price != "0,400000" || $request->supplier[0] != null || trim($request->size) != '' || $request->location[0] != null || $request->type[0] != null) {
+                if ($request->type[0] != null && $request->type[0] == 'uploaded') {
                     $productQuery = $productQuery->where('is_uploaded_date', 'LIKE', "%$request->date%");
                 } else {
                     $productQuery = $productQuery->where('created_at', 'LIKE', "%$request->date%");
@@ -2253,7 +2230,7 @@ class CustomerController extends Controller
             $productQuery = (new Product())->newQuery()
                 ->latest()
                 ->orWhere('sku', 'LIKE', "%$term%")
-                ->orWhere('id', 'LIKE', "%$term%")//		                                 ->orWhere( 'category', $term )
+                ->orWhere('id', 'LIKE', "%$term%") //                                         ->orWhere( 'category', $term )
             ;
 
             if ($term == -1) {
@@ -2285,30 +2262,30 @@ class CustomerController extends Controller
                 $productQuery = $productQuery->whereNull('dnf');
             }
         } else {
-            if ($request->brand[ 0 ] == null && $request->color[ 0 ] == null && ($request->category[ 0 ] == null || $request->category[ 0 ] == 1) && $request->price == "0,400000" && $request->supplier[ 0 ] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[ 0 ] == null) {
+            if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->price == "0,400000" && $request->supplier[0] == null && trim($request->size) == '' && $request->date == '' && $request->type == null && $request->location[0] == null) {
                 $productQuery = (new Product())->newQuery()->latest();
             }
         }
 
-        if ($request->ids[ 0 ] != null) {
+        if ($request->ids[0] != null) {
             $productQuery = (new Product())->newQuery()
                 ->latest()->whereIn('id', $request->ids);
         }
 
-        $data[ 'products' ] = $productQuery->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
+        $data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
 
         $params = [
             'user_id' => Auth::id(),
             'number' => null,
             'status' => 1,
-            'customer_id' => $request->customer_id
+            'customer_id' => $request->customer_id,
         ];
 
         $chat_message = ChatMessage::create($params);
 
         $mediaList = [];
 
-        foreach ($data[ 'products' ] as $product) {
+        foreach ($data['products'] as $product) {
             if ($product->hasMedia(config('constants.media_tags'))) {
                 $mediaList[] = $product->getMedia(config('constants.media_tags'));
             }
@@ -2383,8 +2360,8 @@ class CustomerController extends Controller
 
         if (!empty($allRequest)) {
             usort($allRequest, function ($a, $b) {
-                $a = $a[ 'id' ];
-                $b = $b[ 'id' ];
+                $a = $a['id'];
+                $b = $b['id'];
 
                 if ($a == $b) {
                     return 0;
@@ -2424,11 +2401,11 @@ class CustomerController extends Controller
     public function dispatchBroadSendPrice($customer, $product_ids, $dimention = false)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
-            \Log::info("Customer with phone found for customer id : ". $customer->id." and product ids ".json_encode($product_ids));
+            \Log::info("Customer with phone found for customer id : " . $customer->id . " and product ids " . json_encode($product_ids));
             if (!empty(array_filter($product_ids))) {
 
-                foreach($product_ids as $pid) {
-                    $product = \App\Product::where("id",$pid)->first();
+                foreach ($product_ids as $pid) {
+                    $product = \App\Product::where("id", $pid)->first();
 
                     $quick_lead = ErpLeads::create([
                         'customer_id' => $customer->id,
@@ -2441,18 +2418,18 @@ class CustomerController extends Controller
                         'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
                         'color' => $customer->color,
                         'size' => $customer->size,
-                        'created_at' => Carbon::now()
+                        'type' => 'dispatch-send-price',
+                        'created_at' => Carbon::now(),
                     ]);
                 }
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                if($dimention){
+                if ($dimention) {
                     $requestData->request->add(['customer_id' => $customer->id, 'dimension' => true, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
-                }else{
+                } else {
                     $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
                 }
-                
 
                 $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
 
@@ -2494,7 +2471,7 @@ class CustomerController extends Controller
     {
         $customerId = request()->get("customer_id", 0);
         $whatsappNo = request()->get("number", null);
-        $type       = request()->get("type","whatsapp_number");
+        $type = request()->get("type", "whatsapp_number");
 
         if ($customerId > 0) {
             // find the record from customer table
@@ -2503,14 +2480,14 @@ class CustomerController extends Controller
             if ($customer) {
                 // assing nummbers
                 $oldNumber = $customer->whatsapp_number;
-                if($type == "broadcast_number") {
+                if ($type == "broadcast_number") {
                     $customer->broadcast_number = $whatsappNo;
-                }else{
+                } else {
                     $customer->whatsapp_number = $whatsappNo;
                 }
 
                 if ($customer->save()) {
-                    if($type == "whatsapp_number") {
+                    if ($type == "whatsapp_number") {
                         // update into whatsapp history table
                         $wHistory = new \App\HistoryWhatsappNumber;
                         $wHistory->date_time = date("Y-m-d H:i:s");
@@ -2529,14 +2506,14 @@ class CustomerController extends Controller
 
     public function sendContactDetails()
     {
-        $userID = request()->get("user_id",0);
-        $customerID = request()->get("customer_id",0);
+        $userID = request()->get("user_id", 0);
+        $customerID = request()->get("customer_id", 0);
 
         $user = \App\User::where("id", $userID)->first();
         $customer = \App\Customer::where("id", $customerID)->first();
 
         // if found customer and  user
-        if($user && $customer) {
+        if ($user && $customer) {
 
             $data = [
                 "Customer details:",
@@ -2546,24 +2523,23 @@ class CustomerController extends Controller
                 "$customer->address",
                 "$customer->city",
                 "$customer->country",
-                "$customer->pincode"
+                "$customer->pincode",
             ];
 
-            $messageData = implode("\n",$data);
+            $messageData = implode("\n", $data);
 
-            $params[ 'erp_user' ] = $user->id;
-            $params[ 'approved' ] = 1;
-            $params[ 'message' ]  = $messageData;
-            $params[ 'status' ]   = 2;
+            $params['erp_user'] = $user->id;
+            $params['approved'] = 1;
+            $params['message'] = $messageData;
+            $params['status'] = 2;
 
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
 
             $chat_message = \App\ChatMessage::create($params);
 
         }
 
-        return response()->json(["code" => 1 , "message" => "done"]);
-
+        return response()->json(["code" => 1, "message" => "done"]);
 
     }
 
@@ -2571,14 +2547,14 @@ class CustomerController extends Controller
     {
 
         $this->validate($request, [
-            'name'  => 'required|string'
+            'name' => 'required|string',
         ]);
 
         $category = new ReplyCategory;
         $category->name = $request->name;
         $category->save();
 
-        return response()->json(["code" => 1 , "data" => $category]);
+        return response()->json(["code" => 1, "data" => $category]);
 
     }
 
@@ -2586,28 +2562,28 @@ class CustomerController extends Controller
     {
 
         $this->validate($request, [
-            'id'  => 'required'
+            'id' => 'required',
         ]);
 
         Reply::where('category_id', $request->get('id'))->delete();
         ReplyCategory::where('id', $request->get('id'))->delete();
 
-        return response()->json(["code" => 1 , "message" => "Deleted successfully"]);
+        return response()->json(["code" => 1, "message" => "Deleted successfully"]);
 
     }
 
     public function downloadContactDetails()
     {
-        $userID = request()->get("user_id",0);
-        $customerID = request()->get("customer_id",0);
+        $userID = request()->get("user_id", 0);
+        $customerID = request()->get("customer_id", 0);
 
         $user = \App\User::where("id", $userID)->first();
         $customer = \App\Customer::where("id", $customerID)->first();
 
         // if found customer and  user
-        if($user && $customer) {
+        if ($user && $customer) {
             // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
-            $html = view( 'customers.customer_pdf', compact('customer') );
+            $html = view('customers.customer_pdf', compact('customer'));
 
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
@@ -2619,29 +2595,30 @@ class CustomerController extends Controller
     public function downloadContactDetailsPdf($id)
     {
         //$userID = request()->get("user_id",0);
-        $customerID = request()->get("id",0);
+        $customerID = request()->get("id", 0);
 
         //$user = \App\User::where("id", $userID)->first();
         $customer = \App\Customer::where("id", $id)->first();
 
         // if found customer and  user
-        if($customer) {
+        if ($customer) {
             // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
-            $html = view( 'customers.customer_pdf', compact('customer') );
+            $html = view('customers.customer_pdf', compact('customer'));
 
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();
-            $pdf->stream($id.'-label.pdf');
+            $pdf->stream($id . '-label.pdf');
         }
     }
 
-    public function languageTranslate(Request $request) 
+    public function languageTranslate(Request $request)
     {
-        if($request->language == '')
+        if ($request->language == '') {
             $language = 'en';
-        else
+        } else {
             $language = $request->language;
+        }
 
         $customer = Customer::find($request->id);
         // $customer->language = $request->language;
@@ -2653,7 +2630,7 @@ class CustomerController extends Controller
     public function getLanguage(Request $request)
     {
         $customerDetails = Customer::find($request->id);
-        return  response()->json(["data" => $customerDetails]);
+        return response()->json(["data" => $customerDetails]);
     }
 
     public function updateField(Request $request)
@@ -2663,34 +2640,34 @@ class CustomerController extends Controller
 
         $customerId = $request->get("customer_id");
 
-        if(!empty($customerId)) {
+        if (!empty($customerId)) {
             $customer = \App\Customer::find($customerId);
-            if(!empty($customer)) {
+            if (!empty($customer)) {
                 $customer->{$field} = $value;
                 $customer->save();
             }
 
-            return response()->json(["code" => 200 , "data" => [], "message" => $field . " updated successfully"]);
+            return response()->json(["code" => 200, "data" => [], "message" => $field . " updated successfully"]);
         }
-        
-        return response()->json(["code" => 200 , "data" => [] , "message" => "Sorry , no customer found"]);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Sorry , no customer found"]);
     }
 
-    public function  createKyc(Request $request )
+    public function createKyc(Request $request)
     {
         $customer_id = $request->get("customer_id");
-        $media_id    = $request->get("media_id");
+        $media_id = $request->get("media_id");
 
-        if(empty($customer_id)) {
-            return response()->json(["code" => 500 ,"message" => "Customer id is required"]);
+        if (empty($customer_id)) {
+            return response()->json(["code" => 500, "message" => "Customer id is required"]);
         }
 
-        if(empty($media_id)) {
-            return response()->json(["code" => 500 ,"message" => "Media id is required"]);
+        if (empty($media_id)) {
+            return response()->json(["code" => 500, "message" => "Media id is required"]);
         }
 
         $media = PlunkMediable::find($media_id);
-        if(!empty($media)) {
+        if (!empty($media)) {
 
             $kycDoc = new \App\CustomerKycDocument;
             $kycDoc->customer_id = $customer_id;
@@ -2699,78 +2676,72 @@ class CustomerController extends Controller
             $kycDoc->type = 1;
             $kycDoc->save();
 
-            return response()->json(["code" => 200 , "data" => [], "message" => "Kyc document added successfully"]);
+            return response()->json(["code" => 200, "data" => [], "message" => "Kyc document added successfully"]);
         }
 
-        return response()->json(["code" => 500 ,"message" => "Ooops, something went wrong"]);
+        return response()->json(["code" => 500, "message" => "Ooops, something went wrong"]);
     }
     public function quickcustomer(Request $request)
     {
         $results = $this->getCustomersIndex($request);
         $nextActionArr = DB::table('customer_next_actions')->get();
         $type = @$request->type;
-        return view('customers.quickcustomer', ['customers'=>$results[0],'nextActionArr'=>$nextActionArr,'type'=>$type]);
+        return view('customers.quickcustomer', ['customers' => $results[0], 'nextActionArr' => $nextActionArr, 'type' => $type]);
     }
-
 
     //START - Purpose : Add Customer Data - DEVTASK-19932
     public function add_customer_data(Request $request)
     {
-        if($request->email)
-        {
+        if ($request->email) {
             $email = $request->email;
             $website = $request->website;
 
-            $website_data = StoreWebsite::where('website',$website)->first();
+            $website_data = StoreWebsite::where('website', $website)->first();
 
-            if($website_data)
+            if ($website_data) {
                 $website_id = $website_data->id;
-            else
+            } else {
                 $website_id = '';
+            }
 
-            if($email != '' && $website_id != ''){
-                $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
+            if ($email != '' && $website_id != '') {
+                $find_customer = Customer::where('email', $email)->where('store_website_id', $website_id)->first();
 
-                if($find_customer)
-                {
-                    foreach($request->post() as $key => $value)
-                    {
+                if ($find_customer) {
+                    foreach ($request->post() as $key => $value) {
 
-                        if($value['entity_id'] != "")
-                            $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
+                        if ($value['entity_id'] != "") {
+                            $check_record = CustomerAddressData::where('customer_id', $find_customer->id)->where('entity_id', $value['entity_id'])->first();
+                        }
 
+                        if ($check_record) {
 
-                        if($check_record)
-
-                        {
-
-                            if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
-                            {
-                                CustomerAddressData::where('customer_id',$find_customer->id)
-                                ->where('entity_id',$value['entity_id'])
-                                ->delete();
-                            }else{
-                                CustomerAddressData::where('customer_id',$find_customer->id)
-                                ->where('entity_id',$value['entity_id'])
-                                ->update(
-                                    [
-                                        'parent_id' => ($value['parent_id'] ?? ''),
-                                        'address_type' => ($value['address_type'] ?? ''),
-                                        'region' => ($value['region'] ?? ''),
-                                        'region_id' => ($value['region_id'] ?? ''),
-                                        'postcode' => ($value['postcode'] ?? ''),
-                                        'firstname' => ($value['firstname'] ?? ''),
-                                        'middlename' => ($value['middlename'] ?? ''),
-                                        'company' => ($value['company'] ?? ''),
-                                        'country_id' => ($value['country_id'] ?? ''),
-                                        'telephone' => ($value['telephone'] ?? ''),
-                                        'prefix' => ($value['prefix'] ?? ''),
-                                        'street' => ($value['street'] ?? ''),
-                                        'updated_at' => \Carbon\Carbon::now(),
-                                    ]
-                                );
+                            if (isset($value['is_deleted']) && $value['is_deleted'] == 1) {
+                                CustomerAddressData::where('customer_id', $find_customer->id)
+                                    ->where('entity_id', $value['entity_id'])
+                                    ->delete();
+                            } else {
+                                CustomerAddressData::where('customer_id', $find_customer->id)
+                                    ->where('entity_id', $value['entity_id'])
+                                    ->update(
+                                        [
+                                            'parent_id' => ($value['parent_id'] ?? ''),
+                                            'address_type' => ($value['address_type'] ?? ''),
+                                            'region' => ($value['region'] ?? ''),
+                                            'region_id' => ($value['region_id'] ?? ''),
+                                            'postcode' => ($value['postcode'] ?? ''),
+                                            'firstname' => ($value['firstname'] ?? ''),
+                                            'middlename' => ($value['middlename'] ?? ''),
+                                            'company' => ($value['company'] ?? ''),
+                                            'country_id' => ($value['country_id'] ?? ''),
+                                            'telephone' => ($value['telephone'] ?? ''),
+                                            'prefix' => ($value['prefix'] ?? ''),
+                                            'street' => ($value['street'] ?? ''),
+                                            'updated_at' => \Carbon\Carbon::now(),
+                                        ]
+                                    );
                             }
-                        }else{
+                        } else {
 
                             $params[] = [
                                 'customer_id' => $find_customer->id,
@@ -2795,22 +2766,23 @@ class CustomerController extends Controller
                         }
                     }
 
-                    if(!empty($params))
-                         CustomerAddressData::insert($params);
+                    if (!empty($params)) {
+                        CustomerAddressData::insert($params);
+                    }
 
                     return response()->json(["code" => 200]);
-                }else{
-                    return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
+                } else {
+                    return response()->json(["code" => 404, "message" => "Not Exist!"]);
                 }
-            }else{
-                return response()->json(["code" => 404 ,"message" => "Website Not Found!"]);
+            } else {
+                return response()->json(["code" => 404, "message" => "Website Not Found!"]);
             }
         }
         // if(!empty($request->customer_data))
         // {
         //     $email = $request->customer_data['email'];
         //     $website_id =  $request->customer_data['website_id'];
-            
+
         //     if($email != '')
         //     {
 
@@ -2822,7 +2794,7 @@ class CustomerController extends Controller
         //             {
         //                 if($value['entity_id'] != '')
         //                     $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
-                        
+
         //                 if($check_record)
         //                 {
         //                     if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
@@ -2846,7 +2818,7 @@ class CustomerController extends Controller
         //                             ]
         //                         );
         //                     }
-        //                 }else{    
+        //                 }else{
         //                     $params[] = [
         //                         'customer_id' => $find_customer->id,
         //                         'entity_id' => $value['entity_id'],
@@ -2867,7 +2839,7 @@ class CustomerController extends Controller
         //             if(!empty($params))
         //                 CustomerAddressData::insert($params);
 
-        //             return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]); 
+        //             return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]);
 
         //         }else{
         //             return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
@@ -2879,191 +2851,201 @@ class CustomerController extends Controller
 
     public function customerinfo(Request $request)
     {
-        $customer = Customer::leftjoin('store_websites as sw','sw.id','customers.store_website_id')->where('customers.id',$request->customer_id)->select('customers.*','sw.website')->first();
-        return response()->json(["status" => 200 ,"data" => $customer]);
+        $customer = Customer::leftjoin('store_websites as sw', 'sw.id', 'customers.store_website_id')->where('customers.id', $request->customer_id)->select('customers.*', 'sw.website')->first();
+        return response()->json(["status" => 200, "data" => $customer]);
     }
-	
-	public function fetchCreditBalance (Request $request) {
-		$platform_id  = $request->platform_id;
+
+    public function fetchCreditBalance(Request $request)
+    {
+        $platform_id = $request->platform_id;
         $website = $request->website;
-		$store_website = StoreWebsite::where('website',"like", $website)->first();       
-		if($store_website) {
-            $store_website_id = $store_website->id; 
-			$customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();			
-			if($customer) {
-				$message = $this->generate_erp_response("credit_fetch.success",$store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
-                return response()->json(['message' => $message, 'code' => 200,'status'=>'success', 'data'=>['credit_balance'=>$customer->credit, 'currency'=>$customer->currency]]);
-			} else{
-				$message = $this->generate_erp_response("credit_fetch.customer.failed",$store_website_id, $default = 'Customer not found', request('lang_code'));
-                return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
-			} 
+        $store_website = StoreWebsite::where('website', "like", $website)->first();
+        if ($store_website) {
+            $store_website_id = $store_website->id;
+            $customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();
+            if ($customer) {
+                $message = $this->generate_erp_response("credit_fetch.success", $store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 200, 'status' => 'success', 'data' => ['credit_balance' => $customer->credit, 'currency' => $customer->currency]]);
+            } else {
+                $message = $this->generate_erp_response("credit_fetch.customer.failed", $store_website_id, $default = 'Customer not found', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 500, 'status' => 'failed']);
+            }
         } else {
-			$message = $this->generate_erp_response("credit_fetch.website.failed",$store_website_id, $default = 'Website not found', request('lang_code'));
-            return response()->json(['message' => $message, 'code' => 500,'status'=>'failed']);
-		}
-	}
-	
-	public function deductCredit (Request $request) {
-		$platform_id  = $request->platform_id;
+            $message = $this->generate_erp_response("credit_fetch.website.failed", $store_website_id, $default = 'Website not found', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failed']);
+        }
+    }
+
+    public function deductCredit(Request $request)
+    {
+        $platform_id = $request->platform_id;
         $website = $request->website;
         $balance = $request->amount;
 
-        $store_website = StoreWebsite::where('website',"like", $website)->first();       
-		if($store_website) {
-             $store_website_id = $store_website->id;
+        $store_website = StoreWebsite::where('website', "like", $website)->first();
+        if ($store_website) {
+            $store_website_id = $store_website->id;
         } else {
-			$message = $this->generate_erp_response("credit_deduct.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            $message = $this->generate_erp_response("credit_deduct.website.failed", $store_website_id, $default = 'Website Not found', request('lang_code'));
             return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
-		} 
-		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
-        if($customer) {
-			$customer_id = $customer->id;
-			$totalCredit = $customer->credit; 
-			if($customer->credit >  $balance) {
-			   $calc_credit=$customer->credit-$balance;
-			   $customer->credit=$calc_credit;
-			   	   
-			   \App\CreditHistory::create(
-					array(
-						'customer_id'=>$customer_id,
-						'model_id'=>$customer_id,
-						'model_type'=>Customer::class,
-						'used_credit'=>(float)$totalCredit - $calc_credit,
-						'used_in'=>'MANUAL',
-						'type'=>'MINUS'
-					)
-				);
-				$customer->save();
-				$message = $this->generate_erp_response("credit_deduct.success",$store_website_id, $default = 'Credit deducted successfully', request('lang_code'));
-				return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
-			} else {
-				$toAdd = $balance - $customer->credit;
-				$message = $this->generate_erp_response("credit_deduct.insufficient_balance",$store_website_id, $default = 'You do not have sufficient credits, Please add '.$toAdd.' to proceed.', request('lang_code'));
-				return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
-			}
+        }
+        $customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if ($customer) {
+            $customer_id = $customer->id;
+            $totalCredit = $customer->credit;
+            if ($customer->credit > $balance) {
+                $calc_credit = $customer->credit - $balance;
+                $customer->credit = $calc_credit;
+
+                \App\CreditHistory::create(
+                    array(
+                        'customer_id' => $customer_id,
+                        'model_id' => $customer_id,
+                        'model_type' => Customer::class,
+                        'used_credit' => (float) $totalCredit - $calc_credit,
+                        'used_in' => 'MANUAL',
+                        'type' => 'MINUS',
+                    )
+                );
+                $customer->save();
+                $message = $this->generate_erp_response("credit_deduct.success", $store_website_id, $default = 'Credit deducted successfully', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+            } else {
+                $toAdd = $balance - $customer->credit;
+                $message = $this->generate_erp_response("credit_deduct.insufficient_balance", $store_website_id, $default = 'You do not have sufficient credits, Please add ' . $toAdd . ' to proceed.', request('lang_code'));
+                return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+            }
         } else {
-			$message = $this->generate_erp_response("credit_deduct.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
-			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
-		}	
-		
-	}
+            $message = $this->generate_erp_response("credit_deduct.customer.failed", $store_website_id, $default = 'Customer not found.', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+        }
 
-    public function storeCredit (Request $request) {
+    }
 
-        $customers_all = Customer::leftjoin('store_websites','customers.store_website_id','store_websites.id')
-		->leftjoin('credit_history','customers.id','credit_history.customer_id');
-		$customers_all->select("customers.*","store_websites.title", \DB::raw("( select created_at from credit_history where credit_history.customer_id = customers.id ORDER BY id DESC LIMIT 0,1) as date"));
-        $customers_all->latest('date')->groupBy('customers.id')->orderBy("date","desc");
-		
-   
-        if ($request->name !='')
-             $customers_all->where('name',$request->name);
-             if ($request->email !='')
-             $customers_all->where('email',$request->email);
-             if ($request->phone !='')
-             $customers_all->where('phone',$request->phone);
-             if ($request->store_website !='')
-             $customers_all->where('store_website_id',$request->store_website);
+    public function storeCredit(Request $request)
+    {
 
-        $customers_all=$customers_all->paginate(Setting::get('pagination'));
-        $store_website = StoreWebsite::all();
-        
-        if ($request->ajax())
-       {
-        return view('livechat.store_credit_ajax', [
-            'customers_all' => $customers_all,
-            'store_website'=>$store_website
-           
-        ]);
-       }
-       else
-       {
-        return view('livechat.store_credit', [
-            'customers_all' => $customers_all,
-            'store_website'=>$store_website
-           
-        ]);
-       }
-   }
-      
-  
-    public function accounts (Request $request) {
-        $customers_all = Customer::where('store_website_id','>',0);
-        $customers_all->select('customers.*','store_websites.title');
-        $customers_all->join('store_websites','store_websites.id','customers.store_website_id');
+        $customers_all = Customer::leftjoin('store_websites', 'customers.store_website_id', 'store_websites.id')
+            ->leftjoin('credit_history', 'customers.id', 'credit_history.customer_id');
+        $customers_all->select("customers.*", "store_websites.title", \DB::raw("( select created_at from credit_history where credit_history.customer_id = customers.id ORDER BY id DESC LIMIT 0,1) as date"));
+        $customers_all->latest('date')->groupBy('customers.id')->orderBy("date", "desc");
 
-        if ($request->name !='')
-              $customers_all->where('name',$request->name);
-              if ($request->email !='')
-              $customers_all->where('email',$request->email);
-              if ($request->phone !='')
-              $customers_all->where('phone',$request->phone); 
-              if ($request->store_website !='')
-              $customers_all->where('store_website_id',$request->store_website);
-              
-              $customers_all->orderBy('created_at','desc');      
-        $total=$customers_all->count();
+        if ($request->name != '') {
+            $customers_all->where('name', $request->name);
+        }
+
+        if ($request->email != '') {
+            $customers_all->where('email', $request->email);
+        }
+
+        if ($request->phone != '') {
+            $customers_all->where('phone', $request->phone);
+        }
+
+        if ($request->store_website != '') {
+            $customers_all->where('store_website_id', $request->store_website);
+        }
+
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
-        
-        if ($request->ajax()) 
-        {
+
+        if ($request->ajax()) {
+            return view('livechat.store_credit_ajax', [
+                'customers_all' => $customers_all,
+                'store_website' => $store_website,
+
+            ]);
+        } else {
+            return view('livechat.store_credit', [
+                'customers_all' => $customers_all,
+                'store_website' => $store_website,
+
+            ]);
+        }
+    }
+
+    public function accounts(Request $request)
+    {
+        $customers_all = Customer::where('store_website_id', '>', 0);
+        $customers_all->select('customers.*', 'store_websites.title');
+        $customers_all->join('store_websites', 'store_websites.id', 'customers.store_website_id');
+
+        if ($request->name != '') {
+            $customers_all->where('name', $request->name);
+        }
+
+        if ($request->email != '') {
+            $customers_all->where('email', $request->email);
+        }
+
+        if ($request->phone != '') {
+            $customers_all->where('phone', $request->phone);
+        }
+
+        if ($request->store_website != '') {
+            $customers_all->where('store_website_id', $request->store_website);
+        }
+
+        $customers_all->orderBy('created_at', 'desc');
+        $total = $customers_all->count();
+        $customers_all = $customers_all->paginate(Setting::get('pagination'));
+        $store_website = StoreWebsite::all();
+
+        if ($request->ajax()) {
             return view('customers.account_ajax', [
                 'customers_all' => $customers_all,
 
-                
             ]);
-        }
-        else
-        {
+        } else {
             return view('customers.account', [
                 'customers_all' => $customers_all,
-                'total'=>$total,
-                'store_website'=>$store_website,
-                
+                'total' => $total,
+                'store_website' => $store_website,
+
             ]);
         }
 
     }
-	
-	public function addCredit (Request $request) {
-		$platform_id  = $request->platform_id;
+
+    public function addCredit(Request $request)
+    {
+        $platform_id = $request->platform_id;
         $website = $request->website;
         $credit = $request->amount;
-        $store_website = StoreWebsite::where('website',"like", $website)->first();       
-		if($store_website) {
-             $store_website_id = $store_website->id;
+        $store_website = StoreWebsite::where('website', "like", $website)->first();
+        if ($store_website) {
+            $store_website_id = $store_website->id;
         } else {
-			$message = $this->generate_erp_response("credit_add.website.failed",$store_website_id, $default = 'Website Not found', request('lang_code'));
+            $message = $this->generate_erp_response("credit_add.website.failed", $store_website_id, $default = 'Website Not found', request('lang_code'));
             return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
-		} 
-		$customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
-        if($customer) {
-			$customer_id = $customer->id;
-			$totalCredit = $customer->credit; 
-			if($credit >  0) {
-			   $calc_credit=$customer->credit+$credit;
-			   $customer->credit=$calc_credit;
-			   	   
-			   \App\CreditHistory::create(
-					array(
-						'customer_id'=>$customer_id,
-						'model_id'=>$customer_id,
-						'model_type'=>Customer::class,
-						'used_credit'=>(float)$credit,
-						'used_in'=>'MANUAL',
-						'type'=>'PLUS'
-					)
-				);
-				$customer->save();
-			} 
-			$message = $this->generate_erp_response("credit_add.success",$store_website_id, $default = 'Credit added successfully', request('lang_code'));
-        	return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
-		} else {
-			$message = $this->generate_erp_response("credit_add.customer.failed",$store_website_id, $default = 'Customer not found.', request('lang_code'));
-			return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
-		}	
-		
-	}
-	
+        }
+        $customer = Customer::where('store_website_id', $store_website->id)->where('platform_id', $platform_id)->first();
+        if ($customer) {
+            $customer_id = $customer->id;
+            $totalCredit = $customer->credit;
+            if ($credit > 0) {
+                $calc_credit = $customer->credit + $credit;
+                $customer->credit = $calc_credit;
+
+                \App\CreditHistory::create(
+                    array(
+                        'customer_id' => $customer_id,
+                        'model_id' => $customer_id,
+                        'model_type' => Customer::class,
+                        'used_credit' => (float) $credit,
+                        'used_in' => 'MANUAL',
+                        'type' => 'PLUS',
+                    )
+                );
+                $customer->save();
+            }
+            $message = $this->generate_erp_response("credit_add.success", $store_website_id, $default = 'Credit added successfully', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
+        } else {
+            $message = $this->generate_erp_response("credit_add.customer.failed", $store_website_id, $default = 'Customer not found.', request('lang_code'));
+            return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
+        }
+
+    }
+
 }

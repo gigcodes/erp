@@ -12,7 +12,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class PushToMagento implements ShouldQueue
 {
@@ -32,7 +31,7 @@ class PushToMagento implements ShouldQueue
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
-        $this->log      = $log;
+        $this->log = $log;
     }
 
     /**
@@ -49,36 +48,37 @@ class PushToMagento implements ShouldQueue
         // Load product and website
         $product = $this->_product;
         $website = $this->_website;
-        $charity=0;
-	    $p                     = \App\CustomerCharity::where('product_id', $product->id)->first();
-        if ($p)
-          $charity=1;
-        try {
-			
-		    //$jobId = app(JobRepository::class)->id;
-            
+        $charity = 0;
+        $p = \App\CustomerCharity::where('product_id', $product->id)->first();
+        if ($p) {
+            $charity = 1;
+        }
 
-            if ($this->log) { 
-                $this->log->sync_status    = "started_push";
-                $this->log->message        = "Product has been started to push";
-                $this->log->queue_id       = $this->job->getJobId();
+        try {
+
+            //$jobId = app(JobRepository::class)->id;
+
+            if ($this->log) {
+                $this->log->sync_status = "started_push";
+                $this->log->message = "Product has been started to push";
+                $this->log->queue_id = $this->job->getJobId();
                 $this->log->job_start_time = $date_time;
                 $this->log->save();
             }
 
-            if (!$website->website_source || $website->website_source == '') { 
+            if (!$website->website_source || $website->website_source == '') {
                 ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null, null, $this->log->id);
-                $this->log->message      = "Website source not found";
-                $this->log->sync_status  = "error";
+                $this->log->message = "Website source not found";
+                $this->log->sync_status = "error";
                 $this->log->job_end_time = date("Y-m-d H:i:s");
                 $this->log->save();
                 return false;
             }
 
-            if ($website->disable_push == 1) { 
+            if ($website->disable_push == 1) {
                 ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null, null, $this->log->id);
-                $this->log->message      = "Website is disable for push product";
-                $this->log->sync_status  = "error";
+                $this->log->message = "Website is disable for push product";
+                $this->log->sync_status = "error";
                 $this->log->job_end_time = date("Y-m-d H:i:s");
                 $this->log->save();
                 return false;
@@ -86,12 +86,12 @@ class PushToMagento implements ShouldQueue
 
             // started to check the validation for the category size is available or not and if not then throw the error
             $categorym = $product->categories;
-            if ($categorym && !$product->isCharity()) { 
+            if ($categorym && !$product->isCharity()) {
                 $categoryparent = $categorym->parent;
                 if ($categoryparent && $categoryparent->size_chart_needed == 1 && empty($categoryparent->getSizeChart($website->id))) {
                     ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
-                    $this->log->message      = "Size chart is needed for push product";
-                    $this->log->sync_status  = "size_chart_needed";
+                    $this->log->message = "Size chart is needed for push product";
+                    $this->log->sync_status = "size_chart_needed";
                     $this->log->job_end_time = date("Y-m-d H:i:s");
                     $this->log->save();
                     return false;
@@ -99,8 +99,8 @@ class PushToMagento implements ShouldQueue
 
                 if ($categorym && $categorym->size_chart_needed == 1 && empty($categorym->getSizeChart($website->id))) {
                     ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
-                    $this->log->message      = "Size chart is needed for push product";
-                    $this->log->sync_status  = "size_chart_needed";
+                    $this->log->message = "Size chart is needed for push product";
+                    $this->log->sync_status = "size_chart_needed";
                     $this->log->job_end_time = date("Y-m-d H:i:s");
                     $this->log->save();
                     return false;
@@ -109,16 +109,16 @@ class PushToMagento implements ShouldQueue
 
             // check the product has images or not and then if no image for push then assign error it
             $images = $product->getImages("gallery_" . $website->cropper_color);
-          
-            if (empty($images) && $charity==0) {   
+
+            if (empty($images) && $charity == 0) {
                 ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'error', $website->id, null, null, $this->log->id);
-                $this->log->message      = "Image(s) is needed for push product";
-                $this->log->sync_status  = "image_not_found";
+                $this->log->message = "Image(s) is needed for push product";
+                $this->log->sync_status = "image_not_found";
                 $this->log->job_end_time = date("Y-m-d H:i:s");
                 $this->log->save();
                 return false;
             }
-            
+
             $magentoService = new MagentoService($product, $website, $this->log);
             $magentoService->pushProduct();
 
@@ -130,9 +130,9 @@ class PushToMagento implements ShouldQueue
         } catch (\Exception $e) {
             if ($this->log) {
                 ProductPushErrorLog::log('', $product->id, $e->getMessage(), 'error', $website->id, null, null, $this->log->id);
-                $this->log->message      = $e->getMessage();
-                $this->log->sync_status  = "error";
-                $this->log->queue_id     = $this->job->getJobId();
+                $this->log->message = $e->getMessage();
+                $this->log->sync_status = "error";
+                $this->log->queue_id = $this->job->getJobId();
                 $this->log->job_end_time = date("Y-m-d H:i:s");
                 $this->log->save();
             } else {
