@@ -63,13 +63,13 @@
                                             <th></th>
                                         @endforelse
                                     </tr>
-                                    @forelse ($item->sizeBrand->unique() as $brandkey => $branditem)
+                                    @forelse ($item->size_charts as $key => $size)
                                         <tr>
-                                            <th>{{ $branditem->name }}</th>
+                                            <th>{{ ($size['brands']['name'])?$size['brands']['name']:'No Brand' }}</th>
                                             @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
                                                 <td>
                                                 @forelse ($sizeChart as $chartitem)
-                                                    @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
+                                                    @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $size['brand_id'])
                                                         @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
                                                             <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
                                                                 <span class="td-mini-container">
