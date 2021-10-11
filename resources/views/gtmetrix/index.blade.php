@@ -43,6 +43,17 @@
                 <div class="form-group ml-3 cls_filter_inputbox">
                     <input type="text" name="loc" class="form-control" value="{{request()->get('loc')}}" placeholder="Location">
                 </div> --}}
+ 
+
+                <div class="form-group ml-3 cls_filter_inputbox">
+                    <select name="sortby" class="form-control">
+                        <option disabled="true" selected="true" >Select Sorting</option>
+                        <option {{ (request('sortby') == 'desc') ? 'selected' : ''  }} value="desc">DESC</option>
+                        <option {{ (request('sortby') == 'asc') ? 'selected' : ''  }} value="asc">ASC</option>
+                    </select>
+                </div>
+
+
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
             </form> 
         </div>
@@ -210,6 +221,15 @@
                                     <button class="btn run-test btn-xs text-dark" title="Run Test" data-id="{{ $key->id }}">
                                         <i class="fa fa-play" aria-hidden="true"></i>
                                     </button>
+
+                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$key->id}}" title="task status" data-active="{{$key->flag}}">
+                                    @if($key->flag == 1 || $key->flag == '')
+                                      <img src="/images/flagged-green.png"  style="cursor: pointer; width: 0px;">
+                                    @else
+                                      <img src="/images/flagged.png"  style="cursor: pointer; width: 0px;">
+                                    @endif
+                                    </a>
+
                                     @if ($key->status == "completed")
                                         <button class="btn show-pagespeed btn-xs text-dark" title="Show Pagespeed Stats" data-url="{{ route('gtmetrix.getPYstats',['type'=>'pagespeed','id'=>$key->test_id])}}" data-type="pagespeed">
                                             <i class="fa fa-tachometer" aria-hidden="true"></i>
@@ -529,6 +549,33 @@ $(document).on('click', '.expand-row-msg', function () {
                 });
             }            
         });
+
+
+      $(document).on("click",".active-task",function(e) {
+        let flag = $(this).attr('data-active');
+        let id = $(this).attr('data-id');
+        $.ajax({
+            type: "POST",
+            url: "{{route('gtmetrix.toggle.flag')}}", 
+            data: {
+                flag: flag,id: id, _token: "{{ csrf_token() }}", 
+            }, 
+            
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 1000);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });  
 
        
 
