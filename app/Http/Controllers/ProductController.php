@@ -2727,6 +2727,7 @@ class ProductController extends Controller
                             $erp_lead->product_id = $id;
                             $erp_lead->category_id = $pr->category;
                             $erp_lead->brand_id = $pr->brand;
+                            $erp_lead->type = 'attach-images-for-product';
                             $erp_lead->min_price = !empty($request->price_min) ? $request->price_min : 0;
                             $erp_lead->max_price = !empty($request->price_max) ? $request->price_max : 0;
                             $erp_lead->save();
@@ -3921,91 +3922,6 @@ class ProductController extends Controller
 
         return redirect('/erp-leads');
 
-    }
-
-    public function createGroupSelectedCustomer(Request $request)
-    {
-
-        $params = request()->all();
-        $params["user_id"] = \Auth::id();
-
-        $token = request("customer_token", "");
-
-        if (!empty($token)) {
-            $customerIds = json_decode(session($token));
-            if (empty($customerIds)) {
-                $customerIds = [];
-            }
-        }
-        // if customer is not available then choose what it is before
-        if (empty($customerIds)) {
-            $customerIds = $request->get('customers_id', '');
-            $customerIds = explode(',', $customerIds);
-        }
-
-        $params["customer_ids"] = $customerIds;
-
-        $data = \App\MessagingGroup::create([
-            'name' => $request->name,
-            'store_website_id' => $request->store_website_id,
-            'service_id' => $request->service_id,
-        ]);
-
-        $customers = \App\Customer::whereIn('id', $params["customer_ids"])->update(['store_website_id' => $params['store_website_id']]);
-
-        if ($customers) {
-            return response()->json(['msg' => 'success']);
-        } else {
-            return response()->json(['msg' => 'error']);
-        }
-
-        if ($request->get('return_url')) {
-            return redirect("/" . $request->get('return_url'));
-        }
-
-        return redirect('/erp-leads');
-
-    }
-
-    public function sendMessageSelectedCustomer(Request $request)
-    {
-        $params = request()->all();
-        $params["user_id"] = \Auth::id();
-        //$params["is_queue"] = 1;
-        $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
-
-        $token = request("customer_token", "");
-
-        if (!empty($token)) {
-            $customerIds = json_decode(session($token));
-            if (empty($customerIds)) {
-                $customerIds = [];
-            }
-        }
-        // if customer is not available then choose what it is before
-        if (empty($customerIds)) {
-            $customerIds = $request->get('customers_id', '');
-            $customerIds = explode(',', $customerIds);
-        }
-
-        $params["customer_ids"] = $customerIds;
-
-        $groupId = \DB::table('chat_messages')->max('group_id');
-        $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
-        $params["is_queue"] = request("is_queue", 0);
-
-        \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
-
-        if ($request->ajax()) {
-            return response()->json(['msg' => 'success']);
-        }
-
-        if ($request->get('return_url')) {
-            return redirect("/" . $request->get('return_url'));
-        }
-
-        return redirect('/erp-leads');
-
         /*$token = request("customer_token","");
 
     if(!empty($token)) {
@@ -4080,6 +3996,50 @@ class ProductController extends Controller
     }
 
     \Log::info(print_r(\DB::getQueryLog(),true));*/
+
+    }
+
+    public function createGroupSelectedCustomer(Request $request)
+    {
+
+        $params = request()->all();
+        $params["user_id"] = \Auth::id();
+
+        $token = request("customer_token", "");
+
+        if (!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if (empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if (empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+
+        $params["customer_ids"] = $customerIds;
+
+        $data = \App\MessagingGroup::create([
+            'name' => $request->name,
+            'store_website_id' => $request->store_website_id,
+            'service_id' => $request->service_id,
+        ]);
+
+        $customers = \App\Customer::whereIn('id', $params["customer_ids"])->update(['store_website_id' => $params['store_website_id']]);
+
+        if ($customers) {
+            return response()->json(['msg' => 'success']);
+        } else {
+            return response()->json(['msg' => 'error']);
+        }
+
+        if ($request->get('return_url')) {
+            return redirect("/" . $request->get('return_url'));
+        }
+
+        return redirect('/erp-leads');
 
     }
 

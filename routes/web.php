@@ -364,7 +364,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/updatePrice', 'ProductController@updatePrice');
     Route::get('products/{id}/quickDownload', 'ProductController@quickDownload')->name('products.quick.download');
     Route::post('products/{id}/quickUpload', 'ProductController@quickUpload')->name('products.quick.upload');
-    Route::get('products/{id}/listMagento', 'ProductController@listMagento');
+    Route::any('products/{id}/listMagento', 'ProductController@listMagento');
     Route::post('products/multilistMagento', 'ProductController@multilistMagento');
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
@@ -498,6 +498,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/create/size/chart', 'BrandSizeChartController@createSizeChart')->name('brand/create/size/chart');
     Route::post('brand/store/size/chart', 'BrandSizeChartController@storeSizeChart')->name('brand/store/size/chart');
 
+    
     Route::post('brand/store-category-segment-discount', 'BrandController@storeCategorySegmentDiscount')->name('brand.store_category_segment_discount');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
@@ -2338,6 +2339,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('servers/statistics','ScrapController@getServerStatistics')->name('scrap.servers.statistics');
 
     Route::get('logdata/view_scrappers_data','ScrapStatisticsController@view_scrappers_data')->name('scrap.logdata.view_scrappers_data');//Purpose : Add Route - DEVTASK-20102
+    Route::post('assign/scrapper','ScrapStatisticsController@assignScrapperIssue')->name('scrap.assign');//Purpose : Add Route - DEVTASK-20102
  
 });
 

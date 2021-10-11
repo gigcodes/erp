@@ -34,7 +34,7 @@
         <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
             <div class="pull-left">
                 <div class="form-inline">
-                    <form method="get" class="chatbot">
+                    <form method="get" class="chatbot mr-3">
                         <div class="row">
 
 
@@ -92,10 +92,7 @@
                         </div>
                     </form>
 
-                </div>
-            </div>
-            <div class="pull-right">
-                <div class="form-inline">
+                
                     <form method="post">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:250px;"]); ?>

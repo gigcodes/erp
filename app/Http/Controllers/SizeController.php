@@ -39,7 +39,9 @@ class SizeController extends Controller
             $stores              = [];
             if (!$item->storeWebsitSize->isEmpty()) {
                 foreach ($item->storeWebsitSize as $sws) {
-                    $stores[] = $sws->storeWebsite->title . "#" . $sws->platform_id;
+                    if($sws->storeWebsite) {
+                        $stores[] = $sws->storeWebsite->title . "#" . $sws->platform_id;
+                    }
                 }
             }
             $item->store_wesites = $stores;

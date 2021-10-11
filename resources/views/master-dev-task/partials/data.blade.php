@@ -275,6 +275,28 @@
                 </table>
             </td>
         </tr>
+         <tr>
+            <td>Product push error log</td>
+            <td>
+
+                <table style="width: 100%;">
+                    <tr>
+                        <th>Count</th>
+                        <th>Status</th>
+                        <th>Message</th>
+                    </tr>
+                    @if(!empty($productErrors))
+                      @foreach($productErrors as $i => $lr)
+                        <tr>
+                            <td>{{ $lr->count }}</td>
+                            <td>{{ $lr->response_status }}</td>
+                            <td>{{ $lr->message}}</td>
+                        </tr>
+                      @endforeach
+                    @endif
+                </table>
+            </td>
+        </tr>
        </tbody>
     </table>
 </div>

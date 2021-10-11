@@ -314,6 +314,7 @@ class ScrapController extends Controller
         $images         = $request->get('images') ?? [];
         $scPrice        = (float) $request->get('price');
 
+        
         try{
             if(strlen($scPrice) > 4 && strlen($scPrice) < 6) {
                 $scPrice = substr($scPrice,0,3);
