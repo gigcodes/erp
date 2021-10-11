@@ -63,58 +63,34 @@
                                             <th></th>
                                         @endforelse
                                     </tr>
-                                    @if($item->sizeBrand->count())
-                                    @forelse ($item->sizeBrand->unique() as $brandkey => $branditem)
+                                    @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
                                         <tr>
-                                            <th>{{ $branditem->name }}</th>
-                                            @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
-                                                <td>
-                                                @forelse ($sizeChart as $chartitem)
-                                                    @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
-                                                        @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
-                                                            <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
-                                                                <span class="td-mini-container">
-                                                                    <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
-                                                                </span>
-                                                            </a>
-                                                        @endif
-                                                    @endif
-                                                @empty
-                                                @endforelse
-                                                </td>
+                                            @forelse ($item->sizeBrand->unique() as $brandkey => $branditem)
+                                              <th>{{ $branditem->name }}</th>
                                             @empty
-                                                <td></td>
                                             @endforelse
+                                            <td>
+                                            @forelse ($sizeChart as $chartitem)
+                                                @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
+                                                    @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
+                                                        <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
+                                                            <span class="td-mini-container">
+                                                                <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
+                                                            </span>
+                                                        </a>
+                                                    @endif
+                                                @endif
+                                            @empty
+                                            @endforelse
+                                            </td>
+                                           
                                         </tr>
                                     @empty
                                         <tr>
                                             <th></th>
                                         </tr>
                                     @endforelse
-                                    @else
-                                        <tr>
-                                            <th>{{ $branditem->name }}</th>
-                                            @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
-                                                <td>
-                                                @forelse ($sizeChart as $chartitem)
-                                                    @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
-                                                        @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
-                                                            <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
-                                                                <span class="td-mini-container">
-                                                                    <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
-                                                                </span>
-                                                            </a>
-                                                        @endif
-                                                    @endif
-                                                @empty
-                                                @endforelse
-                                                </td>
-                                            @empty
-                                                <td></td>
-                                            @endforelse
-                                        </tr>
-                                  
-                                    @endif
+                                   
                                 </table>
                             </div>
                         </div>
