@@ -20,9 +20,12 @@ class BrandSizeChartController extends Controller
 
     public function index()
     {
-        $storeWebsite = \App\StoreWebsite::get();
-        $sizeChart    = BrandCategorySizeChart::get();
+        $storeWebsite = \App\StoreWebsite::with('sizeBrand')->get();
+        $sizeChart = BrandCategorySizeChart::get();
 
+        echo "<pre/>";
+        print_r($storeWebsite);
+        die();
         return view('brand-size-chart.index', compact('storeWebsite', 'sizeChart'));
     }
 
@@ -31,8 +34,9 @@ class BrandSizeChartController extends Controller
      */
     public function createSizeChart()
     {
-        $brands       = Brand::orderBy('name', 'asc')->pluck('name', 'id');
-        $category     = Category::orderBy('title', 'asc')->pluck('title', 'id');
+
+        $brands = Brand::orderBy('name', 'asc')->pluck('name', 'id');
+        $category = Category::orderBy('title', 'asc')->pluck('title', 'id');
         $storeWebsite = StoreWebsite::orderBy('website', 'asc')->pluck('website', 'id');
 
         return view('brand-size-chart.create', ['brands' => $brands, 'category' => $category, 'storeWebsite' => $storeWebsite]);
@@ -44,12 +48,13 @@ class BrandSizeChartController extends Controller
     public function storeSizeChart(Request $request)
     {
         $this->validate($request, [
-            'brand_id' => 'required',
+            'category_id' => 'required',
             'size_img' => 'required|mimes:jpeg,jpg,png',
         ]);
+
         $brandCat = BrandCategorySizeChart::create([
-            'brand_id'         => $request->brand_id,
-            'category_id'      => $request->category_id,
+            'brand_id' => $request->brand_id ?? 0,
+            'category_id' => $request->category_id ?? 0,
             'store_website_id' => $request->store_website_id,
         ]);
 
