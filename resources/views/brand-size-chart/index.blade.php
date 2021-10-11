@@ -92,9 +92,6 @@
                                         </tr>
                                     @endforelse
                                     @else
-                                    @php
-echo "here";die();
-                                    @endphp
                                     <tr>
                                         <th>No Brand</th>
                                         @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
@@ -115,7 +112,7 @@ echo "here";die();
                                         @empty
                                             <td></td>
                                         @endforelse
-                                        </tr>
+                                    </tr>
                                     @endif
                                 </table>
                             </div>
