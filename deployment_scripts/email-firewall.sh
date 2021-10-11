@@ -13,5 +13,6 @@ then
 	if [ $? -eq 0 ]
 	then
 		bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/webaccess-firewall.sh -f add -i $ip -c "$fromaddress-$comment"
+		echo "Your Ip has been whitelisted for erp access" |mail -s "Ip Whitelisted" $email
 	fi
 fi
