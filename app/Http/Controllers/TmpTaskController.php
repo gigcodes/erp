@@ -10,15 +10,10 @@ use App\Library\DHL\GetRateRequest;
 use App\Loggers\LogListMagento;
 use App\Order;
 use App\Product;
-use App\ProductPushErrorLog;
 use App\ScrapedProducts;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Jobs\FetchEmail;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
 class TmpTaskController extends Controller
 {
@@ -31,10 +26,10 @@ class TmpTaskController extends Controller
         if (!$leads->isEmpty()) {
             foreach ($leads as $lead) {
                 try {
-                    $jsonBrand    = json_decode($lead->multi_brand, true);
+                    $jsonBrand = json_decode($lead->multi_brand, true);
                     $jsonCategory = json_decode($lead->multi_category, true);
 
-                    $jsonBrand    = !empty($jsonBrand) ? (is_array($jsonBrand) ? array_filter($jsonBrand) : [$jsonBrand]) : [];
+                    $jsonBrand = !empty($jsonBrand) ? (is_array($jsonBrand) ? array_filter($jsonBrand) : [$jsonBrand]) : [];
                     $jsonCategory = !empty($jsonCategory) ? (is_array($jsonCategory) ? array_filter($jsonCategory) : [$jsonCategory]) : [];
 
                     if ($lead->selected_product) {
@@ -67,9 +62,9 @@ class TmpTaskController extends Controller
                     }
 
                     $erpLead = \App\ErpLeads::where([
-                        'brand_id'      => isset($jsonBrand[0]) ? $jsonBrand[0] : '',
-                        'category_id'   => isset($jsonCategory[0]) ? $jsonCategory[0] : '',
-                        'customer_id'   => $lead->customer_id,
+                        'brand_id' => isset($jsonBrand[0]) ? $jsonBrand[0] : '',
+                        'category_id' => isset($jsonCategory[0]) ? $jsonCategory[0] : '',
+                        'customer_id' => $lead->customer_id,
                         'brand_segment' => $brandSegment,
                     ])->first();
 
@@ -78,17 +73,18 @@ class TmpTaskController extends Controller
                     }
 
                     $erpLead->lead_status_id = $lead->status;
-                    $erpLead->customer_id    = $lead->customer_id;
-                    $erpLead->product_id     = !empty($product) ? $product->id : null;
-                    $erpLead->brand_id       = isset($jsonBrand[0]) ? $jsonBrand[0] : null;
-                    $erpLead->brand_segment  = $brandSegment;
-                    $erpLead->category_id    = isset($jsonCategory[0]) ? $jsonCategory[0] : null;
-                    $erpLead->color          = null;
-                    $erpLead->size           = $lead->size;
-                    $erpLead->min_price      = 0.00;
-                    $erpLead->max_price      = 0.00;
-                    $erpLead->created_at     = $lead->created_at;
-                    $erpLead->updated_at     = $lead->updated_at;
+                    $erpLead->customer_id = $lead->customer_id;
+                    $erpLead->product_id = !empty($product) ? $product->id : null;
+                    $erpLead->brand_id = isset($jsonBrand[0]) ? $jsonBrand[0] : null;
+                    $erpLead->brand_segment = $brandSegment;
+                    $erpLead->category_id = isset($jsonCategory[0]) ? $jsonCategory[0] : null;
+                    $erpLead->color = null;
+                    $erpLead->size = $lead->size;
+                    $erpLead->min_price = 0.00;
+                    $erpLead->max_price = 0.00;
+                    $erpLead->type = 'import-leads';
+                    $erpLead->created_at = $lead->created_at;
+                    $erpLead->updated_at = $lead->updated_at;
                     $erpLead->save();
 
                     $mediaArr = $lead->getMedia(config('constants.media_tags'));
@@ -112,19 +108,20 @@ class TmpTaskController extends Controller
 
     public function testEmail(Request $request)
     {
-        
+
         $cnt = "IN";
         $website = \App\StoreWebsite::find($request->get("store_website_id"));
         $product = \App\Product::find($request->get("product_id"));
         $dutyPrice = $product->getDuty($cnt);
-        $discountPrice = $product->getPrice($website,$cnt,null, true , $dutyPrice);
+        $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
 
-        \Log::info(print_r($discountPrice,true));
+        \Log::info(print_r($discountPrice, true));
         die;
 
-
         $suggestion = \App\SuggestedProduct::first();
-        echo "<pre>"; print_r($suggestion);  echo "</pre>";die;
+        echo "<pre>";
+        print_r($suggestion);
+        echo "</pre>";die;
 
         SuggestedProduct::attachMoreProducts($suggestion);
         die;
@@ -133,11 +130,11 @@ class TmpTaskController extends Controller
 
         if ($order) {
 
-            $customer   = $order->customer;
+            $customer = $order->customer;
             $orderItems = $order->order_product;
 
-            $data["order"]      = $order;
-            $data["customer"]   = $customer;
+            $data["order"] = $order;
+            $data["customer"] = $customer;
             $data["orderItems"] = $orderItems;
 
             Mail::to('solanki7492@gmail.com')->send(new OrderInvoice($data));
@@ -147,47 +144,47 @@ class TmpTaskController extends Controller
 
     public function dhl(Request $request)
     {
-        $rate   = new GetRateRequest("soap");
+        $rate = new GetRateRequest("soap");
         $result = $rate->call();
     }
 
     public function testPushProduct(Request $request)
     {
-             
+
         $queueName = [
             "1" => "mageone",
             "2" => "magetwo",
-            "3" => "magethree"
+            "3" => "magethree",
         ];
-         
-        if($request->product_id == null) {
+
+        if ($request->product_id == null) {
             die("Please Enter product id");
         }
 
         $productId = $request->product_id;
-        if($request->store_website_ids != null) {
+        if ($request->store_website_ids != null) {
             $websiteArrays = explode(",", $request->store_website_ids);
         }
         $product = \App\Product::find($request->product_id);
-        
+
         // call product
         if ($product) {
-            if(empty($websiteArrays)) {
+            if (empty($websiteArrays)) {
                 $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             }
             if (count($websiteArrays) == 0) {
-               
+
                 \Log::channel('productUpdates')->info("Product started " . $product->id . " No website found");
                 $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                 //ProductPushErrorLog::log($product->id, $msg, 'error');
                 //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-               
+
             } else {
-                $i = 1;  
+                $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-                        // testing 
+                        // testing
                         \Log::channel('productUpdates')->info("Product started website found For website" . $website->website);
                         $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id);
                         //currently we have 3 queues assigned for this task.
@@ -196,7 +193,7 @@ class TmpTaskController extends Controller
                         }
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
-                        PushToMagento::dispatch($product,$website , $log)->onQueue($log->queue);
+                        PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
                         $i++;
                     }
@@ -205,49 +202,47 @@ class TmpTaskController extends Controller
         }
     }
 
-
     public function fixBrandPrice()
     {
         $brands = \App\Brand::all();
 
-        if(!$brands->isEmpty()) {
-            foreach($brands as $brand) {
+        if (!$brands->isEmpty()) {
+            foreach ($brands as $brand) {
                 $isUpdatePrice = false;
-                if(strlen($brand->min_sale_price) > 4) {
-                   $isUpdatePrice = true;
-                   echo "{$brand->name} updated from {$brand->min_sale_price} to ".substr($brand->min_sale_price, 0,4);
-                   echo "</br>";
-                   $brand->min_sale_price = substr($brand->min_sale_price, 0,4);
+                if (strlen($brand->min_sale_price) > 4) {
+                    $isUpdatePrice = true;
+                    echo "{$brand->name} updated from {$brand->min_sale_price} to " . substr($brand->min_sale_price, 0, 4);
+                    echo "</br>";
+                    $brand->min_sale_price = substr($brand->min_sale_price, 0, 4);
                 }
 
-                if(strlen($brand->max_sale_price) > 4) {
-                   $isUpdatePrice = true;
-                   echo "{$brand->name} updated from {$brand->max_sale_price} to ".substr($brand->max_sale_price, 0,4);
-                   echo "</br>";
-                   $brand->max_sale_price = substr($brand->max_sale_price, 0,4);
+                if (strlen($brand->max_sale_price) > 4) {
+                    $isUpdatePrice = true;
+                    echo "{$brand->name} updated from {$brand->max_sale_price} to " . substr($brand->max_sale_price, 0, 4);
+                    echo "</br>";
+                    $brand->max_sale_price = substr($brand->max_sale_price, 0, 4);
                 }
 
-                if($isUpdatePrice) {
+                if ($isUpdatePrice) {
                     $brand->save();
                 }
             }
         }
 
-       
     }
 
     public function deleteChatMessages()
     {
-        $limit = request("limit",10000);
-        $chatMessages = \App\ChatMessage::where("group_ids",">",0)->orderBy("created_at","asc")->limit($limit)->get();
-        if(!$chatMessages->isEmpty()) {
-            foreach($chatMessages as $chatM) {
+        $limit = request("limit", 10000);
+        $chatMessages = \App\ChatMessage::where("group_ids", ">", 0)->orderBy("created_at", "asc")->limit($limit)->get();
+        if (!$chatMessages->isEmpty()) {
+            foreach ($chatMessages as $chatM) {
                 $medias = $chatM->getAllMediaByTag();
-                if(!$medias->isEmpty()) {
-                    foreach($medias as $i => $media) {
-                        foreach($media as $m) {
-                            if(strpos($m->directory,"product") === false) {
-                                echo $m->getAbsolutePath(). " started to delete";
+                if (!$medias->isEmpty()) {
+                    foreach ($medias as $i => $media) {
+                        foreach ($media as $m) {
+                            if (strpos($m->directory, "product") === false) {
+                                echo $m->getAbsolutePath() . " started to delete";
                                 $m->delete();
                             }
                         }
@@ -260,23 +255,23 @@ class TmpTaskController extends Controller
 
     public function deleteProductImages()
     {
-        $limit = request("limit",10000);
-        $products = \App\Product::leftJoin("order_products as op","op.product_id","products.id")->where("stock","<=" ,0)
-            ->where("supplier","!=", "in-stock")
-            ->where("has_mediables",1)
+        $limit = request("limit", 10000);
+        $products = \App\Product::leftJoin("order_products as op", "op.product_id", "products.id")->where("stock", "<=", 0)
+            ->where("supplier", "!=", "in-stock")
+            ->where("has_mediables", 1)
             ->havingRaw("op.product_id is null")
             ->groupBy("products.id")
-            ->select(["products.*","op.product_id"])
+            ->select(["products.*", "op.product_id"])
             ->limit($limit)
             ->get();
 
-        if(!$products->isEmpty()) {
-            foreach($products as $product) {
+        if (!$products->isEmpty()) {
+            foreach ($products as $product) {
                 $medias = $product->getAllMediaByTag();
-                if(!$medias->isEmpty()) {
-                    foreach($medias as $i => $media) {
-                        foreach($media as $m) {
-                            echo $m->getAbsolutePath(). " started to delete";
+                if (!$medias->isEmpty()) {
+                    foreach ($medias as $i => $media) {
+                        foreach ($media as $m) {
+                            echo $m->getAbsolutePath() . " started to delete";
                             $m->delete();
                         }
                     }

@@ -14,7 +14,7 @@
 				{{ Form::select("time_delay_type[".$flowAction['id']."]", ['days'=>'Days', 'hours'=>'Hours', 'minutes'=>'Minutes'], $flowAction['time_delay_type'], array('class'=>'form-control')) }}
 			</div>
 			<div class="col-md-2 cross_first_remove">
-				<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="" data-id="{{$flowAction->id}}" aria-hidden="true"></i>
+				<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('flow-action-delete')}}" data-id="{{$flowAction->id}}" aria-hidden="true"></i>
 			</div>
 		</div>
 	@elseif($flowAction['type'] == 'Send Message') 
@@ -30,7 +30,33 @@
 			</div>
 			<div class="col-md-2 cross_sec_remove">
 				<i class="fa fa-pencil-square-o" aria-hidden="true" onclick="showMessagePopup('{{$flowAction['id']}}')"></i>
-				<i class="fa fa-remove"></i>
+				<div class="col-md-2 cross_first_remove">
+				<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('flow-action-delete')}}" data-id="{{$flowAction->id}}" aria-hidden="true"></i>
+			</div>
+			</div>
+		</div>
+	@elseif($flowAction['type'] == 'Whatsapp') 
+		<div class="col-md-12 cross cross_first" >
+			<input type="hidden" name="action_id[]" value="{{$flowAction['id']}}">
+			<div class="col-md-10 cross_first_label_time">
+				<label>Whatsapp Message</label>
+				{{ Form::text("message_title[".$flowAction['id']."]", $flowAction['message_title'], array('class'=>'form-control', 'required')) }}
+				<input type="hidden" name="action_type[{{$flowAction['id']}}]" value="Whatsapp">
+			</div>
+			<div class="col-md-2 cross_first_remove">
+				<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('flow-action-delete')}}" data-id="{{$flowAction->id}}" aria-hidden="true"></i>
+			</div>
+		</div>
+	@elseif($flowAction['type'] == 'SMS') 
+		<div class="col-md-12 cross cross_first" >
+			<input type="hidden" name="action_id[]" value="{{$flowAction['id']}}">
+			<div class="col-md-10 cross_first_label_time">
+				<label>SMS</label>
+				{{ Form::text("message_title[".$flowAction['id']."]", $flowAction['message_title'], array('class'=>'form-control', 'required')) }}
+				<input type="hidden" name="action_type[{{$flowAction['id']}}]" value="SMS">
+			</div>
+			<div class="col-md-2 cross_first_remove">
+				<i style="cursor: pointer;" class="fa fa-trash trigger-delete" data-route="{{route('flow-action-delete')}}" data-id="{{$flowAction->id}}" aria-hidden="true"></i>
 			</div>
 		</div>
 	@endif

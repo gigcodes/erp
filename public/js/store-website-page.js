@@ -593,19 +593,21 @@ function getGoogleKeyWord(title) {
                 $(document).find('#extra-keyword-search-btn').removeClass('hide');
                 $(document).find('#extra-keyword-search').removeClass('hide');
                 var t = '';
-                $.each(response, function (index, data) {
+                if($.isArray(response)) {
+                    $.each(response, function (index, data) {
 
-                    if ($.inArray(data.keyword, words) > -1) {
-                        t += `<tr><td class="keyword-list badge-green" data-avg="` + data.avg_monthly_searches +`">`+data.keyword+`<i class="fa fa-remove pl-2"></i></td>`;
-                    }else{
-                        t += `<tr><td class="keyword-list" data-avg="` + data.avg_monthly_searches +`" >`+data.keyword+`</td>`;
-                    }
-                    t += `<td>` + data.avg_monthly_searches + `</td>`;
-                    t += `<td>` + data.competition + `</td>`;
-                    t += `<td>` + data.translate_text + `</td></tr>`;
-                });
-                $(document).find('.suggestList-table').html(t);
-                $(document).find('.suggestList').show();
+                        if ($.inArray(data.keyword, words) > -1) {
+                            t += `<tr><td class="keyword-list badge-green" data-avg="` + data.avg_monthly_searches +`">`+data.keyword+`<i class="fa fa-remove pl-2"></i></td>`;
+                        }else{
+                            t += `<tr><td class="keyword-list" data-avg="` + data.avg_monthly_searches +`" >`+data.keyword+`</td>`;
+                        }
+                        t += `<td>` + data.avg_monthly_searches + `</td>`;
+                        t += `<td>` + data.competition + `</td>`;
+                        t += `<td>` + data.translate_text + `</td></tr>`;
+                    });
+                    $(document).find('.suggestList-table').html(t);
+                    $(document).find('.suggestList').show();
+                }
             } else {
 
                 $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();

@@ -80,47 +80,40 @@
 
   <div class="col-md-12 pl-3 pr-3">
     <div class="mb-3">
-
       <div class="panel-body p-0">
         <form action="{{ route('list.magento.logging') }}" method="GET" class="handle-search">
           <div class="row m-0">
-          <div class="col-md-2 pl-0">
-                <label for="select_date">Date</label>
-                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
-             
+            <div class="col-md-1 pl-0">
+                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
             </div>
-            <div class="col-md-2 pl-0">
-              <label for="product_id">Product ID</label>
-              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="product_id" name="product_id" value="{{ request('product_id') }}" placeholder="Product ID">
             </div>
-            <div class="col-md-2 pl-0">
-              <label for="sku">SKU</label>
-              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="sku" name="sku" value="{{ request('sku')}}" placeholder="SKU">
             </div>
-            <div class="col-md-2 pl-0">
-              <label for="sku">Brand</label>
-              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}">
+            <div class="col-md-1 pl-0">
+              <input type="text" class="form-control" id="brand" name="brand" value="{{ request('brand')}}" placeholder="Brand">
             </div>
             @php
-              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
+              $category_suggestion = \App\Category::attr(['name' => 'category[]', 'data-placeholder' => 'Category', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->selected(request('category',null))->renderAsDropdown();
             @endphp
-            <div class="col-md-2 pl-0">
-                <label for="sku">Category</label>
-                    {!! $category_suggestion !!}
-                </div>
+            <div class="col-md-1 pl-0">
+              {!! $category_suggestion !!}
+            </div>
 
-            <div class="col-md-2 pl-0 pr-0">
-              <label for="sku">Status</label>
+            <div class="col-md-1 pl-0">
               <select class="form-control" name="status">
+                <option value="" disabled selected>Status</option>
                 <option value=''>All</option>
                 <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
                 <option value="out_of_stock" {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
               </select>
             </div>
 
-              <div class="col-md-2 pl-0">
-                  <label for="sku">Sync Status</label>
+              <div class="col-md-1 pl-0">
                   <select class="form-control" name="sync_status">
+                      <option value="" disabled selected>Sync Status</option>
                       <option value=''>All</option>
                       <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
                       <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
@@ -132,27 +125,25 @@
                   </select>
               </div>
               <div class="col-md-1 pl-0">
-                  <label for="queue">Queue List</label>
-                  <?php echo Form::select("queue",[null => "--Select--"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
+                  <?php echo Form::select("queue",[null => "Queue List"] + \App\Helpers::getQueueName(true),request('queue'),["class" => "form-control"]); ?>
               </div>
 
           <div class="col-md-1 pl-0">
-            <label for="size_info">Size info</label>
             <select class="form-control" name="size_info">
+              <option value="" disabled selected>Size info</option>
               <option value=''>All</option>
               <option value="yes" {{ isset($filters['size_info']) && $filters['size_info'] == 'yes' ? 'selected' : '' }}>Yes</option>
               <option value="no" {{ isset($filters['size_info']) && $filters['size_info'] == 'no' ? 'selected' : '' }}>No</option>
             </select>
           </div>
-
+        </div>
+        <div class="row m-0 mt-3">
           <div class="col-md-2 pl-0">
-            <label for="select_date">Date</label>
             <input type="text" name="job_start_date" class="form-control datepicker" id="job_start_date" placeholder="Enter Job Start Date" value="{{isset($request->job_start_date) ? $request->job_start_date : ''}}">
-
           </div>
-          <div class="col-md-2 pl-0">
-            <label for="sku">Users</label>
+          <div class="col-md-1 pl-0">
             <select class="form-control" name="user">
+              <option value="" disabled selected>Users</option>
               <option value=''>All</option>
               @foreach($users as $user)
                 <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
@@ -161,38 +152,29 @@
             </select>
           </div>
 
-          <div class="col-md-4 pl-0 pr-0 d-flex" style="align-items: flex-end;justify-content: space-between;">
-           <div>
-             <label for="sku">Crop Image Date</label>
-             <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
-             <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
-             <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
-               <!-- <i class="fa fa-calendar"></i>&nbsp;
-               <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
-               <i class="fa fa-calendar"></i>&nbsp;
-               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
-             </div>
-           </div>
-            <button class="btn btn-primary " style="height: 34px" id="submit">
-              <span class="fa fa-filter"></span> Filter Results
-            </button>
-            <button class="btn btn-primary "  style="height: 34px" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>
-
+          <div class="col-md-2 pl-0" style="align-items: flex-end;justify-content: space-between;">
+            <input type="hidden" class="range_start_filter" value="<?php echo request()->get('crop_start_date') ; ?>" name="crop_start_date" />
+            <input type="hidden" class="range_end_filter" value="<?php echo request()->get('crop_end_date'); ?>" name="crop_end_date" />
+            <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+              <!-- <i class="fa fa-calendar"></i>&nbsp;
+              <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+              <i class="fa fa-calendar"></i>&nbsp;
+              <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') ? request()->get('crop_start_date') .' '.request()->get('crop_end_date') : 'Crop Image Date'}}</p><i class="fa fa-caret-down pull-right"></i>
+            </div>
           </div>
-
-{{--          <div class="col-md-2 pl-0" style="display: flex;align-items: flex-end">--}}
-{{--            <button class="btn btn-primary" id="submit">--}}
-{{--              <span class="fa fa-filter"></span> Filter Results--}}
-{{--            </button>--}}
-{{--            <button class="btn btn-primary" id="send-product-for-live-checking"><span class="fa fa-send"></span>&nbsp;Send Live Product</button>--}}
-{{--          </div>--}}
-
-                </div>
-
-            </form>
+          <div class="col-md-3 pl-0">
+            <button class="btn btn-primary text-dark" style="height: 34px" id="submit">
+                <span class="fa fa-filter"></span>&nbsp;Filter Results
+              </button>
+              <button class="btn btn-primary text-dark"  style="height: 34px" id="send-product-for-live-checking">
+                <span class="fa fa-send"></span>&nbsp;Send Live Product
+              </button>
           </div>
-        </form>
-  </div>
+        </div>
+      </form>
+    </div>
+  </form>
+</div>
 
 
 
@@ -201,28 +183,28 @@
         <div class="table-responsive">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th style="width:5%">Product ID</th>
-              <th style="width:5%">SKU</th>
-              <th style="width:5%">Brand</th>
-              <th style="width:6%">Category</th>
-              <th style="width:5%">Price</th>
-              <th style="width:6%">Message</th>
-              <th style="width:6%">Date/  Time</th>
-              <th style="width:6%">Website</th>
-              <th style="width:5%">Status</th>
-              <th style="width:4%">Lang. Id</th>
-              <th style="width:8%">Sync Status</th>
-              <th style="width:6%">Job Start</th>
-              <th style="width:4%">Job End</th>
-              <th style="width:4%;word-break: break-all">Total Assigned</th>
-              <th style="width:4%;padding-left: 0;word-break: break-all">Success</th>
-              <th style="width:5%">Failure</th>
-              <th style="width:3%;padding-left: 0">User</th>
-              <th style="width:5%;">Time</th>
-              <th style="width:4%;padding-left: 5px">Size</th>
-              <th style="width:8%;padding-left: 2px">Queue</th>
-              <th style="width:4%">Try</th>
-              <th style="width:8%">Action</th>
+              <th width="4%">ID</th>
+              <th width="4%">SKU</th>
+              <th width="5%">Brand</th>
+              <th width="6%">Category</th>
+              <th width="5%">Price</th>
+              <th width="6%">Message</th>
+              <th width="4%">D&T</th>
+              <th width="6%">Website</th>
+              <th width="5%">Status</th>
+              <th width="5%">Lang Id</th>
+              <th width="6%">Sync Sts</th>
+              <th width="6%">Job Start</th>
+              <th width="6%">Job End</th>
+              <th width="3%">Total</th>
+              <th width="4%;">Success</th>
+              <th width="4%">Failure</th>
+              <th width="3%;">User</th>
+              <th width="3%;">Time</th>
+              <th width="3%;">Size</th>
+              <th width="5%;">Queue</th>
+              <th width="2%">Try</th>
+              <th width="10%">Action</th>
             </thead>
             <tbody class="infinite-scroll-pending-inner">
 				@include("logging.partials.magento_product_data")                
