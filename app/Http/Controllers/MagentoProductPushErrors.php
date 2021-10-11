@@ -63,6 +63,13 @@ class MagentoProductPushErrors extends Controller
             });
         }
 
+        if (!empty($request->response_status)) {
+            $response_status = $request->response_status;
+            $records = $records->where(function ($q) use ($response_status) {
+                $q->where("response_status", "LIKE", $response_status);
+            });
+        }
+
         if(!empty($request->log_date)){
             $log_date = date("Y-m-d", strtotime($request->log_date));
 //            dd($log_date);
