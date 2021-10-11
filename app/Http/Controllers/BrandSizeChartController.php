@@ -20,7 +20,7 @@ class BrandSizeChartController extends Controller
 
     public function index()
     {
-        $storeWebsite = \App\StoreWebsite::with('sizeBrand')->with('brands')->get();
+        $storeWebsite = \App\StoreWebsite::with('sizeBrand')->get();
         $sizeChart = BrandCategorySizeChart::get();
 
         echo "<pre/>";
