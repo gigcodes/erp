@@ -266,7 +266,6 @@
               <th style="width:6%">Status</th>
               <th style="width:6%">Web Store</th>
               <th style="width:11%">Store Website</th>
-              <th style="width:20%">Date</th>
             </thead>
             <tbody class="price-data">
 

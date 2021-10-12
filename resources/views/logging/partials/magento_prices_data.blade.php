@@ -6,24 +6,16 @@
     @endif
     </td>
     <td>
-    @if($log->default_price)
         {{$log->default_price}}
-    @endif
     </td>
     <td>
-    @if($log->segment_discount)
         {{$log->segment_discount}}
-    @endif
     </td>
     <td>
-    @if($log->duty_price)
         {{$log->duty_price}}
-    @endif
     </td>
     <td>
-    @if($log->override_price)
         {{$log->override_price}}
-    @endif
     </td>
     <td>
     @if($log->status)
@@ -32,7 +24,7 @@
     </td>
     <td>
     @if($log->web_store_id)
-        {{$log->web_store_id}}
+        {{$log->web_store_name}}
     @endif
     </td>
     <td>
@@ -40,10 +32,6 @@
         {{$log->store_website->title}}
     @endif
     </td>
-    <td>
-    @if($log->created_at)    
-    {{ $log->created_at->format('d-m-y H:i:s') }}
-    @endif
-    </td>
+   
 </tr>
 @endforeach
