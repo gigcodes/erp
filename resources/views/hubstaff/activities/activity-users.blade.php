@@ -11,10 +11,10 @@
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb mb-3">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
-            <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
-            <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
-            <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
-            <a class="btn btn-secondary hubstaff_activity_command" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
+            <a class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
+            <a class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
+            <a class="btn btn-secondary btn-xs" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
+            <a class="btn btn-secondary btn-xs hubstaff_activity_command text-light" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
     </div>
     <div class="col-lg-12 margin-tb">
         <div class="row">
