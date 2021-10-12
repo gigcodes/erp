@@ -161,7 +161,7 @@ class EmailController extends Controller
                 $query = $query->orderByDesc('created_at');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
             }else{
-                $emails = collect(new Email);
+                $emails = (new Email())->newQuery();
                 $emails = $emails->paginate(30)->appends(request()->except(['page']));
             }
         }
