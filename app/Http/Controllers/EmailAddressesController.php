@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\EmailAddress;
-use App\User;
 use App\EmailRunHistories;
+use App\Exports\EmailFailedReport;
 use App\StoreWebsite;
+use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
-use App\Exports\EmailFailedReport;
 use Maatwebsite\Excel\Facades\Excel;
-use Mail;
 
 class EmailAddressesController extends Controller
 {
@@ -22,9 +21,9 @@ class EmailAddressesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EmailAddress::query(); 
-              
-        $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
+        $query = EmailAddress::query();
+
+        $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->with('email_assignes');
 
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
 
@@ -34,39 +33,36 @@ class EmailAddressesController extends Controller
             }
         }
 
-        $emailAddress = $query->paginate(); 
-        $allStores    = StoreWebsite::all();
-        $allDriver    = EmailAddress::pluck('driver')->unique();
-        $allPort      = EmailAddress::pluck('port')->unique();
-        $allEncryption= EmailAddress::pluck('encryption')->unique();
+        $emailAddress = $query->paginate();
+        $allStores = StoreWebsite::all();
+        $allDriver = EmailAddress::pluck('driver')->unique();
+        $allPort = EmailAddress::pluck('port')->unique();
+        $allEncryption = EmailAddress::pluck('encryption')->unique();
 
         //dd($allDriver);
-$users = User::orderBy('name','asc')->get();
+        $users = User::orderBy('name', 'asc')->get();
 
-if ($request->ajax()) 
-{
-   
-    return view('email-addresses.index_ajax', [
-        'emailAddress' => $emailAddress,
-        'allStores'    => $allStores,
-        'allDriver'    => $allDriver,
-        'allPort'      => $allPort,
-        'allEncryption'=> $allEncryption,
-        'users'=> $users,
-    ]);
-}
-else
-{
+        if ($request->ajax()) {
 
-    return view('email-addresses.index', [
-        'emailAddress' => $emailAddress,
-        'allStores'    => $allStores,
-        'allDriver'    => $allDriver,
-        'allPort'      => $allPort,
-        'allEncryption'=> $allEncryption,
-        'users'=> $users,
-    ]);
-}
+            return view('email-addresses.index_ajax', [
+                'emailAddress' => $emailAddress,
+                'allStores' => $allStores,
+                'allDriver' => $allDriver,
+                'allPort' => $allPort,
+                'allEncryption' => $allEncryption,
+                'users' => $users,
+            ]);
+        } else {
+
+            return view('email-addresses.index', [
+                'emailAddress' => $emailAddress,
+                'allStores' => $allStores,
+                'allDriver' => $allDriver,
+                'allPort' => $allPort,
+                'allEncryption' => $allEncryption,
+                'users' => $users,
+            ]);
+        }
     }
 
     /**
@@ -100,26 +96,22 @@ else
             //'recovery_email' => 'required|string|max:255',
         ]);
 
+        $data = $request->except('_token', 'signature_logo', 'signature_image');
 
-        $data = $request->except('_token','signature_logo','signature_image');
-
-        $id=EmailAddress::insertGetId($data);
+        $id = EmailAddress::insertGetId($data);
 
         $signature_logo = $request->file('signature_logo');
         $signature_image = $request->file('signature_image');
         $destinationPath = public_path('uploads');
-         
-       if ($signature_logo!='')
-          {
-             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
-             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
-          }   
-        if ($signature_image!='')
-           {
-            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
-            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
-           }
-        
+
+        if ($signature_logo != '') {
+            $signature_logo->move($destinationPath, $signature_logo->getClientOriginalName());
+            EmailAddress::find($id)->update(['signature_logo' => $signature_logo->getClientOriginalName()]);
+        }
+        if ($signature_image != '') {
+            $signature_image->move($destinationPath, $signature_image->getClientOriginalName());
+            EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
+        }
 
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully saved a Email Address!');
     }
@@ -144,7 +136,7 @@ else
      */
     public function update(Request $request, $id)
     {
-       
+
         $this->validate($request, [
             'from_name'      => 'required|string|max:255',
             'from_address'   => 'required|string|max:255',
@@ -158,26 +150,22 @@ else
             //'recovery_email' => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token','signature_logo','signature_image');
+        $data = $request->except('_token', 'signature_logo', 'signature_image');
 
         EmailAddress::find($id)->update($data);
 
         $signature_logo = $request->file('signature_logo');
         $signature_image = $request->file('signature_image');
         $destinationPath = public_path('uploads');
-         
-       if ($signature_logo!='')
-          {
-             $signature_logo->move($destinationPath,$signature_logo->getClientOriginalName());
-             EmailAddress::find($id)->update(['signature_logo'=>$signature_logo->getClientOriginalName()]);
-          }   
-        if ($signature_image!='')
-           {
-            $signature_image->move($destinationPath,$signature_image->getClientOriginalName()); 
-            EmailAddress::find($id)->update(['signature_image'=>$signature_image->getClientOriginalName()]);
-           }
-                 
 
+        if ($signature_logo != '') {
+            $signature_logo->move($destinationPath, $signature_logo->getClientOriginalName());
+            EmailAddress::find($id)->update(['signature_logo' => $signature_logo->getClientOriginalName()]);
+        }
+        if ($signature_image != '') {
+            $signature_image->move($destinationPath, $signature_image->getClientOriginalName());
+            EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
+        }
 
         return redirect()->back()->withSuccess('You have successfully updated a Email Address!');
     }
@@ -209,7 +197,7 @@ else
         $history = '';
         if (sizeof($EmailHistory) > 0) {
             foreach ($EmailHistory as $runHistory) {
-                $status  = ($runHistory->is_success == 0) ? "Failed" : "Success";
+                $status = ($runHistory->is_success == 0) ? "Failed" : "Success";
                 $message = empty($runHistory->message) ? "-" : $runHistory->message;
                 $history .= '<tr>
                 <td>' . $runHistory->id . '</td>
@@ -230,26 +218,25 @@ else
         return response()->json(['data' => $history]);
     }
 
-
     public function getRelatedAccount(Request $request)
     {
-        $adsAccounts  = \App\GoogleAdsAccount::where("account_name", $request->id)->get();
+        $adsAccounts = \App\GoogleAdsAccount::where("account_name", $request->id)->get();
         $translations = \App\googleTraslationSettings::where("email", $request->id)->get();
-        $analytics    = \App\StoreWebsiteAnalytic::where("email", $request->id)->get();
+        $analytics = \App\StoreWebsiteAnalytic::where("email", $request->id)->get();
 
         $accounts = [];
 
         if (!$adsAccounts->isEmpty()) {
             foreach ($adsAccounts as $adsAccount) {
                 $accounts[] = [
-                    "name"          => $adsAccount->account_name,
-                    "email"         => $adsAccount->account_name,
-                    "last_error"    => $adsAccount->last_error,
+                    "name" => $adsAccount->account_name,
+                    "email" => $adsAccount->account_name,
+                    "last_error" => $adsAccount->last_error,
                     "last_error_at" => $adsAccount->last_error_at,
-                    "credential"    => $adsAccount->config_file_path,
+                    "credential" => $adsAccount->config_file_path,
                     'store_website' => $adsAccount->store_websites,
-                    'status'        => $adsAccount->status,
-                    'type'          => "Google Ads Account",
+                    'status' => $adsAccount->status,
+                    'type' => "Google Ads Account",
                 ];
             }
         }
@@ -257,14 +244,14 @@ else
         if (!$translations->isEmpty()) {
             foreach ($translations as $translation) {
                 $accounts[] = [
-                    "name"          => $translation->email,
-                    "email"         => $translation->email,
-                    "last_error"    => $translation->last_note,
+                    "name" => $translation->email,
+                    "email" => $translation->email,
+                    "last_error" => $translation->last_note,
                     "last_error_at" => $translation->last_error_at,
-                    "credential"    => $translation->account_json,
+                    "credential" => $translation->account_json,
                     'store_website' => "N/A",
-                    'status'        => $translation->status,
-                    'type'          => "Google Translation",
+                    'status' => $translation->status,
+                    'type' => "Google Translation",
                 ];
             }
         }
@@ -272,14 +259,14 @@ else
         if (!$analytics->isEmpty()) {
             foreach ($analytics as $analytic) {
                 $accounts[] = [
-                    "name"          => $analytic->email,
-                    "email"         => $analytic->email,
-                    "last_error"    => $analytic->last_error,
+                    "name" => $analytic->email,
+                    "email" => $analytic->email,
+                    "last_error" => $analytic->last_error,
                     "last_error_at" => $analytic->last_error_at,
-                    "credential"    => $analytic->account_id . " - " . $analytic->view_id,
+                    "credential" => $analytic->account_id . " - " . $analytic->view_id,
                     'store_website' => $analytic->website,
-                    'status'        => "N/A",
-                    'type'          => "Google Analytics",
+                    'status' => "N/A",
+                    'type' => "Google Analytics",
                 ];
             }
         }
@@ -292,21 +279,21 @@ else
     {
         ini_set("memory_limit", -1);
 
-        $histories = EmailAddress::whereHas('history_last_message',function($query){
-                $query->where('is_success', 0);
-            })
-            ->with(['history_last_message' => function($q) {
-                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-10 day")));
+        $histories = EmailAddress::whereHas('history_last_message', function ($query) {
+            $query->where('is_success', 0);
+        })
+            ->with(['history_last_message' => function ($q) {
+                $q->where('created_at', ">", date("Y-m-d H:i:s", strtotime("-10 day")));
             }])
             ->get();
 
         $history = '';
-        
-        if($histories) {
+
+        if ($histories) {
             foreach ($histories as $row) {
-                if($row->history_last_message) {
-                    $status  = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
-                    $message = $row->history_last_message->message??'-';
+                if ($row->history_last_message) {
+                    $status = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
+                    $message = $row->history_last_message->message ?? '-';
                     $history .= '<tr>
                     <td>' . $row->history_last_message->id . '</td>
                     <td>' . $row->from_name . '</td>
@@ -327,39 +314,40 @@ else
         return response()->json(['data' => $history]);
     }
 
-    public function downloadFailedHistory(Request $request){
+    public function downloadFailedHistory(Request $request)
+    {
 
-        
-        $histories = EmailAddress::whereHas('history_last_message',function($query){
-                $query->where('is_success', 0);
-            })
-            ->with(['history_last_message' => function($q) {
-                $q->where('created_at',">",date("Y-m-d H:i:s",strtotime("-1 day")));
+        $histories = EmailAddress::whereHas('history_last_message', function ($query) {
+            $query->where('is_success', 0);
+        })
+            ->with(['history_last_message' => function ($q) {
+                $q->where('created_at', ">", date("Y-m-d H:i:s", strtotime("-1 day")));
             }])
             ->get();
 
-        $recordsArr = []; 
-        foreach($histories as $row){
-            if($row->history_last_message) {
+        $recordsArr = [];
+        foreach ($histories as $row) {
+            if ($row->history_last_message) {
                 $recordsArr[] = [
-                    'id'         => $row->history_last_message->id,
-                    'from_name'  => $row->from_name,
-                    'status'     => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
-                    'message'    => $row->history_last_message->message??'-',
+                    'id' => $row->history_last_message->id,
+                    'from_name' => $row->from_name,
+                    'status' => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
+                    'message' => $row->history_last_message->message ?? '-',
                     'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
                 ];
             }
         }
-        $filename = 'Report-Email-failed'.'.csv';
-        return Excel::download(new EmailFailedReport($recordsArr),$filename);
+        $filename = 'Report-Email-failed' . '.csv';
+        return Excel::download(new EmailFailedReport($recordsArr), $filename);
     }
-	
-	public function passwordChange(Request $request) {
-		 if( empty( $request->users ) ){
-            return redirect()->back()->with('error','Please select user');
+
+    public function passwordChange(Request $request)
+    {
+        if (empty($request->users)) {
+            return redirect()->back()->with('error', 'Please select user');
         }
-        
-        $users = explode(",",$request->users);
+
+        $users = explode(",", $request->users);
         $data = array();
         foreach ($users as $key) {
             // Generate new password
@@ -370,23 +358,44 @@ else
             $user->save();
             $data[$key] = $newPassword;
         }
-		\Session::flash('success', 'Password Updated');
-		return redirect()->back();
+        \Session::flash('success', 'Password Updated');
+        return redirect()->back();
     }
-	
-	function sendToWhatsApp(Request $request) {
-		$emailDetail = EmailAddress::find($request->id);
-		$user_id = $request->user_id;
+
+    public function sendToWhatsApp(Request $request)
+    {
+        $emailDetail = EmailAddress::find($request->id);
+        $user_id = $request->user_id;
         $user = User::findorfail($user_id);
         $number = $user->phone;
         $whatsappnumber = '971502609192';
-		
-		 $message = 'Password For '. $emailDetail->username .'is: ' . $emailDetail->password;
-				
-		$whatsappmessage = new WhatsAppController();
+
+        $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
+
+        $whatsappmessage = new WhatsAppController();
         $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
-		\Session::flash('success', 'Password sent');
-		return redirect()->back();
-	}
+        \Session::flash('success', 'Password sent');
+        return redirect()->back();
+    }
+
+    public function assignUsers(Request $request)
+    {
+        $emailDetail = EmailAddress::find($request->email_id);
+        $data = [];
+        $clear_existing_data = \App\EmailAssign::where(['email_address_id' => $request->email_id])->delete();
+        if (isset($request->users)) {
+            foreach ($request->users as $_user) {
+                $data[] = ['user_id' => $_user, 'email_address_id' => $request->email_id, 'created_at' => Carbon::today(), 'updated_at' => Carbon::today()];
+
+            }
+        }
+
+        if (count($data) > 0) {
+            $data_added = \App\EmailAssign::insert($data);
+            return redirect()->back()->withSuccess('You have successfully assigned users to email address!');
+        }
+
+        return redirect()->back();
+    }
 
 }

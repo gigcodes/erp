@@ -1813,6 +1813,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendToWhatsApp')->name('email.password.sendwhatsapp');
+    Route::post('email-addresses/assign', 'EmailAddressesController@assignUsers')->name('email-addresses.assign');
     
 	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
