@@ -214,7 +214,8 @@
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                                    <a class="btn btn-xs text-dark show-activities">+</a>
+                                    <a class="btn btn-xs text-dark show-activities"><i class="fa fa-plus"></i></a>
+                                    <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
                                 </form>
                                 @endif
                                 @if(Auth::user()->isAdmin())
@@ -222,11 +223,11 @@
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                                     <a class="btn btn-xs text-dark show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
-                                    <a class="btn btn-xs text-dark approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>                                    
-                                </form>
-                                <button type="button" class="btn btn-xs text-dark hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
+                                    <a class="btn btn-xs text-dark approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>
+                                    <button type="button" class="btn btn-xs text-dark hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
+                                    <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
+                                </form>                                
                                 @endif
-                                <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
                             </td>
                         </tr>
                         @endforeach
