@@ -64,18 +64,6 @@ class EmailController extends Controller
         $query = (new Email())->newQuery();
         $trash_query = false;
 
-            $query = $query->where(function ($query) use ($usernames) {
-                foreach ($usernames as $_uname) {
-                    $query->orWhere('from', 'like', '%' . $_uname . '%');
-                }
-            });
-
-            $query = $query->orWhere(function ($query) use ($usernames) {
-                foreach ($usernames as $_uname) {
-                    $query->orWhere('to', 'like', '%' . $_uname . '%');
-                }
-            });
-
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
             $receiver = $email;
@@ -152,7 +140,28 @@ class EmailController extends Controller
             $query = $query->where(function ($query) {return $query->where('status', '<>', "bin")->orWhereNull('status');});
         }
 
-        $query = $query->orderByDesc('created_at');
+        if ($admin == 1) {
+            $query = $query->orderByDesc('created_at');
+            $emails = $query->paginate(30)->appends(request()->except(['page']));
+        } else {
+            $emails = [];
+            if (count($usernames) > 0) {
+                $query = $query->where(function ($query) use ($usernames) {
+                    foreach ($usernames as $_uname) {
+                        $query->orWhere('from', 'like', '%' . $_uname . '%');
+                    }
+                });
+
+                $query = $query->orWhere(function ($query) use ($usernames) {
+                    foreach ($usernames as $_uname) {
+                        $query->orWhere('to', 'like', '%' . $_uname . '%');
+                    }
+                });
+
+                $query = $query->orderByDesc('created_at');
+                $emails = $query->paginate(30)->appends(request()->except(['page']));
+            }
+        }
 
         //Get All Category
         $email_status = DB::table('email_status')->get();
@@ -166,7 +175,6 @@ class EmailController extends Controller
             ->whereDate('cron_job_reports.created_at', '>=', Carbon::now()->subDays(10))
             ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->paginate(15);
 
-        $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
