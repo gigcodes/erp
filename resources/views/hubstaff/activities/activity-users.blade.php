@@ -204,12 +204,12 @@
                             elseif($user['fixed_price_user_or_job'] == 3)
                                 $fixed_price_user_or_job = 'Salaried';                  
                             @endphp
-                            <td>
-                                <p>S/F PX : {{$fixed_price_user_or_job}}</p>
-                                <p>Frequency : {{$user['payment_frequency']}} </p>
+                            <td class="m-0 p-0 pt-1 pl-2">
+                                <p class="m-0">S/F PX : {{$fixed_price_user_or_job}}</p>
+                                <p class="m-0">Frequency : {{$user['payment_frequency']}} </p>
                                 <!-- <p>Last Voucher Date : {{ \Carbon\Carbon::parse($user['last_mail_sent_payment'])->format('d-m-y') }}</p> -->
                             </td>
-                            <td>
+                            <td class="m-0 p-0 pt-1 pl-2">
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
