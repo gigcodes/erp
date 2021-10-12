@@ -35,17 +35,15 @@
     </div>
 	<div class="row mb-3">
         <div class="mt-3 col-md-12">
-            <div class="row">
-                <a class="ml-2">
-                    <button type="button" data-toggle="modal" data-target="#flowModal" class="btn btn-secondary">Flow</button>
-                </a>
-
-                <a class="ml-2" style="display:none;">
-                    <button type="button" data-toggle="modal" data-target="#flowTypeModal" class="btn btn-secondary">Flow Type</button>
-                </a>
-
-            </div>
+			<a class="ml-2">
+				<button type="button" data-toggle="modal" data-target="#flowModal" class="btn btn-secondary btn-xs">Flow</button>
+			</a>
+			<a class="ml-2" style="display:none;">
+				<button type="button" data-toggle="modal" data-target="#flowTypeModal" class="btn btn-secondary btn-xs">Flow Type</button>
+			</a>
         </div>
+	</div>
+	<div class="row mb-3">
 		<div class="mt-3 col-md-12">
 		    <table class="table table-bordered table-striped">
                     <thead>
@@ -75,29 +73,28 @@
 	<div class="modal fade" id="flowModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content ">
-				<div class="modal-header">
+				<div class="modal-header p-0 pt-3 pb-3 pl-3 pr-3">
 					<h5 class="modal-title">Flow</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<button type="button" class="close pt-0 pb-0" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
 					<div class="row">
-						{{ Form::open(array('url'=>route('flow-create'), 'id'=>'flow-create', 'class'=>'ajax-submit')) }}
+						{{ Form::open(array('url'=>route('flow-create'), 'id'=>'flow-create', 'class'=>'ajax-submit w-100')) }}
 							<div class="col-md-3">
-								<label>Website</label>
-								{{ Form::select('store_website_id', $websites, null, array('class'=>'form-control')) }}
+								{{ Form::select('store_website_id', $websites, null, array('class'=>'form-control','placeholder' => 'Website')) }}
 							</div>
 							<div class="col-md-3">
-								<label>Flow Name</label>
-								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order'], null, array('class'=>'form-control')) }}
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order'], null, array('class'=>'form-control', 'placeholder'=>'Flow Name')) }}
 							</div>
 							<div class="col-md-4">
-								<label>Flow Description</label>
 								<input type="text" class="form-control " name="flow_description" placeholder="Flow Description"/>
 							</div>
-							<input type="hidden" name="id" value="">
-							<button type="submit" class="btn btn-secondary">Create</button>
+							<div class="col-md-2">
+								<input type="hidden" name="id" value="">
+								<button type="submit" class="btn btn-secondary btn-xs pull-right mt-2">Create</button>
+							</div>
 						</form>
 					</div>
 				</div>
@@ -169,64 +166,77 @@
 						<div class="row" id='Collector'> 
 							
 						</div>
-						<button type="submit" class="btn btn-secondary">Create</button>
+						<button type="submit" class="btn btn-secondary mt-3">Create</button>
 					</form>
 				</div>
 			</div>
 		</div>
 	</div> 
 <div id="time_delay" style="display:none;">
-	<div class="col-md-12 cross cross_first" >
-		<div class="col-md-6 cross_first_label_time">
-			<label>Time Delay</label>
-			{{ Form::number('time_delay', null, array('class'=>'form-control', 'required')) }}
-			<input type="hidden" name="action_type[]" value="Time Delay">
-		</div>
-		<div class="col-md-4 cross_first_label">
-			<label>Time Delay Type</label>
+	<div class="col-md-12 cross cross_first border-bottom bg-light text-dark pt-3 pb-3  m-0" >
+		<div class="form-group row m-0">
+			<label  class="col-lg-2 col-form-label">Time Delay</label>
+			<div class="col-lg-2">
+				{{ Form::number('time_delay', null, array('class'=>'form-control', 'required')) }}
+				<input type="hidden" name="action_type[]" value="Time Delay">
+			</div>
+			<label  class="col-lg-3 col-form-label">Time Delay Type</label>
+			<div class="col-lg-2">
 			{{ Form::select('time_delay_type', ['days'=>'Days', 'hours'=>'Hours', 'minutes'=>'Minutes'], null, array('class'=>'form-control')) }}
-		</div>
-		<div class="col-md-2 cross_first_remove">
-			<i class="fa fa-remove"></i>  
+			</div>
+			<div class="col-lg-3 text-right pt-3">
+				<i class="fa fa-trash fa-lg"></i>  
+			</div>
 		</div>
 	</div>
 </div>
 <div id="send_message" style="display:none;"> 
-	<div class="col-md-12 cross cross_sec">
-		<div class="col-md-10 cross_sec_label">
+	<div class="col-md-12 cross cross_sec border-bottom bg-white text-dark pt-3 pb-3  m-0">
+		<div class="col-md-10  text-dark">
 			<input type="hidden" name="action_type" value="Send Message">
-			<label>Here will be Email <a href="{{url('link_template')}}"></a></label>
+			<label> <i class="fa fa-envelope"></i> Here will be Email <a href="{{url('link_template')}}"></a></label>
 			<div class="cross_sub_label">
-				<label>Email #1 Subject  <a href="{{url('link_template')}}"></a></label>
+				<label> <i class="fa fa-envelope"></i> Email #1 Subject  <a href="{{url('link_template')}}"></a></label>
 			</div>
 		</div>
-		<div class="col-md-2 cross_sec_remove">
-			<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-			<i class="fa fa-remove"></i>
+		<div class="col-md-2 cross_sec_remove pt-3 text-right">
+			<i class="fa fa-pencil-square-o fa-lg p-0" aria-hidden="true"></i>
+			<i class="fa fa-remove fa-lg"></i>
 		</div>
 	</div>
 </div>
 <div id="whatsapp" style="display:none;">
-	<div class="col-md-12 cross cross_first" >
-		<div class="col-md-10 cross_first_label_time">
-			<label>Whatsapp Message</label>
-			{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
-			<input type="hidden" name="action_type[]" value="Whatsapp">
-		</div>
-		<div class="col-md-2 cross_first_remove">
-			<i class="fa fa-remove"></i>  
+	<div class="col-md-12 cross cross_first border-bottom bg-light text-dark pt-3 pb-3  m-0" >
+		<div class="form-group row m-0">
+			<label  class="col-lg-3 col-form-label">Whatsapp Message</label>
+			<div class="col-lg-8">
+				{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
+				<input type="hidden" name="action_type[]" value="Whatsapp">
+			</div>
+			<div class="col-lg-1 text-right pt-3">
+				<i class="fa fa-trash fa-lg"></i>  
+			</div>
 		</div>
 	</div>
 </div>
 <div id="sms" style="display:none;">
-	<div class="col-md-12 cross cross_first" >
-		<div class="col-md-10 cross_first_label_time">
-			<label>SMS</label>
-			{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
-			<input type="hidden" name="action_type[]" value="SMS">
+	<div class="col-md-12 cross cross_first border-bottom bg-light text-dark pt-3 pb-3  m-0" >
+		<div class="form-group row m-0">
+			<label  class="col-lg-3 col-form-label">SMS</label>
+			<div class="col-lg-8">
+				{{ Form::text("message_title", null, array('class'=>'form-control', 'required')) }}
+				<input type="hidden" name="action_type[]" value="SMS">
+			</div>
+			<div class="col-lg-1 text-right pt-3">
+				<i class="fa fa-trash fa-lg"></i>  
+			</div>
 		</div>
-		<div class="col-md-2 cross_first_remove">
-			<i class="fa fa-remove"></i>  
+		<div class="col-md-11 cross_first_label_time">
+			<label></label>
+			
+		</div>
+		<div class="col-md-1 cross_first_remove pt-3 text-right">
+			
 		</div>
 	</div>
 </div>
