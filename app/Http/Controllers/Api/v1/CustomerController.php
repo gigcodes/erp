@@ -68,7 +68,7 @@ class CustomerController extends Controller
                     $erp_lead->size = $checkCustomer->size;
                     $erp_lead->gender = $checkCustomer->gender;
                     $erp_lead->qty = $item['qty'];
-                    $erp_lead->type = 'add-to-cart';
+                    $erp_lead->type = $request->get("type",'add-to-cart');
                     $erp_lead->min_price = $product->price;
                     $erp_lead->max_price = $product->price;
                     $erp_lead->save();
