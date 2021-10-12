@@ -83,7 +83,7 @@
                         <tr>
                         <th width="1%">Date</th>
                             <th width="1%">User</th>
-                            <th width="2%">Tm Trk</th>
+                            <th width="1%">Tm Trk</th>
                             <th width="7%">Tasks</th>
                             <th width="3%">Tm Trk</th>
                             <th width="3%">Tm Est</th>
@@ -97,7 +97,7 @@
                             <th width="1%">Sts</th>
                             <th width="1%">Note</th>
                             <th width="6%">Frequency</th>
-                            <th width="5%">Action</th>
+                            <th width="6%">Action</th>
                         </tr>
                         @php
                             $totalTracked = 0;
