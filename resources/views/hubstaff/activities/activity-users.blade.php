@@ -9,33 +9,29 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 
 <div class="row" id="common-page-layout">
-    <div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb mb-3">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
-        <div class="pull-right">
             <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
             <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
             <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
             <a class="btn btn-secondary hubstaff_activity_command" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
-        </div>
     </div>
-   
-    <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
             <div class="col-md-12 margin-tb">
                 <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
                     <div class="row">
-                        <div class="form-group col-md-1">
+                        <div class="form-group col-md-2">
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
                         <div class="form-group col-md-2">
-                            <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Enter Developer Task ID"]); ?>
+                            <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Developer Task ID"]); ?>
                         </div>
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-1">
                             
-                            <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Enter Task ID"]); ?>
+                            <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Task ID"]); ?>
                         </div>
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-1">
                             <select name="task_status" class="form-control">
                                 <option value="" >Select Status</option>
                                 <option value="Done" {{ request('task_status') ==  'Done' ? 'selected' : ''}}>Done</option>
@@ -59,7 +55,7 @@
                             </div>
                         </div>
                        
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-1">
                             <select name="status" id="" class="form-control">
                             <option value="">Select</option>
                             <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
@@ -70,14 +66,12 @@
                             </select>
                         </div>
                         <div class="form-group col-md-2">
-                            <label for="button">&nbsp;</label>
-                            <button type="submit" name="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-                                <img src="/images/search.png" style="cursor: default;">
+                            <button type="submit" name="submit" class="btn btn-xs text-dark">
+                                <i class="fa fa-search"></i>
                             </button>
-                            <br>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i>Download report</button>
+                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-xs btn-secondary">
+                                Download report
+                            </button>
                         </div>  
                     </div>    
                 </form> 
@@ -162,13 +156,13 @@
                                                     {{ (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A' }}
                                                 @endif
                                             </td>
-                                            <td width="11%">
+                                            <td width="11%" class="p-0 pt-1 pl-2">
                                                 @if ($taskName)
                                                     {{ $estimation }}
                                                 @endif
                                                 <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$devTaskId}}"><i class="fa fa-info-circle"></i></button>
                                             </td>
-                                            <td width="11%">
+                                            <td width="11%" class="p-0 pt-1 pl-2">
                                                 @if ( $taskName )
                                                     @if (is_numeric($estimation) && $trackedTime && $taskName)
                                                         {{ $estimation . '-' . number_format($trackedTime / 60,2,".",",") }}
@@ -214,25 +208,25 @@
                                 <p>S/F PX : {{$fixed_price_user_or_job}}</p>
                                 <p>Frequency : {{$user['payment_frequency']}} </p>
                                 <!-- <p>Last Voucher Date : {{ \Carbon\Carbon::parse($user['last_mail_sent_payment'])->format('d-m-y') }}</p> -->
-                                <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
                             </td>
                             <td>
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                                    <a class="btn btn-secondary show-activities">+</a>
+                                    <a class="btn btn-xs text-dark show-activities">+</a>
                                 </form>
                                 @endif
                                 @if(Auth::user()->isAdmin())
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                                    <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
-                                    <a class="btn approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>
+                                    <a class="btn btn-xs text-dark show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
+                                    <a class="btn btn-xs text-dark approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>                                    
                                 </form>
-                                <button class="btn hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
+                                <button type="button" class="btn btn-xs text-dark hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
                                 @endif
+                                <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
                             </td>
                         </tr>
                         @endforeach
