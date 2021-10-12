@@ -1468,6 +1468,17 @@ $metaData = '';
                                         </li>
                                     </ul>
                                 </li>
+                                <li id="messages" class="nav-item dropdown">
+                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Scheduled Flows<span class="caret"></span></a>
+                                    <ul class="dropdown-menu multi-level">
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             @endif
 
 

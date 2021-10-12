@@ -2631,6 +2631,12 @@ Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInf
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/scheduled-emails', 'FlowController@allScheduleEmails')->name('flow.schedule-emails');
+    Route::get('/scheduled-messages', 'FlowController@allScheduleMessages')->name('flow.schedule-messages');
+    Route::post('/update-email', 'FlowController@updateEmail')->name('flow.update-email');
+    Route::post('/update-message', 'FlowController@updateMessage')->name('flow.update-message');
+    Route::post('/delete-email', 'FlowController@deleteEmail')->name('flow.delete-email');
+    Route::post('/delete-message', 'FlowController@deleteMessage')->name('flow.delete-message');
     Route::get('/{flow_code}', 'FlowController@editFlow')->name('flow.edit');
     Route::get('/detail/{flow_id}', 'FlowController@flowDetail')->name('flow.detail');
     Route::post('/create', 'FlowController@createFlow')->name('flow-create');
