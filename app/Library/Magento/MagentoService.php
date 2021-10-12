@@ -1201,9 +1201,28 @@ class MagentoService
 
     private function validateStoreWebsiteSize()
     {
+        $mainCategory = $this->category;
+
+        $pushSingle = false;
+
+        if ($mainCategory->push_type == 0 && !is_null($mainCategory->push_type)) {
+            $pushSingle = true;
+        } else if ($mainCategory->push_type == 1) {
+            $pushSingle = false;
+        } else {
+            if (!empty($this->sizes) && count($this->sizes) > 1) {
+                $pushSingle = false;
+            } else {
+                if ($this->product->size_eu == 'OS') {
+                    $product->size_eu = null;
+                }
+                $pushSingle = true;
+            }
+        }
+
         $website_sizes = $this->storeWebsiteSize;
 
-        if (count($website_sizes) <= 0) {
+        if (count($website_sizes) <= 0 && !$pushSingle) {
             $this->storeLog("error", "Product has no store website sizes available");
             return false;
         }
