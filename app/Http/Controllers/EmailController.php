@@ -37,7 +37,7 @@ class EmailController extends Controller
         $user = Auth::user();
         $admin = $user->isAdmin();
         $usernames = [];
-        if (!$admin) {
+        if ($admin != 1) {
             $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
             if ($emaildetails) {
                 foreach ($emaildetails as $_email) {
