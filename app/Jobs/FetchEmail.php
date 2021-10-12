@@ -309,7 +309,7 @@ class FetchEmail implements ShouldQueue
 
             dump('__________');
 
-            $report->update(['end_time' => Carbon::now()]);
+            
         } catch (\Exception $e) {
 
             \Log::channel('customer')->info($e->getMessage());

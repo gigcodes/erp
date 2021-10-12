@@ -84,16 +84,16 @@ class EmailAddressesController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'from_name' => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
-            'driver' => 'required|string|max:255',
-            'host' => 'required|string|max:255',
-            'port' => 'required|string|max:255',
-            'encryption' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
-            'recovery_phone' => 'required|string|max:255',
-            'recovery_email' => 'required|string|max:255',
+            'from_name'      => 'required|string|max:255',
+            'from_address'   => 'required|string|max:255',
+            'driver'         => 'required|string|max:255',
+            'host'           => 'required|string|max:255',
+            'port'           => 'required|string|max:255',
+            'encryption'     => 'required|string|max:255',
+            'username'       => 'required|string|max:255',
+            'password'       => 'required|string|max:255',
+            //'recovery_phone' => 'required|string|max:255',
+            //'recovery_email' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token', 'signature_logo', 'signature_image');
@@ -138,16 +138,16 @@ class EmailAddressesController extends Controller
     {
 
         $this->validate($request, [
-            'from_name' => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
-            'driver' => 'required|string|max:255',
-            'host' => 'required|string|max:255',
-            'port' => 'required|string|max:255',
-            'encryption' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
-            'recovery_phone' => 'required|string|max:255',
-            'recovery_email' => 'required|string|max:255',
+            'from_name'      => 'required|string|max:255',
+            'from_address'   => 'required|string|max:255',
+            'driver'         => 'required|string|max:255',
+            'host'           => 'required|string|max:255',
+            'port'           => 'required|string|max:255',
+            'encryption'     => 'required|string|max:255',
+            'username'       => 'required|string|max:255',
+            'password'       => 'required|string|max:255',
+            //'recovery_phone' => 'required|string|max:255',
+            //'recovery_email' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token', 'signature_logo', 'signature_image');
