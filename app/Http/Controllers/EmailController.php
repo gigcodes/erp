@@ -144,7 +144,6 @@ class EmailController extends Controller
             $query = $query->orderByDesc('created_at');
             $emails = $query->paginate(30)->appends(request()->except(['page']));
         } else {
-           
             if (count($usernames) > 0) {
                 $query = $query->where(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
@@ -162,6 +161,7 @@ class EmailController extends Controller
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
             }else{
                 $emails = (new Email())->newQuery();
+                $emails = $emails->whereNull('id');
                 $emails = $emails->paginate(30)->appends(request()->except(['page']));
             }
         }
