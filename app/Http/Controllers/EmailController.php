@@ -64,7 +64,6 @@ class EmailController extends Controller
         $query = (new Email())->newQuery();
         $trash_query = false;
 
-        if (count($usernames) > 0) {
             $query = $query->where(function ($query) use ($usernames) {
                 foreach ($usernames as $_uname) {
                     $query->orWhere('from', 'like', '%' . $_uname . '%');
@@ -76,7 +75,6 @@ class EmailController extends Controller
                     $query->orWhere('to', 'like', '%' . $_uname . '%');
                 }
             });
-        }
 
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
