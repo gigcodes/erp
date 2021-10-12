@@ -41,7 +41,9 @@
     @endif
     </td>
     <td>
+    @if($log->created_at)    
     {{ $log->created_at->format('d-m-y H:i:s') }}
+    @endif
     </td>
 </tr>
 @endforeach
