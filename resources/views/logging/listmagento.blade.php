@@ -205,6 +205,7 @@
               <th width="5%;">Queue</th>
               <th width="2%">Try</th>
               <th width="10%">Action</th>
+
             </thead>
             <tbody class="infinite-scroll-pending-inner">
 				@include("logging.partials.magento_product_data")                
@@ -234,6 +235,39 @@
               <th style="width:6%">Status</th>
             </thead>
             <tbody class="error-log-data">
+
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+  <div id="PriceModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Price details</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-hover" style="table-layout:fixed;">
+            <thead>
+              <th style="width:7%">Product ID</th>
+              <th style="width:7%">Default Price</th>
+              <th style="width:7%">Segment Discount</th>
+              <th style="width:7%">Duty Price</th>
+              <th style="width:7%">Override Price</th>
+              <th style="width:6%">Status</th>
+              <th style="width:6%">Web Store</th>
+              <th style="width:11%">Store Website</th>
+            </thead>
+            <tbody class="price-data">
 
             </tbody>
           </table>
@@ -674,6 +708,26 @@
     });
 
   });
+
+  $(document).on("click", ".show_prices", function() {
+    var id = $(this).data('id');
+    var store_website_id = $(this).data('website');
+    var product = $(this).data('product');
+    $.ajax({
+      method: "GET",
+      url: "/logging/show-prices/" + product,
+      data: {
+        "_token": "{{ csrf_token() }}"
+      },
+      dataType: 'html'
+    })
+    .done(function(result) {
+      $('#PriceModal').modal('show');
+      $('.price-data').html(result);
+    });
+
+  });
+
   $(document).on("click", ".update_modal", function() {
     var data = $(this).data('id');
 

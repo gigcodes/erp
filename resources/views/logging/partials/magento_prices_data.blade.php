@@ -1,0 +1,37 @@
+@foreach($prices as $log)
+<tr>
+    <td>
+    @if($log->product_id)
+        {{$log->product_id}}
+    @endif
+    </td>
+    <td>
+        {{$log->default_price}}
+    </td>
+    <td>
+        {{$log->segment_discount}}
+    </td>
+    <td>
+        {{$log->duty_price}}
+    </td>
+    <td>
+        {{$log->override_price}}
+    </td>
+    <td>
+    @if($log->status)
+        {{$log->status}}
+    @endif
+    </td>
+    <td>
+    @if($log->web_store_id)
+        {{$log->web_store_name}}
+    @endif
+    </td>
+    <td>
+    @if($log->store_website_id)
+        {{$log->store_website->title}}
+    @endif
+    </td>
+   
+</tr>
+@endforeach
