@@ -79,6 +79,7 @@
                     <span style="display:flex;">
                       <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                       <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
+                      <button class="btn btn-xs btn-none-border show_prices" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}" data-product="{{ $item->product_id}}"><i class="fa fa-money"></i></button>
                       <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i style="font-size:13px;" class="fa fa-image"></i></button>
                       <a target="__blank" href="{{$item->website_url}}/admin/?sku={{$item->getWebsiteSku()}}"><button class="btn btn-xs"><i class="fa fa-globe"></i></button></a>
                       <input style="width:14px;height:15px;margin-left:7px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>

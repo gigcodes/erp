@@ -268,19 +268,26 @@ class SiteDevelopmentController extends Controller
                 }
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
             } else {
-				$develop = SiteDevelopment::where('site_development_category_id',$categoryCheck->id )->first();
-				if(empty($develop)) {
-					$all_website = StoreWebsite::get();
-					foreach ($all_website as $key => $value) {
+				
+				$all_website = StoreWebsite::get();
+				$i=1;
+				foreach ($all_website as $key => $value) {
+					$develop = SiteDevelopment::where('site_development_category_id',$categoryCheck->id )->where('website_id', $value->id)->first();
+					if(empty($develop)) {
+						$i=0;
 						$site = new SiteDevelopment;
 						$site->site_development_category_id = $categoryCheck->id;
 						$site->site_development_master_category_id = $categoryCheck->master_category_id;
 						$site->website_id = $value->id;
 						$site->save();
 					}
+						
+				}
+				if($i ==1){
+					return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
+				} else{
 					return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
 				}
-                return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
             }
 
         } else {

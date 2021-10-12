@@ -50,6 +50,7 @@ use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\UploadProductsToMagento;
 use App\Console\Commands\UpdateGnbPrice;
+use App\Console\Commands\UpdatePricesWithDecimals;
 use App\Console\Commands\DeleteGnbProducts;
 use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\UpdateWiseProducts;
@@ -190,6 +191,7 @@ class Kernel extends ConsoleKernel
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
         UpdateGnbPrice::class,
+        UpdatePricesWithDecimals::class,
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,
         UpdateWiseProducts::class,

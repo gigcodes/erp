@@ -259,7 +259,7 @@
 
           <div class="form-group">
             <strong>Recovery Phone:</strong>
-            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}" required>
+            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}">
 
             @if ($errors->has('recovery_phone'))
               <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
@@ -268,7 +268,7 @@
 
           <div class="form-group">
             <strong>Recovery Email:</strong>
-            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}" required>
+            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}">
 
             @if ($errors->has('recovery_email'))
               <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
@@ -338,7 +338,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Name:</strong>
-            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" required>
+            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" >
 
             @if ($errors->has('signature_name'))
               <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
@@ -347,7 +347,7 @@
 
           <div class="form-group">
             <strong>Signature Title:</strong>
-            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" required>
+            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
 
             @if ($errors->has('signature_title'))
               <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
@@ -355,7 +355,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Phone:</strong>
-            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" required>
+            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
 
             @if ($errors->has('signature_phone'))
               <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
@@ -363,7 +363,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Email:</strong>
-            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" required>
+            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
 
             @if ($errors->has('signature_email'))
               <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
@@ -371,7 +371,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Website:</strong>
-            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" required>
+            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
 
             @if ($errors->has('signature_website'))
               <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
@@ -524,7 +524,7 @@
 
           <div class="form-group">
             <strong>Recovery Phone:</strong>
-            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}" required>
+            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}">
 
             @if ($errors->has('recovery_phone'))
               <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
@@ -534,7 +534,7 @@
 
           <div class="form-group">
             <strong>Recovery Email:</strong>
-            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}" required>
+            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}">
 
             @if ($errors->has('recovery_email'))
               <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
@@ -631,7 +631,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Name:</strong>
-            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" required>
+            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" >
 
             @if ($errors->has('signature_name'))
               <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
@@ -640,7 +640,7 @@
 
           <div class="form-group">
             <strong>Signature Title:</strong>
-            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" required>
+            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
 
             @if ($errors->has('signature_title'))
               <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
@@ -648,7 +648,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Phone:</strong>
-            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" required>
+            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
 
             @if ($errors->has('signature_phone'))
               <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
@@ -656,7 +656,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Email:</strong>
-            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" required>
+            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
 
             @if ($errors->has('signature_email'))
               <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
@@ -664,7 +664,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Website:</strong>
-            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" required>
+            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
 
             @if ($errors->has('signature_website'))
               <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
