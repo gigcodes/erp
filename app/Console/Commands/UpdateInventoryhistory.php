@@ -57,7 +57,7 @@ class UpdateInventoryHistory extends Command
                $data=[
                    'date'=>$date,
                    'total_product'=> $totalProduct,
-                   'updated_product'=>$updated_product,
+                   'updated_product'=>($updated_product) ? $updated_product->total : 0,
                    'in_stock' =>$noofProductInStock
                ];
               $history= \App\InventoryHistory::whereDate('date' ,'=',$date )->first();
