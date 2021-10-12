@@ -96,8 +96,8 @@ else
             'encryption'     => 'required|string|max:255',
             'username'       => 'required|string|max:255',
             'password'       => 'required|string|max:255',
-            'recovery_phone' => 'required|string|max:255',
-            'recovery_email' => 'required|string|max:255',
+            //'recovery_phone' => 'required|string|max:255',
+            //'recovery_email' => 'required|string|max:255',
         ]);
 
 
@@ -154,8 +154,8 @@ else
             'encryption'     => 'required|string|max:255',
             'username'       => 'required|string|max:255',
             'password'       => 'required|string|max:255',
-            'recovery_phone' => 'required|string|max:255',
-            'recovery_email' => 'required|string|max:255',
+            //'recovery_phone' => 'required|string|max:255',
+            //'recovery_email' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token','signature_logo','signature_image');
