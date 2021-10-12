@@ -1027,6 +1027,7 @@ class MagentoService
                         ];
 
                     }
+                    
 
                     $d = \App\StoreWebsiteProductPrice::where('product_id', $product->id)->where('web_store_id', $webStore->id)->where('store_website_id', $website->id)->first();
                     if ($d) {
