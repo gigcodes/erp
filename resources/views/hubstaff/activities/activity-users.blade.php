@@ -11,10 +11,10 @@
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb mb-3">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
-            <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
-            <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
-            <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
-            <a class="btn btn-secondary hubstaff_activity_command" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
+            <a class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
+            <a class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
+            <a class="btn btn-secondary btn-xs" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
+            <a class="btn btn-secondary btn-xs hubstaff_activity_command text-light" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
     </div>
     <div class="col-lg-12 margin-tb">
         <div class="row">
@@ -204,17 +204,18 @@
                             elseif($user['fixed_price_user_or_job'] == 3)
                                 $fixed_price_user_or_job = 'Salaried';                  
                             @endphp
-                            <td>
-                                <p>S/F PX : {{$fixed_price_user_or_job}}</p>
-                                <p>Frequency : {{$user['payment_frequency']}} </p>
+                            <td class="m-0 p-0 pt-1 pl-2">
+                                <p class="m-0">S/F PX : {{$fixed_price_user_or_job}}</p>
+                                <p class="m-0">Frequency : {{$user['payment_frequency']}} </p>
                                 <!-- <p>Last Voucher Date : {{ \Carbon\Carbon::parse($user['last_mail_sent_payment'])->format('d-m-y') }}</p> -->
                             </td>
-                            <td>
+                            <td class="m-0 p-0 pt-1 pl-2">
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                                    <a class="btn btn-xs text-dark show-activities">+</a>
+                                    <a class="btn btn-xs text-dark show-activities"><i class="fa fa-plus"></i></a>
+                                    <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
                                 </form>
                                 @endif
                                 @if(Auth::user()->isAdmin())
@@ -222,11 +223,11 @@
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                                     <a class="btn btn-xs text-dark show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
-                                    <a class="btn btn-xs text-dark approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>                                    
-                                </form>
-                                <button type="button" class="btn btn-xs text-dark hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
+                                    <a class="btn btn-xs text-dark approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>
+                                    <button type="button" class="btn btn-xs text-dark hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
+                                    <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
+                                </form>                                
                                 @endif
-                                <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
                             </td>
                         </tr>
                         @endforeach
