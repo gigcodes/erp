@@ -812,8 +812,8 @@ class MagentoService
         $d['stock_item'] = [
             'use_config_manage_stock' => 1,
             'manage_stock' => 1,
-            'qty' => 1,
-            'is_in_stock' => 1,
+            'qty' => $this->product->stock,
+            'is_in_stock' => ($this->product->stock > 0) ? 1 : 0,
         ];
         $d['description'] = $this->description;
         $d['tax_class_id'] = 2;
@@ -844,8 +844,8 @@ class MagentoService
         $data['stock_item'] = [
             'use_config_manage_stock' => 1,
             'manage_stock' => 1,
-            'qty' => 1,
-            'is_in_stock' => 1,
+            'qty' => $product->stock,
+            'is_in_stock' => ($product->stock > 0) ? 1 : 0,
         ];
         $data['description'] = $this->description;
         $data['tax_class_id'] = 2;
