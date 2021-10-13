@@ -22,7 +22,7 @@
                         <thead>
                             @if(isset($store_websites))
                                     <tr>
-                                        <th>#<&nbsp;&nbsp;&nbsp;/th>
+                                        <th>#&nbsp;&nbsp;&nbsp;</th>
                                         @foreach($store_websites as $websites)
                                             <th>{{ $websites->title }}</th>
                                         @endforeach
