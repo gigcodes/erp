@@ -106,7 +106,15 @@ class ScheduleEmails extends Command
 								->where('customers.newsletter', 1)
 								->select('mailinglists.id','customers.email as customer_email','customers.id as customer_id')->get();
 						$modalType =  Mailinglist::class;
-					}  else if($key == 0 and $flow['name'] == 'customer_post_purchase') {
+					} else if($key == 0 and $flow['name'] == 'customer_win_back') {
+						$leads = \App\Order::leftJoin('customers','orders.customer_id','=','customers.id')
+						->where("customers.store_website_id",$flow['store_website_id'])
+						->whereIn('orders.order_status', ['delivered', 'Delivered'])
+						->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
+						->select('orders.id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
+						->get();
+						$modalType =  Orders::class;
+					}  else if($key == 0 and $flow['name'] == 'customer_post_purchase') {//
 						   $leads = [];
 						   $modalType =  Orders::class;
 					} 
