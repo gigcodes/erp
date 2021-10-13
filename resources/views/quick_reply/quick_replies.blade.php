@@ -34,8 +34,6 @@
                             @if(isset($all_categories))
                                     @foreach($all_categories as $all_category)
                                         <tr>
-                                           
-                                            
                                              <td>
                                              <div id="show_add_sub_{{ $all_category->id }}" class="hide_all_inputs_sub" style="display: none;">
                                                 <input type="text" id="reply_sub_{{ $all_category->id }}" class="reply_inputs_sub"/>
@@ -43,6 +41,11 @@
                                              </div>    
                                              <div id="show_reply_list_sub_{{ $all_category->id }}">
                                              {{ $all_category->name }}  <a href="#" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
+                                             @if($all_category['childs'])
+                                                @foreach($all_category['childs'] as $_child)   
+                                                <li>{{ $_child->name }}</li>
+                                                @endforeach
+                                             @endif
                                              </div>
                                              </td>
                                             @if(isset($store_websites))

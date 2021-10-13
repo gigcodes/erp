@@ -106,7 +106,7 @@ class QuickReplyController extends Controller
     {
 
         try {
-            $all_categories = ReplyCategory::all();
+            $all_categories = ReplyCategory::where('parent_id', 0)->get();
             $store_websites = StoreWebsite::all();
             $website_length = 0;
             if (count($store_websites) > 0) {
@@ -117,6 +117,12 @@ class QuickReplyController extends Controller
             $category_wise_reply = [];
             foreach ($all_replies as $replies) {
                 $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies;
+            }
+            if($all_categories){
+                foreach($all_categories as $k => $_cat){
+                    $childs = ReplyCategory::where('parent_id', $_cat->id)->get();
+                    $all_categories[$k]['childs'] = $childs;
+                }
             }
             return view('quick_reply.quick_replies', compact('all_categories', 'store_websites', 'website_length', 'category_wise_reply'));
         } catch (\Exception $e) {
