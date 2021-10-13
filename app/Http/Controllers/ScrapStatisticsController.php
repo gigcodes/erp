@@ -1190,13 +1190,7 @@ class ScrapStatisticsController extends Controller
 					'assigned_to' => $assigendTo,
 				]);
 				app('\App\Http\Controllers\DevelopmentController')->issueStore($requestData,  $assigendTo);
-			} else{
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Scraper didn't Run In Last 24 Hr", 'status' => 1]);
-				app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-			}
-			
+			} 
 			Scraper::where('id', $request->scrapper_id)->update(['assigned_to'=>$assigendTo]);
 		}
 		return 'success';
