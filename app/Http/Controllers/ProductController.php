@@ -175,7 +175,7 @@ class ProductController extends Controller
         }
 
         // Run through query helper
-        $newProducts       = QueryHelper::approvedListingOrderFinalApproval($newProducts);
+        $newProducts       = QueryHelper::approvedListingOrderFinalApproval($newProducts,true);
         $term              = $request->input('term');
         $brand             = '';
         $category          = '';

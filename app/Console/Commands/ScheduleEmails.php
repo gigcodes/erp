@@ -49,8 +49,8 @@ class ScheduleEmails extends Command
     public function handle()
     {
 		$created_date = Carbon::now();
-		//$flows = Flow::whereIn('flow_name', ['add_to_cart', 'wishlist', 'delivered_order', 'newsletters', 'customer_post_purchase'])->select('id', 'flow_name as name')->get();
-		$flows = Flow::whereIn('flow_name', ['customer_post_purchase'])->select('id', 'flow_name as name')->get();  
+		$flows = Flow::select('id', 'flow_name as name')->get();
+		//$flows = Flow::whereIn('flow_name', ['customer_post_purchase'])->select('id', 'flow_name as name')->get();  
 		foreach($flows as $flow) {
 			$flowActions =FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 			->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
@@ -184,14 +184,14 @@ class ScheduleEmails extends Command
 										$leads = \App\Order::leftJoin('customers','orders.customer_id','=','customers.id')
 										->where("customers.store_website_id",$store_website_id)
 										->whereIn('orders.order_status', ['delivered', 'Delivered'])
-										//->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
+										->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
 										->select('orders.id', 'orders.customer_id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id',\DB::raw('count(*) as duplicate'))
-										->groupBy('orders.customer_id')->having(DB::raw('count(*)'), '>=', 1)->get(); 
+										->groupBy('orders.customer_id')->having(DB::raw('count(*)'), '>', 1)->get(); 
 									} else{
 										$leads = \App\Order::leftJoin('customers','orders.customer_id','=','customers.id')
 										->where("customers.store_website_id",$store_website_id)
 										->whereIn('orders.order_status', ['delivered', 'Delivered'])
-										//->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
+										->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
 										->select('orders.id', 'orders.customer_id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id',\DB::raw('count(*) as duplicate'))
 										->groupBy('orders.customer_id')->having(DB::raw('count(*)'), 1)->get(); 
 									}
