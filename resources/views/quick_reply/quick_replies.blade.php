@@ -49,8 +49,9 @@
                                              </div>
                                              </td>
                                             @if(isset($store_websites))
+                                            <tr>
                                                 @foreach($store_websites as $websites)
-                                                <tr>
+                                                
                                                     <td>
                                                         <div id="show_add_reply_{{ $all_category->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
                                                             <input type="text" id="reply_{{ $all_category->id }}_{{ $websites->id }}" class="reply_inputs"/>
@@ -78,14 +79,16 @@
                                                             @endforeach
                                                         </ul>
                                                     </td>
-</tr>
+
                                                 @endforeach
+                                                </tr>
                                             @endif
                                             @if($all_category['childs'])
                                                 @foreach($all_category['childs'] as $all_category)   
                                                     @if(isset($store_websites))
-                                                    @foreach($store_websites as $websites)
                                                     <tr>
+                                                    @foreach($store_websites as $websites)
+                                                    
                                                         <td>
                                                             <div id="show_add_reply_{{ $all_category->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
                                                                 <input type="text" id="reply_{{ $all_category->id }}_{{ $websites->id }}" class="reply_inputs"/>
@@ -113,8 +116,9 @@
                                                                 @endforeach
                                                             </ul>
                                                         </td>
-</tr>
+
                                                     @endforeach
+                                                    </tr>
                                                 @endif
                                                 @endforeach
                                              @endif
