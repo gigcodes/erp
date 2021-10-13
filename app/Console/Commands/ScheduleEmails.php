@@ -186,7 +186,7 @@ class ScheduleEmails extends Command
 										->whereIn('orders.order_status', ['delivered', 'Delivered'])
 										->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
 										->select('orders.id', 'orders.customer_id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id',\DB::raw('count(*) as duplicate'))
-										->groupBy('orders.customer_id')->having(DB::raw('count(*)'), '>=', 1)->get(); 
+										->groupBy('orders.customer_id')->having(DB::raw('count(*)'), '>', 1)->get(); 
 									} else{
 										$leads = \App\Order::leftJoin('customers','orders.customer_id','=','customers.id')
 										->where("customers.store_website_id",$store_website_id)
