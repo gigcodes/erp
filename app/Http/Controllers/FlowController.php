@@ -69,10 +69,10 @@ class FlowController extends Controller{
 		return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Flow Type Created successfully']);
     }
 	
-	public function editFlow($flowCode) {
+	/*public function editFlow($flowCode) {
 		$flowDetail = Flow::where('flow_code', $flowCode)->first();	
 		return view('flow.create', compact('flowDetail'));
-	}
+	}*/
 
 	public function updateFlow(Request $request) {
 		$inputs = $request->input(); 
@@ -88,12 +88,31 @@ class FlowController extends Controller{
 		} else {
 			$rank = $rank + 1;
 		}
-		FlowAction::create(['path_id'=>$inputs['path_id'], 'type_id'=>$flowTypeId, 'rank'=>$rank ]);
-		$flowActions = FlowAction::leftJoin('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					   ->select('flow_actions.*', 'flow_types.type')->where(['path_id'=>$inputs['path_id']])->orderBy('rank')->get();
-		$flowPathId = $inputs['path_id']; 
+		
+		$flowAction = FlowAction::create(['path_id'=>$inputs['path_id'], 'type_id'=>$flowTypeId, 'rank'=>$rank ]);
+		if(strtolower($inputs['action_type']) == 'condition') {
+			FlowPath::create(['flow_id'=>$inputs['flow_id'], 'parent_action_id'=>$flowAction['id'], 'path_for'=>'yes']);
+			FlowPath::create(['flow_id'=>$inputs['flow_id'], 'parent_action_id'=>$flowAction['id'], 'path_for'=>'no']);
+		}
+		//$flowPathId = $inputs['path_id']; 
+		$flowPathId = FlowPath::where('flow_id', $inputs['flow_id'])->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
+		$flowActions = $this->getFlowActions($flowPathId);
+		
 		$html =  view('flow.create', compact('flowDetail', 'flowActions', 'flowPathId'))->render();
 		return ['message'=>$html, 'statusCode'=>200];
+	}
+	
+	public function getFlowActions($pathId) {
+		return $flowActions = FlowAction::leftJoin('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
+					->select('flow_actions.*', 'flow_types.type')->where(['path_id'=>$pathId])->orderBy('rank')
+					->get();
+	}
+	
+	public function updateCondition(Request $request) {
+		 $id = $request->action_id;
+		 $condition = $request->condition;
+		FlowAction::where('id', $id)->update(['condition'=>$condition]);
+		return ['message'=>"Condition Updated", 'statusCode'=>200]; 
 	}
 	
 	public function updateFlowActions(Request $request) {
@@ -117,9 +136,11 @@ class FlowController extends Controller{
 	
 	public function flowDetail($flowId) {
 		$flowDetail = Flow::where('id', $flowId)->first();
-		$flowPathId = FlowPath::where('flow_id', $flowId)->pluck('id')->first();
-		$flowActions = FlowAction::leftJoin('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					   ->select('flow_actions.*', 'flow_types.type')->where('path_id', $flowPathId)->orderBy('rank')->get();
+		$flowPathId = FlowPath::where('flow_id', $flowId)->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
+		/*$flowActions = FlowAction::leftJoin('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
+					   ->select('flow_actions.*', 'flow_types.type')->where('path_id', $flowPathId)->orderBy('rank')->get()->groupBy('path_id');		
+		*/
+		$flowActions = $this->getFlowActions($flowPathId);
 		return view('flow.create', compact('flowDetail', 'flowActions', 'flowPathId'));
 	}
 	
