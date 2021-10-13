@@ -2,57 +2,142 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Flow;
-use App\FlowType;
-use App\FlowPath;
 use App\FlowAction;
 use App\FlowMessage;
+use App\FlowPath;
+use App\FlowType;
+use App\Http\Controllers\Controller;
 use App\StoreWebsite;
-use Validator;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Qoraiche\MailEclipse\MailEclipse;
+use Validator;
 
-class FlowController extends Controller{
+class FlowController extends Controller
+{
 
-    public function index(){
-		$flows = Flow::leftJoin('store_websites', 'flows.store_website_id', '=', 'store_websites.id')
-		->select('store_websites.title', 'flows.*')->get();
-		$websites = StoreWebsite::pluck('title', 'id')->toArray();
+    public function index()
+    {
+        $flows = Flow::leftJoin('store_websites', 'flows.store_website_id', '=', 'store_websites.id')
+            ->select('store_websites.title', 'flows.*')->get();
+        $websites = StoreWebsite::pluck('title', 'id')->toArray();
         return view('flow.index', compact('flows', 'websites'));
     }
-	
-	public function createFlow(Request $request) {
-		$validator = Validator::make($request->all(), [
+
+    public function allScheduleMessages()
+    {
+
+        $current_date = Carbon::now()->format('Y-m-d H:i:s');
+        //Chats and Whatsapp
+        $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date);
+        $types = ['0' => 'Whatsapp', '3' => 'SMS'];
+        if (request()->message) {
+            $messages->where('message', 'LIKE', '%' . request()->message . '%');
+        }
+
+        if (request()->message_application_id) {
+            $messages->where('message_application_id', 'LIKE', '%' . request()->message_application_id . '%');
+        }
+
+        $messages = $messages->paginate(10);
+
+		$message = request()->message;
+		$type = request()->message_application_id;
+
+        return view('flow.scheduled-messages', compact('messages','types','message','type'));
+    }
+
+    public function allScheduleEmails(Request $request)
+    {
+
+        $current_date = Carbon::now()->format('Y-m-d H:i:s');
+        //Emails
+        $emails = \App\Email::where('schedule_at', '>', $current_date);
+
+        if (request()->from) {
+            $emails->where('from', 'LIKE', '%' . request()->from . '%');
+        }
+
+        if (request()->to) {
+            $emails->where('to', 'LIKE', '%' . request()->to . '%');
+        }
+
+        $emails = $emails->paginate(10);
+
+        $from = request()->from;
+        $to = request()->to;
+
+        return view('flow.scheduled-emails', compact('emails', 'from', 'to'));
+    }
+
+    public function updateEmail(Request $request)
+    {
+
+        $data = $request->except('_token', 'id');
+
+        \App\Email::find($request->id)->update($data);
+
+        return redirect()->back()->withSuccess('You have successfully updated a Email Data!');
+    }
+
+    public function deleteEmail(Request $request)
+    {
+        \App\Email::find($request->id)->delete();
+
+        return redirect()->back()->withSuccess('You have successfully deleted a Email Data!');
+    }
+
+    public function updateMessage(Request $request)
+    {
+
+        $data = $request->except('_token', 'id');
+
+        \App\ChatMessage::find($request->id)->update($data);
+
+        return redirect()->back()->withSuccess('You have successfully updated a Message Data!');
+    }
+
+    public function deleteMessage(Request $request)
+    {
+        \App\ChatMessage::find($request->id)->delete();
+
+        return redirect()->back()->withSuccess('You have successfully deleted a Message Data!');
+    }
+
+    public function createFlow(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'store_website_id' => 'required',
             'flow_name' => 'required',
             'flow_description' => 'required',
         ]);
-		
-		if ($validator->fails()) {  
-			$errors = $validator->getMessageBag();
-			$errors = $errors->toArray();
-			$message = '';
-			foreach($errors as $error) {
-				$message .= $error[0].'<br>';
-			}
-            return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
+
+        if ($validator->fails()) {
+            $errors = $validator->getMessageBag();
+            $errors = $errors->toArray();
+            $message = '';
+            foreach ($errors as $error) {
+                $message .= $error[0] . '<br>';
+            }
+            return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
-		$inputs = $request->input();
-		if($inputs['id'] == null) {
-			$inputs['flow_code'] = $this->randomFlowCode();
-		}
-		$flow = Flow::updateOrCreate(['id'=>$inputs['id']], $inputs);
-		if($inputs['id'] == null) {
-			FlowPath::create(['flow_id'=>$flow['id']]);
-		}
-		return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Flow Created successfully']);
+        $inputs = $request->input();
+        if ($inputs['id'] == null) {
+            $inputs['flow_code'] = $this->randomFlowCode();
+        }
+        $flow = Flow::updateOrCreate(['id' => $inputs['id']], $inputs);
+        if ($inputs['id'] == null) {
+            FlowPath::create(['flow_id' => $flow['id']]);
+        }
+        return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Flow Created successfully']);
     }
-	
-	public function createType(Request $request) {
-		$validator = Validator::make($request->all(), [
-           'type' => 'required',
+
+    public function createType(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
         ]);
 		
 		if ($validator->fails()) {  
@@ -195,60 +280,62 @@ class FlowController extends Controller{
         $rViewMail      = [];
         if (!empty($mailEclipseTpl)) {
             foreach ($mailEclipseTpl as $mTpl) {
-                $v             = MailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
+                $v = MailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
                 $rViewMail[$v] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
             }
         }
-		return view('flow.message', compact('flowMessage', 'rViewMail'));
-	}
-	
-	public function updateActionMessage(Request $request) {
-		$validator = Validator::make($request->all(), [
-            'sender_name'=>'required',
-			'sender_email_address'=>'required',
-			'mail_tpl' => 'required_without:html_content',
-			'html_content' => 'required_without:mail_tpl',
-			'subject'=>'required',
-		 ], [  
-			'mail_tpl.required_without' => 'Please provide email content or select Email Template.', 
-			'html_content.required_without' => 'Please provide email content or select Email Template.', 
-		]);
-		
-		if ($validator->fails()) {  
-			$errors = $validator->getMessageBag();
-			$errors = $errors->toArray();
-			$message = '';
-			foreach($errors as $error) {
-				$message .= $error[0].'<br>';
-			}
-            return response()->json(['status' => 'failed', 'statusCode'=>500,'message' => $message]);
+        return view('flow.message', compact('flowMessage', 'rViewMail'));
+    }
+
+    public function updateActionMessage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sender_name' => 'required',
+            'sender_email_address' => 'required',
+            'mail_tpl' => 'required_without:html_content',
+            'html_content' => 'required_without:mail_tpl',
+            'subject' => 'required',
+        ], [
+            'mail_tpl.required_without' => 'Please provide email content or select Email Template.',
+            'html_content.required_without' => 'Please provide email content or select Email Template.',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->getMessageBag();
+            $errors = $errors->toArray();
+            $message = '';
+            foreach ($errors as $error) {
+                $message .= $error[0] . '<br>';
+            }
+            return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
-		$inputs = $request->input();
-		FlowMessage::updateOrCreate(['id'=>$inputs['id']], $inputs);
-		return response()->json(['status' => 'success', 'statusCode'=>200,'message' => 'Message Saved successfully']);
-	}
+        $inputs = $request->input();
+        FlowMessage::updateOrCreate(['id' => $inputs['id']], $inputs);
+        return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Message Saved successfully']);
+    }
 
-	public function flowDelete(Request $request){
-		$input = $request->input(); 
-		$flow = Flow::find($input['id']);
-		$paths = FlowPath::where('flow_id', $flow->id)->get();
-		foreach($paths as $path) {
-			$flowActions = FlowAction::where('path_id', $path->id)->get();
-			foreach($flowActions as $flowAction) {
-				FlowMessage::where('action_id', $flowAction->id)->delete();
-				$flowAction->delete();
-			}
-			$path->delete();
-		}
-		$flow->delete();
-		return ['message'=>"Flow Successfully Deleted", 'statusCode'=>200];
-	}
+    public function flowDelete(Request $request)
+    {
+        $input = $request->input();
+        $flow = Flow::find($input['id']);
+        $paths = FlowPath::where('flow_id', $flow->id)->get();
+        foreach ($paths as $path) {
+            $flowActions = FlowAction::where('path_id', $path->id)->get();
+            foreach ($flowActions as $flowAction) {
+                FlowMessage::where('action_id', $flowAction->id)->delete();
+                $flowAction->delete();
+            }
+            $path->delete();
+        }
+        $flow->delete();
+        return ['message' => "Flow Successfully Deleted", 'statusCode' => 200];
+    }
 
-	public function flowActionDelete(Request $request) {
-		FlowAction::where('id', $request->input('id'))->delete();
-		FlowMessage::where('action_id', $request->input('id'))->delete();
-		return ['message'=>"Flow Successfully Deleted", 'statusCode'=>200];
-	}
-	
-	
+    public function flowActionDelete(Request $request)
+    {
+        FlowAction::where('id', $request->input('id'))->delete();
+        FlowMessage::where('action_id', $request->input('id'))->delete();
+        return ['message' => "Flow Successfully Deleted", 'statusCode' => 200];
+    }
+
 }
