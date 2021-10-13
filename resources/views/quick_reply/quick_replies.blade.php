@@ -34,13 +34,17 @@
                             @if(isset($all_categories))
                                     @foreach($all_categories as $all_category)
                                         <tr>
-                                            <div id="show_add_sub_{{ $all_category->id }}" class="hide_all_inputs_sub" style="display: none;">
+                                           
+                                            
+                                             <td>
+                                             <div id="show_add_sub_{{ $all_category->id }}" class="hide_all_inputs_sub" style="display: none;">
                                                 <input type="text" id="reply_sub_{{ $all_category->id }}" class="reply_inputs_sub"/>
                                                 <button class="btn btn-secondary btn-sm save_reply_sub">&#10004;</button>
-                                            </div>
-                                            <div id="show_reply_list_sub_{{ $all_category->id }}">
-                                             <td>{{ $all_category->name }}  <a href="#" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a></td>
-                                            </div>
+                                             </div>    
+                                             <div id="show_reply_list_sub_{{ $all_category->id }}">
+                                             {{ $all_category->name }}  <a href="#" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
+                                             </div>
+                                             </td>
                                             @if(isset($store_websites))
                                                 @foreach($store_websites as $websites)
                                                     <td>
@@ -132,8 +136,6 @@
                 $('.add_sub_cat').show();
                 $('.reply_inputs_sub').val('');
                 cat_sub_id = $(this).attr('data-id');
-                alert(cat_sub_id);
-                
                 $('#show_add_option_sub_'+cat_sub_id).hide();
                 $('#show_add_sub_'+cat_sub_id).show();
             });
