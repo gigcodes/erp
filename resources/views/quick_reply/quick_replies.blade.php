@@ -222,7 +222,7 @@
             $(document).on('click','.save_reply_sub',function(){
                 var reply = $('#reply_sub_'+cat_sub_id).val();
                 if(reply == ''){
-                    alert('Please enter name');
+                    alert('Please enter reply');
                     return false;
                 }
                 $.ajax({
@@ -264,6 +264,28 @@
                 $('#'+sub_id).hide();
                 $('.edit_reply_input_sub').hide();
                 $('#edit_reply_sub_'+sub_id).show();
+            });
+
+            $(document).on('click','.update_reply',function(){
+                console.log('#edit_reply_'+reply_id);
+                var edit_reply = $('input[id^="edit_reply_'+reply_id+'"]').val();
+                console.log(edit_reply);
+                if(edit_reply == ''){
+                    alert('Please enter reply');
+                    return false;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('save-store-wise-reply') }}",
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'reply_id': reply_id,
+                        'reply': edit_reply
+                    }
+                }).done(function (response) {
+                    console.log(response);
+                    window.location.reload();
+                });
             });
 
             $(document).on('click','.update_reply_sub',function(){
