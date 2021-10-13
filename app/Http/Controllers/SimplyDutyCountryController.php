@@ -296,8 +296,9 @@ class SimplyDutyCountryController extends Controller
             foreach($ps as $p)
             { 
               \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$segmentDiscount,'status'=>0]) ;
-               //$note="Country Duty change  from ".$p->duty_price." To ".$amount;
-               //\App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+              $this->pushToMagento($p->product_id, $p->store_website_id);
+               $note="Segment discount change  from ".$p->segment_discount." To ".$segmentDiscount;
+               \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
            }
         }
    }
