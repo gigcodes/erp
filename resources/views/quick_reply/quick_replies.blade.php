@@ -242,7 +242,7 @@
                     }else{
                         toastr['error'](response.message);
                     }
-                    //window.location.reload();
+                    window.location.reload();
                 });
             });
 
