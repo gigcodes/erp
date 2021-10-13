@@ -40,7 +40,7 @@
                                                 <button class="btn btn-secondary btn-sm save_reply_sub">&#10004;</button>
                                              </div>    
                                              <div id="show_reply_list_sub_{{ $all_category->id }}">
-                                             {{ $all_category->name }}  <a href="#" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
+                                             {{ $all_category->name }}  <a href="javascript::void()" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
                                              @if($all_category['childs'])
                                                 @foreach($all_category['childs'] as $_child)   
                                                 <li>{{ $_child->name }}</li>
@@ -180,7 +180,7 @@
                 $.ajax({
                     type: "POST",
                     url: "{{ route('save-sub') }}",
-                    data: {
+                    data: { 
                         '_token': "{{ csrf_token() }}",
                         'reply': reply,
                         'category_id': cat_sub_id
