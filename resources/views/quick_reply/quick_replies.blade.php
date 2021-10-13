@@ -42,8 +42,12 @@
                                              <div id="show_reply_list_sub_{{ $all_category->id }}">
                                              {{ $all_category->name }}  <a href="javascript::void()" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
                                              @if($all_category['childs'])
-                                                @foreach($all_category['childs'] as $_child)   
-                                                <li>{{ $_child->name }}</li>
+                                                @foreach($all_category['childs'] as $_child) 
+                                                <div id="edit_reply_sub_{{ $_child->id }}" class="edit_reply_input_sub" style="display: none;">
+                                                    <input type="text" value="{{ $_child->name }}" id="edit_reply_sub_{{ $_child->id }}" />
+                                                    <button class="btn btn-secondary btn-sm update_reply_sub">&#10004;</button>
+                                                </div>  
+                                                <li id="{{ $_child->id }}" class="edit_reply_sub">{{ $_child->name }}</li>
                                                 @endforeach
                                              @endif
                                              </div>
@@ -138,6 +142,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('.hide_all_inputs').hide();
+            $('.hide_all_inputs_sub').hide();
             $(document).on('click', '.quick_category_add', function () {
                 var textBox = $(this).closest("div").find(".quick_category");
                 if (textBox.val() == "") {
@@ -217,7 +222,7 @@
             $(document).on('click','.save_reply_sub',function(){
                 var reply = $('#reply_sub_'+cat_sub_id).val();
                 if(reply == ''){
-                    alert('Please enter reply');
+                    alert('Please enter name');
                     return false;
                 }
                 $.ajax({
@@ -251,21 +256,31 @@
                 $('#edit_reply_'+reply_id).show();
             });
 
-            $(document).on('click','.update_reply',function(){
-                console.log('#edit_reply_'+reply_id);
-                var edit_reply = $('input[id^="edit_reply_'+reply_id+'"]').val();
-                console.log(edit_reply);
-                if(edit_reply == ''){
-                    alert('Please enter reply');
+            var sub_id;
+            $(document).on('click', '.edit_reply_sub', function(){
+                $('.hide_all_inputs_sub').hide();
+                $('.edit_reply_sub').show();
+                sub_id = $(this).attr('id');
+                $('#'+sub_id).hide();
+                $('.edit_reply_input_sub').hide();
+                $('#edit_reply_sub_'+sub_id).show();
+            });
+
+            $(document).on('click','.update_reply_sub',function(){
+                console.log('#edit_reply_sub_'+sub_id);
+                var edit_reply_sub = $('input[id^="edit_reply_sub_'+sub_id+'"]').val();
+                console.log(edit_reply_sub);
+                if(edit_reply_sub == ''){
+                    alert('Please enter name');
                     return false;
                 }
                 $.ajax({
                     type: "POST",
-                    url: "{{ route('save-store-wise-reply') }}",
+                    url: "{{ route('save-sub') }}",
                     data: {
                         '_token': "{{ csrf_token() }}",
-                        'reply_id': reply_id,
-                        'reply': edit_reply
+                        'sub_id': sub_id,
+                        'name': edit_reply_sub
                     }
                 }).done(function (response) {
                     console.log(response);

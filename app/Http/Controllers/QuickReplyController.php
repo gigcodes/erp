@@ -118,8 +118,8 @@ class QuickReplyController extends Controller
             foreach ($all_replies as $replies) {
                 $category_wise_reply[$replies->category_id][$replies->store_website_id][$replies->id] = $replies;
             }
-            if($all_categories){
-                foreach($all_categories as $k => $_cat){
+            if ($all_categories) {
+                foreach ($all_categories as $k => $_cat) {
                     $childs = ReplyCategory::where('parent_id', $_cat->id)->get();
                     $all_categories[$k]['childs'] = $childs;
                 }
@@ -171,11 +171,19 @@ class QuickReplyController extends Controller
     {
 
         try {
-            ReplyCategory::create([
-                'name' => $request->reply,
-                'parent_id' => $request->category_id,
-            ]);
-            return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Category added successfully']);
+            if (isset($request->sub_id)) {
+                //update name
+                ReplyCategory::where('id', '=', $request->sub_id)->update([
+                    'name' => $request->name,
+                ]);
+                return new JsonResponse(['status' => 1, 'data' => $request->name, 'message' => 'Category updated successfully']);
+            } else {
+                ReplyCategory::create([
+                    'name' => $request->reply,
+                    'parent_id' => $request->category_id,
+                ]);
+                return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Category added successfully']);
+            }
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 0, 'message' => 'Try again']);
         }
