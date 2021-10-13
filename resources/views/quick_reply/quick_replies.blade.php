@@ -169,8 +169,7 @@
             });
 
             $(document).on('click','.save_reply_sub',function(){
-                var reply = $('#reply_sub_'+cat_id).val();
-                alert(reply);
+                var reply = $('#reply_sub_'+cat_sub_id).val();
                 if(reply == ''){
                     alert('Please enter reply');
                     return false;
