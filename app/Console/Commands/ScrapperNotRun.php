@@ -52,7 +52,7 @@ class ScrapperNotRun extends Command
         }
         $scrapers = Scraper::where("scraper_name","!=","")->whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
 		foreach($scrapers as $scrapperDetails) {
-			$hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->scrapper_id)
+			$hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->id)
 			->whereNotNull("assigned_to")->where("is_resolved", 0)->first();
 			if($hasAssignedIssue != null) {
 				$userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();

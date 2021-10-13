@@ -20,7 +20,7 @@
 			<tbody class="conent">
 				@foreach ($logDetails as $log)
 					<tr>
-						<td>{{ $log->scrapper_name }}</td>
+						<td>{{ $log->scraper_name }}</td>
 						<td>{{ $log->log_messages }}</td>
 						<td>{{ $log->created_at }}</td>
 					</tr>
