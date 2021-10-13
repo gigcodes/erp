@@ -817,7 +817,7 @@ class DevelopmentController extends Controller
             // });
 
             $issues = $issues->where(function ($query) use ($request) {
-                $query->where("assigned_to", auth()->user()->id)
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
                     ->orWhere("master_user_id", auth()->user()->id);
             });
 
