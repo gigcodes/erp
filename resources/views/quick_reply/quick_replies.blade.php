@@ -79,6 +79,41 @@
                                                     </td>
                                                 @endforeach
                                             @endif
+                                            @if($all_category['childs'])
+                                                @foreach($all_category['childs'] as $all_category)   
+                                                    @if(isset($store_websites))
+                                                    @foreach($store_websites as $websites)
+                                                        <td>
+                                                            <div id="show_add_reply_{{ $all_category->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
+                                                                <input type="text" id="reply_{{ $all_category->id }}_{{ $websites->id }}" class="reply_inputs"/>
+                                                                <button class="btn btn-secondary btn-sm save_reply">&#10004;</button>
+                                                            </div>
+
+                                                            <ul id="show_reply_list_{{ $all_category->id }}_{{ $websites->id }}">
+                                                                <li class="show_add_option" id="show_add_option_{{ $all_category->id }}_{{ $websites->id }}">
+                                                                    <a href="#" class="add_quick_reply" id="{{ $all_category->id }}" data-attr="{{ $websites->id }}">Add new reply</a>
+                                                                </li>
+                                                                @foreach($category_wise_reply as $key => $value)
+                                                                    @if($key == $all_category->id)
+                                                                        @foreach($value as $key1 => $item)
+                                                                            @if($key1 == $websites->id)
+                                                                                    @foreach($item as $val)
+                                                                                    <div id="edit_reply_{{ $val->id }}" class="edit_reply_input" style="display: none;">
+                                                                                        <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" />
+                                                                                        <button class="btn btn-secondary btn-sm update_reply">&#10004;</button>
+                                                                                    </div>
+                                                                                    <li id="{{ $val->id }}" class="edit_reply">{{ $val->reply }}</li>
+                                                                                    @endforeach
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @endif
+                                                                @endforeach
+                                                            </ul>
+                                                        </td>
+                                                    @endforeach
+                                                @endif
+                                                @endforeach
+                                             @endif
                                         </tr>
                                     @endforeach
                             @endif
