@@ -163,6 +163,7 @@ class QuickReplyController extends Controller
 
     public function saveSubCat(Request $request)
     {
+
         try {
             ReplyCategory::create([
                 'name' => $request->reply,
