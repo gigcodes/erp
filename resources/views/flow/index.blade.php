@@ -90,7 +90,7 @@
 							</div>
 							<div class="col-md-3">
 								<label>Flow Name</label>
-								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order'], null, array('class'=>'form-control')) }}
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase'], null, array('class'=>'form-control')) }}
 							</div>
 							<div class="col-md-4">
 								<label>Flow Description</label>
@@ -160,6 +160,7 @@
 					<a href="#" id="dateTime"> Add Time Delay </a>
 					<a href="#" id="whatsapp"> &nbsp;Add Whatsapp </a> 
 					<a href="#" id="sms"> &nbsp;Add SMS</a> 
+					<a href="#" id="condition"> &nbsp;Add Condition</a> 
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 					</button>
@@ -230,6 +231,50 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal fade" id="condition_modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+				<div class="modal-header">
+					<h5 class="modal-title">Select where would you like to append</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="col-md-6 cross_first_label_time">
+						<label>Under Yes</label>
+						<input type="radio" name="path_for" class="yes_no" value="yes">
+						<div class="col-md-12" class="yes_conditions" id="yes_conditions" style="display:none;">
+							<div class="col-md-6 cross_first_label_time">
+								<label>Under Yes</label>
+								<input type="radio" name="path_for_yes" class="yes_yes_no" value="yes">
+							</div>
+							<div class="col-md-6 cross_first_label_time">
+								<label>Under No</label>
+								<input type="radio" name="path_for_yes" class="yes_yes_no" value="no">
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6 cross_first_label_time">
+						<label>Under No</label>
+						<input type="radio" name="path_for" class="yes_no" value="no">
+						<div class="col-md-12" class="no_conditions" id="no_conditions" style="display:none;">
+							<div class="col-md-6 cross_first_label_time">
+								<label>Under Yes</label>
+								<input type="radio" name="path_for_no" class="no_yes_no" value="yes">
+							</div>
+							<div class="col-md-6 cross_first_label_time">
+								<label>Under No</label>
+								<input type="radio" name="path_for_no" class="no_yes_no" value="no">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 @endsection
 
 @section('scripts')
@@ -250,52 +295,164 @@ $.ajaxSetup({
 });
 
 jQuery(document).ready(function($){
-	 $('#dateTime').on('click', function(){
+	
+
+	$('#dateTime').on('click', function(){
+		//var parent_div = getParentDivId();
         var time = $('#time_delay').html();
-		$('#Collector').append(time);
-		var flowId = $('#flow_id').val();console.log(flowId);
+		//$(parent_div).append(time);
+		var flowId = $('#flow_id').val();
 		var pathId = $('#path_id').val();
 		saveFlowAction(flowId, pathId, 'Time Delay');
     });
 	
 	$('#sendEmail').on('click', function(){
+		//var parent_div = getParentDivId();
        var sendEmail = $('#send_message').html();
-       $('#Collector').append(sendEmail);
+       //$(parent_div).append(sendEmail);
 	    var flowId = $('#flow_id').val();
 		var pathId = $('#path_id').val();
 	   saveFlowAction(flowId, pathId, 'Send Message');
     });
 	
 	$('#whatsapp').on('click', function(){
+		//var parent_div = getParentDivId();
        var sendWhatapp = $('#whatsapp').html();
-       $('#Collector').append(sendWhatapp);
+      // $(parent_div).append(sendWhatapp);
 	    var flowId = $('#flow_id').val();
 		var pathId = $('#path_id').val();
 	   saveFlowAction(flowId, pathId, 'Whatsapp');
     });
 	
 	$('#sms').on('click', function(){
+		//var parent_div = getParentDivId();
        var sendSms = $('#sms').html();
-       $('#Collector').append(sendSms);
+      // $(parent_div).append(sendSms);
 	    var flowId = $('#flow_id').val();
 		var pathId = $('#path_id').val();
 	   saveFlowAction(flowId, pathId, 'SMS');
     });
+	
+	$('#condition').on('click', function() {
+		//var parent_div = getParentDivId();
+        var sendSms = $('#condition').html();
+       // $(parent_div).append(sendSms);
+	    var flowId = $('#flow_id').val();
+		var pathId = $('#path_id').val();
+		saveFlowAction(flowId, pathId, 'Condition');
+	});
 
   /*  $(document).on('click','.cross div i',function(){
         // event.preventDefault();
        
     });*/
+	function getParentDivId(id) { 
+		if(id == null) {
+			id = 'Collector';
+		} 
+		var lastDiv = $('#'+id +' > div.cross_first').last().data('type'); 
+		if(lastDiv == 'condition') {
+			parent_div =  '#'+$('#'+id+' > div.cross_first').last().attr('id');
+		} else {
+			parent_div = '#'+id;
+		}
+		return parent_div;
+		/*var lastDiv = $('#Collector > div.cross_first').last().data('type'); 
+		if(lastDiv == 'condition') {
+			parent_div =  '#'+$('#Collector > div.cross_first').last().attr('id');
+		} else {
+			parent_div = '#Collector';
+		}
+		return parent_div;*/
+	}
 	
-	function saveFlowAction(flowId, pathId, action_type) {
+	function saveFlowAction(flowId, pathId, action_type) { 
+		var parent_div = getParentDivId();  
+		if(parent_div != '#Collector') { 
+			$('#condition_modal').modal({ backdrop: 'static', keyboard: false }).one('click', '.yes_no', function (e) {
+				var parent_div = getParentDivId();  
+				if($(this).val() == 'yes') {
+					var action_id = $(parent_div).data('action_id');  
+					var yes = 1;
+					var parent_div_new = getParentDivId('yes_'+action_id);  
+					if(yes == 1 && parent_div != parent_div_new ) {
+						//var result = $(parent_div_new +' > div.cross_first').last().data('type'); console.log(result);
+						var result = $(parent_div_new).data('type'); console.log(result);
+						if(result ==  'condition') {
+							$('#yes_conditions').show();
+							$('#no_conditions').hide();
+							var parent_div = getParentDivId('yes_'+action_id); 
+							yes++; 
+							$('#condition_modal').modal({ backdrop: 'static', keyboard: false }).one('click', '.yes_yes_no', function (e) {
+								var parent_div = getParentDivId('yes_'+action_id);
+								if($(this).val() == 'yes') {
+									parent_div = '#yes_'+action_id;
+									pathId = $('#yes_'+action_id).data('path_id'); 
+									submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+								} else {
+									parent_div = '#no_'+action_id;
+									pathId = $('#no_'+action_id).data('path_id');
+									submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+								}
+							});
+						} else {
+							parent_div = '#yes_'+action_id;
+							pathId = $('#yes_'+action_id).data('path_id'); 
+							submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+						}
+					} else { console.log('394 here');
+						//parent_div = '#yes_'+action_id;
+						//pathId = $('#yes_'+action_id).data('path_id'); 
+						submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+					}
+				} else {
+					var action_id = $(parent_div).data('action_id'); 
+					var no = 1;
+					var parent_div_new = getParentDivId('no_'+action_id); 
+					if(no == 1 && parent_div != parent_div_new) { 
+						var result = $(parent_div_new).data('type'); console.log(result+' - '+parent_div_new);
+						if(result == 'condition') {
+							$('#yes_conditions').hide();
+							$('#no_conditions').show();
+							parent_div = parent_div_new;
+							var action_id = $(parent_div).data('action_id'); 
+							no++;
+							$('#condition_modal').modal({ backdrop: 'static', keyboard: false }).one('click', '.no_yes_no', function (e) {
+								var parent_div = getParentDivId('no_'+action_id); 
+								if($(this).val() == 'yes') {
+									parent_div = '#yes_'+action_id;
+									pathId = $('#yes_'+action_id).data('path_id'); 
+									submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+								} else{
+									parent_div = '#no_'+action_id;
+									pathId = $('#no_'+action_id).data('path_id');
+									submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+								}
+							});
+						} else{
+							parent_div = '#no_'+action_id;
+							pathId = $('#no_'+action_id).data('path_id');
+							submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+						}
+					} else{
+						//parent_div = '#no_'+action_id;
+						//pathId = $('#no_'+action_id).data('path_id');
+						submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+					}
+				}
+			});
+			return false;
+		} else {
+			submitFlowActionDetails(flowId, pathId, action_type, parent_div);
+		}
+	}
+	
+	function submitFlowActionDetails(flowId, pathId, action_type, parent_div) {
 		var data = {"_token":"{{ csrf_token() }}",'flow_id':flowId, 'path_id':pathId, 'action_type':action_type};
-		console.log(data);
 		$.ajax({
                 type: 'POST',
 				url: "{{route('flow-update')}}",
 				data: data,
-				//processData: false,
-				//contentType: false,
 				success: function(data) { 
 					if(data.statusCode == 500) { 
 						toastr["error"](data.message);
@@ -307,7 +464,15 @@ jQuery(document).ready(function($){
 					console.log('success '+data);
 				}
         });
+		setTimeout(function(){
+			$('#condition_modal').modal('hide');
+            $('.yes_no').prop('checked', false);
+			$('.no_yes_no').prop('checked', false);
+			$('.yes_yes_no').prop('checked', false);
+        }, 1000);
+		
 	}
+	
 });
 	function showFlow(flow_id) { 
 		$.get(window.location.origin+"/flow/detail/"+flow_id, function(data){ 
@@ -352,6 +517,31 @@ jQuery(document).ready(function($){
 				}
             });
 	});
+	$(document).on('change','.condition_select',function(e){ alert('here');
+	//$('.condition_select').on('change', function(e) {  alert('changed');
+		var flow_id = $('#flow_id').val();
+			e.preventDefault(); 
+			var option = { _token: "{{ csrf_token() }}", action_id:$(this).data('action_id'), 'condition': $(this).val()};
+			var route = $(this).attr('data-route');
+			$.ajax({
+                type: 'POST',
+				url: "{{route('update-condition')}}",
+				data: option,
+				success: function(response) {
+					$("#loading-image").hide();
+					if(response.code == 200) {
+						 toastr["success"](response.message); 
+                    }else if(response.statusCode == 500){
+                        toastr["error"](response.message);
+                    }
+					showFlow(flow_id);
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+            });
+	});
 	
 
   $(function() {
@@ -359,9 +549,9 @@ jQuery(document).ready(function($){
     $( "#Collector" ).disableSelection();
   });
  
-    //$('.trigger-delete').on('click', function(e) {
-	$(document).on('click','.trigger-delete',function(e){
+  $(document).on('click','.trigger-delete',function(e){
 			var id = $(this).attr('data-id');
+			var flow_id = $('#flow_id').val();
 			e.preventDefault(); 
 			var option = { _token: "{{ csrf_token() }}", id:id };
 			var route = $(this).attr('data-route');
@@ -378,9 +568,8 @@ jQuery(document).ready(function($){
                     }else if(response.statusCode == 500){
                         toastr["error"](response.message);
                     }
-					setTimeout(function(){
-                        location.reload();
-                    }, 1000);
+					
+					showFlow(flow_id);
 				},
 				error: function(data) {
 					$("#loading-image").hide();

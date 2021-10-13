@@ -2637,6 +2637,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/detail/{flow_id}', 'FlowController@flowDetail')->name('flow.detail');
     Route::post('/create', 'FlowController@createFlow')->name('flow-create');
     Route::post('/update', 'FlowController@updateFlow')->name('flow-update');
+    Route::post('/update/condition', 'FlowController@updateCondition')->name('update-condition');
     Route::post('/delete', 'FlowController@flowDelete')->name('flow-delete');
     Route::post('/action/delete', 'FlowController@flowActionDelete')->name('flow-action-delete');
     Route::post('/update/actions', 'FlowController@updateFlowActions')->name('flow-actions-update');
