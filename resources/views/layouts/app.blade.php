@@ -1583,6 +1583,9 @@ $metaData = '';
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/product-generic-pricing') }}">Product Generic Pricing</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 @endif

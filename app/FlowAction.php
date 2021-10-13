@@ -14,6 +14,8 @@ class FlowAction extends Model
 		'after_seconds',
 		'message_title',
 		'deleted',
+		'parent_action_id',
+		'condition',
 	];
 
 }

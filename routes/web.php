@@ -156,6 +156,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
+    Route::get('show-prices/{id}', 'Logging\LogListMagentoController@showPrices')->name('list.magento.show-prices');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');    
     Route::post('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');    
     
@@ -1096,6 +1097,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
+    Route::post('selected_customer/assignGroup', 'ProductController@assignGroupSelectedCustomer')->name('twilio.assign_group_selected_customer');
+    Route::post('selected_customer/createGroup', 'ProductController@createGroupSelectedCustomer')->name('twilio.create_group_selected_customer');
 
     // landing page
     Route::prefix('landing-page')->group(function () {
@@ -1812,6 +1815,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendToWhatsApp')->name('email.password.sendwhatsapp');
+    Route::post('email-addresses/assign', 'EmailAddressesController@assignUsers')->name('email-addresses.assign');
     
 	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
@@ -2272,6 +2276,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
+    Route::get('log/list', 'ScrapStatisticsController@scrapperLogList');
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
     Route::get('server-status-process', 'ScrapStatisticsController@serverStatusProcess');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
@@ -2641,6 +2646,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/detail/{flow_id}', 'FlowController@flowDetail')->name('flow.detail');
     Route::post('/create', 'FlowController@createFlow')->name('flow-create');
     Route::post('/update', 'FlowController@updateFlow')->name('flow-update');
+    Route::post('/update/condition', 'FlowController@updateCondition')->name('update-condition');
     Route::post('/delete', 'FlowController@flowDelete')->name('flow-delete');
     Route::post('/action/delete', 'FlowController@flowActionDelete')->name('flow-action-delete');
     Route::post('/update/actions', 'FlowController@updateFlowActions')->name('flow-actions-update');
