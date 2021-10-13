@@ -131,7 +131,7 @@
                 $('.hide_all_inputs_sub').hide();
                 $('.add_sub_cat').show();
                 $('.reply_inputs_sub').val('');
-                cat_sub_id = $(this).attr('id');
+                cat_sub_id = $(this).attr('data-id');
                 alert(cat_sub_id);
                 
                 $('#show_add_option_sub_'+cat_sub_id).hide();
