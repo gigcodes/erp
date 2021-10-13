@@ -1104,9 +1104,18 @@ class ScrapStatisticsController extends Controller
 
     public function logDetails(Request $request)
     {
+		
         $logDetails = \App\ScrapLog::where("scraper_id", $request->scrapper_id)->latest()->get();
 
         return view("scrap.partials.log-details", compact('logDetails'));
+    }
+	
+	public function scrapperLogList()
+    {
+	    $logDetails = \App\ScrapLog::leftJoin('scrapers', 'scrapers.id', '=', 'scrap_logs.scraper_id')
+									->whereNull('folder_name')->select('scrap_logs.*', 'scrapers.scraper_name')
+									->orderBy('id', 'desc')->paginate(50);
+		return view("scrap.log_list", compact('logDetails'));
     }
 
     public function serverHistory(Request $request)
