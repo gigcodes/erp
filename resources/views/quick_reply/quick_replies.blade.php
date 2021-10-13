@@ -29,11 +29,18 @@
                                     </tr>
                             @endif
                         </thead>
+                        
                         <tbody class="tbody">
                             @if(isset($all_categories))
                                     @foreach($all_categories as $all_category)
                                         <tr>
-                                            <td>{{ $all_category->name }}</td>
+                                            <div id="show_add_sub_{{ $all_category->id }}" class="hide_all_inputs_sub" style="display: none;">
+                                                <input type="text" id="reply_sub_{{ $all_category->id }}" class="reply_inputs_sub"/>
+                                                <button class="btn btn-secondary btn-sm save_reply_sub">&#10004;</button>
+                                            </div>
+                                            <div id="show_reply_list_sub_{{ $all_category->id }}">
+                                             <td>{{ $all_category->name }}  <a href="#" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a></td>
+                                            </div>
                                             @if(isset($store_websites))
                                                 @foreach($store_websites as $websites)
                                                     <td>
@@ -119,6 +126,16 @@
                 $('#show_add_reply_'+cat_id+'_'+store_id).show();
             });
 
+            var cat_sub_id;
+            $('.add_sub_cat').on("click", function(){
+                $('.hide_all_inputs_sub').hide();
+                $('.add_sub_cat').show();
+                $('.reply_inputs_sub').val('');
+                cat_sub_id = $(this).attr('id');
+                $('#show_add_option_sub_'+cat_sub_id).hide();
+                $('#show_add_sub_'+cat_sub_id).show();
+            });
+
             $(document).on('click','.save_reply',function(){
                 var reply = $('#reply_'+cat_id+'_'+store_id).val();
                 if(reply == ''){
@@ -139,6 +156,33 @@
                     $('.show_add_option').show();
                     if(response.status == 1){
                        $('#show_reply_list_'+cat_id+'_'+store_id).append('<li>'+response.data+'</li>');
+                        toastr['success'](response.message);
+                    }else{
+                        toastr['error'](response.message);
+                    }
+                    window.location.reload();
+                });
+            });
+
+            $(document).on('click','.save_reply_sub',function(){
+                var reply = $('#reply_sub_'+cat_id).val();
+                if(reply == ''){
+                    alert('Please enter reply');
+                    return false;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('save-sub') }}",
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'reply': reply,
+                        'category_id': cat_sub_id
+                    }
+                }).done(function (response) {
+                    $('#show_add_sub_'+cat_sub_id).hide();
+                    $('.add_sub_cat').show();
+                    if(response.status == 1){
+                       $('#show_reply_list_sub_'+cat_sub_id).append('<li>'+response.data+'</li>');
                         toastr['success'](response.message);
                     }else{
                         toastr['error'](response.message);
