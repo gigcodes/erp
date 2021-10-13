@@ -1097,6 +1097,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
+    Route::post('selected_customer/assignGroup', 'ProductController@assignGroupSelectedCustomer')->name('twilio.assign_group_selected_customer');
+    Route::post('selected_customer/createGroup', 'ProductController@createGroupSelectedCustomer')->name('twilio.create_group_selected_customer');
 
     // landing page
     Route::prefix('landing-page')->group(function () {

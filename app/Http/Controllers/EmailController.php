@@ -37,7 +37,7 @@ class EmailController extends Controller
         $user = Auth::user();
         $admin = $user->isAdmin();
         $usernames = [];
-        if ($admin != 1) {
+        if (!$admin) {
             $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
             if ($emaildetails) {
                 foreach ($emaildetails as $_email) {
@@ -63,6 +63,20 @@ class EmailController extends Controller
         $seen = $request->seen ?? $seen;
         $query = (new Email())->newQuery();
         $trash_query = false;
+
+        if (count($usernames) > 0) {
+            $query = $query->where(function ($query) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $query->orWhere('from', 'like', '%' . $_uname . '%');
+                }
+            });
+
+            $query = $query->orWhere(function ($query) use ($usernames) {
+                foreach ($usernames as $_uname) {
+                    $query->orWhere('to', 'like', '%' . $_uname . '%');
+                }
+            });
+        }
 
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
@@ -232,6 +246,7 @@ class EmailController extends Controller
                 }
             });
         }
+
 
         $receiver_drpdwn = $receiver_drpdwn->distinct()->get()->toArray();
 
@@ -773,6 +788,7 @@ class EmailController extends Controller
 
             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
 
+
                 if (strpos($filename, '.zip') !== false) {
                     $attachments = ErpExcelImporter::excelZipProcess($path, $filename, $supplier, '', '');
                 }
@@ -783,7 +799,6 @@ class EmailController extends Controller
                         ErpExcelImporter::excelFileProcess($path, $filename, '');
                     }
                 }
-
             }
         }
 
