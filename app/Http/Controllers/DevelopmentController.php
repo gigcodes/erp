@@ -825,7 +825,7 @@ class DevelopmentController extends Controller
 
         // category filter start count
         $issuesGroups = clone ($issues);
-        $issuesGroups = $issuesGroups->whereIn('status', ['Planned', 'In Progress'])->groupBy("assigned_to")->select([\DB::raw("count(id) as total_product"), "assigned_to", "status"])->pluck("total_product", "assigned_to", "status")->toArray();
+        $issuesGroups = $issuesGroups->whereIn('status', ['Planned', 'In Progress'])->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to", "developer_tasks.status"])->pluck("total_product", "assigned_to", "status")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
 
