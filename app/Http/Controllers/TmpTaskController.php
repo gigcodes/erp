@@ -131,6 +131,7 @@ class TmpTaskController extends Controller
             \App\Jobs\SendEmail::dispatch($email);
 
         }catch(\Exception $e) {
+            \Log::error($e);
             \Log::info("Order email was not send due to template not setup" . $orderSaved->id);
         }
 
