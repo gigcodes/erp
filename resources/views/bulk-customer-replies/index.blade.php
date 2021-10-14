@@ -20,14 +20,14 @@
                 <form method="post" action="{{ action('BulkCustomerRepliesController@storeKeyword') }}">
                     @csrf
                     <div class="row">
-                        <div class="col-md-10">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <input type="text" name="keyword" id="keyword" placeholder="Keyword, phrase or sentence..." class="form-control">
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <button class="btn btn-secondary btn-block">Add New</button>
+                        <div class="col-md-1">
+                            <div class="form-group mb-0 mt-2">
+                                <button class="btn btn-secondary btn-xs btn-block">Add New</button>
                             </div>
                         </div>
                     </div>
@@ -38,13 +38,13 @@
                 <div>
                     <strong>Manually Added</strong><br>
                     @foreach($keywords as $keyword)
-                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px;" class="label label-default">{{$keyword->value}}</a>
+                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; display:inline-block;" class="label label-default bg-light text-dark mb-2">{{$keyword->value}}</a>
                     @endforeach
                 </div>
                 <div class="mt-2">
                     <strong>Auto Generated</strong><br>
                     @foreach($autoKeywords as $keyword)
-                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; margin-bottom: 2px; display:inline-block;" class="label label-default">{{$keyword->value}}({{$keyword->count}})</a>
+                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; display:inline-block;" class="label label-default bg-light text-dark mb-2">{{$keyword->value}}({{$keyword->count}})</a>
                     @endforeach
                 </div>
             </div>
@@ -53,13 +53,13 @@
     <div class="col-md-12">
         
 
-        <form class="form-inline">
-            <div class="form-group mb-2">
-                <a class="btn btn-secondary change-whatsapp" href="javascript:;">Change Whatsapp</a>
+        <form class="form-inline mb-2">
+            <div class="form-group mr-3">
+                <a class="btn btn-secondary change-whatsapp btn-xs" href="javascript:;">Change Whatsapp</a>
             </div>
-            <div class="form-group mb-2">
+            <div class="form-group p-0">
 
-        <select name="dnd_enabled">
+        <select name="dnd_enabled" class="form-control">
             <option value="all" {{ app('request')->dnd_enabled === 'all' ? 'selected' : '' }} >DND: ALL</option>
             
             <option value="0" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
@@ -68,8 +68,10 @@
          
         <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">
             </div>
-            <div class="form-group mb-2">
-            <button type="submit" class="btn btn-image"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+            <div class="form-group ml-2">
+            <button type="submit" class="btn btn-xs text-gray">
+                <i class="fa fa-filter"></i>
+            </button>
             </div>
         </form>
         @if($searchedKeyword)
@@ -81,21 +83,23 @@
                         <tr>
                             <th style="width:1%">Pick</th>
                             <th style="width:2%">S.N</th>
-                            <th style="width:6%">Customer ({{count($customers)}})</th>
-                            <th style="width:12%">Whatsapp num</th>
-                            <th style="width:23%">Shortcuts</th>
-                            <th style="width:23%">Next Action</th>
-                            <th style="width:25%" >Communication</th>
+                            <th style="width:7%">Customer({{count($customers)}})</th>
+                            <th style="width:7%">Whatsapp</th>
+                            <th style="width:25%">Shortcuts</th>
+                            <th style="width:15%">Next Action</th>
+                            <th style="width:20%" >Communication</th>
                         </tr>
                         <tr>
-                            <td colspan="7">
+                            <td colspan="7" class="p-0">
                                 <div class="row">
-                                    <div class="col-md-11">
+                                    <div class="col-md-11 pr-0">
                                         <textarea name="message_bulk" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
                                         <input type="hidden" name="keyword_id" value="{{ $searchedKeyword->id }}">
                                     </div>
-                                    <div class="col-md-1">
-                                        <button class="btn btn-secondary btn-block">Send</button>
+                                    <div class="col-md-1 pl-0 mt-2">
+                                        <button class="btn text-dark btn-xs btn-block text-gray">
+                                            <i class="fa fa-paper-plane" style="color:gray"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </td>
@@ -108,7 +112,7 @@
                             <tr data-customer_id="{{ $customer->id }}" class="customer-id-remove-class">
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $customer->name }}<br>
+                                <td class="p-0 pl-1 pt-1">{{ $customer->name }}<br>
                                     @if(count($customer->dnd) == 0)
                                     <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
                                         Add to DND
@@ -119,7 +123,7 @@
                                     </span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="p-0 pl-1 pt-2">
 
                                     <select class="form-control change-whatsapp-no-bulk" data-customer-id="<?php echo $customer->id; ?>" data-type="whatsapp_number">
                                         <option value="">-No Selected-</option>
@@ -130,9 +134,9 @@
                                         @endforeach
                                     </select>
                                 </td>
-                                <td>@include('bulk-customer-replies.partials.shortcuts')</td>
-                                <td>@include('bulk-customer-replies.partials.next_actions')</td>
-                                <td class="communication-td">@include('bulk-customer-replies.partials.communication')</td>
+                                <td class="p-0 pl-1 pt-2">@include('bulk-customer-replies.partials.shortcuts')</td>
+                                <td class="p-0 pl-1 pt-2">@include('bulk-customer-replies.partials.next_actions')</td>
+                                <td class="communication-td p-0 pl-1 pt-2">@include('bulk-customer-replies.partials.communication')</td>
                             </tr>
                         @endforeach
                     </table>
