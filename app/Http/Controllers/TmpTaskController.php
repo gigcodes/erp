@@ -128,7 +128,7 @@ class TmpTaskController extends Controller
                 'is_draft'        => 1,
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('email');
 
         }catch(\Exception $e) {
             \Log::error($e);
