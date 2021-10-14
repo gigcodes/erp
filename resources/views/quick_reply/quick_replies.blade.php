@@ -85,9 +85,14 @@
                                                 <tr>
                                                     <td>
                                                 
-                                                    <b>{{ $all_category->name }}</b> - {{ $all_category_sub->name }} 
+                                                    <div id="edit_reply_sub_{{ $all_category_sub->id }}" class="edit_reply_input_sub" style="display: none;">
+                                                        <input type="text" value="{{ $all_category_sub->name }}" id="edit_reply_sub_{{ $all_category_sub->id }}" />
+                                                        <button class="btn btn-secondary btn-sm update_reply_sub">&#10004;</button>
+                                                    </div>  
                                                
-                                                </td>
+                                                    <b>{{ $all_category->name }}</b> - <li id="{{ $all_category_sub->id }}" class="edit_reply_sub">{{ $all_category_sub->name }}</li> 
+                                               
+                                                    </td>
                                                     @if(isset($store_websites))
                                                     @foreach($store_websites as $websites)
 
