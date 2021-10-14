@@ -75,7 +75,7 @@ function scraper_restart
 			exit
 		fi
 		echo $server $scraper
-		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" `
+		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" ` < /dev/null
 		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$day.log &" < /dev/null
 		if [ $? -eq 0 ]
 		then
