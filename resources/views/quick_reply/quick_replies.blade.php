@@ -41,15 +41,7 @@
                                              </div>
                                              <div id="show_reply_list_sub_{{ $all_category->id }}">
                                              {{ $all_category->name }}  <a href="javascript::void()" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
-                                             @if($all_category['childs'])
-                                                @foreach($all_category['childs'] as $_child)
-                                                <div id="edit_reply_sub_{{ $_child->id }}" class="edit_reply_input_sub" style="display: none;">
-                                                    <input type="text" value="{{ $_child->name }}" id="edit_reply_sub_{{ $_child->id }}" />
-                                                    <button class="btn btn-secondary btn-sm update_reply_sub">&#10004;</button>
-                                                </div>
-                                                <li id="{{ $_child->id }}" class="edit_reply_sub">{{ $_child->name }}</li>
-                                                @endforeach
-                                             @endif
+                                             
                                              </div>
                                              </td>
                                             @if(isset($store_websites))
