@@ -267,22 +267,22 @@
                                 <a class="btn btn-xs bg-transparent" href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
                                     <i class="fa fa-bars"></i>
                                 </a>
-                                <button data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-xs get-screenshot bg-transparent" title="Get screenshot">
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-screenshot bg-transparent" title="Get screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
-                                <button data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list">
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
-                                <button data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-xs get-position-history bg-transparent" title="Histories">
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-position-history bg-transparent" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
-                                <button type="button" class="btn btn-xs show-history bg-transparent" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}" title="Remark history" >
+                                <button type="button" class="btn btn-xs show-history bg-transparent" data-field="update-restart-time" data-id="{{ $supplier->id }}" title="Remark history" >
                                     <i class="fa fa-clock-o"></i>
                                 </button>
                                 <button type="button" class="btn btn-xs get-scraper-server-timing bg-transparent" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing">
                                     <i class="fa fa-info-circle"></i>
                                 </button>
-                                <button type="button" class="btn btn-xs get-last-errors bg-transparent" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
+                                <button type="button" class="btn btn-xs get-last-errors bg-transparent" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
                                 @if($isAdmin)
