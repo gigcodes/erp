@@ -42,15 +42,16 @@ class ScrapperNotRun extends Command
     public function handle()
     {
         $scraper_process = ScraperProcess::where("scraper_name","!=","")->orderBy('started_at','DESC')->get()->unique('scraper_id');
+        $scraper_proc = [];
         foreach ($scraper_process as $key => $sp) {
             $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
             $from = \Carbon\Carbon::now();
             $diff_in_hours = $to->diffInMinutes($from);
             if ($diff_in_hours > 1440) {
-                array_push($scraper_proc,$sp);
+                array_push($scraper_proc,$sp->scraper_id);
             }
         }
-        $scrapers = Scraper::where("scraper_name","!=","")->whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
+        $scrapers = Scraper::where("scraper_name","!=","")->whereNotIn('id', $scraper_proc)->get();
 		foreach($scrapers as $scrapperDetails) {
 			$hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->id)
 			->whereNotNull("assigned_to")->where("is_resolved", 0)->first();
