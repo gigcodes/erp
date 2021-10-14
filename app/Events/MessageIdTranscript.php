@@ -14,6 +14,7 @@ class MessageIdTranscript {
      */
     public function handle(MessageSent $event)
     {
+        \Log::info("Message event called => ". json_encode($event));
       
         $messageId = $event->message->getId();
         $to = $event->message->getTo();

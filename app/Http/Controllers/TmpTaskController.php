@@ -112,16 +112,16 @@ class TmpTaskController extends Controller
 
         $orderSaved = \App\Order::find(2102);
 
-        $emailClass = (new OrderConfirmation($orderSaved))->build();
+        //$emailClass = (new OrderConfirmation($orderSaved))->build();
         try {
 
             $email = \App\Email::create([
                 'model_id'        => $orderSaved->id,
                 'model_type'      => \App\Order::class,
-                'from'            => $emailClass->fromMailer,
+                'from'            => "customercare@sololuxury.co.in",
                 'to'              => "webreak.pravin@gmail.com",
-                'subject'         => $emailClass->subject,
-                'message'         => $emailClass->render(),
+                'subject'         => "TEST",
+                'message'         => "Hello world",
                 'template'        => 'order-confirmation',
                 'additional_data' => $orderSaved->id,
                 'status'          => 'pre-send',
