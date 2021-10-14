@@ -841,7 +841,7 @@ class DevelopmentController extends Controller
 
         }
 
-        $issuesGroups = clone ($issues);
+        /*$issuesGroups = clone ($issues);
         $issuesGroups = $issuesGroups->whereIn('developer_tasks.status', ['Planned', 'In Progress'])->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to", "developer_tasks.status"])->pluck("total_product", "assigned_to", "status")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
@@ -865,10 +865,10 @@ class DevelopmentController extends Controller
                 }
 
             }
-        }
+        }*/
 
         // category filter start count
-       /* $issuesGroups = clone ($issues);
+        $issuesGroups = clone ($issues);
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
@@ -882,9 +882,9 @@ class DevelopmentController extends Controller
                     "count" => $count,
                 ];
             }
-        }*/
+        }
         // category filter start count
-       /* $issuesGroups = clone ($issues);
+        $issuesGroups = clone ($issues);
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
@@ -898,7 +898,7 @@ class DevelopmentController extends Controller
                     "count" => $count,
                 ];
             }
-        }*/
+        }
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
