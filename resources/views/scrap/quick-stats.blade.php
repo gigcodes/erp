@@ -106,7 +106,7 @@
                         <th width="4%">Run Time</th>
                         <th width="5%">New</th>
                         <th width="8%">Lst Started</th>
-                        <th width="5%">Lst Sts</th>
+                        <th width="8%">Lst Sts</th>
                         <th width="5%">Url Cnt</th>
                         <th width="2%">Task</th>
                         <th width="11%">Remarks</th>
@@ -212,7 +212,7 @@
                                 @endif
                             </td>
                             
-                            <td>{{ $supplier->status ?? '' }}</td>
+                            <td>{{ str_limit( $supplier->status, '7', '..') }}</td>
                             
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td>{{ !empty($data->total) ? $data->total : '' }}</td>
