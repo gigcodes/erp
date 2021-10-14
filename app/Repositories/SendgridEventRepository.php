@@ -32,7 +32,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
      */
     public function create($event): SendgridEvent
     {
-        Log::info('Send grid repo In');
+        \Log::info('Send grid repo In');
 
         $newEvent = new SendgridEvent();
         $newEvent->timestamp = $event['timestamp'];
@@ -42,7 +42,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
         $newEvent->sg_message_id = $event['sg_message_id'];
         $newEvent->payload = $event;
 
-        Log::info('Send grid repo params defined');
+        \Log::info('Send grid repo params defined');
 
         $emailData = new Email();
         if (Email::where('origin_id', '=', $event['sg_message_id'])->exists()) {
@@ -51,22 +51,22 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
                 );
         }
 
-        Log::info('Send grid repo email updated');
+        \Log::info('Send grid repo email updated');
 
         if (!empty($event['category'])) {
-            Log::info('Send grid repo category In');
+            \Log::info('Send grid repo category In');
             $category = $event['category'];
             if (gettype($category) === "string") {
-                Log::info('Send grid repo category string');
+                \Log::info('Send grid repo category string');
                 $newEvent->categories = [$category];
             } else {
-                Log::info('Send grid repo category not string');
+                \Log::info('Send grid repo category not string');
                 $newEvent->categories = $category;
             }
         }
-        Log::info('Send grid repo event save start');
+        \Log::info('Send grid repo event save start');
         $newEvent->save();
-        Log::info('Send grid repo event save end');
+        \Log::info('Send grid repo event save end');
 
         return $newEvent;
     }
