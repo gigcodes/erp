@@ -49,8 +49,8 @@ class ScheduleEmails extends Command
     public function handle()
     {
 		$created_date = Carbon::now();
-		$flows = Flow::select('id', 'flow_name as name')->get();
-		//$flows = Flow::whereIn('flow_name', ['customer_post_purchase'])->select('id', 'flow_name as name')->get();  
+		//$flows = Flow::select('id', 'flow_name as name')->get();
+		$flows = Flow::whereIn('flow_name', ['customer_win_back'])->select('id', 'flow_name as name')->get();  
 		foreach($flows as $flow) {
 			$flowActions =FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 			->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
@@ -106,7 +106,15 @@ class ScheduleEmails extends Command
 								->where('customers.newsletter', 1)
 								->select('mailinglists.id','customers.email as customer_email','customers.id as customer_id')->get();
 						$modalType =  Mailinglist::class;
-					}  else if($key == 0 and $flow['name'] == 'customer_post_purchase') {
+					} else if($key == 0 and $flow['name'] == 'customer_win_back') {
+						$leads = \App\Order::leftJoin('customers','orders.customer_id','=','customers.id')
+						->where("customers.store_website_id",$flow['store_website_id'])
+						->whereIn(\DB::raw('lower(orders.order_status)'), ['Follow up for advance', 'Prepaid'])
+						->where('orders.created_at', 'like', Carbon::now()->format('Y-m-d').'%')
+						->select('orders.id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
+						->get();
+						$modalType =  Orders::class;
+					}  else if($key == 0 and $flow['name'] == 'customer_post_purchase') {//
 						   $leads = [];
 						   $modalType =  Orders::class;
 					} 

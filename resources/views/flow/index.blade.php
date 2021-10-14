@@ -90,7 +90,7 @@
 							</div>
 							<div class="col-md-3">
 								<label>Flow Name</label>
-								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase'], null, array('class'=>'form-control')) }}
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back'], null, array('class'=>'form-control')) }}
 							</div>
 							<div class="col-md-4">
 								<label>Flow Description</label>
@@ -400,7 +400,10 @@ jQuery(document).ready(function($){
 							pathId = $('#yes_'+action_id).data('path_id'); 
 							submitFlowActionDetails(flowId, pathId, action_type, parent_div);
 						}
-					} else { console.log('394 here');
+					} else { 
+						if(yes > 1){
+							alert('Max conditions added');return false;
+						}
 						//parent_div = '#yes_'+action_id;
 						//pathId = $('#yes_'+action_id).data('path_id'); 
 						submitFlowActionDetails(flowId, pathId, action_type, parent_div);
@@ -434,7 +437,7 @@ jQuery(document).ready(function($){
 							pathId = $('#no_'+action_id).data('path_id');
 							submitFlowActionDetails(flowId, pathId, action_type, parent_div);
 						}
-					} else{
+					} else{alert('Max conditions added');return false;
 						//parent_div = '#no_'+action_id;
 						//pathId = $('#no_'+action_id).data('path_id');
 						submitFlowActionDetails(flowId, pathId, action_type, parent_div);
