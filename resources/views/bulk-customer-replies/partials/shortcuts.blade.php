@@ -3,7 +3,7 @@
         <div class="row mb-1">
             <div class="col-3 form-inline pr-0 m-0">
                 <input type="text" name="category_name" placeholder="Enter New Category" class=" form-control quick_category w-75">
-                <button class="btn btn-xs text-dark quick_category_add w-25 m-0" >
+                <button class="btn btn-xs text-gray quick_category_add w-25 m-0" >
                     <i class="fa fa-plus"></i>
                 </button>
             </div>
@@ -14,13 +14,13 @@
                         <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
                     @endforeach
                 </select>
-                <a class="btn btn-xs text-dark delete_category w-25 m-0">
-                    <i class="fa fa-trash"></i>
+                <a class="btn btn-xs text-gray delete_category w-25 m-0">
+                    <i class="fa fa-trash" style="color:gray"></i>
                 </a>
             </div>
             <div class="col-3 form-inline pl-0 pr-0 m-0">
                 <input type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control quick_comment w-75">
-                <button class="btn btn-xs text-dark quick_comment_add w-25 m-0">
+                <button class="btn btn-xs text-gray quick_comment_add w-25 m-0">
                     <i class="fa fa-plus"></i>
                 </button>
             </div>
@@ -28,7 +28,7 @@
                     <select name="quickComment" class="form-control quickComment w-75">
                         <option value="">Quick Reply</option>
                     </select>
-                    <a class="btn btn-xs text-dark delete_quick_comment w-25 m-0"><i class="fa fa-trash"></i></a>
+                    <a class="btn btn-xs text-gray delete_quick_comment w-25 m-0" style="color:gray"><i class="fa fa-trash"></i></a>
                 
             </div>
         </div>

@@ -38,13 +38,13 @@
                 <div>
                     <strong>Manually Added</strong><br>
                     @foreach($keywords as $keyword)
-                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px;" class="label label-default bg-light text-dark">{{$keyword->value}}</a>
+                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; display:inline-block;" class="label label-default bg-light text-dark mb-2">{{$keyword->value}}</a>
                     @endforeach
                 </div>
                 <div class="mt-2">
                     <strong>Auto Generated</strong><br>
                     @foreach($autoKeywords as $keyword)
-                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; margin-bottom: 2px; display:inline-block;" class="label label-default bg-light text-dark">{{$keyword->value}}({{$keyword->count}})</a>
+                        <a href="{{ action('BulkCustomerRepliesController@index', ['keyword_filter' => $keyword->value]) }}" style="font-size: 14px; display:inline-block;" class="label label-default bg-light text-dark mb-2">{{$keyword->value}}({{$keyword->count}})</a>
                     @endforeach
                 </div>
             </div>
@@ -68,8 +68,10 @@
          
         <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">
             </div>
-            <div class="form-group mb-2">
-            <button type="submit" class="btn btn-image"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+            <div class="form-group ml-2">
+            <button type="submit" class="btn btn-xs text-gray">
+                <i class="fa fa-filter"></i>
+            </button>
             </div>
         </form>
         @if($searchedKeyword)
@@ -95,8 +97,8 @@
                                         <input type="hidden" name="keyword_id" value="{{ $searchedKeyword->id }}">
                                     </div>
                                     <div class="col-md-1 pl-0 mt-2">
-                                        <button class="btn text-dark btn-xs btn-block">
-                                            <i class="fa fa-paper-plane"></i>
+                                        <button class="btn text-dark btn-xs btn-block text-gray">
+                                            <i class="fa fa-paper-plane" style="color:gray"></i>
                                         </button>
                                     </div>
                                 </div>
