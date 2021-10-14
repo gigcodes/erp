@@ -126,3 +126,4 @@ gb15.js
 lorenzetti.js
 stylbaby.js
 coltorti16.js
+spazio_pritelli.js
