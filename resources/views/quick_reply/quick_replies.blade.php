@@ -29,7 +29,7 @@
                                     </tr>
                             @endif
                         </thead>
-                        
+
                         <tbody class="tbody">
                             @if(isset($all_categories))
                                     @foreach($all_categories as $all_category)
@@ -38,24 +38,23 @@
                                              <div id="show_add_sub_{{ $all_category->id }}" class="hide_all_inputs_sub" style="display: none;">
                                                 <input type="text" id="reply_sub_{{ $all_category->id }}" class="reply_inputs_sub"/>
                                                 <button class="btn btn-secondary btn-sm save_reply_sub">&#10004;</button>
-                                             </div>    
+                                             </div>
                                              <div id="show_reply_list_sub_{{ $all_category->id }}">
                                              {{ $all_category->name }}  <a href="javascript::void()" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
                                              @if($all_category['childs'])
-                                                @foreach($all_category['childs'] as $_child) 
+                                                @foreach($all_category['childs'] as $_child)
                                                 <div id="edit_reply_sub_{{ $_child->id }}" class="edit_reply_input_sub" style="display: none;">
                                                     <input type="text" value="{{ $_child->name }}" id="edit_reply_sub_{{ $_child->id }}" />
                                                     <button class="btn btn-secondary btn-sm update_reply_sub">&#10004;</button>
-                                                </div>  
+                                                </div>
                                                 <li id="{{ $_child->id }}" class="edit_reply_sub">{{ $_child->name }}</li>
                                                 @endforeach
                                              @endif
                                              </div>
                                              </td>
                                             @if(isset($store_websites))
-                                            <tr>
                                                 @foreach($store_websites as $websites)
-                                                
+
                                                     <td>
                                                         <div id="show_add_reply_{{ $all_category->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
                                                             <input type="text" id="reply_{{ $all_category->id }}_{{ $websites->id }}" class="reply_inputs"/>
@@ -85,14 +84,21 @@
                                                     </td>
 
                                                 @endforeach
-                                                </tr>
                                             @endif
-                                            @if($all_category['childs'])
-                                                @foreach($all_category['childs'] as $all_category)   
+
+                                        </tr>
+                                        @if($all_category['childs'])
+
+                                                @foreach($all_category['childs'] as $all_category)
+                                                <tr>
+                                                    <td>
+                                                
+                                                {{ $all_category->name }} 
+                                               
+                                                </td>
                                                     @if(isset($store_websites))
-                                                    <tr>
                                                     @foreach($store_websites as $websites)
-                                                    
+
                                                         <td>
                                                             <div id="show_add_reply_{{ $all_category->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
                                                                 <input type="text" id="reply_{{ $all_category->id }}_{{ $websites->id }}" class="reply_inputs"/>
@@ -122,11 +128,13 @@
                                                         </td>
 
                                                     @endforeach
-                                                    </tr>
                                                 @endif
+                                                </tr>
                                                 @endforeach
+
                                              @endif
-                                        </tr>
+
+
                                     @endforeach
                             @endif
                         </tbody>
@@ -228,7 +236,7 @@
                 $.ajax({
                     type: "POST",
                     url: "{{ route('save-sub') }}",
-                    data: { 
+                    data: {
                         '_token': "{{ csrf_token() }}",
                         'reply': reply,
                         'category_id': cat_sub_id
