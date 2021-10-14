@@ -32,9 +32,6 @@
                         </div>
                     </div>
                 </form>
-                <div class="alert alert-warning">
-                    <strong>Note: Click any tag below, and it will show the customer with the keywords used.</strong>
-                </div>
                 <div>
                     <strong>Manually Added</strong><br>
                     @foreach($keywords as $keyword)
