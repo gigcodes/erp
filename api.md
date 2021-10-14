@@ -1454,7 +1454,8 @@ POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
 {
    "email":"test@gmail.com",
    "sku" : "2EG286W08F0C6D",
-   "website" : "WWW.SOLOLUXURY.COM"
+   "website" : "WWW.SOLOLUXURY.COM",
+   "size" : "XL"
 }
 ```
 

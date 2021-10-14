@@ -1,36 +1,35 @@
 <div class="row">
     <div class="col-md-12">
-        <div class="row">
-            <div class="col-6 d-inline form-inline">
-                <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
-                <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
+        <div class="row mb-1">
+            <div class="col-3 form-inline pr-0 m-0">
+                <input type="text" name="category_name" placeholder="Enter New Category" class=" form-control quick_category w-75">
+                <button class="btn btn-xs text-gray quick_category_add w-25 m-0" >
+                    <i class="fa fa-plus"></i>
+                </button>
             </div>
-            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
-                <div style="float: left; width: 86%">
-                    <select name="quickCategory" class="form-control mb-3 quickCategory select-child">
-                        <option value="">Select Category</option>
-                        @foreach($reply_categories as $category)
-                            <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div style="float: right; width: 14%;">
-                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
-                </div>
+            <div class="col-3 form-inline pl-0 pr-0 m-0">
+                <select name="quickCategory" class="form-control quickCategory select-child w-75">
+                    <option value="">Select Category</option>
+                    @foreach($reply_categories as $category)
+                        <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                <a class="btn btn-xs text-gray delete_category w-25 m-0">
+                    <i class="fa fa-trash" style="color:gray"></i>
+                </a>
             </div>
-            <div class="col-6 d-inline form-inline">
-                <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
-                <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
+            <div class="col-3 form-inline pl-0 pr-0 m-0">
+                <input type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control quick_comment w-75">
+                <button class="btn btn-xs text-gray quick_comment_add w-25 m-0">
+                    <i class="fa fa-plus"></i>
+                </button>
             </div>
-            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
-                <div style="float: left; width: 86%">
-                    <select name="quickComment" class="form-control quickComment">
+            <div class="col-3 form-inline pl-0 m-0" >
+                    <select name="quickComment" class="form-control quickComment w-75">
                         <option value="">Quick Reply</option>
                     </select>
-                </div>
-                <div style="float: right; width: 14%;">
-                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
-                </div>
+                    <a class="btn btn-xs text-gray delete_quick_comment w-25 m-0" style="color:gray"><i class="fa fa-trash"></i></a>
+                
             </div>
         </div>
     </div>
