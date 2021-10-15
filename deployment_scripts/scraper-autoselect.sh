@@ -2,7 +2,7 @@
 ###  This script is used to autoselect scraper server which has maximum memory available and start scraper there
 
 ScriptDIR=`dirname "$0"`
-datetime=`date +%d%b%y-%H`
+datetime=`date +%d%b%y-%H:%M`
 
 rm /tmp/scrap_* /opt/scrap_status
 
