@@ -42,14 +42,27 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
         $newEvent->sg_message_id = $event['sg_message_id'];
         $newEvent->payload = $event;
 
-        if(isset($event['smtp-id'])) {
-            $smptpID = str_replace(["<",">"],"",$event['smtp-id']);
+        if (isset($event['smtp-id'])) {
+
+            $smptpID = str_replace(["<", ">"], "", $event['smtp-id']);
+            $messageID = $event['sg_message_id'];
 
             \Log::info('Send grid repo params defined');
 
             $emailData = new Email();
             if (Email::where('origin_id', '=', $smptpID)->exists()) {
                 Email::where('origin_id', $smptpID)
+                    ->update(['status' => $event['event']]
+                    );
+            }
+            if (Email::where('message_id', '=', $messageID)->exists()) {
+                Email::where('message_id', $messageID)
+                    ->update(['status' => $event['event']]
+                    );
+            }
+        } else {
+            if (Email::where('message_id', '=', $messageID)->exists()) {
+                Email::where('message_id', $messageID)
                     ->update(['status' => $event['event']]
                     );
             }
