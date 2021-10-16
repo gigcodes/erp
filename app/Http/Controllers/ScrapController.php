@@ -450,6 +450,7 @@ class ScrapController extends Controller
         $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
         $this->saveScrapperRequest($scrap_details, $errorLog);
 
+        
         // Create or update product
         app(ProductsCreator::class)->createProduct($scrapedProduct);
 

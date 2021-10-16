@@ -47,6 +47,7 @@ class Supplier extends Model
         'supplier', 
         'size_system_id',
         'address', 
+        'language_id',
         'phone', 
         'default_phone', 
         'whatsapp_number', 

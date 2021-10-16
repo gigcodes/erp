@@ -1840,6 +1840,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/add/suppliersize', 'SupplierController@addSupplierSize')->name('supplier/add/suppliersize');
     Route::post('supplier/change/inventorylifetime', 'SupplierController@editInventorylifetime')->name('supplier/change/inventorylifetime');
     Route::post('supplier/change/scrapper', 'SupplierController@changeScrapper')->name('supplier/change/scrapper');
+    Route::post('supplier/change/language', 'SupplierController@changeLanguage')->name('supplier/change/language');
     Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
     Route::post('supplier/change/mail', 'SupplierController@changeMail')->name('supplier/change/mail');
     Route::post('supplier/change/phone', 'SupplierController@changePhone')->name('supplier/change/phone');
