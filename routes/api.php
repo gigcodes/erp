@@ -194,6 +194,8 @@ Route::post('price_comparision/details','PriceComparisionController@sendDetails'
 
 //Ticket api
 Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
+Route::post('store_reviews', '\App\Http\Controllers\ProductController@storeReviews');
+Route::get('all-reviews', '\App\Http\Controllers\ProductController@allReviews');
 Route::post('ticket/send','\App\Http\Controllers\Api\v1\TicketController@sendTicketsToCustomers');
 
 Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus');

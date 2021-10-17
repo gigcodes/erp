@@ -1479,6 +1479,10 @@ $metaData = '';
                                         </li>
                                     </ul>
                                 </li>
+                                <li id="messages" class="nav-item dropdown">
+                                    <a href="{{ route('product.customer-reviews') }}" class="dropdown-item">Customer Reviews<span class="caret"></span></a>
+                                    
+                                </li>
                             @endif
 
 
