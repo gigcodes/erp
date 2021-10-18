@@ -4,6 +4,7 @@ namespace App;
 
 use App\AssetsCategory;
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -34,7 +35,7 @@ class AssetsManager extends Model
      * @SWG\Property(property="due_date",type="datetime")
      */
     protected $fillable = [
-        'name', 'capacity', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency','usage','due_date'];
+        'name', 'capacity', 'asset_type', 'category_id', 'start_date', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency', 'usage', 'due_date'];
 
     public function category()
     {
@@ -44,7 +45,7 @@ class AssetsManager extends Model
     public static function assertTypeList()
     {
         return [
-            ""     => "-- Assert Type --",
+            "" => "-- Assert Type --",
             "Hard" => "Hard",
             "Soft" => "Soft",
         ];
@@ -53,9 +54,9 @@ class AssetsManager extends Model
     public static function purchaseTypeList()
     {
         return [
-            ""             => "-- Purchase Type --",
-            "Owned"        => "Owned",
-            "Rented"       => "Rented",
+            "" => "-- Purchase Type --",
+            "Owned" => "Owned",
+            "Rented" => "Rented",
             "Subscription" => "Subscription",
         ];
     }
@@ -63,13 +64,13 @@ class AssetsManager extends Model
     public static function paymentCycleList()
     {
         return [
-            ""          => "-- Payment Cycle --",
-            "Daily"     => "Daily",
-            "Weekly"    => "Weekly",
+            "" => "-- Payment Cycle --",
+            "Daily" => "Daily",
+            "Weekly" => "Weekly",
             "Bi-Weekly" => "Bi-Weekly",
-            "Monthly"   => "Monthly",
-            "Yearly"    => "Yearly",
-            "One time"  => "One time",
+            "Monthly" => "Monthly",
+            "Yearly" => "Yearly",
+            "One time" => "One time",
         ];
     }
 
