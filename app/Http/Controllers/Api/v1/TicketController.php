@@ -85,7 +85,7 @@ class TicketController extends Controller
         $data = $request->all();
         $data['ticket_id'] = "T" . date("YmdHis");
         $data['status_id'] = 1;
-        $data['resolution_date'] = Carbon::now()->format('Y-m-d H:i:s');
+        $data['resolution_date'] = Carbon::now()->addDays(2)->format('Y-m-d H:i:s');
         if (isset($request->lang_code) && $request->lang_code != '') {
             $lang = explode("_", $request->lang_code);
             $data['lang_code'] = $lang[1];
