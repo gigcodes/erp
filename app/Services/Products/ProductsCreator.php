@@ -25,7 +25,6 @@ class ProductsCreator
 {
     public function createProduct($image, $isExcel = 0)
     {
-
         // Debug log
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
@@ -54,6 +53,13 @@ class ProductsCreator
 
         if ($languagedetails) {
             $tr = new GoogleTranslate();
+            $image->title = $tr->translate('en', $image->title);
+            $image->color = $tr->translate('en', $image->color);
+            $image->country = $tr->translate('en', $image->country);
+            $image->material_used = $tr->translate('en', $image->material_used);
+            $image->category = $tr->translate('en', $image->category);
+            $description_details = splitTextIntoSentences($image->description);
+            $image->description = \App\Http\Controllers\GoogleTranslateController::translateProducts($tr, 'en', $description_details);
         }
 
         // Get formatted data
@@ -129,28 +135,16 @@ class ProductsCreator
                     $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
-                if ($languagedetails) {
-                    $product->name = $tr->translate('en', $product->name);
-                }
-
                 // Check if we can update the short description - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where("product_id", $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     $product->short_description = ProductHelper::getRedactedText($description, 'short_description');
                 }
 
-                if ($languagedetails) {
-                    $product->short_description = $tr->translate('en', $product->short_description);
-                }
-
                 // Check if we can update the color - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COLOR')->where("product_id", $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     $product->color = $color;
-                }
-
-                if ($languagedetails) {
-                    $product->color = $tr->translate('en', $product->color);
                 }
 
                 // Check if we can update the composition - not manually entered
@@ -163,10 +157,6 @@ class ProductsCreator
                     if (isset($image->properties['material_used'])) {
                         $product->composition = trim(ProductHelper::getRedactedText($image->properties['material_used'] ?? '', 'composition'));
                     }
-                }
-
-                if ($languagedetails) {
-                    $product->composition = $tr->translate('en', $product->composition);
                 }
 
                 $manual = ProductStatus::where('name', 'MANUAL_CATEGORY')->where("product_id", $product->id)->first();
@@ -182,9 +172,6 @@ class ProductsCreator
                     $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
                 }
 
-                if ($languagedetails) {
-                    $product->category = $tr->translate('en', $product->category);
-                }
             }
 
             // Get current sizes
@@ -206,16 +193,12 @@ class ProductsCreator
                 }
 
                 $product->size = implode(',', $allSize);
-                if ($languagedetails) {
-                    $product->size = $tr->translate('en', $product->size);
-                }
+
                 // get size system
                 $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
                 $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
-                if ($languagedetails) {
-                    $product->size_eu = $tr->translate('en', $product->size_eu);
-                }
+
                 \App\ProductSizes::where('product_id', $product->id)->where('supplier_id', $supplierModel->id)->delete();
                 if (empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
@@ -247,20 +230,6 @@ class ProductsCreator
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
             }
 
-            if ($languagedetails) {
-                $product->lmeasurement = ($product->lmeasurement) ? $tr->translate('en', $product->lmeasurement) : $product->lmeasurement;
-                $product->hmeasurement = ($product->hmeasurement) ? $tr->translate('en', $product->hmeasurement) : $product->hmeasurement;
-                $product->dmeasurement = ($product->dmeasurement) ? $tr->translate('en', $product->dmeasurement) : $product->dmeasurement;
-                $product->price = $tr->translate('en', $product->price);
-                $product->price_eur_special = $tr->translate('en', $product->price_eur_special);
-                $product->price_eur_discounted = $tr->translate('en', $product->price_eur_discounted);
-                $product->price_inr = $tr->translate('en', $product->price_inr);
-                $product->price_inr_special = $tr->translate('en', $product->price_inr_special);
-                $product->price_inr_discounted = $tr->translate('en', $product->price_inr_discounted);
-                $product->is_scraped = $tr->translate('en', $product->is_scraped);
-                $product->discounted_percentage = $tr->translate('en', $product->discounted_percentage);
-            }
-
             $product->save();
             $product->attachImagesToProduct();
             $image->product_id = $product->id;
@@ -286,9 +255,7 @@ class ProductsCreator
 
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
-                if ($languagedetails) {
-                    $product->is_on_sale = $tr->translate('en', $product->is_on_sale);
-                }
+
                 $product->save();
             }
 
@@ -361,11 +328,7 @@ class ProductsCreator
             }
 
             $product->stock += 1;
-            if ($languagedetails) {
-                $product->supplier_id = $tr->translate('en', $product->supplier_id);
-                $product->is_price_different = $tr->translate('en', $product->is_price_different);
-                $product->stock = $tr->translate('en', $product->stock);
-            }
+
             $product->save();
 
             $supplier = $image->website;
@@ -478,39 +441,6 @@ class ProductsCreator
         $product->discounted_percentage = $image->discounted_percentage;
 
         try {
-            if ($languagedetails) {
-                $product->sku = $tr->translate('en', $product->sku);
-                $product->brand = $tr->translate('en', $product->brand);
-                $product->supplier = $tr->translate('en', $product->supplier);
-                $product->supplier_id = $tr->translate('en', $product->supplier_id);
-                $product->name = $tr->translate('en', $product->name);
-                $product->short_description = $tr->translate('en', $product->short_description);
-                $product->supplier_link = $tr->translate('en', $product->supplier_link);
-                $product->stage = $tr->translate('en', $product->stage);
-                $product->is_scraped = $tr->translate('en', $product->is_scraped);
-                $product->stock = $tr->translate('en', $product->stock);
-                $product->is_without_image = $tr->translate('en', $product->is_without_image);
-                $product->is_on_sale = $tr->translate('en', $product->is_on_sale);
-                $product->composition = $tr->translate('en', $product->composition);
-                $product->size = $tr->translate('en', $product->size);
-                $product->lmeasurement = $tr->translate('en', $product->lmeasurement);
-                $product->hmeasurement = $tr->translate('en', $product->hmeasurement);
-                $product->dmeasurement = $tr->translate('en', $product->dmeasurement);
-                $product->measurement_size_type = $tr->translate('en', $product->measurement_size_type);
-                $product->made_in = $tr->translate('en', $product->made_in);
-                $product->category = $tr->translate('en', $product->category);
-                $product->color = $tr->translate('en', $product->color);
-                $product->suggested_color = $tr->translate('en', $product->suggested_color);
-                $product->size_eu = $tr->translate('en', $product->size_eu);
-                $product->price = $tr->translate('en', $product->price);
-                $product->price_eur_special = $tr->translate('en', $product->price_eur_special);
-                $product->price_eur_discounted = $tr->translate('en', $product->price_eur_discounted);
-                $product->price_inr = $tr->translate('en', $product->price_inr);
-                $product->price_inr_special = $tr->translate('en', $product->price_inr_special);
-                $product->price_inr_discounted = $tr->translate('en', $product->price_inr_discounted);
-                $product->discounted_percentage = $tr->translate('en', $product->discounted_percentage);
-            }
-
             $product->save();
             //$setProductDescAndNameLanguages = new ProductController();
             //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
