@@ -14,7 +14,7 @@ class AddMessageIdToEmailsTable extends Migration
     public function up()
     {
         Schema::table('emails', function (Blueprint $table) {
-            $table->integer('message_id')->after('origin_id')->default(0);
+            $table->string('message_id')->after('origin_id')->nullable()->index();
         });
     }
 
