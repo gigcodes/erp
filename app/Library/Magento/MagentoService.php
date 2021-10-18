@@ -812,8 +812,8 @@ class MagentoService
         $d['stock_item'] = [
             'use_config_manage_stock' => 1,
             'manage_stock' => 1,
-            'qty' => 1,
-            'is_in_stock' => 1,
+            'qty' => $this->product->stock,
+            'is_in_stock' => ($this->product->stock > 0) ? 1 : 0,
         ];
         $d['description'] = $this->description;
         $d['tax_class_id'] = 2;
@@ -844,8 +844,8 @@ class MagentoService
         $data['stock_item'] = [
             'use_config_manage_stock' => 1,
             'manage_stock' => 1,
-            'qty' => 1,
-            'is_in_stock' => 1,
+            'qty' => $product->stock,
+            'is_in_stock' => ($product->stock > 0) ? 1 : 0,
         ];
         $data['description'] = $this->description;
         $data['tax_class_id'] = 2;
@@ -979,9 +979,13 @@ class MagentoService
 
                     }
                 } else {
-                    if ($webStore->is_price_ovveride || 1 == 1) {
-                        $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
-                        $dutyPrice = 0;
+                    $countries = !empty($webStore->countries) ? json_decode($webStore->countries) : [];
+                    $magentoPrice          = $product->price;
+                    $specialPrice   = 0;
+                    $ovverridePrice = 0;
+                    $segmentDiscount = 0;
+                    $dutyPrice = 0;
+                    if ($webStore->is_price_ovveride) {
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
                                 $dutyPrice = $product->getDuty($cnt);
@@ -991,8 +995,7 @@ class MagentoService
                             }
                         }
                         // pricing check for the discount case
-                        $ovverridePrice = 0;
-                        $segmentDiscount = 0;
+                        
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
                                 $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
@@ -1004,7 +1007,7 @@ class MagentoService
                             }
                         }
 
-                        $magentoPrice = \App\Product::getIvaPrice($product->price);
+                        $magentoPrice = \App\Product::getIvaPrice($magentoPrice);
                         if ($magentoPrice > 0) {
                             $totalAmount = $magentoPrice * $dutyPrice / 100;
                             $magentoPrice = $magentoPrice + $totalAmount;
@@ -1035,7 +1038,6 @@ class MagentoService
                         $d->duty_price = $dutyPrice;
                         $d->override_price = $ovverridePrice;
                         $d->segment_discount = $segmentDiscount;
-
                         $d->save();
                     } else {
                         $data = [

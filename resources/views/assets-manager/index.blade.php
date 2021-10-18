@@ -8,10 +8,10 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Assets Manager List</h2>
             <div class="pull-left">
-              <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET"> 
+              <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET">
                 <div class="form-group ml-3">
-                  <?php echo Form::text("search",request()->get("search",""),["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
-                </div>               
+                  <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                </div>
                 <div class="form-group ml-3">
                   <select class="form-control" name="archived">
                     <option value="">Select</option>
@@ -19,19 +19,22 @@
                   </select>
                 </div>
                 <div class="form-group ml-3">
-                  <?php echo Form::select("asset_type",\App\AssetsManager::assertTypeList(),request("asset_type",""),["class" => "form-control"]); ?>
+                  <?php echo Form::select("asset_type", \App\AssetsManager::assertTypeList(), request("asset_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
-                  <?php echo Form::select("purchase_type",\App\AssetsManager::purchaseTypeList(),request("purchase_type",""),["class" => "form-control"]); ?>
+                  <?php echo Form::select("purchase_type", \App\AssetsManager::purchaseTypeList(), request("purchase_type", ""), ["class" => "form-control"]); ?>
                 </div>
                 <div class="form-group ml-3">
-                  <?php echo Form::select("payment_cycle",\App\AssetsManager::paymentCycleList(),request("payment_cycle",""),["class" => "form-control"]); ?>
+                  <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
             </div>
-            <div class="pull-right">            
+            <div class="pull-right">
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#assetsCreateModal">+</button>
+            </div>
+            <div class="pull-right">
+                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
         </div>
     </div>
@@ -70,15 +73,15 @@
               <td>{{ $asset->password }}</td>
               <td>{{ $asset->asset_type }}</td>
               <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
-              
+
               <td>{{ $asset->provider_name }}</td>
               <td>{{ $asset->purchase_type }}</td>
-              <td>{{ $asset->payment_cycle }}</td>   
-              <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>           
+              <td>{{ $asset->payment_cycle }}</td>
+              <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>
               <td>{{ $asset->amount }}</td>
-              <td>{{ $asset->currency }}</td> 
+              <td>{{ $asset->currency }}</td>
               <td>{{ $asset->location }}</td>
-              <td>{{ $asset->usage }}</td>        
+              <td>{{ $asset->usage }}</td>
               <td>
                   <div style="min-width: 100px;">
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
@@ -99,27 +102,31 @@
     </div>
     <div class="mt-3 col-md-12">
       {{ $assets->appends(request()->except('page'))->links() }}
-    </div> 
+    </div>
     @include('partials.modals.remarks')
     @include('assets-manager.partials.payment-history')
-    @include('assets-manager.partials.assets-modals')   
+    @include('assets-manager.partials.assets-modals')
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-  <script type="text/javascript">      
+  <script type="text/javascript">
 
-    
+
     $(document).on('click', '.edit-assets', function() {
       var asset = $(this).data('assets');
       var url = "{{ url('assets-manager') }}/" + asset.id;
       console.log(asset);
+      var d = new Date(asset.start_date);
+      var day = (d.getDate() < 10 ? '0' : '') + d.getDate();
+      var str = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + day;
       $('#assetsEditModal form').attr('action', url);
       $('#asset_name').val(asset.name);
       $('#password').val(asset.password);
       $('#provider_name').val(asset.provider_name);
       $('#location').val(asset.location);
       $('#currency').val(asset.currency);
+      $('#start_date').val(''+str+'');
       $('#asset_asset_type').val(asset.asset_type);
       $('#category_id2').val(asset.category_id);
       $('#asset_purchase_type').val(asset.purchase_type);
@@ -185,29 +192,29 @@
     });
 
     $(document).ready(function() {
-      // Change category on create page logic      
-      $('#category_id').on('change', function(){        
+      // Change category on create page logic
+      $('#category_id').on('change', function(){
           var category_id = $('#category_id').val();
           if( category_id != '' && category_id == '-1')
           {
               $('.othercat').show();
-          } 
+          }
           else{
             $('.othercat').hide();
-          } 
+          }
       });
       // Change categoryon create page logic
-      $('#category_id2').on('change', function(){        
+      $('#category_id2').on('change', function(){
           var category_id = $('#category_id2').val();
           if( category_id != '' && category_id == '-1')
           {
               $('.othercatedit').show();
-          } 
+          }
           else{
             $('.othercatedit').hide();
-          } 
+          }
       });
-            
+
     });
     $(document).ready(function() {
           $('.payment-history-btn').click(function(){
@@ -227,13 +234,13 @@
                 $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
                 $('#payment-history-modal').modal('show');
               }
-               
+
           }).fail(function(response) {
 
             alert('Could not fetch payments');
           });
         });
-       
+
       });
 
   </script>

@@ -30,6 +30,14 @@ div#flowPathModal .modal-header button.close {     margin-top: 0;     padding-to
 div#flowPathModal a {     color: rgba(0, 0, 0, 0.5); }
 
 
+/**11-10-2021**/
+.erp_yes_no_condition {padding: 15px !important; margin:15px 0 0 0;}
+.erp_yes_no_condition_inner {     width: 100%;     float: left; 	background: #fff; padding:15px;}
+.erp_yes_no_condition_left {     padding-left: 0 !important; }
+.erp_yes_no_condition_right {     padding-right: 0 !important;; }
+
+
+
   .project-tab {
   padding: 10%;
   margin-top: -8%;

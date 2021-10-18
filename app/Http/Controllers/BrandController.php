@@ -765,7 +765,7 @@ class BrandController extends Controller
                     {
                     \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$amount,'status'=>0]) ;
                     $note="Segment Discount Changed from ".$p->segment_discount." To ".$amount;
-                    \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+                    \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note,'created_at' => date("Y-m-d H:i:s")]);
                     }
                 }
         }

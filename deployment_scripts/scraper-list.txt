@@ -9,7 +9,7 @@ groppetti.js
 julian.js
 lungolivigno.js
 mariastore.js
-profilefashion.js
+profileFashion.js
 spinnaker.js
 alducadaosta.js
 aldogibiralo.js
@@ -64,7 +64,7 @@ viamonteshop.js
 viettishop.js
 vogashop.js
 wiseboutique.js
-negozipellizzari.js
+negoziPellizzari.js
 brunarosso-b2b.js
 gb1.js
 coltorti3.js
@@ -126,3 +126,4 @@ gb15.js
 lorenzetti.js
 stylbaby.js
 coltorti16.js
+spazio_pritelli.js

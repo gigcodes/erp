@@ -1,10 +1,22 @@
-<div class="table-responsive mt-3">
-    <table class="table table-bordered" id="master-table">
-        <tbody>
+<div class="row">
+  <div class="col-md-12">
+  <div class="table-responsive">
+  <table class="table table-bordered" id="master-table1">
+      <thead>
+        <tr>
+          <th width="20%">Component</th>
+          <th width="80%">Data</th>
+        </tr>
+      </thead>  
+      <tbody>
           <tr>
             <td>Database</td>
             <td colspan="6">
-              <table style="width: 100%;">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+              <table class="table table-bordered">
                   <tr>
                     <th>Current Size</th>
                     <th>Size Before</th>
@@ -16,10 +28,15 @@
               </table>
             </td>
           </tr>
+
           <tr>
             <td>Database Table</td>
             <td colspan="6">
-              <table style="width: 100%;">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Table</th>
                     <th>Size</th>
@@ -35,10 +52,16 @@
               </table>
             </td>
           </tr>
+
           <tr>
             <td>Development</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Repository</th>
                     <th>Open Pull Request</th>
@@ -57,10 +80,16 @@
               </table>
             </td>
           </tr>
+
           <tr>
             <td>Whatsapp</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Last 3 hours</th>
                     <th>Last 24 hours</th>
@@ -72,10 +101,16 @@
               </table>
             </td>
           </tr>
+
           <tr>
             <td>Crop Reports</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Last 1 hours</th>
                     <th>Last 24 hours</th>
@@ -87,10 +122,16 @@
               </table>
             </td>
           </tr>
+
           <tr>
             <td>Cron jobs</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Signature</th>
                     <th>Start time</th>
@@ -112,7 +153,12 @@
           <tr>
             <td>Scrap</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Total</th>
                     <th>Failed</th>
@@ -128,10 +174,16 @@
               </table>
             </td>
           </tr>
+
 			     <tr>
             <td>Jobs</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Last 3 hours</th>
                     <th>Last 24 hours</th>
@@ -143,10 +195,16 @@
               </table>
             </td>
           </tr>
+
           <tr>
             <td>Failed Jobs</td>
             <td colspan="6">
-              <table style="width: 100%;">
+              
+            </td>
+          </tr>
+          <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                   <tr>
                     <th>Name</th>
                     <th>Queue</th>
@@ -169,7 +227,12 @@
 			<tr>
 				<td>Project Directory Size Management</td>
 				<td colspan="6">
-					<table style="width: 100%;">
+					
+				</td>
+			</tr>
+      <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
 						<tr>
 							<th>Directory Name</th>
 							<th>Parent</th>
@@ -188,13 +251,20 @@
 							@endforeach
 						</tr>
 					</table>
-				</td>
-			</tr>
+            </td>
+          </tr>
+
         <tr>
             <td>Memory Usage</td>
-            <td>
+            <td colspan="6">
 
-                <table style="width: 100%;">
+                
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                     <tr>
                         <th>Total</th>
                         <th>Used</th>
@@ -212,14 +282,19 @@
 
                     </tr>
                 </table>
+            </td>
+          </tr>
 
+        <tr>
+            <td>API error</td>
+            <td colspan="6">
+
+                
             </td>
         </tr>
         <tr>
-            <td>API error</td>
-            <td>
-
-                <table style="width: 100%;">
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                     <tr>
                         <th>Code</th>
                         <th>Total Error</th>
@@ -234,12 +309,18 @@
                     @endif
                 </table>
             </td>
-        </tr>
+          </tr>
+
         <tr>
             <td>More Than 24 Hr</td>
-            <td>
+            <td colspan="6">
 
-                <table style="width: 100%;">
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                     <tr>
                         <th>No</th>
                         <th>Name</th>
@@ -254,12 +335,18 @@
                     @endif
                 </table>
             </td>
-        </tr>
+          </tr>
+
         <tr>
             <td>Not Run In Last 24 Hr</td>
-            <td>
+            <td colspan="6">
 
-                <table style="width: 100%;">
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                     <tr>
                         <th>No</th>
                         <th>Name</th>
@@ -274,12 +361,18 @@
                     @endif
                 </table>
             </td>
-        </tr>
+          </tr>
+
          <tr>
             <td>Product push error log</td>
-            <td>
+            <td colspan="6">
 
-                <table style="width: 100%;">
+                
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7" class="sub-table p-0">
+            <table class="table table-bordered">
                     <tr>
                         <th>Count</th>
                         <th>Status</th>
@@ -296,7 +389,9 @@
                     @endif
                 </table>
             </td>
-        </tr>
+          </tr>
        </tbody>
     </table>
+</div>
+  </div>
 </div>

@@ -1454,7 +1454,8 @@ POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
 {
    "email":"test@gmail.com",
    "sku" : "2EG286W08F0C6D",
-   "website" : "WWW.SOLOLUXURY.COM"
+   "website" : "WWW.SOLOLUXURY.COM",
+   "size" : "XL"
 }
 ```
 
@@ -1487,6 +1488,7 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
 "lang_code":"en-US",
 "email":"effertz.isadore@cremin.org",
 "website":"WWW.SOLOLUXURY.COM",
+"type" : "add-to-cart",
 "item_info":[
     {
         "sku":"1BH018VCNK2AIXF0F6R",

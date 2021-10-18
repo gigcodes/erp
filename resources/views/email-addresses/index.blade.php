@@ -8,7 +8,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Email Addresses List</h2>
             <div class="pull-right">
-                
+
                 <button class="btn btn-secondary ml-3 error-email-history">View Errors</button>
 
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#emailAddressModal">+</button>
@@ -34,14 +34,14 @@
                         </div>
                     </div>
                     <!-- Search Network -->
-                    
+
                 </div>
                 <!-- FILTERS -->
             </form>
         </div>
     </div>
-	
-	
+
+
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Email address Passwords Manager</h2>
@@ -77,7 +77,7 @@
             <th>Encryption</th>
             <th>Store Website</th>
             <th>Status</th>
-            
+
             <th>Action</th>
           </tr>
         </thead>
@@ -93,7 +93,7 @@
               <td>
                   {{ $server->from_address }}
               </td-->
-			 
+
                   {{ $server->username }}
               </td>
               <td>
@@ -117,14 +117,16 @@
               <td>
                   {{ $server->encryption }}
               </td>
-              
+
 			  <td>
                   @if($server->website){{ $server->website->title }} @endif
               </td>
               <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
+
+              <button type="button" class="btn btn-image assign-users d-inline"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}"><img src="/images/add.png" /></button>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
-                  
+
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
 
                   {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
@@ -132,9 +134,9 @@
                   {!! Form::close() !!}
                    <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts" title="Show Account"><i class="fa fa-eye" aria-hidden="true"></i>
 </a>
-                   
+
 				   <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp"><i class="fa fa-send-o"></i></button></td>
-            
+
 					<div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
 						<div class="modal-dialog">
 							<!-- Modal content-->
@@ -168,16 +170,62 @@
 					</div>
 			  </td>
             </tr>
-			
-			
-	
+
+
+
           @endforeach
         </tbody>
       </table>
     </div>
     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
-   
+    @foreach ($emailAddress as $server)
+    @php
+      $assignids = [];
+      $assigned_users = json_decode($server->email_assignes);
+      foreach($assigned_users as $_assigned){
+        $assignids[] = $_assigned->user_id;
+      }
+    @endphp
+    <div id="assignUsersModal{{$server->id}}" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="" method="POST" enctype="multipart/form-data" >
+            @csrf
+            @method('POST')
+            <input type="hidden" name="email_id" id="email_id" value=''>
+            <div class="modal-header">
+              <h4 class="modal-title">Assign users</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+          <div class="form-group">
+                  <strong>Users:</strong>
+            <Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
+              <option value = ''>None</option>
+              @foreach ($users as $key => $val)
+                <option value="{{ $val->id }}" {{in_array($val->id,$assignids)?'selected':''}}>{{ $val->name }}</option>
+              @endforeach
+            </Select>
+            @if ($errors->has('users'))
+                <div class="alert alert-danger">{{$errors->first('users')}}</div>
+            @endif
+          </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Assign</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+</div>
+@endforeach
 <div id="emailAddressModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -296,7 +344,7 @@
               <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
             @endif
           </div>
-          
+
           <div class="form-group">
             <strong>Signature Title:</strong>
             <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
@@ -332,7 +380,7 @@
           <div class="form-group">
             <strong>Signature Address:</strong>
             <textarea name="signature_address" id="address" class="form-control" >{{ old('signature_address') }}</textarea>
-            
+
             @if ($errors->has('signature_address'))
               <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
             @endif
@@ -355,7 +403,7 @@
           </div>
           <div class="form-group">
             <strong>Signature Social Tag:</strong>
-            
+
             <textarea id="social" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
             @if ($errors->has('signature_tag'))
               <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
@@ -398,7 +446,7 @@
             </tbody>
           </table>
         </div>
-      </div>    
+      </div>
 			</div>
 		</div>
 	</div>
@@ -408,13 +456,13 @@
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
-        
+
         <h4 class="modal-title">Email Error History</h4>
-        
+
         <a class="btn btn-secondary ml-3" href="{{ route('email.failed.download') }}">Download</a>
 
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-      
+
       </div>
       <div class="modal-body">
         <div class="table-responsive mt-3">
@@ -434,11 +482,13 @@
             </tbody>
           </table>
         </div>
-      </div>    
+      </div>
       </div>
     </div>
   </div>
 </div>
+
+
 
 <div id="emailAddressEditModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
@@ -506,10 +556,10 @@
 			</div>
           <div class="form-group">
             <strong>Driver:</strong>
-            
+
 
             <!-- <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required> -->
-            
+
             <Select name="driver" id="edit_driver" class="form-control required">
               <option value = ''>Select Driver</option>
               @foreach ($allDriver as $driver)
@@ -549,7 +599,7 @@
           </div>
           <div class="form-group">
             <strong>Encryption:</strong>
-            
+
             <!-- <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required> -->
 
             <Select name="encryption" id="edit_encryption" class="form-control required">
@@ -587,7 +637,7 @@
               <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
             @endif
           </div>
-          
+
           <div class="form-group">
             <strong>Signature Title:</strong>
             <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
@@ -623,7 +673,7 @@
           <div class="form-group">
             <strong>Signature Address:</strong>
             <textarea name="signature_address" id="address1" class="form-control" >{{ old('signature_address') }}</textarea>
-            
+
             @if ($errors->has('signature_address'))
               <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
             @endif
@@ -649,13 +699,13 @@
           </div>
           <div class="form-group">
             <strong>Signature Social Tag:</strong>
-            
+
             <textarea id="social1" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
             @if ($errors->has('signature_tag'))
               <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
             @endif
           </div>
-        
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -675,12 +725,12 @@
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               <div class="modal-body">
-                 
+
               </div>
           </div>
       </div>
 </div>
-<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
          50% 50% no-repeat;display:none;">
 </div>
 
@@ -697,8 +747,8 @@
     selector: '#social',
     menubar: false
   });
- 
-  
+
+
 </script>
   <script type="text/javascript">
     $(document).on('click', '.edit-email-addresses', function() {
@@ -708,13 +758,13 @@
       $('#emailAddressEditModal form').attr('action', url);
       $('#emailAddressEditModal').find('input[name="from_name"]').val(emailAddress.from_name);
       $('#emailAddressEditModal').find('input[name="from_address"]').val(emailAddress.from_address);
-      
+
       // $('#emailAddressEditModal').find('input[name="driver"]').val(emailAddress.driver);
 
       $('#emailAddressEditModal').find('input[name="host"]').val(emailAddress.host);
-      
+
       // $('#emailAddressEditModal').find('input[name="port"]').val(emailAddress.port);
-      
+
       // $('#emailAddressEditModal').find('input[name="encryption"]').val(emailAddress.encryption);
 
       $('#emailAddressEditModal').find('input[name="username"]').val(emailAddress.username);
@@ -740,14 +790,24 @@
     selector: '#social1',
     menubar: false
   });
-	  
+
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
 
     $('#edit_driver').val(emailAddress.driver).trigger('change');
     $('#edit_port').val(emailAddress.port).trigger('change');
     $('#edit_encryption').val(emailAddress.encryption).trigger('change');
-      
+
     });
+
+    $(document).on('click', '.assign-users', function() {
+      var emailId = $(this).data('email-id');
+      var users = $(this).data('users');
+      var url = "{{ route('email-addresses.assign') }}";
+      $('#assignUsersModal'+emailId).find('input[name="email_id"]').val(emailId);
+      $('#assignUsersModal'+emailId+' form').attr('action', url);
+
+    });
+
 
     $(document).on('click', '.view-email-history', function(e) {
         var id = $(this).attr('data-id');
@@ -805,7 +865,7 @@
             },
         }).done( function(response) {
           // Show data in modal
-         
+
           var model  = $("#show-content-model-table");
               model.find(".modal-title").html("Email Used Places");
               model.find(".modal-body").html(response);
@@ -825,11 +885,11 @@ function sendtoWhatsapp(password_id) {
 	}
   </script>
   <script>
-        
+
         var isLoading = false;
         var page = 1;
         $(document).ready(function () {
-            
+
             $(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
                     loadMore();
@@ -850,12 +910,12 @@ function sendtoWhatsapp(password_id) {
                         $loader.show();
                     },
                     success: function (data) {
-                        
+
                         $loader.hide();
                         if('' === data.trim())
                             return;
                         $('.infinite-scroll-cashflow-inner').append(data);
-                        
+
 
                         isLoading = false;
                     },
@@ -864,9 +924,9 @@ function sendtoWhatsapp(password_id) {
                         isLoading = false;
                     }
                 });
-            }            
+            }
         });
 
 
-  </script>     
+  </script>
 @endsection

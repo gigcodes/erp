@@ -1097,6 +1097,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
+    Route::post('selected_customer/assignGroup', 'ProductController@assignGroupSelectedCustomer')->name('twilio.assign_group_selected_customer');
+    Route::post('selected_customer/createGroup', 'ProductController@createGroupSelectedCustomer')->name('twilio.create_group_selected_customer');
 
     // landing page
     Route::prefix('landing-page')->group(function () {
@@ -1813,6 +1815,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('email-addresses/password/change', 'EmailAddressesController@passwordChange')->name('email.password.change');
     Route::post('email-addresses/sendon/whatsapp', 'EmailAddressesController@sendToWhatsApp')->name('email.password.sendwhatsapp');
+    Route::post('email-addresses/assign', 'EmailAddressesController@assignUsers')->name('email-addresses.assign');
     
 	Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
 
@@ -2273,6 +2276,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
+    Route::get('log/list', 'ScrapStatisticsController@scrapperLogList');
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
     Route::get('server-status-process', 'ScrapStatisticsController@serverStatusProcess');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
@@ -2632,10 +2636,17 @@ Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInf
 //Routes for flows
 Route::group(['middleware' => 'auth', 'prefix' => 'flow'], function () {
     Route::get('/list', 'FlowController@index')->name('flow.index');
+    Route::get('/scheduled-emails', 'FlowController@allScheduleEmails')->name('flow.schedule-emails');
+    Route::get('/scheduled-messages', 'FlowController@allScheduleMessages')->name('flow.schedule-messages');
+    Route::post('/update-email', 'FlowController@updateEmail')->name('flow.update-email');
+    Route::post('/update-message', 'FlowController@updateMessage')->name('flow.update-message');
+    Route::post('/delete-email', 'FlowController@deleteEmail')->name('flow.delete-email');
+    Route::post('/delete-message', 'FlowController@deleteMessage')->name('flow.delete-message');
     Route::get('/{flow_code}', 'FlowController@editFlow')->name('flow.edit');
     Route::get('/detail/{flow_id}', 'FlowController@flowDetail')->name('flow.detail');
     Route::post('/create', 'FlowController@createFlow')->name('flow-create');
     Route::post('/update', 'FlowController@updateFlow')->name('flow-update');
+    Route::post('/update/condition', 'FlowController@updateCondition')->name('update-condition');
     Route::post('/delete', 'FlowController@flowDelete')->name('flow-delete');
     Route::post('/action/delete', 'FlowController@flowActionDelete')->name('flow-action-delete');
     Route::post('/update/actions', 'FlowController@updateFlowActions')->name('flow-actions-update');
@@ -3242,6 +3253,7 @@ Route::middleware('auth')->group(function()
 Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
 Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
 Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
+Route::post('/save-sub', 'QuickReplyController@saveSubCat')->name('save-sub');
 Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 
 /**

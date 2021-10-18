@@ -14,6 +14,7 @@ use App\ScrapedProducts;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Mails\Manual\OrderConfirmation;
 
 class TmpTaskController extends Controller
 {
@@ -108,6 +109,34 @@ class TmpTaskController extends Controller
 
     public function testEmail(Request $request)
     {
+
+        $orderSaved = \App\Order::find(2102);
+
+        //$emailClass = (new OrderConfirmation($orderSaved))->build();
+        try {
+
+            $email = \App\Email::create([
+                'model_id'        => $orderSaved->id,
+                'model_type'      => \App\Order::class,
+                'from'            => "customercare@sololuxury.co.in",
+                'to'              => "webreak.pravin@gmail.com",
+                'subject'         => "TEST",
+                'message'         => "Hello world",
+                'template'        => 'order-confirmation',
+                'additional_data' => $orderSaved->id,
+                'status'          => 'pre-send',
+                'is_draft'        => 1,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('email');
+
+        }catch(\Exception $e) {
+            \Log::error($e);
+            \Log::info("Order email was not send due to template not setup" . $orderSaved->id);
+        }
+
+        die;
+
 
         $cnt = "IN";
         $website = \App\StoreWebsite::find($request->get("store_website_id"));
