@@ -92,7 +92,7 @@ class LeadOrderController extends Controller
         endif;
         
         
-        $orders = $orders->orderBy('id')
+        $orders = $orders->orderBy('id','desc')
                     ->get()->toArray();
         $leadOrder_array = $orders;
         

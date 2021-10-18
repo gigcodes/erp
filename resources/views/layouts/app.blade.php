@@ -13,12 +13,12 @@ $metaData = '';
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php
-        if(isset($metaData->page_title) && $metaData->page_title!='') {
-            $title = $metaData->page_title;
-        }else{
-            $title = trim($__env->yieldContent('title'));
-        }
-    ?>
+if (isset($metaData->page_title) && $metaData->page_title != '') {
+    $title = $metaData->page_title;
+} else {
+    $title = trim($__env->yieldContent('title'));
+}
+?>
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
@@ -396,24 +396,20 @@ $metaData = '';
 
                         <?php
 
-                        //getting count of unreach notification
-                        $unread = 0;
-                        if(!empty($notifications)){
-                            foreach($notifications as $notification)
-                            {
-                                if(!$notification->isread)
-                                {
-                                    $unread++;
-                                }
+//getting count of unreach notification
+$unread = 0;
+if (!empty($notifications)) {
+    foreach ($notifications as $notification) {
+        if (!$notification->isread) {
+            $unread++;
+        }
 
-                            }
-                        }
+    }
+}
 
-
-
-                        /* ?>
-                        @include('partials.notifications')
-                        <?php */ ?>
+/* ?>
+@include('partials.notifications')
+<?php */?>
                         {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
                         </li> --}}
@@ -789,6 +785,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.status') }}">Return-Exchange Status</a>
                                                 <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
+                                                <a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead order</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1596,10 +1593,10 @@ $metaData = '';
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
 
                                         <ul class="dropdown-menu multi-level">
-                                            
+
                                             <li class="nav-item dropdown">
                                                 <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
-                                            </li>    
+                                            </li>
 
                                             {{-- Sub Menu Product --}}
                                             <li class="nav-item dropdown dropdown-submenu">
@@ -2018,7 +2015,7 @@ $metaData = '';
                                     </ul>
                                 </li>
 
-                              
+
                          <!------    System Menu     !-------->
 
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -2062,7 +2059,7 @@ $metaData = '';
                                     <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                 </a>
                             </li>
-                     
+
 
                             <li>
                                 <a id="message-chat-data-box" class="quick-icon">
@@ -2461,7 +2458,7 @@ $metaData = '';
     <!--Sop Create Modal -->
     <div id="Create-Sop-Shortcut" class="modal fade" role="dialog">
         <div class="modal-dialog">
-    
+
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -2479,6 +2476,7 @@ $metaData = '';
                             <option value="knowledge_base">Knowledge Base</option>
                         </select>
                     </div>
+                    <input type="hidden" name="chat_message_id" value="" class="chat_message_id"/>
                     <div class="add_sop_div mt-3">
                         <tr>
                             <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
@@ -2503,7 +2501,11 @@ $metaData = '';
                         </tr>
                         <tr>
                             <td>Name:</td>
-                            <td><input type="text" name="name" class="form-control mb-3"></td>
+                            <td><input type="text" name="name" class="form-control mb-3 name"></td>
+                        </tr>
+                        <tr>
+                            <td>Category:</td>
+                            <td><input type="text" name="category" class="form-control mb-3 category"></td>
                         </tr>
                         <tr>
                             <td>Description:</td>
@@ -2517,7 +2519,7 @@ $metaData = '';
                 </div>
             </form>
         </div>
-    
+
         </div>
     </div>
 
@@ -2589,7 +2591,7 @@ $metaData = '';
                 $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
             }
         })
-        
+
         $(document).on('change','.knowledge_base',function(){
             var val = $(this).val();
             if ($(this).val() == "chapter" || $(this).val() == "page") {
@@ -2598,7 +2600,7 @@ $metaData = '';
                 $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
             }
         })
-        
+
         $(document).on('change','.knowledge_base_book',function(){
             var val = $(this).val();
             if (val.length > 0) {
@@ -2614,7 +2616,10 @@ $metaData = '';
             });
             var formdata = $('#createShortcutForm').serialize();
             var val = $(this).parents('#createShortcutForm').find('.knowledge_base').val();
+            var chatID = $(this).parents('#createShortcutForm').find('[name="chat_message_id"]').val();
             var name = $(this).parents('#createShortcutForm').find('[name="name"]').val();
+            var category = $(this).parents('#createShortcutForm').find('[name="category"]').val();
+            var content = $(this).parents('#createShortcutForm').find('[name="description"]').text();
             var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
             if (val.length === 0) {
                 $.ajax({
@@ -3060,11 +3065,11 @@ $metaData = '';
     @endif
     <script>
          <?php
-            if(!\Auth::guest()) {
-            $path = Request::path();
-            $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
-            if($hasPage) {
-         ?>
+if (!\Auth::guest()) {
+    $path = Request::path();
+    $hasPage = \App\AutoRefreshPage::where("page", $path)->where("user_id", \Auth()->user()->id)->first();
+    if ($hasPage) {
+        ?>
 
             var idleTime = 0;
             function reloadPageFun() {
@@ -3087,7 +3092,7 @@ $metaData = '';
                 });
             });
 
-        <?php } } ?>
+        <?php }}?>
 
         function filterFunction() {
             var input, filter, ul, li, a, i;
