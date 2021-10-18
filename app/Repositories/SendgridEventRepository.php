@@ -34,35 +34,29 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
     {
         \Log::info('Send grid repo In');
 
-        $newEvent = new SendgridEvent();
-        $newEvent->timestamp = $event['timestamp'];
-        $newEvent->email = $event['email'];
-        $newEvent->event = $event['event'];
-        $newEvent->sg_event_id = $event['sg_event_id'];
+        $newEvent                = new SendgridEvent();
+        $newEvent->timestamp     = $event['timestamp'];
+        $newEvent->email         = $event['email'];
+        $newEvent->event         = $event['event'];
+        $newEvent->sg_event_id   = $event['sg_event_id'];
         $newEvent->sg_message_id = $event['sg_message_id'];
-        $newEvent->payload = $event;
+        $newEvent->payload       = $event;
 
         if (isset($event['smtp-id'])) {
 
             $smptpID = str_replace(["<", ">"], "", $event['smtp-id']);
-            $messageID = $event['sg_message_id'];
 
             \Log::info('Send grid repo params defined');
 
             $emailData = new Email();
             if (Email::where('origin_id', '=', $smptpID)->exists()) {
                 Email::where('origin_id', $smptpID)
-                    ->update(['status' => $event['event']]
-                    );
-            }
-            if (Email::where('message_id', '=', $messageID)->exists()) {
-                Email::where('message_id', $messageID)
-                    ->update(['status' => $event['event']]
+                    ->update(['status' => $event['event'], 'message_id' => $event['sg_message_id']]
                     );
             }
         } else {
-            if (Email::where('message_id', '=', $messageID)->exists()) {
-                Email::where('message_id', $messageID)
+            if (Email::where('message_id', '=', $event['sg_message_id'])->exists()) {
+                Email::where('message_id', $event['sg_message_id'])
                     ->update(['status' => $event['event']]
                     );
             }
