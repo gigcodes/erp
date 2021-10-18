@@ -94,7 +94,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </thead>
 
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
-                        @foreach ($magentoSettings as $magentoSetting)
+                        @foreach ($magentoSettings as $magentoSetting) 
                             <tr>
                                 <td>{{ $magentoSetting->id }}</td>
 
@@ -109,12 +109,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' ; ?>')" >
                                             {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }} ...
                                         </td>
-                                        <td ata-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
                                         <td>-</td>
                                         
-                                @else
+                                @else 
                                         <td>{{ $magentoSetting->storeview && $magentoSetting->storeview->websiteStore && $magentoSetting->storeview->websiteStore->website && $magentoSetting->storeview->websiteStore->website->storeWebsite ? $magentoSetting->storeview->websiteStore->website->storeWebsite->website : '-' }}</td>
-                                        <td ata-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{   substr($magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-', 0,10) }}</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('{{$magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-'}}')" >  {{   substr($magentoSetting->storeview && $magentoSetting->storeview->websiteStore ? $magentoSetting->storeview->websiteStore->name : '-', 0,10) }}</td>
                                         <td>{{ $magentoSetting->storeview->code }}</td>
                                 @endif
 
@@ -200,14 +200,15 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </div>
                     
                     <div class="form-group d-none website_store_form">
-                        <label for="">Website Store </label><br>
-                        <select class="form-control website_store select2" name="website_store[]" data-placeholder="Select setting website store" style="width: 100%">
-                        </select>
+                        <label for="">Website Store  </label><br>
+                        <select class="form-control website_store select2 " name="website_store[]" multiple data-placeholder="Select setting website store" style="width: 100%">
+							
+					   </select>
                     </div>       
 
                     <div class="form-group d-none website_store_view_form">
                         <label for="">Website Store View</label><br>
-                        <select class="form-control website_store_view select2" name="website_store_view[]" data-placeholder="Select setting website store view" style="width: 100%">
+                        <select class="form-control website_store_view select2" name="website_store_view[]"  data-placeholder="Select setting website store view" style="width: 100%">
                         </select>
                     </div>                       
                     
@@ -627,6 +628,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                 html += `<option value="${value.id}">${value.name}</option>`
             }) 
             $('#add-setting-popup .website_store').append(html);
+			$('#add-setting-popup .website_store').attr('multiple','multiple');
             $('#add-setting-popup .website_store').select2();
         }).fail(function() {
             console.log("error");
