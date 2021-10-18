@@ -4,8 +4,8 @@
   <table class="table table-bordered" id="master-table1">
       <thead>
         <tr>
-          <th width="20%">Component</th>
-          <th width="80%">Data</th>
+          <th width="20%">Component</td>
+          <th width="80%">Data</td>
         </tr>
       </thead>  
       <tbody>
@@ -18,8 +18,8 @@
             <td colspan="7" class="sub-table p-0">
               <table class="table table-bordered">
                   <tr>
-                    <th>Current Size</th>
-                    <th>Size Before</th>
+                    <td>Current Size</td>
+                    <td>Size Before</td>
                   </tr>
                   <tr>
                       <td>{{ ($currentSize) ? $currentSize->size : "N/A" }}</td>
@@ -38,8 +38,8 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                   <tr>
-                    <th>Table</th>
-                    <th>Size</th>
+                    <td>Table</td>
+                    <td>Size</td>
                   </tr>
                   @if(!empty($topFiveTables))
                     @foreach($topFiveTables as $tft)
@@ -61,23 +61,43 @@
           </tr>
           <tr>
             <td colspan="7" class="sub-table p-0">
-            <table class="table table-bordered">
-                  <tr>
-                    <th>Repository</th>
-                    <th>Open Pull Request</th>
-                  </tr>
-                  <?php if(!empty($repoArr)) { ?>
-                    <?php foreach($repoArr as $repo) { ?>
-                    <?php $totalRequest = !empty($repo['pulls']) ? count($repo['pulls']) : 0 ?>
-                    <?php if($totalRequest > 0) { ?>  
-                        <tr>
-                            <td>{{ !empty($repo['name']) ? $repo['name'] : "N/A" }}</td>
-                            <td>{{ !empty($repo['pulls']) ? count($repo['pulls']) : 0 }}</td>
-                        </tr>
-                    <?php } ?>    
-                    <?php } ?>  
-                  <?php } ?>  
-              </table>
+              <?php 
+              if(!empty($repoArr)){
+                foreach($repoArr as $k => $v){
+                  $totalRequest = !empty($v['pulls']) ? count($v['pulls']) : 0;
+                  if($totalRequest <= 0) {
+                    unset($repoArr[$k]);
+                  }
+                }
+                $max = ceil(count($repoArr) / 4); 
+                $max = $max<=0 ? 1 : $max;
+                $repoArrChunks = array_chunk($repoArr, $max);
+                if(!empty($repoArrChunks)){
+                  foreach($repoArrChunks as $repoArrChunk){
+                    if(!empty($repoArrChunk)){
+                    ?>
+                    <table class="table table-bordered w-25 pull-left">
+                      <tr>
+                        <td>Repository</td>
+                        <td>Open PR</td>
+                      </tr>
+                      <?php if(!empty($repoArrChunk)) { ?>
+                        <?php foreach($repoArrChunk as $repo) { ?>
+                        <?php $totalRequest = !empty($repo['pulls']) ? count($repo['pulls']) : 0 ?>
+                        <?php if($totalRequest > 0) { ?>  
+                            <tr>
+                                <td>{{ !empty($repo['name']) ? $repo['name'] : "N/A" }}</td>
+                                <td>{{ !empty($repo['pulls']) ? count($repo['pulls']) : 0 }}</td>
+                            </tr>
+                        <?php } ?>    
+                        <?php } ?>  
+                      <?php } ?>  
+                    </table>
+                    <?php
+                  }}
+                }
+              }
+              ?>
             </td>
           </tr>
 
@@ -91,8 +111,8 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                   <tr>
-                    <th>Last 3 hours</th>
-                    <th>Last 24 hours</th>
+                    <td>Last 3 hours</td>
+                    <td>Last 24 hours</td>
                   </tr>
                   <tr>
                       <td>{{ isset($last3HrsMsg) ? $last3HrsMsg->cnt : 0 }}</td>
@@ -112,8 +132,8 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                   <tr>
-                    <th>Last 1 hours</th>
-                    <th>Last 24 hours</th>
+                    <td>Last 1 hours</td>
+                    <td>Last 24 hours</td>
                   </tr>
                   <tr>
                       <td>{{ !empty($scraper1hrsReports) ? $scraper1hrsReports->cnt : 0 }}</td>
@@ -131,22 +151,37 @@
           </tr>
           <tr>
             <td colspan="7" class="sub-table p-0">
-            <table class="table table-bordered">
-                  <tr>
-                    <th>Signature</th>
-                    <th>Start time</th>
-                    <th>Last error</th>
-                  </tr>
-                  <?php if(!empty($cronjobReports)){ ?>
-                      <?php foreach($cronjobReports as $cronLastError) { ?>
-                        <tr>
-                          <td>{{ $cronLastError->signature }}</td>
-                          <td>{{ $cronLastError->start_time }}</td>
-                          <td>{{ $cronLastError->last_error }}</td>
-                        </tr>
+              <?php 
+              if(!empty($cronjobReports)){
+                $cronjobReports = $cronjobReports->toArray();
+                $max = ceil(count($cronjobReports) / 2); 
+                $max = $max<=0 ? 1 : $max;
+                $cronjobReportsChunks = array_chunk($cronjobReports, $max);
+                if(!empty($cronjobReportsChunks)){
+                  foreach($cronjobReportsChunks as $cronjobReportsChunk){
+                    if(!empty($cronjobReportsChunk)){
+                    ?>
+                    <table class="table table-bordered w-50 pull-left">
+                      <tr>
+                        <td>Signature</td>
+                        <td>Start time</td>
+                        <td>Last error</td>
+                      </tr>
+                      <?php if(!empty($cronjobReportsChunk)){ ?>
+                          <?php foreach($cronjobReportsChunk as $cronLastError) { ?>
+                            <tr>
+                              <td width="25%">{{ $cronLastError['signature'] }}</td>
+                              <td width="20%">{{ $cronLastError['start_time'] }}</td>
+                              <td width="50%">{{ $cronLastError['last_error'] }}</td>
+                            </tr>
+                          <?php } ?>
                       <?php } ?>
-                  <?php } ?>
-              </table>
+                    </table>
+                    <?php
+                  }}
+                }
+              }
+              ?>
             </td>
           </tr>
 
@@ -160,10 +195,10 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                   <tr>
-                    <th>Total</th>
-                    <th>Failed</th>
-                    <th>Validated</th>
-                    <th>Errors</th>
+                    <td>Total</td>
+                    <td>Failed</td>
+                    <td>Validated</td>
+                    <td>Errors</td>
                   </tr>
                   <tr>
                       <td>{{ isset($scrapeData[0]->total) ? $scrapeData[0]->total : 0 }}</td>
@@ -185,8 +220,8 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                   <tr>
-                    <th>Last 3 hours</th>
-                    <th>Last 24 hours</th>
+                    <td>Last 3 hours</td>
+                    <td>Last 24 hours</td>
                   </tr>
                   <tr>
                       <td>{{ isset($last3HrsJobs) ? $last3HrsJobs->cnt : 0 }}</td>
@@ -206,10 +241,10 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                   <tr>
-                    <th>Name</th>
-                    <th>Queue</th>
-                    <th>Status</th>
-                    <th>Failed at</th>
+                    <td>Name</td>
+                    <td>Queue</td>
+                    <td>Status</td>
+                    <td>Failed at</td>
                   </tr>
                   @foreach($failedJobs as $fj) 
                     <tr>
@@ -234,10 +269,10 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
 						<tr>
-							<th>Directory Name</th>
-							<th>Parent</th>
-							<th>Size (In MB)</th>
-							<th>Expected (In MB)</th>
+							<td>Directory Name</td>
+							<td>Parent</td>
+							<td>Size (In MB)</td>
+							<td>Expected (In MB)</td>
 						</tr>
 						<tr>
 							@foreach($projectDirectoryData as $val)
@@ -266,11 +301,11 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                     <tr>
-                        <th>Total</th>
-                        <th>Used</th>
-                        <th>Free</th>
-                        <th>Buff & Cache</th>
-                        <th>Available</th>
+                        <td>Total</td>
+                        <td>Used</td>
+                        <td>Free</td>
+                        <td>Buff & Cache</td>
+                        <td>Available</td>
                     </tr>
                     <tr>
 
@@ -296,8 +331,8 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                     <tr>
-                        <th>Code</th>
-                        <th>Total Error</th>
+                        <td>Code</td>
+                        <td>Total Error</td>
                     </tr>
                     @if(!empty($logRequest))
                       @foreach($logRequest as $lr)
@@ -320,20 +355,39 @@
         </tr>
         <tr>
             <td colspan="7" class="sub-table p-0">
-            <table class="table table-bordered">
-                    <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                    </tr>
-                    @if(!empty($scraper_process))
-                      @foreach($scraper_process as $i => $lr)
+            <?php 
+              if(!empty($scraper_process)){
+                $scraper_process = $scraper_process->toArray();
+                $max = ceil(count($scraper_process) / 4); 
+                $max = $max<=0 ? 1 : $max;
+                $scraper_process_chunks = array_chunk($scraper_process, $max);
+                if(!empty($scraper_process_chunks)){
+                  foreach($scraper_process_chunks as $scraper_process_chunk){
+                    if(!empty($scraper_process_chunk)){
+                    ?>
+                    <table class="table table-bordered w-25 pull-left">
                         <tr>
-                            <td>{{ $i}}</td>
-                            <td>{{ $lr->scraper_name}}</td>
+                            <td>No</td>
+                            <td>Name</td>
                         </tr>
-                      @endforeach
-                    @endif
-                </table>
+                        <?php 
+                          if(!empty($scraper_process_chunk)){
+                            foreach($scraper_process_chunk as $i => $lr){
+                        ?>
+                            <tr>
+                                <td><?php echo $i; ?></td>
+                                <td><?php echo $lr['scraper_name']; ?></td>
+                            </tr>
+                        <?php 
+                            } 
+                          } 
+                        ?>
+                    </table>
+                    <?php
+                  }}
+                }
+              }
+            ?>
             </td>
           </tr>
 
@@ -346,20 +400,39 @@
         </tr>
         <tr>
             <td colspan="7" class="sub-table p-0">
-            <table class="table table-bordered">
-                    <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                    </tr>
-                    @if(!empty($scrapers))
-                      @foreach($scrapers as $i => $lr)
+            <?php 
+              if(!empty($scrapers)){
+                $scrapers = $scrapers->toArray();
+                $max = ceil(count($scrapers) / 4); 
+                $max = $max<=0 ? 1 : $max;
+                $scrapers_chunks = array_chunk($scrapers, $max);
+                if(!empty($scrapers_chunks)){
+                  foreach($scrapers_chunks as $scrapers_chunk){
+                    if(!empty($scrapers_chunk)){
+                    ?>
+                    <table class="table table-bordered w-25 pull-left">
                         <tr>
-                            <td>{{ $i}}</td>
-                            <td>{{ $lr->scraper_name}}</td>
+                            <td>No</td>
+                            <td>Name</td>
                         </tr>
-                      @endforeach
-                    @endif
-                </table>
+                        <?php 
+                          if(!empty($scrapers_chunk)){
+                            foreach($scrapers_chunk as $i => $lr){
+                        ?>
+                            <tr>
+                                <td><?php echo $i; ?></td>
+                                <td><?php echo $lr['scraper_name']; ?></td>
+                            </tr>
+                        <?php 
+                            } 
+                          } 
+                        ?>
+                    </table>
+                    <?php
+                  }}
+                }
+              }
+            ?>
             </td>
           </tr>
 
@@ -374,9 +447,9 @@
             <td colspan="7" class="sub-table p-0">
             <table class="table table-bordered">
                     <tr>
-                        <th>Count</th>
-                        <th>Status</th>
-                        <th>Message</th>
+                        <td>Count</td>
+                        <td>Status</td>
+                        <td>Message</td>
                     </tr>
                     @if(!empty($productErrors))
                       @foreach($productErrors as $i => $lr)
