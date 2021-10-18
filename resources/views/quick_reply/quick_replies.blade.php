@@ -50,7 +50,7 @@
                                                 <button class="btn btn-secondary btn-sm save_reply_sub">&#10004;</button>
                                              </div>
                                              <div id="show_reply_list_sub_{{ $all_category->id }}">
-                                             <b>{{ $all_category->name }}</b>  <a style="font-size: 30px;float: left;width: 100%;" href="javascript::void()" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
+                                             <b>{{ $all_category->name }}</b>  <a style="font-size: 30px" href="javascript::void()" class="add_sub_cat" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}">+</a>
                                              
                                              </div>
                                              </td>
@@ -72,8 +72,8 @@
                                                                 @if($key == $all_category->id)
                                                                     @foreach($value as $key1 => $item)
                                                                         @if($key1 == $websites->id)
-                                                                        <button class="btn btn-secondary float-right" data-toggle="modal"
-                            data-target="#replies{{ $all_category->id}}-{{$websites->id}}">View Replies</button>
+                                                                        <button class="btn btn-xs lead_summary" data-toggle="modal"
+                            data-target="#replies{{ $all_category->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
                                                                                
                                                                              
                                                                                 <div class="modal fade" id="replies{{ $all_category->id}}-{{$websites->id}}" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
@@ -146,8 +146,8 @@
                                                                     @if($key == $all_category_sub->id)
                                                                         @foreach($value as $key1 => $item)
                                                                             @if($key1 == $websites->id)
-                                                                            <button class="btn btn-secondary float-right" data-toggle="modal"
-                            data-target="#replies{{ $all_category_sub->id}}-{{$websites->id}}">View Replies</button>
+                                                                            <button class="btn btn-xs lead_summary" data-toggle="modal"
+                            data-target="#replies{{ $all_category_sub->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
                             <div class="modal fade" id="replies{{ $all_category_sub->id}}-{{$websites->id}}" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
                                                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                                                     <div class="modal-content">
