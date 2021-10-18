@@ -43,22 +43,24 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
         $newEvent->payload       = $event;
 
         if (isset($event['smtp-id'])) {
-
             $smptpID = str_replace(["<", ">"], "", $event['smtp-id']);
-
+            \Log::info("SMTP matched with record => ".$smptpID);
             \Log::info('Send grid repo params defined');
-
-            $emailData = new Email();
-            if (Email::where('origin_id', '=', $smptpID)->exists()) {
-                Email::where('origin_id', $smptpID)
-                    ->update(['status' => $event['event'], 'message_id' => $event['sg_message_id']]
-                    );
+            $email = Email::where('origin_id', $smptpID)->first();
+            if ($email) {
+                \Log::info('Record found => '.json_encode($email));
+                $email->status = $event['event'];
+                $email->message_id = $event['sg_message_id'];
+                $email->save();
             }
         } else {
-            if (Email::where('message_id', '=', $event['sg_message_id'])->exists()) {
-                Email::where('message_id', $event['sg_message_id'])
-                    ->update(['status' => $event['event']]
-                    );
+            \Log::info('message_id found => '.$event['sg_message_id']);
+            $email = Email::where('message_id', $event['sg_message_id'])->first();
+            if ($email) {
+                \Log::info('Record found => '.json_encode($email));
+                $email->status = $event['event'];
+                $email->message_id = $event['sg_message_id'];
+                $email->save();
             }
         }
 
