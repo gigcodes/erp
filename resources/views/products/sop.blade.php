@@ -31,7 +31,7 @@
         padding-right:10px;
         padding-left: 10px;
     }
-   
+
     </style>
     <!-- END - DEVTASK-4416 -->
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
@@ -40,14 +40,14 @@
     <div class="row" style="margin:0%">
         <div class="col-md-12 margin-tb p-0">
             <h2 class="page-heading"> ListingApproved - SOP
-                
+
                 <div class="pull-right">
                     <button class="btn btn-Secondary1" data-toggle="modal" data-target="#Sop-Permission-Modal">Sop Permissions</button>
                 </div>
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" data-target="#exampleModal">Add Notes</button>
                 </div>
-                
+
             </h2>
         </div>
 
@@ -79,14 +79,14 @@
                 </div>
             </div>
 
-            
+
         </div>
     </div>
 
     <!-- Sop Perission Modal -->
     <div id="Sop-Permission-Modal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-    
+
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -129,14 +129,14 @@
                 </div>
             </form>
         </div>
-    
+
         </div>
     </div>
-    
+
     <!-- Sop-User Perission Modal -->
     <div id="Sop-User-Permission-Modal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-    
+
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -155,7 +155,7 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
-    
+
         </div>
     </div>
 
@@ -181,6 +181,11 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="name">Category</label>
+                            <input type="text" class="form-control" id="category" name="category" required />
+                        </div>
+
+                        <div class="form-group">
                             <label for="content">Content</label>
                             <input type="text" class="form-control" id="content" required />
                         </div>
@@ -197,7 +202,7 @@
         </div>
     </div>
     <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
-    
+
         <div class="space-right">
 
             <div class="table-responsive">
@@ -205,8 +210,9 @@
                     <thead>
                         <tr>
                             <th width="3%">ID</th>
-                            
+
                             <th width="10%">Name</th>
+                            <th width="10%">Category</th>
                             <th width="50%">Content</th>
                             <th width="18%">Communication</th>
                             <th width="8%">Created at</th>
@@ -219,15 +225,16 @@
                             <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
                                 <td class="sop_table_id">{{ $value->id }}</td>
                                 <td class="sop_table_name">{{ $value->name }}</td>
+                                <td class="sop_table_cat">{{ $value->category }}</td>
 
-                                
+
                                  <td class='{{ strlen($value->content) > 270 ? "expand-row" : "" }}' data-subject="{!! $value->content ? ($value->content) : '' !!}" data-details="{{$value->value}}" data-switch="0" style="word-break: break-all;">
                                     <span class="td-mini-container">
                                     {{ $value->content ? substr(strip_tags($value->content), 0, 270) . (strlen(($value->content)) > 270 ? '......' : '') : '' }}
                                     </span>
                                     <span class="td-full-container hidden">{!! $value->content !!}</span>
-                                 </td> 
-                                                        
+                                 </td>
+
                                 {{-- <td> {!! $value->content !!}</td> --}}
 
                                 <td class="table-hover-cell pr-0">
@@ -236,29 +243,29 @@
                                             <textarea  style="height:37px;" class="form-control" id="messageid_{{ $value->user_id }}" name="message" placeholder="Message"></textarea>
                                         </div>
                                         <div style="width: min-content">
-                            
+
                                             <button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;"
                                                     data-user_id="{{ $value->user_id }}">
                                                 <img src="/images/filled-sent.png" style="color: #757575"/>
                                             </button>
-                            
-                                            
-                                             <button type="button" 
+
+
+                                             <button type="button"
                                                     style="margin-left:6px;"
-                                                    class="btn btn-xs btn-image load-communication-modal" 
+                                                    class="btn btn-xs btn-image load-communication-modal"
                                                     data-id="{{$value->user_id}}" title="Load messages"
                                                     data-object="SOP">
                                                     <i class="fa fa-comments-o"></i>
                                             </button>
-                            
+
                                         </div>
                                    </div>
-                                </td>    
-                                
+                                </td>
+
 
                                 <td>{{ date('yy-m-d', strtotime($value->created_at)) }}</td>
 
-                                <td>                                    
+                                <td>
 
                                     <a href="javascript:;" data-id="{{ $value->id }}"
                                         class="editor_edit btn-xs btn btn-image p-2" style="font-size:10px;">
@@ -269,19 +276,19 @@
                                         {{-- <img src="/images/delete.png" /></a> --}}
                                         <i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>
 
-                                        
+
                                     <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-3px; color: #757575;"
                                         title="status-log"
                                         data-name="{{ $value->purchaseProductOrderLogs ? $value->purchaseProductOrderLogs->header_name : '' }}"
                                         data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal"></a>
 
-                                     
+
                                         <a title="Download Invoice" class="btn btn-image" href="{{ route('sop.download',$value->id) }}">
                                             <i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-7px;"></i>
                                             </a>
 
                                             <button type="button" class="btn send-email-common-btn" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
-                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}" style="font-size:15px; margin-left:-17px;"><i class="fa fa-user-o"></i></button>   
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}" style="font-size:15px; margin-left:-17px;"><i class="fa fa-user-o"></i></button>
                                 </td>
                         @endforeach
 
@@ -291,7 +298,7 @@
             </div>
 
         </div>
-  
+
 
     {{-- ------------------ View Log ----------------------- --}}
 
@@ -313,7 +320,7 @@
                                 <tr>
                                     <th width="30%">Created By</th>
                                     <th width="30%">Updated By</th>
-                                   
+
                                     <th width="40%">Updated At</th>
 
                                 </tr>
@@ -349,10 +356,16 @@
                         <input type="text" hidden name="id" id="sop_edit_id">
                         @csrf
                         <div class="form-group">
-                            <label for="name">Notes:</label>
+                            <label for="name">Name</label>
                             <input type="hidden" class="form-control sop_old_name" name="sop_old_name" id="sop_old_name"
                                 value="">
                             <input type="text" class="form-control sopname" name="name" id="sop_edit_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Category</label>
+                            <input type="hidden" class="form-control sop_old_category" name="sop_old_category" id="sop_old_category"
+                                value="">
+                            <input type="text" class="form-control sopcategory" name="category" id="sop_edit_category">
                         </div>
 
                         <div class="form-group">
@@ -412,7 +425,7 @@
 <div id="commonEmailModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
-       
+
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Send Email</h4>
@@ -433,7 +446,7 @@
                     <div class="form-group">
                         <strong>From Mail</strong>
                         <select class="form-control" name="from_mail" id="from_mail">
-                          <?php $emailAddressArr = \App\EmailAddress::all(); ?>
+                          <?php $emailAddressArr = \App\EmailAddress::all();?>
                           @foreach ($emailAddressArr as $emailAddress)
                             <option value="{{ $emailAddress->from_address }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
                           @endforeach
@@ -462,7 +475,7 @@
                     <div id="bcc-list" class="form-group">
 
                     </div>
-                   
+
                     <div class="form-group">
                         <strong>Subject *</strong>
                         <input type="text" class="form-control subject" name="subject" id="subject" required>
@@ -501,10 +514,10 @@
         CKEDITOR.replace('sop_edit_content');
     </script>
 <script>
-   
+
     $(document).on('click','.send-email-common-btn',function(e){
         e.preventDefault();
-     
+
         var ele = $(this).parentsUntil('form').parent();
         var mailtype = $(this).data('object');
         var id = $(this).data('id');
@@ -528,7 +541,7 @@
     })
     $(document).on('click','.sop-mail-send',function(e){
         e.preventDefault();
-        
+
             let id = $("#id").val();
             let sendto = $("#sendto").val();
             let from_mail = $("#from_mail").val();
@@ -556,25 +569,25 @@
                     "message": message,
                     "from": 'sop',
                     "_token": "{{csrf_token()}}",
-                                   
+
                 },
                 dataType: "json",
                 success: function (response) {
                     $("#resetdata")[0].reset();
                     $('#commonEmailModal').modal('hide');
-                   
+
                    toastr["success"]("Your Mail sent successfully!", "Message");
-                 
-                                              
+
+
                 },
                 error: function (response) {
                     toastr["error"]("There was an error sending the Mail...", "Message");
-                   
+
                 }
             });
-       
+
         });
-    
+
 </script>
 
 <script>
@@ -586,7 +599,7 @@ $(document).on('click', '.send-message-open', function (event) {
             var data = new FormData();
             var sop_user_id = $(this).data('user_id');
             var message = $(this).parents('td').find("#messageid_"+sop_user_id).val();
-           
+
             if (message.length > 0) {
 
             //  let self = textBox;
@@ -599,20 +612,20 @@ $(document).on('click', '.send-message-open', function (event) {
                     "message": message,
                     "_token": "{{csrf_token()}}",
                    "status": 2,
-                  
+
                 },
                 dataType: "json",
                 success: function (response) {
                     $this.parents('td').find("#messageid_"+sop_user_id).val('');
                    toastr["success"]("Message sent successfully!", "Message");
                     $('#message_list_' + sop_user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
-                   
-                   
+
+
                 },
-               
+
                 error: function (response) {
                     toastr["error"]("There was an error sending the message...", "Message");
-                   
+
                 }
             });
         } else {
@@ -627,7 +640,7 @@ $(document).on('click', '.send-message-open', function (event) {
     $('#logMessageModel').modal("show");
     var selection = window.getSelection();
     // if (selection.toString().length === 0) {
-       
+
     //     $(this).find('.td-mini-container').toggleClass('hidden');
     //     $(this).find('.td-full-container').toggleClass('hidden');
     // }
@@ -654,8 +667,8 @@ $(document).on('click', '.send-message-open', function (event) {
                 success: function(response) {
 
                     var html_content = ''
-                    $.each(response.log_data, function(key, value) { 
-                        html_content += '<tr>'; 
+                    $.each(response.log_data, function(key, value) {
+                        html_content += '<tr>';
                         html_content += '<td>' + value.sop.user.name + '</td>';
                         html_content += '<td>' + value.updated_by.name + '</td>';
                         html_content += '<td>' + value.created_at + '</td>';
@@ -677,6 +690,7 @@ $(document).on('click', '.send-message-open', function (event) {
         $('#FormModal').submit(function(e) {
             e.preventDefault();
             let name = $("#name").val();
+            let category = $("#category").val();
             let content = CKEDITOR.instances['content'].getData(); //$('#cke_content').html();//$("#content").val();
 
             let _token = $("input[name=_token]").val();
@@ -686,19 +700,24 @@ $(document).on('click', '.send-message-open', function (event) {
                 type: "POST",
                 data: {
                     name: name,
+                    category: category,
                     content: content,
 
                     _token: _token
                 },
                 success: function(response) {
-                
+
                     if (response) {
 
+                        if(response.success==false){
+                            toastr["error"](response.message, "Message");
+                            return false;
+                        }
                         var content_class = response.sop.content.length < 270 ? '' : 'expand-row';
                         var content = response.sop.content.length < 270 ? response.sop.content : response.sop.content.substr(0, 270) + '.....';
                         $("#NameTable tbody").prepend('<tr id="sid' + response.sop.id +'" data-id="' + response.sop.id +'" class="parent_tr"><td>' + response.sop.id +
-                            '</td><td> ' + response.sop.name + ' </td><td class="'+content_class+'" data-subject="'+response.sop.content+'"> ' + content  + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
-                                        
+                            '</td><td> ' + response.sop.name + ' </td><td> ' + response.sop.category + ' </td><td class="'+content_class+'" data-subject="'+response.sop.content+'"> ' + content  + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
+
 
                             ' <a href="javascript:;" data-id="' + response.sop.id +'" class="editor_edit btn-xs btn btn-image p-2"><i class="fa fa-edit"></i></a>' +
                             '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px;" data-id="'+response.sop.id+'" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
@@ -774,7 +793,9 @@ $(document).on('click', '.send-message-open', function (event) {
 
                 $('#sop_edit_id').val(data.sopedit.id)
                 $('#sop_edit_name').val(data.sopedit.name)
+                $('#sop_edit_category').val(data.sopedit.category)
                 $('#sop_old_name').val(data.sopedit.name)
+                $('#sop_old_category').val(data.sopedit.category)
 
                 CKEDITOR.instances['sop_edit_content'].setData(data.sopedit.content)
 
@@ -799,29 +820,59 @@ $(document).on('click', '.send-message-open', function (event) {
                 url: "{{ route('updateName') }}",
                 datatype: "json"
             }).done(function(data) {
-                          
-                
-                    var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
-    
-                    let id = $($this).attr('data-id');
-                   
-                    $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
-                    $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
-                    $('#sid' + id + ' td:nth-child(3)').attr('data-subject',data.sopedit.content).html(content);
-                    if(data.sopedit.content.length < 270){
-                        $('#sid' + id + ' td:nth-child(3)').html(content).removeClass('expand-row');
+
+                if(data.success==false){
+                    toastr["error"](data.message, "Message");
+                    return false;
+                }
+
+                    if(data.type=='edit'){
+                        var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
+
+                        let id = $($this).attr('data-id');
+
+                        $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
+                        $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
+                        $('#sid' + id + ' td:nth-child(3)').html(data.sopedit.category);
+                        $('#sid' + id + ' td:nth-child(4)').attr('data-subject',data.sopedit.content).html(content);
+                        if(data.sopedit.content.length < 270){
+                            $('#sid' + id + ' td:nth-child(4)').html(content).removeClass('expand-row');
+                        }else{
+                            $('#sid' + id + ' td:nth-child(4)').html(content).addClass('expand-row');
+                        }
+                        $("#sopupdate").modal("hide");
+                        toastr["success"]("Data Updated Successfully!", "Message")
                     }else{
-                        $('#sid' + id + ' td:nth-child(3)').html(content).addClass('expand-row');
+                        var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
+                        var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
+                        $("#NameTable tbody").prepend('<tr id="sid' + data.sopedit.id +'" data-id="' + data.sopedit.id +'" class="parent_tr"><td>' + data.sopedit.id +
+                            '</td><td> ' + data.sopedit.name + ' </td><td> ' + data.sopedit.category + ' </td><td class="'+content_class+'" data-subject="'+data.sopedit.content+'"> ' + content  + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ data.sopedit.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ data.sopedit.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ data.sopedit.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + data.only_date + ' </td><td>' +
+
+
+                            ' <a href="javascript:;" data-id="' + data.sopedit.id +'" class="editor_edit btn-xs btn btn-image p-2"><i class="fa fa-edit"></i></a>' +
+                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px;" data-id="'+data.sopedit.id+'" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
+
+                            ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-2px; color: #757575; " title="status-log" data-id="' +
+                            data.sopedit.id +
+                            '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
+                            data.params.header_name + '"></a>' +
+
+                            '<a title="Download Invoice" class="btn btn-image" href="'+ 'sop/DownloadData/' + data.sopedit.id +'"><i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-1px "></i></a>' +
+
+                          ' <button type="button" class="btn send-email-common-btn" data-toemail="' + data.user_email[0].email + '" data-object="Sop" data-id='+ data.sopedit.user_id +' style="font-size:15px; margin-left:-20px;"><i class="fa fa-envelope-square"></i></button>' +
+
+                            '</td></tr>');
+
+                        $("#sopupdate").modal("hide");
+                        toastr["success"]("Data Updated Successfully!", "Message")
                     }
-                    $("#sopupdate").modal("hide");
-                    toastr["success"]("Data Updated Successfully!", "Message")
-                // }
+
             }).fail(function(data) {
                 console.log(data);
             });
         });
     </script>
-    
+
     <script>
         $(document).ready(function() {
             $('.select2-for-user').select2();
@@ -856,7 +907,7 @@ $(document).on('click', '.send-message-open', function (event) {
 
         $(document).on('click','.sop-data-save', function(){
             var formdata = $(this).parents('.sop-data-permission-form').serialize();
-            
+
             $.ajax({
                 type: "GET",
                 url: "{{ route('sop.permission-list') }}",
