@@ -13,8 +13,10 @@ class CustomerReview extends Model
 {
     /**
      * @var string
-     * @SWG\Property(property="customer_id",type="integer")
-     * @SWG\Property(property="amount",type="string")
+     * @SWG\Property(property="email",type="string")
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="store_website_id",type="integer")
+     * @SWG\Property(property="platform_id",type="integer")
      * @SWG\Property(property="stars",type="string")
      * @SWG\Property(property="comment",type="string")
      * @SWG\Property(property="status",type="integer")
@@ -23,11 +25,11 @@ class CustomerReview extends Model
     use SoftDeletes;
     use Mediable;
     protected $fillable = [
-        'customer_id', 'amount', 'stars', 'comment', 'status',
+        'email', 'name', 'store_website_id', 'platform_id', 'stars', 'comment', 'status',
     ];
 
-    public function customer()
+    public function storeWebsite()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->hasOne('\App\StoreWebsite', 'id', 'store_website_id');
     }
 }

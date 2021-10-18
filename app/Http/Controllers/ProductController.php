@@ -61,7 +61,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Qoraiche\MailEclipse\MailEclipse;
@@ -118,17 +117,28 @@ class ProductController extends Controller
 
     public function customerReviews(Request $request)
     {
-        $reviews = \App\CustomerReview::with('customer')->latest()->paginate(15);
-        return view('products.reviews', compact('reviews'));
-    }
+        $reviews = \App\CustomerReview::with('storeWebsite')->latest();
+        $email = '';
+        $name = '';
+        $store = '';
+        if (!empty($request->email)) {
+            $email = $request->email;
+            $reviews->where('email', 'LIKE', '%' . $request->email . '%');
+        }
+        if (!empty($request->name)) {
+            $name = $request->name;
+            $reviews->where('name', 'LIKE', '%' . $request->name, '%');
+        }
+        if (!empty($request->store)) {
+            $store = $request->store;
+            $reviews->whereHas('storeWebsite', function ($q) use ($request) {
+                $q->where('website', 'LIKE', '%' . $request->store . '%');
+            });
+        }
 
-    public function allReviews(Request $request)
-    {
-        $reviews = \App\CustomerReview::with('customer')->latest()->get();
-        return response()->json([
-            'data' => $reviews,
-            'success' => 'All reviews fetched successfully',
-        ]);
+        $reviews = $reviews->paginate(15);
+
+        return view('products.reviews', compact('reviews', 'email', 'name', 'store'));
     }
 
     public function deleteReview(Request $request)
@@ -136,31 +146,6 @@ class ProductController extends Controller
         $reviewID = $request->id;
         $delete = \App\CustomerReview::where('id', $request->id)->delete();
         return response()->json(['code' => 200, 'message' => 'Review deleted successfully']);
-    }
-
-    public function storeReviews(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'customer_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            $message = $this->generate_erp_response("ticket.failed.validation", 0, $default = "Please check the errors in validation!", request('lang_code'));
-            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
-        }
-
-        //Data
-        $input['customer_id'] = $request->customer_id;
-        $input['amount'] = $request->amount;
-        $input['stars'] = $request->stars;
-        $input['comment'] = $request->comment;
-
-        $reviews = \App\CustomerReview::create($input);
-        if ($reviews) {
-            return response('success');
-        } else {
-            return response('error');
-        }
     }
 
     public function approvedListing(Request $request, $pageType = "")

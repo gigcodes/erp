@@ -31,8 +31,16 @@
 								{{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
 									
 									<div class="form-group ml-3 cls_filter_inputbox">
-										<label for="leads_email">Customer</label>
-										{{Form::text('customer', null, array('class'=>'form-control'))}}
+										<label for="leads_email">Email</label>
+										{{Form::text('email', $email, array('class'=>'form-control'))}}
+									</div>
+                                    <div class="form-group ml-3 cls_filter_inputbox">
+										<label for="leads_email">Name</label>
+										{{Form::text('name', $name, array('class'=>'form-control'))}}
+									</div>
+                                    <div class="form-group ml-3 cls_filter_inputbox">
+										<label for="leads_email">Store Website</label>
+										{{Form::text('store', $store, array('class'=>'form-control'))}}
 									</div>
 									<button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="{{url('/images/filter.png')}}"/></button>
 								</form>
@@ -49,8 +57,10 @@
             <thead>
             <tr>
                 <th style="">ID</th>
-                <th style="">Customer</th>
-                <th style="">Amount</th>
+                <th style="">Email</th>
+                <th style="">Name</th>
+                <th style="">Store Website</th>
+                <th style="">Platform Id</th>
                 <th style="">Star Rating</th>
                 <th style="">Comment</th>
                 <th style="">Action</th>
@@ -59,8 +69,10 @@
             @foreach($reviews as $key=>$value)
                 <tr class="{{$value->id}}">
                     <td id="id">{{$key+1}}</td>
-                    <td id="name">{{$value->customer->name??'N/A'}}</td>
-                    <td id="description">{{$value->amount??'N/A'}}</td>
+                    <td id="name">{{$value->email??'N/A'}}</td>
+                    <td id="name">{{$value->name??'N/A'}}</td>
+                    <td id="name">{{$value->storeWebsite->website??'N/A'}}</td>
+                    <td id="description">{{$value->platform_id??'N/A'}}</td>
                     <td id="description">{{$value->stars??'N/A'}}</td>
                     <td id="description">{{$value->comment??'N/A'}}</td>
                     <td>

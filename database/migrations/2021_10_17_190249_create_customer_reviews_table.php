@@ -15,11 +15,14 @@ class CreateCustomerReviewsTable extends Migration
     {
         Schema::create('customer_reviews', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('customer_id')->nullable();
-            $table->string('amount')->nullable();
+            $table->string('email')->nullable();
+            $table->string('name')->nullable();
+            $table->integer('store_website_id')->nullable();
+            $table->integer('platform_id')->nullable();
             $table->string('stars')->nullable();
             $table->text('comment')->nullable();
             $table->integer('status')->default(1);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
