@@ -187,17 +187,14 @@
 
 					<td class="communication">
 						<div class="btn-toolbar" role="toolbar">
-							<div class="w-75">
-								<textarea rows="1" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
-							</div>
-							<div class="w-25">
-								<button type="button" class="btn btn-xs load-communication-modal pull-right" data-object="customer" data-limit="10" data-id="{{$item->id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages">
-									<i class="fa fa-comments-o"></i>
-								</button>
-								<button class="btn btn-sm btn-xs send-message pull-right" data-customerid="{{$item->id}}">
+							<div class="w-100">
+								<textarea rows="1" class="form-control quick-message-field w-75 pull-left" name="message" placeholder="Message"></textarea>
+								<button class="btn btn-sm btn-xs send-message pull-left mt-2" data-customerid="{{$item->id}}">
 									<i class="fa fa-paper-plane"></i>
 								</button>
-								                                        
+								<button type="button" class="btn btn-xs load-communication-modal pull-left mt-2" data-object="customer" data-limit="10" data-id="{{$item->id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages">
+									<i class="fa fa-comments-o"></i>
+								</button>
 							</div>
 						</div>
 						<div class="btn-toolbar" role="toolbar">
