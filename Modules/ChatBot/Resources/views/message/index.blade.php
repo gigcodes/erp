@@ -41,16 +41,7 @@
                             <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-                            <div class="col">
-                                <select style="width: 130px !important" name="search_type" class="chatboat-message-status form-control">
-                                    <option value="">Select Search Type</option>
-                                    <option value="customer" {{request()->get('search_type') == 'customer' ? 'selected' : ''}}>Customer</option>
-                                    <option value="vendor" {{request()->get('search_type') == 'vendor' ? 'selected' : ''}}>Vendor</option>
-                                    <option value="supplier" {{request()->get('search_type') == 'supplier' ? 'selected' : ''}}>Supplier</option>
-                                    <option value="task" {{request()->get('search_type') == 'task' ? 'selected' : ''}}>Task</option>
-                                    <option value="dev_task" {{request()->get('search_type') == 'dev_task' ? 'selected' : ''}}>DEV Task</option>
-                                </select>
-                            </div>
+                           
 
                             <div class="col">
                                 <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
@@ -85,6 +76,21 @@
                                 <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
                             </div>
                             <!-- END - DEVATSK=4350 -->
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="customer" @if(request()->get('search_type') != null and in_array('customer', request()->get('search_type'))) checked @endif > Customer
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="vendor" @if(request()->get('search_type') != null and in_array('vendor', request()->get('search_type'))) checked @endif> Vendor
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="supplier" @if(request()->get('search_type') != null and in_array('supplier', request()->get('search_type'))) checked @endif> Supplier
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="task" @if(request()->get('search_type') != null and in_array('task', request()->get('search_type'))) checked @endif> Task
+                            </div>
+							<div style="margin-left: 20px;display: flex;align-items: center">
+                                 <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="dev_task" @if(request()->get('search_type') != null and in_array('dev_task', request()->get('search_type'))) checked @endif> Dev Task
+                            </div>
 
                             <button type="submit" style="display: inline-block;width: auto" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
