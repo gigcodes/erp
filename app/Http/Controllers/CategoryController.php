@@ -220,6 +220,8 @@ class CategoryController extends Controller
 
         $parent_id = $category_instance->parent_id;
 
+        $categoryTree[]    = $category_instance->title;
+
         while ($parent_id != 0) {
 
             $category_instance = $category->find($parent_id);
