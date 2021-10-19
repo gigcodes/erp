@@ -1559,7 +1559,7 @@ Key : reviews.failed.validation, reviews.add.success
 **Request:**
 
 ```json
-POST https://erp.theluxuryunlimited.com/api/all-reviews
+GET https://erp.theluxuryunlimited.com/api/all-reviews
 {
 "name":"test",
 "lang_code":"en-US",
