@@ -40,10 +40,11 @@ class LeadOrderController extends Controller
         }
         
         if($orderOrLead != 'lead'):
-            $Order = Order::select('orders.id','orders.customer_id','product_id','order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','users.name as customer_name','brands.id as brand_id')
+            $Order = Order::select('orders.id','orders.customer_id','product_id','order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
                         ->join('order_products','order_products.order_id','=','orders.id')
                         ->join('products','order_products.product_id','=','products.id')
-                        ->leftJoin('users','orders.customer_id','=','users.id')
+                        ->leftJoin('customers','orders.customer_id','=','customers.id')
+                        //->leftJoin('users','orders.customer_id','=','users.id')
                         ->join('brands','products.brand','=','brands.id');
             if (empty($term)) {
                 $orders = $Order;
@@ -53,7 +54,8 @@ class LeadOrderController extends Controller
                                 ->orWhere('products.id', '=', $term)
                                 ->orWhere('products.name', 'like', '%' . $term . '%')
                                 ->orWhere('brands.id', '=', $brandIds)
-                                ->orWhere('users.name', 'like', '%' . $term . '%');                                
+                                ->orWhere('customers.name', 'like', '%' . $term . '%');                                
+                               // ->orWhere('users.name', 'like', '%' . $term . '%');                                
             }
         endif;
         
@@ -61,14 +63,16 @@ class LeadOrderController extends Controller
 
         if($orderOrLead != 'order'):
             if($orderOrLead == 'lead'):                
-                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','users.name as customer_name','brands.id as brand_id')
+                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
                             ->join('products','erp_leads.product_id','=','products.id')
-                            ->leftJoin('users','erp_leads.customer_id','=','users.id')
+                            ->leftJoin('customers','erp_leads.customer_id','=','customers.id')
+                            //->leftJoin('users','erp_leads.customer_id','=','users.id')
                             ->join('brands','erp_leads.brand_id','=','brands.id');                            
             else:
-                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','users.name as customer_name','brands.id as brand_id')
+                $leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','product_id','erp_leads.created_at as order_date','products.name','brands.name as brand_name','products.price_inr','products.price_inr_discounted','customers.name as customer_name','brands.id as brand_id')
                             ->join('products','erp_leads.product_id','=','products.id')
-                            ->leftJoin('users','erp_leads.customer_id','=','users.id')
+                            ->leftJoin('customers','erp_leads.customer_id','=','customers.id')
+                            //->leftJoin('users','erp_leads.customer_id','=','users.id')
                             ->join('brands','erp_leads.brand_id','=','brands.id')
                             ->union($orders);
             endif;
@@ -81,7 +85,8 @@ class LeadOrderController extends Controller
                 $orders = $leads->orWhere('erp_leads.id', '=', $term)
                                 ->orWhere('erp_leads.product_id', '=', $term)
                                 ->orWhere('products.name', 'like', '%' . $term . '%')
-                                ->orWhere('users.name', 'like', '%' . $term . '%');
+                                //->orWhere('users.name', 'like', '%' . $term . '%');
+                                ->orWhere('customers.name', 'like', '%' . $term . '%');
             }
         endif;
         
@@ -92,8 +97,8 @@ class LeadOrderController extends Controller
         endif;
         
         
-        $orders = $orders->orderBy('id','desc')->simplePaginate(20);
-		//->limit(10)->get()->toArray();
+		$orders = $orders->orderBy('id','desc')->simplePaginate(20);
+        //$orders = $orders->orderBy('id','desc')->get()->toArray();
         $leadOrder_array = $orders;
         if($request->ajax()) {
 			   return view('lead-order.lead-order-item', compact('leadOrder_array','leads','brandList', 'term', 'orderOrLead'))
