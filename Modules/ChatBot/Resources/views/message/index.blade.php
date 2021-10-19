@@ -257,6 +257,8 @@
                         $("#page-view-result").find(".pagination").first().remove();
                     }
                     $("#page-view-result").append(response.tpl);
+                    callQuickCategory();
+                    callCategoryComment();
                 }
             }).fail(function (response) {
                 $("#loading-image").hide();
