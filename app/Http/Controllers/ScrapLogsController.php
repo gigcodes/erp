@@ -33,6 +33,17 @@ class ScrapLogsController extends Controller
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
+		
+	/*	$fileName = "spinnaker-16Oct21-13:01.log";
+		 $day_of_file = explode('-', $fileName);
+			$day_of_file = str_replace('.log', '', $day_of_file);
+			if( $day_of_file[1] == $dateVal.$month ) {
+				dd('matched');
+			}
+			echo $dateVal.$month;
+			*/
+
+		
 		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
@@ -46,8 +57,8 @@ class ScrapLogsController extends Controller
 			
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
-
-            if( ( (end($day_of_file) == $date) || (end($day_of_file) == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+			
+            if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
