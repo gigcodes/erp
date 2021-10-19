@@ -61,6 +61,17 @@ class MailinglistTemplate extends Model
         return false;
     }
 
+    public static function getTicketCreateTemplate($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Ticket Create')->first();
+
+        if ($category) {
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+
     public static function getOrderStatusChangeTemplate($order_status,$store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', $order_status)->first();
