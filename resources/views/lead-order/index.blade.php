@@ -29,7 +29,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-md-1 pd-3">
-                                    <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                                    <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
                                 </div>
                             </form>
                         </div>
@@ -50,16 +50,16 @@
 		<table class="table table-bordered" style="margin-top: 25px">
 		<thead>
 			<tr>
-				<th style="width: 2%">Lead or Order</th>
-				<th style="width: 15%">Customer Name</th>
+				<th style="width: 5%">ID</th>
+				<th style="width: 17%">Customer</th>
 				<th style="width: 8%">Date</th>
-				<th style="width: 10%">Products ID</th>
-				<th style="width: 15%">Product Name</th>
+				<th style="width: 5%">Prod ID</th>
+				<th style="width: 17%">Prod</th>
 				<th style="width: 15%">Brand</th>
-				<th style="width: 15%">Product Price</th>
-				<th style="width: 15%">Discount</th>
-				<th style="width: 15%">Final Price</th>
-				<th style="width: 15%">GMU</th>
+				<th style="width: 7%">Prod Price</th>
+				<th style="width: 7%">Disc</th>
+				<th style="width: 8%">Final Price</th>
+				<th style="width: 10%">GMU</th>
 			</tr>
 			</thead>
 			<tbody class="infinite-scroll-api-inner">
