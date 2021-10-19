@@ -1348,7 +1348,7 @@ class LeadsController extends Controller
             $params["size"] = $customer->size;
         }
 
-        $params["type"] = 'store-erp-lead';
+        $params["type"] = 'WHATSAPP';
         $erpLeads = \App\ErpLeads::where("id", $id)->first();
         if (!$erpLeads) {
             $erpLeads = new \App\ErpLeads;
