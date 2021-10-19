@@ -65,9 +65,9 @@
             @endif
           </div>
 
-          
+
           <div class="form-group othercat" style="display: none;" >
-            <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
+            <input type="text" name="other" class="form-control" value="{{ old('other') }}">
           </div>
 
           <div class="form-group">
@@ -115,7 +115,16 @@
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
             @endif
-          </div> 
+          </div>
+
+          <div class="form-group">
+            <strong>Start Date:</strong>
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+
+            @if ($errors->has('start_date'))
+              <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
+            @endif
+          </div>
 
           <div class="form-group">
             <strong>Currency:</strong>
@@ -151,6 +160,78 @@
           <button type="submit" class="btn btn-secondary">Add</button>
         </div>
       </form>
+    </div>
+
+  </div>
+</div>
+
+<div id="cashflows" class="modal fade" role="dialog" >
+  <div class="modal-dialog" style="max-width:100%;width:70%">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+          <h4 class="modal-title">All Cash Flows</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+        <div class="mt-3 col-md-12">
+      <table class="table table-responsive table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>ERP Amount</th>
+            <th>ERP EUR Amount</th>
+            <th>EUR Amount</th>
+            <th>DUE EUR Amount</th>
+            <th>Type</th>
+            <th>Currency</th>
+            <th>Asset Id</th>
+            <th>Asset Type</th>
+            <th>Order Status</th>
+            <th>Created Date</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @php $i=1; @endphp
+          @foreach ($cashflows as $cash)
+            <tr>
+              <td>{{ $i }}</td>
+              <td>{{ $cash->user_id??"N/A" }}</td>
+              <td>{{ $cash->date??"N/A" }}</td>
+              <td>{{ $cash->description??'N/A' }}</td>
+              <td>{{ $cash->amount }}</td>
+              <td>{{ $cash->erp_amount??'N/A' }}</td>
+
+              <td>{{ $cash->erp_eur_amount??'N/A' }}</td>
+              <td>{{ $cash->amount_eur??'N/A' }}</td>
+              <td>{{ $cash->due_amount_eur??'N/A' }}</td>
+              <td>{{ $cash->type??'N/A' }}</td>
+              <td>{{ $cash->currency }}</td>
+              <td>{{ $cash->cash_flow_able_id }}</td>
+              <td>{{ $cash->cash_flow_able_type }}</td>
+              <td>{{ $cash->order_status??'N/A' }}</td>
+              <td>{{ $cash->created_at->format('Y-m-d') }}</td>
+             
+            </tr>
+            @php $i++; @endphp
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+
     </div>
 
   </div>
@@ -209,7 +290,7 @@
             @endif
           </div>
 
-          
+
           <div class="form-group">
             <strong>Category:</strong>
             <select class="form-control" name="category_id" id="category_id2">
@@ -224,7 +305,7 @@
             @endif
           </div>
           <div class="form-group othercatedit" style="display: none;" >
-            <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
+            <input type="text" name="other" class="form-control" value="{{ old('other') }}">
           </div>
 
           <div class="form-group">
@@ -276,6 +357,15 @@
           </div>
 
           <div class="form-group">
+            <strong>Start Date:</strong>
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+
+            @if ($errors->has('start_date'))
+              <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Currency:</strong>
             <input type="text" name="currency" class="form-control" value="{{ old('currency') }}" id="currency" required>
 
@@ -301,7 +391,7 @@
               <div class="alert alert-danger">{{$errors->first('usage')}}</div>
             @endif
           </div>
-          
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -311,4 +401,3 @@
     </div>
   </div>
 </div>
-

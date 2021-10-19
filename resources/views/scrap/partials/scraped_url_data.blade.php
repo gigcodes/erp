@@ -149,7 +149,7 @@
         <span class="td-full-container hidden">
             {{ implode(' , ',$log->properties['size']) }}
         </span>
-        @else
+        @elseif(isset($log->properties['sizes']))
         <span class="td-mini-container">
             {{ strlen( $log->properties['sizes'] ) > 10 ? substr( $log->properties['sizes'] , 0, 6).'...' :  $log->properties['sizes'] }}
         </span>

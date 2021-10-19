@@ -69,9 +69,12 @@ function scraper_restart
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
 		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
-		if [ $minmemory -gt 95 ]
+		if [ $minmemory -gt 90 ]
 		then
-			echo "No server has free memory more than 5%"
+			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
+			echo $email |mail -s "No Scraper server has free memory more than 10% so exiting script" sahilkataria.1989@gmail.com
+			echo $email |mail -s "No Scraper server has free memory more than 10% so exiting script" yogeshmordani@icloud.com 
+			echo "No server has free memory more than 10%"
 			exit
 		fi
 		echo $server $scraper

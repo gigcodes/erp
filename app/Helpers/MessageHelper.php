@@ -343,7 +343,7 @@ class MessageHelper
 
         $isReplied = 0;
         if ($userType !== 'vendor') {
-            $log_comment = $log_comment . ' User Type is Vendor '; //Purpose : Log Comment - DEVTASK-4233
+            $log_comment = $log_comment . ' User Type is not Vendor '; //Purpose : Log Comment - DEVTASK-4233
             \Log::info("#2 Price for customer vendor condition passed");
             if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
 
