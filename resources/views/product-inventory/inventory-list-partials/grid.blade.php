@@ -5,7 +5,7 @@
           <td >   <a  title="show status history" class="btn  show-scraped-product des-pd" style="color:#337ab7;">{{ $data['id'] }}</a></td>
           <td>
             <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
-            <a href="/products/{{ $data['id'] }}">
+            <a href="/products/{{ $data['id'] }}"  target="_blank">
             <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> </span></a> @if(strlen($data['sku'])>10) ...<!-- <a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> --> @endif
           </td>
           <td><a  title="show suppliers" data-id="{{ $data['id'] }}" class="btn btn-image show-supplier-modal des-pd">{{$data['total_product']}}</a></td>
