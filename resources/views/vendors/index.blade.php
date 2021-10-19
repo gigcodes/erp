@@ -249,7 +249,8 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
+                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
+                <th width="5%">WhatsApp Number</th>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
                 <th width="7%">Name</th>
                 <th width="7%">Phone</th>
@@ -258,9 +259,24 @@
                 <th width="10%">Website</th> --}}
                
                 <th width="25%">Communication</th>
-                <th width="15%">Action</th>
+                <th width="12%">Action</th>
+            </tr>
+             <tr>
+                <th width="3%"></th>
+                <th width="5%"><select class="form-control search ui-autocomplete-input" id="whatsapp_number">
+                    @foreach($whatsapp as $number)
+                    <option>{{$number->number}}</option>
+                    @endforeach
+                </select></th>
+                <th width="7%"></th>
+                <th width="7%"></th>
+                <th width="7%"></th>
+                <th width="10%"></th>
+                <th width="25%"></th>
+                <th width="12%"></th>
             </tr>
             </thead>
+
 
             <tbody id="vendor-body">
 
