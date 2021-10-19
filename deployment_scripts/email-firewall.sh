@@ -9,6 +9,7 @@ email=`grep 'From:' /tmp/mail|cut -d'<' -f2|cut -d'>' -f1`
 ##### Check if sending mail account exist in our database whitelist ####
 if [ ! -z $email ]
 then
+	cat /tmp/mail >> /opt/maillogs
 	echo $email_whitelisted|grep $email
 	if [ $? -eq 0 ]
 	then
