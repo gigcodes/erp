@@ -6,6 +6,7 @@
 @foreach ($vendors as $vendor)
 <tr>
     <td>{{ $vendor->id }}</td>
+    <td>{{ $vendor->whatsapp_number }}</td>
     <td class="expand-row table-hover-cell">
 <span class="td-mini-container">
  @if(isset($vendor->category->title)) {{ strlen($vendor->category->title ) > 7 ? substr($vendor->category->title , 0, 7) : $vendor->category->title  }} @endif
