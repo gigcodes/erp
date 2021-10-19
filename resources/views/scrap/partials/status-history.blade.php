@@ -2,8 +2,6 @@
     <thead>
         <tr>
             <th>Server Id</th>
-            <th>Total Memory</th>
-            <th>Used Memory</th>
             <th>Start Time</th>
             <th>Scraper name</th>
             <th>Full Path</th>
@@ -14,8 +12,6 @@
         @foreach ($statusHistory as $statusHist)
             <tr>
                 <td>{{ $statusHist->server_id }}</td>
-                <td>{{ $statusHist->total_memory }}</td>
-                <td>{{ $statusHist->used_memory }}</td>
                 <td>{{ str_replace("-"," day ",$statusHist->duration) }}</td>
                 <td>{{ $statusHist->scraper_name }}</td>
                 <td>{{ $statusHist->scraper_string }}</td>
