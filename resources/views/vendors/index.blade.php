@@ -186,6 +186,17 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="whatsapp_number">Whatsapp number</label>
+                        <?php echo Form::select("whatsapp_number",
+                            ["" => "-- Select --"] +\App\Marketing\WhatsappConfig::where("provider","Chat-API")->pluck("number","number")->toArray(),
+                            request('whatsapp_number'),
+                            ["class"=> "form-control"]
+                        ); ?>
+                    </div>
+
+                    
+
                     <div class="form-group ml-3 cls_filter_checkbox">
                     <label for="with_archived">Archived</label>
                         <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
@@ -255,19 +266,12 @@
                 <th width="7%">Name</th>
                 <th width="7%">Phone</th>
                 <th width="7%">Email</th>
-                {{-- <th width="10%">Social handle</th>
-                <th width="10%">Website</th> --}}
-               
                 <th width="25%">Communication</th>
                 <th width="12%">Action</th>
             </tr>
              <tr>
                 <th width="3%"></th>
-                <th width="5%"><select class="form-control search ui-autocomplete-input" id="whatsapp_number">
-                    @foreach($whatsapp as $number)
-                    <option>{{$number->number}}</option>
-                    @endforeach
-                </select></th>
+                <th width="5%"></th>
                 <th width="7%"></th>
                 <th width="7%"></th>
                 <th width="7%"></th>
@@ -1142,17 +1146,18 @@
                       phone = $('#phone').val();
                       address = $('#address').val();
                       category = $('#category').val();
+                      whatsapp_number = $('#whatsapp_number').val();
 
                       $.ajax({
                           url: src,
-                          dataType: "json",
                           data: {
-                              id: id,
-                              name: name,
-                              phone: phone,
-                              email: email,
-                              address: address,
-                              category: category,
+                              id: typeof id != "undefined" ? id : "",
+                              name: typeof name != "undefined" && name != "undefined"  ? name : "",
+                              phone: typeof phone != "undefined" ? phone : "",
+                              email: typeof email != "undefined" ? email : "",
+                              address: typeof address != "undefined" ? address : "",
+                              category: typeof category != "undefined" ? category : "",
+                              whatsapp_number :typeof  whatsapp_number != "undefined" ?  whatsapp_number : ""
                           },
                           beforeSend: function () {
                               $("#loading-image").show();
@@ -1160,7 +1165,6 @@
 
                       }).done(function (data) {
                           $("#loading-image").hide();
-                          console.log(data);
                           $("#vendor-table tbody").empty().html(data.tbody);
                           if (data.links.length > 10) {
                               $('ul.pagination').replaceWith(data.links);
