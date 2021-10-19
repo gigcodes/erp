@@ -92,10 +92,13 @@ class LeadOrderController extends Controller
         endif;
         
         
-        $orders = $orders->orderBy('id','desc')
-                    ->get()->toArray();
+        $orders = $orders->orderBy('id','desc')->simplePaginate(20);
+		//->limit(10)->get()->toArray();
         $leadOrder_array = $orders;
-        
+        if($request->ajax()) {
+			   return view('lead-order.lead-order-item', compact('leadOrder_array','leads','brandList', 'term', 'orderOrLead'))
+            ->with('i', (request()->input('page', 1) - 1) * 10);
+		}
         
         return view('lead-order.index', compact('leadOrder_array','leads','brandList', 'term', 'orderOrLead'))
             ->with('i', (request()->input('page', 1) - 1) * 10);

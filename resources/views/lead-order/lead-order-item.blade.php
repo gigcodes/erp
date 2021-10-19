@@ -1,17 +1,4 @@
-<div class="table-responsive-lg">
-    <table class="table table-bordered" style="margin-top: 25px">
-    <tr>
-        <th style="width: 2%">Lead or Order</th>
-        <th style="width: 15%">Customer Name</th>
-        <th style="width: 8%">Date</th>
-        <th style="width: 10%">Products ID</th>
-        <th style="width: 15%">Product Name</th>
-        <th style="width: 15%">Brand</th>
-        <th style="width: 15%">Product Price</th>
-        <th style="width: 15%">Discount</th>
-        <th style="width: 15%">Final Price</th>
-        <th style="width: 15%">GMU</th>
-    </tr>
+
     @foreach ($leadOrder_array as $key => $leadOrder) 
         <tr class="">
             <td>{{ isset($leadOrder['id'])? $leadOrder['id'] : '' }}</td>
@@ -47,6 +34,4 @@
             <td>{{number_format($gmu,2)}}</td>
         </tr>
     @endforeach
-</table>
-</div>
-{{-- {!! $leads->links() !!} --}}
+	
