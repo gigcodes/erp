@@ -88,23 +88,21 @@ class WebhookController extends Controller
      */
     private function processEvent(array $event): void
     {
-        
-
-       /* if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
+        if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
             $this->logDuplicateEvent($event);
             return;
         }
 		
-     SendgridEvent::create(['email'=>$event['email'], 'event'=>$event['event'], 
+     /*SendgridEvent::create(['email'=>$event['email'], 'event'=>$event['event'], 
 			'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'], 
-			'categories'=>$event['category']]);*/
-		$sendgridEvent = SendgridEvent::updateOrCreate(['sg_message_id'=>$event['sg_message_id']], ['timestamp'=>$event['timestamp'], 'email'=>$event['email'], 'event'=>$event['event'], 
-			'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'], 'payload'=>$event, 
 			'categories'=>$event['category']]);
+		$sendgridEvent = SendgridEvent::updateOrCreate(['sg_message_id'=>$event['sg_message_id']], ['timestamp'=>$event['timestamp'],
+		'email'=>$event['email'], 'event'=>$event['event'], 
+			'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'], 'payload'=>$event, 
+			'categories'=>$event['category']]);*/
 		
-		
-        //$sendgridEvent = $this->sendgridEventRepository->create($event);
-
+        $sendgridEvent = $this->sendgridEventRepository->create($event);
+		Email::where('origin_id', $event['sg_message_id'])->update(['mail_status'=>$event['event']]);
         event(new SendgridEventCreated($sendgridEvent));
     }
 
