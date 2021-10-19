@@ -181,21 +181,21 @@
       <table class="table table-responsive table-bordered table-striped">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-            <th>ERP Amount</th>
-            <th>ERP EUR Amount</th>
-            <th>EUR Amount</th>
-            <th>DUE EUR Amount</th>
-            <th>Type</th>
-            <th>Currency</th>
-            <th>Asset Id</th>
-            <th>Asset Type</th>
-            <th>Order Status</th>
-            <th>Created Date</th>
+            <th width="3%">ID</th>
+            <th width="5%">User</th>
+            <th width="5%">Date</th>
+            <th width="5%">Desc</th>
+            <th width="5%">Amt</th>
+            <th width="7%">E Amt</th>
+            <th width="10%">E EU Amt</th>
+            <th width="8%">EU Amt</th>
+            <th width="11%">DU EU Amt</th>
+            <th width="5%">Type</th>
+            <th width="4%">Curr</th>
+            <th width="7%">Ast Id</th>
+            <th width="8%">Ast Typ</th>
+            <th width="8%">Ord Sts</th>
+            <th width="5%">Created</th>
           </tr>
         </thead>
 
@@ -204,22 +204,42 @@
           @foreach ($cashflows as $cash)
             <tr>
               <td>{{ $i }}</td>
-              <td>{{ $cash->user_id??"N/A" }}</td>
-              <td>{{ $cash->date??"N/A" }}</td>
-              <td>{{ $cash->description??'N/A' }}</td>
+              <td class="expand-row-msg" data-name="user_id" data-id="{{$i}}">
+                <span class="show-short-user_id-{{$i}}">{{ str_limit($cash->user_id, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-user_id-{{$i}} hidden">{{$cash->user_id}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="date" data-id="{{$i}}">
+                <span class="show-short-date-{{$i}}">{{ str_limit($cash->date, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-date-{{$i}} hidden">{{$cash->date}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="description" data-id="{{$i}}">
+                <span class="show-short-description-{{$i}}">{{ str_limit($cash->description, 4, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-description-{{$i}} hidden">{{$cash->description}}</span>
+              </td>
               <td>{{ $cash->amount }}</td>
               <td>{{ $cash->erp_amount??'N/A' }}</td>
 
               <td>{{ $cash->erp_eur_amount??'N/A' }}</td>
               <td>{{ $cash->amount_eur??'N/A' }}</td>
               <td>{{ $cash->due_amount_eur??'N/A' }}</td>
-              <td>{{ $cash->type??'N/A' }}</td>
+              <td class="expand-row-msg" data-name="type" data-id="{{$i}}">
+                <span class="show-short-type-{{$i}}">{{ str_limit($cash->type, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-type-{{$i}} hidden">{{$cash->type}}</span>
+              </td>
               <td>{{ $cash->currency }}</td>
               <td>{{ $cash->cash_flow_able_id }}</td>
-              <td>{{ $cash->cash_flow_able_type }}</td>
-              <td>{{ $cash->order_status??'N/A' }}</td>
-              <td>{{ $cash->created_at->format('Y-m-d') }}</td>
-             
+              <td class="expand-row-msg" data-name="cash_flow_able_type" data-id="{{$i}}">
+                <span class="show-short-cash_flow_able_type-{{$i}}">{{ str_limit($cash->cash_flow_able_type, 4, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-cash_flow_able_type-{{$i}} hidden">{{$cash->cash_flow_able_type}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="order_status" data-id="{{$i}}">
+                <span class="show-short-order_status-{{$i}}">{{ str_limit($cash->order_status, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-order_status-{{$i}} hidden">{{$cash->order_status}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
+                <span class="show-short-created_at-{{$i}}">{{ str_limit($cash->created_at->format('Y-m-d'), 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{$cash->created_at->format('Y-m-d')}}</span>
+              </td>
             </tr>
             @php $i++; @endphp
           @endforeach
