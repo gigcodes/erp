@@ -700,6 +700,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
                                             <a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
+                                            <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -1475,10 +1476,6 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
                                         </li>
                                     </ul>
-                                </li>
-                                <li id="messages" class="nav-item dropdown">
-                                    <a href="{{ route('product.customer-reviews') }}" class="dropdown-item">Customer Reviews<span class="caret"></span></a>
-                                    
                                 </li>
                             @endif
 
