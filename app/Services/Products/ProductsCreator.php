@@ -690,7 +690,8 @@ class ProductsCreator
                     ScrappedCategoryMapping::updateOrCreate([
                         'name' =>$categoryReference
                     ],[
-                        'name' => $categoryReference
+                        'name' => $categoryReference, 
+						'is_mapped'=>0
                         ]);
 
                     // $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();

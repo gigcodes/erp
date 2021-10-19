@@ -612,6 +612,7 @@ class CategoryController extends Controller
         ->selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
         ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
         ->groupBy('scrapped_category_mappings.id')
+        ->groupBy('scrapped_category_mappings.name')
         ->orderBy('total_products', 'DESC');
 
 
