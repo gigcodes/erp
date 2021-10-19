@@ -56,39 +56,25 @@ class MessageController extends Controller
             });
         }
 
-        if (request('search_type') != "") {
-            switch (request('search_type')) {
-                case 'customer':
-                    $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
-                        $q->where("chat_messages.customer_id", ">", 0);
+          if (request('search_type') != null and count(request('search_type')) > 0) {
+			       $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
+					   if(in_array('customer', request('search_type'))) {
+							$q->where("chat_messages.customer_id", ">", 0);
+					   } 
+					   if(in_array('vendor', request('search_type'))) {
+							$q->orWhere("chat_messages.vendor_id", ">", 0);
+					   }
+					   if(in_array('supplier', request('search_type'))) {
+							$q->orWhere("chat_messages.supplier_id", ">", 0);
+					   }
+					   if(in_array('dev_task', request('search_type'))) {
+							$q->orWhere("chat_messages.developer_task_id", ">", 0);
+					   }
+					   if(in_array('task', request('search_type'))) {
+							  $q->orWhere("chat_messages.task_id", ">", 0);
+					   }
                     });
-                    break;
-
-                case 'vendor':
-                    $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
-                        $q->where("chat_messages.vendor_id", ">", 0);
-                    });
-                    break;
-
-                case 'supplier':
-                    $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
-                        $q->where("chat_messages.supplier_id", ">", 0);
-                    });
-                    break;
-
-                case 'dev_task':
-                    $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
-                        $q->where("chat_messages.developer_task_id", ">", 0);
-                    });
-                    break;
-
-                case 'task':
-                    $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
-                        $q->where("chat_messages.task_id", ">", 0);
-                    });
-                    break;
-            }
-        }
+         }
 
         $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id)");
 
