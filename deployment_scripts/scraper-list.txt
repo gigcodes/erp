@@ -148,7 +148,9 @@ mariodanna.js
 maximilan.js
 mediterraneo.js
 michelefranzese.js
-michelettogioielli|handmadeinitaly,italiandesign.js
+michelettogioielli.js
+handmadeinitaly.js
+italiandesign.js
 mimmaninnishop.js
 missbaby.js
 modes.js
@@ -161,7 +163,6 @@ nida.js
 norrgatan.js
 nugnes1920.js
 numerotrenta.js
-o'.js
 oberrauch.js
 oliviainwonderland.js
 oneoff.js
