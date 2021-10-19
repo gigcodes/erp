@@ -127,7 +127,7 @@ class ProductController extends Controller
         }
         if (!empty($request->name)) {
             $name = $request->name;
-            $reviews->where('name', 'LIKE', '%' . $request->name, '%');
+            $reviews->where('name', 'LIKE', '%' . $request->name . '%');
         }
         if (!empty($request->store)) {
             $store = $request->store;
