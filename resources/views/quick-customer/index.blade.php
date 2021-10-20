@@ -58,60 +58,49 @@
 	    </div>
 	@endif
     <div class="col-lg-12 margin-tb">
-    	<div class="row">
-	    	<div class="col col-md-3">
-		    	<div class="row">
-	    			 <button class="btn btn-secondary btn-add-whatsapp-list">+ Whatsapp List</button>
-				 </div>
-		    </div>
-		    <div class="col">
-		    	<div class="h">
-		    		<form class="form-inline message-search-handler mb-2 fr" method="post" style="float: right;">
-					  <div class="row">
-				  			<div class="form-group" style="margin-left: 2px">
-							    <label for="customer_id">Search Customer ID:</label>
-							    <?php echo Form::select("customer_id",[],request("customer_id"),["class"=> "form-control customer-id-select","placeholder" => "Enter customer id","style" => "width:350px;"]) ?>
-						  	</div>
-						  	<div class="form-group" style="margin-left: 2px">
-							    <label for="customer_name">Search Name:</label>
-							    <?php echo Form::text("customer_name",request("customer_name"),["class"=> "form-control","placeholder" => "Enter customer name"]) ?>
-						  	</div>
-						  	<div class="form-group" style="margin-left: 2px">
-							    <label for="status">Sort By:</label>
-							    <?php echo Form::select("type",[
-							    	"unread" => "Unread",
-							    	"last_communicated" => "Last Communicated",
-							    	"last_received" => "Last Received",
-							    ],request("type","last_received"),["class"=> "form-control","placeholder" => "Type"]) ?>
-						  	</div>
+    	<div class="row mb-3">
+            <div class="col-md-10">
+                <form class="form-inline message-search-handler fr" method="post">
+                    <div class="form-group mr-2">
+                        <?php echo Form::select("customer_id",[],request("customer_id"),["class"=> "form-control customer-id-select","placeholder" => "Enter customer id"]) ?>
+                    </div>
+                    <div class="form-group mr-2">
+                        <?php echo Form::text("customer_name",request("customer_name"),["class"=> "form-control","placeholder" => "Enter customer name"]) ?>
+                    </div>
+                    <div class="form-group mr-2">
+                        <?php echo Form::select("type",[
+                        "unread" => "Unread",
+                        "last_communicated" => "Last Communicated",
+                        "last_received" => "Last Received",
+                        ],request("type","last_received"),["class"=> "form-control","placeholder" => "Sort By Type"]) ?>
+                    </div>
 
-                            <div class="form-group" style="margin-left: 2px">
-                                <label for="status">Sort By:</label>
-                                <?php echo Form::select("next_action",$nextActionList,request("next_action"),["class"=> "form-control","placeholder" => "Select Next Action"]) ?>
-                            </div>
+                    <div class="form-group mr-2">
+                        <?php echo Form::select("next_action",$nextActionList,request("next_action"),["class"=> "form-control","placeholder" => "Sort By Next Action"]) ?>
+                    </div>
 
-                            
-                            <div class="form-group" style="margin-left: 2px">
-                                <label for="status">DND:</label>
-                                <select class="form-control" name="do_not_disturb">
-                                    <option value="" {{(request()->get('do_not_disturb')=='')?'selected':''}}>DND Status: ALL</option>
-                                    <option value="0" {{(request()->get('do_not_disturb')=='0')?'selected':''}}>Without DND</option>
-                                    <option value="1" {{(request()->get('do_not_disturb')=='1')?'selected':''}}>With DND</option>
-                                 </select>
-                             </div>
-                             <div class="form-group" style="margin-left: 2px">
-                                <label for="status">Page:</label>
-                                <?php echo Form::text("page",request("page"),["class"=> "form-control","placeholder" => "Enter page no"]) ?>
-                             </div>
-						  	<div class="form-group">
-						  		<label for="button">&nbsp;</label>
-						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-						  			<img src="/images/search.png" style="cursor: default;">
-						  		</button>
-						  	</div>
-					  </div>	
-					</form>	
-		    	</div>
+
+                    <div class="form-group mr-2">
+                        <select class="form-control" name="do_not_disturb">
+                            <option value="" {{(request()->get('do_not_disturb')=='')?'selected':''}}>DND Status: ALL</option>
+                            <option value="0" {{(request()->get('do_not_disturb')=='0')?'selected':''}}>Without DND</option>
+                            <option value="1" {{(request()->get('do_not_disturb')=='1')?'selected':''}}>With DND</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-2">
+                        <?php echo Form::text("page",request("page"),["class"=> "form-control","placeholder" => "Enter page no"]) ?>
+                    </div>
+
+                    <div class="form-group mr-2">
+                        <button class="btn btn-sm btn-image btn-search-action">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+	    	<div class="col-md-2">
+                <button class="btn btn-secondary btn-xs btn-add-whatsapp-list pull-right mt-2">+ Whatsapp List</button>
 		    </div>
 	    </div>	
 		<div class="col-md-12 margin-tb" id="page-view-result">

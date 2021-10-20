@@ -841,6 +841,32 @@ class DevelopmentController extends Controller
 
         }
 
+        /*$issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->whereIn('developer_tasks.status', ['Planned', 'In Progress'])->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to", "developer_tasks.status"])->pluck("total_product", "assigned_to", "status")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
+
+        $countPlanned = [];
+        $countInProgress = [];
+        if (!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                if ($count->status == 'Planned') {
+                    $countPlanned[] = [
+                        "id" => $key,
+                        "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                } else {
+                    $countInProgress[] = [
+                        "id" => $key,
+                        "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                }
+
+            }
+        }*/
+
         // category filter start count
         $issuesGroups = clone ($issues);
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();

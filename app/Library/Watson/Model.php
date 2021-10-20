@@ -455,7 +455,7 @@ class Model
             $storeParams["dialog_node"] = $dialog->name;
             $storeParams["conditions"]  = $dialog->match_condition;
             $storeParams["title"]       = $dialog->title;
-            $values                     = $dialog->response()->get();
+            $values                     = $dialog->response;
             $storeParams["type"]        = ($dialog->type == "folder") ? "folder" : "standard";
 
             $genericOutput = [];
@@ -491,6 +491,7 @@ class Model
                 }
 
                 WatsonWorkspace::insert($data_to_insert);
+                $storeParams["output"]["generic"][] = $genericOutput;
 
                 ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name')->onQueue('watson_push');
             }

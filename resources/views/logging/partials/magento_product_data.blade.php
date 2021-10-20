@@ -40,6 +40,7 @@
                     {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'No Stk' }}
                   </td>
                   <td class="expand-row-msg" data-name="languages" data-id="{{$item->id}}"> 
+                    <i data-id="{{$item->product_id}}" class="fa fa-info get-translation-product"></i>
                     <span class="show-short-languages-{{$item->id}}">
                       @if(!empty($item->languages)) {{ str_limit(implode(", ",json_decode($item->languages)), 2, '..')}} @endif
                     </span>
@@ -50,9 +51,6 @@
                   <td class="expand-row-msg" data-name="sync_status" data-id="{{$item->id}}">
                     <span class="show-short-sync_status-{{$item->id}}">{{ str_limit($item->sync_status, 6, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-sync_status-{{$item->id}} hidden">{{$item->sync_status}}</span>
-                    @if($item->sync_status == "translation_not_found")
-                      <i data-id="{{$item->product_id}}" class="fa fa-info get-translation-product"></i>
-                    @endif
                   </td>
 
                   <td class="expand-row-msg" data-name="job_start_time" data-id="{{$item->id}}">
@@ -81,6 +79,7 @@
                     <span style="display:flex;">
                       <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                       <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
+                      <button class="btn btn-xs btn-none-border show_prices" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}" data-product="{{ $item->product_id}}"><i class="fa fa-money"></i></button>
                       <button class="btn btn-xs btn-product-screenshot" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i style="font-size:13px;" class="fa fa-image"></i></button>
                       <a target="__blank" href="{{$item->website_url}}/admin/?sku={{$item->getWebsiteSku()}}"><button class="btn btn-xs"><i class="fa fa-globe"></i></button></a>
                       <input style="width:14px;height:15px;margin-left:7px;margin-top:5px;" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>

@@ -1110,8 +1110,9 @@ class ProductInventoryController extends Controller
         $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
 
     	$noofProductInStock =  \App\Product::where("stock",">",0)->count();
-    	$productUpdated     =  \App\ScrapedProducts::join("products as p","p.id","scraped_products.product_id")->whereDate("last_cron_check",date("Y-m-d"))->select(\DB::raw("count(distinct p.id) as total"))->first();
-    	$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
+    	$productUpdated 	= \App\InventoryStatusHistory::whereDate('date' ,'=',date("Y-m-d"))->select(\DB::raw("count(distinct product_id) as total"))->first();
+		$productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
+		
 
 		$history=\App\InventoryHistory::orderBy('date', 'DESC')->limit(7)->get();
 		/*$date=date('Y-m-d');

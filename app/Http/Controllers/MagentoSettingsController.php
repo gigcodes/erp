@@ -146,7 +146,7 @@ class MagentoSettingsController extends Controller
     }
 
     public function create(Request $request)
-    {
+    { 
         $name         = $request->name;
         $path         = $request->path;
         $value        = $request->value;
@@ -225,8 +225,11 @@ class MagentoSettingsController extends Controller
             }                
 
             if ($scope === 'stores') {
-
-                $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();
+				  $websiteStoresViews = [];
+				if($request->website_store_view != null) {
+					 $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();
+				}
+              //  $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();dd($websiteStoresViews);
                 $stores        = [];
                 foreach ($websiteStoresViews as $websiteStoresView) {
                     $stores[]  = $websiteStoresView->code;

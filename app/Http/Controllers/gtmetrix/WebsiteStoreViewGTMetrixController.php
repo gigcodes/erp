@@ -44,9 +44,15 @@ class WebsiteStoreViewGTMetrixController extends Controller
               $query->orderBy(request('sortby'),request('ord'));
         }
 
-        $list = $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
-            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->orderBy('id', 'desc')
-            ->paginate(25);
+        $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
+            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id');
+        
+        if (request('sortby') and request('sortby') != null) { 
+            $list = $query->orderBy('id', request('sortby'))->paginate(25);
+        }else{ 
+            $list = $query->orderBy('id', 'desc')->paginate(25);
+        }
+        
 
         //$list = $query->orderBy('id','desc')->paginate(25);
 
@@ -63,6 +69,32 @@ class WebsiteStoreViewGTMetrixController extends Controller
             return view('gtmetrix.index', compact('list', 'cronStatus', 'cronTime','storeViewList','StoreWebsite'));
         }    
        
+    }
+
+    public function toggleFlag(Request $request){
+        
+        $input = $request->all();
+        
+        if($input['flag']==null || $input['flag']== 2){
+            $data = ['flag'=>1];
+        }else{
+            $data = ['flag'=>2];
+        }
+        
+        $response = StoreViewsGTMetrix::where('id',$input['id'])->update($data);
+
+        if($response){
+            return response()->json([
+                'status' => true,
+                'message' => 'Flag Successfully Updated.'
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Something Went Wrong.'
+            ]);
+        }
+        
     }
 
     public function saveGTmetrixCronStatus($status = null)

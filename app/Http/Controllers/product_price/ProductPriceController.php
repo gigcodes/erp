@@ -891,7 +891,7 @@ class ProductPriceController extends Controller
 						{ 
 						  \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
 						   $note="Country Duty changed  from ".$p->duty_price." To ".$amount;
-						   \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+						   \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note,'created_at' => date("Y-m-d H:i:s")]);
 					   }
 					}
 				$dutyPricesProducts = count($ps);
@@ -1041,7 +1041,7 @@ class ProductPriceController extends Controller
               \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['duty_price'=>$amount,'status'=>0]) ;
                $note="Country Duty changed  from ".$p->duty_price." To ".$amount;
                $this->pushToMagento($p->product_id, $p->store_website_id);
-               \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
+               \App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note,'created_at' => date("Y-m-d H:i:s")]);
            }
         }
    } 
@@ -1056,7 +1056,7 @@ class ProductPriceController extends Controller
            {
             foreach($ps as $p)
             { 
-              \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$segmentDiscount,'status'=>0]) ;
+              \App\StoreWebsiteProductPrice::where('id',$p->id)->update(['segment_discount'=>$segmentDiscount,'status'=>0,'created_at' => date("Y-m-d H:i:s")]) ;
                //$note="Country Duty change  from ".$p->duty_price." To ".$amount;
                //\App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
            }

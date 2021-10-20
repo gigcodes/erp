@@ -1719,15 +1719,25 @@
 			},
 			success: function(data) {
 				$("#dev_task_statistics").modal("show");
-				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Task Id</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th width="110">Action</th></tr>';
+				var table = `<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<tr>
+							<th width="4%">Tsk Typ</th>
+							<th width="4%">Tsk Id</th>
+							<th width="7%">Asg to</th>
+							<th width="12%">Desc</th>
+							<th width="12%">Sts</th>
+							<th width="33%">Communicate</th>
+							<th width="10%">Action</th>
+						</tr>`;
 				for (var i = 0; i < data.taskStatistics.length; i++) {
 					var str = data.taskStatistics[i].subject;
 					var res = str.substr(0, 100);
 					var status = data.taskStatistics[i].status;
 					if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
-					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><textarea style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" rows="5" placeholder="Message"></textarea></div><div class="d-flex p-0"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
-					table = table + '| <a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a>';
-					table = table + '| <button type="button" class="btn preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list" aria-hidden="true"></i></button></td>';
+					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td class="expand-row-msg" data-name="asgTo" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-asgTo-'+data.taskStatistics[i].id+'">'+data.taskStatistics[i].assigned_to_name.replace(/(.{6})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-asgTo-'+data.taskStatistics[i].id+' hidden">'+data.taskStatistics[i].assigned_to_name+'</span></td><td class="expand-row-msg" data-name="res" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-res-'+data.taskStatistics[i].id+'">'+res.replace(/(.{7})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-res-'+data.taskStatistics[i].id+' hidden">'+res+'</span></td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+					table = table + '<a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+					table = table + '<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
 					table = table + '</tr>';
 				}
 				table = table + '</table></div>';
@@ -1744,6 +1754,16 @@
 
 
 	});
+	$(document).on('click', '.expand-row-msg', function () {
+		var name = $(this).data('name');
+		var id = $(this).data('id');
+		console.log(name);
+		var full = '.expand-row-msg .show-short-'+name+'-'+id;
+		var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+		$(full).toggleClass('hidden');
+		$(mini).toggleClass('hidden');
+	});
+
 	$(document).on('click', '.send-message', function () {
             var thiss = $(this);
             var data = new FormData();

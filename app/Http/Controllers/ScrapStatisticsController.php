@@ -1104,9 +1104,18 @@ class ScrapStatisticsController extends Controller
 
     public function logDetails(Request $request)
     {
+		
         $logDetails = \App\ScrapLog::where("scraper_id", $request->scrapper_id)->latest()->get();
 
         return view("scrap.partials.log-details", compact('logDetails'));
+    }
+	
+	public function scrapperLogList()
+    {
+	    $logDetails = \App\ScrapLog::leftJoin('scrapers', 'scrapers.id', '=', 'scrap_logs.scraper_id')
+									->whereNull('folder_name')->select('scrap_logs.*', 'scrapers.scraper_name')
+									->orderBy('id', 'desc')->paginate(50);
+		return view("scrap.log_list", compact('logDetails'));
     }
 
     public function serverHistory(Request $request)
@@ -1190,13 +1199,7 @@ class ScrapStatisticsController extends Controller
 					'assigned_to' => $assigendTo,
 				]);
 				app('\App\Http\Controllers\DevelopmentController')->issueStore($requestData,  $assigendTo);
-			} else{
-				$requestData = new Request();
-				$requestData->setMethod('POST');
-				$requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Scraper didn't Run In Last 24 Hr", 'status' => 1]);
-				app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-			}
-			
+			} 
 			Scraper::where('id', $request->scrapper_id)->update(['assigned_to'=>$assigendTo]);
 		}
 		return 'success';

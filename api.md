@@ -1454,7 +1454,8 @@ POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
 {
    "email":"test@gmail.com",
    "sku" : "2EG286W08F0C6D",
-   "website" : "WWW.SOLOLUXURY.COM"
+   "website" : "WWW.SOLOLUXURY.COM",
+   "size" : "XL"
 }
 ```
 
@@ -1487,6 +1488,7 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
 "lang_code":"en-US",
 "email":"effertz.isadore@cremin.org",
 "website":"WWW.SOLOLUXURY.COM",
+"type" : "add-to-cart",
 "item_info":[
     {
         "sku":"1BH018VCNK2AIXF0F6R",
@@ -1504,6 +1506,74 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
 {
     "status": "200",
     "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## Store customer reviews
+
+Key : reviews.failed.validation, reviews.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/store_reviews
+{
+"name":"test",
+"lang_code":"en-US",
+"platform_id":"1",
+"stars":"3.5",
+"comment":"Good",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"type" : "store-reviews",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## Get all customer reviews
+
+Key : reviews.failed.validation, reviews.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/all-reviews
+{
+"name":"test",
+"lang_code":"en-US",
+"platform_id":"1",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"type" : "get-reviews",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "All reviews fetched successfully"
 }
 ```
 **Failed Response:**

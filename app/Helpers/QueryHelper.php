@@ -26,7 +26,7 @@ class QueryHelper
         return $query;
     }
 
-    public static function approvedListingOrderFinalApproval($query)
+    public static function approvedListingOrderFinalApproval($query,$forStoreWebsite = false)
     {
         // Only show products which have a stock bigger than zero
         $query = $query->leftJoin('brands', function ($join) {
@@ -37,7 +37,17 @@ class QueryHelper
             $join->on('products.supplier_id', '=', 'suppliers.id');
         });
 
-        $query = $query->where('stock', '>=', 1);
+        // Only show products which have a stock bigger than zero
+        if($forStoreWebsite) {
+            // check if the product is last instock before 30 day
+            $query = $query->join("scraped_products as sp1","sp1.sku","products.sku");
+            $dateBefore30day = date("Y-m-d H:i:s",strtotime('-30 days'));
+            $query = $query->where(function($q) use($dateBefore30day) {
+                $q->orWhere('stock', '>=', 1)->orWhere("sp1.last_inventory_at",$dateBefore30day);
+            });
+        }else{
+            $query = $query->where('stock', '>=', 1);
+        }
 
         $query = $query->orderBy('brands.priority', 'desc')->orderBy('suppliers.priority', 'desc')->latest("products.created_at");
 

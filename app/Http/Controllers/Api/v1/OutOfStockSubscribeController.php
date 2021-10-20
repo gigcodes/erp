@@ -17,8 +17,8 @@ class OutOfStockSubscribeController extends Controller
         $params = request()->all();
         // validate incoming request
         $validator = Validator::make($params, [
-            'email'   => 'required',
-            'sku'     => 'required',
+            'email' => 'required',
+            'sku' => 'required',
             'website' => 'required',
         ]);
 
@@ -30,16 +30,16 @@ class OutOfStockSubscribeController extends Controller
 
         if ($storeWebsite) {
             $website_id = $storeWebsite->id;
-            $data       = $params;
-            $sku        = explode("-", $request->get("sku"));
-            $product    = Product::where("sku", $sku[0])->first();
+            $data = $params;
+            $sku = explode("-", $request->get("sku"));
+            $product = Product::where("sku", $sku[0])->first();
             if ($product) {
-                $customer = Customer::where('email', $data['email'])->first();
+                $customer = Customer::where('email', $data['email'])->where('store_website_id',$website_id)->first();
                 if ($customer == null) {
                     $customer = Customer::create(['name' => $data['email'], 'email' => $data['email'], 'store_website_id' => $website_id]);
                 }
                 $status = 0;
-                \App\ErpLeads::create(['customer_id' => $customer->id, 'lead_status_id' => 1, 'product_id' => $product->id]);
+                \App\ErpLeads::create(['customer_id' => $customer->id, 'lead_status_id' => 1, 'product_id' => $product->id, 'type' => 'out-of-stock-subscribe','size' => $request->get("size",null)]);
                 $arrayToStore = ['customer_id' => $customer['id'], 'product_id' => $product->id, 'status' => $status, 'website_id' => $website_id];
                 OutOfStockSubscribe::updateOrCreate(['customer_id' => $customer['id'], 'product_id' => $product->id, 'website_id' => $website_id], $arrayToStore);
 
@@ -68,39 +68,38 @@ class OutOfStockSubscribeController extends Controller
 
         $attributes = $request->get("attributes");
 
-        if($attributes["action"] == "track-order") {
-                $order_data = \App\Order::where('order_id', $attributes["trackingNumber"])->first();
-                if($order_data) {
-                        $status = \App\OrderStatus::where('id',$order_data->order_status_id)->first();;
-                        $statusMessage = $order_data->order_status;
-                        if($status) {
-                            $statusMessage = $status->status;
-                        }
-                        $response = [
-                            "responses" => [
-                                [
-                                    "type"    => "text",
-                                    "delay"   => 1000,
-                                    "message" => "Thanks for contacting us Your order is right now on ".ucwords($statusMessage),
-                                ],
-                            ],
-                        ];
-
-                }else{
-                    $response = [
-                            "responses" => [
-                                [
-                                    "type"    => "text",
-                                    "delay"   => 1000,
-                                    "message" => "Sorry, We could not found your order number in our system please contact administrator",
-                                ],
-                            ],
-                        ];
+        if ($attributes["action"] == "track-order") {
+            $order_data = \App\Order::where('order_id', $attributes["trackingNumber"])->first();
+            if ($order_data) {
+                $status = \App\OrderStatus::where('id', $order_data->order_status_id)->first();
+                $statusMessage = $order_data->order_status;
+                if ($status) {
+                    $statusMessage = $status->status;
                 }
-                
-                return response()->json($response);
-        }
+                $response = [
+                    "responses" => [
+                        [
+                            "type" => "text",
+                            "delay" => 1000,
+                            "message" => "Thanks for contacting us Your order is right now on " . ucwords($statusMessage),
+                        ],
+                    ],
+                ];
 
+            } else {
+                $response = [
+                    "responses" => [
+                        [
+                            "type" => "text",
+                            "delay" => 1000,
+                            "message" => "Sorry, We could not found your order number in our system please contact administrator",
+                        ],
+                    ],
+                ];
+            }
+
+            return response()->json($response);
+        }
 
     }
 }

@@ -2,14 +2,14 @@
 ###  This script is used to autoselect scraper server which has maximum memory available and start scraper there
 
 ScriptDIR=`dirname "$0"`
-day=`date +%d`
+datetime=`date +%d%b%y-%H:%M`
 
 rm /tmp/scrap_* /opt/scrap_status
 
 ####################    Get all running Scraper details in all servers #######
 function scraper_status
 {
-	for server in 0{1..6}
+	for server in 0{1..8}
 	do
 	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep command|grep -v externalScraper|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
 	done
@@ -19,7 +19,7 @@ function scraper_status
 function scraper_memory
 {
 	rm /tmp/scrap_memory  > /dev/null
-	for server in 0{1..6}
+	for server in 0{1..8}
 	do
 		Used_mem=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com 'free | grep Mem | awk '\''{print $3/$2 * 100.0}'\''' 2>/dev/null`
 		if [ -z $Used_mem ]
@@ -69,13 +69,17 @@ function scraper_restart
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
 		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
-		if [ $minmemory -gt 95 ]
+		if [ $minmemory -gt 90 ]
 		then
-			echo "No server has free memory more than 5%"
+			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
+			echo $email |mail -s "No Scraper server has free memory more than 10% so exiting script" sahilkataria.1989@gmail.com
+			echo $email |mail -s "No Scraper server has free memory more than 10% so exiting script" yogeshmordani@icloud.com 
+			echo "No server has free memory more than 10%"
 			exit
 		fi
 		echo $server $scraper
-		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node /root/scraper_nodejs/commands/completeScraps/$scraper.js &> /root/logs/$scraper-$day.log &" < /dev/null
+		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" < /dev/null`
+		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null
 		if [ $? -eq 0 ]
 		then
 	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 

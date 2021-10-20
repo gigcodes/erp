@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventEnum;
+use App\Events\SendgridEventCreated;
+use App\Repositories\SendgridEventRepositoryInterface;
+use App\SendgridEvent;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -9,13 +13,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Enums\EventEnum;
-use App\Events\SendgridEventCreated;
-use App\SendgridEvent;
-use App\Email;
-use App\Repositories\SendgridEventRepositoryInterface;
-use Psr\Log\LogLevel;
-
 
 /**
  * Class WebhookController
@@ -49,9 +46,15 @@ class WebhookController extends Controller
      */
     public function post(Request $request)
     {
-		$payload = $request->json()->all();
-       
-		$validator = Validator::make(
+        Log::info('Process started');
+
+        $payload = $request->json()->all();
+
+        Log::info('Payload Before');
+        Log::info($payload);
+        Log::info('Payload After');
+
+        $validator = Validator::make(
             $payload,
             [
                 '*.email' => 'required|email',
@@ -61,24 +64,37 @@ class WebhookController extends Controller
                 '*.sg_message_id' => 'required|string',
                 '*.category' => function ($attribute, $value, $fail) {
                     if (!is_null($value) && !in_array(gettype($value), ['string', 'array'])) {
-                        $fail($attribute.' must be a string or array.');
+                        $fail($attribute . ' must be a string or array.');
                     }
                 },
                 '*.category.*' => 'string',
             ]
         );
-		
+
+        Log::info('Validation Initialize');
+
         if ($validator->fails()) {
             $this->logMalformedPayload($payload, $validator->errors()->all());
             throw new ValidationException($validator);
         }
 
+        Log::info('Validation Passed');
+
         foreach ($payload as $event) {
-			/*SendgridEvent::create(['email'=>$event['email'], 'event'=>$event['event'], 
-			'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'], 
-			'categories'=>$event['category']]);*/
-           $this->processEvent($event);
+
+            Log::info('Event Before Process');
+            Log::info($event);
+
+            /*SendgridEvent::create(['email'=>$event['email'], 'event'=>$event['event'],
+            'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'],
+            'categories'=>$event['category']]);*/
+            $this->processEvent($event);
+
+            Log::info($event);
+            Log::info('Event After Processed');
         }
+
+        Log::info('Post added successfully');
     }
 
     /**
@@ -88,14 +104,24 @@ class WebhookController extends Controller
      */
     private function processEvent(array $event): void
     {
-        if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
+
+
+        Log::info('Process event start');
+
+       if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
+            Log::info('log duplicate start');
             $this->logDuplicateEvent($event);
+            Log::info('log duplicate exit');
             return;
         }
 		
+        Log::info('Repository start');
         $sendgridEvent = $this->sendgridEventRepository->create($event);
-		Email::where('id', $event['email_id'])->update(['status'=>$event['event']]);
+        Email::where('id', $event['email_id'])->update(['status'=>$event['event']]);
+        Log::info('Repository exit');
+
         event(new SendgridEventCreated($sendgridEvent));
+        Log::info('Event sent');
     }
 
     /**
@@ -129,6 +155,7 @@ class WebhookController extends Controller
      */
     private function logDuplicateEvent(array $event)
     {
+        Log::info('log duplicate In');
         if (config('sendgridevents.log_duplicate_events')) {
             Log::log(
                 config('sendgridevents.log_duplicate_events_level'),

@@ -63,7 +63,9 @@ class FetchAllEmails extends Command
 
         foreach ($emailAddresses as $emailAddress) {
             FetchEmail::dispatch($emailAddress)->onQueue('email');
-        } 
+        }
+
+        $report->update(['end_time' => Carbon::now()]); 
     }
 
     /**

@@ -23,6 +23,7 @@ class StoreViewsGTMetrix extends Model
         'account_id', 
         'test_id',
         'status',
+        'flag',
         'error',
         'report_url',
         'website_url',
