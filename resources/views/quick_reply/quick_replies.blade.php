@@ -60,11 +60,11 @@
                                             <td class="p-0 pt-1 pl-1">
                                                 <div id="show_add_sub_{{ $all_category->id }}" class="hide_all_inputs_sub" style="display: none;">
                                                     <input type="text" id="reply_sub_{{ $all_category->id }}" class="reply_inputs_sub form-control w-75 pull-left"/>
-                                                    <button class="btn btn-xs save_reply_sub pull-left w-25"><i class="fa fa-check"></i></button>
+                                                    <button class="btn btn-sm p-0 pt-2 save_reply_sub pull-left w-25"><i class="fa fa-check"></i></button>
                                                 </div>
                                                 <div id="show_reply_list_sub_{{ $all_category->id }}" class="w-100 pull-left">
                                                     <span>{{ $all_category->name }}</span>  
-                                                    <a href="javascript::void()" class="add_sub_cat btn btn-xs" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}"><i class="fa fa-plus"></i></a> 
+                                                    <a href="javascript::void()" class="add_sub_cat btn btn-sm p-0" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}"><i class="fa fa-plus"></i></a> 
                                                 </div>
                                             </td>
                                              <td></td>
@@ -74,41 +74,41 @@
                                                     <td class="p-0 pt-1 pl-1">
                                                         <div id="show_add_reply_{{ $all_category->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
                                                             <input type="text" id="reply_{{ $all_category->id }}_{{ $websites->id }}" class="reply_inputs form-control pull-left" style="width: 80px;"/>
-                                                            <button class="btn btn-xs save_reply pull-left"><i class="fa fa-check"></i></button>
+                                                            <button class="btn btn-sm p-0 save_reply pull-left"><i class="fa fa-check"></i></button>
                                                         </div>
 
                                                         <div id="show_reply_list_{{ $all_category->id }}_{{ $websites->id }}">
                                                             <span class="show_add_option pull-left" id="show_add_option_{{ $all_category->id }}_{{ $websites->id }}">
-                                                                <a href="javascript::void(0)" class="add_quick_reply btn btn-xs" id="{{ $all_category->id }}" data-attr="{{ $websites->id }}"><i class="fa fa-plus"></i></a>
+                                                                <a href="javascript::void(0)" class="add_quick_reply btn btn-sm p-0" id="{{ $all_category->id }}" data-attr="{{ $websites->id }}"><i class="fa fa-plus"></i></a>
                                                             </span>
                                                             @foreach($category_wise_reply as $key => $value)
                                                                 @if($key == $all_category->id)
                                                                     @foreach($value as $key1 => $item)
                                                                         @if($key1 == $websites->id)
-                                                                        <button class="btn btn-xs lead_summary pull-left" data-toggle="modal" data-target="#replies{{ $all_category->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
+                                                                        <button class="btn btn-sm p-0 lead_summary pull-left" data-toggle="modal" data-target="#replies{{ $all_category->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
                                                                                
                                                                              
                                                                                 <div class="modal fade" id="replies{{ $all_category->id}}-{{$websites->id}}" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
                                                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                                                     <div class="modal-content">
-                                                                                        <div class="modal-header">
+                                                                                        <div class="modal-header p-0 pt-2 pl-2 pr-2">
                                                                                             <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
-                                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                                <span aria-hidden="true">&times;</span>
+                                                                                            <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
+                                                                                                <i class="fa fa-times"></i>
                                                                                             </button>
                                                                                         </div>
-                                                                                        
                                                                                         <div class="modal-body edit-modal-body" id="all-replies">
+                                                                                        <ul class="list-group">
                                                                                         @foreach($item as $val)
-                                                                                        <div id="edit_reply_{{ $val->id }}" class="edit_reply_input" style="display: none;">
-                                                                                            <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" />
-                                                                                            <button class="btn btn-secondary btn-sm update_reply">&#10004;</button>
-                                                                                        </div>
-                                                                                        <li id="{{ $val->id }}" class="edit_reply">{{ $val->reply }}</li>
+                                                                                        <li id="edit_reply_{{ $val->id }}" class="edit_reply_input list-group-item p-2" style="display: none;">
+                                                                                            <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
+                                                                                            <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
+                                                                                        </li>
+                                                                                        <li id="{{ $val->id }}" class="edit_reply list-group-item p-2">
+                                                                                            {{ $val->reply }}
+                                                                                        </li>
                                                                                         @endforeach
-                                                                                        </div>
-                                                                                        <div class="modal-footer">
-                                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                                        </ul>
                                                                                         </div>
                                                                                         </form>	
                                                                                     </div>
@@ -147,39 +147,38 @@
                                                         <td class="p-0 pt-1 pl-1">
                                                             <div id="show_add_reply_{{ $all_category_sub->id }}_{{ $websites->id }}" class="hide_all_inputs" style="display: none;">
                                                                 <input type="text" id="reply_{{ $all_category_sub->id }}_{{ $websites->id }}" class="reply_inputs form-control pull-left" style="width: 80px;"/>
-                                                                <button class="btn btn-xs save_reply pull-left"><i class="fa fa-check"></i></button>
+                                                                <button class="btn btn-sm p-0 save_reply pull-left"><i class="fa fa-check"></i></button>
                                                             </div>
 
                                                             <div id="show_reply_list_{{ $all_category_sub->id }}_{{ $websites->id }}">
                                                                 <span class="show_add_option pull-left" id="show_add_option_{{ $all_category_sub->id }}_{{ $websites->id }}">
-                                                                    <a href="javascript::void(0)"  class="add_quick_reply btn btn-xs" id="{{ $all_category_sub->id }}" data-attr="{{ $websites->id }}"><i class="fa fa-plus"></i></a>
+                                                                    <a href="javascript::void(0)"  class="add_quick_reply btn btn-sm p-0" id="{{ $all_category_sub->id }}" data-attr="{{ $websites->id }}"><i class="fa fa-plus"></i></a>
 </span>
                                                                 @foreach($category_wise_reply as $key => $value)
                                                                     @if($key == $all_category_sub->id)
                                                                         @foreach($value as $key1 => $item)
                                                                             @if($key1 == $websites->id)
-                                                                            <button class="btn btn-xs lead_summary pull-left" data-toggle="modal" data-target="#replies{{ $all_category_sub->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
+                                                                            <button class="btn btn-sm p-0 lead_summary pull-left" data-toggle="modal" data-target="#replies{{ $all_category_sub->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
                                                                             <div class="modal fade" id="replies{{ $all_category_sub->id}}-{{$websites->id}}" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
                                                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                                                     <div class="modal-content">
-                                                                                        <div class="modal-header">
+                                                                                        <div class="modal-header p-0 pt-2 pl-2 pr-2">
                                                                                             <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
-                                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                                <span aria-hidden="true">&times;</span>
+                                                                                            <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
+                                                                                                <i class="fa fa-times"></i>
                                                                                             </button>
                                                                                         </div>
                                                                                         
                                                                                         <div class="modal-body edit-modal-body" id="all-replies">
+                                                                                        <ul class="list-group">
                                                                                         @foreach($item as $val)
-                                                                                        <div id="edit_reply_{{ $val->id }}" class="edit_reply_input" style="display: none;">
-                                                                                            <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" />
-                                                                                            <button class="btn btn-secondary btn-sm update_reply">&#10004;</button>
-                                                                                        </div>
-                                                                                        <li id="{{ $val->id }}" class="edit_reply">{{ $val->reply }}</li>
+                                                                                        <li id="edit_reply_{{ $val->id }}" class="edit_reply_input list-group-item p-2" style="display: none;">
+                                                                                            <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
+                                                                                            <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
+                                                                                        </li>
+                                                                                        <li id="{{ $val->id }}" class="edit_reply list-group-item p-2">{{ $val->reply }}</li>
                                                                                         @endforeach
-                                                                                        </div>
-                                                                                        <div class="modal-footer">
-                                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                                        </ul>
                                                                                         </div>
                                                                                         </form>	
                                                                                     </div>
