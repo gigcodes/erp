@@ -2510,34 +2510,57 @@ class TwilioController extends FindByNumberController
     {
         try {
             foreach ($incoming_phone_numbers as $numbers) {
-                try {
                     //check if no. already exists then update
-                    $find_number = TwilioActiveNumber::where('phone_number', '=', $numbers->phone_number)->firstOrFail();
-                } catch (\Exception $e) {
-                    TwilioActiveNumber::create([
-                        'sid' => $numbers->sid,
-                        'account_sid' => $numbers->account_sid,
-                        'friendly_name' => $numbers->friendly_name,
-                        'phone_number' => $numbers->phone_number,
-                        'voice_url' => $numbers->voice_url,
-                        'date_created' => $numbers->date_created,
-                        'date_updated' => $numbers->date_updated,
-                        'sms_url' => $numbers->sms_url,
-                        'voice_receive_mode' => isset($numbers->voice_receive_mode) ?? 'voice',
-                        'api_version' => $numbers->api_version,
-                        'voice_application_sid' => $numbers->voice_application_sid,
-                        'sms_application_sid' => $numbers->sms_application_sid,
-                        'trunk_sid' => $numbers->trunk_sid,
-                        'emergency_status' => $numbers->emergency_status,
-                        'emergency_address_id' => $numbers->emergency_address_sid,
-                        'address_sid' => $numbers->address_sid,
-                        'identity_sid' => $numbers->identity_sid,
-                        'bundle_sid' => $numbers->bundle_sid,
-                        'uri' => $numbers->uri,
-                        'status' => $numbers->status,
-                        'twilio_credential_id' => $account_id
-                    ]);
-                }
+                    $find_number = TwilioActiveNumber::where('phone_number', '=', $numbers->phone_number)->where("twilio_credential_id",$account_id)->first();
+                    if($find_number) {
+                        $find_number->update([
+                            'sid' => $numbers->sid,
+                            'account_sid' => $numbers->account_sid,
+                            'friendly_name' => $numbers->friendly_name,
+                            'phone_number' => $numbers->phone_number,
+                            'voice_url' => $numbers->voice_url,
+                            'date_created' => $numbers->date_created,
+                            'date_updated' => $numbers->date_updated,
+                            'sms_url' => $numbers->sms_url,
+                            'voice_receive_mode' => isset($numbers->voice_receive_mode) ?? 'voice',
+                            'api_version' => $numbers->api_version,
+                            'voice_application_sid' => $numbers->voice_application_sid,
+                            'sms_application_sid' => $numbers->sms_application_sid,
+                            'trunk_sid' => $numbers->trunk_sid,
+                            'emergency_status' => $numbers->emergency_status,
+                            'emergency_address_id' => $numbers->emergency_address_sid,
+                            'address_sid' => $numbers->address_sid,
+                            'identity_sid' => $numbers->identity_sid,
+                            'bundle_sid' => $numbers->bundle_sid,
+                            'uri' => $numbers->uri,
+                            'status' => $numbers->status,
+                            'twilio_credential_id' => $account_id
+                        ]);
+                    }else{
+                        TwilioActiveNumber::create([
+                            'sid' => $numbers->sid,
+                            'account_sid' => $numbers->account_sid,
+                            'friendly_name' => $numbers->friendly_name,
+                            'phone_number' => $numbers->phone_number,
+                            'voice_url' => $numbers->voice_url,
+                            'date_created' => $numbers->date_created,
+                            'date_updated' => $numbers->date_updated,
+                            'sms_url' => $numbers->sms_url,
+                            'voice_receive_mode' => isset($numbers->voice_receive_mode) ?? 'voice',
+                            'api_version' => $numbers->api_version,
+                            'voice_application_sid' => $numbers->voice_application_sid,
+                            'sms_application_sid' => $numbers->sms_application_sid,
+                            'trunk_sid' => $numbers->trunk_sid,
+                            'emergency_status' => $numbers->emergency_status,
+                            'emergency_address_id' => $numbers->emergency_address_sid,
+                            'address_sid' => $numbers->address_sid,
+                            'identity_sid' => $numbers->identity_sid,
+                            'bundle_sid' => $numbers->bundle_sid,
+                            'uri' => $numbers->uri,
+                            'status' => $numbers->status,
+                            'twilio_credential_id' => $account_id
+                        ]);
+                    }
             }
             return true;
         } catch (\Exception $e) {
