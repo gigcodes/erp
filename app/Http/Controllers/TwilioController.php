@@ -2512,7 +2512,7 @@ class TwilioController extends FindByNumberController
             foreach ($incoming_phone_numbers as $numbers) {
                 try {
                     //check if no. already exists then update
-                    $find_number = TwilioActiveNumber::where('phone_number', '=', $numbers->phone_number)->firstOrFail();
+                    $find_number = TwilioActiveNumber::where('phone_number', '=', $numbers->phone_number)->where("twilio_credential_id",$account_id)->firstOrFail();
                 } catch (\Exception $e) {
                     TwilioActiveNumber::create([
                         'sid' => $numbers->sid,
