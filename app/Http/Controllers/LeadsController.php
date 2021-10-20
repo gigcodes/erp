@@ -611,6 +611,10 @@ class LeadsController extends Controller
                 }
             }
 
+            if (is_numeric($special_price)) {
+                $special_price = ceil($special_price / 10) * 10;
+            }
+
             if ($request->has('dimension')) {
 
                 $product_names .= "$brand_name $product->name" . ' (' . "Length: $product->lmeasurement cm, Height: $product->hmeasurement cm & Depth: $product->dmeasurement cm) \n";
