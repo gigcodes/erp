@@ -43,75 +43,75 @@
 
 
     <div class="mt-3 col-md-12">
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th width="4%">ID</th>
-            <th width="9%">Name</th>
-            <th width="8%">Capacity</th>
-            <th width="6%">Pwd</th>
-            <th width="7%">Ast Type</th>
-            <th width="5%">Cat</th>
-            <th width="7%">Pro Name</th>
-            <th width="7%">Pur Type</th>
-            <th width="9%">Pymt Cycle</th>
-            <th width="7%">Due Date</th>
-            <th width="5%">Amount</th>
-            <th width="5%">Currency</th>
-            <th width="5%">Location</th>
-            <th width="7%">Usage</th>
-            <th width="15%">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @foreach ($assets as $asset)
+      <div class="infinite-scroll">
+        <table class="table table-bordered table-striped">
+          <thead>
             <tr>
-              <td>{{ $asset->id }}</td>
-              <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
-                <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 12, '..')}}</span>
-                <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
-              </td>
-              <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
-                <span class="show-short-capacity-{{$asset->id}}">{{ str_limit($asset->capacity, 10, '..')}}</span>
-                <span style="word-break:break-all;" class="show-full-capacity-{{$asset->id}} hidden">{{$asset->capacity}}</span>
-              </td>
-              <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
-                <span class="show-short-password-{{$asset->id}}">{{ str_limit($asset->password, 3, '..')}}</span>
-                <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
-              </td>
-              <td>{{ $asset->asset_type }}</td>
-              <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
-
-              <td>{{ $asset->provider_name }}</td>
-              <td>{{ $asset->purchase_type }}</td>
-              <td>{{ $asset->payment_cycle }}</td>
-              <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>
-              <td>{{ $asset->amount }}</td>
-              <td>{{ $asset->currency }}</td>
-              <td>{{ $asset->location }}</td>
-              <td class="expand-row-msg" data-name="usage" data-id="{{$asset->id}}">
-                <span class="show-short-usage-{{$asset->id}}">{{ str_limit($asset->usage, 9, '..')}}</span>
-                <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
-              </td>
-              <td>
-                  <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
-                  <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
-                      <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
-                      {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-xs pull-left"><i class="fa fa-trash"></i></button>
-                      {!! Form::close() !!}
-                      <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
-                        <i class="fa fa-history"></i>
-                      </button>
-              </td>
+              <th width="4%">ID</th>
+              <th width="9%">Name</th>
+              <th width="8%">Capacity</th>
+              <th width="6%">Pwd</th>
+              <th width="7%">Ast Type</th>
+              <th width="5%">Cat</th>
+              <th width="7%">Pro Name</th>
+              <th width="7%">Pur Type</th>
+              <th width="9%">Pymt Cycle</th>
+              <th width="7%">Due Date</th>
+              <th width="5%">Amount</th>
+              <th width="5%">Currency</th>
+              <th width="5%">Location</th>
+              <th width="7%">Usage</th>
+              <th width="15%">Action</th>
             </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
-    <div class="mt-3 col-md-12">
-      {{ $assets->appends(request()->except('page'))->links() }}
+          </thead>
+
+          <tbody>
+            @foreach ($assets as $asset)
+              <tr>
+                <td>{{ $asset->id }}</td>
+                <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
+                  <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
+                  <span class="show-short-capacity-{{$asset->id}}">{{ str_limit($asset->capacity, 10, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-capacity-{{$asset->id}} hidden">{{$asset->capacity}}</span>
+                </td>
+                <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
+                  <span class="show-short-password-{{$asset->id}}">{{ str_limit($asset->password, 3, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+                </td>
+                <td>{{ $asset->asset_type }}</td>
+                <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
+
+                <td>{{ $asset->provider_name }}</td>
+                <td>{{ $asset->purchase_type }}</td>
+                <td>{{ $asset->payment_cycle }}</td>
+                <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>
+                <td>{{ $asset->amount }}</td>
+                <td>{{ $asset->currency }}</td>
+                <td>{{ $asset->location }}</td>
+                <td class="expand-row-msg" data-name="usage" data-id="{{$asset->id}}">
+                  <span class="show-short-usage-{{$asset->id}}">{{ str_limit($asset->usage, 9, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
+                </td>
+                <td>
+                    <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
+                    <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
+                        <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
+                        {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-xs pull-left"><i class="fa fa-trash"></i></button>
+                        {!! Form::close() !!}
+                        <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
+                          <i class="fa fa-history"></i>
+                        </button>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        {{ $assets->appends(request()->except('page'))->links() }}
+      </div>
     </div>
     @include('partials.modals.remarks')
     @include('assets-manager.partials.payment-history')
@@ -119,10 +119,26 @@
 @endsection
 
 @section('scripts')
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
-
-
+    $('ul.pagination').hide();
+    $(function() {
+      $('.infinite-scroll').jscroll({
+        autoTrigger: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 2500,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function() {
+          $('ul.pagination').first().remove();
+          $(".select-multiple").select2();
+          initialize_select2();
+        }
+      });
+    });
+      
     $(document).on('click', '.edit-assets', function() {
       var asset = $(this).data('assets');
       var url = "{{ url('assets-manager') }}/" + asset.id;

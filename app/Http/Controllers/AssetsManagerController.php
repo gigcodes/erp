@@ -50,7 +50,7 @@ class AssetsManagerController extends Controller
         }
 
         $assetsIds = $assets->select('id')->get()->toArray();
-        $assets = $assets->paginate(10);
+        $assets = $assets->paginate(25);
 
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
