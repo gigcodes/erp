@@ -15,7 +15,7 @@
                       </span>
                    </div>
                 </div>
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                <button type="submit" class="btn btn-xs"><i class="fa fa-filter ml-3"></i></button>
              </form>
           </div>
        </div>
@@ -26,9 +26,9 @@
              <table class="table table-bordered table-sm">
                 <thead>
                    <tr>
-                      <th width="5%">Time</th>
+                      <th width="7%">Time</th>
                       <?php foreach($totalServers as $totalServer){ ?>
-                            <th>{{ $totalServer }}</th>
+                            <th width="10%">{{ $totalServer }}</th>
                       <?php } ?>
                    </tr>
                 </thead>
@@ -42,12 +42,40 @@
                                     if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
                                         $loops = $listOfServerUsed[$k][$totalServer];
                                         foreach($loops as $l) {
-                                            $deleteBtn = "";
-                                            if(!empty($l['pid'])) {
-                                                $deleteBtn = '&nbsp;<i data-server-id="'.$totalServer.'" data-p-id="'.$l['pid'].'" class="fa fa-window-close stop-job" aria-hidden="true"></i>';
-                                            }
-                                            echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].$deleteBtn.'</span><br>';
+                                            echo $l['memory_string'];
+                                            break;
                                         }
+
+                                        ?>
+                                        <button class="btn btn-sm p-0" data-toggle="modal" data-target="#scrapers-{{$totalServer}}-{{$k}}"><i class="fa fa-info-circle"></i></button>
+                                        <div class="modal fade" id="scrapers-{{$totalServer}}-{{$k}}" tabindex="-1" role="dialog" aria-labelledby="scrapers" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header p-0 pt-2 pl-2 pr-2">
+                                                        <h5 class="modal-title" id="exampleModalLongTitle">All Scrapers</h5>
+                                                        <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <ul class="list-group">
+                                                            <?php
+                                                            $loops = $listOfServerUsed[$k][$totalServer];
+                                                            foreach($loops as $l) {
+                                                                $deleteBtn = "";
+                                                                if(!empty($l['pid'])) {
+                                                                    $deleteBtn = '<button class="btn btn-xs pull-right"> <i class="fa fa-trash stop-job" data-server-id="'.$totalServer.'" data-p-id="'.$l["pid"].'"></i> </button>';
+                                                                }
+                                                                echo '<li class="list-group-item">'.$l['scraper_name'].$deleteBtn.'</li>';
+
+                                                            }
+                                                            ?>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php
                                     }
                                   ?>
                               </td>
