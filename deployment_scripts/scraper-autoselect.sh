@@ -87,8 +87,8 @@ function scraper_restart
 			day=`date +'%d'`
 			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history
 		fi
-		echo "Wait for 30 Seconds before starting another scrapper"
-		sleep 30
+		echo "Wait for 60 Seconds before starting another scrapper"
+		sleep 60
 	done < /tmp/scrap_restart
 }
 
