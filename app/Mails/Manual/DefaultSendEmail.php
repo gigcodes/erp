@@ -45,17 +45,46 @@ class DefaultSendEmail extends Mailable
     {
         $email   = $this->email;
         $content = $email->message;
+		
+		$headerData = [
+            'unique_args' => [
+                'email_id' =>$email->id 
+            ]
+        ];
 
+        $header = $this->asString($headerData);
+        $this->withSwiftMessage(function ($message) use ($header) {
+            $message->getHeaders()
+                    ->addTextHeader('X-SMTPAPI', $header);
+        });
         $mailObj =  $this->to($email->to)
         ->from($email->from)
         ->subject($email->subject)
-        ->view('emails.blank_content', compact('content'));
+        ->view('emails.blank_content', compact('content'));	//->with([ 'custom_args' => $this->email ]);
         
+		
+		 
         foreach($this->attchments as $attchment){
             $mailObj->attachFromStorageDisk('files', $attchment);
         }
-        
+		
+		
         return $mailObj;
 
+    }
+	private function asJSON($data)
+    {
+        $json = json_encode($data);
+        $json = preg_replace('/(["\]}])([,:])(["\[{])/', '$1$2 $3', $json);
+
+        return $json;
+    }
+
+
+    private function asString($data)
+    {
+        $json = $this->asJSON($data);
+
+        return wordwrap($json, 76, "\n   ");
     }
 }
