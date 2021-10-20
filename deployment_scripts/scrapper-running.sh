@@ -1,4 +1,4 @@
-for server in 0{1..9} {10..15} 
+for server in 0{1..9} {10..10}
 do
 	echo "#####################   Server -   s$server #################################"
 	Total_mem=`ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com 'echo "scale=2; $(free -m|grep Mem|awk '\''{print $2}'\'')/1024" |bc'`

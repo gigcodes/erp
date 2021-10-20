@@ -9,7 +9,7 @@ rm /tmp/scrap_* /opt/scrap_status
 ####################    Get all running Scraper details in all servers #######
 function scraper_status
 {
-	for server in 0{1..8}
+	for server in 0{1..9} {10..10}
 	do
 	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep command|grep -v externalScraper|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
 	done
@@ -19,7 +19,7 @@ function scraper_status
 function scraper_memory
 {
 	rm /tmp/scrap_memory  > /dev/null
-	for server in 0{1..8}
+	for server in 0{1..9} {10..10}
 	do
 		Used_mem=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com 'free | grep Mem | awk '\''{print $3/$2 * 100.0}'\''' 2>/dev/null`
 		if [ -z $Used_mem ]
@@ -69,11 +69,11 @@ function scraper_restart
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
 		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
-		if [ $minmemory -gt 90 ]
+		if [ $minmemory -gt 75 ]
 		then
 			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
-			echo $email |mail -s "No Scraper server has free memory more than 10% so exiting script" sahilkataria.1989@gmail.com
-			echo $email |mail -s "No Scraper server has free memory more than 10% so exiting script" yogeshmordani@icloud.com 
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com 
 			echo "No server has free memory more than 10%"
 			exit
 		fi
