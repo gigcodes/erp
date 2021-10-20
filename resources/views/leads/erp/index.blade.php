@@ -133,7 +133,20 @@
                        <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" value="{{@$lead_shoe_size}}" name="lead_shoe_size" placeholder="Size"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_checkbox">
-                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_type" value="{{@$lead_type}}" placeholder="Type"/>
+                        <!-- <select style="width:100px; font-size: 12px; border-radius: 2px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
+
+                         
+                          <option value="">Status</option>
+                          @foreach($erpLeadStatus as $status)
+                            <option value="{{$status['id']}}">{{$status['name']}}</option>
+                          @endforeach
+                        </select> -->
+                        <select class="form-control lead_type multi_lead_type" name="lead_type[]" multiple="" style="width: 150px; border-radius: 2px;">
+                            <option value="">Status</option>
+                          @foreach($erpLeadTypes as $type)
+                            <option value="{{$type['type']}}" {{($lead_type)?(in_array($type['type'],$lead_type)?'selected':''):''}}>{{$type['type']}}</option>
+                          @endforeach
+                        </select>
                     </div>
                     <!-- <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php //echo $base_url;?>/images/filter.png"/></button> -->
                     <button type="submit" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
@@ -529,6 +542,11 @@
 
       $('.lead_status').select2({
         placeholder: "Select Category",
+        // allowClear: true
+    });
+
+    $('.lead_type').select2({
+        placeholder: "Select Type",
         // allowClear: true
     });
 

@@ -855,6 +855,7 @@ class LeadsController extends Controller
         $sourcePaginateArr = array();
         // print_r($brands);
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
+        $erpLeadTypes = \App\ErpLeads::select('id', 'type')->where('type', '!=', '')->whereNotNull('type')->groupBy('type')->get()->toArray();
         $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
             ->leftJoin("customers as c", "c.id", "erp_leads.customer_id")
             ->leftJoin("store_websites as SW", "SW.id", "c.store_website_id")
@@ -924,7 +925,7 @@ class LeadsController extends Controller
         }
 
         if ($request->get('lead_type')) {
-            $source = $source->where('erp_leads.type', 'like', '%' . $request->get('lead_type') . '%');
+            $source = $source->whereIn('erp_leads.type', $request->get('lead_type'));
         }
 
         if ($request->get('brand_segment')) {
@@ -1081,6 +1082,7 @@ class LeadsController extends Controller
             //'clothing_size_group' => $clothing_size_group,
             'brands' => $brands,
             'erpLeadStatus' => $erpLeadStatus,
+            'erpLeadTypes' => $erpLeadTypes,
             'recordsTotal' => $total,
             'sourceData' => $source,
             'lead_type' => @$request->get('lead_type'),
