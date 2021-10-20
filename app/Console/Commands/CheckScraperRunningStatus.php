@@ -51,9 +51,6 @@ class CheckScraperRunningStatus extends Command
         $allOutput[] = $cmd;
         $result      = exec($cmd, $allOutput);
 
-        \Log::info(print_r($allOutput,true));
-        die;
-
         /*$allOutput   = [];
         $allOutput[] = "";
         $allOutput[] = "#####################   Server -   s01 ################### Server Load - 0.27,###############";
