@@ -2725,6 +2725,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/customer-reviews', 'ProductController@customerReviews')->name('product.customer-reviews');
     Route::post('delete/review', 'ProductController@deleteReview')->name('product.delete-review');
+    Route::post('approve/review', 'ProductController@approveReview')->name('product.click-approve');
 
     Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 });
