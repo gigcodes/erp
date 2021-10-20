@@ -26,9 +26,9 @@
              <table class="table table-bordered table-sm">
                 <thead>
                    <tr>
-                      <th width="7%">Time</th>
+                      <th width="5%">Time</th>
                       <?php foreach($totalServers as $totalServer){ ?>
-                            <th width="10%">{{ $totalServer }}</th>
+                            <th width="8%">{{ $totalServer }}</th>
                       <?php } ?>
                    </tr>
                 </thead>
@@ -36,13 +36,18 @@
                    <?php foreach($timeSlots as $k => $timeSlot) { ?> 
                        <tr>
                           <td>{{ date("g:i A",strtotime($timeSlot.":00")) }}</td>
-                          <?php foreach($totalServers as $s => $totalServer){ ?>
-                              <td class="p-2">
+                          <?php foreach($totalServers as $s => $totalServer){ 
+                              $rndid = $totalServer.'_'.rand(10,10000000);
+                              ?>
+                              <td class="p-2 expand-row-msg" data-name="error" data-id="{{$rndid}}">
                                   <?php
                                     if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
                                         $loops = $listOfServerUsed[$k][$totalServer];
                                         foreach($loops as $l) {
-                                            echo $l['memory_string'];
+                                            ?>
+                                            <span class="show-short-error-{{$rndid}}">{{ str_limit($l['memory_string'], 13, '..')}}</span>
+                                            <span style="word-break:break-all;" class="show-full-error-{{$rndid}} hidden">{{$l['memory_string']}}</span>
+                                            <?php
                                             break;
                                         }
 
@@ -98,6 +103,16 @@
             $('.date-type').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
+        });
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+            var id = $(this).data('id');
+            console.log(name);
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
         });
 
         $(document).on("click",".stop-job",function(e) {
