@@ -254,24 +254,24 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%">WhatsApp Number</th>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="7%">Name</th>
-                <th width="7%">Phone</th>
-                <th width="7%">Email</th>
-                <th width="25%">Communication</th>
-                <th width="12%">Action</th>
+                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                <th width="3%">WhatsApp</th>
+                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                <th width="5%">Name</th>
+                <th width="5%">Phone</th>
+                <th width="3%">Email</th>
+                <th width="20%">Communication</th>
+                <th width="15%">Action</th>
             </tr>
              <tr>
-                <th width="3%"></th>
-                <th width="5%"></th>
-                <th width="7%"></th>
-                <th width="7%"></th>
-                <th width="7%"></th>
-                <th width="10%"></th>
-                <th width="25%"></th>
-                <th width="12%"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
             </tr>
             </thead>
 
@@ -465,6 +465,16 @@
     <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
 
     <script type="text/javascript">
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    console.log(name);
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+  });
 
         $('.selectpicker').select2({
             tags: true,
@@ -819,13 +829,13 @@
             });
         });
 
-        $(document).on('click', '.expand-row', function () {
+        /*$(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {
                 $(this).find('.td-mini-container').toggleClass('hidden');
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
-        });
+        });*/
 
         $(document).on('click', '.load-email-modal', function () {
             var id = $(this).data('id');
