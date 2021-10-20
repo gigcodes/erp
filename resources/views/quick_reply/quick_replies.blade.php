@@ -89,7 +89,7 @@
                                                                                
                                                                              
                                                                                 <div class="modal fade" id="replies{{ $all_category->id}}-{{$websites->id}}" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
-                                                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header p-0 pt-2 pl-2 pr-2">
                                                                                             <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
@@ -104,7 +104,7 @@
                                                                                             <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
                                                                                             <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
                                                                                         </li>
-                                                                                        <li id="{{ $val->id }}" class="edit_reply list-group-item p-2">
+                                                                                        <li id="{{ $val->id }}" class="edit_reply list-group-item p-2" style="overflow-wrap:break-word;">
                                                                                             {{ $val->reply }}
                                                                                         </li>
                                                                                         @endforeach
@@ -160,7 +160,7 @@
                                                                             @if($key1 == $websites->id)
                                                                             <button class="btn btn-sm p-0 lead_summary pull-left" data-toggle="modal" data-target="#replies{{ $all_category_sub->id}}-{{$websites->id}}"><i class="fa fa-info-circle"></i></button>
                                                                             <div class="modal fade" id="replies{{ $all_category_sub->id}}-{{$websites->id}}" tabindex="-1" role="dialog" aria-labelledby="replies" aria-hidden="true">
-                                                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header p-0 pt-2 pl-2 pr-2">
                                                                                             <h5 class="modal-title" id="exampleModalLongTitle">All Replies</h5>
@@ -176,7 +176,7 @@
                                                                                             <input type="text" value="{{ $val->reply }}" id="edit_reply_{{ $val->id }}" class="form-control w-75 pull-left" />
                                                                                             <button class="btn btn-sm p-0 pt-2 update_reply w-25 pull-left"><i class="fa fa-check"></i></button>
                                                                                         </li>
-                                                                                        <li id="{{ $val->id }}" class="edit_reply list-group-item p-2">{{ $val->reply }}</li>
+                                                                                        <li id="{{ $val->id }}" class="edit_reply list-group-item p-2" style="overflow-wrap:break-word;">{{ $val->reply }}</li>
                                                                                         @endforeach
                                                                                         </ul>
                                                                                         </div>
