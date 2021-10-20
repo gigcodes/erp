@@ -27,14 +27,14 @@
                 <div class="form-group ml-3">
                   <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
                 </div>
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
               </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#assetsCreateModal">+</button>
+                <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#assetsCreateModal"><i class="fa fa-plus"></i></button>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
+                <button type="button" class="btn btn-xs ml-3 mr-3" data-toggle="modal" data-target="#cashflows">Cash Flows</button>
             </div>
         </div>
     </div>
@@ -46,19 +46,19 @@
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th width="5%">ID</th>
-            <th>Name</th>
-            <th>Capacity</th>
-            <th>Password</th>
-            <th width="10%">Asset Type</th>
-            <th width="15%">Category</th>
-            <th width="15%">Provider Name</th>
-            <th width="10%">Purchase Type</th>
-            <th width="10%">Payment Cycle</th>
-            <th width="10%">Due Date</th>
-            <th width="10%">Amount</th>
-            <th width="10%">Currency</th>
-            <th width="8%">Location</th>
+            <th width="4%">ID</th>
+            <th width="9%">Name</th>
+            <th width="8%">Capacity</th>
+            <th width="6%">Pwd</th>
+            <th width="7%">Ast Type</th>
+            <th width="5%">Cat</th>
+            <th width="7%">Pro Name</th>
+            <th width="7%">Pur Type</th>
+            <th width="9%">Pymt Cycle</th>
+            <th width="7%">Due Date</th>
+            <th width="5%">Amount</th>
+            <th width="5%">Currency</th>
+            <th width="5%">Location</th>
             <th width="7%">Usage</th>
             <th width="15%">Action</th>
           </tr>
@@ -68,9 +68,18 @@
           @foreach ($assets as $asset)
             <tr>
               <td>{{ $asset->id }}</td>
-              <td>{{ $asset->name }}</td>
-              <td>{{ $asset->capacity }}</td>
-              <td>{{ $asset->password }}</td>
+              <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
+                <span class="show-short-name-{{$asset->id}}">{{ str_limit($asset->name, 12, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-name-{{$asset->id}} hidden">{{$asset->name}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="capacity" data-id="{{$asset->id}}">
+                <span class="show-short-capacity-{{$asset->id}}">{{ str_limit($asset->capacity, 10, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-capacity-{{$asset->id}} hidden">{{$asset->capacity}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
+                <span class="show-short-password-{{$asset->id}}">{{ str_limit($asset->password, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+              </td>
               <td>{{ $asset->asset_type }}</td>
               <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
 
@@ -81,19 +90,20 @@
               <td>{{ $asset->amount }}</td>
               <td>{{ $asset->currency }}</td>
               <td>{{ $asset->location }}</td>
-              <td>{{ $asset->usage }}</td>
+              <td class="expand-row-msg" data-name="usage" data-id="{{$asset->id}}">
+                <span class="show-short-usage-{{$asset->id}}">{{ str_limit($asset->usage, 9, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
+              </td>
               <td>
-                  <div style="min-width: 100px;">
-                    <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
-                      <button type="button" class="btn btn-image edit-assets d-inline" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><img src="/images/edit.png" /></button>
-                      <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><img src="/images/remark.png" /></button>
+                  <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
+                  <button type="button" class="btn btn-xs edit-assets pull-left" data-toggle="modal" data-target="#assetsEditModal" data-assets="{{ json_encode($asset) }}"><i class="fa fa-edit"></i></button>
+                      <button type="button" class="btn btn-xs make-remark pull-left" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $asset->id }}"><i class="fa fa-clipboard"></i></button>
                       {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
+                      <button type="submit" class="btn btn-xs pull-left"><i class="fa fa-trash"></i></button>
                       {!! Form::close() !!}
-                      <button type="button" title="Payment history" class="btn payment-history-btn pd-5" data-id="{{$asset->id}}">
-                        <i class="fa fa-history" aria-hidden="true"></i>
+                      <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
+                        <i class="fa fa-history"></i>
                       </button>
-                  </div>
               </td>
             </tr>
           @endforeach
@@ -134,6 +144,14 @@
       $('#asset_amount').val(asset.amount);
       $('#usage').val(asset.usage);
       $('#capacity').val(asset.capacity);
+    });
+    $(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
     });
 
     $(document).on('click', '.make-remark', function(e) {
