@@ -14,24 +14,29 @@
     <div>
         <table class="table table-bordered" >
         <tr>
-          <th style="width:12%">Date & time</th>
-          <th style="width:8%">Time tracked</th>
-          <th style="width:8%">Time Approved</th>
-          <th style="width:8%">Time Pending</th>
-          <th style="width:18%">Task</th>
-          <th style="width:7%">Status</th>
-          <th style="width:10%">Efficiency</th>
+          <th style="width:8%">Date & time</th>
+          <th style="width:5%">TM Trk</th>
+          <th style="width:5%">TM App</th>
+          <th style="width:5%">TM Pen</th>
+          <th style="width:10%">Task</th>
+          <th style="width:5%">Status</th>
+          <th style="width:15%">Efficiency</th>
           <th style="width:10%"></th>
-          <th style="width:6%">Status</th>
-          <th style="width:2%" class="text-center">Action <input type="checkbox" id="checkAll"> </th>
+          <th style="width:5%">Status</th>
+          <th style="width:5%" class="text-center">Action <input type="checkbox" id="checkAll"> </th>
         </tr>
-          @foreach ($activityrecords as $record)
+          @foreach ($activityrecords as $k => $record)
+          <?php  $rndNum = rand(10000,10000000);?>
             <tr >
-            <td>{{ $record->OnDate }} {{$record->onHour}}:00:00</td>
+              <td class="expand-row-msg" data-name="dateTime" data-id="{{$k.$rndNum}}">
+                <?php $dateTime = $record->OnDate.' '.$record->onHour.':00:00'; ?>
+                <span class="show-short-dateTime-{{$k.$rndNum}}">{{ str_limit($dateTime, 10, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-dateTime-{{$k.$rndNum}} hidden">{{ $dateTime }}</span>
+              </td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalPending / 60,2,".",",") }}</td>
-              <td>
+              <td class="expand-row-msg" data-name="taskSubject" data-id="{{$k.$rndNum}}">
                 <?php $listOFtask = []; ?>
                 @foreach ($record->activities as $a)
                     @if(!empty($a->taskSubject)) 
@@ -40,7 +45,7 @@
                       ?>
                     @endif
                 @endforeach
-                @foreach (array_unique($listOFtask) as $l)
+                @foreach (array_unique($listOFtask) as $li => $l)
                   @if(!empty($l)) 
                       <?php 
                         list($type, $id) = explode("-",$l);
@@ -49,12 +54,21 @@
 
                         $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
                    	?>
-                      <a style="color:#333333;" class="{{ empty($time_history) ? 'not_approve' : ''  }} {{ ( !auth()->user()->isAdmin()  && number_format($record->total_tracked / 60,2,".",",") > $estMin  ) ? 'gone_estimated' : '' }} " data-id="{{$id}}"  href="javascript:;">{{$a->taskSubject}}</a><br>
+                      @if($li==0)
+                      <a style="color:#333333;" class="{{ empty($time_history) ? 'not_approve' : ''  }} {{ ( !auth()->user()->isAdmin()  && number_format($record->total_tracked / 60,2,'.',',') > $estMin  ) ? 'gone_estimated' : '' }} " data-id="{{$id}}"  href="javascript:;">
+                      <span class="show-short-taskSubject-{{$k.$rndNum}}">{{ str_limit($a->taskSubject, 10, '..')}}</span>
+                      </a>
+                      @endif
+                      <span style="word-break:break-all;" class="show-full-taskSubject-{{$k.$rndNum}} hidden">
+                      <a style="color:#333333;" class="{{ empty($time_history) ? 'not_approve' : ''  }} {{ ( !auth()->user()->isAdmin()  && number_format($record->total_tracked / 60,2,'.',',') > $estMin  ) ? 'gone_estimated' : '' }} " data-id="{{$id}}"  href="javascript:;">
+                        {{$a->taskSubject}}
+                      </a></br>
+                      </span>
                     @endif
 
                 @endforeach
               </td>
-			  <td>
+			  <td class="expand-row-msg" data-name="taskStatus" data-id="{{$k.$rndNum}}">
 				  <?php $listOFtask = []; 
                     
 
@@ -66,12 +80,19 @@
 						?>
 						@endif
 					@endforeach
-					@foreach (array_unique($listOFtask) as $l)
+					@foreach (array_unique($listOFtask) as $li => $l)
 					@if(!empty($l)) 
 						<?php 
 							list($type, $id) = explode("-",$l);
 						?>
-						{{$a->taskStatus}}<br>
+						
+            @if($li==0)
+            <span class="show-short-taskStatus-{{$k.$rndNum}}">{{ str_limit($a->taskStatus, 5, '..')}}</span>
+            @endif
+            <span style="word-break:break-all;" class="show-full-taskStatus-{{$k.$rndNum}} hidden">
+              {{$a->taskStatus}}</br>
+            </span>
+
 						@endif
 
 					@endforeach
@@ -90,13 +111,11 @@
                       $admin_input = $eficiency->admin_input;
                     }
                     ?>
-                     <p style="margin:0px;"> <strong>Admin : {{$admin_input}}</strong></p>
-                     <p style="margin:0px;"> <strong>User : {{$user_input}}</strong></p>
-					
+                     <p style="margin:0px;"> <strong>Admin : {{$admin_input ? $admin_input : '  '}}</strong> <strong class="ml-3">User : {{$user_input ? $user_input : '  '}}</strong></p>
                     @endif
                 </div>
               </td>
-			  <td>
+			  <td class="p-1">
 				@if(isset($member))
                    <?php
                     $eficiency = \App\HubstaffTaskEfficiency::where('user_id',$member->user_id)->where('date',$record->OnDate)->where('time',$record->onHour)->first();
@@ -136,9 +155,9 @@
 						New
 					@endif
 				</td>
-              <td>
-              &nbsp;<input type="checkbox" name="sample" {{$record->sample && $record->status != 2 ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall"/>
-                <a data-toggle="collapse" href="#collapse_{{ $record->OnDate }}{{$record->onHour}}"><img style="height:15px;" src="/images/forward.png"></a>
+              <td class="p-1">
+              &nbsp;<input type="checkbox" name="sample" {{$record->sample && $record->status != 2 ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall m-0"/>
+                <a data-toggle="collapse" class="btn btn-xs text-secondary p-0" href="#collapse_{{ $record->OnDate }}{{$record->onHour}}"><i class="fa fa-forward"></i></a>
               </td>
             </tr>
             <tr style="width:100%;" id="collapse_{{ $record->OnDate }}{{$record->onHour}}" class="panel-collapse collapse">
