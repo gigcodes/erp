@@ -120,11 +120,10 @@
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
-            <div class="pull-left cls_filter_box">
+            <div class="cls_filter_box mb-3">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Name</label>
-                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
+                        <select name="term" type="text" class="form-control" placeholder="Search Name" id="vendor-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
@@ -132,8 +131,7 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Email</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                         <select name="email" type="text" class="form-control" placeholder="Search" id="vendor-email" data-allow-clear="true">
                             <?php
                                 if (request()->get('email')) {
@@ -142,8 +140,7 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Phone Number</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                         <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
                             <?php
                                 if (request()->get('phone')) {
@@ -152,13 +149,12 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <label for="with_archived">Category</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                         <?php
                         $category_post = request('category'); 
                         ?>
                         <select class="form-control" name="category" id="category">
-                            <option value="">Select Category</option>
+                            <option value="">Category</option>
                             <?php
                             foreach ($vendor_categories as $row_cate) { ?>
                                 <option value="<?php echo $row_cate->id;?>" <?php if($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title;?></option>
@@ -166,53 +162,51 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    <label for="with_archived">Communication History</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                        <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Status</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                         <?php echo Form::select("status",[
-                            "" => "- Select -",
+                            "" => "- Status -",
                             "0" => "De-Active",
                             "1" => "Active"
                         ],request('status'),["class"=> "form-control"]) ?>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_updated_by">Updated by</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                         <?php echo Form::select("updated_by",
-                            ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
+                            ["" => "-- Updated by --"] +\App\User::pluck("name","id")->toArray(),
                             request('updated_by'),
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="whatsapp_number">Whatsapp number</label>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                         <?php echo Form::select("whatsapp_number",
-                            ["" => "-- Select --"] +\App\Marketing\WhatsappConfig::where("provider","Chat-API")->pluck("number","number")->toArray(),
+                            ["" => "-- Whatsapp --"] +\App\Marketing\WhatsappConfig::where("provider","Chat-API")->pluck("number","number")->toArray(),
                             request('whatsapp_number'),
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
-
-                    
-
-                    <div class="form-group ml-3 cls_filter_checkbox">
-                    <label for="with_archived">Archived</label>
-                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                    <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-2">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input"  name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                            <label class="form-check-label text-secondary">Archived</label>
+                        </div>
                     </div>
-                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <div class="form-group col-md-1 p-0 mr-2">
+                        <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                    </div>
+                    
                 </form>
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-3">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
-            </div>
+            
+                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
+                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
+                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorCreateModal"><i class="fa fa-plus"></i></button>
+                <a class="btn btn-secondary btn-xs create_broadcast" href="javascript:;">Create Broadcast</a>
+            
         </div>   
     </div>
 
@@ -260,24 +254,24 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%">WhatsApp Number</th>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="7%">Name</th>
-                <th width="7%">Phone</th>
-                <th width="7%">Email</th>
-                <th width="25%">Communication</th>
-                <th width="12%">Action</th>
+                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                <th width="3%">WhatsApp</th>
+                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                <th width="5%">Name</th>
+                <th width="5%">Phone</th>
+                <th width="3%">Email</th>
+                <th width="20%">Communication</th>
+                <th width="15%">Action</th>
             </tr>
              <tr>
-                <th width="3%"></th>
-                <th width="5%"></th>
-                <th width="7%"></th>
-                <th width="7%"></th>
-                <th width="7%"></th>
-                <th width="10%"></th>
-                <th width="25%"></th>
-                <th width="12%"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
             </tr>
             </thead>
 
@@ -472,6 +466,16 @@
 
     <script type="text/javascript">
 
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    console.log(name);
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+  });
+
         $('.selectpicker').select2({
             tags: true,
             width : '100%',
@@ -539,7 +543,7 @@
                     };
                 },
             },
-            placeholder: 'Search by name',
+            placeholder: 'Name',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -582,7 +586,7 @@
                     };
                 },
             },
-            placeholder: 'Search by phone number',
+            placeholder: 'Phone Number',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -622,7 +626,7 @@
                     };
                 },
             },
-            placeholder: 'Search by Email number',
+            placeholder: 'Email',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -825,13 +829,13 @@
             });
         });
 
-        $(document).on('click', '.expand-row', function () {
+        /*$(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {
                 $(this).find('.td-mini-container').toggleClass('hidden');
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
-        });
+        });*/
 
         $(document).on('click', '.load-email-modal', function () {
             var id = $(this).data('id');
