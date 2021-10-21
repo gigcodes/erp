@@ -2202,10 +2202,10 @@ if (!empty($notifications)) {
             $key = \App\LivechatincSetting::first();
         @endphp 
 		
-        @if($liveChatUsers != '' && $liveChatUsers != null)
+     
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
-        @endif
+        
         @include('partials.modals.quick-chatbox-window')
         @endif
 {{--        @if(Auth::check())--}}
