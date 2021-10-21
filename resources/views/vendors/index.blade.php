@@ -263,16 +263,6 @@
                 <th width="20%">Communication</th>
                 <th width="15%">Action</th>
             </tr>
-             <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
             </thead>
 
 
@@ -1522,5 +1512,22 @@ $(document).on('click', '.expand-row-msg', function () {
             toastr['error'](error.responseJSON.message);
           });
       });
+
+        $("#whatsapp_number").change(function(e){
+            e.preventDefault();
+            $("#loading-image").show();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('vendor.changeWhatsapp') }}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    vendor_id: $(this).attr('data-vendor-id'),
+                    whatsapp_number:$(this).val()
+                },
+                success:function(response){
+                    $("#loading-image").hide();
+                }
+            });
+        });
     </script>
 @endsection

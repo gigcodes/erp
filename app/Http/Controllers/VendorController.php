@@ -300,6 +300,16 @@ class VendorController extends Controller
         ]);
     }
 
+    /**
+  * This will use to change vendor whatsapp number
+  */
+  public function changeWhatsapp(Request $request) {
+      $vendor = Vendor::find($request->vendor_id)->first();
+      $data =  array('whatsapp_number'=>$request->whatsapp_number);
+      $vendor->update($data);
+      return response()->json(['success'=>'successfully updated','data'=>$data]);
+  }
+
     public function vendorSearch()
     {
         $term = request()->get("q", null);

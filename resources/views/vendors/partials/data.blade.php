@@ -6,9 +6,15 @@
 @foreach ($vendors as $vendor)
 <tr>
     <td>{{ $vendor->id }}</td>
-    <td class="expand-row-msg" data-name="whatsapp_number" data-id="{{$vendor->id}}">
-        <span class="show-short-whatsapp_number-{{$vendor->id}}">{{ str_limit($vendor->whatsapp_number, 8, '..')}}</span>
-        <span style="word-break:break-all;" class="show-full-whatsapp_number-{{$vendor->id}} hidden">{{$vendor->whatsapp_number}}</span>
+    <td>
+        <select class="form-control ui-autocomplete-input" id="whatsapp_number" data-vendor-id="{{ $vendor->id }}">
+            <option>-- Select --</option>
+            @foreach($whatsapp as $wp)
+            
+            <option value="{{ $wp->number }}" @if($vendor->whatsapp_number == $wp->number) selected=selected @endif>
+                {{ $wp->number }}</option>
+            @endforeach
+        </select>
     </td>
     <td class="expand-row-msg" data-name="category" data-id="{{$vendor->id}}">
         <span class="show-short-category-{{$vendor->id}}">

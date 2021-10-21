@@ -1611,6 +1611,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/changeHubstaffUserRole', 'VendorController@changeHubstaffUserRole');
     Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
+    Route::post('vendor/changeWhatsapp', 'VendorController@changeWhatsapp')->name('vendor.changeWhatsapp');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', 'HubstaffPaymentController@index')->name('hubstaff-payment.index');
