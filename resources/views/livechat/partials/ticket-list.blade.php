@@ -110,17 +110,29 @@ $table .= "</tbody></table>";
                   data-id="{{$ticket->id}}">
             <i class="fa fa-envelope"></i>
           </button>
-
-          <button type="button"
-                  class="btn btn-xs load-communication-modal "
-                  data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
-                  data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
-                  data-object="ticket" data-id="{{$ticket->id}}"
-                  data-load-type="text"
-                  data-all="1"
-                  title="Load messages">
-                  <i class="fa fa-whatsapp"></i>
-          </button>
+          @if($ticket->customer_id > 0)
+              <button type="button"
+                      class="btn btn-xs load-communication-modal "
+                      data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
+                      data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
+                      data-object="customer" data-id="{{$ticket->customer_id}}"
+                      data-load-type="text"
+                      data-all="1"
+                      title="Load messages">
+                      <i class="fa fa-whatsapp"></i>
+              </button>
+          @else
+             <button type="button"
+                      class="btn btn-xs load-communication-modal "
+                      data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
+                      data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
+                      data-object="ticket" data-id="{{$ticket->id}}"
+                      data-load-type="text"
+                      data-all="1"
+                      title="Load messages">
+                      <i class="fa fa-whatsapp"></i>
+              </button>
+          @endif
 
           <button type="button"
                   class="btn btn-xs btn-assigned-to-ticket "
