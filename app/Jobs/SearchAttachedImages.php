@@ -47,7 +47,7 @@ class SearchAttachedImages implements ShouldQueue
         $chat_message = false;
         if (isset($params['customer_id'])) {
             $customer_id = $params['customer_id'];
-            $log_params['user_id'] = $customer_id;
+            $log_params['customer_id'] = $customer_id;
         } else {
             $chat_message = \App\ChatMessage::where('id', $id)->first();
             if ($chat_message) {
@@ -106,7 +106,7 @@ class SearchAttachedImages implements ShouldQueue
                             $mediable = DB::table('mediables')->where('media_id', $m->id)->where('mediable_type', 'App\Product')->first();
                             if ($mediable) {
                                 $log_comment = $log_comment . 'Mediables found for media_id : ' . $m->id . ', ';
-                                $log_params['user_id'] = $chat_message ? $chat_message->customer_id : $customer_id;
+                                $log_params['customer_id'] = $chat_message ? $chat_message->customer_id : $customer_id;
                                 SuggestedProductList::create([
                                     'customer_id' => $chat_message ? $chat_message->customer_id : $customer_id,
                                     'product_id' => $mediable->mediable_id,
