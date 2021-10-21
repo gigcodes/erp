@@ -59,6 +59,7 @@ class OrderConfirmation extends Mailable
             }
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate();
         }
+        
 
         if ($template) {
             if ($template->from_email!='')

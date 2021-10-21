@@ -5,13 +5,15 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendInfluencerEmail extends Mailable
 {
     use Queueable, SerializesModels;
-	public $body;
-	public $subject;
+
+    const STORE_ERP_WEBSITE = 15;
+
+    public $body;
+    public $subject;
     public $fromMailer;
 
     /**
@@ -21,12 +23,15 @@ class SendInfluencerEmail extends Mailable
      */
     public function __construct()
     {
-        $this->subject =  isset($data['subject']) ? $data['subject'] : "";
-		$this->body =  isset($data['template']) ? $data['template'] : "";
-        if(isset($data['from'])){
-             $this->fromMailer =  $data['from'];
-        }else{
-            $this->fromMailer = 'customercare@sololuxury.co.in';  
+        $this->subject = isset($data['subject']) ? $data['subject'] : "";
+        $this->body = isset($data['template']) ? $data['template'] : "";
+        if (isset($data['from'])) {
+            $this->fromMailer = $data['from'];
+        } else {
+            $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
+            if ($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
         }
     }
 
@@ -37,9 +42,9 @@ class SendInfluencerEmail extends Mailable
      */
     public function build()
     {
-         return $this->from($this->fromMailer)
-                    ->bcc($this->fromMailer)
-                    ->subject($this->subject)
-                    ->html($this->body, 'text/html');
+        return $this->from($this->fromMailer)
+            ->bcc($this->fromMailer)
+            ->subject($this->subject)
+            ->html($this->body, 'text/html');
     }
 }
