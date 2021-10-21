@@ -2196,10 +2196,12 @@ if (!empty($notifications)) {
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
         @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
+			
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
             $key = \App\LivechatincSetting::first();
-        @endphp
+        @endphp 
+		
         @if($liveChatUsers != '' && $liveChatUsers != null)
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
