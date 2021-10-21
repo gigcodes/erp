@@ -491,7 +491,7 @@ class CategoryController extends Controller
             // check the type and then
            // $q        = '"' . $q . '"';
             $q        =  str_replace('/', ',', $q);
-            $products = \App\ScrapedProducts::where("categories", $q)->join("products as p","p.id","scraped_products.product_id")->where("p.stock",">",0)->latest()->get();
+            $products = \App\ScrapedProducts::where("categories", $q)->join("products as p","p.id","scraped_products.product_id")->where("p.stock",">",0)->orderBy("scraped_products.created_at","desc")->get();
 
             $view = (string) view("compositions.preview-products", compact('products'));
             return response()->json(["code" => 200, "html" => $view]);
