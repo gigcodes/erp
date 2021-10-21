@@ -47,6 +47,9 @@
       height: 20px;
         width: auto;
     }
+	.border-red {
+		border: 1px solid red;
+	}
 </style>
 @endsection
 
@@ -142,10 +145,9 @@
             <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
 
               @foreach($logListMagentos as $item)
-          <tr>
-                 <form method="post" action="{{url('pushwaston')}}" >
-                 @csrf
-                  <td>
+           <tr id="tr_{{$item->id}}">
+		  {{Form::open(array('url'=>'pushwaston', 'id'=>'form_'.$item->id))}}
+                 <td>
                     <a class="show-product-information" data-id="{{ $item->id }}" href="/products/{{ $item->id }}" target="__blank">{{ $item->id }}</a>
                   </td>
                   <td> {{$item->cname}} </td>
@@ -212,7 +214,7 @@
                   
                   <td style="padding: 1px 7px">
                     <button class="btn btn-xs btn-none-border chatbot-log-list" data-id="{{$item->id}}"><i class="fa fa-eye"></i></button>
-                    <button type="submit"><i class="fa fa-save"></i></button>  
+                     <button type="button" onclick="submitForm('{{$item->id}}')"><i class="fa fa-save"></i></button>  
                   </td>
                   </form>       
                 </tr>
@@ -283,8 +285,53 @@
         $("#loading-image").hide();
       });
   });
-
-
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+	function submitForm(form_id) {
+		var formId = 'form_'+form_id;
+        $('#'+formId).find(".error").remove();
+        $('#'+formId).find(".border-red").removeClass('border-red');
+		let myForm =  document.getElementById(formId);
+        var form = $('#tr_'+form_id);
+        $.ajax({
+            type: 'POST',
+            url: "{{url('pushwaston')}}",
+            data: new FormData(myForm),
+			dataType:'json',
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.success)
+                {
+                    window.location.href = data.extra.redirect;
+                } else {
+                   
+                    $.each(data.error, function(i, v) {
+                        var error = '<div class="error">' + v + '</div>';
+                        var split = i.split('.'); 
+                        if (split[2]) {
+                            var ind = split[0] + '[' + split[1] + ']' + '[' + split[2] + ']';
+                            form.find("[name='" + ind + "']").addClass('border-red');
+                            form.find("[name='" + ind + "']").parent().append(error);
+                        } else if (split[1]) {
+                            var ind = split[0] + '[' + split[1] + ']';
+                            form.find("[name='" + ind + "']").addClass('border-red');
+                            form.find("[name='" + ind + "']").parent().append(error);
+                        } else {console.log(split);console.log(i);
+                            form.find("[name='" + i + "']").addClass('border-red');
+                            form.find("[name='" + i + "']").parent().append(error);
+                        }
+                    });
+                }
+            },
+            error: function(data) {
+                console.log('An error occurred.');
+            }
+        });
+	}
 
 </script>
 
