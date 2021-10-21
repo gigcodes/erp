@@ -570,7 +570,7 @@ class DevelopmentController extends Controller
             }
             $this->outputCsv('downaload-task-summaries.csv', $tasks_csv);
         }else{
-            $issues = $issues->paginate(Setting::get('pagination'));
+            $issues = $issues->paginate(50);
         }
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();

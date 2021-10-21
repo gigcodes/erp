@@ -240,7 +240,7 @@
 
             $(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-                    loadMoreProducts();
+                   // loadMoreProducts();
                 }
             });
 
