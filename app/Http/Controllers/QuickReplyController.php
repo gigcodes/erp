@@ -134,8 +134,16 @@ class QuickReplyController extends Controller
                     }
                     $childs = $childs->get();
                     $all_categories[$k]['childs'] = $childs;
+                    if($childs){
+                        foreach ($all_categories[$k]['childs'] as $c => $_child) {
+                            $subchilds = ReplyCategory::where('parent_id', $_child->id);
+                            $subchilds = $subchilds->get();
+                            $all_categories[$k]['childs'][$c]['subchilds'] = $subchilds;
+                        }
+                    }
                 }
             }
+
             return view('quick_reply.quick_replies', compact('all_categories', 'store_websites', 'website_length', 'category_wise_reply','sub_categories','subcat'));
         } catch (\Exception $e) {
             return redirect()->back();
