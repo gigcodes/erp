@@ -48,7 +48,9 @@ class CategoryProductMapping extends Command
         foreach ($all_category as $k => $v) {
 			$v = str_replace('/', ',', $v);
             $products = \App\ScrapedProducts::where("categories", $v)
-                ->select('website', 'id')
+                ->join("products as p","p.id","scraped_products.product_id")
+                ->where("p.stock",">",0)
+                ->select('scraped_products.website', 'scraped_products.id')
                 ->distinct()
                 ->get()
                 ->pluck('website', 'id')
