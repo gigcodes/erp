@@ -3145,11 +3145,13 @@ Route::prefix('twillio')->middleware('auth')->group(function () {
     Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
 });
 
+
 //Image-Logs
 Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::get('/', 'LogsController@index')->name('logs.index');
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
+
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
