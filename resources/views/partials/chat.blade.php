@@ -375,14 +375,13 @@ margin-bottom: 15px !important;
 </style>
 <script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
-
 var accessToken = '';
 var websocket = false;
-var client_id = $('#live_chat_key').val();
+var client_id = $('#live_chat_key').val(); console.log(client_id);
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
 const instance_1 = AccountsSDK.init({
 	client_id: client_id,
-	// response_type: "code",
+	 response_type: "token",
 	onIdentityFetched: (error, data) => {
 		if (error){
 			console.log(error)

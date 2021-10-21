@@ -1061,7 +1061,7 @@ class LiveChatController extends Controller
      * @return - response from curl call, array(response, err)
      */
     public static function curlCall($URL, $data = false, $contentType = false, $defaultAuthorization = true, $method = 'POST')
-    {
+    {	
         $curl = curl_init();
 
         $curlData = array(
@@ -1070,35 +1070,30 @@ class LiveChatController extends Controller
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
+			CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         );
-
-        if ($method == 'POST') {
-            $curlData[CURLOPT_POST] = 1;
-        } else {
-            $curlData[CURLOPT_CUSTOMREQUEST] = $method;
-        }
+        $curlData[CURLOPT_CUSTOMREQUEST] = $method;
         if ($contentType) {
             $curlData[CURLOPT_HTTPHEADER] = [];
             if ($defaultAuthorization) {
                 array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Bearer " . \Cache::get('key') . "");
-            }
-            // $curlData[CURLOPT_HTTPHEADER] = array(
-            //     "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-            //     "Content-Type: " . $contentType
-            // );
+            }          
             array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
-            array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
+           // array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
         if ($data) {
             $curlData[CURLOPT_POSTFIELDS] = $data;
-        }
-
-        curl_setopt_array($curl, $curlData);
+        } else {
+			 $curlData[CURLOPT_POSTFIELDS] = '{}';
+		}
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json'
+		));
+        curl_setopt_array($curl, $curlData); 
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-
         return array('response' => $response, 'err' => $err);
     }
 
@@ -1185,7 +1180,7 @@ class LiveChatController extends Controller
     }
 
     public function saveToken(Request $request)
-    {
+    { 
         if ($request->accessToken) {
             //dd($request->accessToken);
             $storedCache = \Cache::get('key');
