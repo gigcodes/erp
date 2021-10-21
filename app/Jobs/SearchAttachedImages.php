@@ -79,7 +79,7 @@ class SearchAttachedImages implements ShouldQueue
 
             $bits = implode($bits1);
             DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function ($medias)
-                 use ($bits, $chat_message, $customer_id) {
+                 use ($bits, $chat_message, $customer_id,$log_comment) {
                     if ($medias) {
                         $log_comment = $log_comment . 'Medias found with count : ' . count($medias) . ', ';
                     }
