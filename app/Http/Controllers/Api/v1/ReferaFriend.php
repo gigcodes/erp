@@ -284,7 +284,7 @@ class ReferaFriend extends Controller
             $email             = \App\Email::create([
                 'model_id'         => $data['model_id'],
                 'model_type'       => $data['model_type'],
-                'from'             => 'customercare@sololuxury.co.in',
+                'from'             => $emailClass->fromMailer,
                 'to'               => $to,
                 'subject'          => $emailClass->subject,
                 'message'          => $emailClass->render(),
