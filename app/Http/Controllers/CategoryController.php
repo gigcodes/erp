@@ -489,8 +489,9 @@ class CategoryController extends Controller
 
         if ($q) {
             // check the type and then
-            $q        = '"' . $q . '"';
-            $products = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')->latest()->limit(5)->get();
+           // $q        = '"' . $q . '"';
+            $q        =  str_replace('/', ',', $q);
+            $products = \App\ScrapedProducts::where("categories", $q)->latest()->get();
 
             $view = (string) view("compositions.preview-products", compact('products'));
             return response()->json(["code" => 200, "html" => $view]);

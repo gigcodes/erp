@@ -46,8 +46,8 @@ class CategoryProductMapping extends Command
         dump('Total Category: ' . count($all_category));
 
         foreach ($all_category as $k => $v) {
-
-            $products = \App\ScrapedProducts::where("properties", "like", '%' . $v . '%')
+			$v = str_replace('/', ',', $v);
+            $products = \App\ScrapedProducts::where("categories", $v)
                 ->select('website', 'id')
                 ->distinct()
                 ->get()
