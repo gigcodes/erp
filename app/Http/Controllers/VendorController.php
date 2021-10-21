@@ -285,7 +285,7 @@ class VendorController extends Controller
             ->select([\DB::raw("count(u.id) as total_records"), "u.name"])
             ->get();
 
-        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1');
+        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1 and provider="Chat-API"');
 
         return view('vendors.index', [
             'vendors'           => $vendors,
@@ -299,6 +299,16 @@ class VendorController extends Controller
             'whatsapp'          => $whatsapp,
         ]);
     }
+
+    /**
+  * This will use to change vendor whatsapp number
+  */
+  public function changeWhatsapp(Request $request) {
+      $vendor = Vendor::find($request->vendor_id)->first();
+      $data =  array('whatsapp_number'=>$request->whatsapp_number);
+      $vendor->update($data);
+      return response()->json(['success'=>'successfully updated','data'=>$data]);
+  }
 
     public function vendorSearch()
     {
