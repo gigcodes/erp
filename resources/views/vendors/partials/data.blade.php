@@ -10,7 +10,6 @@
         <select class="form-control ui-autocomplete-input" id="whatsapp_number" data-vendor-id="{{ $vendor->id }}">
             <option>-- Select --</option>
             @foreach($whatsapp as $wp)
-            
             <option value="{{ $wp->number }}" @if($vendor->whatsapp_number == $wp->number) selected=selected @endif>
                 {{ $wp->number }}</option>
             @endforeach

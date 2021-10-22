@@ -76,9 +76,17 @@ class UserController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-        return view('users.index', compact('data'))
+        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1'); 
+        return view('users.index', compact('data','whatsapp'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
+    public function changeWhatsapp(Request $request) {
+          $user = User::find($request->user_id);  
+          $data =  array('whatsapp_number'=>$request->whatsapp_number);
+          $user->update($data);
+          return response()->json(['success'=>'successfully updated','data'=>$data]);
+    }
+
 
     /**
      * Show the form for creating a new resource.
