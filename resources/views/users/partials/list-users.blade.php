@@ -1,7 +1,7 @@
 @foreach ($data as $key => $user)
                 <tr>
                     <td>{{ ++$i }}</td>
-                    <td class="pia">
+                    <td class="number">
                         <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{ $user->id }}">
                             <option>-- Select --</option>
                             @foreach($whatsapp as $wp)

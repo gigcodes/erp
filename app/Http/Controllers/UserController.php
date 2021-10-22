@@ -81,14 +81,10 @@ class UserController extends Controller
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
     public function changeWhatsapp(Request $request) {
-          $user = User::find($request->user_id);          
-        //   dd($user, $request->all());
-        //   $user->whatsapp_number = $request->whatsapp_number; 
-        //   $user->save();
+          $user = User::find($request->user_id);  
           $data =  array('whatsapp_number'=>$request->whatsapp_number);
           $user->update($data);
           return response()->json(['success'=>'successfully updated','data'=>$data]);
-          // return response()->json(['success'=>'successfully updated']);
     }
 
 

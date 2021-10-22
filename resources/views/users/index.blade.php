@@ -162,12 +162,12 @@
             alert('No response from server');
         });
     }
-    $(".pia .whatsapp_number").change(function(e){        
+    $(".number .whatsapp_number").change(function(e){        
             e.preventDefault();
             $("#loading-image").show();
             $.ajax({
                 type:"POST",
-                url:"{{ route('user.changeWhatsapp') }}",
+                url:"{{ route('user.changewhatsapp') }}",
                 data:{
                     "_token": "{{ csrf_token() }}",
                     user_id: $(this).attr('data-user-id'),
