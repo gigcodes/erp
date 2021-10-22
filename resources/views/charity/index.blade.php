@@ -19,15 +19,14 @@
 		<div class="col-lg-12 margin-tb">
 			<div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('routes.index') }}" method="GET">
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search</label>
-                       <input type="text" name="search" class="form-control-sm cls_commu_his form-control" value="{{request()->get('search')}}">
+                    <div class="form-group cls_filter_inputbox">
+                       <input type="text" name="search" class="form-control-sm cls_commu_his form-control" value="{{request()->get('search')}}" placeholder="Search">
                     </div>
                 </form>
             </div>
 			@if(!$checkCurrentUserIsCharity && $isAdmin)
-				<div class="margin-tb pull-right">
-					<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createCharityModal">Create</button>
+				<div class="margin-tb">
+					<button type="button" class="btn btn-secondary btn-xs  ml-2 mt-2" data-toggle="modal" data-target="#createCharityModal"><i class="fa fa-plus"></i></button>
 				</div>	
 			@endif
 		</div>
@@ -43,33 +42,35 @@
 					<div class="panel-body">
 						<table class="table table-bordered table-striped">
 							<tr>
-								<th>Name</th>
-								<th>Contact No</th>
-								<th>Email</th>
-								<th>Whatsapp Number</th>
-								<th>Assigned To</th>
-								<th>Created Date</th>
-								<th>Action</th>
+								<th width="10%">Name</th>
+								<th width="10%">Contact No</th>
+								<th width="10%">Email</th>
+								<th width="10%">Whatsapp </th>
+								<th width="10%">Assigned To</th>
+								<th width="10%">Created At</th>
+								<th width="10%">Action</th>
 							</tr>
 							@foreach ($charityData as $data )
 								<tr>
-									<td>{{$data->name}}</td>
-									<td>{{$data->contact_no}}</td>
-									<td>{{$data->email}}</td>
-									<td>{{$data->whatsapp_number}}</td>
-									<td>
+									<td class="p-1">{{$data->name}}</td>
+									<td class="p-1">{{$data->contact_no}}</td>
+									<td class="p-1">{{$data->email}}</td>
+									<td class="p-1">{{$data->whatsapp_number}}</td>
+									<td class="p-1">
 										@foreach($onlyCharityUser as $user)
 											@if($user->id==$data->assign_to)
 												{{ $user->name }}
 											@endif
 										@endforeach
 									</td>
-									<td>{{$data->created_at}}</td>
-									<td>
-										<a href="{{url('charity/charity-order',$data->id)}}" class="btn btn-image"><img src="images/view.png" style="cursor: default;"></a>
+									<td class="p-1">{{$data->created_at}}</td>
+									<td class="p-1">
+										<a href="{{url('charity/charity-order',$data->id)}}" class="btn btn-xs text-secondary p-0 mr-2">
+											<i class="fa fa-eye"></i>
+										</a>
 										@if(!$checkCurrentUserIsCharity && $isAdmin)
-											<button type="button" data-toggle="modal" data-target="#updateCharityModal" class="btn btn-image edit_charity" data-name="{{$data->name}}" data-contact_no="{{$data->contact_no}}" data-id="{{$data->id}}" data-email="{{$data->email}}" data-whatsapp_number="{{$data->whatsapp_number}}" data-assign_to="{{$data->assign_to}}">
-											<img src="images/edit.png" alt="" style="width: 18px;">
+											<button type="button" data-toggle="modal" data-target="#updateCharityModal" class="btn btn-xs edit_charity text-secondary p-0" data-name="{{$data->name}}" data-contact_no="{{$data->contact_no}}" data-id="{{$data->id}}" data-email="{{$data->email}}" data-whatsapp_number="{{$data->whatsapp_number}}" data-assign_to="{{$data->assign_to}}">
+												<i class="fa fa-edit"></i>
 											</button>
 										@endif
 									</td>
