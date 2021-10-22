@@ -18,14 +18,15 @@ class SopController extends Controller
     public function index(Request $request)
     {
 
-        $users = User::all();
+        //$users = User::all();
+        $users = User::limit(10)->get();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
 
         if ($request->search) {
             $usersop = $usersop->where('name', 'like', '%' . $request->search . '%')->orWhere('content', 'like', '%' . $request->search . '%');
         }
 
-        $usersop = $usersop->latest()->paginate(10);
+         $usersop = $usersop->limit(10)->paginate(10);
 
         $total_record = $usersop->total();
 
