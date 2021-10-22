@@ -611,6 +611,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
+                                            <a class="dropdown-item" href="{{ url('scrap/log/list') }}">Scrapper Task Logs</a>
                                         </li>
                                     </ul>
                                 </li>
