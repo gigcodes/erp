@@ -278,7 +278,7 @@
                                     <button type="button" class="btn send-email-common-btn p-2" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}">
                                         <i class="fa fa-envelope-square"></i>
                                     </button>
-                                    <button data-target="#Sop-User-Permission-Modal p-2" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}">
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list p-2" title="Sop User" data-sop_id="{{ $value->id }}">
                                         <i class="fa fa-user-o"></i>
                                     </button>
                                 </td>
@@ -769,7 +769,7 @@ $(document).on('click', '.send-message-open', function (event) {
                                     <button type="button" class="btn send-email-common-btn p-2" data-toemail="`+response.user_email[0].email+`" data-object="Sop" data-id="`+response.sop.user_id+`">
                                         <i class="fa fa-envelope-square"></i>
                                     </button>
-                                    <button data-target="#Sop-User-Permission-Modal p-2" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="`+response.sop.user_id+`">
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list  p-2" title="Sop User" data-sop_id="`+response.sop.user_id+`">
                                         <i class="fa fa-user-o"></i>
                                     </button>
                                 </td>
@@ -952,7 +952,7 @@ $(document).on('click', '.send-message-open', function (event) {
                                     <button type="button" class="btn send-email-common-btn p-2" data-toemail="`+data.user_email[0].email+`" data-object="Sop" data-id="`+data.sopedit.user_id+`">
                                         <i class="fa fa-envelope-square"></i>
                                     </button>
-                                    <button data-target="#Sop-User-Permission-Modal p-2" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="`+data.sopedit.user_id+`">
+                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list  p-2" title="Sop User" data-sop_id="`+data.sopedit.user_id+`">
                                         <i class="fa fa-user-o"></i>
                                     </button>
                                 </td>
