@@ -65,13 +65,13 @@
                                     {{-- <input type="text" name="search" id="search" class="form-control search-input" placeholder="Search Here Text.." autocomplete="off"> --}}
                                 </div>
 
-                                <button type="submit" style="display: inline-block;width: 10%"
-                                    class="btn btn-sm btn-image search-button">
-                                    <img src="/images/search.png" style="cursor: default;">
+                                <button type="submit" class="btn btn-xs search-button">
+                                    <i class="fa fa-search"></i>
                                 </button>
 
-                                <a href="{{ route('sop.store') }}" type="button" class="btn btn-image" id=""><img
-                                        src="/images/resend2.png"></a>
+                                <a href="{{ route('sop.store') }}" type="button" class="btn btn-xs mt-3 ml-2" id="">
+                                    <i class="fa fa-undo"></i>
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -209,12 +209,11 @@
                 <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="NameTable">
                     <thead>
                         <tr>
-                            <th width="3%">ID</th>
-
+                            <th width="4%">ID</th>
                             <th width="10%">Name</th>
                             <th width="10%">Category</th>
-                            <th width="50%">Content</th>
-                            <th width="18%">Communication</th>
+                            <th width="20%">Content</th>
+                            <th width="20%">Communication</th>
                             <th width="8%">Created at</th>
                             <th width="12%">Action</th>
                         </tr>
@@ -224,40 +223,34 @@
                         @foreach ($usersop as $key => $value)
                             <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
                                 <td class="sop_table_id">{{ $value->id }}</td>
-                                <td class="sop_table_name">{{ $value->name }}</td>
-                                <td class="sop_table_cat">{{ $value->category }}</td>
+                                <td class="expand-row-msg" data-name="name" data-id="{{$value->id}}">
+                                    <span class="show-short-name-{{$value->id}}">{{ str_limit($value->name, 17, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-name-{{$value->id}} hidden">{{$value->name}}</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="category" data-id="{{$value->id}}">
+                                    <span class="show-short-category-{{$value->id}}">{{ str_limit($value->category, 17, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-category-{{$value->id}} hidden">{{$value->category}}</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="content" data-id="{{$value->id}}">
+                                    <span class="show-short-content-{{$value->id}}">{{ str_limit($value->content, 50, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{{$value->content}}</span>
+                                </td>
 
-
-                                 <td class='{{ strlen($value->content) > 270 ? "expand-row" : "" }}' data-subject="{!! $value->content ? ($value->content) : '' !!}" data-details="{{$value->value}}" data-switch="0" style="word-break: break-all;">
-                                    <span class="td-mini-container">
-                                    {{ $value->content ? substr(strip_tags($value->content), 0, 270) . (strlen(($value->content)) > 270 ? '......' : '') : '' }}
-                                    </span>
-                                    <span class="td-full-container hidden">{!! $value->content !!}</span>
-                                 </td>
-
-                                {{-- <td> {!! $value->content !!}</td> --}}
-
-                                <td class="table-hover-cell pr-0">
-                                    <div class=" d-flex flex-row w-100 justify-content-between">
-                                        <div style="flex-grow: 1">
-                                            <textarea  style="height:37px;" class="form-control" id="messageid_{{ $value->user_id }}" name="message" placeholder="Message"></textarea>
+                                <td class="table-hover-cell p-1">
+                                    <div>
+                                        <div class="w-75 pull-left">
+                                            <textarea rows="1" class="form-control" id="messageid_{{ $value->user_id }}" name="message" placeholder="Message"></textarea>
                                         </div>
-                                        <div style="width: min-content">
-
-                                            <button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;"
-                                                    data-user_id="{{ $value->user_id }}">
-                                                <img src="/images/filled-sent.png" style="color: #757575"/>
+                                        <div class="w-25 pull-left">
+                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}">
+                                                <i class="fa fa-paper-plane"></i>
                                             </button>
-
-
                                              <button type="button"
-                                                    style="margin-left:6px;"
-                                                    class="btn btn-xs btn-image load-communication-modal"
+                                                    class="btn btn-xs load-communication-modal pull-left"
                                                     data-id="{{$value->user_id}}" title="Load messages"
                                                     data-object="SOP">
-                                                    <i class="fa fa-comments-o"></i>
+                                                    <i class="fa fa-comments"></i>
                                             </button>
-
                                         </div>
                                    </div>
                                 </td>
@@ -265,30 +258,29 @@
 
                                 <td>{{ date('yy-m-d', strtotime($value->created_at)) }}</td>
 
-                                <td>
+                                <td class="p-1">
 
-                                    <a href="javascript:;" data-id="{{ $value->id }}"
-                                        class="editor_edit btn-xs btn btn-image p-2" style="font-size:10px;">
-                                        {{-- <img src="/images/edit.png"></a> --}}<i class="fa fa-edit"></i>
-                                    {{-- <a onclick="editname({{$value->id}})" class="btn btn-image"> <img src="/images/edit.png"></a> --}}
+                                    <a href="javascript:;" data-id="{{ $value->id }}" class="editor_edit btn btn-xs p-2" >
+                                        <i class="fa fa-edit"></i>
+                                    </a>
 
-                                    <a class="btn btn-image deleteRecord" data-id="{{ $value->id }}" style="font-size:15px; margin-left:-5px;">
-                                        {{-- <img src="/images/delete.png" /></a> --}}
-                                        <i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>
-
-
-                                    <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-3px; color: #757575;"
-                                        title="status-log"
+                                    <a class="btn btn-image deleteRecord p-2 text-secondary" data-id="{{ $value->id }}">
+                                        <i class="fa fa-trash" ></i>
+                                    </a>
+                                    <a class="btn btn-xs view_log p-2 text-secondary" title="status-log"
                                         data-name="{{ $value->purchaseProductOrderLogs ? $value->purchaseProductOrderLogs->header_name : '' }}"
-                                        data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal"></a>
-
-
-                                        <a title="Download Invoice" class="btn btn-image" href="{{ route('sop.download',$value->id) }}">
-                                            <i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-7px;"></i>
-                                            </a>
-
-                                            <button type="button" class="btn send-email-common-btn" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
-                                    <button data-target="#Sop-User-Permission-Modal" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}" style="font-size:15px; margin-left:-17px;"><i class="fa fa-user-o"></i></button>
+                                        data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal">
+                                        <i class="fa fa-info-circle"></i>
+                                    </a>
+                                    <a title="Download Invoice" class="btn btn-xs p-2" href="{{ route('sop.download',$value->id) }}">
+                                            <i class="fa fa-download downloadpdf"></i>
+                                    </a>
+                                    <button type="button" class="btn send-email-common-btn p-2" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}">
+                                        <i class="fa fa-envelope-square"></i>
+                                    </button>
+                                    <button data-target="#Sop-User-Permission-Modal p-2" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="{{ $value->id }}">
+                                        <i class="fa fa-user-o"></i>
+                                    </button>
                                 </td>
                         @endforeach
 
@@ -513,7 +505,16 @@
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
-<script>
+    <script>
+    
+    $(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
+    });
 
     $(document).on('click','.send-email-common-btn',function(e){
         e.preventDefault();
@@ -715,29 +716,79 @@ $(document).on('click', '.send-message-open', function (event) {
                         }
                         var content_class = response.sop.content.length < 270 ? '' : 'expand-row';
                         var content = response.sop.content.length < 270 ? response.sop.content : response.sop.content.substr(0, 270) + '.....';
-                        $("#NameTable tbody").prepend('<tr id="sid' + response.sop.id +'" data-id="' + response.sop.id +'" class="parent_tr"><td>' + response.sop.id +
-                            '</td><td> ' + response.sop.name + ' </td><td> ' + response.sop.category + ' </td><td class="'+content_class+'" data-subject="'+response.sop.content+'"> ' + content  + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
 
-
-                            ' <a href="javascript:;" data-id="' + response.sop.id +'" class="editor_edit btn-xs btn btn-image p-2"><i class="fa fa-edit"></i></a>' +
-                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px;" data-id="'+response.sop.id+'" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
-
-                            ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-2px; color: #757575; " title="status-log" data-id="' +
-                            response.sop.id +
-                            '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
-                            response.params.header_name + '"></a>' +
-
-                            '<a title="Download Invoice" class="btn btn-image" href="'+ 'sop/DownloadData/' + response.sop.id +'"><i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-1px "></i></a>' +
-
-                          ' <button type="button" class="btn send-email-common-btn" data-toemail="' + response.user_email[0].email + '" data-object="Sop" data-id='+ response.sop.user_id +' style="font-size:15px; margin-left:-20px;"><i class="fa fa-envelope-square"></i></button>' +
-
-                            '</td></tr>');
+                        $("#NameTable tbody").prepend(`
+                        <tr id="sid`+response.sop.id+`" data-id="`+response.sop.id+`" class="parent_tr">
+                                <td class="sop_table_id">`+response.sop.id+`</td>
+                                <td class="expand-row-msg" data-name="name" data-id="`+response.sop.id+`">
+                                    <span class="show-short-name-`+response.sop.id+`">`+response.sop.name.replace(/(.{17})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-name-`+response.sop.id+` hidden">`+response.sop.name+`</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="category" data-id="`+response.sop.id+`">
+                                    <span class="show-short-category-`+response.sop.id+`">`+response.sop.category.replace(/(.{17})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-category-`+response.sop.id+` hidden">`+response.sop.category+`</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="content" data-id="`+response.sop.id+`">
+                                    <span class="show-short-content-`+response.sop.id+`">`+response.sop.content.replace(/(.{50})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-content-`+response.sop.id+` hidden">`+response.sop.content+`</span>
+                                </td>
+                                <td class="table-hover-cell p-1">
+                                    <div>
+                                        <div class="w-75 pull-left">
+                                            <textarea rows="1" class="form-control" id="messageid_`+response.sop.user_id+`" name="message" placeholder="Message"></textarea>
+                                        </div>
+                                        <div class="w-25 pull-left">
+                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="`+response.sop.user_id+`">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </button>
+                                             <button type="button"
+                                                    class="btn btn-xs load-communication-modal pull-left"
+                                                    data-id="`+response.sop.user_id+`" title="Load messages"
+                                                    data-object="SOP">
+                                                    <i class="fa fa-comments"></i>
+                                            </button>
+                                        </div>
+                                   </div>
+                                </td>
+                                <td>`+response.only_date+`</td>
+                                <td class="p-1">
+                                    <a href="javascript:;" data-id="`+response.sop.id+`" class="editor_edit btn btn-xs p-2" >
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a class="btn btn-image deleteRecord p-2 text-secondary" data-id="`+response.sop.id+`">
+                                        <i class="fa fa-trash" ></i>
+                                    </a>
+                                    <a class="btn btn-xs view_log p-2 text-secondary" title="status-log"
+                                        data-name="`+response.params.header_name+`"
+                                        data-id="`+response.sop.id+`" data-toggle="modal" data-target="#ViewlogModal">
+                                        <i class="fa fa-info-circle"></i>
+                                    </a>
+                                    <a title="Download Invoice" class="btn btn-xs p-2" href="sop/DownloadData/`+response.sop.id+`">
+                                            <i class="fa fa-download downloadpdf"></i>
+                                    </a>
+                                    <button type="button" class="btn send-email-common-btn p-2" data-toemail="`+response.user_email[0].email+`" data-object="Sop" data-id="`+response.sop.user_id+`">
+                                        <i class="fa fa-envelope-square"></i>
+                                    </button>
+                                    <button data-target="#Sop-User-Permission-Modal p-2" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="`+response.sop.user_id+`">
+                                        <i class="fa fa-user-o"></i>
+                                    </button>
+                                </td>
+                        </tr>
+                        `);
 
                         $("#FormModal")[0].reset();
-                        $('.cke_editable p').text(' ')
-                        CKEDITOR.instances['content'].setData('')
+                        $('.cke_editable p').text(' ');
+                        CKEDITOR.instances['content'].setData('');
                         $("#exampleModal").modal('hide');
-                        toastr["success"]("Data Inserted Successfully!", "Message")
+                        toastr["success"]("Data Inserted Successfully!", "Message");
+                        $(document).on('click', '.expand-row-msg', function () {
+                        var name = $(this).data('name');
+                        var id = $(this).data('id');
+                        var full = '.expand-row-msg .show-short-'+name+'-'+id;
+                        var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+                        $(full).toggleClass('hidden');
+                        $(mini).toggleClass('hidden');
+                        });
                     }
                 }
 
@@ -827,45 +878,91 @@ $(document).on('click', '.send-message-open', function (event) {
                 }
 
                     if(data.type=='edit'){
-                        var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
+                        var content = data.sopedit.content.replace( /(<([^>]+)>)/ig, '');
 
                         let id = $($this).attr('data-id');
 
                         $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
-                        $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
-                        $('#sid' + id + ' td:nth-child(3)').html(data.sopedit.category);
-                        $('#sid' + id + ' td:nth-child(4)').attr('data-subject',data.sopedit.content).html(content);
-                        if(data.sopedit.content.length < 270){
-                            $('#sid' + id + ' td:nth-child(4)').html(content).removeClass('expand-row');
-                        }else{
-                            $('#sid' + id + ' td:nth-child(4)').html(content).addClass('expand-row');
-                        }
+                        $('#sid' + id + ' td:nth-child(2)').html(`
+                            <span class="show-short-name-`+data.sopedit.id+`">`+data.sopedit.name.replace(/(.{17})..+/, "$1..")+`</span>
+                            <span style="word-break:break-all;" class="show-full-name-`+data.sopedit.id+` hidden">`+data.sopedit.name+`</span>
+                        `);
+                        $('#sid' + id + ' td:nth-child(3)').html(`
+                            <span class="show-short-category-`+data.sopedit.id+`">`+data.sopedit.category.replace(/(.{17})..+/, "$1..")+`</span>
+                            <span style="word-break:break-all;" class="show-full-category-`+data.sopedit.id+` hidden">`+data.sopedit.category+`</span>
+                        `);
+                        $('#sid' + id + ' td:nth-child(4)').html(`
+                            <span class="show-short-content-`+data.sopedit.id+`">`+content.replace(/(.{50})..+/, "$1..")+`</span>
+                            <span style="word-break:break-all;" class="show-full-content-`+data.sopedit.id+` hidden">`+content+`</span>
+                        `);
                         $("#sopupdate").modal("hide");
                         toastr["success"]("Data Updated Successfully!", "Message")
                     }else{
-                        var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
-                        var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
-                        $("#NameTable tbody").prepend('<tr id="sid' + data.sopedit.id +'" data-id="' + data.sopedit.id +'" class="parent_tr"><td>' + data.sopedit.id +
-                            '</td><td> ' + data.sopedit.name + ' </td><td> ' + data.sopedit.category + ' </td><td class="'+content_class+'" data-subject="'+data.sopedit.content+'"> ' + content  + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ data.sopedit.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ data.sopedit.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ data.sopedit.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + data.only_date + ' </td><td>' +
-
-
-                            ' <a href="javascript:;" data-id="' + data.sopedit.id +'" class="editor_edit btn-xs btn btn-image p-2"><i class="fa fa-edit"></i></a>' +
-                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px;" data-id="'+data.sopedit.id+'" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
-
-                            ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-2px; color: #757575; " title="status-log" data-id="' +
-                            data.sopedit.id +
-                            '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
-                            data.params.header_name + '"></a>' +
-
-                            '<a title="Download Invoice" class="btn btn-image" href="'+ 'sop/DownloadData/' + data.sopedit.id +'"><i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-1px "></i></a>' +
-
-                          ' <button type="button" class="btn send-email-common-btn" data-toemail="' + data.user_email[0].email + '" data-object="Sop" data-id='+ data.sopedit.user_id +' style="font-size:15px; margin-left:-20px;"><i class="fa fa-envelope-square"></i></button>' +
-
-                            '</td></tr>');
+                        //var content_class = data.sopedit.content.length < 270 ? '' : 'expand-row';
+                        //var content = data.sopedit.content.length < 270 ? data.sopedit.content : data.sopedit.content.substr(0, 270) + '.....';
+                        $("#NameTable tbody").prepend(`
+                        <tr id="sid`+data.sopedit.id+`" data-id="`+data.sopedit.id+`" class="parent_tr">
+                                <td class="sop_table_id">`+data.sopedit.id+`</td>
+                                <td class="expand-row-msg" data-name="name" data-id="`+data.sopedit.id+`">
+                                    <span class="show-short-name-`+data.sopedit.id+`">`+data.sopedit.name.replace(/(.{17})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-name-`+data.sopedit.id+` hidden">`+data.sopedit.name+`</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="category" data-id="`+data.sopedit.id+`">
+                                    <span class="show-short-category-`+data.sopedit.id+`">`+data.sopedit.category.replace(/(.{17})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-category-`+data.sopedit.id+` hidden">`+data.sopedit.category+`</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="content" data-id="`+data.sopedit.id+`">
+                                    <span class="show-short-content-`+data.sopedit.id+`">`+data.sopedit.content.replace(/(.{50})..+/, "$1..")+`</span>
+                                    <span style="word-break:break-all;" class="show-full-content-`+data.sopedit.id+` hidden">`+data.sopedit.content+`</span>
+                                </td>
+                                <td class="table-hover-cell p-1">
+                                    <div>
+                                        <div class="w-75 pull-left">
+                                            <textarea rows="1" class="form-control" id="messageid_`+data.sopedit.user_id+`" name="message" placeholder="Message"></textarea>
+                                        </div>
+                                        <div class="w-25 pull-left">
+                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="`+data.sopedit.user_id+`">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </button>
+                                             <button type="button"
+                                                    class="btn btn-xs load-communication-modal pull-left"
+                                                    data-id="`+data.sopedit.user_id+`" title="Load messages"
+                                                    data-object="SOP">
+                                                    <i class="fa fa-comments"></i>
+                                            </button>
+                                        </div>
+                                   </div>
+                                </td>
+                                <td>`+data.only_date+`</td>
+                                <td class="p-1">
+                                    <a href="javascript:;" data-id="`+data.sopedit.id+`" class="editor_edit btn btn-xs p-2" >
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a class="btn btn-image deleteRecord p-2 text-secondary" data-id="`+data.sopedit.id+`">
+                                        <i class="fa fa-trash" ></i>
+                                    </a>
+                                    <a class="btn btn-xs view_log p-2 text-secondary" title="status-log"
+                                        data-name="`+data.params.header_name+`"
+                                        data-id="`+data.sopedit.id+`" data-toggle="modal" data-target="#ViewlogModal">
+                                        <i class="fa fa-info-circle"></i>
+                                    </a>
+                                    <a title="Download Invoice" class="btn btn-xs p-2" href="sop/DownloadData/`+data.sopedit.id+`">
+                                            <i class="fa fa-download downloadpdf"></i>
+                                    </a>
+                                    <button type="button" class="btn send-email-common-btn p-2" data-toemail="`+data.user_email[0].email+`" data-object="Sop" data-id="`+data.sopedit.user_id+`">
+                                        <i class="fa fa-envelope-square"></i>
+                                    </button>
+                                    <button data-target="#Sop-User-Permission-Modal p-2" data-toggle="modal" class="btn btn-secondaryssss sop-user-list" title="Sop User" data-sop_id="`+data.sopedit.user_id+`">
+                                        <i class="fa fa-user-o"></i>
+                                    </button>
+                                </td>
+                        </tr>
+                        `);
 
                         $("#sopupdate").modal("hide");
                         toastr["success"]("Data Updated Successfully!", "Message")
                     }
+                    
 
             }).fail(function(data) {
                 console.log(data);

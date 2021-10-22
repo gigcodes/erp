@@ -62,7 +62,7 @@
           <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="On" data-id="{{ $vendor->id }}" id="do_not_disturb"><i class="fa fa-ban"></i></button>
           <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />  
         @else
-          <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="Off" data-id="{{ $vendor->id }}" id="do_not_disturb"><i class="fa fa-ban" style="color: red;"></i></button>
+          <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="Off" data-id="{{ $vendor->id }}" id="do_not_disturb"><i class="fa fa-ban"></i></button>
           <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="true" />
         @endif
     </td>
@@ -111,7 +111,7 @@
                                     <?php }
                                     ?>
                                 </select>
-                                <a class="btn btn-xs delete_quick_comment {{ $vendor->message_status == 0 ? 'text-danger' : 'text-secondary' }} mt-1"><i class="fa fa-trash"></i></a>
+                                <a class="btn btn-xs delete_quick_comment text-secondary mt-1"><i class="fa fa-trash"></i></a>
                             </div>
                         </div> 
                     </div>
@@ -166,7 +166,7 @@
              data-reminder_from="{{ $vendor->reminder_from }}"
              data-reminder_last_reply="{{ $vendor->reminder_last_reply }}"
              >
-                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px; background-color:{{$iconReminderColor}};">
+                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
 				
             </button>
 
