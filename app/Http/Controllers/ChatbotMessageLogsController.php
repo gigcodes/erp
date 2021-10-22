@@ -85,8 +85,7 @@ class ChatbotMessageLogsController extends Controller
         $result        = json_decode(WatsonManager::pushDialog($dialog->id));*/
 
         $params                      = $request->all();
-        $params["value"]             = str_replace(" ", "_", $params["value"]);
-        $params["watson_account_id"] = $request->watson_account;
+       
         $validator                   = Validator::make($params, [
             'value'               => 'required|unique:chatbot_questions|max:255',
             'keyword_or_question' => 'required',
@@ -95,7 +94,8 @@ class ChatbotMessageLogsController extends Controller
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => $validator->errors()]);
         }
-
+ $params["value"]             = str_replace(" ", "_", $params["value"]);
+        $params["watson_account_id"] = $request->watson_account;
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $validator = Validator::make($request->all(), [
                 'keyword'         => 'sometimes|nullable|string',

@@ -105,17 +105,19 @@ class WebhookController extends Controller
     private function processEvent(array $event): void
     {
 
+
         Log::info('Process event start');
 
-        if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
+       if ($this->sendgridEventRepository->exists($event['sg_event_id'])) {
             Log::info('log duplicate start');
             $this->logDuplicateEvent($event);
             Log::info('log duplicate exit');
             return;
         }
-
+		
         Log::info('Repository start');
         $sendgridEvent = $this->sendgridEventRepository->create($event);
+        \App\Email::where('id', $event['email_id'])->update(['status'=>$event['event']]);
         Log::info('Repository exit');
 
         event(new SendgridEventCreated($sendgridEvent));

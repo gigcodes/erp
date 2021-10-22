@@ -1,8 +1,7 @@
 
              @foreach($logListMagentos as $item)
           <tr>
-                 <form method="post" action="{{url('pushwaston')}}" >
-                 @csrf
+		   {{Form::open(array('url'=>'pushwaston', 'id'=>'form_'.$item->id))}}
                   <td>
                     <a class="show-product-information" data-id="{{ $item->id }}" href="/products/{{ $item->id }}" target="__blank">{{ $item->id }}</a>
                   </td>
@@ -67,9 +66,9 @@
                     @endif
                   </td>
                   
-                  <td style="padding: 1px 7px">
+                  <td style="padding: 1px 7px"> 
                     <button class="btn btn-xs btn-none-border chatbot-log-list" data-id="{{$item->id}}"><i class="fa fa-eye"></i></button>
-                    <button type="submit"><i class="fa fa-save"></i></button> 
+                    <button type="button" onclick="submitForm('{{$item->id}}')"><i class="fa fa-save"></i></button> 
                   </td>
                   </form>       
                 </tr>

@@ -49,8 +49,8 @@ class ScheduleEmails extends Command
     public function handle()
     {
 		$created_date = Carbon::now();
-		//$flows = Flow::select('id', 'flow_name as name')->get();
-		$flows = Flow::whereIn('flow_name', ['customer_win_back'])->select('id', 'flow_name as name')->get();  
+		$flows = Flow::select('id', 'flow_name as name')->get();
+		//$flows = Flow::whereIn('flow_name', ['attach_images_for_product', 'dispatch_send_price'])->select('id', 'flow_name as name')->get();   
 		foreach($flows as $flow) {
 			$flowActions =FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 			->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
@@ -72,15 +72,17 @@ class ScheduleEmails extends Command
 								$created_date = $created_date->addMinutes($flowAction['time_delay']);
 							}
 						}
-					
-					if($key == 0 and $flow['name'] == 'add_to_cart') {
+					$leadsFlowArray = ['add_to_cart','attach_images_for_product', 'dispatch_send_price', 'new_erp_lead', 'out_of_stock_subscribe', 'payment_failed'];
+					if($key == 0 and (in_array($flow['name'], $leadsFlowArray))) {
+						$nameInDB = str_replace('_', '-', $flow['name']);
 						$leads = ErpLeads::select('erp_leads.id','erp_leads.customer_id','erp_leads.created_at as order_date',
-						'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
+							    'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
 								->leftJoin('customers','erp_leads.customer_id','=','customers.id')
 							    ->where('erp_leads.created_at', 'like', Carbon::now()->format('Y-m-d').'%')
 							    ->where("customers.store_website_id",$flow['store_website_id'])
+								->whereIn('type', [$flow['name'], $nameInDB])
 								->whereNotNull('customers.email')
-								->get(); 
+								->get(); dd($leads);
 								$i = 1;
 						$modalType =  ErpLeads::class;
 					} else if($key == 0 and $flow['name'] == 'wishlist') {
@@ -114,7 +116,14 @@ class ScheduleEmails extends Command
 						->select('orders.id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')
 						->get();
 						$modalType =  Orders::class;
-					}  else if($key == 0 and $flow['name'] == 'customer_post_purchase') {//
+					}  else if($key == 0 and $flow['name'] == 'order_reviews') {
+						$leads = \App\Order::leftJoin('customers','orders.customer_id','=','customers.id')
+						->where("customers.store_website_id",$flow['store_website_id'])
+						->whereIn('orders.order_status', ['delivered', 'Delivered'])
+						->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d').'%')
+						->select('orders.id', 'customers.name as customer_name','customers.email as customer_email','customers.id as customer_id')->get();
+						$modalType =  Orders::class;
+					}else if($key == 0 and $flow['name'] == 'customer_post_purchase') {//
 						   $leads = [];
 						   $modalType =  Orders::class;
 					} 

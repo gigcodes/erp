@@ -10,6 +10,8 @@ class OrderCancellationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    const STORE_ERP_WEBSITE = 15;
+
     public $order;
 
     /**
@@ -30,36 +32,40 @@ class OrderCancellationMail extends Mailable
      */
     public function build()
     {
-        $subject        = "Order # " . $this->order->order_id ." has been cancelled";
-        $order          = $this->order;
-        
-        $customer       = $order->customer;
+        $subject = "Order # " . $this->order->order_id . " has been cancelled";
+        $order = $this->order;
+
+        $customer = $order->customer;
         $order_products = $order->order_products;
-        $email          = "customercare@sololuxury.co.in";
+        $email = "customercare@sololuxury.co.in";
 
-        $content        = "Your order request has been cancelled";
+        $content = "Your order request has been cancelled";
 
-        $this->subject  = $subject;
+        $this->subject = $subject;
         $this->fromMailer = "customercare@sololuxury.co.in";
-
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
 
         if ($storeWebsiteOrder) {
-            $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
-            if($emailAddress) {
+            $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
+            if ($emailAddress) {
                 $this->fromMailer = $emailAddress->from_address;
             }
             $template = \App\MailinglistTemplate::getOrderCancellationTemplate($storeWebsiteOrder->website_id);
         } else {
+            $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
+            if ($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
             $template = \App\MailinglistTemplate::getOrderCancellationTemplate();
         }
 
-      
         if ($template) {
-            if ($template->from_email!='')
+            if ($template->from_email != '') {
                 $this->fromMailer = $template->from_email;
+            }
+
             $this->subject = $template->subject;
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
@@ -71,17 +77,17 @@ class OrderCancellationMail extends Mailable
             } else {
 
                 $content = str_replace([
-                    '{FIRST_NAME}','{ORDER_STATUS}','{ORDER_ID}'],
-                    [$order->customer->name,$order->order_status,$order->order_id],
+                    '{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'],
+                    [$order->customer->name, $order->order_status, $order->order_id],
                     $template->static_template
                 );
             }
         }
 
         return $this->from($email)
-        ->subject($this->subject)
-        ->view('emails.blank_content', compact(
-            'order', 'customer', 'order_products', 'content'
-        ));
+            ->subject($this->subject)
+            ->view('emails.blank_content', compact(
+                'order', 'customer', 'order_products', 'content'
+            ));
     }
 }

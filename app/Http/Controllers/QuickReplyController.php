@@ -102,12 +102,20 @@ class QuickReplyController extends Controller
         //
     }
 
-    public function quickReplies()
+    public function quickReplies(Request $request)
     {
 
         try {
-            $all_categories = ReplyCategory::where('parent_id', 0)->get();
+            $subcat = '';
+            $all_categories = ReplyCategory::where('parent_id', 0);
+            if($request->sub_category){
+                $subcat = $request->sub_category;
+                $parent_id = ReplyCategory::find($request->sub_category);
+                $all_categories->where('id',$parent_id->parent_id);
+            }
+            $all_categories = $all_categories->get();
             $store_websites = StoreWebsite::all();
+            $sub_categories = [''=>'Select Sub Category'] + ReplyCategory::where('parent_id','!=', 0)->pluck('name', 'id')->toArray();
             $website_length = 0;
             if (count($store_websites) > 0) {
                 $website_length = count($store_websites);
@@ -120,11 +128,23 @@ class QuickReplyController extends Controller
             }
             if ($all_categories) {
                 foreach ($all_categories as $k => $_cat) {
-                    $childs = ReplyCategory::where('parent_id', $_cat->id)->get();
+                    $childs = ReplyCategory::where('parent_id', $_cat->id);
+                    if($request->sub_category){
+                        $childs->where('id',$request->sub_category);
+                    }
+                    $childs = $childs->get();
                     $all_categories[$k]['childs'] = $childs;
+                    if($childs){
+                        foreach ($all_categories[$k]['childs'] as $c => $_child) {
+                            $subchilds = ReplyCategory::where('parent_id', $_child->id);
+                            $subchilds = $subchilds->get();
+                            $all_categories[$k]['childs'][$c]['subchilds'] = $subchilds;
+                        }
+                    }
                 }
             }
-            return view('quick_reply.quick_replies', compact('all_categories', 'store_websites', 'website_length', 'category_wise_reply'));
+
+            return view('quick_reply.quick_replies', compact('all_categories', 'store_websites', 'website_length', 'category_wise_reply','sub_categories','subcat'));
         } catch (\Exception $e) {
             return redirect()->back();
         }

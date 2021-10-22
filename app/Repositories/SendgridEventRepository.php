@@ -34,24 +34,33 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
     {
         \Log::info('Send grid repo In');
 
-        $newEvent = new SendgridEvent();
-        $newEvent->timestamp = $event['timestamp'];
-        $newEvent->email = $event['email'];
-        $newEvent->event = $event['event'];
-        $newEvent->sg_event_id = $event['sg_event_id'];
+        $newEvent                = new SendgridEvent();
+        $newEvent->timestamp     = $event['timestamp'];
+        $newEvent->email         = $event['email'];
+        $newEvent->event         = $event['event'];
+        $newEvent->sg_event_id   = $event['sg_event_id'];
         $newEvent->sg_message_id = $event['sg_message_id'];
-        $newEvent->payload = $event;
+        $newEvent->payload       = $event;
 
-        if(isset($event['smtp-id'])) {
-            $smptpID = str_replace(["<",">"],"",$event['smtp-id']);
-
+        if (isset($event['smtp-id'])) {
+            $smptpID = str_replace(["<", ">"], "", $event['smtp-id']);
+            \Log::info("SMTP matched with record => ".$smptpID);
             \Log::info('Send grid repo params defined');
-
-            $emailData = new Email();
-            if (Email::where('origin_id', '=', $smptpID)->exists()) {
-                Email::where('origin_id', $smptpID)
-                    ->update(['status' => $event['event']]
-                    );
+            $email = Email::where('origin_id', $smptpID)->first();
+            if ($email) {
+                \Log::info('Record found => '.json_encode($email));
+                $email->status = $event['event'];
+                $email->message_id = $event['sg_message_id'];
+                $email->save();
+            }
+        } else {
+            \Log::info('message_id found => '.$event['sg_message_id']);
+            $email = Email::where('message_id', $event['sg_message_id'])->first();
+            if ($email) {
+                \Log::info('Record found => '.json_encode($email));
+                $email->status = $event['event'];
+                $email->message_id = $event['sg_message_id'];
+                $email->save();
             }
         }
 

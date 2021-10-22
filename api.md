@@ -1516,3 +1516,71 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
     "message": "Error message"
 }
 ```
+
+## Store customer reviews
+
+Key : reviews.failed.validation, reviews.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/store_reviews
+{
+"name":"test",
+"lang_code":"en-US",
+"platform_id":"1",
+"stars":"3.5",
+"comment":"Good",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"type" : "store-reviews",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Successfully Added"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## Get all customer reviews
+
+Key : reviews.failed.validation, reviews.add.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/all-reviews
+{
+"name":"test",
+"lang_code":"en-US",
+"platform_id":"1",
+"email":"effertz.isadore@cremin.org",
+"website":"WWW.SOLOLUXURY.COM",
+"type" : "get-reviews",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "All reviews fetched successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

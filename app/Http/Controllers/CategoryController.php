@@ -220,6 +220,8 @@ class CategoryController extends Controller
 
         $parent_id = $category_instance->parent_id;
 
+        $categoryTree[]    = $category_instance->title;
+
         while ($parent_id != 0) {
 
             $category_instance = $category->find($parent_id);
@@ -487,8 +489,13 @@ class CategoryController extends Controller
 
         if ($q) {
             // check the type and then
-            $q        = '"' . $q . '"';
-            $products = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')->latest()->limit(5)->get();
+           // $q        = '"' . $q . '"';
+            $q        =  str_replace('/', ',', $q);
+            $products = \App\ScrapedProducts::where("categories", $q)->join("products as p","p.id","scraped_products.product_id")
+			->where("p.stock",">",0)->groupBy('website')
+            ->select("scraped_products.*")
+            ->orderBy("scraped_products.created_at","desc")
+            ->get();
 
             $view = (string) view("compositions.preview-products", compact('products'));
             return response()->json(["code" => 200, "html" => $view]);
@@ -610,6 +617,7 @@ class CategoryController extends Controller
         ->selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
         ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
         ->groupBy('scrapped_category_mappings.id')
+        ->groupBy('scrapped_category_mappings.name')
         ->orderBy('total_products', 'DESC');
 
 

@@ -24,9 +24,9 @@ class AssetsManagerController extends Controller
 
         $category = DB::table('assets_category')->get();
 
-        $search       = request("search", "");
+        $search = request("search", "");
         $paymentCycle = request("payment_cycle", "");
-        $assetType    = request("asset_type", "");
+        $assetType = request("asset_type", "");
         $purchaseType = request("purchase_type", "");
 
         $assets = new AssetsManager;
@@ -49,9 +49,13 @@ class AssetsManagerController extends Controller
             $assets = $assets->where("purchase_type", $purchaseType);
         }
 
-        $assets = $assets->paginate(10);
+        $assetsIds = $assets->select('id')->get()->toArray();
+        $assets = $assets->paginate(25);
 
-        return view('assets-manager.index', compact('assets', 'category'))
+        //Cash Flows
+        $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => 'App\AssetsManager'])->get();
+
+        return view('assets-manager.index', compact('assets', 'category', 'cashflows'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -74,17 +78,18 @@ class AssetsManagerController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name'          => 'required',
-            'asset_type'    => 'required',
-            'category_id'   => 'required',
+            'name' => 'required',
+            'asset_type' => 'required',
+            'start_date' => 'required',
+            'category_id' => 'required',
             'purchase_type' => 'required',
             'payment_cycle' => 'required',
-            'amount'        => 'required',
+            'amount' => 'required',
         ]);
 
-        $othercat    = $request->input('other');
+        $othercat = $request->input('other');
         $category_id = $request->input('category_id');
-        $catid       = '';
+        $catid = '';
         if ($othercat != '' && $category_id != '') {
             $dataCat = DB::table('assets_category')
                 ->Where('cat_name', $othercat)
@@ -109,13 +114,13 @@ class AssetsManagerController extends Controller
             //create entry in table cash_flows
             \App\CashFlow::create(
                 [
-                    'description'         => 'Asset Manager Payment for ' . $insertData->name,
-                    'date'                => date('Y-m-d'),
-                    'amount'              => $request->input('amount'),
-                    'type'                => 'pending',
-                    'currency'            => $insertData->currency,
+                    'description' => 'Asset Manager Payment for ' . $insertData->name,
+                    'date' => date('Y-m-d'),
+                    'amount' => $request->input('amount'),
+                    'type' => 'pending',
+                    'currency' => $insertData->currency,
                     'cash_flow_able_type' => 'App\AssetsManager',
-                    'cash_flow_able_id'   => $insertData->id,
+                    'cash_flow_able_id' => $insertData->id,
 
                 ]
             );
@@ -165,17 +170,18 @@ class AssetsManagerController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name'          => 'required',
-            'asset_type'    => 'required',
-            'category_id'   => 'required',
+            'name' => 'required',
+            'asset_type' => 'required',
+            'start_date' => 'required',
+            'category_id' => 'required',
             'purchase_type' => 'required',
             'payment_cycle' => 'required',
-            'amount'        => 'required',
+            'amount' => 'required',
         ]);
 
-        $othercat    = $request->input('other');
+        $othercat = $request->input('other');
         $category_id = $request->input('category_id');
-        $catid       = '';
+        $catid = '';
         if ($othercat != '' && $category_id != '') {
             $dataCat = DB::table('assets_category')
                 ->Where('cat_name', $othercat)
@@ -217,12 +223,12 @@ class AssetsManagerController extends Controller
     public function addNote($id, Request $request)
     {
         $assetmanager = AssetsManager::findOrFail($id);
-        $notes        = $assetmanager->notes;
+        $notes = $assetmanager->notes;
         if (!is_array($notes)) {
             $notes = [];
         }
 
-        $notes[]             = $request->get('note');
+        $notes[] = $request->get('note');
         $assetmanager->notes = $notes;
         $assetmanager->save();
 
@@ -232,8 +238,8 @@ class AssetsManagerController extends Controller
     }
     public function paymentHistory(request $request)
     {
-        $asset_id    = $request->input('asset_id');
-        $html        = '';
+        $asset_id = $request->input('asset_id');
+        $html = '';
         $paymentData = CashFlow::where('cash_flow_able_id', $asset_id)
             ->where('cash_flow_able_type', 'App\AssetsManager')
             ->where('type', 'paid')
@@ -252,8 +258,15 @@ class AssetsManagerController extends Controller
                 $i++;
             }
             return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
         }
-        return response()->json(['html' => '', 'success' => false], 404);
+        return response()->json(['html' => $html, 'success' => true], 200);
 
     }
 }

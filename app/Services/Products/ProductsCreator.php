@@ -703,10 +703,11 @@ class ProductsCreator
                     $categoryReference = implode('/', $properties_array['category']);
 
                     ScrappedCategoryMapping::updateOrCreate([
-                        'name' => $categoryReference,
-                    ], [
-                        'name' => $categoryReference,
-                    ]);
+                        'name' =>$categoryReference
+                    ],[
+                        'name' => $categoryReference, 
+						'is_mapped'=>0
+                        ]);
 
                     // $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
                     // //checking if it already exist in reference table
