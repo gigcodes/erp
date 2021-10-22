@@ -2328,6 +2328,7 @@ if (!empty($notifications)) {
                                     @foreach ($chatIds as $chatId)
                                         @php
                                         $customer = $chatId->customer;
+                                        if($customer) {
                                         $customerInital = substr($customer->name, 0, 1);
                                         @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
@@ -2344,6 +2345,7 @@ if (!empty($notifications)) {
                                             @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
                                         </div>
                                     </li>
+                                    @php } @endphp
 
                                     @endforeach
 
