@@ -1734,7 +1734,7 @@ class UserManagementController extends Controller
         if(!empty($allOutput)) {
             $continuetoFill = false;
             foreach($allOutput as $ao) {
-                if($ao == "-----BEGIN RSA PRIVATE KEY-----" || $continuetoFill) {
+                if(strpos($ao,"PRIVATE KEY-----") !== false || $continuetoFill) {
                    $string[] = $ao;
                    $continuetoFill = true; 
                 }
