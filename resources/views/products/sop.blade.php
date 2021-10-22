@@ -29,9 +29,29 @@
         padding-right:10px;
         padding-left: 10px;
     }
-	tr#sid1 .w-50-25-main {
-    width: 50%;
-    float: left;
+	tr#sid1 span.select2.select2-container.select2-container--default {
+width: 100%;
+float: left;
+}
+.select_table {
+width: 100%;
+float: left;
+}
+.select_table .w-25 {
+width: 50% !important;
+float: left;
+}
+.select_table .w-50-25-main {
+width: 50%;
+float: left;
+}
+.select_table .w-50.pull-left {
+width: 50%;
+float: left;
+}
+.select_table .select_table .w-25 {
+width: 50% !important;
+float: left;
 }
     </style>
     <!-- END - DEVTASK-4416 -->
@@ -237,7 +257,7 @@
                                 </td>
 
                                 <td class="table-hover-cell p-1">
-                                    <div>
+                                    <div class="select_table">
 										<div class="w-25">
 											<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
 												<option value="">Select User</option>
