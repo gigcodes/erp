@@ -788,6 +788,7 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('return-exchange.status') }}">Return-Exchange Status</a>
                                                 <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                                 <a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead order</a>
+                                                <a class="dropdown-item" href="{{ url('order/charity-order') }}">Charity order</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
