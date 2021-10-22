@@ -46,7 +46,8 @@ function scraper_restart_list
 				pid2=`ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "ps -ef|grep $pid|grep chromium|grep -v grep|awk '{print \$2}'"` < /dev/null
 				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid $pid2" < /dev/null
 				sed -i "/$scrap/d" /opt/scrap_status
-				echo "$scrap restart" >> /tmp/scrap_restart
+				echo "$scrap" >> /tmp/scrap_restart
+				echo "$scrap" >> /opt/scrap_restart
 			fi
 		else
 			scrapfile=`echo $scrap|cut -d'.' -f1`
