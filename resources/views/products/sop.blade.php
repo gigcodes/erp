@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('content')
-
 @section('styles')
     <!-- START - Purpose : Add CSS - DEVTASK-4416 -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -31,10 +29,14 @@
         padding-right:10px;
         padding-left: 10px;
     }
-
+	tr#sid1 .w-50-25-main {
+    width: 50%;
+    float: left;
+}
     </style>
     <!-- END - DEVTASK-4416 -->
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
+@endsection
 @section('content')
 
     <div class="row" style="margin:0%">
@@ -112,7 +114,7 @@
                                     <th width="93%">Sop</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody>  
                                 @foreach ($usersop as $sop)
                                     <tr>
                                         <td><input type="checkbox" name="sop[]" value="{{ $sop->id }}"></td>
@@ -145,9 +147,7 @@
             </div>
             <div class="modal-body">
                 <select class="sop-permission-user" name="states[]" multiple="multiple">
-                    {{-- @foreach ($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                    @endforeach --}}
+                    
                 </select>
             </div>
             <div class="modal-footer">
@@ -238,11 +238,22 @@
 
                                 <td class="table-hover-cell p-1">
                                     <div>
-                                        <div class="w-75 pull-left">
-                                            <textarea rows="1" class="form-control" id="messageid_{{ $value->user_id }}" name="message" placeholder="Message"></textarea>
+										<div class="w-25">
+											<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
+												<option value="">Select User</option>
+												@foreach ($users as $user)
+													@if (!$user->isAdmin())
+														<option value="{{ $user->id }}">{{ $user->name }}</option>
+													@endif
+												@endforeach
+											</select>
+										</div>
+										<div class="w-50-25-main">
+                                        <div class="w-50 pull-left">
+                                            <textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message"></textarea>
                                         </div>
                                         <div class="w-25 pull-left">
-                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}">
+                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
                                                 <i class="fa fa-paper-plane"></i>
                                             </button>
                                              <button type="button"
@@ -252,6 +263,7 @@
                                                     <i class="fa fa-comments"></i>
                                             </button>
                                         </div>
+										</div>
                                    </div>
                                 </td>
 
@@ -599,7 +611,9 @@ $(document).on('click', '.send-message-open', function (event) {
             var $this = $(this);
             var data = new FormData();
             var sop_user_id = $(this).data('user_id');
-            var message = $(this).parents('td').find("#messageid_"+sop_user_id).val();
+            var id = $(this).data('id');
+			var sop_user_id = $('#user_'+id).val();
+            var message = $(this).parents('td').find("#messageid_"+id).val();
 
             if (message.length > 0) {
 
