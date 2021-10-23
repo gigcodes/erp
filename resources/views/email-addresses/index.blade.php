@@ -7,31 +7,32 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Email Addresses List</h2>
-            <div class="pull-right">
-
-                <button class="btn btn-secondary ml-3 error-email-history">View Errors</button>
-
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#emailAddressModal">+</button>
-            </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-xs-12">
             <form class="form-search-data">
                 <div class="row">
                     <div class="col-xs-12 col-md-3 pd-2">
-                        <div class="form-group cls_task_subject">
+                        <div class="form-group cls_task_subject mb-0">
                             <input type="text" name="keyword" placeholder="Search Keyword" class="form-control input-sm" value="{{ request('keyword') }}">
                         </div>
                     </div>
                     <!-- Language Selection -->
                     <div class="col-xs-12 col-md-3 pd-2">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-xs mt-1 ml-3">
+                              <i class="fa fa-filter"></i>
+                            </button>
+                            <button class="btn btn-xs btn-secondary error-email-history ml-3">View Errors</button>
+                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
+                              <i class="fa fa-plus"></i>
+                            </button>
                         </div>
+                        
                     </div>
                     <!-- Search Network -->
 
@@ -45,17 +46,14 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Email address Passwords Manager</h2>
-            <div class="pull-left">
-
-            </div>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
-            </div>
-            <div>
+            <div class="pull-left ml-3">
                 {{ Form::open(array('url' => route('email.password.change'), 'method' => 'post')) }}
                     <input type="hidden" name="users" id="userIds">
-                    <button type="submit" class="btn btn-secondary"> Generate password </button>
+                    <button type="submit" class="btn btn-xs btn-secondary"> Generate password </button>
                 {{ Form::close() }}
+            </div>
+            <div class="pull-left ml-3">
+                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#passwordCreateModal"><i class="fa fa-plus"></i></button>
             </div>
         </div>
     </div>
@@ -64,21 +62,18 @@
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th>ID</th>
-            <!--th>From Name</th>
-            <th>From Address</th-->
-			<th>Username</th>
-            <th>Password</th>
-            <th>Recovery Phone</th>
-            <th>Recovery Email</th>
-            <th>Driver</th>
-            <th>Host</th>
-            <th>Port</th>
-            <th>Encryption</th>
-            <th>Store Website</th>
-            <th>Status</th>
-
-            <th>Action</th>
+            <th width="5%">ID</th>
+			      <th width="9%">Username</th>
+            <th width="9%">Password</th>
+            <th width="10%">Rec Phone</th>
+            <th width="10%">Rec Email</th>
+            <th width="5%">Driver</th>
+            <th width="8%">Host</th>
+            <th width="5%">Port</th>
+            <th width="10%">Encryp</th>
+            <th width="10%">Str Website</th>
+            <th width="5%">Status</th>
+            <th width="14%">Action</th>
           </tr>
         </thead>
 
@@ -86,18 +81,15 @@
           @foreach ($emailAddress as $server)
             <tr>
                <td>
-				<input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}"></td>
-              <td><!--td>
-                  {{ $server->from_name }}
+				        <input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}">
               </td>
-              <td>
-                  {{ $server->from_address }}
-              </td-->
-
-                  {{ $server->username }}
+              <td class="expand-row-msg" data-name="username" data-id="{{$server->id}}">
+                  <span class="show-short-username-{{$server->id}}">{{ str_limit($server->username, 12, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-username-{{$server->id}} hidden">{{$server->username}}</span>
               </td>
-              <td>
-                  {{ $server->password }}
+              <td class="expand-row-msg" data-name="password" data-id="{{$server->id}}">
+                  <span class="show-short-password-{{$server->id}}">{{ str_limit($server->password, 10, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-password-{{$server->id}} hidden">{{$server->password}}</span>
               </td>
               <td>
                   {{ $server->recovery_phone }}
@@ -108,8 +100,9 @@
               <td>
                   {{ $server->driver }}
               </td>
-              <td>
-                  {{ $server->host }}
+              <td class="expand-row-msg" data-name="host" data-id="{{$server->id}}">
+                  <span class="show-short-host-{{$server->id}}">{{ str_limit($server->host, 10, '..')}}</span>
+                  <span style="word-break:break-all;" class="show-full-host-{{$server->id}} hidden">{{$server->host}}</span>
               </td>
               <td>
                   {{ $server->port }}
@@ -117,58 +110,64 @@
               <td>
                   {{ $server->encryption }}
               </td>
-
-			  <td>
+              <td>
                   @if($server->website){{ $server->website->title }} @endif
               </td>
-              <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
-
-              <button type="button" class="btn btn-image assign-users d-inline"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}"><img src="/images/add.png" /></button>
-                  <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
-
-                  <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
-
-                  {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
-                  {!! Form::close() !!}
-                   <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts" title="Show Account"><i class="fa fa-eye" aria-hidden="true"></i>
-</a>
-
-				   <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp"><i class="fa fa-send-o"></i></button></td>
-
-					<div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
-						<div class="modal-dialog">
-							<!-- Modal content-->
-							<div class="modal-content">
-									<div class="modal-header">
-										<h4 class="modal-title">Send to Whatsapp</h4>
-										<button type="button" class="close" data-dismiss="modal">&times;</button>
-									</div>
-									<form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
-									@csrf
-									<div class="modal-body">
-										<div class="form-group">
-											<select class="form-control" name="user_id">
-												@foreach($users as $user)
-												<option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
-												@endforeach
-											</select>
-											 <input type="hidden" name="id" value="{{ $server->id }}"/>
-											<input type="hidden" name="send_message" value="1">
-											<input type="hidden" name="send_on_whatsapp" value="1">
-										</div>
-									</div>
-									<div class="modal-footer">
-										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-										<button type="submit" class="btn btn-secondary">Update</button>
-									</div>
-									</form>
-							</div>
-
-						</div>
-					</div>
-			  </td>
+                @if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif
+              </td>
+              <td>
+                <button type="button" class="btn btn-xs assign-users p-0 m-0 text-secondary mr-2"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}">
+                  <i class="fa fa-plus"></i>
+                </button>
+                <button type="button" class="btn btn-xs edit-email-addresses p-0 m-0 text-secondary mr-2"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}">
+                  <i class="fa fa-edit"></i>
+                </button>
+                <button type="button" class="btn btn-xs view-email-history p-0 m-0 text-secondary mr-2" data-id="{{ $server->id }}">
+                  <i class="fa fa-eye"></i>
+                </button>
+                {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-xs p-0 m-0 text-secondary mr-2">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                {!! Form::close() !!}
+                <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts p-0 m-0 text-secondary mr-2" title="Show Account">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp" class="btn btn-xs p-0 m-0 text-secondary mr-2">
+                  <i class="fa fa-send-o"></i>
+                </a>
+                <div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
+                  <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="modal-title">Send to Whatsapp</h4>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                          <div class="form-group">
+                            <select class="form-control" name="user_id">
+                              @foreach($users as $user)
+                              <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+                              @endforeach
+                            </select>
+                            <input type="hidden" name="id" value="{{ $server->id }}"/>
+                            <input type="hidden" name="send_message" value="1">
+                            <input type="hidden" name="send_on_whatsapp" value="1">
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-secondary">Update</button>
+                        </div>
+                        </form>
+                    </div>
+                  </div>
+                </div>
+              </td>
             </tr>
 
 
@@ -227,187 +226,193 @@
 </div>
 @endforeach
 <div id="emailAddressModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
+  <div class="modal-dialog modal-lg">
     <!-- Modal content-->
     <div class="modal-content">
       <form action="{{ route('email-addresses.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-
         <div class="modal-header">
           <h4 class="modal-title">Store a Email Address</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <strong>From Name:</strong>
-            <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>From Name:</strong>
+              <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
 
-            @if ($errors->has('from_name'))
-              <div class="alert alert-danger">{{$errors->first('from_name')}}</div>
-            @endif
+              @if ($errors->has('from_name'))
+                <div class="alert alert-danger">{{$errors->first('from_name')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>From Address:</strong>
+              <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+
+              @if ($errors->has('from_address'))
+                <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Recovery Phone:</strong>
+              <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}">
+
+              @if ($errors->has('recovery_phone'))
+                <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
+              @endif
+            </div>
           </div>
-          <div class="form-group">
-            <strong>From Address:</strong>
-            <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Recovery Email:</strong>
+              <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}">
 
-            @if ($errors->has('from_address'))
-              <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
-            @endif
+              @if ($errors->has('recovery_email'))
+                <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+                    <strong>Store Website:</strong>
+              <Select name="store_website_id" class="form-control">
+                <option value>None</option>
+                @foreach ($allStores as $key => $val)
+                  <option value="{{ $val->id }}">{{ $val->title }}</option>
+                @endforeach
+              </Select>
+              @if ($errors->has('store_website_id'))
+                  <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Driver:</strong>
+              <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
+
+              @if ($errors->has('driver'))
+                <div class="alert alert-danger">{{$errors->first('driver')}}</div>
+              @endif
+            </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Host:</strong>
+              <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
 
+              @if ($errors->has('host'))
+                <div class="alert alert-danger">{{$errors->first('host')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Port:</strong>
+              <input type="text" name="port" class="form-control" value="{{ old('port') }}" required>
 
-          <div class="form-group">
-            <strong>Recovery Phone:</strong>
-            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}">
+              @if ($errors->has('port'))
+                <div class="alert alert-danger">{{$errors->first('port')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Encryption:</strong>
+              <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
 
-            @if ($errors->has('recovery_phone'))
-              <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
-            @endif
+              @if ($errors->has('encryption'))
+                <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
+              @endif
+            </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Username:</strong>
+              <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
-          <div class="form-group">
-            <strong>Recovery Email:</strong>
-            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}">
+              @if ($errors->has('username'))
+                <div class="alert alert-danger">{{$errors->first('username')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Password:</strong>
+              <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
-            @if ($errors->has('recovery_email'))
-              <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
-            @endif
+              @if ($errors->has('password'))
+                <div class="alert alert-danger">{{$errors->first('password')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Signature Name:</strong>
+              <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" >
+
+              @if ($errors->has('signature_name'))
+                <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
+              @endif
+            </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-3">
+              <strong>Signature Title:</strong>
+              <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
 
+              @if ($errors->has('signature_title'))
+                <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-3">
+              <strong>Signature Phone:</strong>
+              <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
 
-			<div class="form-group">
-            	<strong>Store Website:</strong>
-				<Select name="store_website_id" class="form-control">
-					<option value>None</option>
-					@foreach ($allStores as $key => $val)
-						<option value="{{ $val->id }}">{{ $val->title }}</option>
-					@endforeach
-				</Select>
-				@if ($errors->has('store_website_id'))
-						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
-				@endif
-			</div>
-          <div class="form-group">
-            <strong>Driver:</strong>
-            <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
+              @if ($errors->has('signature_phone'))
+                <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-3">
+              <strong>Signature Email:</strong>
+              <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
 
-            @if ($errors->has('driver'))
-              <div class="alert alert-danger">{{$errors->first('driver')}}</div>
-            @endif
+              @if ($errors->has('signature_email'))
+                <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-3">
+              <strong>Signature Website:</strong>
+              <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
+
+              @if ($errors->has('signature_website'))
+                <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
+              @endif
+            </div>
           </div>
-          <div class="form-group">
-            <strong>Host:</strong>
-            <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <strong>Signature Address:</strong>
+              <textarea name="signature_address" id="address" class="form-control" >{{ old('signature_address') }}</textarea>
 
-            @if ($errors->has('host'))
-              <div class="alert alert-danger">{{$errors->first('host')}}</div>
-            @endif
+              @if ($errors->has('signature_address'))
+                <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-6">
+              <strong>Signature Social Tag:</strong>
+
+              <textarea id="social" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
+              @if ($errors->has('signature_tag'))
+                <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
+              @endif
+            </div>
           </div>
-          <div class="form-group">
-            <strong>Port:</strong>
-            <input type="text" name="port" class="form-control" value="{{ old('port') }}" required>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <strong>Signature Logo:</strong>
+              <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
 
-            @if ($errors->has('port'))
-              <div class="alert alert-danger">{{$errors->first('port')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Encryption:</strong>
-            <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
+              @if ($errors->has('signature_logo'))
+                <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-6">
+              <strong>Signature Image:</strong>
+              <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
 
-            @if ($errors->has('encryption'))
-              <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Username:</strong>
-            <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
-
-            @if ($errors->has('username'))
-              <div class="alert alert-danger">{{$errors->first('username')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Password:</strong>
-            <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
-
-            @if ($errors->has('password'))
-              <div class="alert alert-danger">{{$errors->first('password')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Name:</strong>
-            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" >
-
-            @if ($errors->has('signature_name'))
-              <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Signature Title:</strong>
-            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
-
-            @if ($errors->has('signature_title'))
-              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Phone:</strong>
-            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
-
-            @if ($errors->has('signature_phone'))
-              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Email:</strong>
-            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
-
-            @if ($errors->has('signature_email'))
-              <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Website:</strong>
-            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
-
-            @if ($errors->has('signature_website'))
-              <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Address:</strong>
-            <textarea name="signature_address" id="address" class="form-control" >{{ old('signature_address') }}</textarea>
-
-            @if ($errors->has('signature_address'))
-              <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Logo:</strong>
-            <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
-
-            @if ($errors->has('signature_logo'))
-              <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Image:</strong>
-            <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
-
-            @if ($errors->has('signature_image'))
-              <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Social Tag:</strong>
-
-            <textarea id="social" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
-            @if ($errors->has('signature_tag'))
-              <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
-            @endif
+              @if ($errors->has('signature_image'))
+                <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
+              @endif
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -491,7 +496,7 @@
 
 
 <div id="emailAddressEditModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
 
     <!-- Modal content-->
     <div class="modal-content">
@@ -504,208 +509,200 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <strong>From Name:</strong>
-            <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>From Name:</strong>
+              <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
 
-            @if ($errors->has('from_name'))
-              <div class="alert alert-danger">{{$errors->first('from_name')}}</div>
-            @endif
+              @if ($errors->has('from_name'))
+                <div class="alert alert-danger">{{$errors->first('from_name')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>From Address:</strong>
+              <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+
+              @if ($errors->has('from_address'))
+                <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Recovery Phone:</strong>
+              <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}">
+
+              @if ($errors->has('recovery_phone'))
+                <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
+              @endif
+            </div>
           </div>
-          <div class="form-group">
-            <strong>From Address:</strong>
-            <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Recovery Email:</strong>
+              <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}">
 
-            @if ($errors->has('from_address'))
-              <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
-            @endif
+              @if ($errors->has('recovery_email'))
+                <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+                    <strong>Store Website:</strong>
+              <Select name="store_website_id" id="edit_store_website_id" class="form-control">
+                <option value = ''>None</option>
+                @foreach ($allStores as $key => $val)
+                  <option value="{{ $val->id }}">{{ $val->title }}</option>
+                @endforeach
+              </Select>
+              @if ($errors->has('store_website_id'))
+                  <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Driver:</strong>
+              <Select name="driver" id="edit_driver" class="form-control required">
+                <option value = ''>Select Driver</option>
+                @foreach ($allDriver as $driver)
+                  <option value="{{ $driver }}">{{ $driver }}</option>
+                @endforeach
+              </Select>
+              @if ($errors->has('driver'))
+                <div class="alert alert-danger">{{$errors->first('driver')}}</div>
+              @endif
+            </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Host:</strong>
+              <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
 
+              @if ($errors->has('host'))
+                <div class="alert alert-danger">{{$errors->first('host')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Port:</strong>
+              <Select name="port" id="edit_port" class="form-control required">
+                <option value = ''>Select Port</option>
+                @foreach ($allPort as $port)
+                  <option value="{{ $port }}">{{ $port }}</option>
+                @endforeach
+              </Select>
 
-          <div class="form-group">
-            <strong>Recovery Phone:</strong>
-            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}">
+              @if ($errors->has('port'))
+                <div class="alert alert-danger">{{$errors->first('port')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Encryption:</strong>
+              <Select name="encryption" id="edit_encryption" class="form-control required">
+                <option value = ''>Select Encryption</option>
+                @foreach ($allEncryption as $encryption)
+                  <option value="{{ $encryption }}">{{ $encryption }}</option>
+                @endforeach
+              </Select>
 
-            @if ($errors->has('recovery_phone'))
-              <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
-            @endif
+              @if ($errors->has('encryption'))
+                <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
+              @endif
+            </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Username:</strong>
+              <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
+              @if ($errors->has('username'))
+                <div class="alert alert-danger">{{$errors->first('username')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Password:</strong>
+              <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
-          <div class="form-group">
-            <strong>Recovery Email:</strong>
-            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}">
+              @if ($errors->has('password'))
+                <div class="alert alert-danger">{{$errors->first('password')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Signature Name:</strong>
+              <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" >
 
-            @if ($errors->has('recovery_email'))
-              <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
-            @endif
+              @if ($errors->has('signature_name'))
+                <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
+              @endif
+            </div>
           </div>
+          <div class="row">
+            <div class="form-group col-md-3">
+              <strong>Signature Title:</strong>
+              <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
 
+              @if ($errors->has('signature_title'))
+                <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-3">
+              <strong>Signature Phone:</strong>
+              <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
 
-		  <div class="form-group">
-            	<strong>Store Website:</strong>
-				<Select name="store_website_id" id="edit_store_website_id" class="form-control">
-					<option value = ''>None</option>
-					@foreach ($allStores as $key => $val)
-						<option value="{{ $val->id }}">{{ $val->title }}</option>
-					@endforeach
-				</Select>
-				@if ($errors->has('store_website_id'))
-						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
-				@endif
-			</div>
-          <div class="form-group">
-            <strong>Driver:</strong>
+              @if ($errors->has('signature_phone'))
+                <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-3">
+              <strong>Signature Email:</strong>
+              <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
 
+              @if ($errors->has('signature_email'))
+                <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-3">
+              <strong>Signature Website:</strong>
+              <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
 
-            <!-- <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required> -->
+              @if ($errors->has('signature_website'))
+                <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
+              @endif
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <strong>Signature Address:</strong>
+              <textarea name="signature_address" id="address1" class="form-control" >{{ old('signature_address') }}</textarea>
 
-            <Select name="driver" id="edit_driver" class="form-control required">
-              <option value = ''>Select Driver</option>
-              @foreach ($allDriver as $driver)
-                <option value="{{ $driver }}">{{ $driver }}</option>
-              @endforeach
-            </Select>
-            @if ($errors->has('driver'))
-              <div class="alert alert-danger">{{$errors->first('driver')}}</div>
-            @endif
+              @if ($errors->has('signature_address'))
+                <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-6">
+              <strong>Signature Social Tag:</strong>
 
-
-
+              <textarea id="social1" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
+              @if ($errors->has('signature_tag'))
+                <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
+              @endif
+            </div>
 
           </div>
-          <div class="form-group">
-            <strong>Host:</strong>
-            <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <strong>Signature Logo:</strong>
+              <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
+              <img src="" id="img1" style="width:100px;height:100px">
 
-            @if ($errors->has('host'))
-              <div class="alert alert-danger">{{$errors->first('host')}}</div>
-            @endif
+              @if ($errors->has('signature_logo'))
+                <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-6">
+              <strong>Signature Image:</strong>
+              <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
+              <img src="" id="img2" style="width:100px;height:100px">
+              @if ($errors->has('signature_image'))
+                <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
+              @endif
+            </div>
           </div>
-          <div class="form-group">
-            <strong>Port:</strong>
-            <!-- <input type="text" name="port" class="form-control" value="{{ old('port') }}" required> -->
-
-            <Select name="port" id="edit_port" class="form-control required">
-              <option value = ''>Select Port</option>
-              @foreach ($allPort as $port)
-                <option value="{{ $port }}">{{ $port }}</option>
-              @endforeach
-            </Select>
-
-            @if ($errors->has('port'))
-              <div class="alert alert-danger">{{$errors->first('port')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Encryption:</strong>
-
-            <!-- <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required> -->
-
-            <Select name="encryption" id="edit_encryption" class="form-control required">
-              <option value = ''>Select Encryption</option>
-              @foreach ($allEncryption as $encryption)
-                <option value="{{ $encryption }}">{{ $encryption }}</option>
-              @endforeach
-            </Select>
-
-            @if ($errors->has('encryption'))
-              <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Username:</strong>
-            <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
-
-            @if ($errors->has('username'))
-              <div class="alert alert-danger">{{$errors->first('username')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Password:</strong>
-            <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
-
-            @if ($errors->has('password'))
-              <div class="alert alert-danger">{{$errors->first('password')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Name:</strong>
-            <input type="text" name="signature_name" class="form-control" value="{{ old('signature_name') }}" >
-
-            @if ($errors->has('signature_name'))
-              <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
-            @endif
-          </div>
-
-          <div class="form-group">
-            <strong>Signature Title:</strong>
-            <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
-
-            @if ($errors->has('signature_title'))
-              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Phone:</strong>
-            <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
-
-            @if ($errors->has('signature_phone'))
-              <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Email:</strong>
-            <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
-
-            @if ($errors->has('signature_email'))
-              <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Website:</strong>
-            <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
-
-            @if ($errors->has('signature_website'))
-              <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Address:</strong>
-            <textarea name="signature_address" id="address1" class="form-control" >{{ old('signature_address') }}</textarea>
-
-            @if ($errors->has('signature_address'))
-              <div class="alert alert-danger">{{$errors->first('signature_address')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Logo:</strong>
-            <input type="file" name="signature_logo" class="form-control" value="{{ old('signature_logo') }}" >
-            <img src="" id="img1" style="width:100px;height:100px">
-
-            @if ($errors->has('signature_logo'))
-              <div class="alert alert-danger">{{$errors->first('signature_logo')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Image:</strong>
-            <input type="file" name="signature_image" class="form-control" value="{{ old('signature_image') }}" >
-            <img src="" id="img2" style="width:100px;height:100px">>
-
-
-            @if ($errors->has('signature_image'))
-              <div class="alert alert-danger">{{$errors->first('signature_image')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
-            <strong>Signature Social Tag:</strong>
-
-            <textarea id="social1" name="signature_social" class="form-control" >{{ old('signature_social') }}</textarea>
-            @if ($errors->has('signature_tag'))
-              <div class="alert alert-danger">{{$errors->first('signature_tag')}}</div>
-            @endif
-          </div>
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -751,6 +748,15 @@
 
 </script>
   <script type="text/javascript">
+    $(document).on('click', '.expand-row-msg', function () {
+      var name = $(this).data('name');
+      var id = $(this).data('id');
+      var full = '.expand-row-msg .show-short-'+name+'-'+id;
+      var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+      $(full).toggleClass('hidden');
+      $(mini).toggleClass('hidden');
+    });
+
     $(document).on('click', '.edit-email-addresses', function() {
       var emailAddress = $(this).data('email-addresses');
       var url = "{{ route('email-addresses.index') }}/" + emailAddress.id;
