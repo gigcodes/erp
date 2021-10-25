@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Log;
  */
 class MagentoService
 {
+    
     public $product;
     public $storeWebsite;
     public $log;
