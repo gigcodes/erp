@@ -29,8 +29,8 @@
         padding-right:10px;
         padding-left: 10px;
     }
-	tr#sid1 span.select2.select2-container.select2-container--default {
-width: 100%;
+tr#sid1 span.select2.select2-container.select2-container--default {
+width: 100% !important;
 float: left;
 }
 .select_table {
@@ -38,21 +38,50 @@ width: 100%;
 float: left;
 }
 .select_table .w-25 {
-width: 50% !important;
+width: 40% !important;
 float: left;
 }
 .select_table .w-50-25-main {
-width: 50%;
+width: 100%;
 float: left;
+display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
 }
 .select_table .w-50.pull-left {
-width: 50%;
+width: 40% !important;
 float: left;
+padding:0 0 0 6px;
 }
 .select_table .select_table .w-25 {
 width: 50% !important;
 float: left;
 }
+.select_table .w-25.pull-left.pull_button {
+    width: 20% !important;
+    float: left;
+	text-align:center;
+}
+.select_table .select2-selection__rendered{
+	width:auto !important;
+}
+.pull-left.pull_button_inner {
+    width: auto;
+   float: none !important;
+    padding: 0 10px;
+    display: inline-block;
+}
+.select_table .w-50.pull-left .form-control {
+    height: 32px;
+	resize:none;
+	overflow: hidden;
+}
+
+
+
     </style>
     <!-- END - DEVTASK-4416 -->
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
@@ -258,31 +287,33 @@ float: left;
 
                                 <td class="table-hover-cell p-1">
                                     <div class="select_table">
-										<div class="w-25">
-											<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
-												<option value="">Select User</option>
-												@foreach ($users as $user)
-													@if (!$user->isAdmin())
-														<option value="{{ $user->id }}">{{ $user->name }}</option>
-													@endif
-												@endforeach
-											</select>
-										</div>
 										<div class="w-50-25-main">
-                                        <div class="w-50 pull-left">
-                                            <textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message"></textarea>
-                                        </div>
-                                        <div class="w-25 pull-left">
-                                            <button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
-                                                <i class="fa fa-paper-plane"></i>
-                                            </button>
-                                             <button type="button"
-                                                    class="btn btn-xs load-communication-modal pull-left"
-                                                    data-id="{{$value->user_id}}" title="Load messages"
-                                                    data-object="SOP">
-                                                    <i class="fa fa-comments"></i>
-                                            </button>
-                                        </div>
+											<div class="w-25">
+												<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
+													<option value="">Select User</option>
+													@foreach ($users as $user)
+														@if (!$user->isAdmin())
+															<option value="{{ $user->id }}">{{ $user->name }}</option>
+														@endif
+													@endforeach
+												</select>
+											</div>
+											<div class="w-50 pull-left">
+												<textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message"></textarea>
+											</div>
+											<div class="w-25 pull-left pull_button">
+												<div class="pull-left pull_button_inner">
+													<button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
+														<i class="fa fa-paper-plane"></i>
+													</button>
+													 <button type="button"
+															class="btn btn-xs load-communication-modal pull-left"
+															data-id="{{$value->user_id}}" title="Load messages"
+															data-object="SOP">
+															<i class="fa fa-comments"></i>
+													</button>
+												</div>
+											</div>
 										</div>
                                    </div>
                                 </td>
