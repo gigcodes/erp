@@ -3091,7 +3091,7 @@ Route::middleware('auth')->group(function () {
 });
 
 /****Webhook URL for twilio****/
-Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
+Route::any('/run-webhook/{sid}', 'TwilioController@runWebhook');
 
 Route::middleware('auth')->group(function () {
 /*
