@@ -41,6 +41,9 @@ class TwilioErrors extends Command
     public function handle()
     {
         $geterrors = \App\TwilioCredential::all();
+        echo "<pre/>";
+        print_r($geterrors);
+        die();
         if ($geterrors) {
             foreach ($geterrors as $_error) {
                 try {
