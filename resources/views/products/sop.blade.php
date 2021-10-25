@@ -288,7 +288,7 @@ float: left;
                                 <td class="table-hover-cell p-1">
                                     <div class="select_table">
 										<div class="w-50-25-main">
-											<div class="w-25">
+											<div class="w-50">
 												<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
 													<option value="">Select User</option>
 													@foreach ($users as $user)
@@ -298,8 +298,8 @@ float: left;
 													@endforeach
 												</select>
 											</div>
-											<div class="w-50 pull-left">
-												<textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message"></textarea>
+											<div class="w-50 pull-left" style="display:none;">
+												<textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message">{!! strip_tags($value->content) !!}</textarea>
 											</div>
 											<div class="w-25 pull-left pull_button">
 												<div class="pull-left pull_button_inner">
