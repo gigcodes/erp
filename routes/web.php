@@ -3267,8 +3267,9 @@ Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@r
 Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');
 Route::get('gtmetrix/history/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.history');
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
-Route::get('gtmetrix/web-history', 'gtmetrix\WebsiteStoreViewGTMetrixController@webHistory')->name('gtmetrix.web-hitstory');
+Route::get('gtmetrix/web-history', 'gtmetrix\WebsiteStoreViewGTMetrixController@webHistory')->name('gtmetrix.web-history');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+Route::post('gtmetrix/toggle', 'gtmetrix\WebsiteStoreViewGTMetrixController@toggleFlag')->name('gtmetrix.toggle.flag');
 Route::get('gtmetrix/getpagespeedstats/{type}/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstats')->name('gtmetrix.getPYstats');
 Route::post('gtmetrix/savegtmetrixcron', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCron');
 Route::get('gtmetrix/getstatscomparison/{id}', 'gtmetrix\WebsiteStoreViewGTMetrixController@getstatsComparison')->name('gtmetrix.getstatsCmp');
