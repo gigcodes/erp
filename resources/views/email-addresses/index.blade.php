@@ -32,7 +32,7 @@
                               <i class="fa fa-plus"></i>
                             </button>
                         </div>
-                        
+
                     </div>
                     <!-- Search Network -->
 
@@ -70,6 +70,7 @@
             <th width="5%">Driver</th>
             <th width="8%">Host</th>
             <th width="5%">Port</th>
+            <th width="10%">Send Grid Token</th>
             <th width="10%">Encryp</th>
             <th width="10%">Str Website</th>
             <th width="5%">Status</th>
@@ -106,6 +107,9 @@
               </td>
               <td>
                   {{ $server->port }}
+              </td>
+              <td>
+                  {{ $server->send_grid_token??'N/A' }}
               </td>
               <td>
                   {{ $server->encryption }}
