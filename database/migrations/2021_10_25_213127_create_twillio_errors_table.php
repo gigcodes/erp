@@ -13,14 +13,14 @@ class CreateTwillioErrorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('twillio_errors', function (Blueprint $table) {
+        Schema::create('twilio_errors', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('email')->nullable();
-            $table->string('name')->nullable();
-            $table->integer('store_website_id')->nullable();
-            $table->integer('platform_id')->nullable();
-            $table->string('stars')->nullable();
-            $table->text('comment')->nullable();
+            $table->string('sid')->nullable();
+            $table->string('account_sid')->nullable();
+            $table->string('call_sid')->nullable();
+            $table->string('error_code')->nullable();
+            $table->string('message_text')->nullable();
+            $table->string('message_date')->nullable();
             $table->integer('status')->default(1);
             $table->softDeletes();
             $table->timestamps();
@@ -34,6 +34,6 @@ class CreateTwillioErrorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('twillio_errors');
+        Schema::dropIfExists('twilio_errors');
     }
 }
