@@ -9,29 +9,31 @@
 		      </button>
 		   </div>
 		   <div class="modal-body">
-		      <div class="form-row"> 
-		         {{if data}}
-		         	<input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
-		         {{/if}}
-		         <div class="form-group col-md-4">
-		            <label for="title">Title</label>
-		            <input type="text" name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
-		         </div>
-		         <div class="form-group col-md-4">
-		            <label for="website">Website</label>
-		            <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
-		         </div>
-
-		         <div class="form-group col-md-4">
-		            <label for="website">Semrush Project Id</label>
-		            <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="website" placeholder="Enter Semrush Project Id">
-		         </div>
-		      </div>
-
-
-		         <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="country_duty">Mailing Service Id</label>
+		   		<div class="row">
+		   			{{if data}}
+		         		<input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
+		         	{{/if}}
+		   			<div class="col-md-4">
+		   				<div class="form-group">
+				            <label for="title">Title</label>
+				            <input type="text" name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
+			         	</div>
+		   			</div>
+		   			<div class="col-md-4">
+	   					<div class="form-group">
+				            <label for="website">Website</label>
+				            <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
+			         	</div>
+		   			</div>
+		   			<div class="col-md-4">
+		   				<div class="form-group">
+				            <label for="website">Semrush Project Id</label>
+				            <input type="text" name="semrush_project_id" value="{{if data}}{{:data.semrush_project_id}}{{/if}}" class="form-control" id="website" placeholder="Enter Semrush Project Id">
+			         	</div>
+		   			</div>
+		   			<div class="col-md-4">
+                    	<div class="form-group">
+                        	<label for="country_duty">Mailing Service Id</label>
 	                        <select name="mailing_service_id" class="form-control">
 	                           <option disabled>-- N/A --</option>
 	                           		
@@ -48,76 +50,74 @@
 	                        </select>
 		                </div>
                     </div>
-		      </div>
+                    <div class="col-md-4">
+		             	<div class="form-group">
+		             		<label for="description">Description</label>
+			                <input type="text" name="description" value="{{if data}}{{:data.description}}{{/if}}" class="form-control" id="description" placeholder="Enter Description">
+			      		</div>
+		     		</div>
+                    <div class="col-md-4">
+		             	<div class="form-group">
+                         	<label for="remote_software">Remote software</label>
+                         	<input type="text" name="remote_software" value="{{if data}}{{:data.remote_software}}{{/if}}" class="form-control" id="remote_software" placeholder="Enter Remotesoftware">
+                      	</div>
+		        	</div>
+			        <div class="col-md-4">
+			            <div class="form-group">
+	                     	<label for="magento_url">Magento Url</label>
+	                     	<input type="text" name="magento_url" value="{{if data}}{{:data.magento_url}}{{/if}}" class="form-control" id="magento_url" placeholder="Enter magento url">
+	                  	</div>
+			        </div>
+		        	<div class="col-md-4">
+			            <div class="form-group">
+	                     	<label for="magento_url">Magento Url (for DEV)</label>
+	                     	<input type="text" name="dev_magento_url" value="{{if data}}{{:data.dev_magento_url}}{{/if}}" class="form-control" id="dev_magento_url" placeholder="Enter dev magento url">
+	                  	</div>
+		        	</div>
+			        <div class="col-md-4">
+			            <div class="form-group">
+	                     	<label for="magento_url">Magento Url (for Stage)</label>
+	                     	<input type="text" name="stage_magento_url" value="{{if data}}{{:data.stage_magento_url}}{{/if}}" class="form-control" id="stage_magento_url" placeholder="Enter stage magento url">
+	                  	</div>
+			        </div>
+			        <div class="col-md-4">
+                        <div class="form-group">
+                           <label for="magento_username">Magento username</label>
+                           <input type="text" name="magento_username" value="{{if data}}{{:data.magento_username}}{{/if}}" class="form-control" id="magento_username" placeholder="Enter Username">
+                       </div>
+		            </div>
+		             <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="magento_password">Magento Password</label>
+                            <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
+		                </div>
+		            </div>
+		            <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="api_token">Api Token</label>
+                            <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
+                         </div>
+		            </div>
+		            <div class="col-md-4">
+                        <div class="form-group">
+	                         <label for="dev_api_token">Api Token (for dev)</label>
+	                         <input type="text" name="dev_api_token" value="{{if data}}{{:data.dev_api_token}}{{/if}}" class="form-control" id="dev_api_token" placeholder="Enter Dev Api token">
+                        </div>
+		            </div>
+			        <div class="col-md-4">
+	                    <div class="form-group">
+	                         <label for="api_token">Api Token (for stage)</label>
+	                         <input type="text" name="stage_api_token" value="{{if data}}{{:data.stage_api_token}}{{/if}}" class="form-control" id="stage_api_token" placeholder="Enter Stage Api token">
+	                    </div>
+			        </div>
 
-		      <div class="row">
-		        <div class="col-md-4">
-		         <div class="form-group">
-		         <label for="description">Description</label>
-		         <input type="text" name="description" value="{{if data}}{{:data.description}}{{/if}}" class="form-control" id="description" placeholder="Enter Description">
-		      </div>
-		     </div>
-		        <div class="col-md-4">
-		             <div class="form-group">
-                         <label for="remote_software">Remote software</label>
-                         <input type="text" name="remote_software" value="{{if data}}{{:data.remote_software}}{{/if}}" class="form-control" id="remote_software" placeholder="Enter Remote software">
-                      </div>
-		        </div>
-		        <div class="col-md-4">
-		            <div class="form-group">
-                     <label for="magento_url">Magento Url</label>
-                     <input type="text" name="magento_url" value="{{if data}}{{:data.magento_url}}{{/if}}" class="form-control" id="magento_url" placeholder="Enter magento url">
-                  </div>
-		        </div>
-		        <div class="col-md-4">
-		            <div class="form-group">
-                     <label for="magento_url">Magento Url (for DEV)</label>
-                     <input type="text" name="dev_magento_url" value="{{if data}}{{:data.dev_magento_url}}{{/if}}" class="form-control" id="dev_magento_url" placeholder="Enter dev magento url">
-                  </div>
-		        </div>
-		        <div class="col-md-4">
-		            <div class="form-group">
-                     <label for="magento_url">Magento Url (for Stage)</label>
-                     <input type="text" name="stage_magento_url" value="{{if data}}{{:data.stage_magento_url}}{{/if}}" class="form-control" id="stage_magento_url" placeholder="Enter stage magento url">
-                  </div>
-		        </div>
-		      </div>
 
-		      <div class="row">
+		         
 
-		        <div class="col-md-4">
-                    <div class="form-group">
-                     <label for="magento_username">Magento username</label>
-                     <input type="text" name="magento_username" value="{{if data}}{{:data.magento_username}}{{/if}}" class="form-control" id="magento_username" placeholder="Enter Username">
-                    </div>
-		        </div>
-		        <div class="col-md-4">
-                     <div class="form-group">
-                     <label for="magento_password">Magento Password</label>
-                     <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
-		        </div>
-		        </div>
-		        <div class="col-md-4">
-                      <div class="form-group">
-                         <label for="api_token">Api Token</label>
-                         <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
-                      </div>
-		        </div>
-		        <div class="col-md-4">
-                      <div class="form-group">
-                         <label for="dev_api_token">Api Token (for dev)</label>
-                         <input type="text" name="dev_api_token" value="{{if data}}{{:data.dev_api_token}}{{/if}}" class="form-control" id="dev_api_token" placeholder="Enter Dev Api token">
-                      </div>
-		        </div>
-		        <div class="col-md-4">
-                      <div class="form-group">
-                         <label for="api_token">Api Token (for stage)</label>
-                         <input type="text" name="stage_api_token" value="{{if data}}{{:data.stage_api_token}}{{/if}}" class="form-control" id="stage_api_token" placeholder="Enter Stage Api token">
-                      </div>
-		        </div>
-		      </div>
+		      
 
-		      <div class="row">
+		     
+
 		        <div class="col-md-4">
 		              <div class="form-group">
                          <label for="facebook">Facebook</label>
@@ -136,10 +136,6 @@
                          <input type="text" name="instagram" value="{{if data}}{{:data.instagram}}{{/if}}" class="form-control" id="instagram" placeholder="Enter instagram profile">
                       </div>
 		        </div>
-		      </div>
-
-
-                <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
                          <label for="instagram_remarks">Instagram Remarks</label>
@@ -158,9 +154,6 @@
                              <input type="text" name="cropping_size" value="{{if data}}{{:data.cropping_size}}{{/if}}" class="form-control" id="cropping_size" placeholder="Enter Cropping size">
                           </div>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-md-4">
                          <div class="form-group">
                                          <label for="country_duty">Country Duty</label>
@@ -185,7 +178,7 @@
                              </div>
                           </div>
                     </div>
-                    <div class="col-md-4">
+                     <div class="col-md-4">
                          <div class="form-row">
                              <div class="form-group col-md-12">
                                 <label for="inputState">Disable Push?</label>
@@ -196,10 +189,6 @@
                              </div>
                           </div>
                     </div>
-                </div>
-
-
-                <div class="row">
                     <div class="col-md-4">
                          <div class="form-row">
                              <div class="form-group col-md-12">
@@ -211,7 +200,7 @@
                              </div>
                           </div>
                     </div>
-                    <div class="col-md-4">
+                     <div class="col-md-4">
 
                       <div class="form-group">
                          <label for="server_ip">Server IP</label>
@@ -234,21 +223,7 @@
                     </div>
                 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                
 		      <div class="MainMagentoUser">
 		      	{{if totaluser != 0}}
 		      		{{props userdata}}
@@ -469,6 +444,8 @@
 
 
 		   </div>
+
+		      </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 		      <button type="button" class="btn btn-primary submit-store-site">Save changes</button>
