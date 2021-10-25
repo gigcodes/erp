@@ -11032,3 +11032,26 @@ input,select[type=text]{
 .import-form .form-group input[type="file"]{
         width: 50% !important;
 }
+
+
+
+.chat-list-view-more .modal-dialog{
+  max-width: 100% !important;
+    width: 65% !important;
+}
+.ticket-list-msg tbody tr td:first-child {
+  width: 15% !important;
+}
+.chat-list-view-more .modal-header{
+    padding: 5px 15px;
+}
+.chat-list-table .chat-msg{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+.chat-list-table .chat-msg:hover{
+    white-space: normal;
+    overflow: visible;
+}
