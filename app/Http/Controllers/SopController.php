@@ -18,8 +18,8 @@ class SopController extends Controller
     public function index(Request $request)
     {
 
-        //$users = User::all();
-        $users = User::limit(10)->get();
+        $users = User::all();
+        // $users = User::limit(10)->get();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user']);
 
         if ($request->search) {
