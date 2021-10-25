@@ -49,10 +49,7 @@ class TwilioErrors extends Command
                         $result = TwilioHelper::curlGetRequest($url, $_error->account_id, $_error->auth_token);
                         $result = json_decode($result);
                         if($result){
-                            echo "<pre/>";
-                            print_r($result);
-                            /*die();
-                            if (count($result->notifications)) {
+                            if (isset($result->notifications) && count($result->notifications)) {
                                 $input['sid'] = $result->notifications->sid;
                                 $input['account_sid'] = $result->notifications->account_sid;
                                 $input['call_sid'] = $result->notifications->call_sid;
@@ -60,7 +57,7 @@ class TwilioErrors extends Command
                                 $input['message_text'] = $result->notifications->message_text;
                                 $input['message_date'] = $result->notifications->message_date;
                                 $error = \App\TwilioError::create($input);
-                            }*/
+                            }
                         }
                         
                     }
