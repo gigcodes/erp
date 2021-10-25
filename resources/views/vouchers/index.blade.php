@@ -44,10 +44,8 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                 <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
                 <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
-              @endif
               <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
@@ -58,8 +56,7 @@
       <div class="col-sm-12">
         <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
           <div class="row full-width" style="width: 100%;">
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-              <div class="col-md-4 col-sm-12">
+              <div class="col-md-2 col-sm-12">
               <select class="form-control select-multiple" name="user_id" id="user-select">
                   <option value="">Select User</option>
                   @foreach($users as $key => $user)
@@ -67,9 +64,8 @@
                   @endforeach
                 </select>
               </div>
-            @endif
 
-            <div class="col-sm-12 col-md-4">
+            <div class="col-sm-12 col-md-2">
               <div class="form-group mr-3">
                 <input type="text" name="range_start" value="{{ request('range_start') }}" hidden/>
                 <input type="text" name="range_end" value="{{ request('range_end') }}" hidden/>
@@ -97,7 +93,7 @@
                 </select>
               </div>
 
-              <div class="col-sm-12 col-md-4">
+              <div class="col-sm-12 col-md-3 voucher-due-date">
                 <label>Due Date</label>
                 <div class="form-group mr-3">
                   <input type="text" name="range_due_start" value="{{ request('range_due_start') }}" hidden/>
@@ -109,7 +105,7 @@
                 </div>
               </div>
 
-            <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+            <div class="col-md-1"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
           </div>
         </form>
       </div>

@@ -11055,3 +11055,11 @@ input,select[type=text]{
     white-space: normal;
     overflow: visible;
 }
+
+.voucher-due-date{
+        display: flex;
+    justify-content: space-between;
+}
+.col-sm-12.voucher-due-date .form-group{
+    width: 80% !important;
+}
