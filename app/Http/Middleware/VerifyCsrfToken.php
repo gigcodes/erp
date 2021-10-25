@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
 		'twilio/*',
+		'run-webhook/*',
         'whatsapp/*',
         'livechat/*',
         'api/instagram/post',
