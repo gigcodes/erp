@@ -39,7 +39,7 @@ class TwilioErrors extends Command
      */
     public function handle()
     {
-        $geterrors = \App\TwilioCredential::where('id', 4)->get();
+        $geterrors = \App\TwilioCredential::all();
         if ($geterrors) {
             foreach ($geterrors as $_error) {
                 $call_history = \App\TwilioCallData::where(['account_sid' => $_error->account_id])->get();
