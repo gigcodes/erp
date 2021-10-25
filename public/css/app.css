@@ -80,6 +80,7 @@ body {
     color: #212529;
     text-align: left;
     background-color: #f5f8fa;
+    padding: 0;
 }
 
 [tabindex="-1"]:focus {
@@ -11003,3 +11004,31 @@ td.title p {
 }
 }
 /******** Rejected page Ankaj css End here *********/
+
+input,select[type=text]{
+  width: 20%;
+}
+.custom-form .select2-container{
+    width: 100% !important;
+}
+
+
+.inventory-list-layout .checkbox-filter .form-group{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+}
+.inventory-list-layout .checkbox-filter .form-group input[type=checkbox]{
+        width: 17px;
+        margin: 0;
+}
+.brand-update-form .form-group, .import-form .form-group{
+    display: flex !important;
+}
+.brand-update-form .form-group label {
+    margin-right: 8px;
+}
+.import-form .form-group input[type="file"]{
+        width: 50% !important;
+}
