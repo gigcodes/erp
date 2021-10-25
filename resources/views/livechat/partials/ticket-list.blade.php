@@ -26,10 +26,10 @@
             {{ str_limit($ticket->subject,6,'..')}}
         </a>
     </td>
-    <td>
+    <td class="chat-msg">
 
 
-            {{ str_limit($ticket->message,6,'..')}}
+            {{ $ticket->message}}
 
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>
@@ -64,7 +64,7 @@
                 </button>
                 <?php
 $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at', 'desc')->get();
-$table = " <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
+$table = " <table class='table table-bordered ticket-list' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
 foreach ($messages as $m) {
     $table .= "<tr><td>" . $m->created_at . "</td>";
     $table .= "<td>" . $m->message . "</td>";

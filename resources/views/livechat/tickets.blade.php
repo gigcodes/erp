@@ -204,7 +204,7 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right infinite-scroll">
+    <div class="space-right infinite-scroll chat-list-table">
 
         <div class="table-responsive">
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
