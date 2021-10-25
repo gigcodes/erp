@@ -45,6 +45,9 @@ class TwilioErrors extends Command
             foreach ($geterrors as $_error) {
                 try {
                     $call_history = \App\TwilioCallData::where(['account_sid' => $_error->account_id])->get();
+                    echo "<pre/>";
+                    print_r($call_history);
+                    die();
                     if ($call_history) {
                         foreach ($call_history as $_history) {
                             $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $_error->account_id . '/Calls/' . $_history->call_sid . '/Notifications.json';
