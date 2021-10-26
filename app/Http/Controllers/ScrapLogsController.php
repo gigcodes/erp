@@ -205,6 +205,21 @@ class ScrapLogsController extends Controller
 		
 		//return  response()->json(["file_list" => $file_list]);
     }
+     public function logdata(){
+    	return \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
+    	->whereNotNull('scrap_type')
+    	->groupBy('scrap_type','log_messages')
+    	->get();	
+    }
+
+    public function loghistory($filename){
+    	$log = \App\ScrapLog::where('file_name',$filename)->first(); 
+
+    	$toDate = date('Y-m-d',strtotime('+1 day'));    	
+		$fromDate = date('Y-m-d', strtotime('-7 days'));		
+		$fileLogs = \App\ScrapLog::where('scrap_type',$log->scrap_type)->whereBetween('created_at',[$fromDate, $toDate])->get();
+		return $fileLogs;
+    }
     public function fetchlog()
     {
     	$file_list = [];

@@ -11079,4 +11079,12 @@ input,select[type=text]{
     color: black !important;
     font-size: 14px;
 }
+#loghistory .modal-dialog {
+    max-width: 100%;
+    width: 1200px;
 
+}
+#logdatacounter .modal-dialog{
+     max-width: 100%;
+    width: 1200px;
+}
