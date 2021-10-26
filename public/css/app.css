@@ -11080,3 +11080,17 @@ input,select[type=text]{
     font-size: 14px;
 }
 
+#customer-list .customer-raw-line td:nth-child(2) .d-flex{justify-content: space-between;}
+#customer-list .customer-raw-line td:nth-child(2) .d-flex button{background: none;}
+
+#customer-list .customer-raw-line td:nth-child(2) .d-flex:last-child a{
+    position: relative;
+    font-size: 0;
+}
+#customer-list .customer-raw-line td:nth-child(2) .d-flex:last-child a::before {
+    content: 'Vendor';
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 14px;
+}
