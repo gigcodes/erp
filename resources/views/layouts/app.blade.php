@@ -505,6 +505,12 @@ if (!empty($notifications)) {
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
+										<li class="nav-item dropdown dropdown-submenu">
+                                            <a id="twilioDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Twilio<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="twilioDropdown">
+                                                <a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
+                                            </ul>
+                                        </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
