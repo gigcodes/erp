@@ -7,7 +7,7 @@ use IWasHereFirst2\LaravelMultiMail\MailSettings;
 class CustomMail implements MailSettings
 {
     public $config;
-    public $setting = [];
+    public $setting  = [];
     public $provider = [];
 
     public function initialize($key)
@@ -16,28 +16,36 @@ class CustomMail implements MailSettings
         $this->config = \App\EmailAddress::where('from_address', $key)->where("from_address", "not like", "%theluxuryunlimited.com%")->first();
 
         if ($this->config) {
+
             $this->provider = [
-                'host' => $this->config->host,
-                'port' => $this->config->port,
-                'send_grid_token' => $this->config->send_grid_token,
+                'host'       => $this->config->host,
+                'port'       => $this->config->port,
                 'encryption' => $this->config->encryption,
             ];
 
             $this->setting = [
-                'pass' => $this->config->password,
-                'username' => $this->config->username,
-                'from_name' => $this->config->from_name,
-                'from' => $this->config->from_address,
+                'pass'          => $this->config->password,
+                'username'      => $this->config->username,
+                'from_name'     => $this->config->from_name,
+                'from'          => $this->config->from_address,
                 'reply_to_mail' => $this->config->from_address,
             ];
+
+            if (!empty($this->config->send_grid_token)) {
+                $this->provider['host']       = config('env.MAIL_HOST');
+                $this->provider['port']       = config('env.MAIL_PORT');
+                $this->provider['encryption'] = config('env.MAIL_ENCRYPTION');
+                $this->setting['pass']        = $this->config->send_grid_token;
+                $this->setting['username']    = 'apikey';
+            }
+
         } else {
             $this->provider = [
                 // 'host'       => env('MAIL_HOST'),
                 // 'port'       => env('MAIL_PORT'),
                 // 'encryption' => env('MAIL_ENCRYPTION'),
-                'host' => config('env.MAIL_HOST'),
-                'port' => config('env.MAIL_PORT'),
-                'send_grid_token' => config('env.SEND_GRID_TOKEN'),
+                'host'       => config('env.MAIL_HOST'),
+                'port'       => config('env.MAIL_PORT'),
                 'encryption' => config('env.MAIL_ENCRYPTION'),
             ];
 
@@ -47,10 +55,10 @@ class CustomMail implements MailSettings
                 // 'from_name'     => env('MAIL_FROM_NAME'),
                 // 'from'          => env('MAIL_FROM_ADDRESS'),
                 // 'reply_to_mail' => env('MAIL_FROM_ADDRESS'),
-                'pass' => config('env.MAIL_PASSWORD'),
-                'username' => config('env.MAIL_USERNAME'),
-                'from_name' => config('env.MAIL_FROM_NAME'),
-                'from' => config('env.MAIL_FROM_ADDRESS'),
+                'pass'          => config('env.MAIL_PASSWORD'),
+                'username'      => config('env.MAIL_USERNAME'),
+                'from_name'     => config('env.MAIL_FROM_NAME'),
+                'from'          => config('env.MAIL_FROM_ADDRESS'),
                 'reply_to_mail' => config('env.MAIL_FROM_ADDRESS'),
             ];
         }
