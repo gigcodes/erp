@@ -86,6 +86,15 @@
                 </select>
             </div>
             <div class="form-group col-md-2">
+                <select class="form-control" name="assigned_to[]" multiple id="assigned_to">
+                    @if($assignedUsers)
+                    @foreach($assignedUsers as $k=> $_user)
+                     <option value="{{$k}}" {{ in_array($k,request('assigned_to')) ? 'selected' : '' }}>{{$_user}}</option>
+                    @endforeach
+                    @endif
+                </select>
+            </div>
+            <div class="form-group col-md-2">
                 <button type="submit" class="btn btn-xs btn-sm bg-transparent mt-2">
                     <i class="fa fa-sort"></i>
                 </button>
@@ -1684,6 +1693,8 @@
                 alert('Please enter a message first');
             }
         });
+
+        $("#assigned_to").select2();
 
         $(document).on("click",".toggle-title-box",function(ele) {
             var $this = $(this);
