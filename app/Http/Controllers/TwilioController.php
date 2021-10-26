@@ -663,7 +663,7 @@ class TwilioController extends FindByNumberController
                     
                     // $response->play(\Config::get("app.url") . "end_work_ring.mp3");
                 }else
-                { return "hi 666";
+                { 
                     Log::channel('customerDnd')->info(' working Hours >> ');
                     if($count < 1)
                     { 
