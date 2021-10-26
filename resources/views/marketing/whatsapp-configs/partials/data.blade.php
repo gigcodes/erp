@@ -25,12 +25,12 @@
   <td>{{ $whatsAppConfig->payment }}</td>
   <td>{{ $whatsAppConfig->recharge_date }}</td> -->
   <td>@if($whatsAppConfig->status == 1) Active @elseif($whatsAppConfig->status == 2) Blocked @elseif($whatsAppConfig->status == 3)  Scan Barcode @else Inactive @endif</td>
-  <td>{{ $whatsAppConfig->created_at->format('d-m-Y') }}</td>
+  <td>{{ date('d-m-Y', strtotime($whatsAppConfig->created_at))}}</td>
   <td>{{ $whatsAppConfig->instance_id }}</td>
-  <td>
-    <button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
+  <td class="whatsAppConfig-action">
+    <button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-sm"><i class="fa fa-edit"></i></button>
     @if(Auth::user()->hasRole('Admin'))
-    <button onclick="deleteConfig({{ $whatsAppConfig->id }})" class="btn btn-sm">Delete</button>
+    <button onclick="deleteConfig({{ $whatsAppConfig->id }})" class="btn btn-sm"><i class="fa fa-trash"></i></button>
     @endif
     <a href="{{route('whatsapp.config.history', $whatsAppConfig->id)}}" title="History"><i class="fa fa-history" aria-hidden="true"></i></a>
     <a href="{{route('whatsapp.config.queue', $whatsAppConfig->id)}}" title="Queue"><i class="fa fa-list" aria-hidden="true"></i></a>
