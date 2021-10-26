@@ -4252,11 +4252,11 @@ class WhatsAppController extends FindByNumberController
                     $toemail = $charity->email;
                 }
                 if ($context == 'SOP-Data') {
-                    $user = User::find($message->user_id);
+                    $user = User::find($message->sop_user_id);
 
                     $phone = $user->phone;
-                    $whatsapp_number = Auth::user()->whatsapp_number;
-                    $model_id = $message->user_id;
+                    $whatsapp_number = $user->whatsapp_number;
+                    $model_id = $message->sop_user_id;
                     $toemail = $user->email;
                     $model_class = \App\User::class;
                 }
