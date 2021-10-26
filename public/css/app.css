@@ -11079,7 +11079,15 @@ input,select[type=text]{
     color: black !important;
     font-size: 14px;
 }
+#loghistory .modal-dialog {
+    max-width: 100%;
+    width: 1200px;
 
+}
+#logdatacounter .modal-dialog{
+     max-width: 100%;
+    width: 1200px;
+}
 #customer-list .customer-raw-line td:nth-child(2) .d-flex{justify-content: space-between;}
 #customer-list .customer-raw-line td:nth-child(2) .d-flex button{background: none;}
 
@@ -11093,4 +11101,63 @@ input,select[type=text]{
     top: 0;
     left: 0;
     font-size: 14px;
+}
+#order_return_summary .modal-body .table-responsive td:first-child{
+   
+}
+.order_return_summary  .modal-dialog{
+    top: 10%;
+    width: 90%;
+}
+
+.table-striped-custom{
+    border-radius: 4px!important;
+    border: 1px solid #ddd !important;
+}
+.table-striped-custom thead {
+    background-color: #f9f9f9;
+}
+.table-striped-custom tbody >tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+.table-striped-custom th{
+    border: 1px solid #ddd;
+}
+table.table-striped-custom > thead > tr > th{
+    white-space: nowrap;
+    border-top: 2px solid #ddd !important;
+}
+table.table-striped-custom tbody tr td {
+    border: 1px solid #CCC;
+}
+.modal-content .modal-header {
+    align-items: center;
+}
+.modal-content .modal-header h5#show-customer-credits-modal-label {
+    margin-right: 10px;
+}
+.modal-content .modal-header .close {
+    margin-top: 0 !important;
+}
+.table-responsive table th:nth-child(1) {
+    display: none;
+}
+.table-responsive tbody#order_return_summary_list tr td:nth-child(1) {
+    display: none;
+}
+#order_return_summary {
+    margin: 47px 0 0 14px;
+}
+#order_return_summary .modal-content .modal-header h2 {
+    margin-top: 10px;
+}
+#order_return_summary .modal-dialog, #order_summary .modal-dialog {
+    width: 85% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+}
+.modal-dialog .modal-lg .modal-footer .btn-secondary {
+    color: #6c757d !important;
+    background-color: #FFf !important;
+    border-color: #6c757d !important;
 }
