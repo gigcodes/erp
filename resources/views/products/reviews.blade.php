@@ -29,7 +29,7 @@
 
 							<div class="pull-left cls_filter_box">
 								{{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
-									
+
 									<div class="form-group ml-3 cls_filter_inputbox">
 										<label for="leads_email">Email</label>
 										{{Form::text('email', $email, array('class'=>'form-control'))}}
@@ -63,6 +63,7 @@
                 <th style="">Platform Id</th>
                 <th style="">Star Rating</th>
                 <th style="">Comment</th>
+                <th style="">Status</th>
                 <th style="">Action</th>
             </thead>
             <tbody>
@@ -75,6 +76,12 @@
                     <td id="description">{{$value->platform_id??'N/A'}}</td>
                     <td id="description">{{$value->stars??'N/A'}}</td>
                     <td id="description">{{$value->comment??'N/A'}}</td>
+                    @if($value->status)
+                    <td id="description"><button class="btn btn-success">Approved</button></td>
+                    @else
+                    <td id="description"><button class="btn btn-danger click-approve" data-route="{{route('product.click-approve')}}" data-platform="{{$value->platform_id}}" data-url="{{$value->storeWebsite->magento_url}}" data-token="{{$value->storeWebsite->api_token}}">Click to approve</button></td>
+                    @endif
+
                     <td>
 						<a data-route="{{route('product.delete-review')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                     </td>
@@ -144,6 +151,31 @@
 				}
 			});
 		});
+
+        $('.click-approve').on('click', function(e) {
+            e.preventDefault();
+            var platform_id = $(this).attr('data-platform');
+			var base_url = $(this).attr('data-url');
+			var token = $(this).attr('data-token');
+            var route = $(this).attr('data-route');
+			var option = { _token: "{{ csrf_token() }}", platform_id:platform_id, base_url:base_url,token:token };
+			$("#loading-image").show();
+			$.ajax({
+				type: 'post',
+				url: route,
+				data: option,
+				success: function(response) {
+					$("#loading-image").hide();
+					setTimeout(function(){
+                          location.reload();
+                        }, 1000);
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+			});
+        });
 
 		function showMessageTitleModal(groupId){
 			$('#message_group_id').val(groupId);

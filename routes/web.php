@@ -2728,6 +2728,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/customer-reviews', 'ProductController@customerReviews')->name('product.customer-reviews');
     Route::post('delete/review', 'ProductController@deleteReview')->name('product.delete-review');
+    Route::post('approve/review', 'ProductController@approveReview')->name('product.click-approve');
 
     Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 });
@@ -3093,7 +3094,7 @@ Route::middleware('auth')->group(function () {
 });
 
 /****Webhook URL for twilio****/
-Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
+Route::any('/run-webhook/{sid}', 'TwilioController@runWebhook');
 
 Route::middleware('auth')->group(function () {
 /*
@@ -3148,6 +3149,15 @@ Route::prefix('twillio')->middleware('auth')->group(function () {
     Route::post('delete/message/group', 'TwillioMessageController@deleteMessageGroup')->name('delete.message.group');
     Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
 });
+
+
+//Image-Logs
+Route::prefix('image-logs')->middleware('auth')->group(function () {
+    Route::get('/', 'LogsController@index')->name('logs.index');
+    Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
+});
+
+
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(function () {

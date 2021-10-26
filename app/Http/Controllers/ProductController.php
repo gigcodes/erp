@@ -148,6 +148,30 @@ class ProductController extends Controller
         return response()->json(['code' => 200, 'message' => 'Review deleted successfully']);
     }
 
+    public function approveReview(Request $request)
+    {
+        $data = ['platform_id' => $request->platform_id, 'status' => 1];
+        $data = json_encode($data);
+        $url = $request->base_url . '/testimonial/index/statusupdate';
+        $token = $request->token;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $result = curl_exec($ch);
+        $err = curl_error($ch);
+        \Log::channel('approveReview')->info(json_encode([$url, $token, $data, $result, "approveReview"]));
+        $response = json_decode($result);
+
+        if ($response) {
+            $update = \App\CustomerReview::where(['platform_id' => $request->platform_id])->update(['status' => 1, 'push' => 1]);
+        }
+
+        \Log::info(print_r([$url, $token, $data, $result], true));
+    }
+
     public function approvedListing(Request $request, $pageType = "")
     {
 

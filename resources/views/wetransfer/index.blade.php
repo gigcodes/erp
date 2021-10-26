@@ -127,11 +127,15 @@
 				beforeSend: function () {
 						$("#loading-image").show();
 					},
-				}).done( function(response) {
+				}).done( function(response) { 
 					if (response.status === true) {
 						toastr['success'](response.message);
 					}else{
-                        toastr['error'](response.message);
+						if(response.message) {
+							toastr['error'](response.message);
+						} else {
+							toastr['error'](response);
+						}
 					}
 					$("#loading-image").hide();
 				}).fail(function(errObj) {

@@ -118,6 +118,7 @@ class CustomerController extends Controller
             $input['platform_id'] = $request->platform_id;
             $input['stars'] = $request->stars;
             $input['comment'] = $request->comment;
+            $input['status'] = 0;
             $reviews = \App\CustomerReview::create($input);
 
             if ($reviews) {
