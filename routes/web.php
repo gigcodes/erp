@@ -2750,12 +2750,14 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('scrap-logs', 'ScrapLogsController@index');
+    Route::get('scrap-logs/log-data','ScrapLogsController@logdata')->name('scrap.logdata');
     Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
     Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
     Route::get('fetchlog', 'ScrapLogsController@fetchlog');
     Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
     Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
-
+    Route::get('scrap-logs/log-history/{filename}','ScrapLogsController@loghistory')->name('scarp.loghistory');
+    
     Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
 
     Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
@@ -3022,6 +3024,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/get_website_agent', 'TwilioController@getWebsiteAgent')->name('twilio.get_website_agent');
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
+    Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
 
     /**
      * Watson account management

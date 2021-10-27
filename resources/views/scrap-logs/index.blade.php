@@ -48,6 +48,9 @@
 		<div class="col-lg-2 text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#status-create">Create Status</button>
 		</div>
+		<div class="col-lg-2 text-rights">
+			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
+		</div>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -120,6 +123,21 @@
             </div>
         </div>
     </div>
+    <div id="logdatacounter" class="modal fade" role="dialog">
+    	   <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Data</h4>
+                </div>
+                <div class="modal-body">
+                	<table class="table table-bordered table-striped">
+                	<thead></thead>
+				    <tbody></tbody>
+                	</table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="makeRemarkModal" class="modal fade" role="dialog">
 	  <div class="modal-dialog <?php echo (!empty($type) && ($type == 'scrap' || $type == 'email')) ? 'modal-lg' : ''  ?>">
 
@@ -180,6 +198,22 @@
 
 	  </div>
 </div>
+<div id="loghistory" class="modal fade" role="dialog">
+	  <div class="modal-dialog ">
+	  	<!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h4 class="modal-title">log history</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	  	<div class="modal-body">
+	  		<tbody id="log_history"></tbody>
+	  	</div>
+	  	<div class="modal-footer">
+	  	</div>
+	  </div>
+	 </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -214,7 +248,7 @@
 						console.log(data)
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
-							$("tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button></td></tr>");
+							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button></td></tr>");
 						});
 						
 					}
@@ -267,5 +301,46 @@
                 $("#makeRemarkModal").find('#remark-list').html(html);
             });
         });
+
+	$(document).on('click', '.log-history', function (e) {
+            e.preventDefault();
+            var filename = $(this).data('filename');           
+            var url = '{{ route("scarp.loghistory",':filename') }}';
+            url = url.replace(":filename", filename);
+             $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url
+            })
+             .done(response => {	
+             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Date</td><td>Log Message</td></thead><tbody>'; 		
+			    $.each(response, function (key) {
+			    	var log = response[key]['log_messages'];
+			    	var date = response[key]['created_at'];
+			    	 html += '<tr><td>' + date + '</td><td>' + log + '</td></tr>';
+                });
+			   html += "</tbody></table>";
+           		$("#loghistory .modal-body").html(html);
+            }); 	            
+	});
+	$(document).on('click','#logdatahistory',function(e) {  
+		e.preventDefault(); 		
+		$.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route("scrap.logdata") }}'
+      	})
+      	.done(response => {
+      		var html = '<table class="table table-bordered table-striped"><thead><tr><td>foldername</td><td>Scrap Type</td><td>Log Message</td><td>logcount</td></thead><tbody>';
+      		 $.each(response, function (key) {
+      				html += '<tr><td>' + response[key]['folder_name'] + '</td><td>' + response[key]['scrap_type'] + '</td><td>'+ response[key]['log_messages'] + '</td><td>' + response[key]['log_count'] + '</td>';
+      		 });
+      		$("#logdatacounter .modal-body table tbody").html(html);
+      	});
+	});
 </script> 
 @endsection

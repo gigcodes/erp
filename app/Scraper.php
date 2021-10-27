@@ -106,6 +106,7 @@ class Scraper extends Model
     {
         return \App\DeveloperTask::where("scraper_id", $id)->first();
     }
+    
 
     public function developerTaskNew()
     {
