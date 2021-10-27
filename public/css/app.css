@@ -11161,3 +11161,19 @@ table.table-striped-custom tbody tr td {
     background-color: #FFf !important;
     border-color: #6c757d !important;
 }
+.cls_remove_rightpadding{
+ width: 100%;
+ display: flex;
+}
+.row  .cls_textarea_subbox .d-flex{
+    display: flex;
+}
+
+.scrp-task-list .modal-dialog{
+    width: 100%;
+}
+.scrp-task-list .btn-create-task{
+ background-color: white;
+ color: black;
+ border: 1px solid #ccc;
+}
