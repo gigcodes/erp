@@ -308,7 +308,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('project:filemanagementdate')->daily();
 
-        $schedule->command('twilio:errors')->daily();
+        $schedule->command('twilio:errors')->dailyAt('01:00');
 
         $schedule->command('command:fetchMagentoCronData')->dailyAt('01:00');
 
