@@ -89,7 +89,7 @@
                 <select class="form-control" name="assigned_to[]" multiple id="assigned_to">
                     @if($assignedUsers)
                     @foreach($assignedUsers as $k=> $_user)
-                     <option value="{{$k}}" {{ in_array($k,request('assigned_to')) ? 'selected' : '' }}>{{$_user}}</option>
+                     <option value="{{$k}}" {{ (request('assigned_to'))?in_array($k,request('assigned_to')) ? 'selected' : '' : '' }}>{{$_user}}</option>
                     @endforeach
                     @endif
                 </select>
@@ -1694,7 +1694,10 @@
             }
         });
 
-        $("#assigned_to").select2();
+        $("#assigned_to").select2({
+            placeholder: 'Select Users',
+            allowClear: true
+        });
 
         $(document).on("click",".toggle-title-box",function(ele) {
             var $this = $(this);
