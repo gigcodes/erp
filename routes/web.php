@@ -2750,12 +2750,14 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('scrap-logs', 'ScrapLogsController@index');
+    Route::get('scrap-logs/log-data','ScrapLogsController@logdata')->name('scrap.logdata');
     Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
     Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
     Route::get('fetchlog', 'ScrapLogsController@fetchlog');
     Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
     Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
-
+    Route::get('scrap-logs/log-history/{filename}','ScrapLogsController@loghistory')->name('scarp.loghistory');
+    
     Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
 
     Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
