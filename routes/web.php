@@ -2728,6 +2728,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/customer-reviews', 'ProductController@customerReviews')->name('product.customer-reviews');
     Route::post('delete/review', 'ProductController@deleteReview')->name('product.delete-review');
+    Route::post('approve/review', 'ProductController@approveReview')->name('product.click-approve');
 
     Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 });
@@ -3021,6 +3022,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/get_website_agent', 'TwilioController@getWebsiteAgent')->name('twilio.get_website_agent');
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
+    Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
 
     /**
      * Watson account management
@@ -3092,7 +3094,7 @@ Route::middleware('auth')->group(function () {
 });
 
 /****Webhook URL for twilio****/
-Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
+Route::any('/run-webhook/{sid}', 'TwilioController@runWebhook');
 
 Route::middleware('auth')->group(function () {
 /*
@@ -3147,6 +3149,15 @@ Route::prefix('twillio')->middleware('auth')->group(function () {
     Route::post('delete/message/group', 'TwillioMessageController@deleteMessageGroup')->name('delete.message.group');
     Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
 });
+
+
+//Image-Logs
+Route::prefix('image-logs')->middleware('auth')->group(function () {
+    Route::get('/', 'LogsController@index')->name('logs.index');
+    Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
+});
+
+
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(function () {
@@ -3262,6 +3273,10 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
 });
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
+Route::get('gtmetrix-url', 'gtmetrix\WebsiteStoreViewGTMetrixController@website_url')->name('gt-metrix-url');
+Route::post('gtmetrix-url/add', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-add-url');
+Route::post('gtmetrix/multi-add-in-process', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-multi-process-url');
+Route::post('gtmetrix/deleteurl', 'gtmetrix\WebsiteStoreViewGTMetrixController@delete_website_url')->name('deleteurl');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');
