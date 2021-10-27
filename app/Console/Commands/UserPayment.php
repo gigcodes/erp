@@ -45,8 +45,8 @@ class UserPayment extends Command
     {
         try {
         DB::beginTransaction();
-        $users = User::where('fixed_price_user_or_job',2)->get();
-        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at')->first();
+        $users = User::whereIn('fixed_price_user_or_job',[2,3])->get();
+        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at','desc')->first();
 
         if($firstEntryInActivity) {
             $bigining = date('Y-m-d',strtotime($firstEntryInActivity->starts_at));
@@ -133,6 +133,7 @@ class UserPayment extends Command
         DB::commit();
         echo PHP_EOL . "=====DONE====" . PHP_EOL;
         } catch (Exception $e) {
+            \Log::error($e);
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . "=====FAILED====" . PHP_EOL;
