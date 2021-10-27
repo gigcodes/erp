@@ -25,7 +25,7 @@ class EmailAddressesController extends Controller
 
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->with('email_assignes');
 
-        $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
+        $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption', 'send_grid_token'];
 
         if ($request->keyword) {
             foreach ($columns as $column) {
@@ -84,14 +84,15 @@ class EmailAddressesController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'from_name'      => 'required|string|max:255',
-            'from_address'   => 'required|string|max:255',
-            'driver'         => 'required|string|max:255',
-            'host'           => 'required|string|max:255',
-            'port'           => 'required|string|max:255',
-            'encryption'     => 'required|string|max:255',
-            'username'       => 'required|string|max:255',
-            'password'       => 'required|string|max:255',
+            'from_name' => 'required|string|max:255',
+            'from_address' => 'required|string|max:255',
+            'driver' => 'required|string|max:255',
+            'host' => 'required|string|max:255',
+            'send_grid_token' => 'required|string',
+            'port' => 'required|string|max:255',
+            'encryption' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
             //'recovery_phone' => 'required|string|max:255',
             //'recovery_email' => 'required|string|max:255',
         ]);
@@ -138,14 +139,15 @@ class EmailAddressesController extends Controller
     {
 
         $this->validate($request, [
-            'from_name'      => 'required|string|max:255',
-            'from_address'   => 'required|string|max:255',
-            'driver'         => 'required|string|max:255',
-            'host'           => 'required|string|max:255',
-            'port'           => 'required|string|max:255',
-            'encryption'     => 'required|string|max:255',
-            'username'       => 'required|string|max:255',
-            'password'       => 'required|string|max:255',
+            'from_name' => 'required|string|max:255',
+            'from_address' => 'required|string|max:255',
+            'driver' => 'required|string|max:255',
+            'host' => 'required|string|max:255',
+            'port' => 'required|string|max:255',
+            'send_grid_token' => 'required|string',
+            'encryption' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
             //'recovery_phone' => 'required|string|max:255',
             //'recovery_email' => 'required|string|max:255',
         ]);

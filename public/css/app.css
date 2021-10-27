@@ -11079,6 +11079,9 @@ input,select[type=text]{
     color: black !important;
     font-size: 14px;
 }
+#loghistory .modal-dialog {
+    max-width: 100%;
+    width: 1200px;
 
 #customer-list .customer-raw-line td:nth-child(2) .d-flex{justify-content: space-between;}
 #customer-list .customer-raw-line td:nth-child(2) .d-flex button{background: none;}
@@ -11093,4 +11096,8 @@ input,select[type=text]{
     top: 0;
     left: 0;
     font-size: 14px;
+}
+#logdatacounter .modal-dialog{
+     max-width: 100%;
+    width: 1200px;
 }
