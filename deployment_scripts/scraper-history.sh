@@ -5,11 +5,14 @@ do
 	then
 		scraper=`echo "$line"|cut -d' ' -f1`
 		server=`echo "$line"|cut -d' ' -f2`
+		year=`echo $line|cut -d' '  -f3|cut -d'-' -f1|tail -c 3`
+		monthnum=`echo $line|cut -d' '  -f3|cut -d'-' -f2`
 		day=`echo "$line"|cut -d' ' -f3|cut -d'-' -f3`
+		month=`date +%b -d "$year-$monthnum-$day"`
 		ssh -o ConnectTimeout=5 root@$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraper|grep -v grep" < /dev/null
 		if [ $? -ne 0 ]
 		then
-			endtime=`stat -c '%y' /mnt/logs/$server/$scraper-$day.log|cut -d'.' -f1|tr ' ' '-'`
+			endtime=`stat -c '%y' /mnt/logs/$server/$scraper-$day$month$year*.log|cut -d'.' -f1|tr ' ' '-'`
 			sed -i "s/Processing-$scraper-$day-$server/$endtime/" /opt/scrap_history
 		fi
 	fi
