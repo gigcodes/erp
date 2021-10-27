@@ -133,6 +133,7 @@ class UserPayment extends Command
         DB::commit();
         echo PHP_EOL . "=====DONE====" . PHP_EOL;
         } catch (Exception $e) {
+            \Log::error($e);
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . "=====FAILED====" . PHP_EOL;
