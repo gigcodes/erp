@@ -63,7 +63,7 @@ done
 hostip=`grep $server'_HOST' /var/www/erp.theluxuryunlimited.com/.env|cut -d'=' -f2`
 
 function set_variable {
-	if [ $type == "shared" ]
+	if [ $type != "sensitive" ]
 	then
 		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value
 	else
@@ -75,7 +75,7 @@ function set_variable {
 	fi
 }
 
-if [ $type == "shared" ]
+if [ $type != "sensitive" ]
 then
 	cd /opt/magento/$repo
 	git reset --hard origin/stage
@@ -98,7 +98,7 @@ else
 	done < $file
 fi
 
-if [ $type == "shared" ]
+if [ $type != "sensitive" ]
 then
 	###### Dump changes from database and push to stage branch ###
 	php bin/magento app:config:dump
