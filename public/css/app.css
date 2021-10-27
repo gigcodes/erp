@@ -11161,3 +11161,8 @@ table.table-striped-custom tbody tr td {
     background-color: #FFf !important;
     border-color: #6c757d !important;
 }
+=======
+#logdatacounter .modal-dialog{
+     max-width: 100%;
+    width: 1200px;
+}

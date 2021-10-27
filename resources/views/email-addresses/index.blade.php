@@ -32,7 +32,7 @@
                               <i class="fa fa-plus"></i>
                             </button>
                         </div>
-                        
+
                     </div>
                     <!-- Search Network -->
 
@@ -70,6 +70,7 @@
             <th width="5%">Driver</th>
             <th width="8%">Host</th>
             <th width="5%">Port</th>
+            <th width="10%">Send Grid Token</th>
             <th width="10%">Encryp</th>
             <th width="10%">Str Website</th>
             <th width="5%">Status</th>
@@ -106,6 +107,9 @@
               </td>
               <td>
                   {{ $server->port }}
+              </td>
+              <td>
+                  {{ $server->send_grid_token??'N/A' }}
               </td>
               <td>
                   {{ $server->encryption }}
@@ -309,6 +313,7 @@
                 <div class="alert alert-danger">{{$errors->first('port')}}</div>
               @endif
             </div>
+
             <div class="form-group col-md-4">
               <strong>Encryption:</strong>
               <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
@@ -319,6 +324,14 @@
             </div>
           </div>
           <div class="row">
+          <div class="form-group col-md-4">
+              <strong>Send Grid Token:</strong>
+              <input type="text" name="send_grid_token" class="form-control" value="{{ old('send_grid_token') }}" required>
+
+              @if ($errors->has('send_grid_token'))
+                <div class="alert alert-danger">{{$errors->first('send_grid_token')}}</div>
+              @endif
+            </div>
             <div class="form-group col-md-4">
               <strong>Username:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
@@ -343,9 +356,8 @@
                 <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
               @endif
             </div>
-          </div>
-          <div class="row">
-            <div class="form-group col-md-3">
+
+            <div class="form-group col-md-4">
               <strong>Signature Title:</strong>
               <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
 
@@ -353,7 +365,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
               @endif
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4">
               <strong>Signature Phone:</strong>
               <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
 
@@ -361,7 +373,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
               @endif
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4">
               <strong>Signature Email:</strong>
               <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
 
@@ -369,7 +381,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
               @endif
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4">
               <strong>Signature Website:</strong>
               <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
 
@@ -606,6 +618,14 @@
             </div>
           </div>
           <div class="row">
+          <div class="form-group col-md-4">
+              <strong>Send Grid Token:</strong>
+              <input type="text" name="send_grid_token" class="form-control" value="{{ old('send_grid_token') }}" required>
+
+              @if ($errors->has('send_grid_token'))
+                <div class="alert alert-danger">{{$errors->first('send_grid_token')}}</div>
+              @endif
+            </div>
             <div class="form-group col-md-4">
               <strong>Username:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
@@ -630,9 +650,8 @@
                 <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
               @endif
             </div>
-          </div>
-          <div class="row">
-            <div class="form-group col-md-3">
+         
+            <div class="form-group col-md-4">
               <strong>Signature Title:</strong>
               <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
 
@@ -640,7 +659,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
               @endif
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4">
               <strong>Signature Phone:</strong>
               <input type="text" name="signature_phone" class="form-control" value="{{ old('signature_phone') }}" >
 
@@ -648,7 +667,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_title')}}</div>
               @endif
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4">
               <strong>Signature Email:</strong>
               <input type="text" name="signature_email" class="form-control" value="{{ old('signature_email') }}" >
 
@@ -656,7 +675,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_email')}}</div>
               @endif
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4">
               <strong>Signature Website:</strong>
               <input type="text" name="signature_website" class="form-control" value="{{ old('signature_website') }}" >
 
@@ -768,6 +787,7 @@
       // $('#emailAddressEditModal').find('input[name="driver"]').val(emailAddress.driver);
 
       $('#emailAddressEditModal').find('input[name="host"]').val(emailAddress.host);
+      $('#emailAddressEditModal').find('input[name="send_grid_token"]').val(emailAddress.send_grid_token);
 
       // $('#emailAddressEditModal').find('input[name="port"]').val(emailAddress.port);
 
