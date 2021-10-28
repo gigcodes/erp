@@ -127,7 +127,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
 			if(isset($request->store_view))
 			{  
 				$storeViewList = WebsiteStoreView::where('id',$request->store_view)->get();
-				$storename = $storeViewList[0]->name;
+				if(isset($storeViewList[0]))
+				{
+					$storename = $storeViewList[0]->name;
+				}
 			}
 			
 			

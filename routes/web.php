@@ -1372,7 +1372,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('log_history/list/{id}', 'MagentoProductPushErrors@getHistory');
 
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
-    Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
+    Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
+    
+	Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -2750,12 +2752,14 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('scrap-logs', 'ScrapLogsController@index');
+    Route::get('scrap-logs/log-data','ScrapLogsController@logdata')->name('scrap.logdata');
     Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
     Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
     Route::get('fetchlog', 'ScrapLogsController@fetchlog');
     Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
     Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
-
+    Route::get('scrap-logs/log-history/{filename}','ScrapLogsController@loghistory')->name('scarp.loghistory');
+    
     Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
 
     Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
