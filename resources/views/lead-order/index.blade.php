@@ -56,6 +56,10 @@
 				<th style="width: 5%">Prod ID</th>
 				<th style="width: 17%">Prod</th>
 				<th style="width: 15%">Brand</th>
+				<th style="width: 15%">Default Price</th>
+				<th style="width: 15%">Segement Discount</th>
+				<th style="width: 15%">Duty Price</th>
+				<th style="width: 15%">Override Price</th>
 				<th style="width: 7%">Prod Price</th>
 				<th style="width: 7%">Disc</th>
 				<th style="width: 8%">Final Price</th>
