@@ -45,92 +45,27 @@ class CheckScraperKilledHistory extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'scrap_restart.sh 2>&1';
+        $path = getenv('SCRAPER_RESTART_PATH') . 'scrap.txt';
 
-        $allOutput = array();
-        $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $data = file_get_contents($path);
+        $output = explode('.js', $data);
 
-        $serverId = null;
-        $scraperNamestr = null;
-        $totalMemory = null;
-        $usedMemory = null;
-        $inPercentage = null;
-
-        echo "<pre/>";
-        print_r($allOutput);
-        die();
-
-        if (!empty($allOutput)) {
-            foreach ($allOutput as $k => $allO) {
-                if ($k == 0) {
-                    continue;
-                }
-                $allO = preg_replace('/\s+/', ' ', $allO);
-                if (strpos($allO, "##################### Server - ") !== false) {
-                    $serverArray = explode("##################### Server - ", $allO);
-                    if (!empty($serverArray[1])) {
-                        $serverNameArr = explode("################### Server Load ", $serverArray[1]);
-                        if (!empty(trim($serverNameArr[0]))) {
-                            $serverId = trim(str_replace("#", "", $serverNameArr[0]));
-                            continue;
+        if (count($output) > 0) {
+            foreach ($output as $_data) {
+                $scraper_name = trim($_data);
+                if ($scraper_name) {
+                    $scrapers = \App\Scraper::where("scraper_name", $scraper_name)->get();
+                    if ($scrapers) {
+                        foreach ($scrapers as $_scrap) {
+                            $status = \App\ScraperKilledHistory::create([
+                                "scraper_id" => $_scrap->id,
+                                "scraper_name" => $_scrap->scraper_name,
+                                "comment" => 'Scraper killed',
+                            ]);
                         }
                     }
                 }
 
-                if (strpos($allO, "Total Memory = ") !== false) {
-                    $memoryArr = explode("Total Memory = ", $allO);
-                    if (!empty($memoryArr[1])) {
-                        $totalMemory = $memoryArr[1];
-                    }
-                }
-
-                if (strpos($allO, "Used Memory = ") !== false) {
-                    $memoryArr = explode("Used Memory = ", $allO);
-                    if (!empty($memoryArr[1])) {
-                        $usedMemory = $memoryArr[1];
-                    }
-                }
-
-                if (strpos($allO, "Used Memory in Percentage = ") !== false) {
-                    $memoryArr = explode("Used Memory in Percentage = ", $allO);
-                    if (!empty($memoryArr[1])) {
-                        $inPercentage = $memoryArr[1];
-                    }
-                }
-
-                // start to store scarper name
-                $scraperNamestr = null;
-                $scraperStarTime = null;
-                $pid = null;
-                if (strpos($allO, "/root/scraper_nodejs/commands/completeScraps") !== false) {
-                    $scriptNames = explode("/root/scraper_nodejs/commands/completeScraps", $allO);
-                    if (!empty($scriptNames[1])) {
-                        $pidStringArr = explode(" ", $scriptNames[0]);
-                        $pid = $pidStringArr[0];
-                        $scraperStarTime = $pidStringArr[1];
-                        $scraperName = explode("/", $scriptNames[1]);
-                        if (count($scraperName) > 2) {
-                            $scraperNamestr = $scraperName[1];
-                        } else {
-                            $scraperNamestr = str_replace(".js", "", $scraperName[1]);
-                        }
-
-                    }
-                }
-
-                if (!empty($scraperNamestr)) {
-                    $status = \App\ScraperKilledHistory::create([
-                        "scraper_name" => $scraperNamestr,
-                        "scraper_string" => $allO,
-                        "server_id" => $serverId,
-                        "duration" => $scraperStarTime,
-                        "total_memory" => $totalMemory,
-                        "used_memory" => $usedMemory,
-                        "in_percentage" => $inPercentage,
-                        "pid" => $pid,
-                    ]);
-                }
             }
         }
 

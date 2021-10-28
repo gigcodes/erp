@@ -933,6 +933,15 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
 
+    public function killedList(Request $request)
+    {
+        $id = $request->id;
+
+        $histories = \App\ScraperKilledHistory::where("scraper_id", $request->id)->latest()->get();
+
+        return view("scrap.partials.killed", compact('histories', 'id', ));
+    }
+
     public function addReply(Request $request)
     {
         $reply = $request->get("reply");
@@ -1118,12 +1127,12 @@ class ScrapStatisticsController extends Controller
 
         if ($request->created_at) {
             $scrapdate = $request->created_at;
-         
+
             $logDetails->whereDate('scrap_logs.created_at', $request->created_at);
         }
 
         $logDetails = $logDetails->orderBy('id', 'desc')->paginate(50)->appends(request()->query());
-        return view("scrap.log_list", compact('logDetails', 'scrapname','scrapdate'));
+        return view("scrap.log_list", compact('logDetails', 'scrapname', 'scrapdate'));
     }
 
     public function serverHistory(Request $request)
