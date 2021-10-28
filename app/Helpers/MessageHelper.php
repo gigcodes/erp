@@ -204,29 +204,31 @@ class MessageHelper
                 );
                 DB::table('task_users')->insert($task_users_array);
 
+                $log_comment = $log_comment . ' Keyword is found and task has been created with ID : ' . $taskid;
+
                 // check that match if this the assign to is auto user
                 // then send price and deal
                 \Log::channel('whatsapp')->info("Price lead section has been started for customer with ID : " . $customer->id);
 
                 if ($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
 
-                    \Log::channel('whatsapp')->info("Auto section has been started for the customer with ID : " . $customer->id);
+                    \Log::channel('whatsapp')->info("Auto Lend Send Price has been started for the customer with ID : " . $customer->id);
 
                     if (!empty($parentMessage)) {
-                        \Log::channel('whatsapp')->info("Auto section parent message with lead price has been found for customer with ID : " . $customer->id);
+                        \Log::channel('whatsapp')->info("Auto Lend Send Price parent message with lead price has been found for customer with ID : " . $customer->id);
 
-                        $log_comment = $log_comment . ' .Auto section parent message with lead price has been found for customer with ID : ' . $customer->id; //Purpose : Log Comment - DEVTASK-4233
+                        $log_comment = $log_comment . ' Auto Lend Send Price parent message with lead price has been found for customer with ID : ' . $customer->id; //Purpose : Log Comment - DEVTASK-4233
 
-                        $parentMessage->sendLeadPrice($customer);
+                        $parentMessage->sendLeadPrice($customer, $log_comment);
                     }
 
                 } elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
-                    \Log::channel('whatsapp')->info("Auto section has been started for the customer with ID : " . $customer->id);
+                    \Log::channel('whatsapp')->info("Auto Dimension Send has been started for the customer with ID : " . $customer->id);
                     if (!empty($parentMessage)) {
 
-                        \Log::channel('whatsapp')->info("Auto section parent message with lead price has been found for customer with ID : " . $customer->id);
+                        \Log::channel('whatsapp')->info("Auto Dimension Send parent message with lead price has been found for customer with ID : " . $customer->id);
 
-                        $log_comment = $log_comment . ' Auto section parent message with lead price has been found for customer with ID : ' . $customer->id . ' >> '; //Purpose : Log Comment - DEVTASK-4233
+                        $log_comment = $log_comment . ' Auto Dimension Send parent message with lead price has been found for customer with ID : ' . $customer->id . ' >> '; //Purpose : Log Comment - DEVTASK-4233
 
                         $products = DB::table('leads')
                             ->select('*')
@@ -241,6 +243,8 @@ class MessageHelper
                         }
 
                     }
+                } else {
+                    $log_comment = $log_comment . ' Keyword assign is not matching with Auto Lend Send Price or Auto Dimension Send ';
                 }
 
                 //START CODE Task message to send message in whatsapp
@@ -291,7 +295,7 @@ class MessageHelper
                         $myRequest->setMethod('POST');
                         $myRequest->request->add(['messageId' => $chat_message->id]); //Purpose : add messageid in array - DEVTASK-4233
 
-                        $log_comment = $log_comment . ' and create new entry in ChatMessage with ID : ' . $chat_message->id;
+                        $log_comment = $log_comment . ' and task has been created with ID : ' . $taskid;
 
                         $temp_log_params['message_sent_id'] = $chat_message->id;
 
@@ -303,6 +307,8 @@ class MessageHelper
                     $log_comment = $log_comment . ' User not found ';
                 }
                 //END CODE Task message to send message in whatsapp
+            } else {
+                $log_comment = $log_comment . ' Keyword not found ';
             }
 
             //START - Purpose : Log Comment , add data - DEVTASK-4233
@@ -342,7 +348,7 @@ class MessageHelper
                 'status' => 'success',
             ]);
         } else {
-            $log_comment = $log_comment . ' Chat message log ID not found ';
+            $log_comment = $log_comment . ' Chat message log ID not found and no entry has been created for chat message ';
         }
 
         $isReplied = 0;
@@ -712,7 +718,7 @@ class MessageHelper
                 }
             } else {
                 $log_comment = $log_comment . ' Store website not found ';
-                
+
                 if (isset($params['chat_message_log_id'])) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $params['chat_message_log_id'],
