@@ -46,15 +46,14 @@ function scraper_restart_list
 				pid2=`ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "ps -ef|grep $pid|grep chromium|grep -v grep|tr -s ' '|cut -d' ' -f2" < /dev/null`
 				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid $pid2" < /dev/null
 				sed -i "/$scrap/d" /opt/scrap_status
-				echo "$scrap" >> /tmp/scrap_restart
-				echo "$scrap" >> /opt/scrap_restart
+				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-start-$datetime
 			fi
 		else
 			scrapfile=`echo $scrap|cut -d'.' -f1`
 			logfile=`find /mnt/logs/ -mmin -720 -iname "$scrapfile-*.log"|wc -l`
 			if [ $logfile -eq 0 ]
 			then
-				echo "$scrap" >> /tmp/scrap_restart
+				echo "$scrap" |tee -a /tmp/scrap_restart|tee -a /opt/scraper/scrap-start-$datetime
 			fi
 		fi
 	done < $ScriptDIR/scraper-list.txt

@@ -45,14 +45,14 @@ class UserPayment extends Command
     {
         try {
         DB::beginTransaction();
-        $users = User::where('fixed_price_user_or_job',2)->get();
-        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at')->first();
+        $users = User::whereIn('fixed_price_user_or_job',[2,3])->get();
+        /*$firstEntryInActivity = HubstaffActivity::orderBy('starts_at','desc')->first();
 
         if($firstEntryInActivity) {
             $bigining = date('Y-m-d',strtotime($firstEntryInActivity->starts_at));
         }else {
-            $bigining = date('Y-m-d');
-        }
+        }*/
+        $bigining = date('Y-m-d');
         foreach($users as $user) {
             $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
             $start =  $bigining;
@@ -64,7 +64,7 @@ class UserPayment extends Command
             $yesterday = date('Y-m-d',strtotime("-1 days"));
             echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
-            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
+            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($yesterday, $end, $user->id);
             echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
 
             $total = 0;
@@ -133,6 +133,7 @@ class UserPayment extends Command
         DB::commit();
         echo PHP_EOL . "=====DONE====" . PHP_EOL;
         } catch (Exception $e) {
+            \Log::error($e);
             echo $e->getMessage();
             DB::rollBack();
             echo PHP_EOL . "=====FAILED====" . PHP_EOL;

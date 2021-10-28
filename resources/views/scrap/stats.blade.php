@@ -933,7 +933,7 @@
                 </div>
             </div>
       </div>
-      <div id="show-content-model-table" class="modal fade" role="dialog">
+      <div id="show-content-model-table" class="modal fade scrp-task-list" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">

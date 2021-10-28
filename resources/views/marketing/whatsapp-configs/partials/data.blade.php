@@ -12,7 +12,6 @@
 <tr>
  
   <td>{{ $whatsAppConfig->username }}</td>
-  <td></td>
   <td>{{ $whatsAppConfig->number }}</td>
   <td>{{ $whatsAppConfig->provider }}</td>
   <td>{{ $whatsAppConfig->frequency }}</td>

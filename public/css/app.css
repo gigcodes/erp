@@ -11161,8 +11161,36 @@ table.table-striped-custom tbody tr td {
     background-color: #FFf !important;
     border-color: #6c757d !important;
 }
-=======
-#logdatacounter .modal-dialog{
-     max-width: 100%;
-    width: 1200px;
+.cls_remove_rightpadding{
+ width: 100%;
+ display: flex;
+}
+.row  .cls_textarea_subbox .d-flex{
+    display: flex;
+}
+
+.scrp-task-list .modal-dialog{
+    width: 100%;
+}
+.scrp-task-list .btn-create-task{
+ background-color: white;
+ color: black;
+ border: 1px solid #ccc;
+}
+
+.voucher-due-date .col-md-1 button{
+    padding:0;
+    margin-left:8px;
+}
+.col-sm {
+    padding-left:9px;
+}
+.plush-icon{
+    justify-content: space-between;
+}
+.vendor-payments-list .cls_quick_message{
+    width: 80% !important;
+}
+.vendor-payments-list .paid-all-payment{
+    width: 15px;
 }
