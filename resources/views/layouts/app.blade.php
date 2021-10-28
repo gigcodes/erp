@@ -1489,6 +1489,10 @@ if (!empty($notifications)) {
                                     <a href="{{ route('logs.index') }}" class="nav-link" role="button" aria-haspopup="true" aria-expanded="false">Image Logs<span class="caret"></span></a>
                   
                                 </li>
+                                <li id="messages" class="nav-item dropdown">
+                                    <a href="{{ route('twilio.errors') }}" class="nav-link" role="button" aria-haspopup="true" aria-expanded="false">Twilio Errors<span class="caret"></span></a>
+                  
+                                </li>
                             @endif
 
 
