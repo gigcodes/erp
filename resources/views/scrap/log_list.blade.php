@@ -27,7 +27,8 @@
 			<thead>
 				<tr>
 					<th>Scrapper name</th>
-					<th>log_messages</th>
+					<th>Log message</th>
+					<th>Type</th>
 					<th>Created at</th>
 				</tr>
 			</thead>
@@ -36,11 +37,12 @@
 					<tr>
 						<td>{{ $log->scraper_name }}</td>
 						<td>{{ $log->log_messages }}</td>
+						<td>{{ $log->type??'N/A' }}</td>
 						<td>{{ $log->created_at }}</td>
 					</tr>
 				@endforeach
 		   </tbody>
-		   
+
 		</table>
 		{{$logDetails->links()}}
 	</div>
