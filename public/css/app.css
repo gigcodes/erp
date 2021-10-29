@@ -11142,9 +11142,6 @@ table.table-striped-custom tbody tr td {
 .table-responsive table th:nth-child(1) {
     display: none;
 }
-.table-responsive tbody#order_return_summary_list tr td:nth-child(1) {
-    display: none;
-}
 #order_return_summary {
     margin: 47px 0 0 14px;
 }
