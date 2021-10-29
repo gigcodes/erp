@@ -210,7 +210,7 @@ class RepositoryController extends Controller
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
-
+$devTask->update(['is_pr_merged'=>1]);
                 //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
                 \Log::info('updateDevTask ::'. $e->getMessage());
@@ -376,12 +376,10 @@ class RepositoryController extends Controller
     public function listAllPullRequests()
     {
         $repositories = GithubRepository::all(['id', 'name']);
-
-        $allPullRequests = [];
-        foreach ($repositories as $repository) {
+		$allPullRequests = [];
+        foreach ($repositories as $repository) { 
             $pullRequests = $this->getPullRequests($repository->id);
-
-            $pullRequests = array_map(
+			$pullRequests = array_map(
                 function($pullRequest) use($repository){
                     $pullRequest['repository'] = $repository;
                     return $pullRequest;

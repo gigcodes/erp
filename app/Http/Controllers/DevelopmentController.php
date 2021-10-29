@@ -600,6 +600,40 @@ class DevelopmentController extends Controller
             // 'languages' => $languages
         ]);
     }
+	
+	public function scrappingTaskIndex(Request $request)
+    {
+        $type = $request->tasktype ? $request->tasktype : 'all';
+        $estimate_date = "";
+
+        $title = 'Scrapping Task List';
+		//$moduleIds = DeveloperModule::where('name', 'like', '%scrap%')->pluck('id')->toArray();
+        $issues = DeveloperTask::with('assignedUser');
+		$issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
+        //$issues = $issues->whereIn('developer_tasks.module_id', $moduleIds);
+        
+        $issues = $issues->select("developer_tasks.*");
+        
+        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+      
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+            $issues = $issues->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id)
+                ->orWhere("developer_tasks.tester_id", auth()->user()->id)
+                ->orWhere("developer_tasks.team_lead_id", auth()->user()->id);
+            });
+        }
+     
+        $issues =  $issues->orderBy('id', 'desc')->groupBy("developer_tasks.id");
+		$issues = $issues->paginate(50);
+     
+    
+        return view('development.scrapper', [
+            'issues' => $issues,
+			'title' => "Scrapping Issues List",
+        ]);
+    }
 
     public function exportTask(Request $request){
 
