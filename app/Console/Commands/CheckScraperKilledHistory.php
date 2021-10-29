@@ -45,10 +45,11 @@ class CheckScraperKilledHistory extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $path = getenv('SCRAPER_RESTART_PATH') . 'scrap.txt';
+        $path = getenv('SCRAPER_RESTART_PATH');
 
         $data = file_get_contents($path);
         $output = explode('.js', $data);
+
 
         if (count($output) > 0) {
             foreach ($output as $_data) {
