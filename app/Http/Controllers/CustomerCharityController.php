@@ -438,10 +438,10 @@ class CustomerCharityController extends Controller
         } else {
             CustomerCharity::where('id', $id)->update($data);
 
-            $website_ids        = Website::whereIn('store_website_id', $request->websites)->get()->pluck('store_website_id')->toArray();
+            /*$website_ids        = Website::whereIn('store_website_id', $request->websites)->get()->pluck('store_website_id')->toArray();
             $website_store_ids  = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
             $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
-            $website_stores     = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+            $website_stores     = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();*/
             /* foreach($website_stores as $store){
         CustomerCharityWebsiteStore::updateOrCreate([
         'customer_charity_id' => $id,
