@@ -693,6 +693,9 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('products.listing.approved.images')}}/images">Final Apporval Images</a>
                                 </li>
+								<li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('customer.charity')}}">Charity Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
