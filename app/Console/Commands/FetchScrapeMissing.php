@@ -67,8 +67,8 @@ class FetchScrapeMissing extends Command
         $scrapped_query = $scrapped_query->groupBy('p.website')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
         $scrappedReportData = $scrapped_query->get();
-        $missingdata = '';
         foreach ($scrappedReportData as $d) {
+            $missingdata = '';
             $data = [
                 'website' => $d->website,
                 'total_product' => $d->total_product,
