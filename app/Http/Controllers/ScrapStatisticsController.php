@@ -953,6 +953,15 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
 
+    public function killedList(Request $request)
+    {
+        $id = $request->id;
+
+        $histories = \App\ScraperKilledHistory::where("scraper_id", $request->id)->latest()->get();
+
+        return view("scrap.partials.killed", compact('histories', 'id', ));
+    }
+
     public function addReply(Request $request)
     {
         $reply = $request->get("reply");
