@@ -11191,3 +11191,9 @@ table.table-striped-custom tbody tr td {
 .vendor-payments-list .paid-all-payment{
     width: 15px;
 }
+
+.custom-table td:nth-child(2){
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
