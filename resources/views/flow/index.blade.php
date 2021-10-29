@@ -391,7 +391,9 @@ jQuery(document).ready(function($){
 						if(result ==  'condition') {
 							$('#yes_conditions').show();
 							$('#no_conditions').hide();
-							var parent_div = getParentDivId('yes_'+action_id); 
+							//var parent_div = getParentDivId('yes_'+action_id); 
+							parent_div = parent_div_new;
+							var action_id = $(parent_div).data('action_id'); 
 							yes++; 
 							$('#condition_modal').modal({ backdrop: 'static', keyboard: false }).one('click', '.yes_yes_no', function (e) {
 								var parent_div = getParentDivId('yes_'+action_id);
@@ -530,7 +532,7 @@ jQuery(document).ready(function($){
 				}
             });
 	});
-	$(document).on('change','.condition_select',function(e){ alert('here');
+	$(document).on('change','.condition_select',function(e){ 
 	//$('.condition_select').on('change', function(e) {  alert('changed');
 		var flow_id = $('#flow_id').val();
 			e.preventDefault(); 

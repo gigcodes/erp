@@ -13,18 +13,22 @@
                 <span style="word-break:break-all;" class="show-full-leadOrder-{{$key.'-'.$leadOrder['id']}} hidden">{{ isset($leadOrder['name'])? $leadOrder['name'] : ''}}</span>
             </td>
             <td>{{ isset($leadOrder['brand_name'])? $leadOrder['brand_name'] : ''}}</td>
-            <td>{{ isset($leadOrder['price_inr'])? $leadOrder['price_inr'] : ''}}</td>
-            <td>{{ isset($leadOrder['price_inr_discounted'])? $leadOrder['price_inr_discounted'] : ''}}</td>
+            <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['default_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['default_price'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['segment_discount'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['segment_discount'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['duty_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['duty_price'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['override_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['override_price'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder['price'])? $leadOrder['price'] : ''}}</td>
+            <td>{{ isset($leadOrder['price_eur_discounted'])? $leadOrder['price_eur_discounted'] : ''}}</td>
             <td>
             @php 
              
-             if($leadOrder['price_inr'])  {
-              if($leadOrder['price_inr_discounted']) {
-                $discount = $leadOrder['price_inr']*($leadOrder['price_inr_discounted']/100);
-                $final_price = $leadOrder['price_inr'] - $discount;
+             if($leadOrder['price'])  {
+              if($leadOrder['price_eur_discounted']) {
+                $discount = $leadOrder['price']*($leadOrder['price_eur_discounted']/100);
+                $final_price = $leadOrder['price'] - $discount;
               } 
               else {
-               $final_price = $leadOrder['price_inr'];
+               $final_price = $leadOrder['price'];
               } 
             }
             else {
