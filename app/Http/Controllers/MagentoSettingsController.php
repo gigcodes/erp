@@ -293,7 +293,7 @@ class MagentoSettingsController extends Controller
     }
 
     public function update(Request $request) {
-        $server_name = getenv('BRANDS_HOST');
+        
 		$entity_id = $request->id;
         $scope = $request->scope;
         $name = $request->name;
@@ -331,7 +331,8 @@ class MagentoSettingsController extends Controller
             foreach($storeWebsites as $storeWebsite){
                 $git_repository=$storeWebsite->repository;
                 $magento_url = $storeWebsite->magento_url;
-                if($magento_url != null){
+		     	$server_name = config('database.connections.'.$git_repository.'.host');
+				if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
@@ -394,6 +395,7 @@ class MagentoSettingsController extends Controller
             foreach($websiteStores as $websiteStore){
                 $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
+				$server_name = config('database.connections.'.$git_repository.'.host');
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStore->website->storeWebsite->magento_url;
@@ -459,6 +461,7 @@ class MagentoSettingsController extends Controller
             foreach($websiteStoresViews as $websiteStoresView){
                 $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
+				$server_name = config('database.connections.'.$git_repository.'.host');
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
