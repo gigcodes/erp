@@ -11191,3 +11191,18 @@ table.table-striped-custom tbody tr td {
 .vendor-payments-list .paid-all-payment{
     width: 15px;
 }
+.add-invoice{
+    display:flex;
+}
+.currency-box{
+    display: flex;
+}
+.currency-box input{
+    width: 30%;
+}
+.shiping input{
+    width: 40;
+}
+.shiping,.select{
+    display: flex;
+}
