@@ -11206,3 +11206,16 @@ table.table-striped-custom tbody tr td {
 .shiping,.select{
     display: flex;
 }
+#twilio_key_option_modal a{
+    color: black;
+    background: none;
+    border:1px solid #ccc;
+}
+ .website-pag{
+    display: flex;
+    align-items: center;
+}
+#twilio_key_option_modal .modal-dialog.modal-lg{
+    width:60%;
+    max-width: 100%;
+}
