@@ -10,7 +10,6 @@ use App\UserRate;
 use DB;
 class UserPayment extends Command
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -82,8 +81,6 @@ class UserPayment extends Command
                 }
             }
 
-            echo $total;
-            die();
             /*$billingStartDate = ($lastPayment && !empty($startsAt)) ? $startsAt : date("Y-m-d",strtotime("-1 day"));
             if($user->payment_frequency == 'fornightly') {
                 $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+1 days"));  
