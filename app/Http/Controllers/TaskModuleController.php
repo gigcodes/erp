@@ -60,11 +60,6 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
-
-        echo "123";
-        die();
-
-        
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
             $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
