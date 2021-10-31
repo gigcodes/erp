@@ -741,7 +741,7 @@ class PurchaseProductController extends Controller
                 $input['currency'] = $payment_currency;
 
                 PurchaseProductOrder::where('id', $purchase_pro_id)->update($update);
-                \App\CashFlow::create($input);
+                \App\CashFlow::updateOrCreate(['cash_flow_able_id'=> $purchase_pro_id,'user_id'=>\Auth::id()],$input);
                 $params['header_name'] = 'Payment Details';
                 $params['replace_from'] = 'Payment Currency : ' . $get_data->payment_currency . '<br/> Payment Amount : ' . $get_data->payment_amount . ' <br/> Payment Mode : ' . $get_data->payment_mode;
                 $params['replace_to'] = 'Payment Currency : ' . $payment_currency . ' <br/> Payment Amount : ' . $payment_amount . ' <br/> Payment Mode : ' . $payment_mode;
