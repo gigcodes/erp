@@ -43,7 +43,7 @@ class addUserPaymentData extends Command
     {
         $dev_tasks = DeveloperTask::where('is_resolved', 1)->get();
         echo "<pre/>";
-        print_r($dev_tasks);
+        print_r($dev_tasks->count());
         die();
         foreach ($dev_tasks as $dev_task) {
             
