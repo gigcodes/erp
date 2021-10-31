@@ -841,7 +841,7 @@ table tr td {
                 var html_content = ''
                 $.each( response.log_data, function( key, value ) {
                     html_content += '<tr>';
-                    html_content += '<td>'+ value.id+'</td>';
+                    html_content += '<td>'+ value.cash_flow_id+'</td>';
                     html_content += '<td>'+ value.amount+'</td>';
                     html_content += '<td>'+ value.name+'</td>';
                     html_content += '<td>'+ value.log_created_at+'</td>';

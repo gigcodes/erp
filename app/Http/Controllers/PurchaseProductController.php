@@ -997,7 +997,7 @@ class PurchaseProductController extends Controller
                 ->join('users', 'cash_flows.user_id', 'users.id');
 
             $log_data = $log_data->orderBy('cash_flows.id', 'DESC')
-                ->select('cash_flows.*', 'users.*', 'cash_flows.created_at as log_created_at','cash_flows.cash_flow_able_id as cash_id')
+                ->select('cash_flows.*', 'users.*', 'cash_flows.created_at as log_created_at','cash_flows.cash_flow_able_id as cash_id','cash_flows.id as cash_flow_id')
                 ->get();
 
             return response()->json(['log_data' => $log_data, 'code' => 200]);
