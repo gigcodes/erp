@@ -42,12 +42,13 @@ class addUserPaymentData extends Command
     public function handle()
     {
         $dev_tasks = DeveloperTask::where('is_resolved', 1)->get();
-        echo "<pre/>";
-        print_r($dev_tasks->count());
-        die();
+       
         foreach ($dev_tasks as $dev_task) {
             
             $dev_task_user = User::find($dev_task->team_lead_id !== null ? $dev_task->team_lead_id : $dev_task->assigned_to);
+            echo "<pre/>";
+            print_r($dev_task_user->count());
+            die();
             if(empty($dev_task_user)){
                 dump('dev_task-id - ' . $dev_task->id . ' user not exist');
                 continue;
