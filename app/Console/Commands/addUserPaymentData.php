@@ -61,9 +61,6 @@ class addUserPaymentData extends Command
                 'by_command'        => 1,
                 'developer_task_id' => $dev_task->id,
             ]);
-
-            echo "hello";
-            die();
            
             if($dev_task_payment){
                 dump('dev_task-id - ' . $dev_task->id . ' payment-id - ' . $dev_task_payment->id . ' is done');

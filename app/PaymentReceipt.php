@@ -8,7 +8,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 use App\Events\PaymentReceiptCreated;
-//use App\Events\PaymentReceiptUpdated;
+use App\Events\PaymentReceiptUpdated;
 
 class PaymentReceipt extends Model
 {
@@ -35,7 +35,7 @@ class PaymentReceipt extends Model
 
     protected $dispatchesEvents = [
       'created' => PaymentReceiptCreated::class,
-      'updated' => PaymentReceiptCreated::class,
+      'updated' => PaymentReceiptUpdated::class,
     ];
 
     public function user()
