@@ -42,6 +42,9 @@ class addUserPaymentData extends Command
     public function handle()
     {
         $dev_tasks = DeveloperTask::where('is_resolved', 1)->get();
+        echo "<pre/>";
+        print_r($dev_tasks);
+        die();
         foreach ($dev_tasks as $dev_task) {
             
             $dev_task_user = User::find($dev_task->team_lead_id !== null ? $dev_task->team_lead_id : $dev_task->assigned_to);
@@ -49,7 +52,7 @@ class addUserPaymentData extends Command
                 dump('dev_task-id - ' . $dev_task->id . ' user not exist');
                 continue;
             }
-            $dev_task_payment = PaymentReceipt::create([
+            $dev_task_payment = PaymentReceipt::updateOrCreate([ 'user_id'=> $dev_task_user->id,'developer_task_id' => $dev_task->id],[
                 'status'            => 'Done',
                 'rate_estimated'    => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60,
                 'date'              => date('Y-m-d'),
@@ -71,7 +74,7 @@ class addUserPaymentData extends Command
                 dump('task-id - ' . $task->id . ' user not exist');
                 continue;
             }
-            $task_payment = PaymentReceipt::create([
+            $task_payment = PaymentReceipt::updateOrCreate(['task_id' => $task->id,'user_id'=> $task_user->id],[
                 'status'            => 'Done',
                 'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
                 'date'              => date('Y-m-d'),
