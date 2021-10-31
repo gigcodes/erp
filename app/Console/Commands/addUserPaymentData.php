@@ -53,7 +53,7 @@ class addUserPaymentData extends Command
             }
 
             echo "<pre/>";
-            print_r($dev_task_user);
+            print_r($dev_task);
             die();
 
             $dev_task_payment = PaymentReceipt::updateOrCreate([ 'user_id'=> $dev_task_user->id,'developer_task_id' => $dev_task->id],[
