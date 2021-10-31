@@ -51,6 +51,11 @@ class addUserPaymentData extends Command
                 dump('dev_task-id - ' . $dev_task->id . ' user not exist');
                 continue;
             }
+
+            echo "<pre/>";
+            print_r($dev_task_user);
+            die();
+
             $dev_task_payment = PaymentReceipt::updateOrCreate([ 'user_id'=> $dev_task_user->id,'developer_task_id' => $dev_task->id],[
                 'status'            => 'Done',
                 'rate_estimated'    => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60,
@@ -60,9 +65,7 @@ class addUserPaymentData extends Command
                 'by_command'        => 1,
                 'developer_task_id' => $dev_task->id,
             ]);
-            echo "<pre/>";
-            echo "hello";
-            die();
+           
             if($dev_task_payment){
                 dump('dev_task-id - ' . $dev_task->id . ' payment-id - ' . $dev_task_payment->id . ' is done');
             }
