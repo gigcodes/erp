@@ -118,14 +118,14 @@ table tr td {
                             <!-- <th width="8%">Product</th>
                             <th width="8%">SKU</th>
                             <th width="8%">Brand</th> -->
-                            <th width="4%">Supplier</th>
+                            <th width="5%">Supplier</th>
                             <th width="2%">MRP</th>
-                            <th width="3%">Disc Price</th>
-                            <th width="3%">Spec Price</th>
+                            <th width="3%">Dis Pri</th>
+                            <th width="4%">Spc Price</th>
                             <th width="5%">Invoice No</th>
                             <th width="9%">Paym Details</th>
                             <th width="6%">Cost Details</th>
-                            <th width="3%">Landed cost</th>
+                            <th width="4%">Land cost</th>
                             <th width="6%">Status</th>
                             <th width="4%">Crea Date</th>
                             <th width="5%">Action</th>
@@ -829,10 +829,10 @@ table tr td {
                 html_content += '<table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">';
                 html_content += '<thead>';
                 html_content += '<tr>';
-                html_content += '<th width="10%">#</th>';
+                html_content += '<th width="5%">#</th>';
                 html_content += '<th width="30%">Name</th>';
-                html_content += '<th width="20%">SKU</th>';
-                html_content += '<th width="20%">Brand</th>';
+                html_content += '<th width="15%">SKU</th>';
+                html_content += '<th width="15%">Brand</th>';
                 html_content += '<th width="20%">MRP</th>';
                 html_content += '<th width="20%">Discounted Price</th>';
                 html_content += '<th width="20%">Special Price</th>';

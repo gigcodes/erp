@@ -11191,7 +11191,13 @@ table.table-striped-custom tbody tr td {
 .vendor-payments-list .paid-all-payment{
     width: 15px;
 }
-.add-invoice{
+
+.custom-table td:nth-child(2){
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  .add-invoice{
     display:flex;
 }
 .currency-box{
@@ -11206,6 +11212,7 @@ table.table-striped-custom tbody tr td {
 .shiping,.select{
     display: flex;
 }
+
 .purchase-order-table .product-name div div{
     overflow: hidden;
     text-overflow: ellipsis;
@@ -11222,3 +11229,17 @@ table.table-striped-custom tbody tr td {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+#twilio_key_option_modal a{
+    color: black;
+    background: none;
+    border:1px solid #ccc;
+}
+ .website-pag{
+    display: flex;
+    align-items: center;
+}
+#twilio_key_option_modal .modal-dialog.modal-lg{
+    width:60%;
+    max-width: 100%;
+}
+

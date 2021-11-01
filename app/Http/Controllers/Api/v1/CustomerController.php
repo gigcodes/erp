@@ -9,6 +9,8 @@ use App\Product;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+use App\Flow;
 
 class CustomerController extends Controller
 {
@@ -120,6 +122,13 @@ class CustomerController extends Controller
             $input['comment'] = $request->comment;
             $input['status'] = 0;
             $reviews = \App\CustomerReview::create($input);
+			$flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
+			if($flowId != null and $checkCustomer->email != null) {
+				\App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
+				->where('template', 'flow#'.$flowId)->delete();
+			}
+			
+			
 
             if ($reviews) {
                 return response()->json(['status' => 'success', 'message' => 'Successfully Added'], 200);

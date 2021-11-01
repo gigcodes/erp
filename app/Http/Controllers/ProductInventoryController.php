@@ -1432,6 +1432,7 @@ class ProductInventoryController extends Controller
 			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
 		}
 			$total_rows = 5;
+			$limit = 25;
 		
 		$page = $request->has('page') ? $request->query('page') : 1;
 		
@@ -1445,7 +1446,7 @@ class ProductInventoryController extends Controller
 				$inventory = $inventory->where('inventory_status_histories.supplier_id',$request->supplier);
 			}
 			//$inventory = $inventory->orderBy('product_count_count','desc')->simplePaginate(5);
-			$inventory = $inventory->get();
+			$inventory = $inventory->offset($page * $limit)->limit($limit)->get();
 		
 	
 		$allHistory = [];
