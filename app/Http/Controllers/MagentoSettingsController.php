@@ -150,6 +150,7 @@ class MagentoSettingsController extends Controller
         $name         = $request->name;
         $path         = $request->path;
         $value        = $request->value;
+		$datatype     = $request->datatype;
         $copyWebsites = (!empty($request->websites)) ? $request->websites : array() ;
 
         foreach ($request->scope as $scope) {
@@ -172,6 +173,7 @@ class MagentoSettingsController extends Controller
                             'name'     => $name,
                             'path'     => $path,
                             'value'    => $value,
+							'data_type' => $datatype,
                             'created_by'=>Auth::id(),
                         ]);
                     }
@@ -186,6 +188,7 @@ class MagentoSettingsController extends Controller
                     $stores[]  = $websiteStore->code;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
                     if (!$m_setting) {
+						
                         $m_setting = MagentoSetting::Create([
                             'scope'    => $scope,
                             'scope_id' => $websiteStore->id,
@@ -195,8 +198,11 @@ class MagentoSettingsController extends Controller
                             'name'     => $name,
                             'path'     => $path,
                             'value'    => $value,
+							'data_type' => $datatype,
                             'created_by'=>Auth::id(),
                         ]);
+						
+						
                     }
                 }
                 
@@ -215,6 +221,7 @@ class MagentoSettingsController extends Controller
                                     'name'     => $name,
                                     'path'     => $path,
                                     'value'    => $value,
+									'data_type' => $datatype,
                                     'created_by'=>Auth::id(),
                                 ]);
                             }                            
@@ -244,6 +251,7 @@ class MagentoSettingsController extends Controller
                             'name'     => $name,
                             'path'     => $path,
                             'value'    => $value,
+							'data_type' => $datatype,
                             'created_by'=>Auth::id(),
                         ]);
                     }
@@ -267,6 +275,7 @@ class MagentoSettingsController extends Controller
                                     'name'     => $name,
                                     'path'     => $path,
                                     'value'    => $value,
+									'data_type' => $datatype,
                                     'created_by'=>Auth::id(),
                                 ]);
                             }                            
@@ -285,12 +294,13 @@ class MagentoSettingsController extends Controller
 
     public function update(Request $request) {
         
-        $entity_id = $request->id;
+		$entity_id = $request->id;
         $scope = $request->scope;
         $name = $request->name;
         $path = $request->path;
         $value = $request->value;
-        $is_live = isset($request->live);
+		$datatype = $request->datatype;
+		$is_live = isset($request->live);
         $is_development = isset($request->development);
         $is_stage = isset($request->stage);
         $website_ids = $request->websites;
@@ -321,7 +331,8 @@ class MagentoSettingsController extends Controller
             foreach($storeWebsites as $storeWebsite){
                 $git_repository=$storeWebsite->repository;
                 $magento_url = $storeWebsite->magento_url;
-                if($magento_url != null){
+		     	$server_name = config('database.connections.'.$git_repository.'.host');
+				if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id',$storeWebsite->id)->where('path', $path)->first();
@@ -331,12 +342,14 @@ class MagentoSettingsController extends Controller
                             'scope_id' => $storeWebsite->id,
                             'name' => $name,
                             'path' => $path,
-                            'value' => $value
+                            'value' => $value,
+							'data_type' => $datatype
                         ]);
                     }else{
                         $m_setting->name = $name;
                         $m_setting->path = $path;
                         $m_setting->value = $value;
+						$m_setting->data_type = $datatype;
                         $m_setting->save();
                     }
                     $scopeID = 0;
@@ -344,8 +357,8 @@ class MagentoSettingsController extends Controller
                     $magento_url = str_replace('.com', '', $magento_url);
                     
                     //BASE SCRIPT
-                    if(!empty($git_repository)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
+                    if(!empty($git_repository)):
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value.' -t '.$datatype.' -h '.$server_name;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  
@@ -382,6 +395,7 @@ class MagentoSettingsController extends Controller
             foreach($websiteStores as $websiteStore){
                 $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
+				$server_name = config('database.connections.'.$git_repository.'.host');
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStore->website->storeWebsite->magento_url;
@@ -392,12 +406,14 @@ class MagentoSettingsController extends Controller
                             'scope_id' => $websiteStore->id,
                             'name' => $request->name,
                             'path' => $request->path,
-                            'value' => $request->value
+                            'value' => $request->value,
+							'data_type' => $datatype
                         ]);
                     }else{
                         $m_setting->name = $name;
                         $m_setting->path = $path;
                         $m_setting->value = $value;
+						$m_setting->data_type = $datatype;
                         $m_setting->save();
                     }
                     $scopeID = $websiteStore->platform_id;
@@ -406,7 +422,7 @@ class MagentoSettingsController extends Controller
                     
                     //BASE SCRIPT
                     if(!empty($git_repository)):                        
-                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
+                        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value.' -t '.$datatype.' -h '.$server_name;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command 
@@ -445,6 +461,7 @@ class MagentoSettingsController extends Controller
             foreach($websiteStoresViews as $websiteStoresView){
                 $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
                 $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
+				$server_name = config('database.connections.'.$git_repository.'.host');
                 if($magento_url != null){
                     $magento_url = explode('//', $magento_url); 
                     $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
@@ -455,12 +472,14 @@ class MagentoSettingsController extends Controller
                             'scope_id' => $websiteStoresView->id,
                             'name' => $request->name,
                             'path' => $request->path,
-                            'value' => $request->value
+                            'value' => $request->value,
+							'data_type' => $datatype
                         ]);
                     }else{
                         $m_setting->name = $name;
                         $m_setting->path = $path;
                         $m_setting->value = $value;
+						$m_setting->data_type = $datatype;
                         $m_setting->save();
                     }
                     $scopeID = $websiteStoresView->platform_id;
@@ -470,7 +489,7 @@ class MagentoSettingsController extends Controller
                     //BASE SCRIPT
                     if(!empty($git_repository)):                        
                         
-						$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value;
+						$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r '.$git_repository.' -s '.$scope.' -c '.$scopeID.' -p '.$path.' -v '.$value.' -t '.$datatype.' -h '.$server_name;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command  

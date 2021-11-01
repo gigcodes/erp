@@ -18,6 +18,7 @@ class AlterTableMagentoSettingsTable extends Migration
             $table->integer('store_website_id')->nullable()->after('scope_id');
             $table->integer('website_store_id')->nullable()->after('store_website_id');
             $table->integer('website_store_view_id')->nullable()->after('website_store_id');
+			$table->string('data_type')->nullable()->after('website_store_view_id');
         });
     }
 
