@@ -77,7 +77,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                   <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th style="display:block;">ID</th>
                             <th>Website</th>
                             <th>Store</th>
                             <th>Store View</th>
@@ -89,6 +89,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             <th>Date</th>
                             <th>Status</th>
                             <th>Created By</th>
+							<th>Data Type</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -109,7 +110,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' ; ?>')" >
                                             {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }} ...
                                         </td>
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store->website->name; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
                                         <td>-</td>
                                         
                                 @else 
@@ -136,6 +137,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
+								<td>{{ $magentoSetting->data_type }}</td>
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
@@ -235,7 +237,14 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
                             @endforeach
                         </select>
-                    </div>    
+                    </div> 
+					<div class="form-group">
+						<label for="">Data Type</label><br>
+                        <input type="radio" name="datatype" id="senstive" value="senstive" checked>
+                        <label for="senstive">Senstive</label><br>
+                        <input type="radio" name="datatype" id="shared" value="shared">
+                        <label for="shared">Shared</label><br>
+                    </div>
                         
                 </div>
                 <div class="modal-footer">
@@ -308,6 +317,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <label for="stage">Stage</label><br>
                         <input type="checkbox" name="live" id="live" checked>
                         <label for="live">Live</label>
+                    </div>
+					<div class="form-group">
+						<label for="">Data Type</label><br>
+                        <input type="radio" name="datatype" id="senstive" value="senstive" checked>
+                        <label for="senstive">Senstive</label><br>
+                        <input type="radio" name="datatype" id="shared" value="shared">
+                        <label for="shared">Shared</label><br>
                     </div>
                 </div>
                 <div class="modal-footer">
