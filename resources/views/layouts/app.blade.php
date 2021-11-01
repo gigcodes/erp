@@ -1890,6 +1890,9 @@ if (!empty($notifications)) {
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
                                             </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('gt-metrix-url') }}">GTMetrix Url's</a>
+                                            </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('GtMetrixAccount.index') }}">GTMetrix Account</a>
                                             </li>
