@@ -11206,3 +11206,9 @@ table.table-striped-custom tbody tr td {
 .shiping,.select{
     display: flex;
 }
+.purchaseproductorders-list tbody i{
+    color: grey;
+}
+.purchaseproductorders-list tbody tr{
+    color: #323030;
+}
