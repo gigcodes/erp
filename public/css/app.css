@@ -11191,7 +11191,13 @@ table.table-striped-custom tbody tr td {
 .vendor-payments-list .paid-all-payment{
     width: 15px;
 }
-.add-invoice{
+
+.custom-table td:nth-child(2){
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  .add-invoice{
     display:flex;
 }
 .currency-box{
