@@ -261,6 +261,8 @@ class ScrapStatisticsController extends Controller
 
         $timeDropDown = self::get_times();
 
+        $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
+
         $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
         $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw("id in (
             SELECT MAX(id)
@@ -301,10 +303,28 @@ class ScrapStatisticsController extends Controller
             });
         }
 
+        if (isset($request->assigned_to) && count($request->assigned_to)) {
+            $activeSuppliers->whereHas('developerTaskNew', function ($q) use ($request) {
+                $q->whereIn("assigned_to", $request->assigned_to);
+            });
+        }
+
         if (!empty($column) && $column == 'last_started_at') {
             $activeSuppliers = $activeSuppliers->orderby('scrapers.' . $column . '', $orderby)->get();
         } else {
             $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
+        }
+
+        $assignedUsers = [];
+        if ($activeSuppliers) {
+            foreach ($activeSuppliers as $_supplier) {
+                $developerTasks = \App\DeveloperTask::where("scraper_id", $_supplier->id)->latest()->get();
+                if ($developerTasks) {
+                    foreach ($developerTasks as $_task) {
+                        $assignedUsers[$_task->assigned_to] = $_task->assignedUser->name;
+                    }
+                }
+            }
         }
 
         // Get scrape data
@@ -382,7 +402,7 @@ class ScrapStatisticsController extends Controller
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
         try {
-            return view('scrap.quick-stats', compact('allStatusCounts', 'allStatus', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization'));
+            return view('scrap.quick-stats', compact('allStatusCounts', 'allStatus', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization', 'assignedUsers'));
         } catch (Exception $e) {
             \Log::error('Quick-stats-page :: ' . $e->getMessage());
         }
@@ -933,6 +953,15 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
 
+    public function killedList(Request $request)
+    {
+        $id = $request->id;
+
+        $histories = \App\ScraperKilledHistory::where("scraper_id", $request->id)->latest()->get();
+
+        return view("scrap.partials.killed", compact('histories', 'id'));
+    }
+
     public function addReply(Request $request)
     {
         $reply = $request->get("reply");
@@ -1118,12 +1147,12 @@ class ScrapStatisticsController extends Controller
 
         if ($request->created_at) {
             $scrapdate = $request->created_at;
-         
+
             $logDetails->whereDate('scrap_logs.created_at', $request->created_at);
         }
 
         $logDetails = $logDetails->orderBy('id', 'desc')->paginate(50)->appends(request()->query());
-        return view("scrap.log_list", compact('logDetails', 'scrapname','scrapdate'));
+        return view("scrap.log_list", compact('logDetails', 'scrapname', 'scrapdate'));
     }
 
     public function serverHistory(Request $request)

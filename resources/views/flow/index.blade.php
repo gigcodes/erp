@@ -86,7 +86,7 @@
 								{{ Form::select('store_website_id', $websites, null, array('class'=>'form-control','placeholder' => 'Website')) }}
 							</div>
 							<div class="col-md-3">
-								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back', 'attach_images_for_product'=>'Attach images for product', 'dispatch_send_price'=>'Dispatch send price', 'new_erp_lead'=>'New Erp Lead', 'out_of_stock_subscribe'=>'Out of stock subscribe' , 'payment_failed'=>'Payment Failed', 'order_reviews'=>'Order reviews'], null, array('class'=>'form-control','placeholder'=>'Flow Name')) }}
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back', 'attach_images_for_product'=>'Attach images for product', 'dispatch_send_price'=>'Dispatch send price', 'new_erp_lead'=>'New Erp Lead', 'out_of_stock_subscribe'=>'Out of stock subscribe' , 'payment_failed'=>'Payment Failed', 'order_reviews'=>'Order reviews', 'task_pr'=>'Check if PR is merged'], null, array('class'=>'form-control','placeholder'=>'Flow Name')) }}
 							</div>
 							<div class="col-md-4">
 								<input type="text" class="form-control " name="flow_description" placeholder="Flow Description"/>
@@ -391,7 +391,9 @@ jQuery(document).ready(function($){
 						if(result ==  'condition') {
 							$('#yes_conditions').show();
 							$('#no_conditions').hide();
-							var parent_div = getParentDivId('yes_'+action_id); 
+							//var parent_div = getParentDivId('yes_'+action_id); 
+							parent_div = parent_div_new;
+							var action_id = $(parent_div).data('action_id'); 
 							yes++; 
 							$('#condition_modal').modal({ backdrop: 'static', keyboard: false }).one('click', '.yes_yes_no', function (e) {
 								var parent_div = getParentDivId('yes_'+action_id);
@@ -530,7 +532,7 @@ jQuery(document).ready(function($){
 				}
             });
 	});
-	$(document).on('change','.condition_select',function(e){ alert('here');
+	$(document).on('change','.condition_select',function(e){ 
 	//$('.condition_select').on('change', function(e) {  alert('changed');
 		var flow_id = $('#flow_id').val();
 			e.preventDefault(); 

@@ -1374,7 +1374,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
     
-	Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
+    Route::get('scrap/development/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrap.index');
+	
+	
+    Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -2235,6 +2238,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
     Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
+    Route::get('/killed-list', 'ScrapStatisticsController@killedList')->name('scrap.killed-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
@@ -3145,22 +3149,22 @@ Route::prefix('referfriend')->middleware('auth')->group(function () {
 Route::prefix('twillio')->middleware('auth')->group(function () {
     Route::get('/', 'TwillioMessageController@index');
     Route::get('customers/{groupId}', 'TwillioMessageController@showCustomerList')->name('customer.group');
+    Route::get('errors', 'TwillioMessageController@showErrors')->name('twilio.errors');
     Route::get('marketing/message/{groupId}', 'TwillioMessageController@messageTitle')->name('marketing.message');
     Route::post('create/service', 'TwillioMessageController@createService')->name('create.message.service');
     Route::post('create/message/group', 'TwillioMessageController@createMessagingGroup')->name('create.message.group');
     Route::post('add/customer', 'TwillioMessageController@addCustomer')->name('add.customer.group');
     Route::post('remove/customer', 'TwillioMessageController@removeCustomer')->name('remove.customer.group');
     Route::post('delete/message/group', 'TwillioMessageController@deleteMessageGroup')->name('delete.message.group');
+    Route::post('delete/twilio/error', 'TwillioMessageController@deleteTwilioError')->name('delete.twilio.error');
     Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
 });
-
 
 //Image-Logs
 Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::get('/', 'LogsController@index')->name('logs.index');
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
-
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
@@ -3381,6 +3385,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
+
+Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
+
 Route::get('chatbot-message-log/{id}/history', 'ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
 //Magento Product Error

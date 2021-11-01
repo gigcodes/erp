@@ -484,6 +484,9 @@
                                 <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
+                                <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-tasks-killed" title="Scraper killed histories">
+                                     <i class="fa fa-history"></i>
+                                </button>
                                 <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
@@ -676,6 +679,9 @@
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
                                              <i class="fa fa-tasks"></i>
+                                        </button>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-tasks-killed">
+                                            <i class="fa fa-history"></i>
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-position-history">
                                              <i class="fa fa-address-card"></i>
@@ -933,7 +939,7 @@
                 </div>
             </div>
       </div>
-      <div id="show-content-model-table" class="modal fade" role="dialog">
+      <div id="show-content-model-table" class="modal fade scrp-task-list" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1837,6 +1843,28 @@
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".get-tasks-killed",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/killed-list',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper Killed Histories List");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {

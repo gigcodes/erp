@@ -42,24 +42,22 @@
     <div class="row">
         <div class="col-lg-12 margin-tb mb-3">
             <h2 class="page-heading">Vendor payments</h2>
-
-            <div class="pull-right">
-              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
-                <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
-              @endif
-              <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
-              <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
+              <div class="col-sm">
+                <div class="pull-right">
+                    <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+                    <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
+                  <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
+                  <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
+                </div>
             </div>
         </div>
     </div>
     @include('partials.flash_messages')
     <div class="row mb-3">
       <div class="col-sm-12">
-        <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
-          <div class="row full-width" style="width: 100%;">
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-              <div class="col-md-4 col-sm-12">
+        <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start voucher-search" id="searchForm">
+          <div class="row m-0 full-width" style="width: 100%;">
+              <div class="col-md-2 col-sm-12">
               <select class="form-control select-multiple" name="user_id" id="user-select">
                   <option value="">Select User</option>
                   @foreach($users as $key => $user)
@@ -67,20 +65,19 @@
                   @endforeach
                 </select>
               </div>
-            @endif
 
-            <div class="col-sm-12 col-md-4">
+            <div class="col-sm-12 col-md-3">
               <div class="form-group mr-3">
                 <input type="text" name="range_start" value="{{ request('range_start') }}" hidden/>
                 <input type="text" name="range_end" value="{{ request('range_end') }}" hidden/>
                 <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                   <i class="fa fa-calendar"></i>&nbsp;
-                  <span></span> <i class="fa fa-caret-down"></i>
+                  <span>Select Date</span> <i class="fa fa-caret-down"></i>
                 </div>
               </div>
             </div>
 
-            <div class="col-md-2 col-sm-3">
+            <div class="col-md-2 col-sm-2">
               <select class="form-control " name="limit" id="limit">
                   <option value="">--Select Page--</option>
                   <option {{ request("limit") == "24"  ? 'selected' : ''}} value="24">24</option>
@@ -90,49 +87,48 @@
                 </select>
               </div>
 
-            <div class="col-md-2 col-sm-3">
+            <div class="col-md-2 col-sm-2">
               <select class="form-control " name="status" id="status"> 
                   <option {{ request("status") == null || request("status") == "Pending"  ? 'selected' : ''}} value="Pending">Pending</option>
                   <option {{ request("status") == "Done"  ? 'selected' : ''}} value="Done">Done</option> 
                 </select>
               </div>
-
-              <div class="col-sm-12 col-md-4">
-                <label>Due Date</label>
-                <div class="form-group mr-3">
+              <div class="col-sm-12 col-md-3 voucher-due-date">
+                <div class="form-group mr-3" style="display:flex;">
                   <input type="text" name="range_due_start" value="{{ request('range_due_start') }}" hidden/>
                   <input type="text" name="range_due_end" value="{{ request('range_due_end') }}" hidden/>
-                  <div id="reportrange_duedate" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                  <div id="reportrange_duedate" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width:88%">
                     <i class="fa fa-calendar"></i>&nbsp;
-                    <span></span> <i class="fa fa-caret-down"></i>
+                    <span>Due Date</span> <i class="fa fa-caret-down"></i>
                   </div>
+                     <div class="col-md-1"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
                 </div>
               </div>
 
-            <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+            
           </div>
         </form>
       </div>
     </div>
 
 
-
-    <div class="table-responsive">
+     <div class="col-sm">
+        <div class="table-responsive vendor-payments-list">
         <table class="table table-bordered">
         <tr>
-          <th width="2%">-</th>
-          <th width="5%">User</th>
-          <th width="5%">Date</th>
-          <th width="20%">Details</th>
-          <th width="5%">Category</th>
-          <th width="5%">Time Spent</th>
-          <th width="7%">Amount</th>
-          <th width="7%">Currency</th>
-          <th width="5%">Amount Paid</th>
-          <th width="7%">Balance</th>
-          <th width="11%">Due Date</th>
-          <th width="15%">Communication</th>
-          <th width="20%" colspan="2" class="text-center">Action</th>
+          <th style="width:2%";>-</th>
+          <th style="width:5%";>User</th>
+          <th style="width:5%";>Date</th>
+          <th>Details</th>
+          <th>Category</th>
+          <th>Tm St</th>
+          <th>Amount</th>
+          <th>Currency</th>
+          <th style="width:6%";>Amt Pd</th>
+          <th style="width:5%";>Balance</th>
+          <th>Due Date</th>
+          <th>Communication</th>
+          <th colspan="2" class="text-center">Action</th>
         </tr>
           @php
             $totalRateEstimate = 0;
@@ -156,35 +152,37 @@
               <td>{{ $task->billing_due_date }}</td>
               <td>
                 <div class="row">
-                    <div class="col-md-12 form-inline cls_remove_rightpadding">
-                          <textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $task->id }}" name="message" placeholder="Message"></textarea>
-                          <button class="btn btn-sm btn-image send-message1" data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
-                          <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    <div class="col-md-12 form-inline cls_remove_rightpadding"style="display: flex;">
+                        <textarea rows="1" class="form-control quick-message-field cls_quick_message " id="messageid_{{ $task->id }}" name="message" placeholder="Message"></textarea>
+                        <button class="btn btn-sm btn-image send-message1 " data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                            
+                        </div>
                     </div>
                 </div>
                 <div class="row cls_mesg_box">
-                  <div class="col-md-12">
-                      <div class="col-md-12 expand-row" style="padding: 3px;">
-                      @if(isset($task->chat_messages[0]))
-                          <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $task->id }}">
-                          {{ strlen($task->chat_messages[0]->message) > 30 ? substr($task->chat_messages[0]->message, 0, 30) . '...' : $task->chat_messages[0]->message }}
-                          </span>
-                          <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $task->id }}">
-                            {{ $task->chat_messages[0]->message }}
-                          </span>
-                      @endif
-                      </div>
-                  </div>
-              </div>
-              </td>
+                    <div class="col-md-12">
+                        <div class="col-md-12 expand-row" style="padding: 3px;">
+                          @if(isset($task->chat_messages[0]))
+                              <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $task->id }}">
+                              {{ strlen($task->chat_messages[0]->message) > 30 ? substr($task->chat_messages[0]->message, 0, 30) . '...' : $task->chat_messages[0]->message }}
+                              </span>
+                              <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $task->id }}">
+                                {{ $task->chat_messages[0]->message }}
+                              </span>
+                          @endif
+                        </div>
+                    </div>
+                </div>
+            </td>
               @php
                 $totalRateEstimate += is_numeric(str_replace(",","",$task->rate_estimated)) ? str_replace(",","",$task->rate_estimated) : 0;
                 $totalPaid += is_numeric(str_replace(",","",$task->paid_amount)) ? str_replace(",","",$task->paid_amount) : 0;
                 $totalBalance += is_numeric(str_replace(",","",$task->balance)) ? str_replace(",","",$task->balance) : 0;
               @endphp
-              <td>
+            <td>
                 @if (Auth::user()->hasRole('Admin'))
-                  <a data-toggle="tooltip" title="Create Payment" class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                  <a data-toggle="tooltip" title="Create Payment" class="btn-secondary create-payment"style="background: none; color: gray;" data-id="{{$task->id}}"><i class="fa fa-plus" aria-hidden="true"></i></a>
                 @endif
                 <button type="button" data-toggle="tooltip" title="Upload File" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
@@ -213,7 +211,7 @@
       </table>
       {{$tasks->links()}}
     </div>
-
+    </div>
 
 
     <div id="paymentModal" class="modal fade" role="dialog">
