@@ -109,7 +109,7 @@ table tr td {
 
     <div class="row">
         <div class="infinite-scroll" style="width:100%;">
-	        <div class="table-responsive mt-2 .purchaseproductorders-list">
+	        <div class="table-responsive mt-2 purchaseproductorders-list">
                 <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                     <thead>
                         <tr>
