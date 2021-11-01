@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Scraper;
 use App\ScrapLog;
 use DB;
 use Illuminate\Console\Command;
+use Illuminate\Http\Request;
 
 class FetchScrapeMissing extends Command
 {
@@ -66,27 +68,7 @@ class FetchScrapeMissing extends Command
 
         $scrappedReportData = $scrapped_query->get();
         foreach ($scrappedReportData as $d) {
-            if ($d->missing_category) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Category"]);
-            }
-            if ($d->missing_color) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Color"]);
-            }
-            if ($d->missing_composition) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Composition"]);
-            }
-            if ($d->missing_name) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Name"]);
-            }
-            if ($d->missing_short_description) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Short Description"]);
-            }
-            if ($d->missing_price) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Price"]);
-            }
-            if ($d->missing_size) {
-                ScrapLog::create(['scraper_id' => $d->id, 'log_messages' => "Missing Size"]);
-            }
+            $missingdata = '';
             $data = [
                 'website' => $d->website,
                 'total_product' => $d->total_product,
@@ -99,6 +81,37 @@ class FetchScrapeMissing extends Command
                 'missing_size' => $d->missing_size,
                 'created_at' => date('Y-m-d H:m'),
             ];
+
+            $missingdata .= 'Total Product - ' . $d->total_product . ', ';
+            $missingdata .= 'Missing Category - ' . $d->missing_category . ', ';
+            $missingdata .= 'Missing Color - ' . $d->missing_color . ', ';
+            $missingdata .= 'Missing Composition - ' . $d->missing_composition . ', ';
+            $missingdata .= 'Missing Name - ' . $d->missing_name . ', ';
+            $missingdata .= 'Missing Short Description - ' . $d->missing_short_description . ', ';
+            $missingdata .= 'Missing Price - ' . $d->missing_price . ', ';
+            $missingdata .= 'Missing Size - ' . $d->missing_size . ', ';
+
+            $scrapers = Scraper::where("scraper_name", $d->website)->get();
+            foreach ($scrapers as $scrapperDetails) {
+                $hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->id)
+                    ->whereNotNull("assigned_to")->where("is_resolved", 0)->first();
+                if ($hasAssignedIssue != null) {
+                    $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
+                    $requestData = new Request();
+                    $requestData->setMethod('POST');
+                    $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Missing data", 'status' => 1]);
+                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata]);
+                    try {
+                        app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata . " and message sent to " . $userName]);
+                    } catch (\Exception $e) {
+                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Coundn't send message to " . $userName]);
+                    }
+                } else {
+                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Not assigned to any user"]);
+                }
+            }
+
             $s = DB::table('scraped_product_missing_log')->where('website', $d->website)
                 ->whereRaw(" date(created_at) = date('$date') ")->first();
             if ($s) {
