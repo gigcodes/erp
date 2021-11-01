@@ -11206,3 +11206,19 @@ table.table-striped-custom tbody tr td {
 .shiping,.select{
     display: flex;
 }
+.purchase-order-table .product-name div div{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.purchase-order-table .product-name:hover .purchase-order-table .product-name div div{
+    white-space: normal;
+}
+.purchase-order-table tbody tr td:last-child{
+    vertical-align: middle;
+}
+.purchase-order-table .customer-name a{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
