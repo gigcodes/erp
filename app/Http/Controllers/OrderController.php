@@ -216,7 +216,8 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-
+echo "a";
+die();
         $term = $request->input('term');
         $order_status = $request->status ?? [''];
         $date = $request->date ?? '';
