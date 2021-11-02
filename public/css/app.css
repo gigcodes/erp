@@ -11243,3 +11243,13 @@ table.table-striped-custom tbody tr td {
     max-width: 100%;
 }
 
+.charity-custom .form-inline{
+    width: 100%;
+}
+.charity-custom .form-inline label{
+    justify-content: flex-start;
+    margin-bottom: 5px;
+}
+.charity-custom-table td{
+    vertical-align: middle !important;
+}
