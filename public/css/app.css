@@ -11139,12 +11139,9 @@ table.table-striped-custom tbody tr td {
 .modal-content .modal-header .close {
     margin-top: 0 !important;
 }
-.table-responsive table th:nth-child(1) {
+/*.table-responsive table th:nth-child(1) {
     display: none;
-}
-.table-responsive tbody#order_return_summary_list tr td:nth-child(1) {
-    display: none;
-}
+}*/
 #order_return_summary {
     margin: 47px 0 0 14px;
 }
@@ -11194,3 +11191,55 @@ table.table-striped-custom tbody tr td {
 .vendor-payments-list .paid-all-payment{
     width: 15px;
 }
+
+.custom-table td:nth-child(2){
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  .add-invoice{
+    display:flex;
+}
+.currency-box{
+    display: flex;
+}
+.currency-box input{
+    width: 30%;
+}
+.shiping input{
+    width: 40;
+}
+.shiping,.select{
+    display: flex;
+}
+
+.purchase-order-table .product-name div div{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.purchase-order-table .product-name:hover .purchase-order-table .product-name div div{
+    white-space: normal;
+}
+.purchase-order-table tbody tr td:last-child{
+    vertical-align: middle;
+}
+.purchase-order-table .customer-name a{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#twilio_key_option_modal a{
+    color: black;
+    background: none;
+    border:1px solid #ccc;
+}
+ .website-pag{
+    display: flex;
+    align-items: center;
+}
+#twilio_key_option_modal .modal-dialog.modal-lg{
+    width:60%;
+    max-width: 100%;
+}
+

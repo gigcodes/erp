@@ -5,6 +5,7 @@ ScriptDIR=`dirname "$0"`
 datetime=`date +%d%b%y-%H:%M`
 
 rm /tmp/scrap_* /opt/scrap_status
+echo "" > /opt/scrap_restart
 
 ####################    Get all running Scraper details in all servers #######
 function scraper_status

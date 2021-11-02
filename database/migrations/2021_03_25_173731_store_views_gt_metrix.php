@@ -20,6 +20,7 @@ class StoreViewsGtMetrix extends Migration
             $table->string('status')->nullable();
             $table->string('error')->nullable();
             $table->string('report_url')->nullable();
+			$table->integer('website_id')->nullable();
             $table->text('website_url')->nullable();
             $table->integer('html_load_time')->nullable();
             $table->integer('html_bytes')->nullable();

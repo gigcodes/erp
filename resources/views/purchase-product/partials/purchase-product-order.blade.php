@@ -117,20 +117,20 @@ table tr td {
                     <thead>
                         <tr>
                             <th width="2%">#</th>
-                            <th width="5%">Order Id</th>
+                            <th width="3%">Order Id</th>
                             <!-- <th width="8%">Product</th>
                             <th width="8%">SKU</th>
                             <th width="8%">Brand</th> -->
-                            <th width="8%">Supplier</th>
-                            <th width="5%">MRP</th>
-                            <th width="5%">Discounted Price</th>
-                            <th width="5%">Special Price</th>
-                            <th width="7%">Invoice No</th>
-                            <th width="7%">Payment Details</th>
-                            <th width="5%">Cost Details</th>
-                            <th width="6%">Landed cost</th>
+                            <th width="5%">Supplier</th>
+                            <th width="2%">MRP</th>
+                            <th width="3%">Dis Pri</th>
+                            <th width="4%">Spc Price</th>
+                            <th width="5%">Invoice No</th>
+                            <th width="9%">Paym Details</th>
+                            <th width="6%">Cost Details</th>
+                            <th width="4%">Land cost</th>
                             <th width="6%">Status</th>
-                            <th width="5%">Created Date</th>
+                            <th width="4%">Crea Date</th>
                             <th width="5%">Action</th>
 
                         </tr>
@@ -170,26 +170,32 @@ table tr td {
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
                             </td>
-
-
-                            <td>
-                                <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control mb-3 invoice_no" value="{{ $value->invoice ?? '' }}">
-                                <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"></i>
+                            
+                            
+                            <td >
+                                <div class="add-invoice">
+                                    <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control  invoice_no" value="{{ $value->invoice ?? '' }}"style="width:50%;">
+                                    <button style="display: inline;width:5%; display:flex;" class="btn btn-sm btn-image add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                    <i class="fa fa-info-circle view_log" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"style="padding-top:6px; padding-left: 21px;"></i>
+                                </div>
                             </td>
                             <td>
-                                <input type="text" name="payment_currency" placeholder="Currency" class="form-control mb-3 payment_currency" value="{{ $value->payment_currency ?? '' }}">
-                                <input type="text" name="payment_amount" placeholder="Amount" class="form-control mb-3 payment_amount" value="{{ $value->payment_amount ?? '' }}">
-                                <input type="text" name="payment_mode" placeholder="Mode" class="form-control mb-3 payment_mode" value="{{ $value->payment_mode ?? '' }}">
-                                <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details"></i>
-                                <i class="fa fa-money view_flows" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows"></i>
+                                <div class="currency-box">
+                                    <input type="text" name="payment_currency" placeholder="Currency" class="form-control  payment_currency" {{ $value->payment_currency ?? '' }}">
+                                    <input type="text" name="payment_amount" placeholder="Amount" class="form-control  payment_amount"style="margin-left:5px;" value="{{ $value->payment_amount ?? '' }}">
+                                    <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;"" value="{{ $value->payment_mode ?? '' }}">
+                                    <button style="display: inline;width: 5%; display: flex;" class="btn btn-sm btn-image add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                    <i class="fa fa-info-circle view_log" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="padding-top:6px;"></i>
+                                    <i class="fa fa-money view_flows" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="padding-top:6px;"></i>
+                                 </div>
                             </td>
                             <td>
-                                <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control mb-3 shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
-                                <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control mb-3 duty_cost" value="{{ $value->duty_cost ?? '' }}">
-                                <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
+                                <div class="shiping">
+                                    <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control  shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
+                                    <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control  duty_cost" style="margin-left:5px;" value="{{ $value->duty_cost ?? '' }}">
+                                    <button style="display: inline;width:5%; display:flex;" class="btn btn-sm btn-image add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                    <i class="fa fa-info-circle view_log" style="padding-top:6px;" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
+                               </div>
                             </td>
                             <td class="landed_cost">
                                 @php
@@ -199,14 +205,16 @@ table tr td {
                                 {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
                             </td>
                             <td>
-                                <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
-                                    <option value="">Select</option>
-                                    <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
-                                    <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
-                                    <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
-                                    <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
-                                </select>
-                                <i class="fa fa-info-circle view_log" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
+                                <div class="select">
+                                    <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
+                                        <option value="">Select</option>
+                                        <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
+                                        <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
+                                        <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
+                                        <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
+                                    </select>
+                                    <i class="fa fa-info-circle view_log" style="padding-top:6px;"" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
+                               </div>
                             </td>
                             @php
                             $date = explode(" ",$value->created_at_date)
@@ -220,9 +228,9 @@ table tr td {
                             @endphp
                                 <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
 
-                                <i class="fa fa-upload upload_data_btn pl-3" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
+                                <i class="fa fa-upload upload_data_btn pl-2 pr-2" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
 
-                                <a type="button" class="btn btn-xs btn-image load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt=""></a>
+                                <a type="button" class="btn btn-xs btn-image load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt=""style="margin-top:-5px;"></a>
                             </td>
 
                         </tr>
@@ -895,10 +903,10 @@ table tr td {
                 html_content += '<table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">';
                 html_content += '<thead>';
                 html_content += '<tr>';
-                html_content += '<th width="10%">#</th>';
+                html_content += '<th width="5%">#</th>';
                 html_content += '<th width="30%">Name</th>';
-                html_content += '<th width="20%">SKU</th>';
-                html_content += '<th width="20%">Brand</th>';
+                html_content += '<th width="15%">SKU</th>';
+                html_content += '<th width="15%">Brand</th>';
                 html_content += '<th width="20%">MRP</th>';
                 html_content += '<th width="20%">Discounted Price</th>';
                 html_content += '<th width="20%">Special Price</th>';

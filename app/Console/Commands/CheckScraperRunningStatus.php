@@ -134,6 +134,7 @@ class CheckScraperRunningStatus extends Command
                 }
             }
         }
+        
 
         $report->update(['end_time' => Carbon::now()]);
 

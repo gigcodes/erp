@@ -101,6 +101,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             @foreach ($chatIds as $chatId)
                                 @php
                                 $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                if(!$customer) {
+                                    \Log::info("Need to delete chat id for customer #".$chatId->customer_id);
+                                    continue;
+                                }
                                 $customerInital = substr($customer->name, 0, 1);
                                 @endphp
                                    <tr>

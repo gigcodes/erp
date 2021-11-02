@@ -361,7 +361,7 @@ class ScrapStatisticsController extends Controller
             JOIN
                 scraped_products ls
             ON
-                sc.scraper_name=ls.website
+                sc.supplier_id=ls.supplier_id
             WHERE
                 sc.scraper_name IS NOT NULL AND
 
@@ -951,6 +951,15 @@ class ScrapStatisticsController extends Controller
 
         $replies = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
+    }
+
+    public function killedList(Request $request)
+    {
+        $id = $request->id;
+
+        $histories = \App\ScraperKilledHistory::where("scraper_id", $request->id)->latest()->get();
+
+        return view("scrap.partials.killed", compact('histories', 'id'));
     }
 
     public function addReply(Request $request)

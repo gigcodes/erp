@@ -1373,6 +1373,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('log_history/list/{id}', 'MagentoProductPushErrors@getHistory');
 
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
+    
+    Route::get('scrap/development/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrap.index');
+	
+	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
@@ -2234,6 +2239,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
     Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
+    Route::get('/killed-list', 'ScrapStatisticsController@killedList')->name('scrap.killed-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
@@ -3144,22 +3150,22 @@ Route::prefix('referfriend')->middleware('auth')->group(function () {
 Route::prefix('twillio')->middleware('auth')->group(function () {
     Route::get('/', 'TwillioMessageController@index');
     Route::get('customers/{groupId}', 'TwillioMessageController@showCustomerList')->name('customer.group');
+    Route::get('errors', 'TwillioMessageController@showErrors')->name('twilio.errors');
     Route::get('marketing/message/{groupId}', 'TwillioMessageController@messageTitle')->name('marketing.message');
     Route::post('create/service', 'TwillioMessageController@createService')->name('create.message.service');
     Route::post('create/message/group', 'TwillioMessageController@createMessagingGroup')->name('create.message.group');
     Route::post('add/customer', 'TwillioMessageController@addCustomer')->name('add.customer.group');
     Route::post('remove/customer', 'TwillioMessageController@removeCustomer')->name('remove.customer.group');
     Route::post('delete/message/group', 'TwillioMessageController@deleteMessageGroup')->name('delete.message.group');
+    Route::post('delete/twilio/error', 'TwillioMessageController@deleteTwilioError')->name('delete.twilio.error');
     Route::post('create/marketing/message', 'TwillioMessageController@createMarketingMessage')->name('create.marketing.message');
 });
-
 
 //Image-Logs
 Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::get('/', 'LogsController@index')->name('logs.index');
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
-
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
@@ -3276,6 +3282,10 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
 });
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
+Route::get('gtmetrix-url', 'gtmetrix\WebsiteStoreViewGTMetrixController@website_url')->name('gt-metrix-url');
+Route::post('gtmetrix-url/add', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-add-url');
+Route::post('gtmetrix/multi-add-in-process', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-multi-process-url');
+Route::post('gtmetrix/deleteurl', 'gtmetrix\WebsiteStoreViewGTMetrixController@delete_website_url')->name('deleteurl');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');
@@ -3376,6 +3386,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('chatbot.messages.logs');
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
+
+Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
+
 Route::get('chatbot-message-log/{id}/history', 'ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
 //Magento Product Error
