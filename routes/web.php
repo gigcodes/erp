@@ -794,6 +794,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::resource('order', 'OrderController');
+    Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
