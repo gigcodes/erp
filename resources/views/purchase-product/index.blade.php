@@ -89,8 +89,8 @@
                 
                 <div class="form-group col-md-3 pd-3">
                 <select class="form-control select-multiple2" style="width:100%" name="filter_supplier[]" data-placeholder="Search Supplier By Name.." multiple>
-								@foreach($product_suppliers_list as $supplier)
-									<option value="{{ $supplier->id }}" @if(is_array($filter_supplier) && in_array($supplier->id,$filter_supplier)) selected @endif>{{ $supplier->supplier }}</option>
+                @foreach($product_suppliers_list as $supplier)
+                  <option value="{{ $supplier->id }}" @if(is_array($filter_supplier) && in_array($supplier->id,$filter_supplier)) selected @endif>{{ $supplier->supplier }}</option>
                 @endforeach
                 
               </select>
@@ -166,23 +166,24 @@
         </div>
 </div>
 <div class="row">
+  <div class="col-md-12">
     <div class="infinite-scroll" style="width:100%;">
   <div class="table-responsive mt-2">
-      <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+      <table class="table table-bordered order-table purchase-order-table" style="border: 1px solid #ddd !important; color:black;">
         <thead>
         <tr>
-            <th width="2%">select</th>
-            <th width="5%"><a href="">ID</a></th>
-            <th width="6%"><a href="">Customer</a></th>
-            <th width="10%"><a href="">Supplier</a></th>
-            <th width="10%">Product</th>
+            <th width="2%">-</th>
+            <th width="5%">ID</th>
+            <th width="6%">Customer</th>
+            <th width="10%">Supplier</th>
+            <th width="15%">Product</th>
             <th width="10%">Buying Price</th>
             <th width="10%">Selling Price(EUR)</th>
-            <th width="10%"><a href="">Selling price</a></th>
-            <th width="8%"><a href="">Order Date</a></th>
-           <th width="8%"><a href="">Del Date</a></th>
-            <th style="width: 8%"><a href="">Inv Status</a></th>
-            <th width="10%">Action</th>
+            <th width="10%">Selling price</th>
+            <th width="8%">Order Date</th>
+           <th width="8%">Del Date</th>
+            <th style="width: 8%">Inv Status</th>
+            <th width="5%">Action</th>
          </tr>
         </thead>
 
@@ -199,7 +200,7 @@
                 
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
-                  <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
+                  <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}" style="width: 10px;">
                   </span>
 
                 </td>
@@ -213,7 +214,7 @@
                   </span>
                 </div>
               </td>
-              <td class="view-details" data-type="customer" data-id="{{$order->id}}">
+              <td class="view-details customer-name" data-type="customer" data-id="{{$order->id}}">
               @if ($order->customer)
                   <span class="td-mini-container">
                     <a href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
@@ -239,7 +240,7 @@
                     
 
                 </td>
-              <td class="expand-row table-hover-cell">
+              <td class="expand-row table-hover-cell product-name">
                 <div class="d-flex">
                   <div class="">
                   @php
@@ -343,7 +344,7 @@
       </div>
     </div>
 </div>
-
+</div>
 
 
 <!-- Add Supplier for Product -->
