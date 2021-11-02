@@ -4084,7 +4084,7 @@ class OrderController extends Controller
     {
         $order_id = $request->input('order_id');
         $html = '';
-        $paymentData = CashFlow::where('cash_flow_able_id', $order_id)
+        $paymentData = \App\CashFlow::where('cash_flow_able_id', $order_id)
             ->where('cash_flow_able_type', 'App\Order')
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
