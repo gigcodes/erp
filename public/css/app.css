@@ -11191,7 +11191,13 @@ table.table-striped-custom tbody tr td {
 .vendor-payments-list .paid-all-payment{
     width: 15px;
 }
-.add-invoice{
+
+.custom-table td:nth-child(2){
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  .add-invoice{
     display:flex;
 }
 .currency-box{
@@ -11211,4 +11217,34 @@ table.table-striped-custom tbody tr td {
 }
 .purchaseproductorders-list tbody tr{
     color: #323030;
+}
+
+.purchase-order-table .product-name div div{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.purchase-order-table .product-name:hover .purchase-order-table .product-name div div{
+    white-space: normal;
+}
+.purchase-order-table tbody tr td:last-child{
+    vertical-align: middle;
+}
+.purchase-order-table .customer-name a{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#twilio_key_option_modal a{
+    color: black;
+    background: none;
+    border:1px solid #ccc;
+}
+ .website-pag{
+    display: flex;
+    align-items: center;
+}
+#twilio_key_option_modal .modal-dialog.modal-lg{
+    width:60%;
+    max-width: 100%;
 }

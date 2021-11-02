@@ -13,6 +13,7 @@ use Entrecore\GTMetrixClient\GTMetrixClient;
 use Entrecore\GTMetrixClient\GTMetrixTest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\StoreViewsGTMetrixUrl;
 
 class GTMetrixManageQueueData extends Command
 {
@@ -47,46 +48,22 @@ class GTMetrixManageQueueData extends Command
      */
 
     public function handle(){
-
-        $query = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
-        $lists = $query->from(\DB::raw('(SELECT MAX( id) as id, status, store_view_id, website_url, html_load_time FROM store_views_gt_metrix  GROUP BY store_views_gt_metrix.website_url ) as t'))
-            ->leftJoin('store_views_gt_metrix', 't.id', '=', 'store_views_gt_metrix.id')->get();
-        
+		$gtmatrixAccount = StoreGTMetrixAccount::select('store_gt_metrix_account.*');
+        $query = StoreViewsGTMetrixUrl::select('store_views_gt_metrix_url.*');
+        $lists = $query->where('process',1)->get();
         if($lists){
 
-            foreach ($lists as $key => $list) {
-                if($list->status == 'not_queued' || $list->status == ''){
-
-                    $this->inQueue($list->id);
-                    
-                }elseif($list->status == 'completed'){
-                    
-                    $gtmetrix = StoreViewsGTMetrix::where('id',$list->id)->first();
-                    $update = [
-                                'test_id' => null,
-                                'status'  => 'not_queued',
-                            ];
-                    $gtmetrix->update($update);
-
-                }
-            }
-        }
-
-    }
-
-    public function inQueue($id=null){
-
-        $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
-        $gtmatrix = StoreViewsGTMetrix::where('id',$id)->first();
-
-        if ($gtmatrix) {
-            $gt_metrix['store_view_id'] = $gtmatrix->store_view_id;
-            $gt_metrix['website_url'] = $gtmatrix->website_url;
-            $new_id = StoreViewsGTMetrix::create($gt_metrix)->id;
-            $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
-            $gtmatrix = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_url',$gt_metrix['website_url'])->first();
-
-            try{
+            foreach ($lists as $list) {
+				$gt_metrix['store_view_id'] = $list->store_view_id;
+				$gt_metrix['account_id'] = $list->account_id;
+				$gt_metrix['website_id'] = $list->id;
+				$gt_metrix['website_url'] = $list->website_url;
+				
+				$new_id = StoreViewsGTMetrix::create($gt_metrix)->id;
+				$gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
+				$gtmatrix = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_id',$gt_metrix['website_id'])->first();
+				
+				try{
                 if(!empty($gtmatrix->account_id)){
                     $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
 
@@ -170,20 +147,7 @@ class GTMetrixManageQueueData extends Command
                 }
                 \Log::info('GTMetrix :: successfully');
                 
-                // $client = new GTMetrixClient();
-                // $client->setUsername(env('GTMETRIX_USERNAME'));
-                // $client->setAPIKey(env('GTMETRIX_API_KEY'));                
-                // $client->getLocations();
-                // $client->getBrowsers();
-                // $test   = $client->startTest($gtmetrix->website_url);
-
-                // $update = [
-                //     'test_id' => $test->getId(),
-                //     'status'  => 'queued',
-                //     //'account_id'  => 'queued',
-                // ];
-                // $gtmetrix->update($update);
-
+                
             } 
             catch (\Exception $e) {
                 $update = [
@@ -194,11 +158,9 @@ class GTMetrixManageQueueData extends Command
                 $gtmetrix->update($update);
                 \Log::info('GTMetrix :: successfully'.$e->getMessage());
             }
+            }
         }
+
     }
-
-
-
-
 
 }
