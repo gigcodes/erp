@@ -1280,6 +1280,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/voucher/pay-multiple', 'VoucherController@payMultiple')->name("voucher.payment.pay-multiple");
 
     Route::resource('voucher', 'VoucherController');
+    Route::post('voucher/payment-history', 'VoucherController@paymentHistory')->name('voucher.paymentHistory');
     Route::post('/upload-documents', 'VoucherController@uploadDocuments')->name("voucher.upload-documents");
     Route::post('/voucher/save-documents', 'VoucherController@saveDocuments')->name("voucher.save-documents");
     Route::get('/voucher/{id}/list-documents', 'VoucherController@listDocuments')->name("voucher.list-documents");

@@ -195,6 +195,9 @@
                 <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="Payment" class="btn btn-payment-list pd-5">
                     <i class="fa fa-globe" aria-hidden="true"></i>
                 </button>
+                <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$task->id}}">
+                      <i class="fa fa-history"></i>
+                  </button>
                 <?php /* ?>
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
@@ -373,6 +376,32 @@
           50% 50% no-repeat;display:none;">
     </div>
 
+    <div id="payment-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Sl no</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody class="payment-history-list-view">
+                            </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div id="file-upload-area-section" class="modal fade" role="dialog">
       <div class="modal-dialog">
           <div class="modal-content">
@@ -751,6 +780,30 @@
             $("#loading-image").hide();
           });
     });
+
+    $('.payment-history-btn').click(function(){
+          var task_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('voucher.paymentHistory') }}",
+            data: {
+              task_id:task_id,
+            },
+        }).done(response => {
+          $('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              $('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+      });
 
     $(document).on('click', '.send-message1', function () {
         var thiss = $(this);
