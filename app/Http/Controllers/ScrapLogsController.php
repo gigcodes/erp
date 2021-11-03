@@ -161,7 +161,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list,"last_list"=>$last_file_list]);
+		return  response()->json(["file_list" => $file_list]);
     }
     public function filtertosavelogdb() 
     {
