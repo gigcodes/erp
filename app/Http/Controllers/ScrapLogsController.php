@@ -112,7 +112,7 @@ class ScrapLogsController extends Controller
 			$arrlength=count($file_list);
 			$arrCount=array();
 			for($i=0;$i<$arrlength-1;$i++){
-				$key=$arraychars[$i];
+				$key=$file_list[$i];
 				if(@$arrCount[$key]>=1){
 					
 					$arrCount[$key]++;
