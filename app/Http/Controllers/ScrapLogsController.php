@@ -69,6 +69,10 @@ class ScrapLogsController extends Controller
 
 				$file = file($file_path_new);
 				
+				echo "<pre/>";
+				print_r($file);
+				die();
+				
                 $log_msg = "";
 				for ($i = max(0, count($file)-3); $i < count($file); $i++) {
 				  $log_msg.=$file[$i];
