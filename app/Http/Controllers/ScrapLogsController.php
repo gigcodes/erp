@@ -110,6 +110,9 @@ class ScrapLogsController extends Controller
 		$vals = [];
 		if($file_list){
 			$file_list = array_values($file_list);
+			echo "<pre/>";
+			print_r($file_list);
+			die();
 			$arrlength=count($file_list);
 			$arrCount=array();
 			for($i=0;$i<$arrlength-1;$i++){
