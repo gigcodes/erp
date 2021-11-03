@@ -109,7 +109,17 @@ class ScrapLogsController extends Controller
 
 		$vals = [];
 		if($file_list){
-			$vals = array_count_values($file_list);
+			$arrlength=count($file_list);
+			$arrCount=array();
+			for($i=0;$i<$arrlength-1;$i++){
+				$key=$arraychars[$i];
+				if(@$arrCount[$key]>=1){
+					
+					$arrCount[$key]++;
+				} else{
+					$arrCount[$key]=1;
+				}
+			}
 		}
 
         //config
@@ -137,7 +147,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list,'vals'=>$vals]);
+		return  response()->json(["file_list" => $file_list,'vals'=>$arrCount]);
     }
     public function filtertosavelogdb() 
     {
