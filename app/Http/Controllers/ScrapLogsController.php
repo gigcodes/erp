@@ -14,6 +14,9 @@ class ScrapLogsController extends Controller
     {	
 		$name = "";
 		$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
+		echo "<pre/>";
+		print_r($servers);
+		die();
 		return view('scrap-logs.index',compact('name','servers'));
     }
 
