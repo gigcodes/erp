@@ -108,7 +108,8 @@ class ScrapLogsController extends Controller
 		}
 
 		$vals = [];
-		if($file_list){
+		$arrCount=array();
+		/*if($file_list){
 			foreach($file_list as $_file){
 				$vals[] = $_file['log_msg'];
 			}
@@ -123,7 +124,7 @@ class ScrapLogsController extends Controller
 			} else{
 				$arrCount[$key]=1;
 			}
-		}
+		}*/
         //config
         if(strtolower(request('download')) == "yes") {
             $nameF = "scraper-log-temp-file.txt";
