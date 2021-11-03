@@ -17,10 +17,19 @@ class ScrapLogsController extends Controller
 		return view('scrap-logs.index',compact('name','servers'));
     }
 
+	public static function getLastNDays($days, $format = 'd/m'){
+		$m = date("m"); $de= date("d"); $y= date("Y");
+		$dateArray = array();
+		for($i=0; $i<=$days-1; $i++){
+			$dateArray[] = '' . date($format, mktime(0,0,0,$m,($de-$i),$y)) . ''; 
+		}
+		return array_reverse($dateArray);
+	}
+
 	public function filter($searchVal, $dateVal, Request $request) 
     { 
 		$month = Carbon::now()->format('My');
-		$fulldate = Carbon::now()->subDays(7)->format('dMy');
+		$last7dates = self::getLastNDays(7, 'dMy');
     	$serverArray = [];
     	$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
     	if ($request->server_id !== null) {
@@ -34,6 +43,7 @@ class ScrapLogsController extends Controller
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
+		$last_file_list = [];
 		
 	/*	$fileName = "spinnaker-16Oct21-13:01.log";
 		 $day_of_file = explode('-', $fileName);
@@ -48,10 +58,11 @@ class ScrapLogsController extends Controller
 		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
-	   $date = $dateVal;
+	    $date = $dateVal;
 
         $lines = [];
         $log_status= '';
+        $last_log_status= '';
 		$status_lists = DB::table('scrapper_log_status')->get();
 		
         foreach ($files as $key => $val) {
@@ -59,10 +70,6 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
 			
-			echo "<pre/>";
-			print_r($day_of_file);
-			echo $date.$month;
-			die();
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
@@ -112,6 +119,57 @@ class ScrapLogsController extends Controller
 	    			)
 	    		);
 			}
+
+			//last 7 days
+			if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and in_array($day_of_file[1],$last7dates))) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+				
+				if (!in_array($val->getRelativepath(), $serverArray)) {
+					continue;
+				}
+
+				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+
+				$file = file($file_path_new);
+				
+				
+
+                $log_msg = "";
+				for ($i = max(0, count($file)-3); $i < count($file); $i++) {
+				  $log_msg.=$file[$i];
+				}
+
+				$file_path_info = pathinfo($val->getFilename());
+				$file_name_str = $file_path_info['filename'];
+				$file_name_ss = $val->getFilename();
+
+                $lines[] = "=============== $file_name_ss log started from here ===============";
+                
+                for ($i = max(0, count($file)-10); $i < count($file); $i++) {
+                  $lines[] = $file[$i];
+                }
+
+                $lines[] = "=============== $file_name_ss log ended from here ===============";
+                if($log_msg != "") {
+	                foreach ($status_lists as $key => $value) {
+	                	if (stripos(strtolower($log_msg), $value->text) !== false){
+	                		$last_log_status = $value->status;
+	                	}
+	                }
+	            }
+				if($log_msg == "") {
+					$log_msg = "Log data not found.";	
+				}
+				
+                array_push($last_file_list, array(
+						"filename" => $file_name_ss,
+	        			"foldername" => $val->getRelativepath(),
+	        			"log_msg"=>$log_msg,
+	        			"status"=>$last_log_status,
+	        			"scraper_id"=>$file_name_str
+	    			)
+	    		);
+			}
 		}
 
         //config
@@ -139,7 +197,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list]);
+		return  response()->json(["file_list" => $file_list,"last_list"=>$last_file_list]);
     }
     public function filtertosavelogdb() 
     {
