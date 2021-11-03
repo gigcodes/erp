@@ -229,7 +229,7 @@ class ScrapLogsController extends Controller
 
 		$cdate = Carbon::now()->subDays(7);
 		$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
-		return  response()->json(["last7days" => $last7days]);
+		return $last7days;
     }
 
     public function fileView($filename, $foldername) {
