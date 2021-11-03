@@ -61,6 +61,7 @@ class ScrapLogsController extends Controller
 			
 			echo "<pre/>";
 			print_r($day_of_file);
+			echo $date.$month;
 			die();
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
