@@ -29,10 +29,10 @@ class ScrapLogsController extends Controller
     		$serverArray[] = $server['server_id'];
     	}
 		
-		$file_list = [];
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
+		$last_7_days = [];
 		
 	/*	$fileName = "spinnaker-16Oct21-13:01.log";
 		 $day_of_file = explode('-', $fileName);
@@ -47,7 +47,7 @@ class ScrapLogsController extends Controller
 		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
-	   $date = $dateVal;
+	    $date = $dateVal;
 
         $lines = [];
         $log_status= '';
@@ -61,7 +61,8 @@ class ScrapLogsController extends Controller
 			//Last 7 days
 			$cdate = Carbon::now()->subDays(7);
 			$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
-			
+			$last_7_days[] = $last7days;
+
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
@@ -136,7 +137,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list,'last7days'=>$last7days]);
+		return  response()->json(["file_list" => $file_list,'last7days'=>$last_7_days]);
     }
     public function filtertosavelogdb() 
     {
