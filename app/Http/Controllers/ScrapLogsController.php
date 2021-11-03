@@ -109,12 +109,12 @@ class ScrapLogsController extends Controller
 
 		$vals = [];
 		if($file_list){
+			$file_list = array_values($file_list);
 			$arrlength=count($file_list);
 			$arrCount=array();
 			for($i=0;$i<$arrlength-1;$i++){
 				$key=$file_list[$i];
 				if(@$arrCount[$key]>=1){
-					
 					$arrCount[$key]++;
 				} else{
 					$arrCount[$key]=1;
