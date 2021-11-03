@@ -32,6 +32,7 @@ class ScrapLogsController extends Controller
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
+		$same_data = [];
 		
 	/*	$fileName = "spinnaker-16Oct21-13:01.log";
 		 $day_of_file = explode('-', $fileName);
@@ -106,6 +107,11 @@ class ScrapLogsController extends Controller
 			}
 		}
 
+		$vals = [];
+		if($file_list){
+			$vals = array_count_values($file_list);
+		}
+
         //config
         if(strtolower(request('download')) == "yes") {
             $nameF = "scraper-log-temp-file.txt";
@@ -131,7 +137,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list]);
+		return  response()->json(["file_list" => $file_list,'vals'=>$vals]);
     }
     public function filtertosavelogdb() 
     {
