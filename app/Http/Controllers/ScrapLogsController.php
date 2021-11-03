@@ -123,44 +123,6 @@ class ScrapLogsController extends Controller
 			//last 7 days
 			if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and in_array($day_of_file[1],$last7dates))) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
-				if (!in_array($val->getRelativepath(), $serverArray)) {
-					continue;
-				}
-
-				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-
-				$file = file($file_path_new);
-				
-				
-
-                $log_msg = "";
-				for ($i = max(0, count($file)-3); $i < count($file); $i++) {
-				  $log_msg.=$file[$i];
-				}
-
-				$file_path_info = pathinfo($val->getFilename());
-				$file_name_str = $file_path_info['filename'];
-				$file_name_ss = $val->getFilename();
-
-                $lines[] = "=============== $file_name_ss log started from here ===============";
-                
-                for ($i = max(0, count($file)-10); $i < count($file); $i++) {
-                  $lines[] = $file[$i];
-                }
-
-                $lines[] = "=============== $file_name_ss log ended from here ===============";
-                if($log_msg != "") {
-	                foreach ($status_lists as $key => $value) {
-	                	if (stripos(strtolower($log_msg), $value->text) !== false){
-	                		$last_log_status = $value->status;
-	                	}
-	                }
-	            }
-				if($log_msg == "") {
-					$log_msg = "Log data not found.";	
-				}
-				
                 array_push($last_file_list, array(
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
