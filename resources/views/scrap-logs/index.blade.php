@@ -355,8 +355,8 @@
                 url: url
             })
              .done(response => {	
-             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Date</td><td>Last 7 days history</td></thead><tbody>'; 		
-			    $.each(response, function (key) {
+             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Scraper Name</td><td>Remark</td><td>Date</td></thead><tbody>'; 		
+			    $.each(response.last7days, function (key) {
 			    	var scraper_name = response[key]['scraper_name'];
 			    	var remark = response[key]['remark'];
 			    	var date = response[key]['created_at'];
