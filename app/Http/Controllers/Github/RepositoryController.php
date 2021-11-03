@@ -247,6 +247,7 @@ $devTask->update(['is_pr_merged'=>1]);
             } else if ($destination == 'master') {
                 $this->updateBranchState($id, $source);
             }
+            
 
             \Log::info('updateDevTask calling...'.$source);
             $this->updateDevTask($source);

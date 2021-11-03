@@ -2833,6 +2833,7 @@ Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], fu
     });
 });
 
+
 Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');
 });
