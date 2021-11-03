@@ -58,16 +58,18 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
 
-			//Last 7 days
-			$cdate = Carbon::now()->subDays(7);
-			$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
-			$last_7_days[] = $last7days;
+			
 
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
 				}
+
+				//Last 7 days
+				$cdate = Carbon::now()->subDays(7);
+				$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
+				$last_7_days[] = $last7days;
 
 				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
