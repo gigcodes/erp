@@ -121,7 +121,7 @@ class ScrapLogsController extends Controller
 					);
 				}
 
-				if(in_array($day_of_file[1],$last7dates)){
+				/*if(in_array($day_of_file[1],$last7dates)){
 					array_push($last_file_list, array(
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
@@ -130,7 +130,7 @@ class ScrapLogsController extends Controller
 	        			"scraper_id"=>$file_name_str
 	    			)
 	    		);
-				}
+				}*/
                
 			}
 			
