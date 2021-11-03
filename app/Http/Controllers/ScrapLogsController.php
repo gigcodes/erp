@@ -32,7 +32,6 @@ class ScrapLogsController extends Controller
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
-		$last_7_days = [];
 		
 	/*	$fileName = "spinnaker-16Oct21-13:01.log";
 		 $day_of_file = explode('-', $fileName);
@@ -58,18 +57,11 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
 
-			
-
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
 				}
-
-				//Last 7 days
-				$cdate = Carbon::now()->subDays(7);
-				$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
-				$last_7_days[] = $last7days;
 
 				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
@@ -139,7 +131,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list,'last7days'=>$last_7_days]);
+		return  response()->json(["file_list" => $file_list]);
     }
     public function filtertosavelogdb() 
     {
@@ -228,6 +220,16 @@ class ScrapLogsController extends Controller
 			);
 		}
 		return  response()->json(["file_list" => $file_list]);
+    }
+
+	public function history(Request $request)
+    {
+		$day_of_file = explode('-', $request->filename);
+		$day_of_file = str_replace('.log', '', $day_of_file);
+
+		$cdate = Carbon::now()->subDays(7);
+		$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
+		return  response()->json(["last7days" => $last7days]);
     }
 
     public function fileView($filename, $foldername) {

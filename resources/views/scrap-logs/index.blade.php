@@ -248,7 +248,7 @@
 						console.log(data)
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
-							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button></td></tr>");
+							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button><button style='padding:3px;' type='button' class='btn btn-image history d-inline' data-toggle='modal' data-target='#history' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-history'></i></button></td></tr>");
 						});
 						
 					}
@@ -325,6 +325,32 @@
            		$("#loghistory .modal-body").html(html);
             }); 	            
 	});
+
+	$(document).on('click', '.history', function (e) {
+            e.preventDefault();
+            var filename = $(this).data('filename');           
+            var url = '{{ route("scarp.history",':filename') }}';
+            url = url.replace(":filename", filename);
+             $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url
+            })
+             .done(response => {	
+             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Date</td><td>Last 7 days history</td></thead><tbody>'; 		
+			    $.each(response, function (key) {
+			    	var scraper_name = response[key]['scraper_name'];
+			    	var remark = response[key]['remark'];
+			    	var date = response[key]['created_at'];
+			    	 html += '<tr><td>' + scraper_name + '</td><td>' + remark + '</td><td>' + date + '</td></tr>';
+                });
+			   html += "</tbody></table>";
+           		$("#history .modal-body").html(html);
+            }); 	            
+	});
+
 	$(document).on('click','#logdatahistory',function(e) {  
 		e.preventDefault(); 		
 		$.ajax({
