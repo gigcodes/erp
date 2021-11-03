@@ -70,7 +70,7 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
 			
-            if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+            if( ( (end($day_of_file) == $date) || (isset($day_of_file[1])) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
@@ -110,7 +110,19 @@ class ScrapLogsController extends Controller
 					$log_msg = "Log data not found.";	
 				}
 				
-                array_push($file_list, array(
+				if($day_of_file[1] == $date.$month){
+						array_push($file_list, array(
+							"filename" => $file_name_ss,
+							"foldername" => $val->getRelativepath(),
+							"log_msg"=>$log_msg,
+							"status"=>$log_status,
+							"scraper_id"=>$file_name_str
+						)
+					);
+				}
+
+				if(in_array($day_of_file[1],$last7dates)){
+					array_push($last_file_list, array(
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
 	        			"log_msg"=>$log_msg,
@@ -118,20 +130,10 @@ class ScrapLogsController extends Controller
 	        			"scraper_id"=>$file_name_str
 	    			)
 	    		);
+				}
+               
 			}
-
-			//last 7 days
-			if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and in_array($day_of_file[1],$last7dates))) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-				
-                array_push($last_file_list, array(
-						"filename" => $file_name_ss,
-	        			"foldername" => $val->getRelativepath(),
-	        			"log_msg"=>$log_msg,
-	        			"status"=>$last_log_status,
-	        			"scraper_id"=>$file_name_str
-	    			)
-	    		);
-			}
+			
 		}
 
         //config
