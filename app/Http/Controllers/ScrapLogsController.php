@@ -150,7 +150,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list,'vals'=>$arrCount]);
+		return  response()->json(["file_list" => $file_list]);
     }
     public function filtertosavelogdb() 
     {
