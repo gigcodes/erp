@@ -53,6 +53,9 @@ class ScrapLogsController extends Controller
         $log_status= '';
 		$status_lists = DB::table('scrapper_log_status')->get();
 		
+		echo "<pre/>";
+				print_r($files);
+				die();
         foreach ($files as $key => $val) {
 			
             $day_of_file = explode('-', $val->getFilename());
@@ -69,10 +72,8 @@ class ScrapLogsController extends Controller
 
 				$file = file($file_path_new);
 				
-				echo "<pre/>";
-				print_r($file);
-				die();
 				
+
                 $log_msg = "";
 				for ($i = max(0, count($file)-3); $i < count($file); $i++) {
 				  $log_msg.=$file[$i];
