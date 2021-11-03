@@ -109,22 +109,21 @@ class ScrapLogsController extends Controller
 
 		$vals = [];
 		if($file_list){
-			$file_list = array_values($file_list);
-			echo "<pre/>";
-			print_r($file_list);
-			die();
-			$arrlength=count($file_list);
-			$arrCount=array();
-			for($i=0;$i<$arrlength-1;$i++){
-				$key=$file_list[$i];
-				if(@$arrCount[$key]>=1){
-					$arrCount[$key]++;
-				} else{
-					$arrCount[$key]=1;
-				}
+			foreach($file_list as $_file){
+				$vals[] = $_file['log_msg'];
 			}
 		}
 
+		$arrlength=count($vals);
+		$arrCount=array();
+		for($i=0;$i<$arrlength-1;$i++){
+			$key=$vals[$i];
+			if(@$arrCount[$key]>=1){
+				$arrCount[$key]++;
+			} else{
+				$arrCount[$key]=1;
+			}
+		}
         //config
         if(strtolower(request('download')) == "yes") {
             $nameF = "scraper-log-temp-file.txt";
