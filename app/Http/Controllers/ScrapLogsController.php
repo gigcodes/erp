@@ -20,6 +20,7 @@ class ScrapLogsController extends Controller
 	public function filter($searchVal, $dateVal, Request $request) 
     { 
 		$month = Carbon::now()->format('My');
+		$fulldate = Carbon::now()->subDays(7)->format('dMy');
     	$serverArray = [];
     	$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
     	if ($request->server_id !== null) {
@@ -53,14 +54,14 @@ class ScrapLogsController extends Controller
         $log_status= '';
 		$status_lists = DB::table('scrapper_log_status')->get();
 		
-		echo "<pre/>";
-				print_r($files);
-				die();
         foreach ($files as $key => $val) {
 			
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
 			
+			echo "<pre/>";
+			print_r($day_of_file);
+			die();
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
