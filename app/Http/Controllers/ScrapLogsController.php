@@ -59,8 +59,8 @@ class ScrapLogsController extends Controller
 			$day_of_file = str_replace('.log', '', $day_of_file);
 
 			//Last 7 days
-			$date = Carbon::now()->subDays(7);
-			$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $date)->get();
+			$cdate = Carbon::now()->subDays(7);
+			$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
 			
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
@@ -136,7 +136,7 @@ class ScrapLogsController extends Controller
 
 
 
-		return  response()->json(["file_list" => $file_list]);
+		return  response()->json(["file_list" => $file_list,'last7days'=>$last7days]);
     }
     public function filtertosavelogdb() 
     {
