@@ -794,6 +794,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::resource('order', 'OrderController');
+    Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
@@ -1280,6 +1281,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/voucher/pay-multiple', 'VoucherController@payMultiple')->name("voucher.payment.pay-multiple");
 
     Route::resource('voucher', 'VoucherController');
+    Route::post('voucher/payment-history', 'VoucherController@paymentHistory')->name('voucher.paymentHistory');
     Route::post('/upload-documents', 'VoucherController@uploadDocuments')->name("voucher.upload-documents");
     Route::post('/voucher/save-documents', 'VoucherController@saveDocuments')->name("voucher.save-documents");
     Route::get('/voucher/{id}/list-documents', 'VoucherController@listDocuments')->name("voucher.list-documents");

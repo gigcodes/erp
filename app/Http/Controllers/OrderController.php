@@ -4080,4 +4080,38 @@ class OrderController extends Controller
 
     }
 
+    public function paymentHistory(request $request)
+    {
+        $order_id = $request->input('order_id');
+        $html = '';
+        $paymentData = \App\CashFlow::where('cash_flow_able_id', $order_id)
+            ->where('cash_flow_able_type', 'App\Order')
+            ->where('type', 'paid')
+            ->orderBy('date', 'DESC')
+            ->get();
+        $i = 1;
+        if (count($paymentData) > 0) {
+            foreach ($paymentData as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $history->id . '</td>';
+                $html .= '<td>' . $history->amount . '</td>';
+                $html .= '<td>' . $history->date . '</td>';
+                $html .= '<td>' . $history->description . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+
 }
