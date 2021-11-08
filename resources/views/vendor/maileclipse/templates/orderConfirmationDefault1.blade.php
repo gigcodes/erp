@@ -41,7 +41,7 @@
 <table class="main_table" style="margin: auto; border-spacing: 0px;" width="789px">
 <tbody>
 <tr>
-<td>@php $total = $product_total = 0; @endphp @foreach ($order-&gt;order_product as $order_product) @php $product = $order_product-&gt;product @endphp @if($product) @php $product_total += $order_product-&gt;product_price; @endphp @php $total += $order_product-&gt;order_price; @endphp @endif @endforeach
+<td>@php $total = $product_total = 0; @endphp @foreach ($order->order_product as $order_product) @php $product = $order_product->product @endphp @if($product) @php $product_total += $order_product->product_price; @endphp @php $total += $order_product->order_price; @endphp @endif @endforeach
 <table style="margin: auto; border-spacing: 0px;" width="100%">
 <tbody>
 <tr>
@@ -114,7 +114,7 @@
 <td class="padding_marg" style="padding: 0px 30px 15px;" colspan="3"><span style="display: block; padding: 10px 0px; border-bottom: 1px solid #e2cfc5; width: 100%; font-family: 'Open Sans'; font-size: 22px; font-weight: bold;"> Confirmed Items </span></td>
 </tr>
 <tr>
-<td class="padding_marg" style="padding: 0px 30px 20px;" colspan="3">@php $total = $product_total = 0; @endphp @foreach ($order-&gt;order_product as $order_product) @php $product = $order_product-&gt;product @endphp @if($product)@php $product_total += $order_product-&gt;product_price; @endphp @php $total += $order_product-&gt;order_price; @endphp @endif @endforeach
+<td class="padding_marg" style="padding: 0px 30px 20px;" colspan="3">@php $total = $product_total = 0; @endphp @foreach ($order->order_product as $order_product) @php $product = $order_product->product @endphp @if($product)@php $product_total += $order_product->product_price; @endphp @php $total += $order_product->order_price; @endphp @endif @endforeach
 <table style="border-bottom: 1px solid #e2cfc5; padding-bottom: 10px;" width="100%">
 <tbody>
 <tr>
