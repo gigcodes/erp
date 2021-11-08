@@ -2764,6 +2764,7 @@ Route::middleware('auth')->group(function () {
     Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
     Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
     Route::get('scrap-logs/log-history/{filename}','ScrapLogsController@loghistory')->name('scarp.loghistory');
+    Route::get('scrap-logs/history/{filename}','ScrapLogsController@history')->name('scarp.history');
     
     Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
 
@@ -2833,6 +2834,7 @@ Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], fu
         Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
     });
 });
+
 
 Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');

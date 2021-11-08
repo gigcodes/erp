@@ -29,7 +29,6 @@ class ScrapLogsController extends Controller
     		$serverArray[] = $server['server_id'];
     	}
 		
-		$file_list = [];
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
@@ -47,7 +46,7 @@ class ScrapLogsController extends Controller
 		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
-	   $date = strlen($dateVal) == 1  ? "0$dateVal"  : $dateVal;
+	    $date = strlen($dateVal) == 1  ? "0$dateVal"  : $dateVal;
 
         $lines = [];
         $log_status= '';
@@ -57,9 +56,9 @@ class ScrapLogsController extends Controller
 			
             $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
-			
+
+
             if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  strtolower($day_of_file[1]) == strtolower($date.$month)) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-				
 				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
 				}
@@ -205,7 +204,8 @@ class ScrapLogsController extends Controller
 		
 		//return  response()->json(["file_list" => $file_list]);
     }
-     public function logdata(){
+
+    public function logdata(){
     	return \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
     	->whereNotNull('scrap_type')
     	->groupBy('scrap_type','log_messages')
@@ -220,6 +220,7 @@ class ScrapLogsController extends Controller
 		$fileLogs = \App\ScrapLog::where('scrap_type',$log->scrap_type)->whereBetween('created_at',[$fromDate, $toDate])->get();
 		return $fileLogs;
     }
+
     public function fetchlog()
     {
     	$file_list = [];
@@ -236,6 +237,16 @@ class ScrapLogsController extends Controller
 			);
 		}
 		return  response()->json(["file_list" => $file_list]);
+    }
+
+	public function history(Request $request)
+    {
+		$day_of_file = explode('-', $request->filename);
+		$day_of_file = str_replace('.log', '', $day_of_file);
+
+		$cdate = Carbon::now()->subDays(7);
+		$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
+		return $last7days;
     }
 
     public function fileView($filename, $foldername) {
