@@ -51,6 +51,9 @@
 		<div class="col-lg-2 text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
 		</div>
+		<div class="col-lg-2 text-rights">
+			<button class ="btn-dark" type="button" data-toggle="modal" id ="samedata" data-target="#datacounter">Same data counts</button>
+		</div>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -138,6 +141,21 @@
             </div>
         </div>
     </div>
+	<div id="datacounter" class="modal fade" role="dialog">
+    	   <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Same Data Count</h4>
+                </div>
+                <div class="modal-body">
+                	<table class="table table-bordered table-striped">
+                	<thead></thead>
+				    <tbody></tbody>
+                	</table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="makeRemarkModal" class="modal fade" role="dialog">
 	  <div class="modal-dialog <?php echo (!empty($type) && ($type == 'scrap' || $type == 'email')) ? 'modal-lg' : ''  ?>">
 
@@ -214,6 +232,22 @@
 	  </div>
 	 </div>
 </div>
+<div id="history" class="modal fade" role="dialog">
+	  <div class="modal-dialog ">
+	  	<!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h4 class="modal-title">Last 7 days history</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	  	<div class="modal-body">
+	  		<tbody id="history"></tbody>
+	  	</div>
+	  	<div class="modal-footer">
+	  	</div>
+	  </div>
+	 </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -248,7 +282,7 @@
 						console.log(data)
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
-							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button></td></tr>");
+							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button><button style='padding:3px;' type='button' class='btn btn-image history d-inline' data-toggle='modal' data-target='#history' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-history'></i></button></td></tr>");
 						});
 						
 					}
@@ -325,6 +359,32 @@
            		$("#loghistory .modal-body").html(html);
             }); 	            
 	});
+
+	$(document).on('click', '.history', function (e) {
+            e.preventDefault();
+            var filename = $(this).data('filename');           
+            var url = '{{ route("scarp.history",':filename') }}';
+            url = url.replace(":filename", filename);
+             $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url
+            })
+             .done(response => {	
+             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Scraper Name</td><td>Remark</td><td>Date</td></thead><tbody>'; 		
+			    $.each(response, function (key) {
+			    	var scraper_name = response[key]['scraper_name'];
+			    	var remark = response[key]['remark'];
+			    	var date = response[key]['created_at'];
+			    	 html += '<tr><td>' + scraper_name + '</td><td>' + remark + '</td><td>' + date + '</td></tr>';
+                });
+			   html += "</tbody></table>";
+           		$("#history .modal-body").html(html);
+            }); 	            
+	});
+
 	$(document).on('click','#logdatahistory',function(e) {  
 		e.preventDefault(); 		
 		$.ajax({

@@ -1,5 +1,5 @@
 <tr>
-    <td><h3 class="text-center">1</h3></td>
+    <td class="text-center">1</td>
     <td>
         <select class="form-control mb-2 option_menu_1" aria-label="Default select example">
         <option value="">Select</option>
@@ -12,10 +12,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_1" rows="3">{{ isset($twilio_key_arr[1]['desc']) ? $twilio_key_arr[1]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_1" rows="1">{{ isset($twilio_key_arr[1]['desc']) ? $twilio_key_arr[1]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_1" rows="3">{{ isset($twilio_key_arr[1]['message']) ? $twilio_key_arr[1]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_1" rows="1">{{ isset($twilio_key_arr[1]['message']) ? $twilio_key_arr[1]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_1" class="id_1" value="{{ isset($twilio_key_arr[1]['id']) ? $twilio_key_arr[1]['id'] : 0}}" />
@@ -23,7 +23,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">2</h3></td>
+    <td class="text-center">2</td>
     <td>
         <select class="form-control mb-2 option_menu_2" aria-label="Default select example">
             <option value="">Select</option>
@@ -36,10 +36,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_2" rows="3">{{ isset($twilio_key_arr[2]['desc']) ? $twilio_key_arr[2]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_2" rows="1">{{ isset($twilio_key_arr[2]['desc']) ? $twilio_key_arr[2]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_2" rows="3">{{ isset($twilio_key_arr[2]['message']) ? $twilio_key_arr[2]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_2" rows="1">{{ isset($twilio_key_arr[2]['message']) ? $twilio_key_arr[2]['message'] : ''}}</textarea>
     </td>
     <td>
     <input type="hidden" name="id_2" class="id_2" value="{{ isset($twilio_key_arr[2]['id']) ? $twilio_key_arr[2]['id'] : 0}}" />
@@ -47,7 +47,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">3</h3></td>
+    <td class="text-center">3</td>
     <td>
         <select class="form-control mb-2 option_menu_3" aria-label="Default select example">
             <option value="">Select</option>
@@ -60,10 +60,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_3" rows="3">{{ isset($twilio_key_arr[3]['desc']) ? $twilio_key_arr[3]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_3" rows="1">{{ isset($twilio_key_arr[3]['desc']) ? $twilio_key_arr[3]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_3" rows="3">{{ isset($twilio_key_arr[3]['message']) ? $twilio_key_arr[3]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_3" rows="1">{{ isset($twilio_key_arr[3]['message']) ? $twilio_key_arr[3]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_3" class="id_3" value="{{ isset($twilio_key_arr[3]['id']) ? $twilio_key_arr[3]['id'] : 0}}" />
@@ -71,7 +71,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">4</h3></td>
+    <td class="text-center">4</td>
     <td>
         <select class="form-control mb-2 option_menu_4" aria-label="Default select example">
             <option value="">Select</option>
@@ -84,10 +84,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_4" rows="3">{{ isset($twilio_key_arr[4]['desc']) ? $twilio_key_arr[4]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_4" rows="1">{{ isset($twilio_key_arr[4]['desc']) ? $twilio_key_arr[4]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_4" rows="3">{{ isset($twilio_key_arr[4]['message']) ? $twilio_key_arr[4]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_4" rows="1">{{ isset($twilio_key_arr[4]['message']) ? $twilio_key_arr[4]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_4" class="id_4" value="{{ isset($twilio_key_arr[4]['id']) ? $twilio_key_arr[4]['id'] : 0}}" />
@@ -95,7 +95,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">5</h3></td>
+    <td class="text-center">5</td>
     <td>
         <select class="form-control mb-2 option_menu_5" aria-label="Default select example">
             <option value="">Select</option>
@@ -108,10 +108,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_5" rows="3">{{ isset($twilio_key_arr[5]['desc']) ? $twilio_key_arr[5]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_5" rows="1">{{ isset($twilio_key_arr[5]['desc']) ? $twilio_key_arr[5]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_5" rows="3">{{ isset($twilio_key_arr[5]['message']) ? $twilio_key_arr[5]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_5" rows="1">{{ isset($twilio_key_arr[5]['message']) ? $twilio_key_arr[5]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_5" class="id_5" value="{{ isset($twilio_key_arr[5]['id']) ? $twilio_key_arr[5]['id'] : 0}}" />
@@ -119,7 +119,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">6</h3></td>
+    <td class="text-center">6</td>
     <td>
         <select class="form-control mb-2 option_menu_6" aria-label="Default select example">
             <option value="">Select</option>
@@ -132,18 +132,18 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_6" rows="3">{{ isset($twilio_key_arr[6]['desc']) ? $twilio_key_arr[6]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_6" rows="1">{{ isset($twilio_key_arr[6]['desc']) ? $twilio_key_arr[6]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_6" rows="3">{{ isset($twilio_key_arr[6]['message']) ? $twilio_key_arr[6]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_6" rows="1">{{ isset($twilio_key_arr[6]['message']) ? $twilio_key_arr[6]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_6" class="id_6" value="{{ isset($twilio_key_arr[6]['id']) ? $twilio_key_arr[6]['id'] : 0}}" />
         <a href="#" class="btn btn-secondary save_key_option" data-id="6">Save</a>
     </td>
-</tr>
+</tr> 
 <tr>
-    <td><h3 class="text-center">7</h3></td>
+    <td class="text-center">7</td>
     <td>
         <select class="form-control mb-2 option_menu_7" aria-label="Default select example">
             <option value="">Select</option>
@@ -156,10 +156,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_7" rows="3">{{ isset($twilio_key_arr[7]['desc']) ? $twilio_key_arr[7]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_7" rows="1">{{ isset($twilio_key_arr[7]['desc']) ? $twilio_key_arr[7]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_7" rows="3">{{ isset($twilio_key_arr[7]['message']) ? $twilio_key_arr[7]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_7" rows="1">{{ isset($twilio_key_arr[7]['message']) ? $twilio_key_arr[7]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_7" class="id_7" value="{{ isset($twilio_key_arr[7]['id']) ? $twilio_key_arr[7]['id'] : 0}}" />
@@ -167,7 +167,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">8</h3></td>
+    <td class="text-center">8</td>
     <td>
         <select class="form-control mb-2 option_menu_8" aria-label="Default select example">
             <option value="">Select</option>
@@ -180,10 +180,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_8" rows="3">{{ isset($twilio_key_arr[8]['desc']) ? $twilio_key_arr[8]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_8" rows="1">{{ isset($twilio_key_arr[8]['desc']) ? $twilio_key_arr[8]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_8" rows="3">{{ isset($twilio_key_arr[8]['message']) ? $twilio_key_arr[8]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_8" rows="1">{{ isset($twilio_key_arr[8]['message']) ? $twilio_key_arr[8]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_8" class="id_8" value="{{ isset($twilio_key_arr[8]['id']) ? $twilio_key_arr[8]['id'] : 0}}" />
@@ -191,7 +191,7 @@
     </td>
 </tr>
 <tr>
-    <td><h3 class="text-center">9</h3></td>
+    <td class="text-center">9<</td>
     <td>
         <select class="form-control mb-2 option_menu_9" aria-label="Default select example">
             <option value="">Select</option>
@@ -204,10 +204,10 @@
         </select>
     </td>   
     <td>
-        <textarea class="form-control mb-2 key_description_9" rows="3">{{ isset($twilio_key_arr[9]['desc']) ? $twilio_key_arr[9]['desc'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_description_9" rows="1">{{ isset($twilio_key_arr[9]['desc']) ? $twilio_key_arr[9]['desc'] : ''}}</textarea>
     </td>
     <td>
-        <textarea class="form-control mb-2 key_message_9" rows="3">{{ isset($twilio_key_arr[9]['message']) ? $twilio_key_arr[9]['message'] : ''}}</textarea>
+        <textarea class="form-control mb-2 key_message_9" rows="1">{{ isset($twilio_key_arr[9]['message']) ? $twilio_key_arr[9]['message'] : ''}}</textarea>
     </td>
     <td>
         <input type="hidden" name="id_9" class="id_9" value="{{ isset($twilio_key_arr[9]['id']) ? $twilio_key_arr[9]['id'] : 0}}" />

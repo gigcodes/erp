@@ -1260,6 +1260,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchaseproductorders/list', 'PurchaseProductController@purchaseproductorders')->name('purchaseproductorders.list'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/update', 'PurchaseProductController@purchaseproductorders_update')->name('purchaseproductorders.update'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/logs', 'PurchaseProductController@purchaseproductorders_logs')->name('purchaseproductorders.logs'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::get('purchaseproductorders/flows', 'PurchaseProductController@purchaseproductorders_flows')->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', 'PurchaseProductController@purchaseproductorders_orderdata')->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/saveuploads', 'PurchaseProductController@purchaseproductorders_saveuploads')->name('purchaseproductorders.saveuploads'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
 
@@ -1372,6 +1373,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('log_history/list/{id}', 'MagentoProductPushErrors@getHistory');
 
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
+    
     Route::get('scrap/development/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrap.index');
 	
 	
@@ -2761,6 +2764,7 @@ Route::middleware('auth')->group(function () {
     Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
     Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
     Route::get('scrap-logs/log-history/{filename}','ScrapLogsController@loghistory')->name('scarp.loghistory');
+    Route::get('scrap-logs/history/{filename}','ScrapLogsController@history')->name('scarp.history');
     
     Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
 
@@ -2830,6 +2834,7 @@ Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], fu
         Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
     });
 });
+
 
 Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');
@@ -3279,6 +3284,10 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
 });
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
+Route::get('gtmetrix-url', 'gtmetrix\WebsiteStoreViewGTMetrixController@website_url')->name('gt-metrix-url');
+Route::post('gtmetrix-url/add', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-add-url');
+Route::post('gtmetrix/multi-add-in-process', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-multi-process-url');
+Route::post('gtmetrix/deleteurl', 'gtmetrix\WebsiteStoreViewGTMetrixController@delete_website_url')->name('deleteurl');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
 Route::post('gtmetrix/run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@runErpEvent')->name('gt-metrix.runEvent');
 Route::post('gtmetrix/multi-run-event', 'gtmetrix\WebsiteStoreViewGTMetrixController@MultiRunErpEvent')->name('gt-metrix.MultiRunEvent');

@@ -63,6 +63,7 @@ class StoreLogScraper extends Command
             $root          = config('env.SCRAP_LOGS_FOLDER');
 
             $counter       = 0;
+            
             foreach (File::allFiles($root) as $file) {
                 $needed = explode('-', $file->getFilename());
                 if (isset($needed[1])) {
