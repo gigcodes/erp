@@ -85,8 +85,6 @@ class addUserPaymentData extends Command
         ->select("tasks.*")
         ->get();
 
-        echo "<pre>"; print_r($tasks);  echo "</pre>";die;
-
         foreach ($tasks as $task) {
 
             $task_user = User::find($task->assign_to);
