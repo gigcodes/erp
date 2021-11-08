@@ -7,6 +7,9 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
 <style>
+.table-modal table th:nth-child(1) {
+    display: block;
+}
 .ajax-loader{
     position: fixed;
     left: 0;
@@ -80,20 +83,20 @@ table tr td {
             <div >
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
-                        
+
                         <input style="width:100%;" name="order_id" type="text" class="form-control" value="{{ isset($_REQUEST['order_id']) ? $_REQUEST['order_id'] : '' }}" placeholder="Order id">
                     </div>
                     <div class="form-group col-md-3 pd-3">
                         <select class="form-control globalSelect2" data-ajax="{{ route('select2.suppliers') }}" style="width:100%" name="supplier_id" data-placeholder="Search Supplier By Name.." >
-                        
+
                         @if(isset($_REQUEST['supplier_id']))
-                        @if ($suppliers_all)        
+                        @if ($suppliers_all)
                             <option value="{{ $suppliers_all->id }}" selected>{{ $suppliers_all->supplier }}</option>
                         @endif
 
                         @endif
                         <option ></option>
-                                 
+
                         </select>
                     </div>
                     <div class="form-group col-md-1 pd-3">
@@ -104,7 +107,7 @@ table tr td {
                 </form>
             </div>
         </div>
-    </div>	
+    </div>
 
 
     <div class="row">
@@ -129,10 +132,10 @@ table tr td {
                             <th width="6%">Status</th>
                             <th width="4%">Crea Date</th>
                             <th width="5%">Action</th>
-                           
+
                         </tr>
                     </thead>
-                    
+
                     <tbody>
                     @foreach($purchar_product_order as $key => $value)
                         <tr class="row_{{$value->pur_pro_id}}">
@@ -183,6 +186,7 @@ table tr td {
                                     <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;"" value="{{ $value->payment_mode ?? '' }}">
                                     <button style="display: inline;width: 5%; display: flex;" class="btn btn-sm btn-image add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                     <i class="fa fa-info-circle view_log" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="padding-top:6px;"></i>
+                                    <i class="fa fa-money view_flows" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="padding-top:6px;"></i>
                                  </div>
                             </td>
                             <td>
@@ -228,7 +232,7 @@ table tr td {
 
                                 <a type="button" class="btn btn-xs btn-image load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt=""style="margin-top:-5px;"></a>
                             </td>
-                            
+
                         </tr>
                     @endforeach
                     </tbody>
@@ -256,7 +260,7 @@ table tr td {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="table-responsive mt-2">
+                <div class="table-modal mt-2">
                     <table class="table table-bordered log-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                         <thead>
                             <tr>
@@ -264,18 +268,53 @@ table tr td {
                                 <th width="30%">To</th>
                                 <th width="20%">Created By</th>
                                 <th width="20%">Created At</th>
-                                
+
                             </tr>
                         </thead>
-                        
+
                         <tbody class="log_data" id="log_data">
-                            
+
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="modal-footer">
-            
+
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade flow_modal" id="flow_modal" tabindex="-1" role="dialog" aria-labelledby="log_modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Cash Flow Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-modal mt-2">
+                    <table class="table table-bordered log-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th width="30%">Cash Flow ID</th>
+                                <th width="30%">Amount</th>
+                                <th width="20%">Created By</th>
+                                <th width="20%">Created At</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody class="flow_data" id="flow_data">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+
             </div>
             </div>
         </div>
@@ -300,7 +339,7 @@ table tr td {
                     <div class="form-group">
                         <strong>Upload :</strong>
                         <input type="file" enctype="multipart/form-data" name="file[]" class="form-control upload_file_data" name="image" multiple/>
-                        
+
                     </div>
                 </div> -->
                 <div class="table-responsive mt-2">
@@ -313,9 +352,9 @@ table tr td {
                                 <th width="10%" ></th>
                             </tr>
                         </thead>
-                        
+
                         <tbody class="product_upload_data" id="product_upload_data">
-                            
+
                         </tbody>
                     </table>
                 </div>
@@ -354,9 +393,9 @@ table tr td {
 
 <script type="text/javascript">
     $(".add_invoice").click(function (e) {
-        
+
         var purchase_pro_id = $(this).data('id');
-       
+
         var invoice = $(this).siblings('.invoice_no').val();
         alert(invoice);
         if(invoice == ''){
@@ -475,7 +514,7 @@ table tr td {
     $(".change_status").change(function(){
         var purchase_pro_id = $(this).data('id');
         var status = $(this).val();
-        
+
         if(status == '')
         {
             toastr['error']('Status is Required');
@@ -603,7 +642,7 @@ table tr td {
 
     // $(".add_product_order_mrp").click(function (e) {
     $(document).on("click",".add_product_order_mrp",function(e) {
-        
+
         var purchase_pro_id = $(this).data('purchase-product-orders-id');
         var order_products_id = $(this).data('order-products-id');
         var product_order_mrp_old = $(this).data('old-amount');
@@ -654,9 +693,9 @@ table tr td {
         });
     });
 
-    
+
     $(document).on("click",".add_product_order_discount",function(e) {
-        
+
         var purchase_pro_id = $(this).data('purchase-product-orders-id');
         var order_products_id = $(this).data('order-products-id');
         var product_order_mrp_old = $(this).data('old-amount');
@@ -703,9 +742,9 @@ table tr td {
         });
     });
 
-    
+
     $(document).on("click",".add_product_order_special",function(e) {
-        
+
         var purchase_pro_id = $(this).data('purchase-product-orders-id');
         var order_products_id = $(this).data('order-products-id');
         var product_order_mrp_old = $(this).data('old-amount');
@@ -753,13 +792,12 @@ table tr td {
     });
 
     // $(".view_log").click(function (e) {
-    $(document).on("click",".view_log",function(e) {    
-        
+    $(document).on("click",".view_log",function(e) {
+
         var purchase_pro_id = $(this).data('id');
         var purchase_order_products_id = $(this).data('order-products-id');
-       
+
         var header_name = $(this).data('name');
-        alert(header_name);
         $.ajax({
             type: "GET",
             url: "{{ route('purchaseproductorders.logs') }}",
@@ -791,6 +829,42 @@ table tr td {
         });
     });
 
+    $(document).on("click",".view_flows",function(e) {
+
+        var purchase_pro_id = $(this).data('id');
+        var purchase_order_products_id = $(this).data('order-products-id');
+        var header_name = $(this).data('name');
+        $.ajax({
+            type: "GET",
+            url: "{{ route('purchaseproductorders.flows') }}",
+            data: {
+				_token: "{{ csrf_token() }}",
+                header_name : header_name,
+				purchase_pro_id: purchase_pro_id,
+                purchase_order_products_id: purchase_order_products_id,
+            },
+            dataType : "json",
+            success: function (response) {
+
+                var html_content = ''
+                $.each( response.log_data, function( key, value ) {
+                    html_content += '<tr>';
+                    html_content += '<td>'+ value.cash_flow_id+'</td>';
+                    html_content += '<td>'+ value.amount+'</td>';
+                    html_content += '<td>'+ value.name+'</td>';
+                    html_content += '<td>'+ value.log_created_at+'</td>';
+                    html_content += '</tr>';
+                });
+
+                $("#flow_data").html(html_content);
+                $('#flow_modal').modal('show');
+            },
+            error: function () {
+                // toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
     $(".view_full_order").click(function (e) {
         var purchase_pro_id = $(this).data('id');
         var order_id = $(this).data('order-id');
@@ -807,7 +881,7 @@ table tr td {
             return false;
         }
 
-        
+
         $.ajax({
             type: "GET",
             url: "{{ route('purchaseproductorders.orderdata') }}",
@@ -913,7 +987,7 @@ table tr td {
         var order_id = $(this).data('order-id');
         // $(".order_product_id").val(order_product_id);
         $(".order_id").val(order_id);
-        
+
         // $('#upload_data_modal').modal('show');
 
         var order_products_order_id = $(this).data('pro-order-id');
@@ -971,8 +1045,8 @@ table tr td {
             fd.append('order_id',order_id);
             fd.append('_token',"{{ csrf_token() }}");
 
-            
-            
+
+
 			$.ajax({
                 url: '{{route("purchaseproductorders.saveuploads")}}',
                 type: 'post',
