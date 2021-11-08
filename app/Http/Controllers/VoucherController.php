@@ -703,7 +703,7 @@ class VoucherController extends Controller
         if (count($paymentData) > 0) {
             foreach ($paymentData as $history) {
                 $html .= '<tr>';
-                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->id . '</td>';
                 $html .= '<td>' . $history->amount . '</td>';
                 $html .= '<td>' . $history->date . '</td>';
                 $html .= '<td>' . $history->description . '</td>';
