@@ -41,8 +41,16 @@ class addUserPaymentData extends Command
      */
     public function handle()
     {
-        $dev_tasks = DeveloperTask::where('is_resolved', 1)->get();
-       
+        $dev_tasks = DeveloperTask::leftJoin('payment_receipts',function($join) {
+              $join->on("payment_receipts.developer_task_id","developer_tasks.id");
+              $join->where('payment_receipts.status','Done');
+        })
+        ->where('is_resolved', 1)
+        ->whereNull('payment_receipts.developer_task_id')
+        ->groupBy('developer_tasks.id')
+        ->select("developer_tasks.*")
+        ->get();
+
         foreach ($dev_tasks as $dev_task) {
             
             $dev_task_user = User::find($dev_task->team_lead_id !== null ? $dev_task->team_lead_id : $dev_task->assigned_to);
@@ -67,7 +75,18 @@ class addUserPaymentData extends Command
             }
             $dev_task_payment = 0;
         }
-        $tasks = Task::where('status', 1)->get();
+        $tasks = Task::leftJoin('payment_receipts',function($join) {
+              $join->on("payment_receipts.task_id","tasks.id");
+              $join->where('payment_receipts.status','Done');
+        })
+        ->where('tasks.status', 1)
+        ->whereNull('payment_receipts.task_id')
+        ->groupBy('tasks.id')
+        ->select("tasks.*")
+        ->get();
+
+        echo "<pre>"; print_r($tasks);  echo "</pre>";die;
+
         foreach ($tasks as $task) {
 
             $task_user = User::find($task->assign_to);
