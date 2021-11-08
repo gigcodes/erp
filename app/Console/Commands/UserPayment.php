@@ -53,6 +53,7 @@ class UserPayment extends Command
         }else {
         }*/
         $bigining = date('Y-m-d');
+        \Log::info('Users found - '.$users->count().' on Date - '.$bigining);
         foreach($users as $user) {
             $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
             $start =  $bigining;
@@ -67,9 +68,12 @@ class UserPayment extends Command
             $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($yesterday, $end, $user->id);
             echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
 
+            \Log::info('User ID - '.$user->id);
+
             $total = 0;
             $minutes = 0;
             $startsAt = null;
+            \Log::info('Activity Records found - '.count($activityrecords));
             foreach($activityrecords as $record) {
                 $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at,$user->id);
                 if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
@@ -81,6 +85,7 @@ class UserPayment extends Command
                 }
             }
 
+            \Log::info('Total count - '.$total);
             /*$billingStartDate = ($lastPayment && !empty($startsAt)) ? $startsAt : date("Y-m-d",strtotime("-1 day"));
             if($user->payment_frequency == 'fornightly') {
                 $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+1 days"));  
@@ -127,6 +132,7 @@ class UserPayment extends Command
                 }
                 $paymentReceipt->save();
 
+                \Log::info('Paymemt Receipt Added - '.$paymentReceipt->id);
 
             }
         }

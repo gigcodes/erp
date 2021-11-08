@@ -22,7 +22,7 @@ class PaymentReceiptUpdated
      */
     public $paymentReceipt;
     
-    public function __construct(PaymentReceipt $paymentReceipt)
+    public function __construct($paymentReceipt)
     {
         $this->paymentReceipt = $paymentReceipt;
     }
