@@ -46,7 +46,7 @@ class UserPayment extends Command
         try {
         DB::beginTransaction();
         $users = User::whereIn('fixed_price_user_or_job',[2,3])->get();
-        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at','desc')->first();
+        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at','asc')->first();
 
         if($firstEntryInActivity) {
             $bigining = date('Y-m-d',strtotime($firstEntryInActivity->starts_at));
