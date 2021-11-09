@@ -64,7 +64,6 @@
                             <td width="14%">{{$brand->name}}</td>
                             <td width="5%">{{$brand->productCountInExternalScraper()}}</td>
                             <td width="5%">{{$brand->productFromExternalScraper()}}</td>
-                            <td width="14%">{{$brand->name}}</td>
                             <td width="5%">{{$brand->total_products }}</td>
                             <td width="14%">
                                 <button style="padding: 3px" data-id="{{ $brand->id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
