@@ -46,13 +46,13 @@ class UserPayment extends Command
         try {
         DB::beginTransaction();
         $users = User::whereIn('fixed_price_user_or_job',[2,3])->get();
-        /*$firstEntryInActivity = HubstaffActivity::orderBy('starts_at','desc')->first();
+        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at','desc')->first();
 
         if($firstEntryInActivity) {
             $bigining = date('Y-m-d',strtotime($firstEntryInActivity->starts_at));
         }else {
-        }*/
-        $bigining = date('Y-m-d');
+            $bigining = date('Y-m-d');
+        }
         \Log::info('Users found - '.$users->count().' on Date - '.$bigining);
         foreach($users as $user) {
             $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
@@ -63,9 +63,9 @@ class UserPayment extends Command
                 //$end =  $start;
             //}
             $yesterday = date('Y-m-d',strtotime("-1 days"));
-            echo PHP_EOL . "=====Checking $yesterday - $end for $user->id ====" . PHP_EOL;
+            echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
-            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($yesterday, $end, $user->id);
+            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
             echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
 
             \Log::info('User ID - '.$user->id);
