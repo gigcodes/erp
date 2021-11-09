@@ -65,6 +65,8 @@ class UserPayment extends Command
             $yesterday = date('Y-m-d',strtotime("-1 days"));
             echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
+            \Log::info("=====Checking $start - $end for $user->id ====");
+
             $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
             echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
 
