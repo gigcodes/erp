@@ -11005,9 +11005,6 @@ td.title p {
 }
 /******** Rejected page Ankaj css End here *********/
 
-input,select[type=text]{
-  width: 20%;
-}
 .custom-form .select2-container{
     width: 100% !important;
 }
