@@ -20,6 +20,20 @@
 				@endfor
 			</select>
 		</div>
+		<div class="col-lg-1">
+			<select name="month" id="monthpicker" class="form-control">
+				@foreach(["","Jan","Feb","Mar","Apr","May","Jun","July","Aug","Sep","Oct","Nov","Dec"] as $mon)
+					<option value="{{$mon}}" @if((request("month") - 1) == $mon) selected @endif>{{$mon}}</option>
+				@endforeach
+			</select>
+		</div>
+		<div class="col-lg-1">
+			<select name="year" id="yearpicker" class="form-control">
+				@foreach(["","19","20","21","22","23","24","25"] as $year)
+					<option value="{{$year}}" @if((request("year") - 1) == $year) selected @endif>{{$year}}</option>
+				@endforeach
+			</select>
+		</div>
 		<div class="col-lg-2">
 			<select name="date" id="datepicker" class="form-control server_id-value">
 				<option value="">Select Server</option>
@@ -276,7 +290,7 @@
 				headers: {
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				  },
-				data:{'server_id':server_id},
+				data:{'server_id':server_id, month : $("#monthpicker").val(),"year" : $("#yearpicker").val()},
 				cache: false,
 				success: function(data) {
 						console.log(data)

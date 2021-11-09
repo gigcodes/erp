@@ -19,7 +19,18 @@ class ScrapLogsController extends Controller
 
 	public function filter($searchVal, $dateVal, Request $request) 
     { 
-		$month = Carbon::now()->format('My');
+		if(!empty($request->get("month"))) {
+			$month = $request->get("month");
+		}else{
+			$month = Carbon::now()->format('M');
+		}
+
+		if(!empty($request->get("year"))) {
+			$month .= $request->get("year");
+		}else{
+			$month .= Carbon::now()->format('y');
+		}
+
     	$serverArray = [];
     	$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
     	if ($request->server_id !== null) {
