@@ -224,11 +224,15 @@ class ScrapLogsController extends Controller
     }
 
     public function loghistory($filename){
-    	$log = \App\ScrapLog::where('file_name',$filename)->first(); 
+
+    	$day_of_file = explode('-', $filename);
+		$day_of_file = str_replace('.log', '', $day_of_file);
+
 
     	$toDate = date('Y-m-d',strtotime('+1 day'));    	
 		$fromDate = date('Y-m-d', strtotime('-7 days'));		
-		$fileLogs = \App\ScrapLog::where('scrap_type',$log->scrap_type)->whereBetween('created_at',[$fromDate, $toDate])->get();
+		$fileLogs = \App\ScrapLog::where('file_name',$day_of_file[0])->whereBetween('created_at',[$fromDate, $toDate])->get();
+
 		return $fileLogs;
     }
 
