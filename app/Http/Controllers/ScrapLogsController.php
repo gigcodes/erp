@@ -228,10 +228,14 @@ class ScrapLogsController extends Controller
     	$day_of_file = explode('-', $filename);
 		$day_of_file = str_replace('.log', '', $day_of_file);
 
+		$fileLogs = [];
 
-    	$toDate = date('Y-m-d',strtotime('+1 day'));    	
-		$fromDate = date('Y-m-d', strtotime('-7 days'));		
-		$fileLogs = \App\ScrapLog::where('file_name',$day_of_file[0])->whereBetween('created_at',[$fromDate, $toDate])->get();
+		$scraper = \App\Scraper::where('scraper_name',$day_of_file[0])->first();
+		if($scraper) {
+	    	$toDate = date('Y-m-d',strtotime('+1 day'));    	
+			$fromDate = date('Y-m-d', strtotime('-7 days'));		
+			$fileLogs = \App\ScrapLog::where('scraper_id',$scraper->id)->whereBetween('created_at',[$fromDate, $toDate])->get();
+		}
 
 		return $fileLogs;
     }
