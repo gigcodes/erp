@@ -60,6 +60,11 @@ class addUserPaymentData extends Command
                 continue;
             }
 
+            if($dev_task_user->fixed_price_user_or_job != 1){
+                dump('dev_task-id - ' . $dev_task_user->id . ' is fixed price user');
+                continue;
+            }
+
             $dev_task_payment = PaymentReceipt::updateOrCreate([ 'user_id'=> $dev_task_user->id,'developer_task_id' => $dev_task->id],[
                 'status'            => 'Pending',
                 'rate_estimated'    => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60,
@@ -92,6 +97,12 @@ class addUserPaymentData extends Command
                 dump('task-id - ' . $task->id . ' user not exist');
                 continue;
             }
+
+            if($task_user->fixed_price_user_or_job != 1){
+                dump('dev_task-id - ' . $task_user->id . ' is fixed price user');
+                continue;
+            }
+
             $task_payment = PaymentReceipt::updateOrCreate(['task_id' => $task->id,'user_id'=> $task_user->id],[
                 'status'            => 'Pending',
                 'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
@@ -99,7 +110,7 @@ class addUserPaymentData extends Command
                 'currency'          => '',
                 'user_id'           => $task_user->id,
                 'by_command'        => 1,
-                'task_id' => $task->id,
+                'task_id'           => $task->id,
             ]);
             if($task_payment){
                 dump('task-id - ' . $task->id . ' payment-id - ' . $task_payment->id . ' is done');
