@@ -481,6 +481,8 @@ class ProductPriceController extends Controller
                 
         $i = 0;
 
+
+
         if(isset($request->order) && isset($request->input)){
             if($request->input=='category'){
                 $brands->orderBy('cate_title',$request->order);
@@ -555,11 +557,11 @@ class ProductPriceController extends Controller
                 } 
 
                 $product = Product::find($brand['pid']); 
-				if( $product == null) {
+                if( $product == null) {
 					continue;
 				}
                 $dutyPrice = $product->getDuty($country['country_code']);
-                $category_segment = isset($brand['country_segment'])  ? $brand['country_segment'] : $brand['brand_segment'];
+                $category_segment = $brand['brand_segment'];
                 $price = $product->getPrice($brand['store_websites_id'],$country['country_code'],null, true,$dutyPrice, null, null, null, isset($product->suppliers_info[0]) ?  $product->suppliers_info[0]->price : 0, $category_segment);
 				
                 $cost1 = $final_price1;
