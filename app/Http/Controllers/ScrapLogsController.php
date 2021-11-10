@@ -265,7 +265,7 @@ class ScrapLogsController extends Controller
 		$day_of_file = str_replace('.log', '', $day_of_file);
 
 		$cdate = Carbon::now()->subDays(7);
-		$last7days =  \App\ScrapRemark::where(['scraper_name'=>$day_of_file[0]])->where('created_at', '>=', $cdate)->get();
+		$last7days =  \App\ScrapRemark::where('scraper_name','like',$day_of_file[0])->where('created_at', '>=', $cdate)->get();
 		return $last7days;
     }
 
