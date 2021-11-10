@@ -403,9 +403,13 @@
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                url: '{{ route("scrap.logdata") }}'
+                url: '{{ route("scrap.logdata") }}',
+                beforeSend: function() {
+                    $("#logdatacounter .modal-body table tbody").html("<h4>Loading data...</h4>");
+                }
       	})
       	.done(response => {
+      		$("#loading-image").hide();
       		var html = '<table class="table table-bordered table-striped"><thead><tr><td>foldername</td><td>Scrap Type</td><td>Log Message</td><td>logcount</td></thead><tbody>';
       		 $.each(response, function (key) {
       				html += '<tr><td>' + response[key]['folder_name'] + '</td><td>' + response[key]['scrap_type'] + '</td><td>'+ response[key]['log_messages'] + '</td><td>' + response[key]['log_count'] + '</td>';
