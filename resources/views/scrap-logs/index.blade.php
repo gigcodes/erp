@@ -65,9 +65,6 @@
 		<div class="col-lg-2 text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
 		</div>
-		<div class="col-lg-2 text-rights">
-			<button class ="btn-dark" type="button" data-toggle="modal" id ="samedata" data-target="#datacounter">Same data counts</button>
-		</div>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -142,14 +139,14 @@
     </div>
     <div id="logdatacounter" class="modal fade" role="dialog">
     	   <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content" style="width:111%">
                 <div class="modal-header">
                     <h4 class="modal-title">Log Data</h4>
                 </div>
                 <div class="modal-body">
                 	<table class="table table-bordered table-striped">
-                	<thead></thead>
-				    <tbody></tbody>
+	                	<thead></thead>
+					    <tbody></tbody>
                 	</table>
                 </div>
             </div>
