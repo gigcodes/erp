@@ -129,10 +129,6 @@
     </div>  
 </div>
     <div class="container">
-        <h2>Modal Example</h2>
-        <!-- Trigger the modal with a button -->
-        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#website-popup-model">Open Modal</button>
-    
         <!-- Modal -->
         <div class="modal fade" id="website-popup-model" role="dialog">
             <div class="modal-dialog">
