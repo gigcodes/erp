@@ -557,12 +557,13 @@ class ProductPriceController extends Controller
                 } 
 
                 $product = Product::find($brand['pid']); 
+                $product->price = 100;
                 if( $product == null) {
 					continue;
 				}
                 $dutyPrice = $product->getDuty($country['country_code']);
                 $category_segment = $brand['brand_segment'];
-                $price = $product->getPrice($brand['store_websites_id'],$country['country_code'],null, true,$dutyPrice, null, null, null, isset($product->suppliers_info[0]) ?  $product->suppliers_info[0]->price : 0, $category_segment);
+                $price = $product->getPrice($brand['store_websites_id'],$country['country_code'],null, true,$dutyPrice, null, null, null, 100, $category_segment);
 				
                 $cost1 = $final_price1;
                 $cost2 = $final_price2;
