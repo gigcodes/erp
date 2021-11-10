@@ -220,6 +220,7 @@ class ScrapLogsController extends Controller
     	return \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
     	->whereNotNull('scrap_type')
     	->groupBy('scrap_type','log_messages')
+    	->orderBy('log_count','desc')
     	->get();	
     }
 
