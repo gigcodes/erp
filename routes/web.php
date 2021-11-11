@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('generate-favicon', 'HomeController@generateFavicon');
 
     Route::get('/products/affiliate', 'ProductController@affiliateProducts');
+    Route::get('/products/change-category', 'ProductController@changeCategory');
     Route::post('/products/published', 'ProductController@published');
     Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
     Route::get('/customers/accounts', 'CustomerController@accounts');
