@@ -217,10 +217,10 @@ class ScrapLogsController extends Controller
     }
 
     public function logdata(){
-    	return \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
-    	->whereNotNull('scrap_type')
-    	->groupBy('scrap_type','log_messages')
-    	->orderBy('log_count','desc')
+    	return \App\ScrapRemark::select('scraper_name','remark',\DB::raw('count(*) as log_count'))
+    	->where('scrap_field','last_line_error')
+    	->whereDate('created_at',date('Y-m-d'))
+    	->groupBy('remark')
     	->get();	
     }
 

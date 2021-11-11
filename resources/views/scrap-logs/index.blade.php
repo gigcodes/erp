@@ -410,9 +410,9 @@
       	})
       	.done(response => {
       		$("#loading-image").hide();
-      		var html = '<table class="table table-bordered table-striped"><thead><tr><td>foldername</td><td>Scrap Type</td><td>Log Message</td><td>logcount</td></thead><tbody>';
+      		var html = '<table class="table table-bordered table-striped"><thead><tr><td>Scraper name</td><td>Log Message</td><td>Log count</td></thead><tbody>';
       		 $.each(response, function (key) {
-      				html += '<tr><td>' + response[key]['folder_name'] + '</td><td>' + response[key]['scrap_type'] + '</td><td>'+ response[key]['log_messages'] + '</td><td>' + response[key]['log_count'] + '</td>';
+      				html += '<tr><td>' + response[key]['scraper_name'] + '</td><td>'+ response[key]['log_messages'] + '</td><td>' + response[key]['log_count'] + '</td>';
       		 });
       		$("#logdatacounter .modal-body table tbody").html(html);
       	});
