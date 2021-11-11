@@ -2095,6 +2095,28 @@
 
         });
 
+        $(document).on("change",".change-category-product",function() {
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: "/products/change-category",
+                data: {
+                    product_id : $this.data("product-id"),
+                    category_id : $this.val()
+                },
+                dataType : "json"
+            }).done(function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'Success')
+                }else{
+                    toastr['error'](response.message, 'Success')
+                }
+
+            }).fail(function (response) {
+                //alert('Could not update status');
+            });
+        });
+
         function changeordervalue(mid,pid,v)
         {
             $.ajax({

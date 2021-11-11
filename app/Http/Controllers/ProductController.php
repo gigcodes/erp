@@ -5766,4 +5766,16 @@ class ProductController extends Controller
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
+    public function changeCategory(Request $request)
+    {
+        $product = \App\Product::find($request->get("product_id"));
+        if($product) {
+            $product->category = $request->category_id;
+            $product->save();
+            return response()->json(["code" => 200 , "message" => "category updated successfully"]);
+        }else {
+            return response()->json(["code" => 500 , "message" => "category is unable to update"]);
+        }
+    }
+
 }
