@@ -71,6 +71,7 @@
                 <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
                 <th width="30%">Category</th>
                 <th width="30%">Website</th>
+                <th width="5%">Mapped</th>
                 <th width="10%">Count</th>
                 <th width="40%">Erp Category</th>
                <!--  <th width="20%">Action</th> -->
@@ -101,6 +102,12 @@
                             {{ explode('<br>', $unKnownCategory->all_websites)[1] ?? '' }} <br>
                             {{ explode('<br>', $unKnownCategory->all_websites)[2] ?? ''}}
                         </td>
+
+                        <td>
+                            {{($unKnownCategory->is_skip) ? "Yes" : "No"}}
+                            <i class="fa fa-eye show-mapped-history" data-id="{{$unKnownCategory->id}}"></i>
+                        </td>
+
                            
                         <td>
                             {{$unKnownCategory->total_products}}
@@ -437,6 +444,25 @@
                 $('#website-popup-model').find('p').append(website);
             })
 
+            $(document).on("click",".show-mapped-history",function(e) {
+                e.preventDefault();
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/category/'+$this.data("id")+'/historyForScraper',
+                    data : {type : "scraped-category"},
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    $(".show-listing-exe-records").find('.modal-dialog').html(response);
+                    $(".show-listing-exe-records").modal('show');
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry no record found', 'error');
+                });
+            });
     </script>
 @endsection
 @endsection
