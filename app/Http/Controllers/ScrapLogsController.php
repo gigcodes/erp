@@ -217,7 +217,7 @@ class ScrapLogsController extends Controller
     }
 
     public function logdata(){
-    	return \App\ScrapRemark::select('scraper_name','remark',\DB::raw('count(*) as log_count'))
+    	return \App\ScrapRemark::select('scraper_name','remark',\DB::raw('count(*) as log_count'),\DB::raw('group_concat(scraper_name) as scraper_name'))
     	->where('scrap_field','last_line_error')
     	->whereDate('created_at',date('Y-m-d'))
     	->groupBy('remark')
