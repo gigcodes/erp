@@ -261,8 +261,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </div> 
 					<div class="form-group">
 						<label for="">Data Type</label><br>
-                        <input type="radio" name="datatype" id="senstive" value="senstive" checked>
-                        <label for="senstive">Senstive</label><br>
+                        <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
+                        <label for="sensitive">sensitive</label><br>
                         <input type="radio" name="datatype" id="shared" value="shared">
                         <label for="shared">Shared</label><br>
                     </div>
@@ -341,8 +341,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     </div>
 					<div class="form-group">
 						<label for="">Data Type</label><br>
-                        <input type="radio" name="datatype" id="senstive" value="senstive" checked>
-                        <label for="senstive">Senstive</label><br>
+                        <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
+                        <label for="sensitive">Sensitive</label><br>
                         <input type="radio" name="datatype" id="shared" value="shared">
                         <label for="shared">Shared</label><br>
                     </div>
