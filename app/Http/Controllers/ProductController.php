@@ -1752,24 +1752,34 @@ class ProductController extends Controller
             //code...
             // Get product by ID
             $product = Product::find($id);
-            $website = StoreWebsite::find($request->storewebsite);
-            if ($website) {
-                \Log::info("Product started website found For website" . $website->website);
-                $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id, "waiting");
-                //currently we have 3 queues assigned for this task.
-                $log->sync_status = "waiting";
-                $log->queue = \App\Helpers::createQueueName($website->title);
-                $log->save();
-                PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            if(!empty($websiteArrays)) {
+                $storeWebsites = \App\StoreWebsite::whereIn("id",$websiteArrays)->get();
+                foreach($storeWebsites as $website) {
+                    if ($website) {
+                        \Log::info("Product started website found For website" . $website->website);
+                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id, "waiting");
+                        //currently we have 3 queues assigned for this task.
+                        $log->sync_status = "waiting";
+                        $log->queue = \App\Helpers::createQueueName($website->title);
+                        $log->save();
+                        PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                    }
+                }
+                $product->isUploaded = 1;
+                $product->save();
+                // Return response
+                return response()->json([
+                    'result' => 'queuedForDispatch',
+                    'status' => 'listed',
+                ]);
             }
-            $product->isUploaded = 1;
-            $product->save();
-            // Return response
-            return response()->json([
-                'result' => 'queuedForDispatch',
-                'status' => 'listed',
+
+             return response()->json([
+                'result' => 'No website for push',
+                'status' => 'failed',
             ]);
+
             //check for hscode
             /*
         $hsCode = $product->hsCode($product->category, $product->composition);
