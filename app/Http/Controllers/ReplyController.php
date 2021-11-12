@@ -210,4 +210,29 @@ class ReplyController extends Controller
         return response()->json(['message' => 'Successfully created','code' => 200]);     
     }
 
+    public function replyList(Request $request)
+    {
+        $storeWebsite = $request->get("store_website_id");
+        $keyword = $request->get("keyword");
+
+        $replies = \App\ReplyCategory::join("replies","reply_categories.id","replies.category_id")
+        ->leftJoin("store_websites as sw","sw.id","replies.store_website_id")
+        ->where("model","Store Website")
+        ->select(["replies.*","sw.website","reply_categories.name as category_name","reply_categories.parent_id"]);
+
+        if($storeWebsite > 0) {
+           $replies = $replies->where("replies.store_website_id",$storeWebsite);
+        }
+
+        if(!empty($keyword)) {
+           $replies = $replies->where(function($q) use($keyword) {
+              $q->orWhere("reply_categories.name","LIKE","%".$keyword."%")->orWhere("replies.reply","LIKE","%".$keyword."%");
+           });
+        }
+
+        $replies = $replies->paginate(25);
+
+        return view("reply.list",compact('replies'));
+    }
+
 }
