@@ -497,6 +497,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
+    Route::get('reply-list', 'ReplyController@replyList')->name('reply.replyList');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
