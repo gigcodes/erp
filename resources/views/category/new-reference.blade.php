@@ -27,7 +27,7 @@
             <div class="form-group col-md-2">
                 <input type="search" name="search" class="form-control" value="{{ request('search') }}">
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-1">
                 {{ Form::select('is_skipped',["" => "-- Select Skipped --", "0" => "No", "1" => "Yes"], request('is_skipped'), ["class" => "form-control"]) }}
             </div>
             <div class="form-group col-md-2">
