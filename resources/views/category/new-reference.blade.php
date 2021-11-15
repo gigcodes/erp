@@ -24,8 +24,11 @@
     @endif
     <div class="col-md-12">
         <form>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 <input type="search" name="search" class="form-control" value="{{ request('search') }}">
+            </div>
+            <div class="form-group col-md-2">
+                {{ Form::select('is_skipped',["" => "-- Select Skipped --", "0" => "No", "1" => "Yes"], request('is_skipped'), ["class" => "form-control"]) }}
             </div>
             <div class="form-group col-md-2">
                 <button type="submit" class="btn btn-secondary">Search</button>
