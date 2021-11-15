@@ -72,11 +72,12 @@
                                         </div>
 
                                         <div class="col-md-2">
-                                            <button style="display: inline-block;width: 10%;float: right;" class="btn btn-sm btn-image btn-filter-report">
-                                                <img src="{{asset('images/search.png')}}" style="cursor: default;">
-                                            </button>
-                                            <button style="float:right;" data-toggle="collapse" href="#pending-error-list"  class="btn btn-secondary">
+                                            
+                                            <button data-toggle="collapse" href="#pending-error-list"  class="btn btn-secondary">
                                                 Show Errors
+                                            </button>
+                                            <button style="" class="btn mr-2 btn-sm btn-image btn-filter-report">
+                                                <img src="{{asset('images/search.png')}}" style="cursor: default;">
                                             </button>
                                         </div>
                                     </div>
@@ -111,37 +112,22 @@
         </div>    
     
 
-        <div class="row">
+        <div class="row table-m col-md-12">
             <div class="col-md-12">
                     @include('partials.flash_messages')
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped" id="log-table">
+                        <table class="table table-bordered table-striped url-logo log-scrapper" id="log-table">
                             <thead>
                             <tr>
-                                <th width="5%">Id</th>
-                                <th width="5%">Ip address</th>
-                                <th width="5%">Website</th>
-                                <th width="10%">Url</th>
-                                <th width="5%">Sku</th>
-                                <th width="5%">Original sku</th>
+                                <th width="3%">Id</th>
+                                <th width="4%">Ip add</th>
+                                <th width="4%">Website</th>
+                                <th width="20%">Url</th>
+                                <th width="10%">Sku</th>
+                                <th width="10%">Original sku</th>
                                 <th width="10%">Created at</th>
                             </tr>
-                            <tr>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="id"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="ip_address"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="website"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="url"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="sku"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="original_sku"></th>
-                                {{-- <th><input type="text" class="search form-control filter-serach-string" data-id="title"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="validation_result"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="size"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="composition"></th>
-                
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="country"></th>
-                                <th><input type="text" class="search form-control filter-serach-string" data-id="supplier"></th> --}}
-                                <th></th>
-                            </tr>
+                            
                             </thead>
                 
                             <tbody id="content_data" class="infinite-scroll">
