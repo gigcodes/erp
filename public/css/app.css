@@ -11239,4 +11239,31 @@ table.table-striped-custom tbody tr td {
     width:60%;
     max-width: 100%;
 }
-
+.url-logo.log-scrapper{
+        table-layout: fixed;
+        padding-left:15px;
+        padding-right:15px;
+}
+.log-scrapper .cotton-td{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.log-scrapper .view-more{
+  overflow: hidden;
+    white-space: nowrap;
+}
+.log-scrapper .row .table-m{
+    margin: 0;
+}
+.log-scrapper.table-striped.url-logo td{
+ vertical-align:middle;
+}
+.log-scrapper .btn.btn-primary{
+    color:#fff;
+    background-color: #333;
+    border-color:#333;
+}
+.log-scrapper .cotton-td a{
+    color: #333;
+}
