@@ -640,6 +640,10 @@ class CategoryController extends Controller
             $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
         }
 
+        if(isset($request->is_skipped)) {
+            $scrapped_category_mapping->where('is_skip', $request->is_skipped);
+        }
+
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
         $mappingCategory = $scrapped_category_mapping->toArray();
