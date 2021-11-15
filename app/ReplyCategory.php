@@ -62,6 +62,11 @@ class ReplyCategory extends Model
         return $this->hasOne('App\ReplyCategory', 'id', 'parent_id');
     }
 
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'category_id');
+    }
+
     public function parentList()
     {
         $parent = $this->parent;
