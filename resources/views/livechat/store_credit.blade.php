@@ -146,6 +146,7 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
                                     <th width='25%'>Request </th>
                                     <th width='25%'>Response</th>
                                     <th width='25%'>Status</th>
+                                    <th width='25%'>Repush</th>
                                 </tr>
                             </thead>
                             <tbody id="display_logs"></tbody>
@@ -221,7 +222,31 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
                        isLoading = false;
                    }
                });
-           }    
+           }
+
+        $(document).on("click",".repush-credit-balance",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+               url: $this.attr("href"),
+               type: 'GET',
+               beforeSend : function() {
+                    $('#loading-image').show();
+               },
+               success: function (data) {
+                   $('#loading-image').hide();
+                   if(data.code == 200)  {
+                      toastr["success"](data.message, "Message")
+                   }else {
+                     toastr["error"](data.message, "Message")
+                   }
+               },
+               error: function () {
+                   $('#loading-image').hide();
+                   toastr["error"]("Oops something went wrong", "Message")
+               }
+            });
+        });
  </script>  
  @endsection
  
