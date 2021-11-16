@@ -11078,7 +11078,7 @@ td.title p {
 }
 #loghistory .modal-dialog {
     max-width: 100%;
-    width: 1200px;
+    width: 800px;
 
 }
 #logdatacounter .modal-dialog{
@@ -11266,4 +11266,29 @@ table.table-striped-custom tbody tr td {
 }
 .log-scrapper .cotton-td a{
     color: #333;
+}
+#loghistory tbody td:nth-child(2){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#loghistory table{
+    table-layout: fixed;
+}
+#history .modal-dialog {
+    width: 800px;
+    max-width: 800PX;
+}
+.creat-stutush{
+    display: flex;
+    justify-content: space-around;
+}
+
+#history .modal-dialog table{
+    table-layout: fixed;
+}
+#history .modal-dialog tbody td:nth-child(2){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

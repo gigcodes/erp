@@ -45,26 +45,28 @@
 		<div class="col-lg-2">
 			<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $name }}">
 		</div>
-        <div class="col-lg-2">
+        <div class="col-lg-1">
             <select class="form-control" name="download_option">
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
             </select>
         </div>
-		<div class="col-lg-1">
+        <div class="col-lg-1">
 			<button type="button" id="tabledata" class="btn btn-image">
-			<img src="/images/filter.png">
+			<img src="/images/filter.png"style="margin-left:17px;">
 			</button>
 		</div>
-		<div class="col-lg-2 text-rights">
+		<div class="creat-stutush">
+		<div class="text-rights">
 			<button class ="btn-dark" type="button" onclick="window.location='{{url('development/issue/create')}}'">Create an Issue</button>
 		</div>
-		<div class="col-lg-2 text-rights">
+		<div class="text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#status-create">Create Status</button>
 		</div>
-		<div class="col-lg-2 text-rights">
+		<div class="text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
 		</div>
+	  </div>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -290,10 +292,10 @@
 				data:{'server_id':server_id, month : $("#monthpicker").val(),"year" : $("#yearpicker").val()},
 				cache: false,
 				success: function(data) {
-						console.log(data)
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
 							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button><button style='padding:3px;' type='button' class='btn btn-image history d-inline' data-toggle='modal' data-target='#history' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-history'></i></button></td></tr>");
+
 						});
 						
 					}
@@ -353,19 +355,20 @@
             var url = '{{ route("scarp.loghistory",':filename') }}';
             url = url.replace(":filename", filename);
              $.ajax({
-                type: 'GET',
+                type: 'GET', 	 	
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
                 url: url
             })
              .done(response => {	
-             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Date</td><td>Log Message</td></thead><tbody>'; 		
+             	var html = '<table class="table table-bordered table-striped"><thead><tr><td width="18%">Date</td><td>Log Message</td></thead><tbody>';
 			    $.each(response, function (key) {
 			    	var log = response[key]['log_messages'];
 			    	var date = response[key]['created_at'];
 			    	 html += '<tr><td>' + date + '</td><td>' + log + '</td></tr>';
                 });
+
 			   html += "</tbody></table>";
            		$("#loghistory .modal-body").html(html);
             }); 	            
@@ -384,7 +387,7 @@
                 url: url
             })
              .done(response => {	
-             	var html = '<table class="table table-bordered table-striped"><thead><tr><td>Scraper Name</td><td>Remark</td><td>Date</td></thead><tbody>'; 		
+             	var html = '<table class="table scraper-name table-bordered table-striped"><thead><tr><td width="15%">Scraper Name</td><td>Remark</td><td width="20%">Date</td></thead><tbody>'; 		
 			    $.each(response, function (key) {
 			    	var scraper_name = response[key]['scraper_name'];
 			    	var remark = response[key]['remark'];
