@@ -95,6 +95,7 @@
               <label for="replace_with">Erp Name:</label>
               <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
           </div>
+         
           <button type="submit" class="btn btn-default ml-2 small-field-btn compositions">Submit</button>
           </form>
       </div>
@@ -121,10 +122,27 @@
           <div class="form-group ml-2">
             <input type="checkbox" name="with_ref" class="form-control" id="with_ref" @if(request('with_ref') == 1) checked="checked" @endif value="1"/> With Ref
           </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
+                    <button type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
         </form>
     </div>
-    <div class="col-md-8 mt-5 compositions">
+    <div class="col-md-2">
+        {!! Form::open(["route" => 'compositions.index',"method" => "GET"]) !!}    
+            <div class="form-group ml-2">
+                <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"  style="float: left">
+                    <option value="">select User </option>
+                    @if($users)
+                    <option value="{{$users->id}}" selected="selected">{{$users->name}}</option>
+                    @endif
+                </select>
+                <button style="float: left" type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
+             </div>
+          
+        </form>
+    </div>
+    
+    
+    
+    <div class="col-md-6 mt-5 compositions">
         <div class="form-group small-field">
             <?php echo Form::select(
                 'replace_with', 
@@ -239,7 +257,39 @@
 </div>
 @section('scripts')
     <script type="text/javascript">
-            $(".select2").select2({"tags" : true});
+           $(document).ready(function(){
+            $("#user_id").select2({
+                    ajax: {
+                        url: '/user-search',
+                        dataType: 'json',
+                        delay: 200,
+                        data: function(params) {
+                            return {
+                                q: params.term, // search term
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                    },
+                    minimumInputLength: 2,
+                    width: '100%',
+                    templateResult: function(user) {
+                        return user.name;
+                    },
+                    templateSelection: function(user) {
+                        return user.name;
+                    },
+                });
+            });
+           $(".select2").select2({"tags" : true});
+           
 
             $(document).on("click",".approve-all",function() {
 
