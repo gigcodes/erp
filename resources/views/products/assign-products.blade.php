@@ -44,8 +44,8 @@
         <tbody>
           @foreach ($newProducts as $key => $product)
             <tr>
-              <td>{{ $product->brandName }}</td>
-              <td>{{ $product->categoryName }}</td>
+              <td>#{{$product->brand}}-{{ $product->brandName }}</td>
+              <td>#{{$product->category}}-{{ $product->categoryName }}</td>
               <td>{{ $product->total }}</td>
                 <td>
                  @if(!$product->assigned_to)

@@ -275,7 +275,7 @@ class ProductController extends Controller
                 }
             }
 
-            $newProducts = $newProducts->whereIn('category', $category_children);
+            $newProducts = $newProducts->whereIn('products.category', $category_children);
             $category = $request->category[0];
         }
         if ($request->type != '') {
@@ -4660,10 +4660,12 @@ class ProductController extends Controller
     {
 
         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts,true);
 
-        $newProducts = $newProducts->select(DB::raw("brand,category,assigned_to,count(*) as total"))
-            ->groupBy('brand', 'category', 'assigned_to')->paginate(50);
+        $newProducts = $newProducts->where('isUploaded', 0);
+
+        $newProducts = $newProducts->select(DB::raw("products.brand,products.category,products.assigned_to,count(*) as total"))
+            ->groupBy('products.brand', 'products.category', 'products.assigned_to')->paginate(50);
         foreach ($newProducts as $product) {
             if ($product->brand) {
                 $brand = Brand::find($product->brand);
@@ -4704,10 +4706,12 @@ class ProductController extends Controller
         if (!$assigned_to) {
             return response()->json(['message' => 'Select one user'], 500);
         }
-        $products = Product::where('status_id', StatusHelper::$finalApproval)->where('category', $category)->where('brand', $brand);
+        $products = Product::where('products.status_id', StatusHelper::$finalApproval)->where('products.category', $category)->where('products.brand', $brand);
 
-        $products = QueryHelper::approvedListingOrder($products);
-        $products = $products->get();
+        $products = QueryHelper::approvedListingOrderFinalApproval($products,true);
+        $products = $products->where('products.isUploaded', 0);
+        $products = $products->select("products.*")->get();
+        
         foreach ($products as $product) {
             $product->update(['assigned_to' => $assigned_to]);
         }
