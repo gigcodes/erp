@@ -29,7 +29,24 @@
             </ul>
         </div>
     @endif
-
+    <div class="row">
+      <div class="col-lg-12 margin-tb">
+        <form action="/products/assign-product/no-wise" method="post">
+            {{ csrf_field() }}
+             <div class="form-group">
+                  <div class="form-group ml-3 col-md-3">
+                    <?php echo Form::select("assigned_to",["" => "-- Select User --"]+$users,null,["class" => "form-control select2 assigned_to"]); ?>
+                  </div>
+                  <div class="form-group ml-3 col-md-2">
+                    <?php echo Form::text("no_of_product_assign",null,["class" => "form-control","placeholder" => "Enter no of products"]); ?>
+                  </div>
+                  <div class="form-group ml-3 col-md-2">
+                        <button type="submit" class="btn btn-secondary ml-3" >Submit</button>
+                  </div>
+              </div>  
+         </form> 
+      </div>
+    </div>
     <div class="table-responsive">
       <table class="table table-bordered">
         <thead>

@@ -4764,6 +4764,79 @@ class ProductController extends Controller
         return response()->json(['message' => 'Successful', 'user' => $username]);
     }
 
+    public function assignProductNoWise(Request $request) 
+    {
+        $no_of_product_assign = $request->get("no_of_product_assign",0);
+        $assigned_to = $request->assigned_to;
+        if (!$assigned_to) {
+            return redirect()->back()->withErrors("Select one user");
+        }
+        $products = Product::where('products.status_id', StatusHelper::$finalApproval);
+
+        $products = QueryHelper::approvedListingOrderFinalApproval($products,true);
+        $products = $products->where('products.isUploaded', 0);
+        
+        if($no_of_product_assign > 0) {
+            $products = $products->limit($no_of_product_assign);
+        }else{
+            $products = $products->limit(0);
+        }
+
+        $products = $products->select("products.*")->get();
+        
+        foreach ($products as $product) {
+            $product->update(['assigned_to' => $assigned_to]);
+        }
+
+        $data['assign_from'] = Auth::id();
+        $data['is_statutory'] = 2;
+        $data['task_details'] = 'Final Approval Assignment';
+        $data['task_subject'] = 'Final Approval Assignment';
+        $data['assign_to'] = $assigned_to;
+
+        $task = Task::create($data);
+        if (!empty($task)) {
+            $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+        }
+
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $params = [
+            'number' => null,
+            'user_id' => Auth::id(),
+            'approved' => 1,
+            'status' => 2,
+            'task_id' => $task->id,
+            'message' => $message,
+        ];
+
+        // if ($task->assign_from == Auth::id()) {
+        //          if ($key == 0) {
+        //              $params['erp_user'] = $user->id;
+        //          } else {
+        //              app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        //          }
+        //  }
+        $user = User::find($assigned_to);
+        $params['erp_user'] = $assigned_to;
+        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+
+        $chat_message = ChatMessage::create($params);
+
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+
+        $username = $user->name;
+
+        return redirect()->back()->withSuccess("Product assigned to person successfully");
+    }
+
     public function draftedProducts(Request $request)
     {
         \Log::info("action started");

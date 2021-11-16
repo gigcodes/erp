@@ -283,6 +283,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
     Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+    Route::post('products/assign-product/no-wise', 'ProductController@assignProductNoWise')->name('products.product-assign-no-wise');
     // Translation Language
     Route::post('translationLanguage/add', 'ProductController@translationLanguage')->name('translation.language.add');
     // Product Translation Rejection
