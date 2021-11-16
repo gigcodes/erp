@@ -11267,3 +11267,12 @@ table.table-striped-custom tbody tr td {
 .log-scrapper .cotton-td a{
     color: #333;
 }
+.btn.btn-image{
+    margin-top:-6px;
+}
+.cashflow-table .form-search-data .form-group{
+        margin-bottom: 1rem !important;
+}
+.cashflow-table .voucher a{
+    color: #333;
+}
