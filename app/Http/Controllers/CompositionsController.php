@@ -63,8 +63,8 @@ class CompositionsController extends Controller
                 $q->orWhere('replace_with', '')->orWhereNull('replace_with');
             });
             
-            $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
         }
+        $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
 
 
 
