@@ -2982,7 +2982,7 @@ class CustomerController extends Controller
         }
 
         if ($request->store_website != '') {
-            $customers_all->where('store_website_id', 'like', '%'.$request->store_website.'%');
+            $customers_all->where('store_website_id', 'like', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
