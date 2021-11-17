@@ -78,6 +78,14 @@ return [
             'password' => env('MAGENTO_DB_PASSWORD', ''),
             'strict' => false,
         ],
+        'brands-labels' => [
+            'driver'   => 'mysql',
+            'host'     => env('BRANDS_HOST', 'erp'),
+            'database' => env('BRANDS_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
         'avoirchic' => [
             'driver'   => 'mysql',
             'host'     => env('AVOIRCHIC_HOST', 'erp'),
