@@ -99,7 +99,7 @@ class TicketController extends Controller
             'model_id' => $ticket->id,
             'model_type' => Ticket::class,
             'from' => $emailClass->fromMailer,
-            'to' => @$ticket->customer->email,
+            'to' => @$ticket->email,
             'subject' => $emailClass->subject,
             'message' => $emailClass->render(),
             'template' => 'ticket-create',
