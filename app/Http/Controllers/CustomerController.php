@@ -271,7 +271,6 @@ class CustomerController extends Controller
     {
         // Set search term
         $term = $request->term;
-
         // Set delivery status
         $delivery_status = [
             'Follow up for advance',
@@ -2971,19 +2970,19 @@ class CustomerController extends Controller
         $customers_all->join('store_websites', 'store_websites.id', 'customers.store_website_id');
 
         if ($request->name != '') {
-            $customers_all->where('name', $request->name);
+            $customers_all->like('name', $request->name);
         }
 
         if ($request->email != '') {
-            $customers_all->where('email', $request->email);
+            $customers_all->like('email', $request->email);
         }
 
         if ($request->phone != '') {
-            $customers_all->where('phone', $request->phone);
+            $customers_all->like('phone', $request->phone);
         }
 
         if ($request->store_website != '') {
-            $customers_all->where('store_website_id', $request->store_website);
+            $customers_all->like('store_website_id', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
