@@ -79,7 +79,7 @@ class CompositionsController extends Controller
         $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
 
 
-
+      //  dd($users);
         return view('compositions.index', compact('compositions', 'listcompostions','users'));
     }
 

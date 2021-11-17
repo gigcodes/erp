@@ -627,6 +627,7 @@ class CategoryController extends Controller
 
     public function newCategoryReferenceIndex(Request $request)
     {
+        $users=[];
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
@@ -635,6 +636,7 @@ class CategoryController extends Controller
         ->groupBy('scrapped_category_mappings.name')
         ->orderBy('total_products', 'DESC');
 
+        
 
         if($request->search){
             $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
@@ -643,7 +645,15 @@ class CategoryController extends Controller
         if(isset($request->is_skipped)) {
             $scrapped_category_mapping->where('is_skip', $request->is_skipped);
         }
+        if ($request->user_id != null) {
+            $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                'attribute_name' => 'category',
+                'user_id'        => $request->user_id,
+            ])->pluck('attribute_id');
+            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('category_id', $matchedArray);
+            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
 
+        }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
         $mappingCategory = $scrapped_category_mapping->toArray();
@@ -687,7 +697,7 @@ class CategoryController extends Controller
             }
         }
 
-        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping]);
+        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping,'users'=>$users]);
 
     }
 

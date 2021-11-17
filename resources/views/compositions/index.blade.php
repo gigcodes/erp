@@ -114,7 +114,7 @@
       </div>
   </div>
 <div class="row">
-    <div class="col-md-4 mt-5">
+    <div class="col-md-6 mt-5">
         {!! Form::open(["class" => "form-inline" , "route" => 'compositions.index',"method" => "GET"]) !!}    
           <div class="form-group change-data">
             <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}"/>
@@ -122,25 +122,16 @@
           <div class="form-group ml-2">
             <input type="checkbox" name="with_ref" class="form-control" id="with_ref" @if(request('with_ref') == 1) checked="checked" @endif value="1"/> With Ref
           </div>
+          <div class="form-group ml-2">
+          <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"  style="float: left">
+            @if(isset($users->id))
+            <option value="{{$users->id}}" selected="selected">{{$users->name}}</option>
+            @endif
+        </select>
+          </div>
                     <button type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
         </form>
     </div>
-    <div class="col-md-2">
-        {!! Form::open(["route" => 'compositions.index',"method" => "GET"]) !!}    
-            <div class="form-group ml-2">
-                <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"  style="float: left">
-                    <option value="">select User </option>
-                    @if($users)
-                    <option value="{{$users->id}}" selected="selected">{{$users->name}}</option>
-                    @endif
-                </select>
-                <button style="float: left" type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
-             </div>
-          
-        </form>
-    </div>
-    
-    
     
     <div class="col-md-6 mt-5 compositions">
         <div class="form-group small-field">
@@ -260,9 +251,9 @@
            $(document).ready(function(){
             $("#user_id").select2({
                     ajax: {
-                        url: '/user-search',
+                        url: 'user-search',
                         dataType: 'json',
-                        delay: 200,
+                     //   delay: 200,
                         data: function(params) {
                             return {
                                 q: params.term, // search term
@@ -278,14 +269,12 @@
                             };
                         },
                     },
+                    placeholder: "Select User",
+                    allowClear: true,
                     minimumInputLength: 2,
                     width: '100%',
-                    templateResult: function(user) {
-                        return user.name;
-                    },
-                    templateSelection: function(user) {
-                        return user.name;
-                    },
+                  
+                  
                 });
             });
            $(".select2").select2({"tags" : true});
