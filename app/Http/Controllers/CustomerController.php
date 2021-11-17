@@ -2970,19 +2970,19 @@ class CustomerController extends Controller
         $customers_all->join('store_websites', 'store_websites.id', 'customers.store_website_id');
 
         if ($request->name != '') {
-            $customers_all->like('name', $request->name);
+            $customers_all->where('name', 'like', $request->name);
         }
 
         if ($request->email != '') {
-            $customers_all->like('email', $request->email);
+            $customers_all->where('email', 'like', $request->email);
         }
 
         if ($request->phone != '') {
-            $customers_all->like('phone', $request->phone);
+            $customers_all->where('phone', 'like', $request->phone);
         }
 
         if ($request->store_website != '') {
-            $customers_all->like('store_website_id', $request->store_website);
+            $customers_all->where('store_website_id', 'like', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
