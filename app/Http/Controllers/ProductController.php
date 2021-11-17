@@ -217,7 +217,7 @@ class ProductController extends Controller
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $newProducts = Product::query();
         } else {
-            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+            $newProducts = Product::query()->where('assigned_tos', auth()->user()->id);
         }
 
         if ($request->get('status_id') != null) {
