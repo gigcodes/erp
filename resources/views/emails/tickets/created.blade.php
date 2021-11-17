@@ -31,7 +31,7 @@
           <tbody>
             <tr>
               <td>
-                <h3 style="line-height: 1.24;font-size: 17px;font-weight: bold;letter-spacing: -0.1px;color:#898989;margin: 0;padding: 0;">Hello {{ $customer->name }}</h3>
+                <h3 style="line-height: 1.24;font-size: 17px;font-weight: bold;letter-spacing: -0.1px;color:#898989;margin: 0;padding: 0;">Hello {{ $ticket->name }}</h3>
               </td>
             </tr>
             <tr><td><div style="font-size: 13px;line-height: 1.62;color:#898989;margin: 5px 0;">Your ticket has been created successfully.</div></td></tr>
