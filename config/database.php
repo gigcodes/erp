@@ -118,6 +118,14 @@ return [
             'password' => env('MAGENTO_DB_PASSWORD', ''),
             'strict' => false,
         ],
+        'suvandnat' => [
+            'driver'   => 'mysql',
+            'host'     => env('SUVANDNAT_HOST', 'erp'),
+            'database' => env('SUVANDNAT_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
         'thefitedit' => [
             'driver'   => 'mysql',
             'host'     => env('THEFITEDIT_HOST', 'erp'),
