@@ -331,8 +331,8 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_start_date" />
-                        <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_end_date" />
+                        <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
+                        <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
                         <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                             <!-- <i class="fa fa-calendar"></i>&nbsp;
                             <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
