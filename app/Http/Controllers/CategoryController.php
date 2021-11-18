@@ -650,7 +650,7 @@ class CategoryController extends Controller
                 'attribute_name' => 'scraped-category',
                 'user_id'        => $request->user_id,
             ])->pluck('attribute_id');
-            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('id', $matchedArray);
+            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('scrapped_category_mappings.id', $matchedArray);
             $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
 
         }
