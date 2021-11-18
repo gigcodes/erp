@@ -31,10 +31,12 @@
                   {{ $server->encryption }}
               </td>
               
-			  <td>
-                  @if($server->website){{ $server->website->title }} @endif
+			         <td>
+                  
               </td>
-              <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
+              <td>
+                @if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif
+              </td>
               <td>
               <button type="button" class="btn btn-xs assign-users p-0 m-0 text-secondary mr-2"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}">
                   <i class="fa fa-plus"></i>
