@@ -647,10 +647,10 @@ class CategoryController extends Controller
         }
         if ($request->user_id != null) {
             $matchedArray= \App\UserUpdatedAttributeHistory::where([
-                'attribute_name' => 'category',
+                'attribute_name' => 'scraped-category',
                 'user_id'        => $request->user_id,
             ])->pluck('attribute_id');
-            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('category_id', $matchedArray);
+            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('id', $matchedArray);
             $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
 
         }
