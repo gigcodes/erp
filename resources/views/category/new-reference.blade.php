@@ -182,7 +182,7 @@
         $(document).ready(function() {
             $("#user_id").select2({
                 ajax: {
-                    url: 'http://localhost/erp_local/public/user-search',
+                    url: '/user-search',
                     dataType: 'json',
                     //   delay: 200,
                     data: function(params) {
