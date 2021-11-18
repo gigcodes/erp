@@ -3800,7 +3800,7 @@ class ProductController extends Controller
             });
         }
         $products_count = $query->count();
-        $products = $query->orderBy('product_id')->paginate(50);
+        $products = $query->orderBy('product_id','DESC')->paginate(50);
         $supplier = Supplier::all();
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
