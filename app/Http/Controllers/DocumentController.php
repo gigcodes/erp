@@ -472,7 +472,7 @@ class DocumentController extends Controller
         //Update the version and files name
         $document->version = ($document->version + 1);
         $file = $request->file('files');
-        $document->filename = $file->getClientOriginalName().".".$file->getClientOriginalExtension();
+        $document->filename = $file->getClientOriginalName();
         $document->file_contents =  $file->openFile()->fread($file->getSize());
         $file->storeAs("documents", $document->filename, 'files');
         $document->save();
