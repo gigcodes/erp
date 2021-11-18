@@ -535,7 +535,7 @@ table tr td{
             data = JSON.parse(data)
             console.log(data)
             result += '<table class="table table-bordered">';
-            result += '<thead><th>Id</th><th>Sku</th><th>Name</th><th>Category / Brand</th><th>Price</th><th>Discount %</th><th>Supplier</th><th>Color</th><th>Composition</th><th>Size system</th><th>Size</th><th>Created Date</th></thead>';
+            result += '<thead><th>Id</th><th>Sku</th><th>Name</th><th>Category / Brand</th><th>Price</th><th>Discount %</th><th>Supplier</th><th>Color</th><th>Composition</th><th>Dimesion</th><th>Size system</th><th>Size</th><th>Created Date</th></thead>';
             result += '<tbody>';
             for (let value in data) {
                 result += '<tr>';
@@ -548,6 +548,11 @@ table tr td{
                 result += "<td>" +  (data[value].product_supplier  ? data[value].product_supplier :'-')+ "</td>"
                 result += "<td>" + (data[value].color ? data[value].color: '-' )+ "</td>"
                 result += "<td>" + (data[value].composition ? data[value].composition :'-') + "</td>"
+                if(data[value].properties && data[value].properties && data[value].properties.dimension) {
+                    result += "<td>" + (data[value].properties.dimension ? data[value].properties.dimension.join() :'-') + "</td>"
+                }else{
+                    result += "<td>-</td>"
+                }
                 result += "<td>" + (data[value].size_system ? data[value].size_system :'-') + "</td>"
                 result += "<td>" +( data[value].size ? data[value].size :'-') + "</td>"
                 result += "<td>" + (data[value].created_at ? data[value].created_at :'-') + "</td>"

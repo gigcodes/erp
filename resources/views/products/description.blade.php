@@ -65,7 +65,7 @@
                 @foreach($products as $product)
                     <tr>
                         <td>
-                            <a href="{{ action('ProductController@show', $product->id) }}">{{$product->product_id}}</a>
+                            <a target="__blank" href="{{$product->supplier_link}}">{{$product->product_id}}</a>
                         </td>
                         <td>
                             {{isset($product->product->sku) ? $product->product->sku : "-"}}
