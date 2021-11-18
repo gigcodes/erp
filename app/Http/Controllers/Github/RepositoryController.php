@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Github;
 
 use App\DeveloperTask;
+use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
 use App\Helpers\githubTrait;
@@ -222,11 +223,20 @@ $devTask->update(['is_pr_merged'=>1]);
             $devTask->save();
         }
     }
+    private function addMergeRequest($task_id,$pull_request_id){
+        $request = new DeveoperTaskPullRequestMerge;
+               $request->task_id = $task_id;
+               $request->pull_request_id = $pull_request_id;
+               $request->save();
 
+
+    }
     public function mergeBranch($id)
     {
         $source = Input::get('source');
         $destination = Input::get('destination');
+        $task_id =Input::get('task_id');
+       
 
         $url = "https://api.github.com/repositories/" . $id . "/merges";
 
@@ -250,6 +260,8 @@ $devTask->update(['is_pr_merged'=>1]);
 
             \Log::info('updateDevTask calling...'.$source);
             $this->updateDevTask($source);
+            $this->addMergeRequest($source,$task_id);
+       
 
             // Deploy branch
             $repository = GithubRepository::find($id);

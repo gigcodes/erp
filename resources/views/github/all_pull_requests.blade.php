@@ -95,7 +95,7 @@
                         </a>
                     </div> --}}
                     <div style="margin-top: 5px;">
-                        <button class="btn btn-sm btn-secondary" onclick="confirmMergeToMaster('{{$pullRequest["source"]}}','{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?destination=master&source='.urlencode($pullRequest['source']))}}')">
+                        <button class="btn btn-sm btn-secondary" onclick="confirmMergeToMaster('{{$pullRequest["source"]}}','{{url('/github/repos/'.$pullRequest['repository']['id'].'/branch/merge?destination=master&source='.urlencode($pullRequest['source']).'&task_id='.urlencode($pullRequest['id']))}}')">
                             Merge into master
                         </button>
                     </div>
