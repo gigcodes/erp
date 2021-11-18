@@ -32,7 +32,7 @@
               </td>
               
 			         <td>
-                  
+                  @if($server->website){{ $server->website->title }} @endif
               </td>
               <td>
                 @if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif
