@@ -133,7 +133,7 @@ class DocumentController extends Controller
             $data[ 'filename' ] = $file->getClientOriginalName();
             $data[ 'file_contents' ] = $file->openFile()->fread($file->getSize());
 
-            //$file->storeAs("documents", $data[ 'filename' ], 'files');
+            $file->storeAs("documents", $data[ 'filename' ], 'files');
 
             Document::create($data);
         }
@@ -146,9 +146,21 @@ class DocumentController extends Controller
         $document = Document::find($id);
 
         if(!empty($document->file_contents)) {
-            return response()->make($document->file_contents, 200, array(
+
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->buffer($document->file_contents);
+
+            return response($document->file_contents)
+        ->header('Cache-Control', 'no-cache private')
+        ->header('Content-Description', 'File Transfer')
+        ->header('Content-Type', $mime)
+        ->header('Content-length', strlen($document->file_contents))
+        ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
+        ->header('Content-Transfer-Encoding', 'binary');
+
+            /*return response()->make($document->file_contents, 200, array(
                 'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($document->file_contents)
-            ));
+            ));*/
         }
 
         return Storage::disk('files')->download('documents/' . $document->filename);
@@ -460,7 +472,7 @@ class DocumentController extends Controller
         //Update the version and files name
         $document->version = ($document->version + 1);
         $file = $request->file('files');
-        $document->filename = $file->getClientOriginalName();
+        $document->filename = $file->getClientOriginalName().".".$file->getClientOriginalExtension();
         $document->file_contents =  $file->openFile()->fread($file->getSize());
         $file->storeAs("documents", $document->filename, 'files');
         $document->save();
