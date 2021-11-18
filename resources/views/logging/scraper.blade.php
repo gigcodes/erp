@@ -26,11 +26,8 @@
         <img id="loading-image" src="{{asset('images/pre-loader.gif')}}" style="display:none;z-index:9999;"/>
     </div>
     <div class="row">
-        <div class="col-lg-12 margin-tb">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Url-Log-Scrapper ( {{ $scraperLogs->total() }})</h2>
-             <div class="pull-right">
-                <button type="button" class="btn btn-image" onclick="location.reload()"><img src="{{ asset('images/resend2.png') }}" /></button>
-            </div>
         </div>
     </div>
     <div class="row">
@@ -79,6 +76,7 @@
                                             <button style="" class="btn mr-2 btn-sm btn-image btn-filter-report">
                                                 <img src="{{asset('images/search.png')}}" style="cursor: default;">
                                             </button>
+                                            <button type="button" class="btn btn-image" onclick="location.reload()"><img src="{{ asset('images/resend2.png') }}" /></button>
                                         </div>
                                     </div>
                              
@@ -126,6 +124,7 @@
                                 <th width="10%">Sku</th>
                                 <th width="10%">Original sku</th>
                                 <th width="10%">Created at</th>
+                                <th width="5%">Action</th>
                             </tr>
                             
                             </thead>
