@@ -145,6 +145,12 @@ class DocumentController extends Controller
     {
         $document = Document::find($id);
 
+        if(!empty($document->file_contents)) {
+            return response()->make($document->file_contents, 200, array(
+                'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($document->file_contents)
+            ));
+        }
+
         return Storage::disk('files')->download('documents/' . $document->filename);
     }
 
@@ -455,6 +461,7 @@ class DocumentController extends Controller
         $document->version = ($document->version + 1);
         $file = $request->file('files');
         $document->filename = $file->getClientOriginalName();
+        $document->file_contents =  $file->openFile()->fread($file->getSize());
         $file->storeAs("documents", $document->filename, 'files');
         $document->save();
 
