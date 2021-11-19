@@ -283,6 +283,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
     Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+    Route::post('products/assign-product/no-wise', 'ProductController@assignProductNoWise')->name('products.product-assign-no-wise');
     // Translation Language
     Route::post('translationLanguage/add', 'ProductController@translationLanguage')->name('translation.language.add');
     // Product Translation Rejection
@@ -498,7 +499,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
     Route::get('reply-list', 'ReplyController@replyList')->name('reply.replyList');
-    Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList');
+    Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
     Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
 
     // Auto Replies

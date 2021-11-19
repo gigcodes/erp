@@ -11267,6 +11267,7 @@ table.table-striped-custom tbody tr td {
 .log-scrapper .cotton-td a{
     color: #333;
 }
+
 #loghistory tbody td:nth-child(2){
     overflow: hidden;
     text-overflow: ellipsis;
@@ -11302,4 +11303,13 @@ table.table-striped-custom tbody tr td {
     display: flex;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.btn.btn-image{
+    margin-top:-6px;
+}
+.cashflow-table .form-search-data .form-group{
+        margin-bottom: 1rem !important;
+}
+.cashflow-table .voucher a{
+    color: #333;
 }

@@ -275,7 +275,7 @@ class ProductController extends Controller
                 }
             }
 
-            $newProducts = $newProducts->whereIn('category', $category_children);
+            $newProducts = $newProducts->whereIn('products.category', $category_children);
             $category = $request->category[0];
         }
         if ($request->type != '') {
@@ -368,7 +368,7 @@ class ProductController extends Controller
         }
 
         if (!auth()->user()->isAdmin()) {
-            $newProducts = $newProducts->whereNull("pvu.product_id");
+            //$newProducts = $newProducts->whereNull("pvu.product_id");
         }
         $newProducts = $newProducts->where('isUploaded', 0);
 
@@ -3800,7 +3800,7 @@ class ProductController extends Controller
             });
         }
         $products_count = $query->count();
-        $products = $query->orderBy('product_id')->paginate(50);
+        $products = $query->orderBy('product_id','DESC')->paginate(50);
         $supplier = Supplier::all();
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
@@ -4660,10 +4660,12 @@ class ProductController extends Controller
     {
 
         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts,true);
 
-        $newProducts = $newProducts->select(DB::raw("brand,category,assigned_to,count(*) as total"))
-            ->groupBy('brand', 'category', 'assigned_to')->paginate(50);
+        $newProducts = $newProducts->where('isUploaded', 0);
+
+        $newProducts = $newProducts->select(DB::raw("products.brand,products.category,products.assigned_to,count(*) as total"))
+            ->groupBy('products.brand', 'products.category', 'products.assigned_to')->paginate(50);
         foreach ($newProducts as $product) {
             if ($product->brand) {
                 $brand = Brand::find($product->brand);
@@ -4704,10 +4706,12 @@ class ProductController extends Controller
         if (!$assigned_to) {
             return response()->json(['message' => 'Select one user'], 500);
         }
-        $products = Product::where('status_id', StatusHelper::$finalApproval)->where('category', $category)->where('brand', $brand);
+        $products = Product::where('products.status_id', StatusHelper::$finalApproval)->where('products.category', $category)->where('products.brand', $brand);
 
-        $products = QueryHelper::approvedListingOrder($products);
-        $products = $products->get();
+        $products = QueryHelper::approvedListingOrderFinalApproval($products,true);
+        $products = $products->where('products.isUploaded', 0);
+        $products = $products->select("products.*")->get();
+        
         foreach ($products as $product) {
             $product->update(['assigned_to' => $assigned_to]);
         }
@@ -4758,6 +4762,79 @@ class ProductController extends Controller
 
         $username = $user->name;
         return response()->json(['message' => 'Successful', 'user' => $username]);
+    }
+
+    public function assignProductNoWise(Request $request) 
+    {
+        $no_of_product_assign = $request->get("no_of_product_assign",0);
+        $assigned_to = $request->assigned_to;
+        if (!$assigned_to) {
+            return redirect()->back()->withErrors("Select one user");
+        }
+        $products = Product::where('products.status_id', StatusHelper::$finalApproval);
+
+        $products = QueryHelper::approvedListingOrderFinalApproval($products,true);
+        $products = $products->where('products.isUploaded', 0);
+        
+        if($no_of_product_assign > 0) {
+            $products = $products->limit($no_of_product_assign);
+        }else{
+            $products = $products->limit(0);
+        }
+
+        $products = $products->select("products.*")->get();
+        
+        foreach ($products as $product) {
+            $product->update(['assigned_to' => $assigned_to]);
+        }
+
+        $data['assign_from'] = Auth::id();
+        $data['is_statutory'] = 2;
+        $data['task_details'] = 'Final Approval Assignment';
+        $data['task_subject'] = 'Final Approval Assignment';
+        $data['assign_to'] = $assigned_to;
+
+        $task = Task::create($data);
+        if (!empty($task)) {
+            $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+        }
+
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $params = [
+            'number' => null,
+            'user_id' => Auth::id(),
+            'approved' => 1,
+            'status' => 2,
+            'task_id' => $task->id,
+            'message' => $message,
+        ];
+
+        // if ($task->assign_from == Auth::id()) {
+        //          if ($key == 0) {
+        //              $params['erp_user'] = $user->id;
+        //          } else {
+        //              app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+        //          }
+        //  }
+        $user = User::find($assigned_to);
+        $params['erp_user'] = $assigned_to;
+        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+
+        $chat_message = ChatMessage::create($params);
+
+        $myRequest = new Request();
+        $myRequest->setMethod('POST');
+        $myRequest->request->add(['messageId' => $chat_message->id]);
+        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+
+        $username = $user->name;
+
+        return redirect()->back()->withSuccess("Product assigned to person successfully");
     }
 
     public function draftedProducts(Request $request)
