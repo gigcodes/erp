@@ -11292,3 +11292,14 @@ table.table-striped-custom tbody tr td {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+#preview-task-image .modal-dialog.modal-lg{
+    max-width: 100%;
+    width:1200px; 
+}
+#preview-task-image .modal-dialog.modal-lg tbody tr td:nth-child(2) span{
+    height: 44px;
+    display: flex;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
