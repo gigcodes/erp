@@ -65,7 +65,8 @@ class ScrapperNotRun extends Command
                     app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr message sent to " . $userName]);
                 } catch (\Exception $e) {
-                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Coundn't send message to " . $userName]);
+                    \Log::error($e);
+                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Coundn't send message to " . $userName." due to ".$e->getMessage()]);
                 }
             } else {
                 ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Not assigned to any user"]);
