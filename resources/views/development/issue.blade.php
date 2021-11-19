@@ -160,6 +160,7 @@
     @include("development.partials.time-tracked-modal")
     @include("development.partials.add-status-modal")
     @include("development.partials.user_history_modal")
+    @include("development.partials.pull-request-history-modal")
     @include("development.partials.lead_time-history-modal")
     @include("development.partials.development-reminder-modal")
 @endsection
@@ -888,7 +889,28 @@
             });
             $('#date_history_modal').modal('show');
         });
-
+        $(document).on('click', '.pull-request-history', function() {
+         
+            var issueId = $(this).data('id');
+            $('#pull-request-history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/pull/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    console.log(data.pullrequests);
+                    $.each(data.pullrequests, function(i, item) {
+                            $('#pull-request-history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['user_id'] != null) ? item['user_id'] : '-') +'</td>\
+                                    <td>'+ ((item['pull_request_id'] != null) ? item['pull_request_id'] : '-') +'</td>\
+                                </tr>'
+                            );
+                        });
+                }
+            });
+            $('#pull-request-history_modal').modal('show');
+        });
         $(document).on('click', '.show-status-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');
@@ -1479,6 +1501,8 @@
             <?php } ?>
         });
 
+
+        
 
         $(document).on('click', '.show-user-history', function() {
             var issueId = $(this).data('id');

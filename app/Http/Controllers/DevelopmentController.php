@@ -22,6 +22,7 @@ use App\DeveloperComment;
 use App\DeveloperTaskComment;
 use App\DeveloperCost;
 use App\DeveloperTaskHistory;
+use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubRepository;
 use App\PushNotification;
 use App\User;
@@ -3301,6 +3302,16 @@ class DevelopmentController extends Controller
         }
         return response()->json([
             'users' => $users
+        ],200);
+
+    }
+    public function getPullHistory(Request $request) {
+        $pullrequests = DeveoperTaskPullRequestMerge::where('task_id',$request->id)->get();
+        foreach($pullrequests as $u) {
+            $u->user_id = User::find($u->user_id)->name;
+        }
+        return response()->json([
+            'pullrequests' => $pullrequests
         ],200);
 
     }
