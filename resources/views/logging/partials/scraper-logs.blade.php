@@ -14,7 +14,8 @@
         <td>{{ $log->supplier }}</td> --}}
         <td style="display:flex;justify-content:space-between;align-items: center;">
             {{ $log->created_at }} 
-
+        </td>
+        <td>
             <button type="button" onclick="showScrappedProduct()" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                 View
             </button>

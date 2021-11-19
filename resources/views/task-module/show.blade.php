@@ -1153,15 +1153,15 @@
         <div class="modal-content">
         	<div class="modal-body">
     			<div class="col-md-12">
-	        		<table class="table table-bordered" style="table-layout: fixed">
+	        		<table class="table table-bordered">
 					    <thead>
 					      <tr>
-					        <th style="width: 5%;">Sl no</th>
+					        <th style="width:1%;">No</th>
 					        <th style=" width: 30%">Files</th>
-					        <th style="word-break: break-all; width: 40%">Send to</th>
-					        <th style="width: 10%">User</th>
-					        <th style="width: 10%">Created at</th>
-                            <th style="width: 15%">Action</th>
+					        <th style="word-break: break-all; width:12%">Send to</th>
+					        <th style="width: 1%;">User</th>
+					        <th style="width: 11%">Created at</th>
+                            <th style="width: 6%">Action</th>
 					      </tr>
 					    </thead>
 					    <tbody class="task-image-list-view">
