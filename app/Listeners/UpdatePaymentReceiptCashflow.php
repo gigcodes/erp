@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\PaymentReceiptCreated;
+use App\Events\PaymentReceiptUpdated;
 
 class UpdatePaymentReceiptCashflow
 {
@@ -22,7 +22,7 @@ class UpdatePaymentReceiptCashflow
      * @param object $event
      * @return void
      */
-    public function handle(PaymentReceiptCreated $event)
+    public function handle(PaymentReceiptUpdated $event)
     {
         $receipt = $event->paymentReceipt;
         $user_id = !empty(auth()->id()) ? auth()->id() : 6;

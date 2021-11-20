@@ -1510,6 +1510,7 @@ class LiveChatController extends Controller
 			<td width='25%'>" . $log['request'] . "</td>
 			<td width='25%'>" . $log['response'] . "</td>
 			<td width='25%'>" . $log['status'] . "</td>
+            <td width='25%'><a class='repush-credit-balance' href='/customer/credit-repush/" . $log['id'] . "'>Repush</td>
 			</tr>";
         }
         return response()->json(['data' => $creditLogs, 'code' => 200, 'status' => 'success']);
@@ -1750,6 +1751,63 @@ class LiveChatController extends Controller
     {
         $softdelete = Tickets::find($request->id)->delete();
         return response()->json(["code" => 200, "message" => "Record Delete ticket"]);
+    }
+
+    public function creditRepush(Request $request,$id)
+    {
+        $creditLog = CreditLog::find($id);
+        if($creditLog) {
+            $customer = \App\Customer::find($creditLog->customer_id);
+            if ($customer->store_website_id != null and $customer->platform_id != null) {
+                $websiteDetails = StoreWebsite::where('id', $customer->store_website_id)->select('magento_url', 'api_token')->first();
+                if ($websiteDetails != null and $websiteDetails['magento_url'] != null and $websiteDetails['api_token'] != null) {
+                    $websiteUrl = $websiteDetails['magento_url'];
+                    $api_token = $websiteDetails['api_token'];
+                    $bits = parse_url($websiteUrl);
+                    if (isset($bits['host'])) {
+                        $web = $bits['host'];
+                        if (!str_contains($websiteUrl, 'www')) {
+                            $web = 'www.' . $bits['host'];
+                        }
+                        $websiteUrl = 'https://' . $web;
+                        $post = json_decode($creditLog->request,true);
+
+                        $ch = curl_init();
+                        $url = $websiteUrl . "/rest/V1/swarming/credits/add-store-credit/" . $customer->platform_id;
+                        curl_setopt($ch, CURLOPT_URL, $url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+
+                        $headers = array();
+                        $headers[] = 'Authorization: Bearer ' . $api_token;
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        $result = curl_exec($ch);
+                        $jsonResult = json_decode($result);
+                        curl_close($ch);
+                        $status = "failure";
+                        $code = 500;
+                        if ($result == "[]") {
+                            $code = 200;
+                            $status = "success";
+                        }
+
+                        if(isset($jsonResult->message)) {
+                            $code = 500;
+                            $status = "failure";
+                        }
+
+                        CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => json_encode($result), 'status' => $status]);
+                    }
+                    return response()->json(['message' => (isset($jsonResult->message)) ? $jsonResult->message :'Credit updated successfully', 'code' => $code, 'status' => $status]);
+                }
+                return response()->json(['message' => 'Store website not found', 'code' => 500, 'status' => 'failed']);
+            }else{
+                return response()->json(['message' => 'Customer store website not found', 'code' => 500, 'status' => 'failed']);
+            }
+        }else{
+            return response()->json(['message' => 'Credit log not found', 'code' => 500, 'status' => 'failed']);
+        } 
     }
 
 }

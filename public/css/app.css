@@ -11005,9 +11005,6 @@ td.title p {
 }
 /******** Rejected page Ankaj css End here *********/
 
-input,select[type=text]{
-  width: 20%;
-}
 .custom-form .select2-container{
     width: 100% !important;
 }
@@ -11081,7 +11078,7 @@ input,select[type=text]{
 }
 #loghistory .modal-dialog {
     max-width: 100%;
-    width: 1200px;
+    width: 800px;
 
 }
 #logdatacounter .modal-dialog{
@@ -11247,4 +11244,90 @@ table.table-striped-custom tbody tr td {
 #twilio_key_option_modal .modal-dialog.modal-lg{
     width:60%;
     max-width: 100%;
+}
+
+.url-logo.log-scrapper{
+        table-layout: fixed;
+        padding-left:15px;
+        padding-right:15px;
+}
+.log-scrapper .cotton-td{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.log-scrapper .view-more{
+  overflow: hidden;
+    white-space: nowrap;
+}
+.log-scrapper .row .table-m{
+    margin: 0;
+}
+.log-scrapper.table-striped.url-logo td{
+ vertical-align:middle;
+}
+.log-scrapper .btn.btn-primary{
+    color:#fff;
+    background-color: #333;
+    border-color:#333;
+}
+.log-scrapper .cotton-td a{
+    color: #333;
+}
+
+#loghistory tbody td:nth-child(2){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#loghistory table{
+    table-layout: fixed;
+}
+#history .modal-dialog {
+    width: 800px;
+    max-width: 800PX;
+}
+.creat-stutush{
+    display: flex;
+    justify-content: space-around;
+}
+
+#history .modal-dialog table{
+    table-layout: fixed;
+}
+#history .modal-dialog tbody td:nth-child(2){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.charity-custom .form-inline{
+    width: 100%;
+}
+.charity-custom .form-inline label{
+    justify-content: flex-start;
+    margin-bottom: 5px;
+}
+.charity-custom-table td{
+    vertical-align: middle !important;
+}
+#preview-task-image .modal-dialog.modal-lg{
+    max-width: 100%;
+    width:1200px; 
+}
+#preview-task-image .modal-dialog.modal-lg tbody tr td:nth-child(2) span{
+    height: 44px;
+    display: flex;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.btn.btn-image{
+    margin-top:-6px;
+}
+.cashflow-table .form-search-data .form-group{
+        margin-bottom: 1rem !important;
+}
+.cashflow-table .voucher a{
+    color: #333;
 }

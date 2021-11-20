@@ -368,6 +368,8 @@ class MagentoService
             }
         }
 
+        \Log::info(print_r([count($this->prices['samePrice']),count($this->prices['specialPrice']),count($this->translations)],true));
+
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {

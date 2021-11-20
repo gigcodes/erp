@@ -13,7 +13,7 @@ $statuses = \App\ticketStatuses::all();
     }
 </style>
 <!--form modal-->
-<div class="modal fade" id="create-customer-credit-modal" tabindex="-1" role="dialog" aria-labelledby="create-customer-credit-modal-label" aria-hidden="true">
+<div class="modal fade" id="create-customer-credit-modal" role="dialog" aria-labelledby="create-customer-credit-modal-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
