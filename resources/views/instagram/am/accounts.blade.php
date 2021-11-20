@@ -6,77 +6,76 @@
             <h2 class="page-heading">Instagram Accounts ({{$total}}) <a class="float-right" href="https://docs.google.com/document/d/1MvfWliWVVF6bRHpTd2IvG6JfC7HnV7n0tntAvPoVVkw/edit?usp=sharing">SOP</a></h2>
         </div>
     </div>
-    <div class="row">
-        <div class="p-5" style="background: #dddddd">
+    <div class="row pr-5 pl-5">
+        <div class="p-4 col-md-12" style="background: #dddddd">
             <form action="{{ action('InstagramController@store') }}" method="post">
                 @csrf
                 <div class="row">
-                    <div class="col-md-4">
+                    
+                    <div class="col-md-2">
                         <div class="form-group">
-                            <label for="first_name">Full name</label>
                             <input class="form-control" type="text" id="first_name" name="first_name" placeholder="Full name">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <div class="form-group">
-                            <label for="first_name">Instagram Username</label>
                             <input class="form-control" type="text" id="last_name" name="last_name" placeholder="Username">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <div class="form-group">
-                            <label for="password">Password</label>
                             <input type="text" name="password" id="password" class="form-control" placeholder="Password">
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <input type="checkbox" id="broadcast" name="broadcast">
-                            <label for="broadcast">Direct Messaging</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <input type="checkbox" id="manual_comments" name="manual_comments">
-                            <label for="manual_comments">Manual Comments</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <input type="checkbox" id="bulk_comments" name="bulk_comments">
-                            <label for="bulk_comments">Bulk Comments</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="email">Phone/Email</label>
+                    
+                    <div class="col-md-2">
                         <input class="form-control" type="text" name="email" id="email" placeholder="Email/phone">
                     </div>
-                    <div class="col-md-4">
-                        <label for="country">Country</label>
+                    <div class="col-md-2">
                         <select class="form-control" name="country" id="country">
-                            <option value="">All</option>
+                            <option value="">Country</option>
                             @foreach($countries as $country)
                                 <option value="{{$country->region}}">{{$country->region}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label for="gender">Gender</label>
+
+                    <div class="col-md-2">
                         <select name="gender" id="gender" class="form-control">
-                            <option value="all">Any</option>
+                            <option value="all">Gender</option>
                             <option value="female">Female</option>
                             <option value="male">Male</option>
                         </select>
                     </div>
-                    <div class="col-md-12 text-right">
-                        <div class="form-group">
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group mb-0">
+                            <input type="checkbox" id="broadcast" name="broadcast">
+                            <label for="broadcast">Direct Messaging</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group mb-0">
+                            <input type="checkbox" id="manual_comments" name="manual_comments">
+                            <label for="manual_comments">Manual Comments</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group mb-0">
+                            <input type="checkbox" id="bulk_comments" name="bulk_comments">
+                            <label for="bulk_comments">Bulk Comments</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <div class="form-group mb-0">
                             <button class="btn btn-default">Add Account</button>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
-        <div class="col-md-12 mt-2">
+        <div class="col-md-12 mt-4">
             <form action="{{ action('InstagramController@accounts') }}" method="get">
                 <div class="row">
                     <div class="col-md-3">
@@ -99,7 +98,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-md-12 mt-5">
+        <div class="col-md-12 mt-4">
             <div>
                 <table class="table table-striped table-bordered">
                     <thead>
@@ -112,20 +111,20 @@
                         <th>Roles</th>
                         <th>Status</th>
                         <th>Created At</th>
-                        <th>Action</th>
+                        <th style="width: 15%;">Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($accounts as $key=>$account)
                         @if(Auth::user()->email == 'facebooktest@test.com')
                             @if(substr($account->created_at, 0, 10) == date('Y-m-d'))
-                                <tr @if(!$account->last_name) style="color: red" @endif>
+                                <tr>
                                     <td>{{ $key+1 }}</td>
                                     <td>{{ $account->first_name }}</td>
                                     <td>{{ $account->last_name }}</td>
                                     <td>{{ $account->password }}</td>
                                     <td>
-                                        <div style="width: 150px;">
+                                        <div>
                                             {{ $account->email ?? 'N/A' }}
                                         </div>
                                     </td>
@@ -136,39 +135,39 @@
                                     </td>
                                     <td>
                                         @if($account->blocked)
-                                            <strong class="text-danger">Blocked</strong>
+                                            Blocked
                                         @else
                                             @if(!$account->is_seeding)
-                                                <strong class="text-success">Active</strong>
+                                                Active
                                             @else
-                                                <div style="width: 150px;" class="progress">
+                                                <div class="progress">
                                                     <div class="progress-bar" role="progressbar" style="width: {{$account->seeding_stage*10}}%" aria-valuenow="{{$account->seeding_stage*10}}" aria-valuemin="0" aria-valuemax="100"></div>
                                                 </div>
                                             @endif
                                         @endif
                                     </td>
                                     <td>
-                                        <div style="width: 100px;">
+                                        <div>
                                             {{ substr($account->created_at, 0, 10) }}
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="width: 150px !important;">
+                                        <div>
                                             <a class="btn btn-image" href="{{ action('AccountController@test', $account->id) }}">
                                                 <i class="fa fa-check"></i>
                                             </a>
                                             <a href="{{ action('InstagramController@edit', $account->id) }}" class="btn btn-image">
-                                                <img src="{{ asset('images/edit.png') }}" alt="Edit User" title="Edit Product">
+                                                <i class="fa fa-pencil"></i>
                                             </a>
                                             <a href="{{ action('InstagramController@deleteAccount', $account->id) }}" class="btn btn-image">
-                                                <img src="{{ asset('images/delete.png') }}" alt="Delete User" title="Delete Product">
+                                                <i class="fa fa-trash"></i>
                                             </a>
                                         </div>
                                     </td>
                                 </tr>
                             @endif
                         @else
-                            <tr @if(!$account->last_name) style="color: red" @endif>
+                            <tr>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $account->first_name }}</td>
                                 <td>{{ $account->last_name }}</td>
@@ -181,39 +180,39 @@
                                 </td>
                                 <td>
                                     @if($account->blocked)
-                                        <strong class="text-danger">Blocked</strong>
+                                        Blocked
                                     @else
                                         @if(!$account->is_seeding)
-                                            <strong class="text-success">Active</strong>`
+                                            Active
                                         @else
                                             <span class="label label-default">Growing</span>
                                             <br><br>
-                                            <div style="width: 150px;" class="progress">
+                                            <div class="progress">
                                                 <div class="progress-bar bg-info" role="progressbar" style="width: {{round(($account->seeding_stage/7)*100)}}%" aria-valuenow="{{round(($account->seeding_stage/7)*100)}}" aria-valuemin="0" aria-valuemax="100"><strong class="text-dark">{{$account->seeding_stage}} of 7</strong></div>
                                             </div>
                                         @endif
                                     @endif
                                 </td>
                                 <td>
-                                    <div style="width: 100px;">
+                                    <div>
                                         {{ substr($account->created_at, 0, 10) }}
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="width:150px !important;">
+                                    <div>
                                         @if($account->is_seeding === 0 && !$account->broadcast && !$account->manual_comment && !$account->bulk_comment)
                                             <a href="{{ action('AccountController@startAccountGrowth', $account->id) }}" class="btn btn-image" title="Start Growing">
-                                                <i class="text-warning fa fa-play"></i>
+                                                <i class="fa fa-play"></i>
                                             </a>
                                         @endif
                                         <a class="btn btn-image" href="{{ action('AccountController@test', $account->id) }}">
                                             <i class="fa fa-check"></i>
                                         </a>
                                         <a href="{{ action('InstagramController@edit', $account->id) }}" class="btn btn-image">
-                                            <img src="{{ asset('images/edit.png') }}" alt="Edit User" title="Edit Product">
+                                            <i class="fa fa-pencil"></i>
                                         </a>
                                         <a href="{{ action('InstagramController@deleteAccount', $account->id) }}" class="btn btn-image">
-                                            <img src="{{ asset('images/delete.png') }}" alt="Delete User" title="Delete Product">
+                                            <i class="fa fa-trash"></i>
                                         </a>
                                     </div>
                                 </td>

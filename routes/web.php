@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('generate-favicon', 'HomeController@generateFavicon');
 
     Route::get('/products/affiliate', 'ProductController@affiliateProducts');
+    Route::get('/products/change-category', 'ProductController@changeCategory');
     Route::post('/products/published', 'ProductController@published');
     Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
     Route::get('/customers/accounts', 'CustomerController@accounts');
@@ -87,6 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-admin-settings/update', 'MagentoSettingsController@update')->name('magento.setting.update');
 
     Route::post('magento-admin-settings/push-settings', 'MagentoSettingsController@pushMagentoSettings')->name('magento.setting.pushMagentoSettings');
+    Route::post('magento-admin-settings/update-via-file', 'MagentoSettingsController@updateViaFile')->name('magento.setting.updateViaFile');
 
     Route::post('magento-admin-settings/website/stores', 'MagentoSettingsController@websiteStores')->name('get.website.stores');
     Route::post('magento-admin-settings/website/store/views', 'MagentoSettingsController@websiteStoreViews')->name('get.website.store.views');
@@ -281,6 +283,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
     Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+    Route::post('products/assign-product/no-wise', 'ProductController@assignProductNoWise')->name('products.product-assign-no-wise');
     // Translation Language
     Route::post('translationLanguage/add', 'ProductController@translationLanguage')->name('translation.language.add');
     // Product Translation Rejection
@@ -495,6 +498,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
+    Route::get('reply-list', 'ReplyController@replyList')->name('reply.replyList');
+    Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
+    Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
@@ -552,6 +558,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/fix-autosuggested', 'CategoryController@fixAutoSuggested')->name("category.fix-autosuggested");
     Route::get('category/fix-autosuggested-string', 'CategoryController@fixAutoSuggestedString')->name("category.fix-autosuggested-via-str");
     Route::get('category/{id}/history', 'CategoryController@history');
+    Route::get('category/{id}/historyForScraper', 'CategoryController@historyForScraper');
     Route::post('category/change-push-type', 'CategoryController@changePushType');
     Route::get('sizes/references', 'SizeController@sizeReference');
     Route::get('sizes/{id}/used-products', 'SizeController@usedProducts');
@@ -794,6 +801,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/get-customer-address', 'OrderController@getCustomerAddress')->name('order.customer.address');
     Route::get('order/charity-order', 'OrderController@charity_order');
     Route::resource('order', 'OrderController');
+    Route::post('order/payment-history', 'OrderController@paymentHistory')->name('order.paymentHistory');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
@@ -1110,6 +1118,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Customers
     Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/credit/logs/{id}', 'LiveChatController@customerCreditLogs');
+    Route::get('customer/credit-repush/{id}', 'LiveChatController@creditRepush');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
@@ -1260,6 +1269,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchaseproductorders/list', 'PurchaseProductController@purchaseproductorders')->name('purchaseproductorders.list'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/update', 'PurchaseProductController@purchaseproductorders_update')->name('purchaseproductorders.update'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/logs', 'PurchaseProductController@purchaseproductorders_logs')->name('purchaseproductorders.logs'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::get('purchaseproductorders/flows', 'PurchaseProductController@purchaseproductorders_flows')->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', 'PurchaseProductController@purchaseproductorders_orderdata')->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/saveuploads', 'PurchaseProductController@purchaseproductorders_saveuploads')->name('purchaseproductorders.saveuploads'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
 
@@ -1279,6 +1289,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/voucher/pay-multiple', 'VoucherController@payMultiple')->name("voucher.payment.pay-multiple");
 
     Route::resource('voucher', 'VoucherController');
+    Route::post('voucher/payment-history', 'VoucherController@paymentHistory')->name('voucher.paymentHistory');
     Route::post('/upload-documents', 'VoucherController@uploadDocuments')->name("voucher.upload-documents");
     Route::post('/voucher/save-documents', 'VoucherController@saveDocuments')->name("voucher.save-documents");
     Route::get('/voucher/{id}/list-documents', 'VoucherController@listDocuments')->name("voucher.list-documents");
@@ -2763,6 +2774,7 @@ Route::middleware('auth')->group(function () {
     Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
     Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
     Route::get('scrap-logs/log-history/{filename}','ScrapLogsController@loghistory')->name('scarp.loghistory');
+    Route::get('scrap-logs/history/{filename}','ScrapLogsController@history')->name('scarp.history');
     
     Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
 
@@ -2832,6 +2844,7 @@ Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], fu
         Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
     });
 });
+
 
 Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');

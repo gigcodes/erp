@@ -353,6 +353,9 @@
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
                 <div class="d-flex">
+                 <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$order->id}}">
+                      <i class="fa fa-history"></i>
+                  </button>
                   <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
                     <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
@@ -453,6 +456,32 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="payment-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Sl no</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody class="payment-history-list-view">
+                            </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="order-status-map" class="modal fade" role="dialog">
@@ -1156,6 +1185,30 @@
            $("#loading-image").hide();
         });
     });
+
+    $('.payment-history-btn').click(function(){
+          var order_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.paymentHistory') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          $('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              $('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+      });
 
     $(document).on("click",".send-order-email-btn",function(e){
        e.preventDefault();

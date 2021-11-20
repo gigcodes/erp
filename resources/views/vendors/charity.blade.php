@@ -114,7 +114,7 @@
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Charity Info ({{ $totalVendor }})</h2>
-            <div class="pull-left cls_filter_box">
+            <div class="pull-left cls_filter_box charity-custom">
                 <form class="form-inline" action="{{ route('customer.charity') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search Name</label>
@@ -169,21 +169,21 @@
         </div>   
     </div>
     @include('partials.flash_messages') 
-    <div class="infinite-scroll">
+    <div class="infinite-scroll charity-custom-table">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
                 <th width="5%"><a href="/products/customer/charity{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="7%">Product</th>
-                <th width="7%">Phone</th>
-                <th width="7%">Email</th>
-                <th width="7%">Store Website</th>
+                <th width="10%">Product</th>
+                <th width="10%">Phone</th>
+                <th width="15%">Email</th>
+                <th width="12%">Store Website</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
                 <th width="25%">Communication</th>
-                <th width="15%">Action</th>
+                <th width="8%">Action</th>
             </tr>
             </thead>
             <tbody id="vendor-body">
