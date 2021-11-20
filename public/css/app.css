@@ -11313,3 +11313,6 @@ table.table-striped-custom tbody tr td {
 .cashflow-table .voucher a{
     color: #333;
 }
+.new-category-references .change-list-categories-wrap .select2-container--default{
+    width: 350px !important;
+}
