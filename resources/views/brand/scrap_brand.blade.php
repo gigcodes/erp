@@ -48,33 +48,29 @@
             <div class="">
                 <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Brand</th>
-                        <th>Brand Qty</th>
-                        <th>Functions</th>
-                    </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Brand</th>
+                            <th>In External Scraper</th>
+                            <th>Scraped Brand</th>
+                            <th>Brand Qty</th>
+                            <th>Functions</th>
+                        </tr>
                     </thead>
                     <tbody>
                     @foreach ($brands as $brand)
-                            <td width="2%">
-                            {{$brand->id}}
-                            </td>
-                            <td width="14%">
-                            {{$brand->name}}
-                            </td>
-                            <td width="5%">
-                            {{$brand->total_products }}
-                            </td>
+                        <tr>
+                            <td width="2%">{{$brand->id}}</td>
+                            <td width="14%">{{$brand->name}}</td>
+                            <td width="5%">{{$brand->productCountInExternalScraper()}}</td>
+                            <td width="5%">{{$brand->productFromExternalScraper()}}</td>
+                            <td width="5%">{{$brand->total_products }}</td>
                             <td width="14%">
                                 <button style="padding: 3px" data-id="{{ $brand->id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button> 
                             </td>
-                            </tr>
-                               
-                            </tr>
-                            
+                        </tr>
                     @endforeach
                 </table>
 

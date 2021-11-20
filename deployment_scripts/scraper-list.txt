@@ -233,3 +233,5 @@ vogashop.js
 vrients.js
 wiseboutique.js
 wok.js
+coccole.js
+Da-LInea.js

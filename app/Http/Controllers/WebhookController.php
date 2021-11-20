@@ -117,7 +117,9 @@ class WebhookController extends Controller
 		
         Log::info('Repository start');
         $sendgridEvent = $this->sendgridEventRepository->create($event);
-        \App\Email::where('id', $event['email_id'])->update(['status'=>$event['event']]);
+        if(isset($event['email_id'])) {
+            \App\Email::where('id', $event['email_id'])->update(['status'=>$event['event']]);
+        }
         Log::info('Repository exit');
 
         event(new SendgridEventCreated($sendgridEvent));

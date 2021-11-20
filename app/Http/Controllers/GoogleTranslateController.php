@@ -107,7 +107,7 @@ class GoogleTranslateController extends Controller
                             $product_translation->locale = $language;
                             $product_translation->save();
 							if($responseData and !empty($logid)) {
-								ProductPushErrorLog::log("",$product->id, 'Product Translated to '.$language, 'success',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
+								ProductPushErrorLog::log("",$product->id, 'Product Translated to '.$language, 'info',$logModel->store_website_id,$requestData,$responseData,$logModel->id);
 							}	
 
                          } catch (\Exception $e) {

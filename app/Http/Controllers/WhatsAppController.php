@@ -2048,7 +2048,7 @@ class WhatsAppController extends FindByNumberController
             if (Auth::user()->isAdmin()) {
                 $u_id = $request->user_id;
             }
-            $data['user_id'] = Auth::id();
+            $data['user_id'] = $u_id;
             $data['sent_to_user_id'] = $u_id;
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
             $module_id = $u_id;
