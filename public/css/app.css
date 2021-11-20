@@ -10335,7 +10335,8 @@ a.text-light:focus {
 }
 
 .text-dark {
-    color: #343a40 !important;
+/*color: #343a40 !important;*/
+    color: #6c757d !important;
 }
 
 a.text-dark:hover,
@@ -11189,6 +11190,20 @@ table.table-striped-custom tbody tr td {
     width: 15px;
 }
 
+/* ------ 01-11-2021 ----- */
+.customer-chat-list td{
+    vertical-align: middle !important;
+}
+.customer-chat-list  td.cls_remove {
+    display: flex;
+    align-items: center;
+}
+.customer-chat-list td.cls_remove .quick {
+    display: inline-block;
+}
+.customer-chat-list .row.cls_quick_reply_box {
+    width: 100%;
+}
 .custom-table td:nth-child(2){
     white-space: nowrap;
     overflow: hidden;

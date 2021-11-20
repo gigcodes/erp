@@ -80,17 +80,17 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         </div>
         <div class="row">
             <div class="table-responsive">
-                <table class="table table-striped table-bordered" id="keywordassign_table">
+                <table class="table table-striped table-bordered customer-chat-list" id="keywordassign_table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">#</th>
+                            <th style="width: 2%;">#</th>
                             <th style="width: 5%;">Website</th>
                             <th style="width: 5%;">Customer</th>
                             <th style="width: 5%;">Email</th>
-                            <th style="width: 10%;">Phone Number</th>
-                            <th style="width: 10%;">Translation Language</th>
-                            <th style="width: 50%;">Communication</th>
-                            <th style="width: 10%;">Actions</th>
+                            <th style="width: 5%;">Ph Number</th>
+                            <th style="width: 10%;">Trans Language</th>
+                            <th style="width: 47%;">Communication</th>
+                            <th style="width: 8%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -135,35 +135,26 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             </select>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="cls_remove">
                                         <div class="typing-indicator" id="typing-indicator"></div>
                                          
 
-                                        <div class="row">
-                                            <div class="col-md-10 cls_remove_rightpadding">
-                                                <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message"></textarea>
-                                                <input type="hidden" id="message-id" name="message-id" />
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="input-group-append">
-                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark">
-                                                        <i class="fa fa-paperclip"></i>
-                                                    </a>
-                                                    <a class="mt-2 mr-2 btn-xs text-dark send_btn" href="javascript:;" data-id="{{ @$customer->id }}">
-                                                        
-                                                            <i class="fa fa-location-arrow"></i>
-                                                        
-                                                    </a>
-                                                </div>
-                                            </div>                                          
-                                        </div>
-                                        <div class="row cls_quick_reply_box">
+                                        <div class="row quick">
                                             <div class="col-md-4 cls_remove_rightpadding">
+                                                <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message" rows="1"></textarea>
+                                                <input type="hidden" id="message-id" name="message-id" />
+                                                <div class="input-group-append">
+                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark"><i class="fa fa-paperclip"></i></a>
+                                                    <a class="mt-2 btn-xs text-dark send_btn" href="javascript:;" data-id="{{ @$customer->id }}"><i class="fa fa-location-arrow"></i></a>
+                                                </div>
+                                            </div> 
+
+                                            <div class="col-md-2 cls_remove_rightpadding">
                                                 <select class="form-control" id="quick_replies">
                                                     <option value="">Quick Reply</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-4 cls_remove_rightpadding pl-3">
+                                            <div class="col-md-3 cls_remove_rightpadding">
                                                 @php
                                                     $all_categories = \App\ReplyCategory::all();
                                                 @endphp
@@ -176,7 +167,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                     @endif
                                                 </select>
                                             </div>
-                                            <div class="col-md-4 pl-3">
+                                            <div class="col-md-3">
                                                 <div class="row">
                                                     <div class="col-md-9 cls_remove_rightpadding">
                                                         <input type="text" name="quick_comment" placeholder="New Quick Comment" class="form-control quick_comment">
@@ -185,7 +176,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                         <button class="mt-2 btn btn-xs quick_comment_add text-dark ml-2"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>                                      
                                         </div>
                                         <div onclick="getLiveChats('{{ $customer->id }}')" class="card-body msg_card_body" style="display: none;" id="live-message-recieve">
                                             @if(isset($message) && !empty($message))
@@ -198,16 +189,16 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                     <td>
                                         <div >
                                             <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" >
-                                            <i class="fa fa-info" aria-hidden="true"></i>
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
                                         </a>
                                         <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Visited Pages" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" >
-                                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                            <i class="fa fa-map-signs" aria-hidden="true"></i>
                                         </a>
                                         <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" class="btn cls_addition_info" title="Additional info" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" >
-                                            <i class="fa fa-clipboard"></i>
+                                            <i class="fa fa-book"></i>
                                         </a>
                                         <a href="javascript:;" class="mt-1 mr-1 btn-xs text-dark" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" >
-                                            <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                            <i class="fa fa-bar-chart" aria-hidden="true"></i>
                                         </a>
 
 
