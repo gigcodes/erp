@@ -73,7 +73,7 @@
                                     <?php }
                                     ?>
                                 </select>
-                                <a class="btn btn-image delete_quick_comment"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                <a class="btn btn-image delete_quick_comment d-flex align-items-center"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
                             </div>
                         </div> 
                     </div>
