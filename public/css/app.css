@@ -11204,6 +11204,9 @@ table.table-striped-custom tbody tr td {
 .customer-chat-list .row.cls_quick_reply_box {
     width: 100%;
 }
+.customer-chat-list .typing-indicator{
+    padding: 0;
+}
 .custom-table td:nth-child(2){
     white-space: nowrap;
     overflow: hidden;
