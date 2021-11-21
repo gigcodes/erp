@@ -184,6 +184,7 @@
 
 			cleanup();
 		});
+		
 
 		device.on('incoming', function (conn) {
 
