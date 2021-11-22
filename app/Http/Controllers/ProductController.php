@@ -2793,6 +2793,7 @@ class ProductController extends Controller
                             $erp_lead->lead_status_id = 1;
                             $erp_lead->customer_id = $customerId;
                             $erp_lead->product_id = $id;
+                            $erp_lead->store_website_id = 15;
                             $erp_lead->category_id = $pr->category;
                             $erp_lead->brand_id = $pr->brand;
                             $erp_lead->type = 'attach-images-for-product';
