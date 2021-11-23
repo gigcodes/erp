@@ -3,7 +3,9 @@
 @section('styles')
 <style>
 div#credit_logs .modal-dialog table { table-layout: fixed; }
+div#credit_histories .modal-dialog table { table-layout: fixed; }
 div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
+div#credit_histories .modal-dialog table tr >* { word-break: break-all; }
 
 </style>
 
@@ -100,6 +102,7 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
            <th>Utilised</th>
            <th>Balance</th>
            <th>View logs</th>
+           <th>View histories</th>
           
            
          </tr>
@@ -122,6 +125,7 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>
              <td><a href="#" onclick="getLogs('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
+             <td><a href="#" onclick="getHistories('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
            </tr>
          @endforeach
        </tbody>
@@ -156,6 +160,35 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
                 </div>
         </div>
     </div>
+</div>
+
+<div id="credit_histories" class="modal fade" role="dialog" style="display: none;">
+  <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+          <div class="modal-header">
+          <h5 class="modal-title">Credit Histories</h5>
+              <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+          
+                  <div class="col-md-12" id="">
+                      <table class="table">
+                          <thead>
+                              <tr>
+                                  <th width='25%'>ID</th>
+                                  <th width='25%'>User Credit </th>
+                                  <th width='25%'>Used In</th>
+                                  <th width='25%'>Type</th>
+                                  <th width='25%'>Date</th>
+                              </tr>
+                          </thead>
+                          <tbody id="display_histories"></tbody>
+                      </table>
+                  </div>
+              
+              </div>
+      </div>
+  </div>
 </div>
  
  
@@ -223,6 +256,22 @@ div#credit_logs .modal-dialog table tr >* { word-break: break-all; }
                    }
                });
            }
+
+        function getHistories(customerId) {
+            $('#display_histories').html('');
+                    $.ajax({
+                        url: window.location.origin+'/customer/credit/histories/'+customerId,
+                        type: 'GET',
+                        success: function (data) {
+                            $('#display_histories').html(data.data);
+                  $('#credit_histories').modal('show');
+                        },
+                        error: function () {
+                            $loader.hide();
+                            isLoading = false;
+                        }
+                    });
+                } 
 
         $(document).on("click",".repush-credit-balance",function(e) {
             e.preventDefault();
