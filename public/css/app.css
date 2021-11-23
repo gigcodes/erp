@@ -11324,3 +11324,7 @@ table.table-striped-custom tbody tr td {
 .cashflow-table .voucher a{
     color: #333;
 }
+.devtask-com{
+    display: flex;
+    justify-content: space-between;
+}

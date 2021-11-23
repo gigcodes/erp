@@ -127,7 +127,7 @@
      <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row" style="margin-top: 20px;margin-bottom: 5px;"> 
+    <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;"> 
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
             
@@ -178,7 +178,7 @@
                 <th width="12%">MODULE</th>
                 <th width="13%">Assigned To</th>
                 <th width="13%">Lead</th>
-                <th width="34%">Communication</th>
+                <th width="35%">Communication</th>
                 <th width="10%">Send To</th>
                 <th width="10%">Status</th>
             </tr>
