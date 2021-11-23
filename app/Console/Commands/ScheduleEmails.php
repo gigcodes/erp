@@ -16,7 +16,7 @@ use App\ErpLeads;
 use Carbon\Carbon;
 use App\Mail\ScheduledEmail;
 use DB;
-
+use App\Loggers\FlowLog;
 class ScheduleEmails extends Command
 {
     /**
@@ -43,6 +43,7 @@ class ScheduleEmails extends Command
         parent::__construct();
     }
 
+	public $log;
     /**
      * Execute the console command.
      *
@@ -50,17 +51,27 @@ class ScheduleEmails extends Command
      */
     public function handle()
     {
+		//dd("test");
 		$created_date = Carbon::now();
+		$modalType="";
+		$leads=[];
 		$flows = Flow::select('id', 'flow_name as name')->get();
-		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();   
+		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
+		FlowLog::log(["flow_id"=>0,"messages"=>"Flow action started to check and found total flows : ".$flows->count()]); 
+	
+		//$this->log[]="Flow action started to check and found total flows : ".$flows->count();
 		foreach($flows as $flow) {
+	
 			$flowActions =FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 			->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 			->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
             ->select('flows.store_website_id','flow_actions.id as action_id','flow_actions.time_delay','flow_actions.message_title','flow_actions.condition','flow_types.type','flow_actions.time_delay_type', 'flows.flow_name')
 			->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
 			->get(); 
-			
+
+			$flowlog=FlowLog::log(["flow_id"=> $flow['id'],"messages"=>$flow["name"]. " has found total Action  : ".$flowActions->count()]); 
+
+
 			if($flowActions != null) { 
 				$i = 0;
 				$created_date = Carbon::now();
@@ -131,8 +142,16 @@ class ScheduleEmails extends Command
 					}else if($key == 0 and $flow['name'] == 'task_pr') {//
 						   $leads = [];
 						   $modalType =  DeveloperTask::class; 
-					} 
-					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date);		
+					}
+					$flowlog->messages()->create([
+						"flow_action"=>$flowAction['type'],
+						"modalType"=>$modalType,
+						"leads"=>json_encode($leads),
+						"store_website_id"=>$flow['store_website_id'],
+						"messages"=>json_encode($flowAction),
+					]);
+					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date);
+				//dd("fffff")	;	
 				}
 			}
 		}
