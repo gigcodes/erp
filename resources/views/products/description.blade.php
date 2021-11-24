@@ -5,7 +5,18 @@
 
 
 @section('title', 'Product Description')
-
+@section('styles')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<style type="text/css">
+  .modal-lg{
+            max-width: 1500px !important; 
+  }
+        </style>
+@endsection
 
 @section('content')
     <div class="row">
@@ -61,6 +72,7 @@
                     <th>Size System</th>
                     <th>Discount</th>
                     <th>Dimensions</th>
+                    <th>Functions</th>
                 </tr>
                 @foreach($products as $product)
                     <tr>
@@ -103,6 +115,11 @@
                         <td>
                             {{isset($product->product) ? $product->product->lmeasurement.",".$product->product->hmeasurement.",".$product->product->dmeasurement : "-"}}
                         </td>
+                        <td>
+                            <button style="padding: 1px" data-id="{{ $product->scraper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
+                                <i class="fa fa-tasks"></i>
+                           </button>
+                        </td>
                     </tr>
                 @endforeach
             </table>
@@ -113,6 +130,19 @@
             {{ $products->appends($request->except('page'))->links() }}.
         </div>
     </div>
+    <div id="show-content-model-table" class="modal fade scrp-task-list" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                   
+                </div>
+            </div>
+        </div>
+  </div>
 @endsection
 
 
@@ -120,9 +150,11 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    @include('partials.script_developer_task')
     <script>
         $("#select_date").datepicker({
 	  	format: 'yyyy-mm-dd'
 	});
-    </script>
+
+ </script>
 @endsection
