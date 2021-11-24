@@ -273,7 +273,7 @@
                                     data-placeholder="Select user">
                                 <option></option>
                                 @foreach($users as $user)
-                                    <option value="{{$user->id}}">{{ $user->name }}</option>
+                                    <option {{ isset($user_id) && $user_id == $user->id ? 'selected' : ''  }} value="{{$user->id}}">{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>
