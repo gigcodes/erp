@@ -218,7 +218,7 @@ class ScheduleEmails extends Command
 									FlowLogMessages::log([
 										"flow_action"=>$flowAction['type'],
 										"modalType"=>$modalType,
-										"leads"=>json_encode($lead),
+										"leads"=>$lead->customer_name,
 										"store_website_id"=>$store_website_id,
 										"messages"=>$flowAction['message_title'],
 										"flow_log_id"=>$flow_log_id
