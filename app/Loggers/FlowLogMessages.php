@@ -8,7 +8,7 @@ class FlowLogMessages extends Model
 {
     protected $guarded = [];  
 
-    public function log($result)
+    public static function log($result)
     {
         // Log result to database
         $flowLogMessages = new FlowLogMessages();
@@ -17,6 +17,7 @@ class FlowLogMessages extends Model
         $flowLogMessages->modalType =  $result["modalType"];
         $flowLogMessages->leads =  $result["leads"];
         $flowLogMessages->store_website_id =  $result["store_website_id"];
+        $flowLogMessages->flow_log_id =  $result["flow_log_id"];
         $flowLogMessages->save();
 
         // Return
