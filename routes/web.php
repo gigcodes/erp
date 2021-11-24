@@ -3181,6 +3181,12 @@ Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
 
+//Image-Logs
+Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
+    Route::get('/', 'BroadcastController@index')->name('messages.index');
+    Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
+});
+
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(function () {
