@@ -71,6 +71,7 @@
                     <td id="id">{{$key+1}}</td>
                     <td id="name">{{$value->name??''}}</td>
                     <td>
+                        <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                     </td>
                 </tr>
@@ -83,6 +84,45 @@
     </div>
 @endsection
 
+<div id="previewSendMailsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+       <!-- Modal content-->
+       <div class="modal-content "  >
+          
+             <div class="modal-header">
+                <h4 class="modal-title">Broadcast Message Numbers</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+             </div>
+ 
+ 
+              <div class="modal-body" >
+             <div class="table-responsive" style="margin-top:20px;">
+               <table class="table table-bordered text-nowrap" id="email-table">
+                 <thead>
+                   <tr>
+                   <th>Date </th> 
+                   <th>Message Id</th>
+                   <th>Type Id</th>
+                   <th>Type</th>
+                   </tr>
+                 </thead>
+                 <tbody class="product-items-list">
+                 
+                 </tbody>
+                 </table>
+             </div>
+           </div>
+ 
+             
+             <div class="modal-footer">
+                <div class="row">
+                   <button type="button" style="margin-top: 5px;" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+             </div>
+          
+       </div>
+    </div>
+ </div>
 
 @section('scripts')
     <script>
@@ -110,6 +150,58 @@
 				}
             });
 		}); 
+
+
+      $(document).on("click",".preview_broadcast_numbers",function() {
+
+        var id = $(this).data("message-id");
+
+        $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "broadcast-messages/preview-broadcast-numbers",
+        type: "post",
+        data : {
+            id: id,
+        },
+        beforeSend: function() {
+
+            $("loading-image").show();
+        }
+        }).done( function(response) {
+
+        $("loading-image").hide();
+
+        if(response.code == 200) {
+        var items = response.data;
+        if(items.length > 0) {
+            var itemsHtml = '';
+            $.each(items, function(k,v) {
+                itemsHtml += `<tr class="in-background filter-message">
+                    <td >`+v.created_at+`</td>
+                    <td >`+v.broadcast_message_id+`</td>
+                    <td >`+v.type_id+`</td>
+                    <td >`+v.type+`</td>
+                </tr>`;
+
+            });
+            
+            $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+        }
+
+        $("#previewSendMailsModal").modal("show");
+
+        }
+        
+        }).fail(function(errObj) {
+            alert("Could not change status");
+        });
+
+
+
+
+        });
 
 	    $('.trigger-delete').on('click', function(e) {
 			var id = $(this).attr('data-id');

@@ -23,4 +23,12 @@ class BroadcastController extends Controller
         return response()->json(['code' => 200, 'message' => 'Message deleted successfully']);
     }
 
+    public function messagePreviewNumbers(Request $request)
+    {
+        $id = $request->id;
+        $lists = \App\BroadcastMessageNumber::where('broadcast_message_id', $id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(["code" => 200, "data" => $lists]);
+    }
+
 }
