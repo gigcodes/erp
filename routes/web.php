@@ -154,6 +154,10 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
 
+    Route::get('flow-logs', 'FlowLogController@index')->name('logging.flow.log');
+    Route::get('flow-logs-detail', 'FlowLogController@details')->name('logging.flow.detail');
+   
+
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
@@ -3434,3 +3438,13 @@ Route::prefix('lead-order')->middleware('auth')->group(function () {
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+
+
+Route::get('command', function () {
+	
+   // \Artisan::call('migrate');
+	/* php artisan migrate */
+    \Artisan::call('command:schedule_emails');
+    dd("Done");
+});
+
