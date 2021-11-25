@@ -18,11 +18,12 @@
                             <div class="col-md-8">
                                 <div class="form-group">
                                     @if(auth()->user()->isReviwerLikeAdmin())
-                                        <select class="form-control" name="user_id" id="priority_user_id">
+                                        <select class="form-control" id="priority_user_id">
                                             @foreach ($users as $id => $name)
                                                 <option value="{{ $id }}">{{ $name }}</option>
                                             @endforeach
                                         </select>
+                                        <input type="hidden" name="user_id" value="" id="sel_user_id"/>
                                     @else
                                         {{auth()->user()->name}}
                                     @endif
@@ -49,7 +50,9 @@
                                     <th width="1%">ID</th>
                                     <th width="5%">Module</th>
                                     <th width="15%">Subject</th>
-                                    <th width="67%">Issue</th>
+                                    <th width="40%">Issue</th>
+                                    <th width="20%">Communication</th>
+                                    <th width="9%">Date</th>
                                     <th width="5%">Submitted By</th>
                                     <th width="2%">Action</th>
                                 </tr>
