@@ -1581,6 +1581,11 @@ console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
             return false;
         }
 
+        if ($("#send_message").find("#name").val() == "") {
+            alert('Please type name ');
+            return false;
+        }
+
         if ($("#send_message").find("#message_to_all_field").val() == "") {
             alert('Please type message ');
             return false;
@@ -1592,6 +1597,7 @@ console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
             data: {
                 _token: "{{ csrf_token() }}",
                 message: $("#send_message").find("#message_to_all_field").val(),
+                name: $("#send_message").find("#name").val(),
                 suppliers: suppliers
             }
         }).done(function () {

@@ -1811,7 +1811,7 @@ class SupplierController extends Controller
         $params = [];
         $message = [];
         //Create broadcast
-        $broadcast = \App\BroadcastMessage::create(['name'=>$request->message]);
+        $broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         if (count($suppliers)) {
             foreach ($suppliers as $key => $item) {
                 $params = [
@@ -1823,7 +1823,7 @@ class SupplierController extends Controller
                 ];
                 $message = [
                     'type_id' => $item->id,
-                    'type' => '\App\Supplier',
+                    'type' => App\Supplier::class,
                     'broadcast_message_id' => $broadcast->id,
                 ];
                 $chat_message = ChatMessage::create($params);
