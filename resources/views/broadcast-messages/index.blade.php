@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Broadcast Messages')
+
 @section('styles')
 
     <link rel="stylesheet" type="text/css"
