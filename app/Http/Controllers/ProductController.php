@@ -346,7 +346,7 @@ class ProductController extends Controller
             if ($request->get('submit_for_image_approval') == "on") {
                 $newProducts = $newProducts->leftJoin("log_list_magentos as llm", function ($join) use ($request) {
                     $join->on("llm.product_id", "products.id")
-                    ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.project_id = projects.id)"));
+                    ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
                     $join->where("llm.user_id", $request->get('user_id'));
                 });
             }else{
