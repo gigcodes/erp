@@ -28,6 +28,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
+
 class LogListMagentoController extends Controller
 {
     const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
@@ -1011,6 +1012,25 @@ class LogListMagentoController extends Controller
         $productPushSummeries = ProductPushInformationSummery::with(['brand', 'category', 'storeWebsite'])->whereDate('created_at', '>=', $request->startDate)->whereDate('created_at', '<=', $request->endDate)->get();
 
         return view('logging.partials.product-push-information-summery', compact('productPushSummeries'));
+    }
+    public function dailyPushLog(){
+        $logListMagentos = \App\Loggers\LogListMagento::orderBy('log_list_magentos.created_at', 'DESC')
+            ->selectRaw('COUNT(`product_id`) as count,store_website_id,DATE(log_list_magentos.created_at) as dateonly')
+            ->where('log_list_magentos.created_at', '>', now()->subDays(30)->endOfDay())
+            ->groupBy(['store_website_id','dateonly'])
+            ->get()->toArray();
+        $websites = \App\Loggers\LogListMagento::distinct('store_website_id')->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')->pluck('sw.title','store_website_id')->toArray();
+       // dd($logListMagentos);
+       $count = count($websites)+1;
+        $response=[];
+        if(count($logListMagentos)){
+            foreach($logListMagentos as $log){
+                //if(isset($response[$log["created_at"]])){
+                  $response[$log["dateonly"]][$log["store_website_id"]]= $log["count"];
+            //    }
+            }
+        }
+        return view('logging.magento-push-daily-message', compact('response',"websites","count"));
     }
 
 }
