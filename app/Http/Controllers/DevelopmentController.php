@@ -1035,31 +1035,47 @@ class DevelopmentController extends Controller
     {
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
-
-        $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
+        $issues = DeveloperTask::select('developer_tasks.*')
             ->leftJoin('erp_priorities', function ($query) use ($user_id) {
                 $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                 $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
-            })->where('is_resolved', '0');
-
+                $query->where('erp_priorities.user_id', $user_id);
+            })
+            ->where('status', '!=', 'Done');
+        // if admin the can assign new task
+        // if (auth()->user()->isAdmin()) {
+        //     $issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue', []));
+        // } else {
+        //     $issues = $issues->whereNotNull('erp_priorities.id');
+        // }
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
                 $user_id = is_null($user_id) ? 0 : $user_id;
+                if($user_id!=0){
+                    $q->where('developer_tasks.assigned_to', $user_id)
+                    ->orWhere("developer_tasks.master_user_id", $user_id)
+                    ->orWhere("developer_tasks.team_lead_id", $user_id)
+                    ->orWhere("developer_tasks.tester_id", $user_id);
+                }
                 $q->whereIn('developer_tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
             });
-            //$issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue', []));
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
-        $issues = $issues->groupBy("developer_tasks.id")->orderBy('erp_priorities.id')->get();
-
+        $issues = $issues->orderBy('erp_priorities.id')->get();
         foreach ($issues as &$value) {
-            $value->module = $value->developerModule ? $value->developerModule->name : 'Not Specified';
-            $value->submitted_by = ($value->submitter) ? $value->submitter->name : "";
+            $value->module = $value->developerModule->name;
+            $value->created_by = User::where('id', $value->created_by)->value('name');
         }
         unset($value);
-        return response()->json($issues);
+        $viewData= view('development.partials.taskpriority', compact('issues'))->render();
+
+        return response()->json([
+            'html' => $viewData,
+            
+        ], 200);
+
     }
     public function setPriority(Request $request)
     {
