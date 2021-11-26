@@ -13,7 +13,7 @@ class CreateBroadcastMesssageNumbersTable extends Migration
      */
     public function up()
     {
-        Schema::create('broadcast_messsage_numbers', function (Blueprint $table) {
+        Schema::create('broadcast_message_numbers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('broadcast_message_id')->nullable();
             $table->integer('type_id')->nullable();
