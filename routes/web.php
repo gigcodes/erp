@@ -3185,6 +3185,7 @@ Route::prefix('image-logs')->middleware('auth')->group(function () {
 Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::get('/', 'BroadcastController@index')->name('messages.index');
     Route::post('preview-broadcast-numbers', 'BroadcastController@messagePreviewNumbers')->name('get-numbers');
+    Route::post('send/message', 'BroadcastController@sendMessage')->name('send-message');
     Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
 });
 

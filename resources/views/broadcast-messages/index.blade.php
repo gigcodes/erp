@@ -29,6 +29,21 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Broadcast Messages</h2>
                     
+                    <div class="pull-left cls_filter_box">
+                        {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">Order By</label>
+                                {{Form::select('order', [''=>'Select','asc'=>'ASC','desc'=>'DESC'], @$inputs['order'], array('class'=>'form-control'))}}
+                            </div>
+                         
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="name">Name</label>
+                                {{Form::text('name', @$inputs['name'], array('class'=>'form-control'))}}
+                            </div>
+                            <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="{{url('/images/filter.png')}}"/></button>
+                        </form>
+                    </div>
+                    
               
 							
 							
@@ -65,6 +80,7 @@
             <tr>
                 <th style="">ID</th>
                 <th style="">Name</th>
+                <th style="">Created Date</th>
                 <th style="">Action</th>
             </thead>
             <tbody>
@@ -72,8 +88,10 @@
                 <tr class="{{$value->id}}">
                     <td id="id">{{$key+1}}</td>
                     <td id="name">{{$value->name??''}}</td>
+                    <td id="name">{{$value->created_at->format('Y-m-d')??''}}</td>
                     <td>
-                        <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+                        <a class="btn btn-secondary create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                        <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                     </td>
                 </tr>
@@ -85,6 +103,38 @@
         @endif
     </div>
 @endsection
+
+<div id="create_broadcast" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Send Message</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form id="send_message" method="POST">
+                <input type="hidden" name="id" id="bid" value="">
+				<div class="modal-body">
+					<div class="form-group">
+						<strong>Name</strong>
+						<input name="name" id="name" autocomplete="off" type="text" class="form-control"/>
+					</div>
+					<div class="form-group">
+						<strong>Message</strong>
+						<textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-secondary">Send Message</button>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
 
 <div id="previewSendMailsModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -153,6 +203,43 @@
             });
 		}); 
 
+        $(document).on('click', '.create_broadcast', function () {
+            var id = $(this).data("message-id");
+            $("#bid").val(id);
+            $("#create_broadcast").modal("show");
+        }); 
+        
+        $("#send_message").submit(function (e) {
+            e.preventDefault();
+
+            if ($("#send_message").find("#name").val() == "") {
+                alert('Please type name ');
+                return false;
+            }
+
+            if ($("#send_message").find("#message_to_all_field").val() == "") {
+                alert('Please type message ');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "broadcast-messages/send/message",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    message: $("#send_message").find("#message_to_all_field").val(),
+                    name: $("#send_message").find("#name").val(),
+                    id:$("#send_message").find("#bid").val(),
+                }
+            }).done(function () {
+                window.location.reload();
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+        });
 
       $(document).on("click",".preview_broadcast_numbers",function() {
 
@@ -183,7 +270,7 @@
                 itemsHtml += `<tr class="in-background filter-message">
                     <td >`+v.created_at+`</td>
                     <td >`+v.broadcast_message_id+`</td>
-                    <td >`+v.type_id+`</td>
+                    <td >`+v.typeName+`</td>
                     <td >`+v.type+`</td>
                 </tr>`;
 
