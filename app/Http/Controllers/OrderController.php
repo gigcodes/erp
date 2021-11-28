@@ -2401,6 +2401,9 @@ class OrderController extends Controller
 
     public function callManagement(Request $request){
 
+        $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
+        $users = \App\Customer::select('id')->whereIn('phone', $getnumbers)->get()->toArray();
+
         $reservedCalls = \App\TwilioCallWaiting::leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
         ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
         $allleads=[];
@@ -2408,10 +2411,11 @@ class OrderController extends Controller
         ->leftJoin("order_products as op","op.order_id","orders.id")
         ->leftJoin("products as p","p.id","op.product_id")
         ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+        ->whereIn('customer_id',$users)
         ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
+        $allleads[] = $this->getLeadsInformation($users);
         if ($orders->count()){
             foreach ($orders as &$value){
-                $allleads[] = $this->getLeadsInformation($value->customer_id);
                 $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
                 $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
                 $totalBrands = explode(",",$value->brand_name_list);
@@ -2420,17 +2424,16 @@ class OrderController extends Controller
             }
         }
 
-
         return view('orders.call_management', compact('reservedCalls','allleads','orders'));
     }
 
-    private function getLeadsInformation($id){
+    private function getLeadsInformation($ids){
         $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
             ->leftJoin("customers as c","c.id","erp_leads.customer_id")
             ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
             ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
             ->leftJoin("brands as br","br.id","erp_leads.brand_id")
-            ->where('erp_leads.customer_id',$id)
+            ->whereIn('erp_leads.customer_id',$ids)
             ->orderBy("erp_leads.id","desc")
             ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
 

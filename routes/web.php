@@ -1872,6 +1872,8 @@ Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@tw
 
 Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status')->name('change_agent_status');
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
+Route::post('twilio/add_number', 'TwilioController@addNumber')->name('add_number');
+Route::post('twilio/update_number_status', 'TwilioController@updateNumberStatus')->name('update_number_status');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
 
 Route::get(
