@@ -1664,6 +1664,7 @@ class TwilioController extends FindByNumberController
         $status = $request->get("status");
         $add_number = \App\TwilioCurrentCall::create(['agent_id'=>$agent_id,'number'=>$number,'status'=>$status]);
     }
+    
 
     public function updateNumberStatus(Request $request)
     {
