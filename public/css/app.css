@@ -11196,9 +11196,11 @@ table.table-striped-custom tbody tr td {
 }
   .add-invoice{
     display:flex;
+    align-items: center;
 }
 .currency-box{
     display: flex;
+    align-items: center;
 }
 .currency-box input{
     width: 30%;
@@ -11206,8 +11208,9 @@ table.table-striped-custom tbody tr td {
 .shiping input{
     width: 40;
 }
-.shiping,.select{
+.purchaseproductorders-list .shiping,.select{
     display: flex;
+    align-items: center;
 }
 
 .purchase-order-table .product-name div div{
@@ -11327,4 +11330,10 @@ table.table-striped-custom tbody tr td {
 .devtask-com{
     display: flex;
     justify-content: space-between;
+}
+.color-gray{
+    color: #808080;
+}
+.purchaseproductorders-list tr td{
+    vertical-align: middle !important;
 }
