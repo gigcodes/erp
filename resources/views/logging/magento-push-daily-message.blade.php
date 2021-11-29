@@ -23,9 +23,9 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Magento Daily Push Log</h2>
-             <div class="pull-right">
+             {{-- <div class="pull-right">
                 <a href="/logging/list-laravel-logs" type="button" class="btn btn-secondary">Magento Daily Push Log</a>
-            </div>
+            </div> --}}
 
         </div>
     </div>
@@ -37,7 +37,7 @@
             <thead>
                 <th width="{{100/$count}}">Date</th>
                 @foreach ($websites as $key => $val)
-                    <th width="{{100/$count}}">{{ $val }}</th>
+                    <th width="{{100/$count}}">{{ $val }}--{{$key}}</th>
                 @endforeach
             </tr>
             </thead>
@@ -45,7 +45,7 @@
             <tbody id="content_data">
                 @foreach ($response as $r_key => $res)
                 <tr>
-                    <td>{{$r_key}} {{json_encode($res)}}</td>
+                    <td>{{$r_key}}</td>
                         @foreach ($websites as $key => $val)
                             <td>{{ (isset($res[$key])) ? $res[$key] : 0 }} 
                         @endforeach
