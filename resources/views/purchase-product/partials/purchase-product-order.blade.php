@@ -22,7 +22,7 @@
     z-index: 1060;
 }
 .inner_loader {
-	top: 30%;
+    top: 30%;
     position: absolute;
     left: 40%;
     width: 100%;
@@ -69,11 +69,11 @@ table tr td {
 @endsection
 
 @section('large_content')
-	<div class="ajax-loader" style="display: none;">
-		<div class="inner_loader">
-		<img src="{{ asset('/images/loading2.gif') }}">
-		</div>
-	</div>
+    <div class="ajax-loader" style="display: none;">
+        <div class="inner_loader">
+        <img src="{{ asset('/images/loading2.gif') }}">
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
@@ -113,7 +113,7 @@ table tr td {
     <div class="row">
         <div class="col-md-12">
             <div class="infinite-scroll purchaseproductorders-list" style="width:100%;">
-    	        <div class="table-responsive mt-2">
+                <div class="table-responsive mt-2">
                     <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                         <thead>
                             <tr>
@@ -238,7 +238,7 @@ table tr td {
                         @endforeach
                         </tbody>
                     </table>
-    	        </div>
+                </div>
             </div>
         </div>
     </div>
@@ -409,10 +409,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'invoice',
                 message : invoice,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -454,12 +454,12 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'payment_details',
                 payment_currency : payment_currency,
                 payment_amount : payment_amount,
                 payment_mode : payment_mode,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -492,11 +492,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'costs',
                 shipping_cost : shipping_cost,
                 duty_cost : duty_cost,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -527,10 +527,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'status',
                 status : status,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -559,10 +559,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'mrp',
                 mrp : mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -591,10 +591,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'discount_price',
                 discount_price : discount_price,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -623,10 +623,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'special_price',
                 special_price : special_price,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -668,11 +668,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'product_order_mrp',
                 product_order_mrp_old: product_order_mrp_old,
                 product_order_mrp : product_order_mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_id: order_products_id,
                 product_order_mrp_total: product_order_mrp_total,
             },
@@ -718,11 +718,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'product_order_discounted_price',
                 product_order_mrp_old: product_order_mrp_old,
                 product_order_mrp : product_order_mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_id: order_products_id,
                 product_order_mrp_total:product_order_mrp_total,
             },
@@ -767,11 +767,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'product_order_special_price',
                 product_order_mrp_old: product_order_mrp_old,
                 product_order_mrp : product_order_mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_id: order_products_id,
                 product_order_mrp_total:product_order_mrp_total,
             },
@@ -804,9 +804,9 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.logs') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 header_name : header_name,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 purchase_order_products_id: purchase_order_products_id,
             },
             dataType : "json",
@@ -840,9 +840,9 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.flows') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 header_name : header_name,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 purchase_order_products_id: purchase_order_products_id,
             },
             dataType : "json",
@@ -888,9 +888,9 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.orderdata') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 order_id : order_id,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_order_id:order_products_order_id,
                 supplier_id:supplier_id,
             },
@@ -999,7 +999,7 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.orderdata') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 order_products_order_id:order_products_order_id,
                 supplier_id:supplier_id,
             },
@@ -1041,15 +1041,15 @@ table tr td {
         if(files.length > 0 ){
 
             $.each(files,function(i,e){
-				fd.append('file[]',e);
-			})
+                fd.append('file[]',e);
+            })
             fd.append('order_product_id',order_product_id);
             fd.append('order_id',order_id);
             fd.append('_token',"{{ csrf_token() }}");
 
 
 
-			$.ajax({
+            $.ajax({
                 url: '{{route("purchaseproductorders.saveuploads")}}',
                 type: 'post',
                 data: fd,
@@ -1069,7 +1069,7 @@ table tr td {
                     $('.ajax-loader').hide();
                     toastr['error']('Data not Uploaded successfully!');
                 }
-			});
+            });
 
         }else{
             alert("Please select a file.");
