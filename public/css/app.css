@@ -11228,6 +11228,12 @@ table.table-striped-custom tbody tr td {
 .shiping,.select{
     display: flex;
 }
+.purchaseproductorders-list tbody i{
+    color: grey;
+}
+.purchaseproductorders-list tbody tr{
+    color: #323030;
+}
 
 .purchase-order-table .product-name div div{
     overflow: hidden;
@@ -11258,6 +11264,7 @@ table.table-striped-custom tbody tr td {
     width:60%;
     max-width: 100%;
 }
+
 .url-logo.log-scrapper{
         table-layout: fixed;
         padding-left:15px;
