@@ -148,6 +148,8 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::get('show-prices/{id}', 'Logging\LogListMagentoController@showPrices')->name('list.magento.show-prices');
     Route::get('list-magento/product-push-infomation', 'Logging\LogListMagentoController@productPushInformation')->name('list.magento.product-push-information');
     Route::post('list-magento/product-push-histories/{product_id}', 'Logging\LogListMagentoController@productPushHistories')->name('list.magento.product-push-information-byid');
+    
+    Route::get('list-magento/daily-push-log', 'Logging\LogListMagentoController@dailyPushLog')->name('list.daily-push-log');
 
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
@@ -295,7 +297,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/product-translation', 'ProductController@productTranslation')->name('products.product-translation');
     Route::get('products/product-translation/{id}', 'ProductController@viewProductTranslation')->name('products.product-translation.view');
-    Route::post('products/product-translation/submit/{product_translation_id}', 'ProductController@editProductTranslation')->name('products.product-translation.edit');
+    Route::post('products/product-translation/submit/{producsed}', 'ProductController@editProductTranslation')->name('products.product-translation.edit');
     Route::get('products/product-translation/details/{id}/{locale}', 'ProductController@getProductTranslationDetails')->name('products.product-translation.locale');
     Route::get('product/listing/users', 'ProductController@showListigByUsers');
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
@@ -1123,7 +1125,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Customers
     Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/credit/logs/{id}', 'LiveChatController@customerCreditLogs');
-    Route::get('customer/credit/histories/{id}', 'LiveChatController@customerCreditHistories');
     Route::get('customer/credit-repush/{id}', 'LiveChatController@creditRepush');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
@@ -1474,7 +1475,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
-    Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
     /*Routes For Social */
     Route::any('social/get-post/page', 'SocialController@pagePost')->name('social.get-post.page');

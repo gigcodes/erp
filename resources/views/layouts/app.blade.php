@@ -1591,6 +1591,9 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 @endif
