@@ -706,6 +706,9 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" target="_blank" href="{{ route('logs.index') }}">Image Logs</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('order.call-management') }}">Call Management</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM Notifications</a>

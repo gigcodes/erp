@@ -2399,8 +2399,70 @@ class OrderController extends Controller
         //      return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
     }
 
+    public function callManagement(Request $request){
+
+        $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
+        $users = \App\Customer::select('id')->whereIn('phone', $getnumbers)->get()->toArray();
+
+        $reservedCalls = \App\TwilioCallWaiting::leftJoin("customers as c", "c.phone", \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy("twilio_call_waitings.created_at", "desc")
+        ->select(["twilio_call_waitings.*", "c.name", "c.email"])->get();
+        $allleads=[];
+        $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
+        ->leftJoin("order_products as op","op.order_id","orders.id")
+        ->leftJoin("products as p","p.id","op.product_id")
+        ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+        ->whereIn('customer_id',$users)
+        ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->limit(5)->get();
+        $allleads[] = $this->getLeadsInformation($users);
+        if ($orders->count()){
+            foreach ($orders as &$value){
+                $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
+                $value->order_date =  Carbon::parse($value->order_date)->format('d-m-y');
+                $totalBrands = explode(",",$value->brand_name_list);
+                $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
+                $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
+            }
+        }
+
+        return view('orders.call_management', compact('reservedCalls','allleads','orders'));
+    }
+
+    private function getLeadsInformation($ids){
+        $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
+            ->leftJoin("customers as c","c.id","erp_leads.customer_id")
+            ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
+            ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
+            ->leftJoin("brands as br","br.id","erp_leads.brand_id")
+            ->whereIn('erp_leads.customer_id',$ids)
+            ->orderBy("erp_leads.id","desc")
+            ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
+
+        $total = $source->count();
+        $source = $source->latest()->limit(5)->get();
+
+        foreach ($source as $key => $value) {
+            $source[$key]->media_url = null;
+            $media = $value->getMedia(config('constants.media_tags'))->first();
+            if ($media) {
+                $source[$key]->media_url = $media->getUrl();
+            }
+
+            if (empty($source[$key]->media_url) && $value->product_id) {
+                $product = \App\Product::find($value->product_id);
+                $media = $product->getMedia(config('constants.media_tags'))->first();
+                if ($media) {
+                    $source[$key]->media_url = $media->getUrl();
+                }
+            }
+        }
+
+        return $source;
+    }
+
     public function missedCalls(Request $request)
     {
+
         $callBusyMessages = CallBusyMessage::with(['status' => function ($q) {
             return $q->select('id', 'name', 'label');
         }])

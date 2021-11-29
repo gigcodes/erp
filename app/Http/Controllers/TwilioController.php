@@ -1657,6 +1657,22 @@ class TwilioController extends FindByNumberController
         }
     }
 
+    public function addNumber(Request $request)
+    {
+        $agent_id = $request->get("authid");
+        $number = $request->get("number");
+        $status = $request->get("status");
+        $add_number = \App\TwilioCurrentCall::create(['agent_id'=>$agent_id,'number'=>$number,'status'=>$status]);
+    }
+    
+
+    public function updateNumberStatus(Request $request)
+    {
+        $agent_id = $request->get("authid");
+        $number = $request->get("number");
+        $update_number = \App\TwilioCurrentCall::where(['agent_id'=>$agent_id,'number'=>$number,'status'=>1])->update(['status'=>0]);
+    }
+
 
     public function change_agent_call_status(Request $request)
     {
