@@ -146,7 +146,6 @@ class CustomerController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'website' => 'required',
-            'name' => 'required',
             'lang_code' => 'required',
             'platform_id' => 'required',
         ]);
