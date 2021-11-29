@@ -11345,6 +11345,9 @@ table.table-striped-custom tbody tr td {
 }
 
 .new-category-references .change-list-categories-wrap .select2-container--default{
+}
+
+.new-category-references .change-list-categories-wrap .select2-container--default{
     width: 350px !important;
 }
 .devtask-com{
