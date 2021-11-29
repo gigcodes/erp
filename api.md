@@ -1539,15 +1539,14 @@ POST https://erp.theluxuryunlimited.com/api/store_reviews
 **Successful Response:**
 ```json
 {
-    "status": "200",
+    "status": "success",
     "message": "Successfully Added"
 }
 ```
 **Failed Response:**
 ```json
 {
-    "code": 500,
-    "data": [],
+    "code": "error",
     "message": "Error message"
 }
 ```
