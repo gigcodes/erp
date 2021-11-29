@@ -44,11 +44,12 @@
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tr>
-                            <th width="2%">ID</th>
+                            <th width="2%" style="display:block;">ID</th>
                             <th width="2%">Store website</th>
                             <th width="25%">Category</th>
                             <th width="10%">Reply</th>
                             <th width="5%">Model</th>
+                            <th width="15%">Updated On</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
@@ -58,6 +59,7 @@
                                 <td id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
                                 <td style="cursor:pointer;" id="reply_text" class="change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
                                 <td id="reply_model">{{ $reply->model }}</td>
+                                <td id="reply_model">{{ $reply->created_at }}</td>
                                 <td id="reply_action"><i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}"></i></td>
                             </tr>
                         @endforeach

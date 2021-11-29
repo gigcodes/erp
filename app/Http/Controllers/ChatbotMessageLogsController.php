@@ -257,20 +257,30 @@ class ChatbotMessageLogsController extends Controller
 		foreach($replyCategories as $replyCategory) {
 			$reply = \App\Reply::where('category_id', $replyCategory['id'])->orderBy('id', 'desc')->pluck('reply')->first();
 			$params["value"] = str_replace(" ", "_", $replyCategory["name"]);
-			$params["suggested_reply"] = str_replace(" ", "_", $reply);
+			//$params["suggested_reply"] = str_replace(" ", "_", $reply);
+			$params["suggested_reply"] = $reply;
 			
-			$chatbotQuestion = \App\ChatbotQuestion::create($params);
-			
+			//$chatbotQuestion = \App\ChatbotQuestion::create($params);
+			$chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
 			
 			$watson_account_ids = \App\WatsonAccount::all();
-
+			$data_to_insert = [];
 			foreach ($watson_account_ids as $id) {
-				$data_to_insert[] = [
+				$recordAvailable = \App\ChatbotQuestionReply::where([
 					'suggested_reply'     => $params["suggested_reply"],
 					'store_website_id'    => $id->store_website_id,
 					'chatbot_question_id' => $chatbotQuestion->id,
-				];
+				])->first();
+				
+				if($recordAvailable == null) {
+					$data_to_insert[] = [
+						'suggested_reply'     => $params["suggested_reply"],
+						'store_website_id'    => $id->store_website_id,
+						'chatbot_question_id' => $chatbotQuestion->id,
+					];
+				}
 			}
+			
 			\App\ChatbotQuestionReply::insert($data_to_insert);
 
 			\App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
