@@ -37,6 +37,7 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
+                <th style="width:7%">ID</th>
                 <th width="10%">Flow Name</th>
                 <th width="25%">Message</th>
                 <th width="10%">LogCreated</th>
@@ -74,6 +75,7 @@
             <div class="modal-body">
               <table class="table table-bordered table-hover" style="table-layout:fixed;">
                 <thead>
+                    
                   <th style="width:7%">Flow Action</th>
                   <th style="width:6%"> modalType </th>
                   <th style="width:30%">leads</th>

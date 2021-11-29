@@ -13,7 +13,7 @@
         {{ $log->messages }}
     </td>
     <td>
-        {{ $log->store_website_id  }}
+        {{ $log->website  }}
     </td>
     
     <td>
