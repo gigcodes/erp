@@ -77,8 +77,8 @@
                 <thead>
                     
                   <th style="width:7%">Flow Action</th>
-                  <th style="width:6%"> modalType </th>
-                  <th style="width:30%">leads</th>
+                  <th style="width:6%">Modal Type </th>
+                  <th style="width:30%">Leads</th>
                   <th style="width:30%">Message</th>
                   <th style="width:15%">Website</th>
                   <th style="width:10%">Date</th>

@@ -3440,9 +3440,9 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 Route::get('command', function () {
 	
-   // \Artisan::call('migrate');
+    \Artisan::call('migrate');
 	/* php artisan migrate */
-    \Artisan::call('command:schedule_emails');
-    dd("Done");
+   /* \Artisan::call('command:schedule_emails');
+    dd("Done");*/
 });
 
