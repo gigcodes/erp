@@ -132,7 +132,7 @@ class UserPayment extends Command
                 if($user->billing_frequency_day > 0) {
                     $paymentReceipt->billing_due_date = date("Y-m-d",strtotime($startsAt." +".$user->billing_frequency_day));
                 }
-                $paymentReceipt->save();
+                $paymentReceipt->saveWithoutEvents();
 
                 \Log::info('Paymemt Receipt Added - '.$paymentReceipt->id);
 

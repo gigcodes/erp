@@ -191,6 +191,7 @@
         </select>
     </div>
     <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs pull-request-history" title="Pull Request History" data-id="{{$issue->id}}"><i class="fa fa-history"></i></button>
     </td>
     <td>
         <div>

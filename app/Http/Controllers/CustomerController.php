@@ -2410,6 +2410,7 @@ class CustomerController extends Controller
                         'customer_id' => $customer->id,
                         //'rating' => 1,
                         'lead_status_id' => 3,
+                        'store_website_id' => 15,
                         //'assigned_user' => 6,
                         'product_id' => $pid,
                         'brand_id' => $product ? $product->brand : null,

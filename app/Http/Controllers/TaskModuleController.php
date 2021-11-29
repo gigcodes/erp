@@ -806,7 +806,7 @@ class TaskModuleController extends Controller
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
 
-        $issues = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
+        $issues = Task::select('tasks.*')
                         ->leftJoin('erp_priorities', function ($query) {
                             $query->on('erp_priorities.model_id', '=', 'tasks.id');
                             $query->where('erp_priorities.model_type', '=', Task::class);
@@ -815,6 +815,9 @@ class TaskModuleController extends Controller
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
                 $user_id = is_null($user_id) ? 0 : $user_id;
+                if($user_id!=0){
+                    $q->where('tasks.assign_to', $user_id)->orWhere("tasks.master_user_id", $user_id);
+                }
                 $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
             });
         } else {
@@ -825,14 +828,22 @@ class TaskModuleController extends Controller
 
         foreach ($issues as &$value) {
             $value->created_by = User::where('id', $value->assign_from)->value('name');
+            $value->created_at= \Carbon\Carbon::parse($value->created_at)->format('d-m-y H:i:s');
         }
         unset($value);
+        $viewData= view('task-module.taskpriority', compact('issues'))->render();
+
+        return response()->json([
+            'html' => $viewData,
+            
+        ], 200);
         
-        return response()->json($issues);
+      //  return response()->json($issues);
     }
 
     public function setTaskPriority(Request $request)
     {
+     //   dd($request->all());
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
         //get all user task

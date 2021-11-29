@@ -40,39 +40,49 @@ class SendIssueCredit extends Mailable
 
         $this->subject = $subject;
         $this->fromMailer = "customercare@sololuxury.co.in";
+        try {
 
-        if ($customer) {
-            if ($customer->store_website_id > 0) {
-                $emailAddress = \App\EmailAddress::where('store_website_id', $customer->store_website_id)->first();
-                if ($emailAddress) {
-                    $this->fromMailer = $emailAddress->from_address;
+            if ($customer) {
+                if ($customer->store_website_id > 0) {
+                    $emailAddress = \App\EmailAddress::where('store_website_id', $customer->store_website_id)->first();
+                    if ($emailAddress) {
+                        $this->fromMailer = $emailAddress->from_address;
+                    }
+                    $template = \App\MailinglistTemplate::getIssueCredit($customer->store_website_id);
+                } else {
+                    $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
+                    if ($emailAddress) {
+                        $this->fromMailer = $emailAddress->from_address;
+                    }
+                    $template = \App\MailinglistTemplate::getIssueCredit(null);
                 }
-                $template = \App\MailinglistTemplate::getIssueCredit($customer->store_website_id);
-            } else {
-                $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
-                if ($emailAddress) {
-                    $this->fromMailer = $emailAddress->from_address;
-                }
-                $template = \App\MailinglistTemplate::getIssueCredit(null);
-            }
-            if ($template) {
-                if ($template->from_email != '') {
-                    $this->fromMailer = $template->from_email;
-                }
+                if ($template) {
+                    if ($template->from_email != '') {
+                        $this->fromMailer = $template->from_email;
+                    }
 
-                if (!empty($template->mail_tpl)) {
-                    // need to fix the all email address
-                    $this->subject = $template->subject;
-                    return $this->subject($template->subject)
+                    if (!empty($template->mail_tpl)) {
+                        // need to fix the all email address
+                        $this->subject = $template->subject;
+                        return $this->subject($template->subject)
                         ->view($template->mail_tpl, compact(
                             'customer'
                         ));
-                }
+                    }
 
-                return false;
+                    return false;
+                }
+                return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
             }
-            return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
+        } catch (\Exception $e) {
+            $post = array(
+                'customer-id' => $customer->id,
+                'subject' => $subject,
+                'from' => $this->fromMailer,
+            );
+            \App\CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => $e->getMessage(), 'status' => 'failure']);
         }
 
     }
+    
 }

@@ -19,9 +19,9 @@
 
 <h2 class="text-center">Users List from Hubstaff </h2>
 
-<div class="container">
   @if(!empty($members))
   <div class="row">
+    <div class="col-md-12 pr-5 pl-5">
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -35,20 +35,22 @@
       @foreach($members as $member)
       <tbody>
         <tr>
-          <td>{{ $member->hubstaff_user_id }}</td>
-          <td>{{ $member->email }}</td>
+          <td style="vertical-align:middle;">{{ $member->hubstaff_user_id }}</td>
+          <td style="vertical-align:middle;">{{ $member->email }}</td>
           <td>
-            <div class="form-group">
+            <div class="form-group"style="margin-top: -10px;margin-bottom:-10px;">
               <input type="text" data-member-id="{{ $member->id }}" class="form-control change-activity-percentage" name="min_activity_percentage" value="{{ $member->min_activity_percentage }}">
             </div>
           </td>
           <td>
-            <select onchange="saveUser(this)">
-              <option value="unassigned">Unassigned</option>
-              @foreach($users as $user)
-              <option value="{{$user->id}}|{{ $member->hubstaff_user_id }}" <?= ($member->user_id == $user->id) ? 'selected' : '' ?>>{{$user->name}}</option>
-              @endforeach
-            </select>
+           <div class="form-group"style="margin-top: -10px;margin-bottom:-10px;">
+                <select onchange="saveUser(this)"class="form-control change-activity-percentage">
+                 <option value="unassigned">Unassigned</option>
+                 @foreach($users as $user)
+                 <option value="{{$user->id}}|{{ $member->hubstaff_user_id }}" <?= ($member->user_id == $user->id) ? 'selected' : '' ?>>{{$user->name}}</option>
+                 @endforeach
+                </select>
+          </div>
           </td>
 
         </tr>
@@ -58,12 +60,13 @@
     <br>
     <hr>
   </div>
+  </div>
   @else
   <div style="text-align: center;color: red;font-size: 14px;">
     {{$members['error_description']}}
   </div>
   @endif
-</div>
+
 @endsection
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
