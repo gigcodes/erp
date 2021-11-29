@@ -154,6 +154,10 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
 
+    Route::get('flow-logs', 'FlowLogController@index')->name('logging.flow.log');
+    Route::get('flow-logs-detail', 'FlowLogController@details')->name('logging.flow.detail');
+   
+
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
@@ -1118,6 +1122,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Customers
     Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/credit/logs/{id}', 'LiveChatController@customerCreditLogs');
+    Route::get('customer/credit/histories/{id}', 'LiveChatController@customerCreditHistories');
     Route::get('customer/credit-repush/{id}', 'LiveChatController@creditRepush');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
@@ -1468,6 +1473,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
+    Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
     /*Routes For Social */
     Route::any('social/get-post/page', 'SocialController@pagePost')->name('social.get-post.page');
@@ -3432,3 +3438,13 @@ Route::prefix('lead-order')->middleware('auth')->group(function () {
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+
+
+Route::get('command', function () {
+	
+   // \Artisan::call('migrate');
+	/* php artisan migrate */
+    \Artisan::call('command:schedule_emails');
+    dd("Done");
+});
+
