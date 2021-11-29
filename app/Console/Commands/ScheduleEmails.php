@@ -154,6 +154,14 @@ class ScheduleEmails extends Command
     }
 	
 	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date,$flow_log_id) {
+		FlowLogMessages::log([
+			"flow_action"=>($flowAction['type'] == 'Condition')?$flowAction['type']. "-".$flowAction['condition']:$flowAction['type'],
+			"modalType"=>$modalType,
+			"leads"=>json_encode($leads),
+			"store_website_id"=>$store_website_id,
+			"messages"=> count($leads)." founds to send message",
+			"flow_log_id"=>$flow_log_id
+			]);
 		if($flowAction['type'] == 'Send Message') {
 			$message = FlowMessage::where('action_id', $flowAction['action_id'])->first();
 			if($message != null) {
@@ -189,7 +197,7 @@ class ScheduleEmails extends Command
 								FlowLogMessages::log([
 									"flow_action"=>$flowAction['type'],
 									"modalType"=>$modalType,
-									"leads"=>json_encode($lead),
+									"leads"=>$lead['customer_email'],
 									"store_website_id"=>$store_website_id,
 									"messages"=>$bodyText,
 									"flow_log_id"=>$flow_log_id
@@ -218,7 +226,7 @@ class ScheduleEmails extends Command
 									FlowLogMessages::log([
 										"flow_action"=>$flowAction['type'],
 										"modalType"=>$modalType,
-										"leads"=>$lead->customer_name,
+										"leads"=>$lead->customer_id,
 										"store_website_id"=>$store_website_id,
 										"messages"=>$flowAction['message_title'],
 										"flow_log_id"=>$flow_log_id
