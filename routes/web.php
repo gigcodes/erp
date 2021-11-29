@@ -757,6 +757,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('order/permanentDelete/{order}', 'OrderController@permanentDelete')->name('order.permanentDelete');
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
+    Route::get('order/call-management', 'OrderController@callManagement')->name('order.call-management');
     Route::get('order/missed-calls/orders/{id}', 'OrderController@getOrdersFromMissedCalls')->name('order.getOrdersFromMissedCalls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
     Route::post('order/calls/add-status', 'OrderController@addStatus')->name('order.store.add-status');
@@ -1888,6 +1889,8 @@ Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@tw
 
 Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status')->name('change_agent_status');
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
+Route::post('twilio/add_number', 'TwilioController@addNumber')->name('add_number');
+Route::post('twilio/update_number_status', 'TwilioController@updateNumberStatus')->name('update_number_status');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
 
 Route::get(
@@ -3183,6 +3186,14 @@ Route::prefix('twillio')->middleware('auth')->group(function () {
 Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::get('/', 'LogsController@index')->name('logs.index');
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
+});
+
+//Image-Logs
+Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
+    Route::get('/', 'BroadcastController@index')->name('messages.index');
+    Route::post('preview-broadcast-numbers', 'BroadcastController@messagePreviewNumbers')->name('get-numbers');
+    Route::post('send/message', 'BroadcastController@sendMessage')->name('send-message');
+    Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
 });
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');

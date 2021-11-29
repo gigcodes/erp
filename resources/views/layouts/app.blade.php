@@ -706,6 +706,9 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" target="_blank" href="{{ route('logs.index') }}">Image Logs</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('order.call-management') }}">Call Management</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM Notifications</a>
@@ -1478,7 +1481,9 @@ if (!empty($notifications)) {
                                 </li>
                             </ul>
                         </li>
-                      
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
+                        </li>
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
