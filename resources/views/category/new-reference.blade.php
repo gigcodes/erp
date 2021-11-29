@@ -13,7 +13,7 @@
         }
 
     </style>
-    <div class="row">
+    <div class="row new-category-references">
         <div class="col-md-12">
             <h2 class="page-heading">New Category Reference ({{ $scrapped_category_mapping->total() }})</h2>
         </div>
@@ -27,51 +27,47 @@
         <div class="col-md-12">
             <form>
                 <div class="form-group col-md-2">
-                    <input type="search" name="search" class="form-control" value="{{ request('search') }}">
+                    <input type="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search">
                 </div>
-                <div class="form-group col-md-1">
+                <div class="form-group col-md-2">
                     {{ Form::select('is_skipped', ['' => '-- Select Skipped --', '0' => 'No', '1' => 'Yes'], request('is_skipped'), ['class' => 'form-control']) }}
                 </div>
-                <div class="form-group col-md-1">
+                <div class="form-group col-md-3 d-flex">
                     <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"
                         style="float: left">
                         @if (isset($users->id))
                             <option value="{{ $users->id }}" selected="selected">{{ $users->name }}</option>
                         @endif
                     </select>
-                </div>
-                <div class="form-group col-md-1">
-                    <button type="submit" class="btn btn-secondary">Search</button>
+                    <button type="submit" class="btn btn-secondary ml-4">Search</button>
                 </div>
             </form>
-            <div class="form-group small-field col-md-3">
+            <div class="form-group small-field col-md-5 d-flex change-list-categories-wrap">
                 <select class="select2 form-control change-list-categories">
                     @foreach ($categoryAll as $cat)
                         <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
                     @endforeach
                 </select>
+                <button type="button" class="btn btn-secondary update-category-selected ml-4 mr-4">Update</button>
+                {{-- START - Purpose : Display Chcekbox regarding need_to_skip_status - #DEVTASK-4143 --}}
+                @if ($need_to_skip_status == true)
+                    <div class="d-flex align-middle" style="align-items: center;"><input type="checkbox" id="show_skipeed" name="show_skipeed" class="m-0"> <label class="m-0 p-0">Show Skipped</label></div>
+                @endif
+                {{-- END - #DEVTASK-4143 --}}
             </div>
-            <div class="form-group col-md-4">
-                <button type="button" class="btn btn-secondary update-category-selected col-md-3">Update</button>&nbsp;
+        </div>
+        <div class="col-md-12">
+            <div class="col-md-6 form-group">
                 <a target="__blank" href="{{ route('category.delete.unused') }}">
                     <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
                 </a>
-
-                {{-- START - Purpose : Display Chcekbox regarding need_to_skip_status - #DEVTASK-4143 --}}
-                @if ($need_to_skip_status == true)
-                    <input type="checkbox" id="show_skipeed" name="show_skipeed"> <label>Show Skipped</label>
-                @endif
-                {{-- END - #DEVTASK-4143 --}}
-
                 <a href="{{ route('category.fix-autosuggested', request()->all()) }}" class="fix-autosuggested">
                     <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
                 </a>
-            </div>
-            <div class="form-group col-md-4">
                 <a href="{{ route('category.fix-autosuggested-via-str', request()->all()) }}"
                     class="fix-autosuggested-auto">
                     <button type="button" class="btn btn-secondary">Auto fix</button>
-                </a>
+                </a> 
                 <a href="{{ route('category.fix-autosuggested', ['show_auto_fix' => true]) }}" class="fix-autosuggested">
                     <button type="button" class="btn btn-secondary">Show auto fix</button>
                 </a>
@@ -79,10 +75,11 @@
             {{-- <div class="form-group col-md-4"> --}}
             {{-- </div> --}}
         </div>
-        <div class="col-md-12 mt-5">
+        <div class="col-md-12 pl-5 pr-5">
             <table class="table table-bordered">
                 <tr>
-                    <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
+                    <th width="3%"><input type="checkbox" class="check-all-btn"></th>
+                    <th>SN</th>
                     <th width="30%">Category</th>
                     <th width="30%">Website</th>
                     <th width="5%">Mapped</th>
@@ -105,9 +102,9 @@
                         <tr>
                             <td>
                                 <input type="checkbox" name="categories[]" value="{{ $unKnownCategory }}"
-                                    class="categories-checkbox">&nbsp;{{ $count }}
+                                    class="categories-checkbox">
                             </td>
-
+                            <td>{{ $count }}</td>
                             <td>
                                 <span class="call-used-product" data-id="{{ $unKnownCategory->name }}"
                                     data-type="name">{{ $unKnownCategory->name }}</span>
