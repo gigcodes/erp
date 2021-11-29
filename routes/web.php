@@ -154,6 +154,10 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
 
+    Route::get('flow-logs', 'FlowLogController@index')->name('logging.flow.log');
+    Route::get('flow-logs-detail', 'FlowLogController@details')->name('logging.flow.detail');
+   
+
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
@@ -753,6 +757,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('order/permanentDelete/{order}', 'OrderController@permanentDelete')->name('order.permanentDelete');
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
+    Route::get('order/call-management', 'OrderController@callManagement')->name('order.call-management');
     Route::get('order/missed-calls/orders/{id}', 'OrderController@getOrdersFromMissedCalls')->name('order.getOrdersFromMissedCalls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
     Route::post('order/calls/add-status', 'OrderController@addStatus')->name('order.store.add-status');
@@ -1118,6 +1123,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Customers
     Route::get('customer/credit', 'CustomerController@storeCredit');
     Route::get('customer/credit/logs/{id}', 'LiveChatController@customerCreditLogs');
+    Route::get('customer/credit/histories/{id}', 'LiveChatController@customerCreditHistories');
     Route::get('customer/credit-repush/{id}', 'LiveChatController@creditRepush');
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
@@ -1468,6 +1474,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
+    Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
     /*Routes For Social */
     Route::any('social/get-post/page', 'SocialController@pagePost')->name('social.get-post.page');
@@ -1882,6 +1889,8 @@ Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@tw
 
 Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status')->name('change_agent_status');
 Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
+Route::post('twilio/add_number', 'TwilioController@addNumber')->name('add_number');
+Route::post('twilio/update_number_status', 'TwilioController@updateNumberStatus')->name('update_number_status');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
 
 Route::get(
@@ -3179,6 +3188,14 @@ Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
 
+//Image-Logs
+Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
+    Route::get('/', 'BroadcastController@index')->name('messages.index');
+    Route::post('preview-broadcast-numbers', 'BroadcastController@messagePreviewNumbers')->name('get-numbers');
+    Route::post('send/message', 'BroadcastController@sendMessage')->name('send-message');
+    Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
+});
+
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
 //ReferralProgram
 Route::prefix('referralprograms')->middleware('auth')->group(function () {
@@ -3432,3 +3449,13 @@ Route::prefix('lead-order')->middleware('auth')->group(function () {
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
+
+
+Route::get('command', function () {
+	
+   // \Artisan::call('migrate');
+	/* php artisan migrate */
+    \Artisan::call('command:schedule_emails');
+    dd("Done");
+});
+

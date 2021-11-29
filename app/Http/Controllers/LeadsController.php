@@ -285,6 +285,7 @@ class LeadsController extends Controller
                     "customer_id" => $request->customer_id,
                     "product_id" => $product_id,
                     "brand_id" => $product->brand,
+                    'store_website_id' => 15,
                     "brand_segment" => !empty($product->brands->brand_segment) ? $product->brands->brand_segment : '',
                     "category_id" => $product->category,
                     "color" => $product->color,
@@ -1355,6 +1356,7 @@ class LeadsController extends Controller
         }
 
         $params["type"] = 'WHATSAPP';
+        $params["store_website_id"] = 15;
         $erpLeads = \App\ErpLeads::where("id", $id)->first();
         if (!$erpLeads) {
             $erpLeads = new \App\ErpLeads;
@@ -1422,6 +1424,8 @@ class LeadsController extends Controller
     {
         $customerIds = array_unique($request->get('customers', []));
         $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->get();
+        //Create broadcast
+        $broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         if (!empty($customerArr)) {
             $productIds = array_unique($request->get('products', []));
 
@@ -1483,6 +1487,13 @@ class LeadsController extends Controller
             foreach ($customerArr as $customer) {
                 $params['customer_id'] = $customer->id;
                 MessageQueue::create($params);
+
+                $message = [
+                    'type_id' => $customer->id,
+                    'type' => App\Customer::class,
+                    'broadcast_message_id' => $broadcast->id,
+                ];
+                $broadcastnumber = \App\BroadcastMessageNumber::create($message);
             }
         }
         $message = "Message sent successfully";
@@ -1591,6 +1602,7 @@ class LeadsController extends Controller
         $history->save();
 
         $erp_leads->lead_status_id = $request->status_id;
+        $erp_leads->store_website_id = 15;
         $erp_leads->type = 'erp-lead-status-update';
         $erp_leads->save();
 

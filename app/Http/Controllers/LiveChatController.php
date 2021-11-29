@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ChatMessage;
+use App\CreditHistory;
 use App\CreditLog;
 use App\Customer;
 use App\CustomerLiveChat;
@@ -1392,6 +1393,7 @@ class LiveChatController extends Controller
 
         $customer_id = $request->credit_customer_id;
         $credit = $request->credit;
+        $type = $request->credit_type;
         $customer = Customer::find($customer_id);
         $currency = $request->get("currency", "EUR");
         $customercurrency = !empty($customer->currency) ? $customer->currency : "EUR";
@@ -1405,8 +1407,7 @@ class LiveChatController extends Controller
         $currentcredit = \App\Currency::convert($customer->credit, $currency, $customercurrency);
 
         if ($credit < 0) {
-            $type = "MINUS";
-            if ($currentcredit == 0) {
+            if ($currentcredit == 0) {  
                 $calc_credit = $currentcredit + ($credit);
             } else {
                 $credit = str_replace('-', '', $credit);
@@ -1414,42 +1415,13 @@ class LiveChatController extends Controller
             }
 
         } else {
-            $type = "PLUS";
             $calc_credit = $currentcredit + $credit;
         }
 
-        $customer->credit = $calc_credit;
-        $customer->currency = $currency;
-        $customer->save();
+        
         if ($customer) {
-            \App\CreditHistory::create(
-                array(
-                    'customer_id' => $customer_id,
-                    'model_id' => $customer_id,
-                    'model_type' => Customer::class,
-                    'used_credit' => $credit,
-                    'used_in' => 'Added with ' . $currency,
-                    'type' => $type,
-                )
-            );
-
-            $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-
-            // $storeWebsiteOrder = $order->storeWebsiteOrder;
-            $email = Email::create([
-                'model_id' => $customer->id,
-                'model_type' => \App\Customer::class,
-                'from' => $emailClass->fromMailer,
-                'to' => $customer->email,
-                'subject' => $emailClass->subject,
-                'message' => $emailClass->render(),
-                'template' => 'issue-credit',
-                'additional_data' => '',
-                'status' => 'pre-send',
-                'store_website_id' => null,
-            ]);
-
-            \App\Jobs\SendEmail::dispatch($email);
+           
+           
             if ($customer->store_website_id != null and $customer->platform_id != null) {
                 $websiteDetails = StoreWebsite::where('id', $customer->store_website_id)->select('magento_url', 'api_token')->first();
                 if ($websiteDetails != null and $websiteDetails['magento_url'] != null and $websiteDetails['api_token'] != null and $request->credit > 0) {
@@ -1489,15 +1461,85 @@ class LiveChatController extends Controller
                         curl_close($ch);
                         $status = "failure";
                         if ($result == "[]") {
+                            $customer->credit = $calc_credit;
+                            $customer->currency = $currency;
+                            $customer->save();
+
+                            //Add history and Send mail
+                            \App\CreditHistory::create(
+                                array(
+                                    'customer_id' => $customer_id,
+                                    'model_id' => $customer_id,
+                                    'model_type' => Customer::class,
+                                    'used_credit' => $credit,
+                                    'used_in' => 'Added with ' . $currency,
+                                    'type' => $type,
+                                )
+                            );
+                
+                            $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+                
+                            if($emailClass){
+                                $email = Email::create([
+                                    'model_id' => $customer->id,
+                                    'model_type' => \App\Customer::class,
+                                    'from' => $emailClass->fromMailer,
+                                    'to' => $customer->email,
+                                    'subject' => $emailClass->subject,
+                                    'message' => $emailClass->render(),
+                                    'template' => 'issue-credit',
+                                    'additional_data' => '',
+                                    'status' => 'pre-send',
+                                    'store_website_id' => null,
+                                ]);
+                
+                                try{
+                                    \App\Jobs\SendEmail::dispatch($email);
+                                } catch (\Exception $e) {
+                                    $post = array(
+                                        'email-id' => $email->id,
+                                        'customer-id' => $customer->id,
+                                    );
+                                    CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => $e->getMessage(), 'status' => 'failure']);
+                                    return response()->json(['mail not sent', 'code' => 400, 'status' => 'error']);
+                                }
+                                
+                            }else{
+                                $post = array(
+                                    'customer-id' => $customer->id,
+                                );
+                                CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'email template not found', 'status' => 'failure']);
+                                return response()->json(['email template not found', 'code' => 400, 'status' => 'error']);
+                            }
+
                             $status = "success";
+                            CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => json_encode($result), 'status' => $status]);
+                            return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
+                        }else{
+                            CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => json_encode($result), 'status' => $status]);
+                            return response()->json([json_encode($result), 'code' => 400, 'status' => 'error']);
                         }
-                        CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => json_encode($result), 'status' => $status]);
+                        
+                    }else{
+                        $post = array(
+                            'customer-id' => $customer->id,
+                        );
+                        CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'store website and platform not found', 'status' => 'failure']);
+                        return response()->json(['store website and platform not found', 'code' => 400, 'status' => 'error']);
                     }
                 }
+            }else{
+                $post = array(
+                    'customer-id' => $customer->id,
+                );
+                CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => 'host not found', 'status' => 'failure']);
+                return response()->json(['host not found', 'code' => 400, 'status' => 'error']);
             }
 
+        }else{
+            return response()->json(['customer not found', 'code' => 400, 'status' => 'error']);
         }
-        return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
+        
     }
 
     public function customerCreditLogs($customerId)
@@ -1514,6 +1556,22 @@ class LiveChatController extends Controller
 			</tr>";
         }
         return response()->json(['data' => $creditLogs, 'code' => 200, 'status' => 'success']);
+    }
+
+    public function customerCreditHistories($customerId)
+    {
+        $histories = CreditHistory::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
+        $creditHistories = '';
+        foreach ($histories as $history) {
+            $creditHistories .= "<tr>
+			<td width='25%'>" . $history['id'] . "</td>
+			<td width='25%'>" . $history['used_credit'] . "</td>
+			<td width='25%'>" . $history['used_in'] . "</td>
+			<td width='25%'>" . $history['type'] . "</td>
+			<td width='25%'>" . $history['created_at'] . "</td>
+			</tr>";
+        }
+        return response()->json(['data' => $creditHistories, 'code' => 200, 'status' => 'success']);
     }
 
     public function getCreditsData(Request $request)
