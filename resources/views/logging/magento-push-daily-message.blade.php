@@ -23,9 +23,9 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Magento Daily Push Log</h2>
-             <div class="pull-right">
+             {{-- <div class="pull-right">
                 <a href="/logging/list-laravel-logs" type="button" class="btn btn-secondary">Magento Daily Push Log</a>
-            </div>
+            </div> --}}
 
         </div>
     </div>
