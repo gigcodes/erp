@@ -343,7 +343,15 @@ class ProductController extends Controller
         //        }
 
         if ($request->get('user_id') > 0) {
-            $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+            if ($request->get('submit_for_image_approval') == "on") {
+                $newProducts = $newProducts->leftJoin("log_list_magentos as llm", function ($join) use ($request) {
+                    $join->on("llm.product_id", "products.id")
+                    ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+                    $join->where("llm.user_id", $request->get('user_id'));
+                });
+            }else{
+                $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+            }
         }
 
         $selected_categories = $request->category ? $request->category : [1];
@@ -455,6 +463,7 @@ class ProductController extends Controller
                 'store_websites' => StoreWebsite::all(),
                 'type' => $pageType,
                 'auto_push_product' => $auto_push_product,
+                'user_id'=> ($request->get('user_id') > 0)?$request->get('user_id'):""
             ]);
         }
 
@@ -469,6 +478,7 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
+            'user_id'=> ($request->get('user_id') > 0)?$request->get('user_id'):"",
             // 'category_selection' => $category_selection,
             // 'category_search'    => $category_search,
             'term' => $term,
@@ -664,7 +674,15 @@ class ProductController extends Controller
         //        }
 
         if ($request->get('user_id') > 0) {
-            $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+            if ($request->get('submit_for_image_approval') == "on") {
+                $newProducts = $newProducts->leftJoin("log_list_magentos as llm", function ($join) use ($request) {
+                    $join->on("llm.product_id", "products.id")
+                    ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.project_id = projects.id)"));
+                    $join->where("llm.user_id", $request->get('user_id'));
+                });
+            }else{
+                 $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+            }
         }
 
         $selected_categories = $request->category ? $request->category : [1];
@@ -2793,6 +2811,7 @@ class ProductController extends Controller
                             $erp_lead->lead_status_id = 1;
                             $erp_lead->customer_id = $customerId;
                             $erp_lead->product_id = $id;
+                            $erp_lead->store_website_id = 15;
                             $erp_lead->category_id = $pr->category;
                             $erp_lead->brand_id = $pr->brand;
                             $erp_lead->type = 'attach-images-for-product';
@@ -3787,7 +3806,9 @@ class ProductController extends Controller
 
     public function productDescription(Request $request)
     {
-        $query = ProductSupplier::with('supplier', 'product');
+        $query = ProductSupplier::with('supplier', 'product')
+        ->select(["product_suppliers.*" ,"scrapers.id as scraper_id"])
+        ->join('scrapers', 'scrapers.supplier_id', 'product_suppliers.supplier_id');
         if ($request->get('product_id') != '') {
             $products = $query->where('product_id', $request->get('product_id'));
         }
@@ -3801,6 +3822,8 @@ class ProductController extends Controller
         }
         $products_count = $query->count();
         $products = $query->orderBy('product_id','DESC')->paginate(50);
+      //  dd($products);
+    
         $supplier = Supplier::all();
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);

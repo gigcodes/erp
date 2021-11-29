@@ -39,12 +39,13 @@
                             <form id="message-fiter-handler" action="{{ route('log-scraper.index') }}" method="GET">
                            
                                     <div class="row">
-                                        <div class="col-md-5.5">
+                                        <div class="col-md-3">
                                             {!! $scraperLogs->render() !!}
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2.5">
                                             <div class="form-group">
                                                 @php
+                                                //dd($requestParamData);
                                                 if(isset($customrange)){
                                                      $range = explode(' - ', $customrange);
                                                         $from = \Carbon\Carbon::parse($range[0])->format('F d, Y'); 
@@ -65,10 +66,19 @@
                                                     <option value="" >All</option>
                                                     <option value="1">External Scrapper only</option>
                                                 </select>
+                                             </div>
                                         </div>
+                                        <div class="col-md-1.5">
+                                            <div class="form-group">
+                                                <input type="text" name="sku" placeholder="Enter Sku" class="form-control" value="{{ isset($requestParamData["sku"]) ? $requestParamData["sku"] : '' }}" /> 
+                                             </div>
                                         </div>
-
-                                        <div class="col-md-2">
+                                        <div class="col-md-1.5">
+                                            <div class="form-group">
+                                                <input type="text" name="website" placeholder="Enter Website" class="form-control"  value="{{ isset($requestParamData["website"]) ? $requestParamData["website"] : '' }}"/> 
+                                             </div>
+                                        </div>
+                                        <div class="col-md-1.5">
                                             
                                             <button data-toggle="collapse" href="#pending-error-list"  class="btn btn-secondary">
                                                 Show Errors

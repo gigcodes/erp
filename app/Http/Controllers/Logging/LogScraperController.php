@@ -18,7 +18,7 @@ class LogScraperController extends Controller
         $customrange = $request->get("customrange",null);
         $from = null;
         $to  = null;
-
+    
 
         if(!empty($customrange)) {
             list($from,$to) = explode(" - ", $customrange);
@@ -78,6 +78,7 @@ class LogScraperController extends Controller
 
 
         $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        $requestParamData = request()->except(['page']);   
 
 
         // For ajax
@@ -89,7 +90,7 @@ class LogScraperController extends Controller
         }
 
 
-        return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup'));
+        return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup','requestParamData'));
 
     }
 

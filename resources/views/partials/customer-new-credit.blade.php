@@ -22,14 +22,19 @@ $statuses = \App\ticketStatuses::all();
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
                 <form id="credit_form">
                     <input type="hidden" id="credit_customer_id" name="credit_customer_id">
                     <input type="hidden" id="source_of_credit" name="source_of_credit" value="customer">
                     <div class="form-group">
                         <label for="credit" class="col-form-label">Credit:</label>
-                        <input type="text" class="form-control" name="credit" id="credit">
+                        <input type="number" min="0" class="form-control" name="credit" id="credit">
                         <span class="text-danger" id="credit_error"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="radio" class="d-inline" name="credit_type" value="PLUS" checked id="">PLUS
+                        <input type="radio" class="d-inline" name="credit_type" value="MINUS" id="">MINUS
                     </div>
                     <div class="form-group">
                         <label for="currency" class="col-form-label">Currency:</label>
@@ -85,6 +90,20 @@ $statuses = \App\ticketStatuses::all();
             $('#credit_customer_id').val($(this).attr('data-customer_id'));
         });
 
+        var inputBox = document.getElementById("credit");
+
+        var invalidChars = [
+        "-",
+        "+",
+        "e",
+        ];
+
+        inputBox.addEventListener("keydown", function(e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+        });
+
         $('#submit_credit_form').click(function (e) {
             e.preventDefault();
             if ($('#credit').val() == '') {
@@ -104,6 +123,8 @@ $statuses = \App\ticketStatuses::all();
                         alert('credit updated successfully.');
                         $('#credit_form').trigger("reset");
                         $('#create-customer-credit-modal').modal('toggle');
+                    }else{
+                        alert(data[0]);
                     }
                 }, error: function (jqXHR, exception) {
                     var msg = '';

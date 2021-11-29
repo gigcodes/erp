@@ -16,6 +16,8 @@ use App\ErpLeads;
 use Carbon\Carbon;
 use App\Mail\ScheduledEmail;
 use DB;
+use App\Loggers\FlowLog;
+use App\Loggers\FlowLogMessages;
 
 class ScheduleEmails extends Command
 {
@@ -43,6 +45,7 @@ class ScheduleEmails extends Command
         parent::__construct();
     }
 
+	public $log;
     /**
      * Execute the console command.
      *
@@ -50,17 +53,27 @@ class ScheduleEmails extends Command
      */
     public function handle()
     {
+		//dd("test");
 		$created_date = Carbon::now();
+		$modalType="";
+		$leads=[];
 		$flows = Flow::select('id', 'flow_name as name')->get();
-		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();   
+		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
+		FlowLog::log(["flow_id"=>0,"messages"=>"Flow action started to check and found total flows : ".$flows->count()]); 
+	
+		//$this->log[]="Flow action started to check and found total flows : ".$flows->count();
 		foreach($flows as $flow) {
+	
 			$flowActions =FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 			->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 			->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
             ->select('flows.store_website_id','flow_actions.id as action_id','flow_actions.time_delay','flow_actions.message_title','flow_actions.condition','flow_types.type','flow_actions.time_delay_type', 'flows.flow_name')
 			->where('flows.id', '=', $flow['id'])->whereNull('flow_paths.parent_action_id')->orderBy('flow_actions.rank', 'asc')
 			->get(); 
-			
+
+			$flowlog=FlowLog::log(["flow_id"=> $flow['id'],"messages"=>$flow["name"]. " has found total Action  : ".$flowActions->count()]); 
+
+
 			if($flowActions != null) { 
 				$i = 0;
 				$created_date = Carbon::now();
@@ -131,15 +144,16 @@ class ScheduleEmails extends Command
 					}else if($key == 0 and $flow['name'] == 'task_pr') {//
 						   $leads = [];
 						   $modalType =  DeveloperTask::class; 
-					} 
-					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date);		
+					}
+					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date,$flowlog["id"]);
+				//dd("fffff")	;	
 				}
 			}
 		}
 		
     }
 	
-	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date) {
+	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date,$flow_log_id) {
 		if($flowAction['type'] == 'Send Message') {
 			$message = FlowMessage::where('action_id', $flowAction['action_id'])->first();
 			if($message != null) {
@@ -171,6 +185,15 @@ class ScheduleEmails extends Command
 									'is_draft'     => 1,
 								];
 								Email::create($params);
+								
+								FlowLogMessages::log([
+									"flow_action"=>$flowAction['type'],
+									"modalType"=>$modalType,
+									"leads"=>json_encode($lead),
+									"store_website_id"=>$store_website_id,
+									"messages"=>$bodyText,
+									"flow_log_id"=>$flow_log_id
+									]);
 							}
 						}
 					} else if($flowAction['type'] == 'Whatsapp' || $flowAction['type'] == 'SMS') {	
@@ -192,6 +215,14 @@ class ScheduleEmails extends Command
                                        ];
 
                                     $chatMessage = \App\ChatMessage::create($insertParams);
+									FlowLogMessages::log([
+										"flow_action"=>$flowAction['type'],
+										"modalType"=>$modalType,
+										"leads"=>$lead->customer_name,
+										"store_website_id"=>$store_website_id,
+										"messages"=>$flowAction['message_title'],
+										"flow_log_id"=>$flow_log_id
+										]);
 						}
 					}  else if($flowAction['type'] == 'Condition') {
 							if($flowAction['condition'] == 'customer has ordered before') {
@@ -218,7 +249,7 @@ class ScheduleEmails extends Command
 										->groupBy('orders.customer_id')->having(DB::raw('count(*)'), 1)->get(); 
 									}
 									foreach($flowActiosnNew as $flowActionNew) {
-										$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date);
+										$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date,$flow_log_id);
 									}									
 								}
 							} elseif($flowAction['condition'] == 'check_if_pr_merged') {
@@ -241,7 +272,7 @@ class ScheduleEmails extends Command
 											
 									} 
 									foreach($flowActiosnNew as $flowActionNew) {
-										$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date);
+										$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date,$flow_log_id);
 									}	
 								}
 							} elseif($flowAction['condition'] == 'check_scrapper_error_logs') { 								$leads = [];
@@ -266,7 +297,7 @@ class ScheduleEmails extends Command
 									
 									
 									foreach($flowActiosnNew as $flowActionNew) {
-										$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date);
+										$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date,$flow_log_id);
 									}	
 								}
 							}
