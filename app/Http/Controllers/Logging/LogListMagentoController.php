@@ -1017,6 +1017,7 @@ class LogListMagentoController extends Controller
         $logListMagentos = \App\Loggers\LogListMagento::orderBy('log_list_magentos.created_at', 'DESC')
             ->selectRaw('COUNT(`product_id`) as count,store_website_id,DATE(log_list_magentos.created_at) as dateonly')
             ->where('log_list_magentos.created_at', '>', now()->subDays(30)->endOfDay())
+            ->where('log_list_magentos.sync_status', 'success')
             ->groupBy(['store_website_id','dateonly'])
             ->get()->toArray();
         $websites = \App\Loggers\LogListMagento::distinct('store_website_id')->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')->pluck('sw.title','store_website_id')->toArray();
