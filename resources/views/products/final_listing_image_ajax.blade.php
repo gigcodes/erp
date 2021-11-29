@@ -70,6 +70,7 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                             All Rejected - Re Crop for this website
                                                         @endif
                                                     </button>
+                                                    Last Approved By : {{isset($users_list[$product->last_approve_user])?$users_list[$product->last_approve_user]:""}}
                                                 </div>   
                                             </div>
                                             @php
