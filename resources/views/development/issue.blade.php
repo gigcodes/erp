@@ -165,11 +165,13 @@
     @include("development.partials.development-reminder-modal")
 @endsection
 @section('scripts')
-    <script src="/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="/js/jquery-ui.js"></script>
-    <script src="/js/jquery.jscroll.min.js"></script>
-    <script src="/js/bootstrap-multiselect.min.js"></script>
-    <script src="/js/bootstrap-filestyle.min.js"></script>
+
+    <script src="{{env('APP_URL')}}/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
+    <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+
     <script>
         $(document).ready(function () {
 
@@ -374,18 +376,18 @@
                     selected_issue: selected_issue,
                 },
                 success: function (response) {
-                    var html = '';
-                    response.forEach(function (issue) {
-                        html += '<tr>';
-                        html += '<td><input type="hidden" name="priority[]" value="' + issue.id + '">' + issue.id + '</td>';
-                        html += '<td>' + issue.module + '</td>';
-                        html += '<td>' + issue.subject + '</td>';
-                        html += '<td>' + issue.task + '</td>';
-                        html += '<td>' + issue.submitted_by + '</td>';
-                        html += '<td><a href="javascript:;" class="delete_priority" data-id="' + issue.id + '">Remove<a></td>';
-                        html += '</tr>';
-                    });
-                    $(".show_issue_priority").html(html);
+                    // var html = '';
+                    // response.forEach(function (issue) {
+                    //     html += '<tr>';
+                    //     html += '<td><input type="hidden" name="priority[]" value="' + issue.id + '">' + issue.id + '</td>';
+                    //     html += '<td>' + issue.module + '</td>';
+                    //     html += '<td>' + issue.subject + '</td>';
+                    //     html += '<td>' + issue.task + '</td>';
+                    //     html += '<td>' + issue.submitted_by + '</td>';
+                    //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + issue.id + '">Remove<a></td>';
+                    //     html += '</tr>';
+                    // });
+                    $(".show_issue_priority").html(response.html);
                     <?php if (auth()->user()->isAdmin()) { ?>
                     $(".show_issue_priority").sortable();
                     <?php } ?>
@@ -403,7 +405,9 @@
         });
         $('.priority_model_btn').click(function () {
             $("#priority_user_id").val('');
-            $(".show_task_priority").html('');
+            $("#sel_user_id").val('0');
+
+            $(".show_issue_priority").html('');
             <?php if (auth()->user()->isAdmin()) { ?>
                 $("#priority_user_id").show();
                 getPriorityTaskList($('#priority_user_id').val());
@@ -415,6 +419,7 @@
         });
 
         $('#priority_user_id').change(function () {
+            $("#sel_user_id").val($(this).val());
             getPriorityTaskList($(this).val())
         });
 

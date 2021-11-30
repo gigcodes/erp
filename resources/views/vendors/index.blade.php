@@ -432,6 +432,10 @@
                 <form id="send_message" method="POST">
                     <div class="modal-body">
                         <div class="form-group">
+                            <strong>Name</strong>
+                            <input name="name" id="name" autocomplete="off" type="text" class="form-control"/>
+                        </div>
+                        <div class="form-group">
                             <strong>Message</strong>
                             <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
                         </div>
@@ -1462,6 +1466,11 @@ $(document).on('click', '.expand-row-msg', function () {
             return false;
         }
 
+        if ($("#send_message").find("#name").val() == "") {
+            alert('Please type name ');
+            return false;
+        }
+
         if ($("#send_message").find("#message_to_all_field").val() == "") {
             alert('Please type message ');
             return false;
@@ -1473,6 +1482,7 @@ $(document).on('click', '.expand-row-msg', function () {
             data: {
                 _token: "{{ csrf_token() }}",
                 message: $("#send_message").find("#message_to_all_field").val(),
+                name: $("#send_message").find("#name").val(),
                 vendors: vendors
             },
             dataType:"json",

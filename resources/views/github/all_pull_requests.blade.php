@@ -12,6 +12,7 @@
         });
     });
 
+
     function confirmMergeToMaster(branchName, url) {
         let result = confirm("Are you sure you want to merge " + branchName + " to master?");
         if (result) {

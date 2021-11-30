@@ -1053,11 +1053,13 @@
                                 <div class="col-md-8">
                                     <div class="form-group">
                                         @if(auth()->user()->isAdmin())
-                                            <select class="form-control" name="user_id" id="priority_user_id">
+                                            <select class="form-control"  id="priority_user_id">
+                                                <option value="0">Select User</option>
                                                 @foreach ($users as $id => $name)
                                                     <option value="{{ $id }}">{{ $name }}</option>
                                                 @endforeach
                                             </select>
+                                            <input type="hidden" name="user_id" value="" id="sel_user_id"/>
                                         @else
                                             {{auth()->user()->name}}
                                         @endif
@@ -1083,7 +1085,9 @@
                                     <tr>
                                         <th width="1%">ID</th>
                                         <th width="15%">Subject</th>
-                                        <th width="69%">Task</th>
+                                        <th width="40%">Task</th>
+                                        <th width="20%">Communication</th>
+                                        <th width="9%">Date</th>
                                         <th width="5%">Submitted By</th>
                                         <th width="2%">Action</th>
                                     </tr>
@@ -1153,15 +1157,15 @@
         <div class="modal-content">
         	<div class="modal-body">
     			<div class="col-md-12">
-	        		<table class="table table-bordered" style="table-layout: fixed">
+	        		<table class="table table-bordered">
 					    <thead>
 					      <tr>
-					        <th style="width: 5%;">Sl no</th>
+					        <th style="width:1%;">No</th>
 					        <th style=" width: 30%">Files</th>
-					        <th style="word-break: break-all; width: 40%">Send to</th>
-					        <th style="width: 10%">User</th>
-					        <th style="width: 10%">Created at</th>
-                            <th style="width: 15%">Action</th>
+					        <th style="word-break: break-all; width:12%">Send to</th>
+					        <th style="width: 1%;">User</th>
+					        <th style="width: 11%">Created at</th>
+                            <th style="width: 6%">Action</th>
 					      </tr>
 					    </thead>
 					    <tbody class="task-image-list-view">
@@ -1288,7 +1292,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 
-    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script src=" {{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -1493,17 +1497,21 @@
                         selected_issue: selected_issue,
                     },
                     success: function (response) {
-                        var html = '';
-                        response.forEach(function (task) {
-                            html += '<tr>';
-                            html += '<td><input type="hidden" name="priority[]" value="' + task.id + '">' + task.id + '</td>';
-                            html += '<td>' + task.task_subject + '</td>';
-                            html += '<td>' + task.task_details + '</td>';
-                            html += '<td>' + task.created_by + '</td>';
-                            html += '<td><a href="javascript:;" class="delete_priority" data-id="' + task.id + '">Remove<a></td>';
-                            html += '</tr>';
-                        });
-                        $(".show_task_priority").html(html);
+                      
+                 
+                        // var html = '';
+                        // response.forEach(function (task) {
+                            
+                        //     html += '<tr>';
+                        //     html += '<td><input type="hidden" name="priority[]" value="' + task.id + '">' + task.id + '</td>';
+                        //     html += '<td>' + task.task_subject + '</td>';
+                        //     html += '<td>' + task.task_details + '</td>';
+                        //     html += '<td>' + task.created_at + '</td>';
+                        //     html += '<td>' + task.created_by + '</td>';
+                        //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + task.id + '">Remove<a></td>';
+                        //     html += '</tr>';
+                        // });
+                        $(".show_task_priority").html(response.html);
                         <?php if (auth()->user()->isAdmin()) { ?>
                         $(".show_task_priority").sortable();
                         <?php } ?>
@@ -1522,6 +1530,7 @@
 
             $('.priority_model_btn').click(function () {
                 $("#priority_user_id").val('0');
+                $("#sel_user_id").val('0');
                 $(".show_task_priority").html('');
                 <?php if (auth()->user()->isAdmin()) { ?>
                 getPriorityTaskList($('#priority_user_id').val());
@@ -1533,10 +1542,14 @@
 
 
             $('#priority_user_id').change(function () {
+                $("#sel_user_id").val($(this).val());
                 getPriorityTaskList($(this).val())
+
             });
 
             $(document).on('submit', '#priorityForm', function (e) {
+                console.log( $(this).serialize());
+              //  return false;
                 e.preventDefault();
                 <?php if (auth()->user()->isAdmin()) { ?>
                 $.ajax({
@@ -1544,8 +1557,9 @@
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function (response) {
-                        toastr['success']('Priority successfully update!!', 'success');
-                        $('#priority_model').modal('hide');
+                        return false;
+                  //      toastr['success']('Priority successfully update!!', 'success');
+                    //    $('#priority_model').modal('hide');
                     },
                     error: function () {
                         alert('There was error loading priority task list data');
@@ -1923,12 +1937,17 @@
         });
 
         $(document).on('click', '.send-message', function () {
+           
             var thiss = $(this);
             var data = new FormData();
             var task_id = $(this).data('taskid');
             // var message = $(this).siblings('input').val();
-            var message = $('#getMsg'+task_id).val();
-
+            if($(this).hasClass("onpriority")){
+                var message = $('#getMsgPopup'+task_id).val();
+            }else{
+                var message = $('#getMsg'+task_id).val();
+            }
+            alert(message)
             data.append("task_id", task_id);
             data.append("message", message);
             data.append("status", 1);
@@ -1936,7 +1955,8 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: '/whatsapp/sendMessage/task',
+                      //  url: '/whatsapp/sendMessage/task',
+                        url: "{{ route('whatsapp.send','task')}}",
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,

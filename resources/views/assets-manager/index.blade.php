@@ -105,6 +105,7 @@
                         <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$asset->id}}">
                           <i class="fa fa-history"></i>
                         </button>
+                        
                 </td>
               </tr>
             @endforeach

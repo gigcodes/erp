@@ -13,7 +13,7 @@
     @include('partials.flash_messages')
 
     <div class="row mb-3">
-        <div class="col-xs-12">
+        <div class="col-xs-12 pl-5">
             <form class="form-search-data">
                 <div class="row">
                     <div class="col-xs-12 col-md-3 pd-2">
@@ -62,11 +62,11 @@
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th width="5%">ID</th>
+            <th width="2%">ID</th>
 			      <th width="9%">Username</th>
             <th width="9%">Password</th>
-            <th width="10%">Rec Phone</th>
-            <th width="10%">Rec Email</th>
+            <th width="7%">Rec Phone</th>
+            <th width="7%">Rec Email</th>
             <th width="5%">Driver</th>
             <th width="8%">Host</th>
             <th width="5%">Port</th>

@@ -114,10 +114,9 @@
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Charity Info ({{ $totalVendor }})</h2>
-            <div class="pull-left cls_filter_box">
+            <div class="pull-left cls_filter_box charity-custom">
                 <form class="form-inline" action="{{ route('customer.charity') }}" method="GET">
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Name</label>
+                    <div class="form-group ml-3 cls_filter_inputbox"style="width:175px;">
                         <select name="term" type="text" class="form-control" placeholder="Search" id="charity-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
@@ -126,8 +125,7 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Email</label>
+                    <div class="form-group ml-3 cls_filter_inputbox"style="width:175px;">
                         <select name="email" type="text" class="form-control" placeholder="Search" id="charity-email" data-allow-clear="true">
                             <?php
                                 if (request()->get('email')) {
@@ -136,8 +134,7 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Phone Number</label>
+                    <div class="form-group ml-3 cls_filter_inputbox"style="width:175px;">
                         <select name="phone" type="text" class="form-control" placeholder="Search" id="charity-phone-number" data-allow-clear="true">
                             <?php
                                 if (request()->get('phone')) {
@@ -146,44 +143,41 @@
                             ?>
                         </select>
                     </div> 
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    <label for="with_archived">Communication History</label>
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px; width:175px;">
                        <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Status</label>
+                    <div class="form-group ml-3 cls_filter_inputbox"style="width:175px;">
                         <?php echo Form::select("status",[
                             "" => "- Select -",
                             "0" => "De-Active",
                             "1" => "Active"
                         ],request('status'),["class"=> "form-control"]) ?>
                     </div> 
-                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <button type="submit" style="padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
+                  <div class="pull-right"> 
+                      <button type="button" class="btn btn-secondary create-charity" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
+                 </div>
             </div>
         </div>
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-3"> 
-                <button type="button" class="btn btn-secondary create-charity" data-toggle="modal" data-target="#charityCreateModal">Create Charity</button>
-            </div>
-        </div>   
+          
     </div>
     @include('partials.flash_messages') 
-    <div class="infinite-scroll">
+    <div class="infinite-scroll charity-custom-table">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%"><a href="/products/customer/charity{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="7%">Product</th>
-                <th width="7%">Phone</th>
-                <th width="7%">Email</th>
-                <th width="7%">Store Website</th>
+                <th width="3%"><a href="/products/customer/charity{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
+                <th width="10%">Product</th>
+                <th width="10%">Phone</th>
+                <th width="15%">Email</th>
+                <th width="8%">Store Website</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
                 <th width="25%">Communication</th>
-                <th width="15%">Action</th>
+                <th width="10%">Action</th>
             </tr>
             </thead>
             <tbody id="vendor-body">

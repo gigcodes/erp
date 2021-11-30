@@ -293,6 +293,7 @@ class WhatsAppController extends FindByNumberController
                                                     'lead_status_id' => 3,
                                                     //'assigned_user' => 6,
                                                     'product_id' => $pid,
+                                                    'store_website_id' => 15,
                                                     'brand_id' => $product ? $product->brand : null,
                                                     'category_id' => $product ? $product->category : null,
                                                     'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
@@ -379,6 +380,7 @@ class WhatsAppController extends FindByNumberController
 
                     $lead = \App\ErpLeads::create([
                         'customer_id' => $customer->id,
+                        'store_website_id' => 15,
                         //'client_name' => $from,
                         //'contactno' => $from,
                         //'rating' => 2,
@@ -814,6 +816,7 @@ class WhatsAppController extends FindByNumberController
                                                 'customer_id' => $customer->id,
                                                 //'rating' => 1,
                                                 'lead_status_id' => 3,
+                                                'store_website_id' => 15,
                                                 //'assigned_user' => 6,
                                                 'product_id' => $pid,
                                                 'type' => 'whatsapp-incoming-message-new',
@@ -902,6 +905,7 @@ class WhatsAppController extends FindByNumberController
 
                     $lead = \App\ErpLeads::create([
                         'customer_id' => $customer->id,
+                        'store_website_id' => 15,
                         //'client_name' => $from,
                         //'contactno' => $from,
                         //'rating' => 2,
@@ -2048,7 +2052,7 @@ class WhatsAppController extends FindByNumberController
             if (Auth::user()->isAdmin()) {
                 $u_id = $request->user_id;
             }
-            $data['user_id'] = Auth::id();
+            $data['user_id'] = $u_id;
             $data['sent_to_user_id'] = $u_id;
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
             $module_id = $u_id;

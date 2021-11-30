@@ -44,8 +44,7 @@ function scraper_restart_list
 			then
 				server=`echo $status|cut -d' ' -f1`
 				pid=`echo $status|cut -d' ' -f2`
-				pid2=`ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "ps -ef|grep $pid|grep chromium|grep -v grep|tr -s ' '|cut -d' ' -f2" < /dev/null`
-				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid $pid2" < /dev/null
+				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "pkill -9 -P $pid ; kill -9 $pid" < /dev/null
 				sed -i "/$scrap/d" /opt/scrap_status
 				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-start-$datetime
 			fi

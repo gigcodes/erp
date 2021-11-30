@@ -11005,9 +11005,6 @@ td.title p {
 }
 /******** Rejected page Ankaj css End here *********/
 
-input,select[type=text]{
-  width: 20%;
-}
 .custom-form .select2-container{
     width: 100% !important;
 }
@@ -11081,7 +11078,7 @@ input,select[type=text]{
 }
 #loghistory .modal-dialog {
     max-width: 100%;
-    width: 1200px;
+    width: 800px;
 
 }
 #logdatacounter .modal-dialog{
@@ -11192,6 +11189,25 @@ table.table-striped-custom tbody tr td {
     width: 15px;
 }
 
+
+/* ------ 01-11-2021 ----- */
+.customer-chat-list td{
+    vertical-align: middle !important;
+}
+.customer-chat-list  td.cls_remove {
+    display: flex;
+    align-items: center;
+}
+.customer-chat-list td.cls_remove .quick {
+    display: inline-block;
+}
+.customer-chat-list .row.cls_quick_reply_box {
+    width: 100%;
+}
+.customer-chat-list .typing-indicator{
+    padding: 0;
+}
+
 .custom-table td:nth-child(2){
     white-space: nowrap;
     overflow: hidden;
@@ -11199,9 +11215,11 @@ table.table-striped-custom tbody tr td {
 }
   .add-invoice{
     display:flex;
+    align-items: center;
 }
 .currency-box{
     display: flex;
+    align-items: center;
 }
 .currency-box input{
     width: 30%;
@@ -11209,8 +11227,15 @@ table.table-striped-custom tbody tr td {
 .shiping input{
     width: 40;
 }
-.shiping,.select{
+.purchaseproductorders-list .shiping,.select{
     display: flex;
+    align-items: center;
+}
+.purchaseproductorders-list tbody i{
+    color: grey;
+}
+.purchaseproductorders-list tbody tr{
+    color: #323030;
 }
 
 .purchase-order-table .product-name div div{
@@ -11243,3 +11268,105 @@ table.table-striped-custom tbody tr td {
     max-width: 100%;
 }
 
+.url-logo.log-scrapper{
+        table-layout: fixed;
+        padding-left:15px;
+        padding-right:15px;
+}
+.log-scrapper .cotton-td{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.log-scrapper .view-more{
+  overflow: hidden;
+    white-space: nowrap;
+}
+.log-scrapper .row .table-m{
+    margin: 0;
+}
+.log-scrapper.table-striped.url-logo td{
+ vertical-align:middle;
+}
+.log-scrapper .btn.btn-primary{
+    color:#fff;
+    background-color: #333;
+    border-color:#333;
+}
+.log-scrapper .cotton-td a{
+    color: #333;
+}
+
+#loghistory tbody td:nth-child(2){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#loghistory table{
+    table-layout: fixed;
+}
+#history .modal-dialog {
+    width: 800px;
+    max-width: 800PX;
+}
+.creat-stutush{
+    display: flex;
+    justify-content: space-around;
+}
+
+#history .modal-dialog table{
+    table-layout: fixed;
+}
+#history .modal-dialog tbody td:nth-child(2){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.charity-custom .form-inline{
+    width: 100%;
+}
+.charity-custom .form-inline label{
+    justify-content: flex-start;
+    margin-bottom: 5px;
+}
+.charity-custom-table td{
+    vertical-align: middle !important;
+}
+#preview-task-image .modal-dialog.modal-lg{
+    max-width: 100%;
+    width:1200px; 
+}
+#preview-task-image .modal-dialog.modal-lg tbody tr td:nth-child(2) span{
+    height: 44px;
+    display: flex;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.btn.btn-image{
+    margin-top:-6px;
+}
+.cashflow-table .form-search-data .form-group{
+        margin-bottom: 1rem !important;
+}
+.cashflow-table .voucher a{
+    color: #333;
+}
+
+.new-category-references .change-list-categories-wrap .select2-container--default{
+}
+
+.new-category-references .change-list-categories-wrap .select2-container--default{
+    width: 350px !important;
+}
+.devtask-com{
+    display: flex;
+    justify-content: space-between;
+}
+.color-gray{
+    color: #808080;
+}
+.purchaseproductorders-list tr td{
+    vertical-align: middle !important;
+}

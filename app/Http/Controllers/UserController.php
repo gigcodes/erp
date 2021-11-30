@@ -660,7 +660,7 @@ class UserController extends Controller
     {
         $q = $request->input('q');
 
-        $results = User::select('id', 'name')
+        $results = User::select('id', 'name','name AS text')
             ->orWhere('name', 'LIKE', '%' . $q . '%')
             ->offset(0)
             ->limit(15)
