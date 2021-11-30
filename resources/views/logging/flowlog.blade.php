@@ -24,7 +24,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Flow Logs</h2>
              <div class="pull-right">
-                <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a>
+                {{-- <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a> --}}
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
             </div>
 
@@ -44,17 +44,17 @@
                 <th width="10%">Action</th>
             </tr>
             <tr>
-                
+                <th style="width:7%"></th>
                 <th width="10%"><input type="text" name="flow_name" class="search form-control" id="flow_name"></th>
                 <th width="10%"><input type="text"  name="message" class="search form-control" id="message"></th>
-                <th> <div class='input-group' id='log-created-date'>
+                <th> <div class='input-group' id='log-created-date1'>
                         <input type='text' class="form-control " name="created_at" value="" placeholder="Date" id="created-date" />
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
                 </th>
-                <th width="10%"><input type="text" class="search form-control" id="action"></th>
+                <th></th>
             </tr>
             </thead>
 
@@ -285,12 +285,13 @@
         source: function(request, response) {
             message = $('#message').val();
             flow_name = $('#flow_name').val();
-         
+            created_at = $('#created_date').val();
             
            $.ajax({
                 url: src,
                 dataType: "json",
                 data: {
+                    created_at : created_at,
                     message : message,
                     flow_name : flow_name,
                  

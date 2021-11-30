@@ -164,7 +164,7 @@ class ScheduleEmails extends Command
 		FlowLogMessages::log([
 			"flow_action" => ($flowAction['type'] == 'Condition') ? $flowAction['type'] . "-" . $flowAction['condition'] : $flowAction['type'],
 			"modalType" => $modalType,
-			"leads" => json_encode($leads),
+			"leads" => "",
 			"store_website_id" => $store_website_id,
 			"messages" => count($leads) . " founds to send message",
 			"flow_log_id" => $flow_log_id,
@@ -172,6 +172,7 @@ class ScheduleEmails extends Command
 		]);
 		if ($flowAction['type'] == 'Send Message') {
 			$message = FlowMessage::where('action_id', $flowAction['action_id'])->first();
+			
 			if ($message != null) {
 				foreach ($leads as $lead) {
 					if ($message['mail_tpl'] != '') {
@@ -212,6 +213,17 @@ class ScheduleEmails extends Command
 						"scraper_id" => $scraper_id
 					]);
 				}
+			}
+			else{
+				FlowLogMessages::log([
+					"flow_action" => $flowAction['type'],
+					"modalType" => $modalType,
+					"leads" => "",
+					"store_website_id" => $store_website_id,
+					"messages" => "flow Message is not found for - ".$flowAction['action_id'],
+					"flow_log_id" => $flow_log_id,
+					"scraper_id" => $scraper_id
+				]);
 			}
 		} else if ($flowAction['type'] == 'Whatsapp' || $flowAction['type'] == 'SMS') {
 			$messageApplicationId = '';
