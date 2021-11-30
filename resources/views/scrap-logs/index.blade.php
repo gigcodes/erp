@@ -68,7 +68,7 @@
 		</div>
 
 		<div class="col-lg-2 text-rights">
-			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#logdatastatus">MAp Log Status</button>
+			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#logdatastatus">Map Log Status</button>
 		</div>
 
 
@@ -175,7 +175,7 @@
         </div>
     </div>
 	<div id="logdatastatus" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    	   <div class="modal-dialog" role="document">
+    	   <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Log Data Status</h4>
