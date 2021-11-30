@@ -1457,6 +1457,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
+  
     Route::get('development/pull/history', 'DevelopmentController@getPullHistory')->name('development/pull/history');
 
     /*Routes For Social */
