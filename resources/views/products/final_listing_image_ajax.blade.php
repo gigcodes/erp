@@ -71,6 +71,11 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                         @endif
                                                     </button>
                                                     Last Approved By : {{isset($users_list[$product->last_approve_user])?$users_list[$product->last_approve_user]:""}}
+                                                    @if($request["rejected_image_approval"] =="on" )
+                                                   
+                                                    Rejected By :  {{isset($users_list[$product->rejected_user_id])?$users_list[$product->rejected_user_id]:""}}
+                                                    Rejected Time : {{isset($product->rejected_date)?$product->rejected_date:""}}
+                                                    @endif
                                                 </div>   
                                             </div>
                                             @php

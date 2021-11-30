@@ -269,7 +269,7 @@
                     </div>
                     <div class="col-sm-2">
                         <div class="form-group">
-                            <select class="form-control select-multiple" name="user_id" id="user_id"
+                            <select class="form-control" name="user_id" id="user_id1"
                                     data-placeholder="Select user">
                                 <option></option>
                                 @foreach($users as $user)
@@ -299,12 +299,11 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
+                    <div class="col-sm-1">                        <div class="form-group">
                             <?php echo Form::select("store_website_id",[null => "-- None --"] + \App\StoreWebsite::listMagentoSite(),request('store_website_id'),["class" => "form-control"]); ?>
                         </div>
                     </div>
-                    <div class="col-sm-1.5">
+                    <div class="col-sm-1">
                         <div class="form-group">
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
@@ -312,11 +311,19 @@
                             @endif
                         </div>
                     </div>
-                    <div class="col-sm-1.5">
+                    <div class="col-sm-1">
                         <div class="form-group">
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
                                 <lable for="submit_for_image_approval pr-3">Submit For Image approval ?</lable>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-sm-1.5">
+                        <div class="form-group">
+                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                                <?php echo Form::checkbox("rejected_image_approval", "on", (bool)(request('rejected_image_approval') == "on"), ["class" => ""]); ?>
+                                <lable for="rejected_image_approval pr-3">Rejected Image Approval ?</lable>
                             @endif
                         </div>
                     </div>
@@ -543,6 +550,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 
     <script type="text/javascript">
+         $(document).ready(function() {
+            
+            $("#user_id1").select2({
+                ajax: {
+                    url: '/user-search',
+                    dataType: 'json',
+                    //   delay: 200,
+                    data: function(params) {
+                        return {
+                            q: params.term, // search term
+                        };
+                    },
+                    processResults: function(data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data,
+                            pagination: {
+                                more: (params.page * 30) < data.total_count
+                            }
+                        };
+                    },
+                },
+                placeholder: "Select User",
+                allowClear: true,
+                minimumInputLength: 2,
+                width: '100%',
+
+
+            });
+        });
         var categoryJson = <?php echo json_encode($category_array); ?>;
         $(document).on('change', '.category_level_1', function () {
             var this_ = $(this);
