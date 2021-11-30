@@ -141,7 +141,7 @@
     </div>
     <div id="logdatacounter" class="modal fade" role="dialog">
     	   <div class="modal-dialog">
-            <div class="modal-content" style="width:111%">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Log Data</h4>
                 </div>
@@ -413,11 +413,12 @@
       	})
       	.done(response => {
       		$("#loading-image").hide();
-      		var html = '<table class="table table-bordered table-striped"><thead><tr><td>Scraper name</td><td>Log Message</td><td>Log count</td></thead><tbody>';
+      		var html = '<table class="table table-bordered table-striped"><thead><tr><th style="width: 20%;">Scraper nameee</th><th>Log Message</th><th style="width: 8%;">Log count</th></thead><tbody>';
       		 $.each(response, function (key) {
       				html += '<tr><td>' + response[key]['scraper_name'] + '</td><td>'+ response[key]['remark'] + '</td><td>' + response[key]['log_count'] + '</td>';
       		 });
-      		$("#logdatacounter .modal-body table tbody").html(html);
+      		 html += "</tbody></table>";
+      		$("#logdatacounter .modal-body").html(html);
       	});
 	});
 </script> 
