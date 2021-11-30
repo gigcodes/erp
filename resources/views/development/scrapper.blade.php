@@ -74,6 +74,7 @@
                             <th scope="col" class="text-center">Task</th>
                             <th scope="col" class="text-center">Assigned To</th>
                             <th scope="col" class="text-center">Status</th>
+                            <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-center task_queue_list">
@@ -98,6 +99,10 @@
                                 <td>
 									{{ $issue->status}}
 								</td>
+                                <td>
+                                    <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $issue->scraper_id}}"><i class="fa fa-eye"></i></button>
+                         
+                                </td>
 							</tr>
                         @endforeach
                     </tbody>
@@ -105,6 +110,37 @@
 			{{$issues->links()}}
         </div>
     </div>     
+    <div id="ErrorLogModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Flow Log Detail</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                    
+                  <th style="width:7%">Flow Action</th>
+                  <th style="width:6%"> Modal Type </th>
+                  <th style="width:30%">Leads</th>
+                  <th style="width:30%">Message</th>
+                  <th style="width:15%">Website</th>
+                  <th style="width:10%">Date</th>
+                </thead>
+                <tbody class="error-log-data">
+    
+                </tbody>
+              </table>
+    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
 @endsection
 @section('scripts')
    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -118,5 +154,22 @@
     $(full).toggleClass('hidden');
     $(mini).toggleClass('hidden');
   });
+  $(document).on("click", ".show_error_logs", function() {
+    var id = $(this).data('id');
+        $.ajax({
+            method: "GET",
+            url: "{{ route('logging.flow.detail') }}" ,
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "scraper_id" : id,
+            },
+            dataType: 'html'
+            })
+        .done(function(result) {
+            $('#ErrorLogModal').modal('show');
+            $('.error-log-data').html(result);
+    });
+
+});
     </script>
 @endsection

@@ -58,9 +58,12 @@ class FlowLogController extends Controller
         return view('logging.flowlog', compact('logs'));
     }
     public function details(Request $request){
-
-        $messageLogs = FlowLogMessages::where('flow_log_id', $request->id)
-        ->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')
+        if(isset($request->id)){
+            $messageLogs = FlowLogMessages::where('flow_log_id', $request->id);
+        }else if(isset($request->scraper_id)){
+            $messageLogs = FlowLogMessages::where('scraper_id', $request->scraper_id);
+        }
+        $messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')
         ->select('flow_log_messages.*','sw.website as website')->get();
         return view('logging.partials.flow_detail_data', compact('messageLogs'));
 
