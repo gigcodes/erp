@@ -133,7 +133,7 @@ class DocumentController extends Controller
             $data[ 'filename' ] = $file->getClientOriginalName();
             $data[ 'file_contents' ] = $file->openFile()->fread($file->getSize());
 
-            //$file->storeAs("documents", $data[ 'filename' ], 'files');
+            $file->storeAs("documents", $data[ 'filename' ], 'files');
 
             Document::create($data);
         }
@@ -144,6 +144,24 @@ class DocumentController extends Controller
     public function download($id)
     {
         $document = Document::find($id);
+
+        if(!empty($document->file_contents)) {
+
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->buffer($document->file_contents);
+
+            return response($document->file_contents)
+        ->header('Cache-Control', 'no-cache private')
+        ->header('Content-Description', 'File Transfer')
+        ->header('Content-Type', $mime)
+        ->header('Content-length', strlen($document->file_contents))
+        ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
+        ->header('Content-Transfer-Encoding', 'binary');
+
+            /*return response()->make($document->file_contents, 200, array(
+                'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($document->file_contents)
+            ));*/
+        }
 
         return Storage::disk('files')->download('documents/' . $document->filename);
     }
@@ -209,6 +227,7 @@ class DocumentController extends Controller
 
     public function sendEmailBulk(Request $request)
     {
+     //   dd($request->all());
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -228,12 +247,13 @@ class DocumentController extends Controller
                 $file_paths[] = "documents/$filename";
             }
         }
-
+       
         $document = Document::findOrFail($request->document_id);
 
         if ($document) {
             $file_paths[] = "documents/$document->filename";
         }
+    
 
         $cc = $bcc = [];
         if ($request->has('cc')) {
@@ -241,8 +261,9 @@ class DocumentController extends Controller
         }
         if ($request->has('bcc')) {
             $bcc = array_values(array_filter($request->bcc));
-        }
-
+        }   
+       // dd($request->document_id);
+      
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
@@ -455,6 +476,7 @@ class DocumentController extends Controller
         $document->version = ($document->version + 1);
         $file = $request->file('files');
         $document->filename = $file->getClientOriginalName();
+        $document->file_contents =  $file->openFile()->fread($file->getSize());
         $file->storeAs("documents", $document->filename, 'files');
         $document->save();
 

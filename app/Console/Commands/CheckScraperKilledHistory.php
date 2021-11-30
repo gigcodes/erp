@@ -39,7 +39,7 @@ class CheckScraperKilledHistory extends Command
      */
     public function handle()
     {
-
+        \Log::info("Command has been started");
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now(),
@@ -50,13 +50,16 @@ class CheckScraperKilledHistory extends Command
         $data = file_get_contents($path);
         $output = explode('.js', $data);
 
+        \Log::info(print_r(["got this out for kill histoyr",$output],true));
 
         if (count($output) > 0) {
             foreach ($output as $_data) {
                 $scraper_name = trim($_data);
+                \Log::info("Found this scraper name ".$scraper_name);
                 if ($scraper_name) {
                     $scrapers = \App\Scraper::where("scraper_name", $scraper_name)->get();
                     if ($scrapers) {
+                        \Log::info("record found this scraper name ".$scraper_name);
                         foreach ($scrapers as $_scrap) {
                             $status = \App\ScraperKilledHistory::create([
                                 "scraper_id" => $_scrap->id,
@@ -69,6 +72,8 @@ class CheckScraperKilledHistory extends Command
 
             }
         }
+
+        \Log::info("Job end to finish");
 
         $report->update(['end_time' => Carbon::now()]);
 

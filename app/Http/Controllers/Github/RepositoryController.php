@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Github;
 
 use App\DeveloperTask;
+use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
 use App\Helpers\githubTrait;
@@ -191,7 +192,7 @@ class RepositoryController extends Controller
         return  DeveloperTask::find($devTaskId);
     }
 
-    private function updateDevTask($branchName){
+    private function updateDevTask($branchName,$pull_request_id){
         $devTask = $this->findDeveloperTask($branchName);//DeveloperTask::find($devTaskId);
         
         \Log::info('updateDevTask call '.$branchName);
@@ -211,6 +212,14 @@ class RepositoryController extends Controller
 
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
 $devTask->update(['is_pr_merged'=>1]);
+
+                    $request = new DeveoperTaskPullRequestMerge;
+                    $request->task_id = $devTask->id;
+                    $request->pull_request_id = $pull_request_id;
+                    $request->user_id = auth()->user()->id;
+                    $request->save();
+
+
                 //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
                 \Log::info('updateDevTask ::'. $e->getMessage());
@@ -222,12 +231,15 @@ $devTask->update(['is_pr_merged'=>1]);
             $devTask->save();
         }
     }
-
+   
     public function mergeBranch($id)
     {
+        
         $source = Input::get('source');
         $destination = Input::get('destination');
-
+        $pull_request_id =Input::get('task_id');
+       
+   
         $url = "https://api.github.com/repositories/" . $id . "/merges";
 
         try {
@@ -247,9 +259,11 @@ $devTask->update(['is_pr_merged'=>1]);
             } else if ($destination == 'master') {
                 $this->updateBranchState($id, $source);
             }
+            
 
             \Log::info('updateDevTask calling...'.$source);
-            $this->updateDevTask($source);
+            $this->updateDevTask($source,$pull_request_id);
+       
 
             // Deploy branch
             $repository = GithubRepository::find($id);

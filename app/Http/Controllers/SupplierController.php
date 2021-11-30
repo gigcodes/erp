@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Brand;
 use App\Category;
 use App\ChatMessage;
+use App\BroadcastMessage;
+use App\BroadcastMessageNumber;
 use App\Email;
 use App\Helpers;
 use App\Mail\PurchaseEmail;
@@ -1807,6 +1809,9 @@ class SupplierController extends Controller
         // return $request->all();
         $suppliers = Supplier::whereIn('id', $request->suppliers)->get();
         $params = [];
+        $message = [];
+        //Create broadcast
+        $broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         if (count($suppliers)) {
             foreach ($suppliers as $key => $item) {
                 $params = [
@@ -1816,7 +1821,13 @@ class SupplierController extends Controller
                     'user_id' => Auth::id(),
                     'status' => 1,
                 ];
+                $message = [
+                    'type_id' => $item->id,
+                    'type' => App\Supplier::class,
+                    'broadcast_message_id' => $broadcast->id,
+                ];
                 $chat_message = ChatMessage::create($params);
+                $broadcastnumber = \App\BroadcastMessageNumber::create($message);
                 $approveRequest = new Request();
                 $approveRequest->setMethod('GET');
                 $approveRequest->request->add(['messageId' => $chat_message->id]);

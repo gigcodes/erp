@@ -23,6 +23,8 @@ use App\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Document;
+
 
 class ChatMessagesController extends Controller
 {
@@ -33,6 +35,7 @@ class ChatMessagesController extends Controller
      */
     public function loadMoreMessages(Request $request)
     {
+       
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -95,8 +98,10 @@ class ChatMessagesController extends Controller
             //END - DEVTASK-4020
             case 'SOP':
                 $object = User::find($request->object_id);
-
+            case 'document' :
+                $object = Document::find($request->object_id);
                 break;
+               
             default:
                 $object = Customer::find($request->object);
         }

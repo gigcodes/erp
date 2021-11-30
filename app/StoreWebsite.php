@@ -125,6 +125,11 @@ class StoreWebsite extends Model
         return $url;
     }
 
+    public function storeWebsiteProductPrice()
+    {
+        return $this->hasOne(\App\StoreWebsiteProductPrice::class, "store_website_id", "id");
+    }
+
     /**
      * Get store brand
      */

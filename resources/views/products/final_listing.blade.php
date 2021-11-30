@@ -273,7 +273,7 @@
                                     data-placeholder="Select user">
                                 <option></option>
                                 @foreach($users as $user)
-                                    <option value="{{$user->id}}">{{ $user->name }}</option>
+                                    <option {{ isset($user_id) && $user_id == $user->id ? 'selected' : ''  }} value="{{$user->id}}">{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -289,7 +289,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                         <div class="form-group">
                             <select class="form-control select-multiple" name="crop_status"
                                     data-placeholder="Select cropped images">
@@ -304,11 +304,19 @@
                             <?php echo Form::select("store_website_id",[null => "-- None --"] + \App\StoreWebsite::listMagentoSite(),request('store_website_id'),["class" => "form-control"]); ?>
                         </div>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-1.5">
                         <div class="form-group">
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
                                 <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-sm-1.5">
+                        <div class="form-group">
+                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                                <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
+                                <lable for="submit_for_image_approval pr-3">Submit For Image approval ?</lable>
                             @endif
                         </div>
                     </div>
@@ -331,8 +339,8 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_start_date" />
-                        <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="crop_end_date" />
+                        <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
+                        <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
                         <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                             <!-- <i class="fa fa-calendar"></i>&nbsp;
                             <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
@@ -2093,6 +2101,28 @@
                 //alert('Could not update status');
             });
 
+        });
+
+        $(document).on("change",".change-category-product",function() {
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: "/products/change-category",
+                data: {
+                    product_id : $this.data("product-id"),
+                    category_id : $this.val()
+                },
+                dataType : "json"
+            }).done(function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'Success')
+                }else{
+                    toastr['error'](response.message, 'Success')
+                }
+
+            }).fail(function (response) {
+                //alert('Could not update status');
+            });
         });
 
         function changeordervalue(mid,pid,v)

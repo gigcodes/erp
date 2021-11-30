@@ -255,24 +255,24 @@
             <form name="twlio_key_option_form" class="twlio_key_option_form">
             @csrf
             <div class="modal-body">
-
+                 <div class="website-pag mb-2">
                 <strong>Store Website:</strong>
-                <select class="form-control store_website_twilio_key mb-5" name="store_website_twilio_key">
+                <select class="form-control store_website_twilio_key "style="width: 60% !important; margin-left:10px;" name="store_website_twilio_key">
                     <option value="">Select</option>
                     @foreach($store_websites as $key => $value)
                         <option value="{{$value->id}}" >{{$value->website}}</option>
                     @endforeach
                 </select>
-
+                </div>
                 <div class="table-responsive store_website_twilio_key_data d-none">
                     <table class="table table-bordered table-hover" style="table-layout:fixed;">
                         <thead>
                         <tr>
                             <th scope="col" width="10%" class="text-center">Key</th>
                             <th scope="col" width="20%">Option</th>
-                            <th scope="col" width="30%">Description</th>
-                            <th scope="col" width="30%">Message</th>
-                            <th scope="col" width="10%"></th>
+                            <th scope="col" width="60%">Description</th>
+                            <th scope="col" width="60%">Message</th>
+                            <th scope="col" width="16%"></th>
                         </tr>
                         </thead>
                         <tbody class="twilio_key_ajax_data">

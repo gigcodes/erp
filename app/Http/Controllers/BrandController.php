@@ -87,6 +87,7 @@ class BrandController extends Controller
         ->groupBy("brands.id")
         ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
 
+
         $keyword = request('keyword');
         if (!empty($keyWord)) {
             $brands->where(function ($q) use ($keyWord) {
