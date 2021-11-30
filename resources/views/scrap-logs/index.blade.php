@@ -52,7 +52,7 @@
 			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
 		</div>
 		<div class="col-lg-2 text-rights">
-			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatastatus" data-target="#logdatastatus">Log Status</button>
+			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#logdatastatus">MAp Log Status</button>
 		</div>
 	</div>
 	<div class="mt-3 col-md-12">
@@ -141,25 +141,38 @@
             </div>
         </div>
     </div>
-	<div id="logdatastatus" class="modal fade" role="dialog">
-    	   <div class="modal-dialog">
+	<div id="logdatastatus" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    	   <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Log Data Status</h4>
                 </div>
                 <div class="modal-body">
                 	<table class="table table-bordered table-striped">
-                	<thead>
-					<tr>
-						<td>Date</td>
-						<td>Log Message</td>
-						<td>Status</td>
-					</thead>
-				    <tbody>
-						@foreach($scrapLogs as $scrapLog) 
-						
-						@endforeach
-					</tbody>
+						<thead>
+							<tr>
+								<th width="70%">Log Message</th>
+								<th width="30%">Status</th>
+							</tr>
+						</thead>
+						<tbody> 
+							@foreach($scrapLogsStatus as $scrapLogStatus) 
+								<tr>
+									<td width="70%"> {{$scrapLogStatus['log_message']}} </td>
+									<td width="30%"> 
+										@if($scrapLogStatus['status'] != "" and $scrapLogStatus['status'] != null)
+											{{$scrapLogStatus['status']}}
+										@else 
+											<select name="status" id='log_status_{{$scrapLogStatus["id"]}}' onchange='saveStatus({{$scrapLogStatus["id"]}})'>
+												<option value="">Select Status</option>
+												<option value="success">Success</option>
+												<option value="error">Error</option>
+											</select>
+										@endif
+									</td>
+								</tr>
+							@endforeach
+						</tbody>
                 	</table>
                 </div>
             </div>
@@ -246,6 +259,25 @@
 @section('scripts')
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script>
+  function saveStatus(log_status_id) {
+	  var log_status = $('#log_status_'+log_status_id).val();
+	  if(log_status == '') {
+		  alert('Select status');
+		  return false;
+	  }
+	  $.ajax({
+				url: BASE_URL+"/scrap-logs/status/save",
+				method:"post",
+				headers: {
+				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data:{'id':log_status_id, "log_status":log_status},
+				cache: false,
+				success: function(data) {
+						window.location.reload();
+				}
+			});
+  }
 	$(document).ready(function() 
 	{
 		tableData(BASE_URL);
@@ -273,7 +305,7 @@
 				cache: false,
 				success: function(data) {
 						console.log(data)
-						$("tbody").empty();
+						$("#log-table tbody").empty();
 						$.each(data.file_list, function(i,row){
 							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button></td></tr>");
 						});

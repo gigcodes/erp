@@ -18,9 +18,16 @@ class ScrapLogsController extends Controller
     	->whereNotNull('scrap_type')
     	->groupBy('scrap_type','log_messages')
     	->get(); */
-		$scrapLogs = [];
-		return view('scrap-logs.index',compact('name','servers', 'scrapLogs'));
+		
+		$scrapLogsStatus =  \App\LogMessageStatus::all();
+		return view('scrap-logs.index',compact('name','servers', 'scrapLogsStatus'));
     }
+
+	public function updateLogStatus(Request $request) {
+		$input = $request->input();
+		\App\LogMessageStatus::where('id', $input['id'])->update(['status'=>$input['log_status']]);
+		return 'success';
+	}
 
 	public function filter($searchVal, $dateVal, Request $request) 
     { 
@@ -51,7 +58,7 @@ class ScrapLogsController extends Controller
 		
 		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
-
+		
 	   $date = $dateVal;
 
         $lines = [];
@@ -59,18 +66,17 @@ class ScrapLogsController extends Controller
 		$status_lists = DB::table('scrapper_log_status')->get();
 		
         foreach ($files as $key => $val) {
-			
-            $day_of_file = explode('-', $val->getFilename());
+			$day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
-			
-            if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-				
+		
+           if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				if (!in_array($val->getRelativepath(), $serverArray)) {
-					continue;
+					//continue;
 				}
 
-				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				
+				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				//$file_path_new = storage_path(config('env.SCRAP_LOGS_FOLDER'))."/".$val->getRelativepath()."/".$val->getFilename();
 
 				$file = file($file_path_new);
 				
@@ -100,15 +106,18 @@ class ScrapLogsController extends Controller
 				if($log_msg == "") {
 					$log_msg = "Log data not found.";	
 				}
+				$logStatus = \App\LogMessageStatus::firstOrCreate(['log_message'=>$log_msg], ['log_message'=>$log_msg]);
 				
                 array_push($file_list, array(
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
 	        			"log_msg"=>$log_msg,
-	        			"status"=>$log_status,
+	        		//	"status"=>$log_status,
+	        			"status"=>$logStatus['status'],
 	        			"scraper_id"=>$file_name_str
 	    			)
 	    		);
+				
 			}
 		}
 

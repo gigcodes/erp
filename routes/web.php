@@ -2754,6 +2754,7 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('scrap-logs', 'ScrapLogsController@index');
+    Route::post('scrap-logs/status/save', 'ScrapLogsController@updateLogStatus');
     Route::get('scrap-logs/log-data','ScrapLogsController@logdata')->name('scrap.logdata');
     Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
     Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
