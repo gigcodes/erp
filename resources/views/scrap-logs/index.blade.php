@@ -51,6 +51,9 @@
 		<div class="col-lg-2 text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
 		</div>
+		<div class="col-lg-2 text-rights">
+			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatastatus" data-target="#logdatastatus">Log Status</button>
+		</div>
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -133,6 +136,30 @@
                 	<table class="table table-bordered table-striped">
                 	<thead></thead>
 				    <tbody></tbody>
+                	</table>
+                </div>
+            </div>
+        </div>
+    </div>
+	<div id="logdatastatus" class="modal fade" role="dialog">
+    	   <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Data Status</h4>
+                </div>
+                <div class="modal-body">
+                	<table class="table table-bordered table-striped">
+                	<thead>
+					<tr>
+						<td>Date</td>
+						<td>Log Message</td>
+						<td>Status</td>
+					</thead>
+				    <tbody>
+						@foreach($scrapLogs as $scrapLog) 
+						
+						@endforeach
+					</tbody>
                 	</table>
                 </div>
             </div>

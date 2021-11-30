@@ -14,7 +14,12 @@ class ScrapLogsController extends Controller
     {	
 		$name = "";
 		$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
-		return view('scrap-logs.index',compact('name','servers'));
+		/*$scrapLogs = \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
+    	->whereNotNull('scrap_type')
+    	->groupBy('scrap_type','log_messages')
+    	->get(); */
+		$scrapLogs = [];
+		return view('scrap-logs.index',compact('name','servers', 'scrapLogs'));
     }
 
 	public function filter($searchVal, $dateVal, Request $request) 
@@ -220,6 +225,7 @@ class ScrapLogsController extends Controller
 		$fileLogs = \App\ScrapLog::where('scrap_type',$log->scrap_type)->whereBetween('created_at',[$fromDate, $toDate])->get();
 		return $fileLogs;
     }
+	
     public function fetchlog()
     {
     	$file_list = [];
