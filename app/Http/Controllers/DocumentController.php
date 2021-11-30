@@ -227,6 +227,7 @@ class DocumentController extends Controller
 
     public function sendEmailBulk(Request $request)
     {
+     //   dd($request->all());
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -246,12 +247,13 @@ class DocumentController extends Controller
                 $file_paths[] = "documents/$filename";
             }
         }
-
+       
         $document = Document::findOrFail($request->document_id);
 
         if ($document) {
             $file_paths[] = "documents/$document->filename";
         }
+    
 
         $cc = $bcc = [];
         if ($request->has('cc')) {
@@ -259,8 +261,9 @@ class DocumentController extends Controller
         }
         if ($request->has('bcc')) {
             $bcc = array_values(array_filter($request->bcc));
-        }
-
+        }   
+       // dd($request->document_id);
+      
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);

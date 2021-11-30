@@ -43,7 +43,10 @@ class DocumentEmail extends Mailable
 
         if (count($this->file_paths) > 0) {
             foreach ($this->file_paths as $file_path) {
-                $email->attachFromStorageDisk('files', $file_path);
+                $path=storage_path('app/files/'.$file_path);
+                if(file_exists($path)){
+                    $email->attach($path);
+               }
             }
         }
 
