@@ -162,6 +162,19 @@ class SizeController extends Controller
         return view('size.reference', compact('sizes', 'unknownSizes'));
     }
 
+    public function newSizeReferences(Request $request)
+    {
+        $sizes = \App\SizeAndErpSize::all();
+        $erpSizes = \App\SystemSizeManager::select('id', 'erp_size')->get();
+        return view('size.new-reference', compact('sizes', 'erpSizes'));
+    }
+
+	public function updateNewSizeReferences(Request $request){
+		$inputs = $request->input();
+		\App\SizeAndErpSize::where('id', $input['id'])->update(['erp_size_id'=>$inputs['erp_size_id']]);
+		return response()->json(["code" => 200, "data" => 'Its changed']);
+	}
+
     public function referenceAdd(Request $request)
     {
         $size = UnknownSize::where('size',$request->from)->first();

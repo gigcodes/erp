@@ -572,7 +572,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/references/chamge', 'SizeController@referenceAdd');
     Route::get('sizes/affected-product', 'SizeController@affectedProduct');
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
-
+	Route::get('sizes/new-references', 'SizeController@newSizeReferences');
+	Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
     Route::resource('category', 'CategoryController');
     Route::resource('category-segment', 'CategorySegmentController');
 
