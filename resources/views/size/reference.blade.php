@@ -16,7 +16,7 @@
         <h2 class="page-heading">Sizes Reference ({{ $unknownSizes->total() }})</h2>
     </div>
     <div class="col-md-12">
-        <form>
+       <!--   <form>
             <div class="form-group col-md-3">
                 <input type="search" name="search" class="form-control" value="{{ request('search') }}">
             </div>
@@ -24,7 +24,7 @@
                 <button type="submit" class="btn btn-secondary">Search</button>
             </div>
         </form>
-<!--         <div class="form-group small-field col-md-3">
+       <div class="form-group small-field col-md-3">
             <select class="select2 form-control change-list-categories">
                 @foreach($sizes as $size)
                     <option value="{{ $size->id }}">{{ $size->name }}</option>
