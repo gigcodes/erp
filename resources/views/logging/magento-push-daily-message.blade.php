@@ -37,7 +37,10 @@
             <thead>
                 <th width="{{100/$count}}">Date</th>
                 @foreach ($websites as $key => $val)
-                    <th width="{{100/$count}}">{{ $val }}--{{$key}}</th>
+                    @if ($val!="")
+                        <th width="{{100/$count}}">{{ $val }}</th>
+                    @endif
+                   
                 @endforeach
             </tr>
             </thead>
@@ -47,7 +50,9 @@
                 <tr>
                     <td>{{$r_key}}</td>
                         @foreach ($websites as $key => $val)
-                            <td>{{ (isset($res[$key])) ? $res[$key] : 0 }} 
+                            @if ($val!="")
+                                  <td>{{ (isset($res[$key])) ? $res[$key] : 0 }} 
+                            @endif
                         @endforeach
                 
                     
