@@ -56,7 +56,6 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                 <td>
                     
                     <div class="row"> 
-                        
                             @if(!$websiteList->isEmpty())
                                 @foreach($websiteList as $index => $site)
                                     <div class="col-md-12" productid="{{ $product->id }}">
