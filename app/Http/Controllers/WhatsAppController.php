@@ -2648,9 +2648,9 @@ class WhatsAppController extends FindByNumberController
                             DocumentSendHistory::create($history);
 
                             //Sending Document
-                            $this->sendWithThirdApi($user->phone, $request->whatsapp_number, '', $document_url, $chat_message->id, '');
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, '', $document_url, $chat_message->id, '');
                             //Sending Text
-                            $this->sendWithThirdApi($user->phone, $request->whatsapp_number, $request->message, '', $chat_message->id, '');
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message, '', $chat_message->id, '');
                         }
 
                         //Getting Vendor For Sending Documents
@@ -2675,9 +2675,9 @@ class WhatsAppController extends FindByNumberController
                             DocumentSendHistory::create($history);
 
                             //Sending Document
-                            $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, '', $document_url, $chat_message->id, '');
+                            $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, '', $document_url, $chat_message->id, '');
                             //Sending Text
-                            $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, $request->message, '', $chat_message->id, '');
+                            $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $request->message, '', $chat_message->id, '');
                         }
 
                         //Getting Contact For Sending Documents
