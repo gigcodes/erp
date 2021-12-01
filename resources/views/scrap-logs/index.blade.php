@@ -303,6 +303,9 @@
 	  </div>
 	 </div>
 </div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @endsection
 
 @section('scripts')
@@ -317,13 +320,17 @@
 	  $.ajax({
 				url: BASE_URL+"/scrap-logs/status/save",
 				method:"post",
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
 				headers: {
-				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				},
 				data:{'id':log_status_id, "log_status":log_status},
 				cache: false,
 				success: function(data) {
-						window.location.reload();
+					 $("#loading-image").hide();
+					toastr['success']('Products updated successfully', 'success');
 				}
 			});
   }
