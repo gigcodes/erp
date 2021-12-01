@@ -42,7 +42,7 @@ class FlowLogController extends Controller
         } else {
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs     = FlowLog::orderby('updated_at', 'desc')->select(['flow_logs.*','flows.flow_name'])
+            $logs     = FlowLog::orderby('created_at', 'desc')->select(['flow_logs.*','flows.flow_name'])
             ->join('flows','flows.id','flow_logs.flow_id')->paginate($paginate);
 
         }
