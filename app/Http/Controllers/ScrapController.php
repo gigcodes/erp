@@ -460,6 +460,31 @@ class ScrapController extends Controller
         ]);
     }
 
+	public function storeUnknownSizes(Request $request) {
+		$statusId = \App\Helpers\StatusHelper::$unknownSize;
+		$products = Product::where('status_id', $statusId)->select('id', 'size', 'supplier_id')->get();
+		foreach($products as $product) {
+			$size_system = ScrapedProducts::where('product_id', $product->id)->pluck('size_system')->first();
+			$systemSizeId = \App\SystemSize::where('name', $size_system )->pluck('id')->first();
+			$sizes = explode(',', $product['size']);
+			foreach($sizes as $size) {
+				$erp_sizeFound = \App\SizeAndErpSize::where(['size'=>$size])->first();
+				if($erp_sizeFound == null) {
+					 \App\SizeAndErpSize::updateOrCreate(['size'=>$size, 'system_size_id'=>$systemSizeId], ['size'=>$size, 'system_size_id'=>$systemSizeId]);
+				} else if($erp_sizeFound['erp_size_id'] != null) {
+					 $erp_size = SystemSizeManager::where('id', $erp_sizeFound['erp_size_id'])->pluck('erp_size')->first();
+						 
+					 \App\ProductSizes::updateOrCreate([
+						 'product_id' => $product->id, 'supplier_id' => $product->supplier_id, 'size' => $erp_size,
+					  ], [
+						 'product_id' => $product->id, 'quantity' => 1, 'supplier_id' => $product->supplier_id, 'size' => $erp_size,
+					 ]);
+				}
+			}
+		}
+		return redirect(url('/'));
+	}
+	
     public function saveScrapperRequest($scrap_details, $errorLog)
     {
         try {
