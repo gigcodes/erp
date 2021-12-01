@@ -171,7 +171,7 @@ class SizeController extends Controller
 
 	public function updateNewSizeReferences(Request $request){
 		$inputs = $request->input();
-		\App\SizeAndErpSize::where('id', $input['id'])->update(['erp_size_id'=>$inputs['erp_size_id']]);
+		\App\SizeAndErpSize::where('id', $inputs['id'])->update(['erp_size_id'=>$inputs['erp_size_id']]);
 		return response()->json(["code" => 200, "data" => 'Its changed']);
 	}
 
