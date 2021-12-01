@@ -39,6 +39,7 @@ Route::get('/test/analytics', 'AnalyticsController@cronShowData');
 Route::get('/test/analytics-user', 'AnalyticsController@cronGetUserShowData')->name('test.google.analytics');
 
 Route::get('/test/dhl', 'TmpTaskController@test');
+Route::get('/store/unknown/sizes', 'ScrapController@storeUnknownSizes');
 
 Route::middleware('auth')->group(function () {
     Route::get('discount-sale-price', 'DiscountSalePriceController@index');

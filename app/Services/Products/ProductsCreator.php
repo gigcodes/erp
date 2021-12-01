@@ -206,7 +206,8 @@ class ProductsCreator
 					foreach($sizes as $size) {
 						$erp_sizeFound = \App\SizeAndErpSize::where(['size'=>$size, 'system_size_id'=>$image->size_system])->first();
 						if($erp_sizeFound == null) {
-							 \App\SizeAndErpSize::create(['size'=>$size, 'system_size_id'=>$image->size_system]);
+							$systemSizeId = \App\SystemSize::where('id', $image->size_system)->pluck('id')->first();
+							 \App\SizeAndErpSize::create(['size'=>$size, 'system_size_id'=>$systemSizeId]);
 						} else if($erp_sizeFound['erp_size_id'] != null) {
 							$erp_size = SystemSizeManager::where('id', $erp_sizeFound['erp_size_id'])->pluck('erp_size')->first();
 							\App\ProductSizes::updateOrCreate([
