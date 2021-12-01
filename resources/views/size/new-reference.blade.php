@@ -51,9 +51,10 @@
 						<span class="call-used-product">{{ $size->size }}</span> 
 					</td>
                     <td>
-						<select class="select2 form-control change-list-size" id="{{ $size->id }}">
+						<select class="select2 form-control change-list-size" data-id="{{ $size->id }}">
+							<option value="">- Select-</option>
                             @foreach($erpSizes as $erpSize)
-                                <option value="{{ $erpSize->id }}">{{ $erpSize->erp_size }}</option>
+                                <option value="{{ $erpSize->id }}" @if($size->erp_size_id == $erpSize->id) selected @endif>{{ $erpSize->erp_size }}</option>
                             @endforeach
                         </select>
                    </td>
@@ -83,6 +84,9 @@
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
+					headers: {
+						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					},
                     data: {
                         id : $this.data("id"),
                         erp_size_id : $this.val()
