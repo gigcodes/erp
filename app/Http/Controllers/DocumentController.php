@@ -531,7 +531,7 @@ class DocumentController extends Controller
 
         } elseif ($request->selected == 2) {
 
-            $vendors = Vendor::select('id', 'name')->get();
+            $vendors = Vendor::select('id', 'name','email')->get();
 
             $output = '';
 
