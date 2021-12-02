@@ -12,6 +12,13 @@ class BroadcastController extends Controller
     {
         $inputs = $request->input();
         $data = \App\BroadcastMessage::with('numbers');
+
+        //Suppliers
+        $suppliers = \App\Supplier::all();
+        //Vendors
+        $vendors = \App\Vendor::all();
+        //Customers
+        $customers = \App\Customer::all();
         
         if(@$inputs['name']){
             $data->where('name','like','%'.$inputs['name'].'%');
@@ -25,7 +32,7 @@ class BroadcastController extends Controller
 
         $data = $data->paginate(15);
 
-        return view('broadcast-messages.index', compact('data','inputs'));
+        return view('broadcast-messages.index', compact('data','inputs','suppliers','customers','vendors'));
     }
 
     public function deleteMessage(Request $request)
@@ -34,6 +41,14 @@ class BroadcastController extends Controller
         $deleted = \App\BroadcastMessage::where('id', $ID)->delete();
 
         return response()->json(['code' => 200, 'message' => 'Message deleted successfully']);
+    }
+
+    public function deleteType(Request $request)
+    {
+        $ID = $request->id;
+        $deleted = \App\BroadcastMessageNumber::where('id', $ID)->delete();
+
+        return response()->json(['code' => 200, 'message' => 'Type deleted successfully']);
     }
 
     public function messagePreviewNumbers(Request $request)
@@ -127,6 +142,40 @@ class BroadcastController extends Controller
         // return $params;
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
+    }
+
+    public function sendType(Request $request)
+    {
+        if ($request->all()) {
+            if(count($request->values)){
+                    foreach($request->values as $_value){
+                        if($request->type == 'vendor'){
+                            $message = [
+                                'type_id' => $_value,
+                                'type' => App\Vendor::class,
+                                'broadcast_message_id' => $request->id,
+                            ];
+                            $broadcastnumber = \App\BroadcastMessageNumber::create($message);
+                        }elseif($request->type == 'supplier'){
+                            $message = [
+                                'type_id' => $_value,
+                                'type' => App\Supplier::class,
+                                'broadcast_message_id' => $request->id,
+                            ];
+                            $broadcastnumber = \App\BroadcastMessageNumber::create($message);
+                        }else{
+                            $message = [
+                                'type_id' => $_value,
+                                'type' => ErpCustomer::class,
+                                'broadcast_message_id' => $request->id,
+                            ];
+                            $broadcastnumber = \App\BroadcastMessageNumber::create($message);
+                        }
+                    }
+                }
+
+            }
+        return response()->json(["code" => 200, "data" => [], "message" => "Data added successfully"]);
     }
 
 }
