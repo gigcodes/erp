@@ -3197,7 +3197,9 @@ Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::get('/', 'BroadcastController@index')->name('messages.index');
     Route::post('preview-broadcast-numbers', 'BroadcastController@messagePreviewNumbers')->name('get-numbers');
     Route::post('send/message', 'BroadcastController@sendMessage')->name('send-message');
+    Route::post('send/type', 'BroadcastController@sendType')->name('send-type');
     Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
+    Route::post('delete/type', 'BroadcastController@deleteType')->name('delete.type');
 });
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
