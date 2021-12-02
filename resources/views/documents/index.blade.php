@@ -386,6 +386,7 @@
                                 $('.user_select_id').html(data);
                                 $('.user_select_id').multiselect('rebuild');
 
+
                             }
                         })
                     }
@@ -397,7 +398,21 @@
                 includeSelectAllOption: true,
                 enableFiltering: true,
                 enableCaseInsensitiveFiltering: true,
+                onChange: function(option, checked) {
+                    if (checked) {
+
+                        var html = "<input type='text' class='form-control' id = 'selected_email_"+$(option).val()+"'  name='selected_email_"+$(option).val()+"' value='"+$(option).attr('rel')+"'/>";
+                        $("#selected_emails").append(html);
+                     }
+                     else {
+                         console.log("#selected_email_"+$(option).val());
+                         $("#selected_email_"+$(option).val()).remove();
+                        //console.log($(option).attr('rel'));
+                     }
+                   // alert("testsss");
+                }
             });
+           
         });
 
         // cc

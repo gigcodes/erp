@@ -27,6 +27,9 @@
                             <select class="user_select_id" name="users[]" multiple class="form-control">
                             </select>
                         </div>
+                        <div class="form-group" id="selected_emails">
+                            
+                        </div>
                     </div>
                     <input type="hidden" name="document_id" id="document_email_id">
 
