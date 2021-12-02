@@ -15,6 +15,10 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        .select2-container{
+            float:left;
+            width:100%!important;
+        }
     </style>
 @endsection
 
@@ -81,7 +85,7 @@
                 <th style="">ID</th>
                 <th style="">Name</th>
                 <th style="">Created Date</th>
-                <th style="">Action</th>
+                <th style="width:550px">Action</th>
             </thead>
             <tbody>
             @foreach($data as $key=>$value)
@@ -93,6 +97,9 @@
                         <a class="btn btn-secondary create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true"></i></a>
                         <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
+                        <a class="btn btn-secondary add_type" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Suppliers</a>
+                        <a class="btn btn-secondary add_type" data-type="vendor" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Vendors</a>
+                        <a class="btn btn-secondary add_type" data-type="customer" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Customers</a>
                     </td>
                 </tr>
             @endforeach
@@ -135,6 +142,58 @@
 	</div>
 </div>
 
+<div id="add_type" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form id="send_type" method="POST">
+                <input type="hidden" name="id" id="tid" value="">
+                <input type="hidden" name="type" id="type" value="">
+				<div class="modal-body">
+					<div class="form-group" id="suppliers">
+						<select name="suppliers" class="form-control" multiple id="supp">
+                            @if($suppliers)
+                                @foreach($suppliers as $_supplier)
+                                <option value="{{$_supplier->id}}">{{$_supplier->supplier}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+					</div>
+                    <div class="form-group" id="vendors">
+						<select name="vendors" multiple id="ven">
+                            @if($vendors)
+                                @foreach($vendors as $_vendor)
+                                <option value="{{$_vendor->id}}">{{$_vendor->name}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+					</div>
+                    <div class="form-group" id="customers">
+						<select name="customers" multiple id="cust">
+                            @if($customers)
+                                @foreach($customers as $_customer)
+                                <option value="{{$_customer->id}}">{{$_customer->name}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+					</div>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-secondary">Submit</button>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
 
 <div id="previewSendMailsModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -156,6 +215,7 @@
                    <th>Message Id</th>
                    <th>Type Id</th>
                    <th>Type</th>
+                   <th>Action</th>
                    </tr>
                  </thead>
                  <tbody class="product-items-list">
@@ -208,6 +268,37 @@
             $("#bid").val(id);
             $("#create_broadcast").modal("show");
         }); 
+
+        $("#suppliers").hide();
+        $("#vendors").hide();
+        $("#customers").hide();
+
+        $("#supp").select2();
+        $("#ven").select2();
+        $("#cust").select2();
+        $(document).on('click', '.add_type', function () {
+            var id = $(this).data("message-id");
+            var type = $(this).data("type");
+            $("#tid").val(id);
+            $("#type").val(type);
+            if(type=='supplier'){
+                $("#add_type .modal-title").text('Select Suppliers');
+                $("#suppliers").show();
+                $("#customers").hide();
+                $("#vendors").hide();
+            }else if(type=='vendor'){
+                $("#add_type .modal-title").text('Select Vendors');
+                $("#vendors").show();
+                $("#customers").hide();
+                $("#suppliers").hide();
+            }else{
+                $("#add_type .modal-title").text('Select Customers');
+                $("#customers").show();
+                $("#suppliers").hide();
+                $("#vendors").hide();
+            }
+            $("#add_type").modal("show");
+        }); 
         
         $("#send_message").submit(function (e) {
             e.preventDefault();
@@ -241,6 +332,48 @@
             });
         });
 
+        $("#send_type").submit(function (e) {
+            e.preventDefault();
+            var type = $("#send_type").find("#type").val();
+            if(type=='supplier'){
+                if($('#supp').val()==''){
+                    alert('Please select supplier');
+                    return false;
+                }
+                var allvalues = $('#supp').val();
+            }else if(type=='vendor'){
+                if($('#ven').val()==''){
+                    alert('Please select vendor');
+                    return false;
+                }
+                var allvalues = $('#ven').val();
+            }else{
+                if($('#cust').val()==''){
+                    alert('Please select customer');
+                    return false;
+                }
+                var allvalues = $('#cust').val();
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "broadcast-messages/send/type",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    values: allvalues,
+                    type: type,
+                    id:$("#send_type").find("#tid").val(),
+                }
+            }).done(function () {
+                window.location.reload();
+            }).fail(function (response) {
+                $(this).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+        });
+
       $(document).on("click",".preview_broadcast_numbers",function() {
 
         var id = $(this).data("message-id");
@@ -267,11 +400,12 @@
         if(items.length > 0) {
             var itemsHtml = '';
             $.each(items, function(k,v) {
-                itemsHtml += `<tr class="in-background filter-message">
+                itemsHtml += `<tr class="in-background filter-message" id="tr`+v.id+`">
                     <td >`+v.created_at+`</td>
                     <td >`+v.broadcast_message_id+`</td>
                     <td >`+v.typeName+`</td>
                     <td >`+v.type+`</td>
+                    <td ><a data-route="" data-id="`+v.id+`" onclick="deleteType(`+v.id+`,event)" class="trigger-type-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a></td>
                 </tr>`;
 
             });
@@ -320,6 +454,39 @@
 				}
 			}); 
 		});	
+
+        function deleteType(id,event){
+			var option = { _token: "{{ csrf_token() }}", id:id };
+			var route = $(this).attr('data-route');
+			$("#loading-image").show();
+            $.ajax({
+				type: 'post',
+				url: "broadcast-messages/delete/type",
+				data: option,
+                success: function(response) {
+					$("#loading-image").hide();
+					if(response.code == 200) {
+						document.getElementById("tr"+id).remove();
+                        toastr["success"](response.message); 
+                    }else if(response.statusCode == 500){
+                        toastr["error"](response.message);
+                    }
+					setTimeout(function(){
+                          //location.reload();
+                        }, 1000);
+				},
+				error: function(data) {
+					$("#loading-image").hide();
+					alert('An error occurred.');
+				}
+			}).done(function () {
+                //window.location.reload();
+            }).fail(function (response) {
+                $(thiss).text('No');
+                alert('Could not say No!');
+                console.log(response);
+            }); 
+        }
 
 		function showMessageTitleModal(groupId){
 			$('#message_group_id').val(groupId);

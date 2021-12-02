@@ -254,7 +254,7 @@ class DocumentController extends Controller
             $file_paths[] = "documents/$document->filename";
         }
     
-
+       // dd($file_paths);
         $cc = $bcc = [];
         if ($request->has('cc')) {
             $cc = array_values(array_filter($request->cc));
@@ -262,12 +262,21 @@ class DocumentController extends Controller
         if ($request->has('bcc')) {
             $bcc = array_values(array_filter($request->bcc));
         }   
-       // dd($request->document_id);
+   
       
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
-
+                $user_email = $user->email;
+              //  dd($request->all());
+               /* echo $request["mitali1@gmail.com"];
+                echo $user_email;
+                dd($request->all());
+                dd($request[$user->email]);
+                dd($request[$user_email]);*/
+                $reqKey = "selected_email_".$key;
+                $email = (isset($request[$reqKey]))?$request[$reqKey]:$user->email; 
+                
                 /*$mail = Mail::to($user->email);
 
                 if ($cc) {
@@ -287,12 +296,12 @@ class DocumentController extends Controller
 
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
-
+                
                 $email = \App\Email::create([
                     'model_id'        => $user->id,
                     'model_type'      => \App\User::class,
                     'from'            => $emailClass->fromMailer,
-                    'to'              => $user->email,
+                    'to'              => $email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
                     'template'        => 'customer-simple',
@@ -337,11 +346,14 @@ class DocumentController extends Controller
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
+                $reqKey = "selected_email_".$key;
+                $email = (isset($request[$reqKey]))?$request[$reqKey]:$vendor->email; 
+
                 $email = \App\Email::create([
                     'model_id'        => $vendor->id,
                     'model_type'      => \App\Vendor::class,
                     'from'            => $emailClass->fromMailer,
-                    'to'              => $vendor->email,
+                    'to'              => $email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
                     'template'        => 'customer-simple',
@@ -508,23 +520,23 @@ class DocumentController extends Controller
 
         if ($request->selected == 1) {
 
-            $user = User::select('id', 'name')->get();
+            $user = User::select('id', 'name','email')->get();
 
             $output = '';
 
             foreach ($user as $users) {
-                $output .= '<option value="' . $users[ "id" ] . '">' . $users[ "name" ] . '</option>';
+                $output .= '<option  rel="' . $users[ "email" ] . '" value="' . $users[ "id" ] . '" >' . $users[ "name" ] . '</option>';
             }
             echo $output;
 
         } elseif ($request->selected == 2) {
 
-            $vendors = Vendor::select('id', 'name')->get();
+            $vendors = Vendor::select('id', 'name','email')->get();
 
             $output = '';
 
             foreach ($vendors as $vendor) {
-                $output .= '<option value="' . $vendor[ "id" ] . '">' . $vendor[ "name" ] . '</option>';
+                $output .= '<option rel="' . $vendor[ "email" ] . '"  value="' . $vendor[ "id" ] . '">' . $vendor[ "name" ] . '</option>';
             }
             echo $output;
 
@@ -535,7 +547,7 @@ class DocumentController extends Controller
             $output = '';
 
             foreach ($contact as $contacts) {
-                $output .= '<option value="' . $contacts[ "id" ] . '">' . $contacts[ "name" ] . '</option>';
+                $output .= '<option   rel= "" value="' . $contacts[ "id" ] . '">' . $contacts[ "name" ] . '</option>';
             }
             echo $output;
 

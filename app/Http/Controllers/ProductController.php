@@ -342,24 +342,30 @@ class ProductController extends Controller
         //            });
         //        }
 
-        if ($request->get('user_id') > 0) {
-            if ($request->get('submit_for_image_approval') == "on") {
-                /*$newProducts = $newProducts->leftJoin("log_list_magentos as llm", function ($join) use ($request) {
-                    $join->on("llm.product_id", "products.id")
-                    ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
-                    $join->where("llm.user_id", $request->get('user_id'));
-                });*/
+        if ($request->get('user_id') > 0 && $request->get('submit_for_image_approval') == "on" ) {
+            $newProducts = $newProducts->Join("log_list_magentos as llm", function ($join) use ($request) {
+                $join->on("llm.product_id", "products.id")
+                ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+            });
                 $newProducts = $newProducts->where("llm.user_id", $request->get('user_id'));
+                $newProducts =   $newProducts->addSelect("llm.user_id as last_approve_user");
 
-            }else{
-                $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
-            }
         }
+        if ($request->get('user_id') > 0 && $request->get('rejected_image_approval') == "on" ) {
+            $newProducts = $newProducts->leftJoin("rejected_images as ri", function ($join) use ($request) {
+                    $join->on("ri.product_id", "products.id");
+           
+                    $join->where("ri.user_id", $request->get('user_id'))->where("ri.status", 0);
+                });
+                $newProducts =   $newProducts->addSelect("rejected_images.user_id as rejected_user_id","rejected_images.created_at as rejected_date");
+        }
+        if ($request->get('user_id') > 0 && $request->get('rejected_image_approval') != "on" && $request->get('submit_for_image_approval') != "on" ) {
+            
+                $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+        }
+    
 
-        $newProducts = $newProducts->leftJoin("log_list_magentos as llm", function ($join) use ($request) {
-            $join->on("llm.product_id", "products.id")
-            ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
-        });
+      
 
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
@@ -404,6 +410,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->join("store_website_categories as swc", function ($join) use ($storeWebsiteID) {
                 $join->on("swc.category_id", "products.category");
                 $join->where("swc.store_website_id", $storeWebsiteID)->where("swc.remote_id", ">", 0);
+                
             });
 
             $newProducts = $newProducts->join("store_website_brands as swb", function ($join) use ($storeWebsiteID) {
@@ -414,7 +421,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->groupBy("products.id");
         }
 
-        $newProducts = $newProducts->select(["products.*","llm.user_id as last_approve_user"])->paginate(20);
+        $newProducts = $newProducts->select(["products.*"])->paginate(20);
         
         if (!auth()->user()->isAdmin()) {
 
@@ -472,7 +479,8 @@ class ProductController extends Controller
                 'store_websites' => StoreWebsite::all(),
                 'type' => $pageType,
                 'auto_push_product' => $auto_push_product,
-                'user_id'=> ($request->get('user_id') > 0)?$request->get('user_id'):""
+                'user_id'=> ($request->get('user_id') > 0)?$request->get('user_id'):"",
+                'request'=>$request->all()
             ]);
         }
 
