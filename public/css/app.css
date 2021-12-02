@@ -2896,6 +2896,7 @@ fieldset:disabled a.btn {
     color: #fff;
     background-color: #545b62;
     border-color: #4e555b;
+
 }
 
 .btn-secondary:not(:disabled):not(.disabled):active:focus,

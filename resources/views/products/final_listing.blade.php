@@ -186,125 +186,128 @@
             </h2>
             <form class="product_filter" action="{{ action('ProductController@approvedListing') }}/{{ $pageType }}" method="GET">
                 <div class="row">
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
+                    <div class="col-md-12" style="display:flex;justify-content: space-between;">
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" name="category[]" data-placeholder="Category..">
-                                <option></option>
-                                @foreach ($category_array as $data)
-                                    <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
-                                    @if ($data['title'] == 'Men')
-                                        @php
-                                            $color = "#D6EAF8";
-                                        @endphp
-                                    @elseif ($data['title'] == 'Women')
-                                        @php
-                                            $color = "#FADBD8";
-                                        @endphp
-                                    @else
-                                        @php
-                                            $color = "";
-                                        @endphp
-                                    @endif
-                                    @foreach ($data['child'] as $children)
-                                        <option style="background-color: {{ $color }};"
-                                                value="{{ $children['id'] }}" {{ in_array($children['id'], $selected_categories) ? 'selected' : '' }}>
-                                            &nbsp;&nbsp;{{ $children['title'] }}</option>
-                                        @foreach ($children['child'] as $child)
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" name="category[]" data-placeholder="Category..">
+                                    <option></option>
+                                    @foreach ($category_array as $data)
+                                        <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
+                                        @if ($data['title'] == 'Men')
+                                            @php
+                                                $color = "#D6EAF8";
+                                            @endphp
+                                        @elseif ($data['title'] == 'Women')
+                                            @php
+                                                $color = "#FADBD8";
+                                            @endphp
+                                        @else
+                                            @php
+                                                $color = "";
+                                            @endphp
+                                        @endif
+                                        @foreach ($data['child'] as $children)
                                             <option style="background-color: {{ $color }};"
-                                                    value="{{ $child['id'] }}" {{ in_array($child['id'], $selected_categories) ? 'selected' : '' }}>
-                                                &nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                                                    value="{{ $children['id'] }}" {{ in_array($children['id'], $selected_categories) ? 'selected' : '' }}>
+                                                &nbsp;&nbsp;{{ $children['title'] }}</option>
+                                            @foreach ($children['child'] as $child)
+                                                <option style="background-color: {{ $color }};"
+                                                        value="{{ $child['id'] }}" {{ in_array($child['id'], $selected_categories) ? 'selected' : '' }}>
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
+                                            @endforeach
                                         @endforeach
                                     @endforeach
-                                @endforeach
-                            </select>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" name="brand[]" multiple
+                                        data-placeholder="Brand..">
+                                    @foreach ($brands as $key => $name)
+                                        <option value="{{ $key }}" {{ !empty(request()->get('brand')) && in_array($key, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" name="color[]" multiple
+                                        data-placeholder="Color..">
+                                    @foreach ($colors as $key => $col)
+                                        <option value="{{ $key }}" {{ !empty(request()->get('color')) && in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" name="supplier[]" multiple
+                                        data-placeholder="Supplier..">
+                                    @foreach ($suppliers as $key => $item)
+                                        <option value="{{ $item->id }}" {{ !empty(request()->get('supplier')) && in_array($item->id, request()->get('supplier', [])) ? 'selected' : '' }}>{{ $item->supplier }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control  select-multiple" name="type" data-placeholder="Select type">
+                                    <option></option>
+                                    <option value="Not Listed" {{ isset($type) && $type == "Not Listed" ? 'selected' : ''  }}>
+                                        Not Listed
+                                    </option>
+                                    <option value="Listed" {{ isset($type) && $type == "Listed" ? 'selected' : ''  }}>
+                                        Listed
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" name="user_id" id="user_id"
+                                        data-placeholder="Select user">
+                                    <option></option>
+                                    @foreach($users as $user)
+                                        <option {{ isset($user_id) && $user_id == $user->id ? 'selected' : ''  }} value="{{$user->id}}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" multiple="" name="status_id[]" id="status_id"
+                                        data-placeholder="Select Status">
+                                    <option></option>
+                                    @foreach(\App\Helpers\StatusHelper::getStatus() as $i => $v)
+                                        <option @if(in_array($i,request('status_id',[]))) selected="selected" @endif value="{{$i}}">{{ $v }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <select class="form-control select-multiple" name="crop_status"
+                                        data-placeholder="Select cropped images">
+                                    <option></option>
+                                    <option value="Matched" {{app('request')->crop_status == "Matched" ? 'selected' : ''}}>Matched</option>
+                                    <option value="Not Matched" {{app('request')->crop_status == "Not Matched" ? 'selected' : ''}}>Not Matched</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group">
+                                <?php echo Form::select("store_website_id",[null => "-- None --"] + \App\StoreWebsite::listMagentoSite(),request('store_website_id'),["class" => "form-control"]); ?>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" name="brand[]" multiple
-                                    data-placeholder="Brand..">
-                                @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ !empty(request()->get('brand')) && in_array($key, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" name="color[]" multiple
-                                    data-placeholder="Color..">
-                                @foreach ($colors as $key => $col)
-                                    <option value="{{ $key }}" {{ !empty(request()->get('color')) && in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" name="supplier[]" multiple
-                                    data-placeholder="Supplier..">
-                                @foreach ($suppliers as $key => $item)
-                                    <option value="{{ $item->id }}" {{ !empty(request()->get('supplier')) && in_array($item->id, request()->get('supplier', [])) ? 'selected' : '' }}>{{ $item->supplier }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
-                            <select class="form-control  select-multiple" name="type" data-placeholder="Select type">
-                                <option></option>
-                                <option value="Not Listed" {{ isset($type) && $type == "Not Listed" ? 'selected' : ''  }}>
-                                    Not Listed
-                                </option>
-                                <option value="Listed" {{ isset($type) && $type == "Listed" ? 'selected' : ''  }}>
-                                    Listed
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" name="user_id" id="user_id"
-                                    data-placeholder="Select user">
-                                <option></option>
-                                @foreach($users as $user)
-                                    <option {{ isset($user_id) && $user_id == $user->id ? 'selected' : ''  }} value="{{$user->id}}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" multiple="" name="status_id[]" id="status_id"
-                                    data-placeholder="Select Status">
-                                <option></option>
-                                @foreach(\App\Helpers\StatusHelper::getStatus() as $i => $v)
-                                    <option @if(in_array($i,request('status_id',[]))) selected="selected" @endif value="{{$i}}">{{ $v }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <select class="form-control select-multiple" name="crop_status"
-                                    data-placeholder="Select cropped images">
-                                <option></option>
-                                <option value="Matched" {{app('request')->crop_status == "Matched" ? 'selected' : ''}}>Matched</option>
-                                <option value="Not Matched" {{app('request')->crop_status == "Not Matched" ? 'selected' : ''}}>Not Matched</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
-                            <?php echo Form::select("store_website_id",[null => "-- None --"] + \App\StoreWebsite::listMagentoSite(),request('store_website_id'),["class" => "form-control"]); ?>
-                        </div>
-                    </div>
-                    <div class="col-sm-1.5">
+                    <div class="col-sm-1.5 ml-2 d-flex align-items-center">
                         <div class="form-group">
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
@@ -312,7 +315,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="col-sm-1.5">
+                    <div class="col-sm-1.5 d-flex align-items-center">
                         <div class="form-group">
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
@@ -320,19 +323,19 @@
                             @endif
                         </div>
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-sm-1 d-flex align-items-center">
                         <div class="form-group">
                            <?php echo Form::checkbox("without_title", "on", (bool)(request('without_title') == "on"), ["class" => ""]); ?>
                                 <lable for="without_title pr-3">No title</lable>
                         </div>
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-sm-1 d-flex align-items-center">
                         <div class="form-group">
                            <?php echo Form::checkbox("without_size", "on", (bool)(request('without_size') == "on"), ["class" => ""]); ?>
                                 <lable for="without_size pr-3">No size</lable>
                         </div>
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-sm-1.5 d-flex align-items-center">
                         <div class="form-group">
                            <?php echo Form::checkbox("without_composition", "on", (bool)(request('without_composition') == "on"), ["class" => ""]); ?>
                                 <lable for="without_composition pr-3">No Composition</lable>
@@ -359,22 +362,24 @@
                             </a>
                         </div>
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-sm-2"style="display: flex;">
                         <div class="form-group">
                             <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group"style="margin-left:15px;">
                             <input type="button" onclick="maskpushProduct()" class="btn btn-secondary" value="Mask Push product"/>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4">  
+
+                    <div class="col-sm-2 ml-2">  
                         <div class="form-group">
                             <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
                         </div>
                     </div>
+                
+                <div class="row">
+                    
                     <div class="col-sm-1">  
                         <div class="form-group">
                         <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
@@ -382,7 +387,8 @@
                     </div>
                 </div>
             </form>
-            <input type="button" value="Auto push product - {{$auto_push_product == 0 ? 'Not Active' : 'Active'}}" class="btn btn-{{$auto_push_product == 0 ? 'secondary' : 'primary'}} active autopushproduct" auto_push_value="{{$auto_push_product}}">
+            <input type="button" value="Auto push product - {{$auto_push_product == 0 ? 'Not Active' : 'Active'}}" class=" btn-{{$auto_push_product == 0 ? 'secondary' : 'primary'}} active autopushproduct"style="height:34px; border:1px
+            solid transparent;border-radius: 4px;margin-left:16px;background-color: #6c757d;" auto_push_value="{{$auto_push_product}}">
 
         </div>
     </div>
