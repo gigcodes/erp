@@ -69,10 +69,10 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                             All Rejected - Re Crop for this website
                                                         @endif
                                                     </button>
-                                                    @if($request["submit_for_image_approval"] =="on" )
+                                                    @if(request("submit_for_image_approval") =="on" )
                                                         Last Approved By : {{isset($users_list[$product->last_approve_user])?$users_list[$product->last_approve_user]:""}}
                                                     @endif
-                                                    @if($request["rejected_image_approval"] =="on" )
+                                                    @if(request("rejected_image_approval") =="on" )
                                                    
                                                         Rejected By :  {{isset($users_list[$product->rejected_user_id])?$users_list[$product->rejected_user_id]:""}}
                                                         Rejected Time : {{isset($product->rejected_date)?$product->rejected_date:""}}
