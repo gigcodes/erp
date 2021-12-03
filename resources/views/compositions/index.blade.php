@@ -84,62 +84,73 @@
          </div>   
     @endif
 </div>
-  <div class="row change-data">
-      <div class="col-md-6 mt-5">
-          {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}
-          <div class="form-group">
-              <label for="name">Name:</label>
-              <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value="{{ old('name') ? old('name') : request('name') }}"/>
-          </div>
-          <div class="form-group ml-2">
-              <label for="replace_with">Erp Name:</label>
-              <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
-          </div>
-         
-          <button type="submit" class="btn btn-default ml-2 small-field-btn compositions">Submit</button>
-          </form>
-      </div>
-      <div class="col-md-6 mt-5">
-          {!! Form::open(["class" => "form-inline" , "route" => 'compositions.replace',"method" => "POST"]) !!}
-          <div class="form-group">
-              <label for="name">Keyword:</label>
-              <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value=""/>
-          </div>
-          <div class="form-group ml-2">
-              <label for="replace_with">Replace With:</label>
-              <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="" id="">
-          </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn compositions">Replace</button>
-          </form>
-      </div>
-  </div>
-<div class="row">
-    <div class="col-md-6 mt-5">
-        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.index',"method" => "GET"]) !!}    
-          <div class="form-group change-data">
-            <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}"/>
-          </div>
-          <div class="form-group ml-2">
-            <input type="checkbox" name="with_ref" class="form-control" id="with_ref" @if(request('with_ref') == 1) checked="checked" @endif value="1"/> With Ref
-          </div>
-          <div class="form-group ml-2">
-          <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"  style="float: left">
-            @if(isset($users->id))
-            <option value="{{$users->id}}" selected="selected">{{$users->name}}</option>
-            @endif
-        </select>
-          </div>
-                    <button type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
+<div class="row change-data">
+    <div class="col-md-12 mt-3 pl-4 compositions">
+            {!! Form::open(["class" => "" , "route" => 'compositions.store',"method" => "POST"]) !!}
+                <div class="col-md-1 p-1">
+                    <div class="form-group">
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value="{{ old('name') ? old('name') : request('name') }}"/>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-center p-1">
+                    <div class="form-group">
+                        <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default ml-2 small-field-btn btn-secondary compositions">Submit</button>
+                    </div>
+                </div>
+            </form>
+
+        {!! Form::open(["class" => "" , "route" => 'compositions.index',"method" => "GET"]) !!}    
+            <div class="col-md-1 p-1">
+                  <div class="form-group change-data">
+                    <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}"/>
+                  </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-center p-1">
+                <div class="form-group d-flex align-items-center">
+                    <input type="checkbox" name="with_ref" class="" id="with_ref" @if(request('with_ref') == 1) checked="checked" @endif value="1" style="height: auto !important;margin: 0;" /> <span class="ml-3 mr-4" style="color: #757575;">With Ref</span>
+                </div>
+                <div class="form-group" style="width: 215px;">
+                    <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User">
+                        @if(isset($users->id))
+                        <option value="{{$users->id}}" selected="selected">{{$users->name}}</option>
+                        @endif
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default ml-2 small-field-btn compositions "><i class="fa fa-search"></i></button>
+                </div>
+            </div>
+        </form>
+        {!! Form::open(["class" => "" , "route" => 'compositions.replace',"method" => "POST"]) !!}
+            <div class="col-md-2 p-1">
+                <div class="form-group">
+                    <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name to replace" value=""/>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-center p-1">
+                <div class="form-group" style="width:68%">
+                    <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name with replace" value="" id="">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default ml-2 small-field-btn compositions btn-secondary ">Replace</button>
+                </div>
+            </div>
         </form>
     </div>
+</div>
+
     
-    <div class="col-md-6 mt-5 compositions">
-        <div class="form-group small-field">
+<div class="row">
+    <div class="col-md-12 ml-1 compositions">
+        <div class="form-group small-field change-list-all-compostion-wrap">
             <?php echo Form::select(
                 'replace_with', 
                 $listcompostions , 
                 null, 
-                ["class" => "form-control change-list-all-compostion select2", 'style' => 'width:400px']
+                ["class" => "form-control change-list-all-compostion select2", 'style' => 'width:282px']
             ); ?>
             <button type="button" class="btn btn-secondary update-composition-selected">Update Selected</button>
             <a target="__blank" href="{{ route('compositions.delete.unused') }}">
@@ -152,7 +163,7 @@
 {{--        <button class="btn btn-secondary approve-all">Approve all</button>--}}
 {{--        --}}
 {{--    </div>--}}
-    <div class="col-md-12 mt-5">
+    <div class="col-md-12 pl-5 pr-5 mt-5">
         <table class="table table-bordered composition">
             <tr>
                 <th width="3%" ><span><input type="checkbox" class="check-all-btn mr-2">&nbsp;</span></th>

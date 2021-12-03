@@ -2896,6 +2896,7 @@ fieldset:disabled a.btn {
     color: #fff;
     background-color: #545b62;
     border-color: #4e555b;
+
 }
 
 .btn-secondary:not(:disabled):not(.disabled):active:focus,
@@ -11369,4 +11370,10 @@ table.table-striped-custom tbody tr td {
 }
 .purchaseproductorders-list tr td{
     vertical-align: middle !important;
+}
+.select2.select2-container.select2-container--default{
+    width: 10%;
+}
+.change-list-all-compostion-wrap span:first-child{
+    width: 282px !important;
 }
