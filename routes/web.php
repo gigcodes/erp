@@ -3200,6 +3200,8 @@ Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::post('send/type', 'BroadcastController@sendType')->name('send-type');
     Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
     Route::post('delete/type', 'BroadcastController@deleteType')->name('delete.type');
+    Route::post('resend/message', 'BroadcastController@resendMessage')->name('resend-message');
+    
 });
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');

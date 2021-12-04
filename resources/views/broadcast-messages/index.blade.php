@@ -96,6 +96,7 @@
                     <td>
                         <a class="btn btn-secondary create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true"></i></a>
                         <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+                        <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat " aria-hidden="true"></i></a>
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                         <a class="btn btn-secondary add_type" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Suppliers</a>
                         <a class="btn btn-secondary add_type" data-type="vendor" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Vendors</a>
@@ -263,6 +264,27 @@
             });
 		}); 
 
+        
+
+        $(document).on('click', '.resend_massage', function () {
+            var id = $(this).data("message-id");
+            $.ajax({
+                type: "POST",
+                url: "broadcast-messages/resend/message",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id:id,
+                }
+            }).done(function () {
+                //window.location.reload();
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+        });
+
         $(document).on('click', '.create_broadcast', function () {
             var id = $(this).data("message-id");
             $("#bid").val(id);
@@ -323,7 +345,7 @@
                     id:$("#send_message").find("#bid").val(),
                 }
             }).done(function () {
-                window.location.reload();
+                //window.location.reload();
             }).fail(function (response) {
                 $(thiss).text('No');
 
