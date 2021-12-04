@@ -11377,3 +11377,10 @@ table.table-striped-custom tbody tr td {
 .change-list-all-compostion-wrap span:first-child{
     width: 282px !important;
 }
+.erpSize-dropdown-wrap .select2-container--default{
+    width: 100% !important;
+}
+.custom-button{
+    background: #9393935e !important;
+    color: #000 !important;
+}

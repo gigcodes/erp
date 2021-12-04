@@ -15,7 +15,7 @@
     <div class="col-md-12">
         <h2 class="page-heading">New Sizes Reference ({{ $sizes->count() }})</h2>
     </div>
-	<div class="col-md-12">
+    <div class="col-md-12">
         <!-- <form>
             <div class="form-group col-md-3">
                 <input type="search" name="search" class="form-control" value="{{ request('search') }}">
@@ -36,33 +36,50 @@
         </div> -->
     </div>
     <div class="col-md-12 mt-5">
-        <table class="table table-bordered">
-            <tr>
-                <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
-                <th width="30%">Size</th>
-                <th width="40%">Erp Size</th>
-               <!--  <th width="20%">Action</th> -->
-            </tr>
-            <?php $count = 1; ?>
-            @foreach($sizes as $size)
+        <div class="size-tables d-flex">
+            <table class="table table-bordered mr-4 ml-4">
                 <tr>
-                    <td>{{ $count }}</td>
-                    <td>
-						<span class="call-used-product">{{ $size->size }}</span> 
-					</td>
-                    <td>
-						<select class="select2 form-control change-list-size" data-id="{{ $size->id }}">
-							<option value="">- Select-</option>
-                            @foreach($erpSizes as $erpSize)
-                                <option value="{{ $erpSize->id }}" @if($size->erp_size_id == $erpSize->id) selected @endif>{{ $erpSize->erp_size }}</option>
-                            @endforeach
-                        </select>
-                   </td>
+                    <th width="12%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
+                    <th width="10%">Size</th>
+                    <th>Erp Size</th>
+                   <!--  <th width="20%">Action</th> -->
                 </tr>
-                <?php $count++; ?>
-            @endforeach
-        </table>
-       
+                <?php $count = 1; $tmp = 1;?>
+                <?php $dataCount = floor($erpSizesCount / 3); ?>
+                @foreach($sizes as $size)
+                    @if($tmp > $dataCount)
+                        <?php $tmp = 1; ?>
+                        <table class="table table-bordered mr-4 ml-4">
+                            <tr>
+                                <th width="12%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
+                                <th width="10%">Size</th>
+                                <th>Erp Size</th>
+                               <!--  <th width="20%">Action</th> -->
+                            </tr>
+                    @endif
+                    <tr>
+                        <td>{{ $count }}</td>
+                        <td>
+                            <span class="call-used-product">{{ $size->size }}</span> 
+                        </td>
+                        <td class="erpSize-dropdown-wrap">
+                            <select class="select2 form-control change-list-size" data-id="{{ $size->id }}">
+                                <option value="">- Select-</option>
+                                @foreach($erpSizes as $erpSize)
+                                    <option value="{{ $erpSize->id }}" @if($size->erp_size_id == $erpSize->id) selected @endif>{{ $erpSize->erp_size }}</option>
+                                @endforeach
+                            </select>
+                       </td>
+                    </tr>
+                    <?php $tmp++; ?>
+                     @if($tmp > $dataCount)
+                     </table>
+                    @endif
+
+                    <?php $count++;?>
+                @endforeach
+            </table>
+        </div>
     </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
@@ -84,9 +101,9 @@
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
-					headers: {
-						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-					},
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: {
                         id : $this.data("id"),
                         erp_size_id : $this.val()
