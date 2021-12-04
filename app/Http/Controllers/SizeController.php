@@ -166,14 +166,15 @@ class SizeController extends Controller
     {
         $sizes = \App\SizeAndErpSize::all();
         $erpSizes = \App\SystemSizeManager::select('id', 'erp_size')->get();
-        return view('size.new-reference', compact('sizes', 'erpSizes'));
+        $erpSizesCount = \App\SizeAndErpSize::select('id', 'erp_size')->count();
+        return view('size.new-reference', compact('sizes', 'erpSizes', 'erpSizesCount'));
     }
 
-	public function updateNewSizeReferences(Request $request){
-		$inputs = $request->input();
-		\App\SizeAndErpSize::where('id', $inputs['id'])->update(['erp_size_id'=>$inputs['erp_size_id']]);
-		return response()->json(["code" => 200, "data" => 'Its changed']);
-	}
+    public function updateNewSizeReferences(Request $request){
+        $inputs = $request->input();
+        \App\SizeAndErpSize::where('id', $inputs['id'])->update(['erp_size_id'=>$inputs['erp_size_id']]);
+        return response()->json(["code" => 200, "data" => 'Its changed']);
+    }
 
     public function referenceAdd(Request $request)
     {
