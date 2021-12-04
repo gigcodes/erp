@@ -1089,15 +1089,44 @@ class ProductInventoryController extends Controller
     }
 
     public function inventoryListNew( Request $request ){
+		
     	$filter_data = $request->input();
 		// $inventory_data = \App\Product::getProducts($filter_data);
-        
+        $selected_brand = null;
+		$term='';
 		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id");
 		if ($request->start_date!='')
 		  $inventory_data->whereDate('products.created_at' ,'>=',$request->start_date );
 		if ($request->end_date!='')
 		   $inventory_data->whereDate('products.created_at' ,'<=',$request->end_date );	  
-		$inventory_data=$inventory_data->orderBy("swp.created_at","desc")->paginate(20);		
+		$inventory_data=$inventory_data->leftJoin("brands as b", function ($q) {
+            $q->on("b.id", "products.brand");
+        });
+		$inventory_data=$inventory_data->leftJoin("categories as c", function ($q) {
+			$q->on("c.id", "products.category");
+		});
+		if (isset($request->brand_names)) {
+            $inventory_data = $inventory_data->whereIn('brand', $request->brand_names);
+			$selected_brand = Brand::select('id','name')->whereIn('id',$request->brand_names)->get();
+        }
+		
+
+		if (isset($request->term)) {
+            $term  = $request->term;
+            $inventory_data = $inventory_data->where(function ($q) use ($term) {
+                $q->where('products.name', 'LIKE', "%$term%")
+                    ->orWhere('products.sku', 'LIKE', "%$term%")
+                    ->orWhere('c.title', 'LIKE', "%$term%")
+                    ->orWhere('b.name', 'LIKE', "%$term%")
+                    ->orWhere('products.id', 'LIKE', "%$term%");
+            });
+        }
+
+		$inventory_data=$inventory_data->select('products.*','b.name as brand_name');
+		$inventory_data=$inventory_data->orderBy("swp.created_at","desc")->paginate(20);	
+		
+		
+	
     	
     	$inventory_data_count = $inventory_data->total();
 
@@ -1126,9 +1155,9 @@ class ProductInventoryController extends Controller
 
 		 
 
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct'));
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data','noofProductInStock','productUpdated','totalProduct','selected_brand','term'));
 
-        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct','history'));
+        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count','noofProductInStock','productUpdated','totalProduct','history','selected_brand','term'));
     }
 
     public function downloadReport() {
