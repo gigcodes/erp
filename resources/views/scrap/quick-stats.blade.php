@@ -1462,7 +1462,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: '/scrap/task-list',
+                url: '{{ route("scrap.task-list")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
