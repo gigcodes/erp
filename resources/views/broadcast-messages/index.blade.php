@@ -85,7 +85,7 @@
                 <th style="">ID</th>
                 <th style="">Name</th>
                 <th style="">Created Date</th>
-                <th style="width:550px">Action</th>
+                <th style="width:700px">Action</th>
             </thead>
             <tbody>
             @foreach($data as $key=>$value)
@@ -96,8 +96,9 @@
                     <td>
                         <a class="btn btn-secondary create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true"></i></a>
                         <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
-                        <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat " aria-hidden="true"></i></a>
+                        <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a>
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
+                        <a class="btn btn-secondary show_massage" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Show Massage</a>
                         <a class="btn btn-secondary add_type" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Suppliers</a>
                         <a class="btn btn-secondary add_type" data-type="vendor" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Vendors</a>
                         <a class="btn btn-secondary add_type" data-type="customer" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Customers</a>
@@ -195,6 +196,39 @@
 	</div>
 </div>
 
+<div id="ShowMassageModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+       <!-- Modal content-->
+       <div class="modal-content "  >
+          
+            <div class="modal-header">
+                <h4 class="modal-title">Show Broadcast Message</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" >
+                <div class="table-responsive" style="margin-top:20px;">
+                    <table class="table table-bordered text-nowrap" id="massage-table">
+                        <thead>
+                            <tr>
+                                <th>Date </th> 
+                                <th>Massage</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="massage-items-list">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                   <button type="button" style="margin-top: 5px;" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+       </div>
+    </div>
+ </div>
+
 
 <div id="previewSendMailsModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -274,6 +308,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     id:id,
+                    is_last:1
                 }
             }).done(function () {
                 //window.location.reload();
@@ -298,6 +333,65 @@
         $("#supp").select2();
         $("#ven").select2();
         $("#cust").select2();
+
+        $(document).on('click', '.show_massage', function () {
+            var id = $(this).data("message-id");
+
+            $.ajax({
+                type: "POST",
+                url: "broadcast-messages/show/message",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("loading-image").show();
+                }
+            }).done( function(response) {
+                $("loading-image").hide();
+                $("#ShowMassageModal").find(".massage-items-list").html("");
+                if(response.code == 200) {
+                    var items = response.data;
+                    if(items.length > 0) {
+                        var itemsHtml = '';
+                        $.each(items, function(k,v) {
+                            itemsHtml += `<tr class="in-background filter-message" id="tr`+v.id+`">
+                                <td >`+v.created_at+`</td>
+                                <td >`+v.message+`</td>
+                                <td ><a data-route="" title="Resend Massage" data-message-id="`+v.id+`" class="singal-resend-massage">  <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a></td>
+                            </tr>`;
+                        });
+                        
+                        $("#ShowMassageModal").find(".massage-items-list").html(itemsHtml);
+                    }
+                    $("#ShowMassageModal").modal("show");
+                }
+            });
+        });
+
+        
+
+        $(document).on('click', '.singal-resend-massage', function () {
+            var id = $(this).data("message-id");
+            $.ajax({
+                type: "POST",
+                url: "broadcast-messages/resend/message",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id:id,
+                    is_last:0 
+                }
+            }).done(function () {
+                //window.location.reload();
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+        });
+
+
         $(document).on('click', '.add_type', function () {
             var id = $(this).data("message-id");
             var type = $(this).data("type");
