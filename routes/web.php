@@ -850,8 +850,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('meeting/create', 'Meeting\ZoomMeetingController@createMeeting');
     Route::get('meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings');
     Route::get('meetings/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
-    Route::get('meetings/show', 'Meeting\ZoomMeetingController@show')->name('meetings.show');
-
+    Route::get('meetings/show', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.show');
+    Route::get('meetings/all', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.all.data');
+  
     Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
 
     Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
@@ -3459,7 +3460,8 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 Route::get('command', function () {
 	
-    \Artisan::call('migrate');
+ //   \Artisan::call('migrate');
+     \Artisan::call('meeting:getrecordings');
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/

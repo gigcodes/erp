@@ -195,6 +195,7 @@ class ZoomMeetings extends Model
                 $meetingId = $meetings->meeting_id;
                 //$recordingAll = $zoom->getRecordings('-ISK-roPRUyC3-3N5-AT_g', 10);
                 $recordingAll = $zoom->getMeetingRecordings($meetingId);
+                \Log::info(json_encode($recordingAll));
                 if ($recordingAll) {
                     if ('200' == $recordingAll[ 'status' ]) {
                         $recordingFiles = $recordingAll[ 'body' ][ 'recording_files' ];
