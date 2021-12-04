@@ -11384,3 +11384,7 @@ table.table-striped-custom tbody tr td {
     background: #9393935e !important;
     color: #000 !important;
 }
+.inventory-listing .modal-dialog{
+    max-width: 800px;
+    width: 800px;
+}

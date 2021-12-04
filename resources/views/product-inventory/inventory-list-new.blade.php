@@ -146,7 +146,7 @@
     </div>
 </div>
 
-<div id="history-modal" class="modal fade" tabindex="-1" role="dialog">
+<div id="history-modal" class="modal fade inventory-listing" tabindex="-1" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
