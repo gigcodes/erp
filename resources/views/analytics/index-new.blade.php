@@ -33,19 +33,64 @@
         <h2 class="page-heading">New Google Analytics</h2>
     </div>
 </div>
-<form action="" method="get">
+<form action="" method="get">   
     
         <div class="col-md-2">
-            <label > Select website: </label>
+            <label >  website: </label>
             <div class="form-group">
                 <select name="website" class="form-control">
-                    <option value="">Select website</option>
+                    <option value=""> website</option>
                     @foreach ($website_list as $item)
                         <option value="{{ $item['id'] }}" {{ request('website') == $item['id'] ? 'selected' : null }}> {{ $item['website'] }} </option>
                     @endforeach
                 </select>
             </div>
         </div>
+        <div class="col-md-1">
+            <label > Browser: </label>
+            <div class="form-group">
+                <select name="browser" class="form-control">
+                    <option value=""> Browser</option>
+                    @foreach ($browsers as $item)
+                        <option value="{{ $item }}" {{ request('borwser') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <label > Os: </label>
+            <div class="form-group">
+                <select name="os" class="form-control">
+                    <option value=""> Os</option>
+                    @foreach ($os as $item)
+                        <option value="{{ $item }}" {{ request('os') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label > Country: </label>
+            <div class="form-group">
+                <select name="country" class="form-control">
+                    <option value=""> Country</option>
+                    @foreach ($countries as $item)
+                        <option value="{{ $item }}" {{ request('country') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <label > User Type : </label>
+            <div class="form-group">
+                <select name="user_type" class="form-control">
+                    <option value=""> User Type</option>
+                    @foreach ($user_types as $item)
+                        <option value="{{ $item }}" {{ request('user_type') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+     
         <div class="col-md-2">
             <label >Start date : </label>
             <div class="form-group">
@@ -58,7 +103,7 @@
                 <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
             </div>
         </div>
-        <div class="form-group col-md-3 pt-4" style="">
+        <div class="form-group col-md-1 pt-4" style="">
             <label >  </label>
             <button class="btn btn-image search"><img src="https://erp.theluxuryunlimited.com/images/search.png" alt="Search" style="cursor: nwse-resize; width: 0px;"></button>
             <a href="{{ url('/display/analytics-data') }}" class="btn btn-image">
