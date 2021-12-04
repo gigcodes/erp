@@ -52,7 +52,7 @@
                 <select name="browser" class="form-control">
                     <option value=""> Browser</option>
                     @foreach ($browsers as $item)
-                        <option value="{{ $item }}" {{ request('borwser') == $item ? 'selected' : null }}> {{ $item }} </option>
+                        <option value="{{ $item }}" {{ request('browser') == $item ? 'selected' : null }}> {{ $item }} </option>
                     @endforeach
                 </select>
             </div>
