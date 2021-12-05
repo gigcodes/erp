@@ -30,7 +30,7 @@
                     <input type="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search">
                 </div>
                 <div class="form-group col-md-2">
-                    {{ Form::select('is_skipped', ['' => '-- Select Skipped --', '0' => 'No', '1' => 'Yes'], request('is_skipped'), ['class' => 'form-control']) }}
+                    {{ Form::select('is_skipped', ['' => '-- Select Mapped --', '0' => 'No', '1' => 'Yes'], request('is_skipped'), ['class' => 'form-control']) }}
                 </div>
                 <div class="form-group col-md-3 d-flex">
                     <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"
