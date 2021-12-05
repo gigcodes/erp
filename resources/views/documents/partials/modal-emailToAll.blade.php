@@ -24,11 +24,22 @@
                         </div>
 
                         <div class="form-group">
-                            <select class="user_select_id" name="users[]" multiple class="form-control">
+                            <select class="user_select_id" name="users[]" multiple class="form-control" >
                             </select>
                         </div>
                         <div class="form-group" id="selected_emails">
                             
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <strong>From Email</strong>
+                        <div class="form-group">
+                            <select name="from_select_id"  class="form-control select2"style="width:300px">
+                                <option>Select From Email</option>
+                                @foreach ($emailAddresses as $key => $email )
+                                <option value ="{{$key}}">{{$email}}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <input type="hidden" name="document_id" id="document_email_id">
