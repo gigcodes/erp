@@ -2263,6 +2263,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
     Route::get('/killed-list', 'ScrapStatisticsController@killedList')->name('scrap.killed-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
+    Route::get('change-user','ScrapStatisticsController@changeUser')->name('scrap.changeUser');
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
 
