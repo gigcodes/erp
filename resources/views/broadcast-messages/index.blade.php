@@ -96,7 +96,7 @@
                     <td>
                         <a class="btn btn-secondary create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true"></i></a>
                         <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
-                        <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a>
+                        {{-- <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a> --}}
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
                         <a class="btn btn-secondary show_massage" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Show Massage</a>
                         <a class="btn btn-secondary add_type" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;">Add Suppliers</a>
@@ -360,7 +360,7 @@
                                 <td >`+v.created_at+`</td>
                                 <td >`+v.name+`</td>
                                 <td >`+v.message+`</td>
-                                <td ><a data-route="" title="Resend Massage" data-broadcast-message-id="`+v.id+`" data-name="`+v.name+`" data-message="`+v.message+`"  class="singal-resend-massage">  <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a></td>
+                                <td ><a data-route="" title="Resend Massage" data-broadcast-message-id="`+v.broadcast_message_id+`" data-name="`+v.name+`" data-message="`+v.message+`"  class="singal-resend-massage">  <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a></td>
                             </tr>`;
                         });
                         
