@@ -96,7 +96,7 @@
                 </div>
             </form>
              @if (auth()->user()->isAdmin())
-             <a class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#assigntask">Assign Task</a>
+             <a class="btn btn-secondary assignTask" style="color:white;" >Assign Task</a>
             @endif
             
            
@@ -113,7 +113,7 @@
                     <h3>Assign Task</h3>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                <form style="padding:10px;" action="{{ route('development.changeuser.store') }}" method="POST">
+                <form style="padding:10px;" action="{{ route('development.changeuser.store') }}" method="POST" id="changeuserForm">
                     @csrf
                     <div class="form-group">
                         <select class="form-control" name="change_user_id" id="change_user_id">
@@ -181,6 +181,16 @@
       $('.assign-user.select2').select2({
         width: "100%"
     });
+    $(document).on('click', '.assignTask', function (event) {
+        event.preventDefault();
+        if($("#user").val()==""){
+            alert("Please select Assigned User")
+        }else{
+            $("#assigntask").modal();
+        }
+            
+        
+    })
 
   </script>
 @endsection
