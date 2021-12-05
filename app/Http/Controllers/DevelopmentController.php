@@ -3387,4 +3387,29 @@ class DevelopmentController extends Controller
           'success'
         ]);
       }
+    public function changeUser(Request $request){
+       // $users = Helpers::getUserArray(User::role('Developer')->get());
+        $title = 'Change User';
+        $user = $request->user ?? Auth::id();
+       
+       
+         $issues = DeveloperTask::with('timeSpent','developerTaskHistory','assignedUser','masterUser','timeSpent','leadtimeSpent','testertimeSpent','messages.taskUser','messages.user','tester');
+         if (Auth::user()->hasRole('Admin') && (int) $request->user > 0) {
+            $issues = $issues->where('assigned_to', $user);
+        }
+        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
+        $usrlst = User::orderBy('name')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($usrlst);
+        $issues = $issues->select("developer_tasks.*");
+        $issues = $issues->paginate(20);
+        return view('development.change_user', [
+            'users' => $users,
+            'user' => $user,
+            'title' => $title,
+            'issues' => $issues
+        ]);
+    } 
+    public function changeUserStore (Request $request){
+        dd($request->all());
+    }
 }
