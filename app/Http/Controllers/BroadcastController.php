@@ -91,6 +91,8 @@ class BroadcastController extends Controller
                         'broadcast_numbers_id' => $broadcastnumber->id
                     ];
                     $chat_message = \App\ChatMessage::create($params);
+
+                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
                     
                     $approveRequest = new Request();
                     $approveRequest->setMethod('GET');
@@ -118,6 +120,8 @@ class BroadcastController extends Controller
                     ];
                     $chat_message = \App\ChatMessage::create($params);
 
+                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
+
                     $myRequest    = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -136,6 +140,8 @@ class BroadcastController extends Controller
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
+                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
+
                     $params = [
                         'sending_time' => $request->get('sending_time', ''),
                         'user_id' => \Auth::id(),
@@ -145,8 +151,6 @@ class BroadcastController extends Controller
                         'group_id' => '',
                         'broadcast_numbers_id' => $broadcastnumber->id
                     ];
-                    
-
                 }
             }
         }
@@ -227,6 +231,8 @@ class BroadcastController extends Controller
                     ];
                     $chat_message = \App\ChatMessage::create($params);
 
+                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
+
                     $approveRequest = new Request();
                     $approveRequest->setMethod('GET');
                     $approveRequest->request->add(['messageId' => $chat_message->id]);
@@ -258,6 +264,8 @@ class BroadcastController extends Controller
                     ];
                     $chat_message = \App\ChatMessage::create($params);
 
+                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
+
                     $myRequest    = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -273,6 +281,8 @@ class BroadcastController extends Controller
                         'broadcast_message_id' => $request->id
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
+
+                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
 
                     $params = [
                         'sending_time' => $request->get('sending_time', ''),
@@ -292,21 +302,11 @@ class BroadcastController extends Controller
     }
 
     public function showMessage(Request $request){
-        $massage = \App\BroadcastMessageNumber::where(['broadcast_message_id'=>$request->id])->get();
-        $lists_item = [];
+        $massage = \App\BroadcastDetails::where(['broadcast_message_id'=>$request->id])->get();
         if(count($massage)){
-            foreach($massage as $key => $value){
-                if($value->type == "App\Http\Controllers\App\Supplier"){
-                    $msg_data = \App\ChatMessage::where('broadcast_numbers_id',$value->id)->first();  
-                    if($msg_data){
-                        $lists_item[] = array('id' => $value->id, 'chat_id' => $msg_data->id, 'message' => $msg_data->message,'created_at' => $value->created_at->toDateTimeString());
-                    }                  
-                } else {
-                    continue;
-                }
-            }
-            return response()->json(["code" => 200, "data" => $lists_item]);
+            return response()->json(["code" => 200, "data" => $massage]);
         } else {
+            $lists_item = [];
             return response()->json(["code" => 300, "data" => $lists_item]);
         }
     }

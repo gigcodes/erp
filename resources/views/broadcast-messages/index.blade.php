@@ -211,6 +211,7 @@
                         <thead>
                             <tr>
                                 <th>Date </th> 
+                                <th>Name</th>
                                 <th>Massage</th>
                                 <th>Action</th>
                             </tr>
@@ -357,8 +358,9 @@
                         $.each(items, function(k,v) {
                             itemsHtml += `<tr class="in-background filter-message" id="tr`+v.id+`">
                                 <td >`+v.created_at+`</td>
+                                <td >`+v.name+`</td>
                                 <td >`+v.message+`</td>
-                                <td ><a data-route="" title="Resend Massage" data-message-id="`+v.id+`" class="singal-resend-massage">  <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a></td>
+                                <td ><a data-route="" title="Resend Massage" data-broadcast-message-id="`+v.id+`" data-name="`+v.name+`" data-message="`+v.message+`"  class="singal-resend-massage">  <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a></td>
                             </tr>`;
                         });
                         
@@ -372,14 +374,18 @@
         
 
         $(document).on('click', '.singal-resend-massage', function () {
-            var id = $(this).data("message-id");
+            var id = $(this).data("broadcast-message-id");
+            var name = $(this).data("name");
+            var message = $(this).data("message");
+
             $.ajax({
                 type: "POST",
-                url: "broadcast-messages/resend/message",
+                url: "broadcast-messages/send/message",
                 data: {
                     _token: "{{ csrf_token() }}",
+                    message: message,
+                    name: name,
                     id:id,
-                    is_last:0 
                 }
             }).done(function () {
                 //window.location.reload();
