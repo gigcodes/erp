@@ -19,6 +19,8 @@ use App\DocumentRemark;
 use App\DocumentHistory;
 use Mail;
 use finfo;
+use App\EmailAddress;
+
 
 class DocumentController extends Controller
 {
@@ -90,6 +92,7 @@ class DocumentController extends Controller
 
 
             $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
+            $emailAddresses = EmailAddress::orderBy('id', 'asc')->pluck('from_address','id');
             $category = DocumentCategory::select('id', 'name')->get();
             $api_keys = ApiKey::select('number')->get();
             return view('documents.index', [
@@ -97,6 +100,7 @@ class DocumentController extends Controller
                 'users' => $users,
                 'category' => $category,
                 'api_keys' => $api_keys,
+                'emailAddresses'=>$emailAddresses
             ]);
 
     }
@@ -251,7 +255,7 @@ class DocumentController extends Controller
         $document = Document::findOrFail($request->document_id);
 
         if ($document) {
-            $file_paths[] = "documents/$document->filename";
+            $file_paths[] = storage_path('app/files/documents/'.$document->filename);
         }
     
        // dd($file_paths);
@@ -262,15 +266,22 @@ class DocumentController extends Controller
         if ($request->has('bcc')) {
             $bcc = array_values(array_filter($request->bcc));
         }   
-   
-      
+        $fromEmail='';
+        if(isset($request->from_select_id)){
+            $fromEmailArray = EmailAddress::where('id',$request->from_select_id )->first();
+            if($fromEmailArray){
+                $fromEmail =$fromEmailArray->from_address;
+            }
+            
+        }
+        
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
                 $user_email = $user->email;
               //  dd($request->all());
                /* echo $request["mitali1@gmail.com"];
-                echo $user_email;
+                 echo $user_email;
                 dd($request->all());
                 dd($request[$user->email]);
                 dd($request[$user_email]);*/
@@ -294,13 +305,14 @@ class DocumentController extends Controller
                 $history[ 'document_id' ] = $document->id;
                 DocumentSendHistory::create($history);
 
+               
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
                 
                 $email = \App\Email::create([
                     'model_id'        => $user->id,
                     'model_type'      => \App\User::class,
-                    'from'            => $emailClass->fromMailer,
+                    'from'            => ($fromEmail!="")?$fromEmail:$emailClass->fromMailer,
                     'to'              => $email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
@@ -352,7 +364,7 @@ class DocumentController extends Controller
                 $email = \App\Email::create([
                     'model_id'        => $vendor->id,
                     'model_type'      => \App\Vendor::class,
-                    'from'            => $emailClass->fromMailer,
+                    'from'            => ($fromEmail!="")?$fromEmail:$emailClass->fromMailer,
                     'to'              => $email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
@@ -384,7 +396,7 @@ class DocumentController extends Controller
                 $email = \App\Email::create([
                     'model_id'        => $contact->id,
                     'model_type'      => \App\Contact::class,
-                    'from'            => $emailClass->fromMailer,
+                    'from'            =>($fromEmail!="")?$fromEmail: $emailClass->fromMailer,
                     'to'              => $contact->email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
@@ -424,7 +436,7 @@ class DocumentController extends Controller
                 $params = [
                     'model_id' => $contacts,
                     'model_type' => User::class,
-                    'from' => 'documents@amourint.com',
+                    'from' => ($fromEmail!="")?$fromEmail:'documents@amourint.com',
                     'seen' => 1,
                     'to' => $contacts,
                     'subject' => $request->subject,
