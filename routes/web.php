@@ -569,6 +569,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('category/change-push-type', 'CategoryController@changePushType');
     Route::get('sizes/references', 'SizeController@sizeReference');
     Route::get('sizes/{id}/used-products', 'SizeController@usedProducts');
+    Route::POST('category/ScraperUserHistory', 'CategoryController@ScraperUserHistory')->name('ScraperUserHistory');
 
     Route::post('sizes/references/chamge', 'SizeController@referenceAdd');
     Route::get('sizes/affected-product', 'SizeController@affectedProduct');

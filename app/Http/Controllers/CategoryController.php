@@ -729,6 +729,14 @@ class CategoryController extends Controller
     {
         $type = $request->get("type","category");
         $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
+        dd($records);
+        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
+    }
+
+    public function ScraperUserHistory(Request $request)
+    {
+        $type = 'scraped-category';
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $request->id)->where("attribute_name", $request->type)->latest()->get();
         return view("compositions.partials.show-update-history-scrapeed", compact('records'));
     }
 
