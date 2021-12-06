@@ -137,7 +137,7 @@
                                 </select>
                             </td>
                             <td>
-                                <a title="Show User" data-id="<?php echo $unKnownCategory->id; ?>" class="btn btn-image show-user" href="javascript:;"  ><i class="fa fa-file" aria-hidden="true"></i></a>
+                                <a title="Show History" data-id="<?php echo $unKnownCategory->id; ?>" class="btn btn-image show-user" href="javascript:;"  ><i class="fa fa-file" aria-hidden="true"></i></a>
                             </td>
                         </tr>
                         <?php $count++; ?>
