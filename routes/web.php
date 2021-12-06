@@ -2267,7 +2267,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
 
-    Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
+   // Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
     Route::post('/scrap/assignTask', 'ScrapController@assignScrapProductTask')->name('scrap.assignTask');
 
     Route::get('servers/statistics', 'ScrapController@getServerStatistics')->name('scrap.servers.statistics');
