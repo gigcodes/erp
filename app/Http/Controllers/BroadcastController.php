@@ -61,6 +61,7 @@ class BroadcastController extends Controller
 
     public function sendMessage(Request $request)
     {
+       
         // return $request->all();
         $data = \App\BroadcastMessageNumber::where(['broadcast_message_id'=>$request->id])->get();
         
@@ -68,6 +69,8 @@ class BroadcastController extends Controller
         $message = [];
         //Create broadcast
         //$broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
+        $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
+
         if (count($data)) {
             foreach ($data as $key => $item) {
                 if($item->type == 'App\Http\Controllers\App\Vendor'){
@@ -92,7 +95,6 @@ class BroadcastController extends Controller
                     ];
                     $chat_message = \App\ChatMessage::create($params);
 
-                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
                     
                     $approveRequest = new Request();
                     $approveRequest->setMethod('GET');
@@ -120,8 +122,7 @@ class BroadcastController extends Controller
                     ];
                     $chat_message = \App\ChatMessage::create($params);
 
-                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
-
+                   
                     $myRequest    = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -140,8 +141,7 @@ class BroadcastController extends Controller
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
-                    $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id'=>$request->id, 'name' => $request->name, 'message' => $request->message]);
-
+                   
                     $params = [
                         'sending_time' => $request->get('sending_time', ''),
                         'user_id' => \Auth::id(),
