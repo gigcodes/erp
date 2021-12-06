@@ -10,7 +10,7 @@ use seo2websites\ErpCustomer\ErpCustomer;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-class BroadcastMesssageNumber extends Model
+class BroadcastMessageNumber extends Model
 {
     
     /**
