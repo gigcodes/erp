@@ -313,29 +313,48 @@
 </div> --}}
 
 <div class="col-md-12">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:3%">Website</th>
-                <th style="width:3%">Browser</th>
-                <th style="width:3%">OS</th>
-                <th style="width:3%">Country</th>
-                <th style="width:3%">Iso Code</th>
-                <th style="width:3%">User Type</th>
-                <th style="width:10%">Page</th>
-                <th style="width:7%">Avg Time</th>
-                <th style="width:7%">Page Views</th>
-                <th style="width:4%">U. Page Views</th>
-                <th style="width:4%">Exist Rate</th>
+                <th style="width:3.5%">Website</th>
+                <th style="width:3.5%">Browser</th>
+                <th style="width:3.5%">OS</th>
+                <th style="width:3.5%">Country</th>
+                <th style="width:4.5%">Iso Code</th>
+                <th style="width:5%">User Type</th>
+                <th style="width:6%">Page</th>
+                <th style="width:4.5%">Avg Time</th>
+                <th style="width:5%">Page Views</th>
+                <th style="width:6%">U. Page Views</th>
+                <th style="width:5%">Exist Rate</th>
                 <th style="width:4%">Entrances</th>
-                <th style="width:5%">Entrance Rate</th>
-                <th style="width:3%">Age</th>
+                <th style="width:6%">Entrance Rate</th>
+                <th style="width:2%">Age</th>
                 <th style="width:3%">Gender</th>
                 <th style="width:4%">Session</th>
                 <th style="width:4%">Date</th>
             </tr>
         </thead>
         <tbody>
+            <tr>
+                <td class="Website-task">theunlimitedlulxury.com</td>
+                <td>chrome</td>
+                <td>windows</td>
+                <td>india</td>
+                <td>IN</td>
+                <td class="Website-task">Returuning Visitor</td>
+                <td class="Website-task">video/6254471?key=84644b22536310e75ea9cc07535f06a1</td>
+                <td>22.667</td>
+                <td>4</td>
+                <td>2</td>
+                <td>25.0</td>
+                <td>2</td>
+                <td>50</td>
+                <td></td>
+                <td></td>
+                <td>2</td>
+                <td class="Website-task">2021-11-25</td>
+            </tr>
             @foreach ($google_analytics_data as $data)
                 <tr>
                     <td>{{ $data->website }}</td>

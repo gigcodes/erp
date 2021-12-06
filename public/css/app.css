@@ -11388,3 +11388,8 @@ table.table-striped-custom tbody tr td {
     max-width: 800px;
     width: 800px;
 }
+.Website-task{
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
