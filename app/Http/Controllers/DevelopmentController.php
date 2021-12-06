@@ -3387,4 +3387,40 @@ class DevelopmentController extends Controller
           'success'
         ]);
       }
+    public function changeUser(Request $request){
+       // $users = Helpers::getUserArray(User::role('Developer')->get());
+        $title = 'Change User';
+        $user = $request->user ;
+       
+       
+         $issues = DeveloperTask::with('timeSpent','developerTaskHistory','assignedUser','masterUser','timeSpent','leadtimeSpent','testertimeSpent','messages.taskUser','messages.user','tester');
+         if (Auth::user()->hasRole('Admin') && (int) $request->user > 0) {
+            $issues = $issues->where('assigned_to', $user);
+        }
+        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
+
+        $usrlst = User::orderBy('name')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($usrlst);
+        $issues = $issues->select("developer_tasks.*");
+        $issues = $issues->paginate(20);
+        return view('development.change_user', [
+            'users' => $users,
+            'user' => $user,
+            'title' => $title,
+            'issues' => $issues
+        ]);
+    } 
+    public function changeUserStore (Request $request){
+       
+       
+       $query = 'insert into `developer_tasks` (`priority`, `subject`, `task`, `responsible_user_id`, `assigned_to`, `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`,`parent_id`,hubstaff_task_id,estimate_date)
+        select `priority`, `subject`, `task`, `responsible_user_id`, "'.$request->change_user_id.'", `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`,`parent_id`,0,estimate_date from `developer_tasks` where`assigned_to` = '.$request->assign_user_id.' and `status` = "In Progress" and developer_tasks.task_type_id="1" and scraper_id >0';
+      
+        $insert = DB::insert($query);
+       
+
+        return redirect()->back()->with('success', 'You have successfully change user for the task!');
+        
+        //dd($request->all());
+    }
 }

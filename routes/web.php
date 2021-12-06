@@ -1396,7 +1396,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
     
     Route::get('scrap/development/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrap.index');
-	
+	Route::get('development/change-user', 'DevelopmentController@changeUser')->name('development.issue.change_user');
+    Route::post('development/change-user', 'DevelopmentController@changeUserStore')->name('development.changeuser.store');
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
