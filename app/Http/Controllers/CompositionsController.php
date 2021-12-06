@@ -46,12 +46,23 @@ class CompositionsController extends Controller
             $compositions = $compositions->whereIn('id', $matchedArray);
         }
         if ($request->user_id != null) {
-            $matchedArray= \App\UserUpdatedAttributeHistory::where([
-                'attribute_name' => 'compositions',
-                'user_id'        => $request->user_id,
-            ])->pluck('attribute_id');
-            $compositions = $compositions->whereIn('id', $matchedArray);
-            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+            
+            if( $request->start_date  && $request->end_date ){
+                $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                    'attribute_name' => 'compositions',
+                    'user_id'        => $request->user_id,
+                ])->whereBetween( 'created_at', [ $request->start_date, $request->end_date ] )->pluck('attribute_id');
+                $compositions = $compositions->whereIn('id', $matchedArray);
+                $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+
+            }else{
+                $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                    'attribute_name' => 'compositions',
+                    'user_id'        => $request->user_id,
+                ])->pluck('attribute_id');
+                $compositions = $compositions->whereIn('id', $matchedArray);
+                $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+            }
 
         }
 
