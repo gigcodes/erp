@@ -1242,4 +1242,9 @@ class ScrapStatisticsController extends Controller
         }
         return 'success';
     }
+    public function changeUser(){
+        $insert = DB::insert('insert into `developer_tasks` (`priority`, `subject`, `task`, `responsible_user_id`, `assigned_to`, `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`, `updated_at`, `created_at`,`parent_id`,`estimate_date`,hubstaff_task_id)
+        select `priority`, `subject`, `task`, `responsible_user_id`, "500", `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`, `updated_at`, `created_at`,`parent_id`,`estimate_date`,hubstaff_task_id from `developer_tasks` where`assigned_to` = 472 and `status` = "In Progress"');
+        echo "Data inserted successfully";exit;
+    }
 }

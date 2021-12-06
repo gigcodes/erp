@@ -2265,6 +2265,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
     Route::get('/killed-list', 'ScrapStatisticsController@killedList')->name('scrap.killed-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
+    Route::get('change-user','ScrapStatisticsController@changeUser')->name('scrap.changeUser');
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
 
@@ -3202,6 +3203,9 @@ Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::post('send/type', 'BroadcastController@sendType')->name('send-type');
     Route::post('delete/message', 'BroadcastController@deleteMessage')->name('delete.message');
     Route::post('delete/type', 'BroadcastController@deleteType')->name('delete.type');
+    Route::post('resend/message', 'BroadcastController@resendMessage')->name('resend-message');
+    Route::post('show/message', 'BroadcastController@showMessage')->name('show-message');
+    
 });
 
 Route::any('fetch/customers', 'TwillioMessageController@fetchCustomers');
