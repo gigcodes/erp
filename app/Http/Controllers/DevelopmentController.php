@@ -604,7 +604,10 @@ class DevelopmentController extends Controller
 	
 	public function scrappingTaskIndex(Request $request)
     {
+        
+
         $type = $request->tasktype ? $request->tasktype : 'all';
+        $inputs = $request->input();
         $estimate_date = "";
 
         $title = 'Scrapping Task List';
@@ -625,13 +628,36 @@ class DevelopmentController extends Controller
                 ->orWhere("developer_tasks.team_lead_id", auth()->user()->id);
             });
         }
-     
+        
+        if(@$inputs['module']){
+            $issues->where('module_id',$inputs['module']);
+        }
+
+        if(@$inputs['subject']){
+            $issues->where('subject','like','%'.$inputs['subject'].'%');
+        }
+
+        if(@$inputs['task']){
+            $issues->where('task','like','%'.$inputs['task'].'%');
+        }
+
+        if(@$inputs['user_id']){
+            $issues->where('assigned_to',$inputs['user_id']);
+        }
+
+        if(@$inputs['status']){
+            $issues->where('status',$inputs['status']);
+        }
+
         $issues =  $issues->orderBy('id', 'desc')->groupBy("developer_tasks.id");
 		$issues = $issues->paginate(50);
-     
+
+        $modules = DeveloperModule::all()->pluck('name', 'id');;     
     
         return view('development.scrapper', [
             'issues' => $issues,
+            'modules' => $modules,
+            'inputs' => $inputs,
 			'title' => "Scrapping Issues List",
         ]);
     }

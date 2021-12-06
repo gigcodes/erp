@@ -59,10 +59,60 @@
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Scrapper Task List</h2>
+                    <div class="pull-left cls_filter_box">
+                        {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">Module</label>
+                                <select id="module" name="module" class="form-control">
+                                    <option value=""> Select Module</option>
+                                    @foreach ($modules as $key => $item)
+                                        <option value="{{ $key }}" {{ @$inputs['module'] == $key ? 'selected' : '' }}> {{ $item }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                         
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="name">Subject</label>
+                                {{Form::text('subject', @$inputs['subject'], array('class'=>'form-control'))}}
+                            </div>
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="name">Task</label>
+                                {{Form::text('task', @$inputs['task'], array('class'=>'form-control'))}}
+                            </div>
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">Assigned To</label>
+                                <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User" style="float: left">
+                                    @if (isset($users->id))
+                                        <option value="{{ $users->id }}" selected="selected">{{ $users->name }}</option>
+                                    @endif
+                                </select>
+                            </div>
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">Status</label>
+                                {{Form::select('status', [''=>'Select','In Review'=>'In Review','In Progress'=>'In Progress'], @$inputs['status'], array('class'=>'form-control'))}}
+                            </div>
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">&nbsp;</label>
+                                <button type="submit" class="btn btn-secondary ml-4">Search</button>
+                            </div>
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">&nbsp;</label>
+                                <button type="button" class="btn btn-secondary ml-4 reset" >Reset</button>
+                            </div>
+                            
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 	<div class="row mb-3">
 		<div class="mt-3 col-md-12">
 		    <table class="table table-bordered table-striped">
@@ -145,17 +195,54 @@
 @section('scripts')
    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+
+
+    $(document).ready(function() {
+        $("#user_id").select2({
+            ajax: {
+                url: '{{ route('user-search') }}',
+                dataType: 'json',
+                data: function(params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: "Select User",
+            allowClear: true,
+            minimumInputLength: 2,
+            width: '100%',
+        });
+    });
+    $(".select2").select2({
+        "tags": true
+    });
+
+
+    $(document).on('click', '.reset', function () {
+        var url = "{{ route('development.scrap.index') }}";
+        window.location.href = url;
+    });
 	
- $(document).on('click', '.expand-row-msg', function () {
-    var name = $(this).data('name');
-    var id = $(this).data('id');
-    var full = '.expand-row-msg .show-short-'+name+'-'+id;
-    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
-    $(full).toggleClass('hidden');
-    $(mini).toggleClass('hidden');
-  });
-  $(document).on("click", ".show_error_logs", function() {
-    var id = $(this).data('id');
+    $(document).on('click', '.expand-row-msg', function () {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        var full = '.expand-row-msg .show-short-'+name+'-'+id;
+        var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+    $(document).on("click", ".show_error_logs", function() {
+        var id = $(this).data('id');
         $.ajax({
             method: "GET",
             url: "{{ route('logging.flow.detail') }}" ,
