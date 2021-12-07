@@ -609,6 +609,7 @@ class DevelopmentController extends Controller
         $type = $request->tasktype ? $request->tasktype : 'all';
         $inputs = $request->input();
         $estimate_date = "";
+        $users = User::query();
 
         $title = 'Scrapping Task List';
 		//$moduleIds = DeveloperModule::where('name', 'like', '%scrap%')->pluck('id')->toArray();
@@ -643,6 +644,8 @@ class DevelopmentController extends Controller
 
         if(@$inputs['user_id']){
             $issues->where('assigned_to',$inputs['user_id']);
+            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+
         }
 
         if(@$inputs['status']){
@@ -659,6 +662,8 @@ class DevelopmentController extends Controller
             'modules' => $modules,
             'inputs' => $inputs,
 			'title' => "Scrapping Issues List",
+            'users'=>$users
+            
         ]);
     }
 
