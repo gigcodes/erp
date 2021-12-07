@@ -634,9 +634,8 @@ class CategoryController extends Controller
         ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
         ->groupBy('scrapped_category_mappings.id')
         ->groupBy('scrapped_category_mappings.name')
-        ->orderBy('total_products', 'DESC');
-
-        
+        ->orderBy('total_products', 'DESC')
+        ->orderBy('is_skip', 'ASC');
 
         if($request->search){
             $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
@@ -655,6 +654,8 @@ class CategoryController extends Controller
 
         }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+
+        //dd($scrapped_category_mapping);
 
         $mappingCategory = $scrapped_category_mapping->toArray();
 
@@ -728,6 +729,14 @@ class CategoryController extends Controller
     {
         $type = $request->get("type","category");
         $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
+        dd($records);
+        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
+    }
+
+    public function ScraperUserHistory(Request $request)
+    {
+        $type = 'scraped-category';
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $request->id)->where("attribute_name", $request->type)->latest()->get();
         return view("compositions.partials.show-update-history-scrapeed", compact('records'));
     }
 

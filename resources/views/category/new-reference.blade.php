@@ -30,7 +30,7 @@
                     <input type="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search">
                 </div>
                 <div class="form-group col-md-2">
-                    {{ Form::select('is_skipped', ['' => '-- Select Skipped --', '0' => 'No', '1' => 'Yes'], request('is_skipped'), ['class' => 'form-control']) }}
+                    {{ Form::select('is_skipped', ['' => '-- Select Mapped --', '0' => 'No', '1' => 'Yes'], request('is_skipped'), ['class' => 'form-control']) }}
                 </div>
                 <div class="form-group col-md-3 d-flex">
                     <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User"
@@ -84,8 +84,8 @@
                     <th width="30%">Website</th>
                     <th width="5%">Mapped</th>
                     <th width="10%">Count</th>
-                    <th width="40%">Erp Category</th>
-                    <!--  <th width="20%">Action</th> -->
+                    <th width="20%">Erp Category</th>
+                    <th width="20%">Action</th>
                 </tr>
                 <?php $count = 1; ?>
                 {{-- @dd($unKnownCategories->items()); --}}
@@ -135,6 +135,9 @@
                                         <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
                                     @endforeach
                                 </select>
+                            </td>
+                            <td>
+                                <a title="Show History" data-id="<?php echo $unKnownCategory->id; ?>" class="btn btn-image show-user" href="javascript:;"  ><i class="fa fa-file" aria-hidden="true"></i></a>
                             </td>
                         </tr>
                         <?php $count++; ?>
@@ -515,6 +518,34 @@
                 toastr['error']('Sorry no record found', 'error');
             });
         });
+
+        $(document).on("click", ".show-user", function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            
+            $.ajax({
+                type: 'POST',
+                url: '{{route('ScraperUserHistory')}}',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: $this.data("id"),
+                    type: "scraped-category"
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                $(".show-listing-exe-records").find('.modal-dialog').html(response);
+                $(".show-listing-exe-records").modal('show');
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry no record found', 'error');
+            });
+        });
+
+        
+
     </script>
 @endsection
 @endsection
