@@ -5,6 +5,7 @@ namespace App\Http\Controllers\gtmetrix;
 use App\Http\Controllers\Controller;
 use App\Setting;
 use App\StoreViewsGTMetrix;
+use App\StoreViewsGTMetrixUrl;
 use App\StoreGTMetrixAccount;
 use App\WebsiteStoreView;
 use App\StoreWebsite;
@@ -12,6 +13,7 @@ use Entrecore\GTMetrixClient\GTMetrixClient;
 use Entrecore\GTMetrixClient\GTMetrixTest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -70,7 +72,134 @@ class WebsiteStoreViewGTMetrixController extends Controller
         }    
        
     }
+	
+	public function delete_website_url(Request $request)
+	{
+		if(isset($request->rowid))
+		{
+			try
+			{
+				StoreViewsGTMetrixUrl::where('id', '=', $request->rowid)->delete();
+				return response()->json(["code" => 200, "message" => "Record Deleted Successfully"]);
+			}
+			catch (\Exception $e) {
+                    return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
+			}
+			
+		}
+	}
+	
+	public function add_website_url(Request $request)
+	{
+		if(isset($request->arrayList))
+		{
+			$allRecords = StoreViewsGTMetrixUrl::select('store_views_gt_metrix_url.*')->get();
+			try{
+			foreach($allRecords as $recordsData)
+			{
+				
+				if(in_array($recordsData['id'],$request->arrayList))
+				{
+					$gtmetrix = StoreViewsGTMetrixUrl::where('id', $recordsData['id']);
+					$update = [
+								'process' => 1
+						];
+					$gtmetrix->update($update);
+				}
+				else
+				{
+					$gtmetrix = StoreViewsGTMetrixUrl::where('id', $recordsData['id']);
+					$update = [
+								'process' => 0
+						];
+					$gtmetrix->update($update);
+				}
+			}
+			return response()->json(["code" => 200, "message" => "Processed Successfully"]);
+			}
+			catch (\Exception $e) {
+                    return response()->json(["code" => 500, "message" => "Error :" . $e->getMessage()]);
+			}
+		}
+		else
+		{
+			$storename = "";
+			if(isset($request->store_view))
+			{  
+				$storeViewList = WebsiteStoreView::where('id',$request->store_view)->get();
+				if(isset($storeViewList[0]))
+				{
+					$storename = $storeViewList[0]->name;
+				}
+			}
+			
+			
+			$date = Carbon::now();
+			$addwebsite['website_url'] = $request->website;
+			$addwebsite['process'] = $request->process_url;
+			$addwebsite['store_view_id'] = $request->store_view;
+			$addwebsite['account_id'] = '';
+			$addwebsite['created_at']  = $date;
+			$addwebsite['updated_at']  = $date;
+			$addwebsite['store_name']  = $storename;
+			$website_data = StoreViewsGTMetrixUrl::where('website_url',$request->website)->get();
 
+			if ($website_data->isEmpty()) 
+			{
+				
+				StoreViewsGTMetrixUrl::create($addwebsite);
+				return redirect()->back()->with('success', 'Website url added successfully');
+			}
+			else
+			{
+				return redirect()->back()->with('warning', 'Website url already exists');
+			}
+		}
+		
+		
+		
+		//return response()->json(["code" => 200, "message" => "Request has been send for queue successfully"]);
+	}
+	
+	public function website_url(Request $request)
+	{
+		$query = StoreViewsGTMetrixUrl::select('store_views_gt_metrix_url.*');
+         
+        if (request('date') and request('date') != null) { 
+            $query->whereDate('store_views_gt_metrix_url.created_at', request('date'));
+        }
+		if (request('website_url') and request('website_url') != null) { 
+            $query->where('store_views_gt_metrix_url.website_url','like', '%'.request('website_url').'%');
+        }
+		if (request('process') and request('process') != null) { 
+			$process = (request('process') == 'yes') ? 1 : 0;
+            $query->where('store_views_gt_metrix_url.process', $process);
+        }
+		
+        if (request('sortby') && request('ord') && request('sortby') != null && request('ord') != null ){
+              $query->orderBy(request('sortby'),request('ord'));
+        }
+
+        if (request('sortby') and request('sortby') != null) { 
+            $list = $query->orderBy('id', request('sortby'))->paginate(25);
+        }else{ 
+            $list = $query->orderBy('id', 'desc')->paginate(25);
+        }
+        
+
+        //$list = $query->orderBy('id','desc')->paginate(25);
+		$storeViewList = WebsiteStoreView::whereNotNull('website_store_id')->get();
+        
+        if ($request->ajax()) 
+        {
+            return view('gtmetrix.website_url_ajax', compact('list','storeViewList'));
+        }
+        else
+        {
+            return view('gtmetrix.website_url', compact('list','storeViewList'));
+        }
+	}
+	
     public function toggleFlag(Request $request){
         
         $input = $request->all();

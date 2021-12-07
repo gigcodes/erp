@@ -22,6 +22,7 @@ use App\DeveloperComment;
 use App\DeveloperTaskComment;
 use App\DeveloperCost;
 use App\DeveloperTaskHistory;
+use App\DeveoperTaskPullRequestMerge;
 use App\Github\GithubRepository;
 use App\PushNotification;
 use App\User;
@@ -600,6 +601,71 @@ class DevelopmentController extends Controller
             // 'languages' => $languages
         ]);
     }
+	
+	public function scrappingTaskIndex(Request $request)
+    {
+        
+
+        $type = $request->tasktype ? $request->tasktype : 'all';
+        $inputs = $request->input();
+        $estimate_date = "";
+        $users = User::query();
+
+        $title = 'Scrapping Task List';
+		//$moduleIds = DeveloperModule::where('name', 'like', '%scrap%')->pluck('id')->toArray();
+        $issues = DeveloperTask::with('assignedUser');
+		$issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
+        //$issues = $issues->whereIn('developer_tasks.module_id', $moduleIds);
+        
+        $issues = $issues->select("developer_tasks.*");
+        
+        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+      
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+            $issues = $issues->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id)
+                ->orWhere("developer_tasks.tester_id", auth()->user()->id)
+                ->orWhere("developer_tasks.team_lead_id", auth()->user()->id);
+            });
+        }
+        
+        if(@$inputs['module']){
+            $issues->where('module_id',$inputs['module']);
+        }
+
+        if(@$inputs['subject']){
+            $issues->where('subject','like','%'.$inputs['subject'].'%');
+        }
+
+        if(@$inputs['task']){
+            $issues->where('task','like','%'.$inputs['task'].'%');
+        }
+
+        if(@$inputs['user_id']){
+            $issues->where('assigned_to',$inputs['user_id']);
+            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+
+        }
+
+        if(@$inputs['status']){
+            $issues->where('status',$inputs['status']);
+        }
+
+        $issues =  $issues->orderBy('id', 'desc')->groupBy("developer_tasks.id");
+		$issues = $issues->paginate(50);
+
+        $modules = DeveloperModule::all()->pluck('name', 'id');;     
+    
+        return view('development.scrapper', [
+            'issues' => $issues,
+            'modules' => $modules,
+            'inputs' => $inputs,
+			'title' => "Scrapping Issues List",
+            'users'=>$users
+            
+        ]);
+    }
 
     public function exportTask(Request $request){
 
@@ -1000,31 +1066,47 @@ class DevelopmentController extends Controller
     {
         $user_id = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
-
-        $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
+        $issues = DeveloperTask::select('developer_tasks.*')
             ->leftJoin('erp_priorities', function ($query) use ($user_id) {
                 $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                 $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
-            })->where('is_resolved', '0');
-
+                $query->where('erp_priorities.user_id', $user_id);
+            })
+            ->where('status', '!=', 'Done');
+        // if admin the can assign new task
+        // if (auth()->user()->isAdmin()) {
+        //     $issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue', []));
+        // } else {
+        //     $issues = $issues->whereNotNull('erp_priorities.id');
+        // }
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
                 $user_id = is_null($user_id) ? 0 : $user_id;
+                if($user_id!=0){
+                    $q->where('developer_tasks.assigned_to', $user_id)
+                    ->orWhere("developer_tasks.master_user_id", $user_id)
+                    ->orWhere("developer_tasks.team_lead_id", $user_id)
+                    ->orWhere("developer_tasks.tester_id", $user_id);
+                }
                 $q->whereIn('developer_tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
             });
-            //$issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue', []));
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
-        $issues = $issues->groupBy("developer_tasks.id")->orderBy('erp_priorities.id')->get();
-
+        $issues = $issues->orderBy('erp_priorities.id')->get();
         foreach ($issues as &$value) {
-            $value->module = $value->developerModule ? $value->developerModule->name : 'Not Specified';
-            $value->submitted_by = ($value->submitter) ? $value->submitter->name : "";
+            $value->module = $value->developerModule->name;
+            $value->created_by = User::where('id', $value->created_by)->value('name');
         }
         unset($value);
-        return response()->json($issues);
+        $viewData= view('development.partials.taskpriority', compact('issues'))->render();
+
+        return response()->json([
+            'html' => $viewData,
+            
+        ], 200);
+
     }
     public function setPriority(Request $request)
     {
@@ -3270,6 +3352,16 @@ class DevelopmentController extends Controller
         ],200);
 
     }
+    public function getPullHistory(Request $request) {
+        $pullrequests = DeveoperTaskPullRequestMerge::where('task_id',$request->id)->get();
+        foreach($pullrequests as $u) {
+            $u->user_id = User::find($u->user_id)->name;
+        }
+        return response()->json([
+            'pullrequests' => $pullrequests
+        ],200);
+
+    }
 
     public function saveLeadEstimateTime(Request $request)
     {
@@ -3326,4 +3418,40 @@ class DevelopmentController extends Controller
           'success'
         ]);
       }
+    public function changeUser(Request $request){
+       // $users = Helpers::getUserArray(User::role('Developer')->get());
+        $title = 'Change User';
+        $user = $request->user ;
+       
+       
+         $issues = DeveloperTask::with('timeSpent','developerTaskHistory','assignedUser','masterUser','timeSpent','leadtimeSpent','testertimeSpent','messages.taskUser','messages.user','tester');
+         if (Auth::user()->hasRole('Admin') && (int) $request->user > 0) {
+            $issues = $issues->where('assigned_to', $user);
+        }
+        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
+
+        $usrlst = User::orderBy('name')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($usrlst);
+        $issues = $issues->select("developer_tasks.*");
+        $issues = $issues->paginate(20);
+        return view('development.change_user', [
+            'users' => $users,
+            'user' => $user,
+            'title' => $title,
+            'issues' => $issues
+        ]);
+    } 
+    public function changeUserStore (Request $request){
+       
+       
+       $query = 'insert into `developer_tasks` (`priority`, `subject`, `task`, `responsible_user_id`, `assigned_to`, `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`,`parent_id`,hubstaff_task_id,estimate_date)
+        select `priority`, `subject`, `task`, `responsible_user_id`, "'.$request->change_user_id.'", `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`,`parent_id`,0,estimate_date from `developer_tasks` where`assigned_to` = '.$request->assign_user_id.' and `status` = "In Progress" and developer_tasks.task_type_id="1" and scraper_id >0';
+      
+        $insert = DB::insert($query);
+       
+
+        return redirect()->back()->with('success', 'You have successfully change user for the task!');
+        
+        //dd($request->all());
+    }
 }

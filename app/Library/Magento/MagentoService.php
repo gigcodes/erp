@@ -368,6 +368,8 @@ class MagentoService
             }
         }
 
+        \Log::info(print_r([count($this->prices['samePrice']),count($this->prices['specialPrice']),count($this->translations)],true));
+
         if ($pushSingle) {
             $totalRequest = 1 + count($this->prices['samePrice']) + count($this->prices['specialPrice']) + count($this->translations);
             if ($this->log) {
@@ -834,7 +836,8 @@ class MagentoService
         $product = $this->product;
         $website = $this->storeWebsite;
         $arrSizes = explode(',', $product->size_eu);
-
+        $catEuSize= ProductHelper::getCategoryEuSize($product);
+        $arrMergeSizes = array_merge($arrSizes,$catEuSize);
         $data = [];
         $data['sku'] = $this->sku;
         $data['attribute_set_id'] = $this->websiteAttributes['attribute_set_id'];
@@ -860,8 +863,8 @@ class MagentoService
         // remove here
 
         // Loop over each size and create a single (child) product
-        if (!empty($arrSizes)) {
-            foreach ($arrSizes as $size) {
+        if (!empty($arrMergeSizes)) {
+            foreach ($arrMergeSizes as $size) {
                 // Create a new product reference for this size
                 $reference = new ProductReference;
                 $reference->product_id = $product->id;
@@ -874,6 +877,22 @@ class MagentoService
 
                 $data['type_id'] = 'simple';
                 $data['attribute_set_id'] = $attributeSetid;
+                if(in_array($size,$arrSizes)){
+                    $data['stock_item'] = [
+                        'use_config_manage_stock' => 1,
+                        'manage_stock' => 1,
+                        'qty' => $product->stock,
+                        'is_in_stock' => ($product->stock > 0) ? 1 : 0,
+                    ];
+                }else{
+                    $data['stock_item'] = [
+                        'use_config_manage_stock' => 1,
+                        'manage_stock' => 1,
+                        'qty' => 0,
+                        'is_in_stock' =>  0,
+                    ];
+                }
+               
                 $productData = $this->defaultData($data);
                 // Push simple product to Magento
                 $result = $this->_pushProduct('simple_configurable', $this->sku, $productData, $size, $website, $this->token, $product);

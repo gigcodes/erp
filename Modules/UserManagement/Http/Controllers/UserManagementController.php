@@ -96,8 +96,9 @@ class UserManagementController extends Controller
         // //     // $user->status=$req->input('status');
         // //     // $user->histry=$req->input('histry');
         // $user->save();
+        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1'); 
 
-        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist','whatsapp'));
     }
 
     public function getUserList(Request $request){
@@ -429,6 +430,7 @@ class UserManagementController extends Controller
         
 
         $isAdmin = Auth::user()->isAdmin();
+     
         return response()->json([
             "code"       => 200,
             "data"       => $items,

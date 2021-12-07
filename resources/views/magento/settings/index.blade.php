@@ -10,7 +10,16 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 </style>
         <h2 class="page-heading">Magento Settings</h2>
     </div>
-
+    @if($errors->any())
+        <div class="row m-2">
+          {!! implode('', $errors->all('<div class="alert alert-danger">:message</div>')) !!}
+        </div>
+    @endif
+    @if (session('success'))
+        <div class="row m-2">
+          <div class="alert alert-success">{{session('success')}}</div>
+        </div>
+    @endif
      <div class="row m-0">
          <div class="col-lg-12 margin-tb pl-3">
              <?php $base_url = URL::to('/');?> 
@@ -66,6 +75,18 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 				
              </div>
          </div> 
+         <div class="col-lg-12 margin-tb pt-3">
+            <div class="pull-left cls_filter_box">
+                {{Form::open(array('url'=>route('magento.setting.updateViaFile'), 'class'=>'form-inline','files' => true))}}
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <?php echo Form::file('file'); ?>
+                    </div> 
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
+                        <button type="submit" onclick="confirm('Are you sure you want to update setting ?')" class="btn btn-default">Start sync</button>
+                    </div>
+                </form>
+             </div>
+         </div> 
      </div>
 
     <div class="col-12 mb-3 mt-3 p-0">
@@ -77,7 +98,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                   <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th style="display:block;">ID</th>
                             <th>Website</th>
                             <th>Store</th>
                             <th>Store View</th>
@@ -89,6 +110,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                             <th>Date</th>
                             <th>Status</th>
                             <th>Created By</th>
+							<th>Data Type</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -109,7 +131,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' ; ?>')" >
                                             {{ $magentoSetting->store &&  $magentoSetting->store->website &&  $magentoSetting->store->website->storeWebsite ? $magentoSetting->store->website->storeWebsite->website : '-' }} ...
                                         </td>
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->website; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->store->website->name; ?>')" >{{ substr($magentoSetting->store->website->name, 0,10) }} @if(strlen($magentoSetting->store->website->name) > 10) ... @endif</td>
                                         <td>-</td>
                                         
                                 @else 
@@ -136,6 +158,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->created_at->format('Y-m-d') }}</td>
                                 <td>{{ $magentoSetting->status }}</td>
                                 <td>{{ $magentoSetting->uname }}</td>
+								<td>{{ $magentoSetting->data_type }}</td>
                                 <td>
                                     <button type="button" value="{{ $magentoSetting->scope }}" class="btn btn-image edit-setting p-0" data-setting="{{ json_encode($magentoSetting) }}" ><img src="/images/edit.png"></button>
                                     <button type="button" data-id="{{ $magentoSetting->id }}" class="btn btn-image delete-setting p-0" ><img src="/images/delete.png"></button>
@@ -235,7 +258,14 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <option value="{{ $w->id }}">{{ $w->website }}</option>
                             @endforeach
                         </select>
-                    </div>    
+                    </div> 
+					<div class="form-group">
+						<label for="">Data Type</label><br>
+                        <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
+                        <label for="sensitive">sensitive</label><br>
+                        <input type="radio" name="datatype" id="shared" value="shared">
+                        <label for="shared">Shared</label><br>
+                    </div>
                         
                 </div>
                 <div class="modal-footer">
@@ -308,6 +338,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                         <label for="stage">Stage</label><br>
                         <input type="checkbox" name="live" id="live" checked>
                         <label for="live">Live</label>
+                    </div>
+					<div class="form-group">
+						<label for="">Data Type</label><br>
+                        <input type="radio" name="datatype" id="sensitive" value="sensitive" checked>
+                        <label for="sensitive">Sensitive</label><br>
+                        <input type="radio" name="datatype" id="shared" value="shared">
+                        <label for="shared">Shared</label><br>
                     </div>
                 </div>
                 <div class="modal-footer">

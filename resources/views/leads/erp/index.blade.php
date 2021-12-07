@@ -169,6 +169,7 @@
     <div class="table-responsive mt-3">
         <table class="table table-bordered erp-leads" id="vendor-table">
             <thead>
+              
             <tr>
                 <th width="2%"></th>
                 <th width="2%">ID</th>

@@ -225,7 +225,7 @@ valenti.js
 veritas.js
 viamonteshop.js
 viettishop.js
-Vinicio.js
+vinicio.js
 visiona.js
 vitaleboutique.js
 vitkac.js
@@ -233,3 +233,5 @@ vogashop.js
 vrients.js
 wiseboutique.js
 wok.js
+coccole.js
+Da-LInea.js

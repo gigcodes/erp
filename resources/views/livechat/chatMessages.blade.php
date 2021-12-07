@@ -83,14 +83,14 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 <table class="table table-striped table-bordered" id="keywordassign_table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">#</th>
-                            <th style="width: 5%;">Website</th>
+                            <th style="width: 2%;">#</th>
+                            <th style="width: 10%;">Website</th>
                             <th style="width: 5%;">Customer</th>
                             <th style="width: 5%;">Email</th>
-                            <th style="width: 10%;">Phone Number</th>
-                            <th style="width: 10%;">Translation Language</th>
-                            <th style="width: 50%;">Communication</th>
-                            <th style="width: 10%;">Actions</th>
+                            <th style="width: 5%;">Ph Number</th>
+                            <th style="width: 10%;">Trans Language</th>
+                            <th style="width: 47%;">Communication</th>
+                            <th style="width: 8.5%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -101,6 +101,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             @foreach ($chatIds as $chatId)
                                 @php
                                 $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                if(!$customer) {
+                                    \Log::info("Need to delete chat id for customer #".$chatId->customer_id);
+                                    continue;
+                                }
                                 $customerInital = substr($customer->name, 0, 1);
                                 @endphp
                                    <tr>
@@ -123,7 +127,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         $language = json_decode($content, true);
                                         @endphp
                                         <div class="selectedValue">
-                                            <select id="autoTranslate" class="form-control auto-translate">
+                                            <select id="autoTranslate" style="width: 130px !important" class="form-control auto-translate">
                                                 <option value="">Translation Language</option>
                                                 @foreach ($language as $key => $value)
                                                     <option value="{{$value}}">{{$key}}</option>
@@ -131,25 +135,19 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             </select>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="cls_remove ">
                                         <div class="typing-indicator" id="typing-indicator"></div>
                                          
 
-                                        <div class="row">
-                                            <div class="col-md-10 cls_remove_rightpadding">
-                                                <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message"></textarea>
+                                        <div class="row quick">
+                                            <div class="col-md-4 cls_remove_rightpadding">
+                                                <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message" rows="1" style="height:auto !important"></textarea>
                                                 <input type="hidden" id="message-id" name="message-id" />
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="input-group-append">
-                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark">
-                                                        <i class="fa fa-paperclip"></i>
-                                                    </a>
-                                                    <a class="mt-2 mr-2 btn-xs text-dark send_btn" href="javascript:;" data-id="{{ @$customer->id }}">
-                                                        
-                                                            <i class="fa fa-location-arrow"></i>
-                                                        
-                                                    </a>
+                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="ml-2 mt-2 mr-2 btn-xs text-dark"><i class="fa fa-paperclip"></i></a>
+                                                    <a class="mt-2 btn-xs text-dark" href="javascript:;" data-id="{{ @$customer->id }}"><i class="fa fa-location-arrow"></i></a>
                                                 </div>
                                             </div>                                          
                                         </div>

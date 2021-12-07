@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\ChatMessage;
 use App\Customer;
 use App\Email;
+use App\BroadcastMessage;
+use App\BroadcastMessageNumber;
 use App\Helpers;
 use App\Helpers\GithubTrait;
 use App\Helpers\HubstaffTrait;
@@ -1323,9 +1325,12 @@ class VendorController extends Controller
 
     public function sendMessage(Request $request)
     {
+
         // return $request->all();
         set_time_limit(0);
         $vendors = Vendor::whereIn('id', $request->vendors)->get();
+        //Create broadcast
+        $broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         if (count($vendors)) {
             foreach ($vendors as $key => $item) {
                 $params = [
@@ -1337,6 +1342,12 @@ class VendorController extends Controller
                     'approved'  => 1,
                     'is_queue'  => 0,
                 ];
+                $message = [
+                    'type_id' => $item->id,
+                    'type' => App\Vendor::class,
+                    'broadcast_message_id' => $broadcast->id,
+                ];
+                $broadcastnumber = \App\BroadcastMessageNumber::create($message);
                 $chat_message = ChatMessage::create($params);
                 $myRequest    = new Request();
                 $myRequest->setMethod('POST');

@@ -156,6 +156,16 @@ class Brand extends Model
         }
     }
 
+    public function productCountInExternalScraper()
+    {
+        return \App\Product::where("brand",$this->id)->where("status",\App\Helpers\StatusHelper::$requestForExternalScraper)->count();
+    }
+
+    public function productFromExternalScraper()
+    {
+        return \App\ScrapedProducts::where("brand_id",$this->id)->where("is_external_scraper",">",0)->count();
+    }
+
     // public function categorySegment()
     // {
     //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');

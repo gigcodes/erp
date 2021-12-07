@@ -10,7 +10,7 @@
         <div class="col-md-12">
             <h2 class="page-heading">Quick Replies</h2>
         </div>
-        <div class="col-md-12 form-inline">
+        <div class="col-md-9 form-inline">
             <input type="text" name="category_name" placeholder="Enter New Category" class="form-control quick_category">
             <button class="btn btn-xs quick_category_add ml-3"><i class="fa fa-plus"></i></button>
             {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
@@ -19,6 +19,9 @@
                 </div>
                 <button type="submit" class="btn btn-xs ml-3"><i class="fa fa-filter"></i></button>
             </form>
+        </div>
+		<div class="col-md-3 form-inline">
+			<a class="btn btn-secondary" href="{{url('sync-to-watson')}}">Push To Watson</a>
         </div>
         <div class="col-md-12">
             <div class="infinite-scroll">
@@ -64,7 +67,7 @@
                                                     <button class="btn btn-sm p-0 pt-2 save_reply_sub pull-left w-25"><i class="fa fa-check"></i></button>
                                                 </div>
                                                 <div id="show_reply_list_sub_{{ $all_category->id }}" class="w-100 pull-left">
-                                                    <span>{{ $all_category->name }}</span>  
+                                                    <span>{{ $all_category->name }} </span>  
                                                     <a href="javascript::void()" class="add_sub_cat btn btn-sm p-0" id="show_add_option_sub_{{ $all_category->id }}" data-id="{{ $all_category->id }}"><i class="fa fa-plus"></i></a> 
                                                 </div>
                                             </td>
@@ -220,7 +223,7 @@
                                                     </div>  
                                                
 
-                                                    <span id="{{ $all_category_sub_sub->id }}" class="edit_reply_sub">{{ $all_category_sub_sub->name }}</span>  
+                                                    <span id="{{ $all_category_sub_sub->id }}" class="edit_reply_sub">{{ $all_category_sub_sub->name }}  @if($all_category_sub_sub['pushed_to_watson'] == 0) <span style="color:red">(Pending)</span> @endif</span>  
                                                
                                                     </td>
                                                     @if(isset($store_websites))

@@ -419,6 +419,24 @@ if (!empty($notifications)) {
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+								
+								<li class="nav-item dropdown dropdown-submenu">
+									<a id="navbarDropdown" class="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
+									<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
+										</li>
+									</ul>
+								</li>
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
@@ -505,12 +523,7 @@ if (!empty($notifications)) {
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
-										<li class="nav-item dropdown dropdown-submenu">
-                                            <a id="twilioDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Twilio<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="twilioDropdown">
-                                                <a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
-                                            </ul>
-                                        </li>
+										
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -680,19 +693,42 @@ if (!empty($notifications)) {
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('products.listing.approved.images')}}/images">Final Apporval Images</a>
                                 </li>
+								<li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('customer.charity')}}">Charity Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">CRM <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+								<li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('logs.index') }}">Image Logs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('order.call-management') }}">Call Management</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM Notifications</a>
                                 </li>
+								<li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown"class="" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Scheduled Flows<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('flow.index') }}">Flows</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/erp-customer') }}">Customers - NEW</a>
@@ -706,7 +742,6 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer Credit</a>
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
-                                            <a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
                                             <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1081,6 +1116,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('ReplyController@replyList') }}">Quick Reply List</a>
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
                                         </li>
@@ -1359,6 +1397,10 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('logging.flow.log') }}">Flow Log
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1389,6 +1431,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
@@ -1440,63 +1485,9 @@ if (!empty($notifications)) {
                                 </li>
                             </ul>
                         </li>
-                        <li id="product-template" class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
-                                </li>
-                            </ul>
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
                         </li>
-
-
-                            @if(auth()->user()->isAdmin())
-                                <li id="queues" class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
-                                    <ul class="dropdown-menu multi-level">
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li id="messages" class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Scheduled Flows<span class="caret"></span></a>
-                                    <ul class="dropdown-menu multi-level">
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li id="messages" class="nav-item dropdown">
-                                    <a href="{{ route('logs.index') }}" class="nav-link" role="button" aria-haspopup="true" aria-expanded="false">Image Logs<span class="caret"></span></a>
-                  
-                                </li>
-                            @endif
-
-
-
-
-
-
-
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1514,6 +1505,10 @@ if (!empty($notifications)) {
 
                                         <ul class="dropdown-menu multi-level">
                                             <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('products/pushproductlist') }}">
+												Push Product List</a>
+                                            </li>
+											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
                                             <li class="nav-item">
@@ -1596,6 +1591,9 @@ if (!empty($notifications)) {
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 @endif
@@ -1604,8 +1602,44 @@ if (!empty($notifications)) {
                                         {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>--}}
 
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
+										
+										<ul class="dropdown-menu multi-level">
+										
+											<li class="nav-item dropdown dropdown-submenu">
+												<a id="twilioDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Twilio<span class="caret"></span></a>
+												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="twilioDropdown">
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.errors') }}">Twilio Errors</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
+													</li>
+												</ul>
+											</li>
+										</ul>
 
                                         <ul class="dropdown-menu multi-level">
+										
+											<li class="nav-item dropdown dropdown-submenu">
+												<a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
+												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="queueDropdown">
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
+													</li>
+												</ul>
+											</li>
 
                                             <li class="nav-item dropdown">
                                                 <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
@@ -1662,9 +1696,7 @@ if (!empty($notifications)) {
                                                 </ul>
                                             </li>
                                             @if(auth()->user()->isAdmin())
-                                                <li class="nav-item dropdown">
-                                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
-                                                </li>
+                                               
 
                                                 <li class="nav-item dropdown">
                                                     <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
@@ -1872,6 +1904,9 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
+                                            </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('gt-metrix-url') }}">GTMetrix Url's</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('GtMetrixAccount.index') }}">GTMetrix Account</a>

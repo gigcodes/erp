@@ -193,9 +193,15 @@ class QuickReplyController extends Controller
         try {
             if (isset($request->sub_id)) {
                 //update name
-                ReplyCategory::where('id', '=', $request->sub_id)->update([
-                    'name' => $request->name,
-                ]);
+				$replyCategory = ReplyCategory::find($request->sub_id);
+				if($replyCategory != null and $replyCategory['name'] != $request->name) {
+					ReplyCategory::where('id', '=', $request->sub_id)->update([
+						'name' => $request->name,
+						'intent_id' => 0,
+						'dialog_id' => 0,
+						'pushed_to_watson' => 0,
+					]);
+				} 
                 return new JsonResponse(['status' => 1, 'data' => $request->name, 'message' => 'Category updated successfully']);
             } else {
                 ReplyCategory::create([

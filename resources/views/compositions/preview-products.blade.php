@@ -22,7 +22,7 @@
                     @foreach($products as $product)
                       <tr>
                         <td></td>
-                        <td>{{ $product->sku }}</td>
+                        <td><a href="{{ $product->url }}" target="_blank"> {{ $product->sku }}</a></td>
                         <td>{{ $product->website }}</td>
                         <td>{{ $product->title }}</td>
                         <td>{{ $product->categories }}</td>

@@ -361,7 +361,7 @@ class ScrapStatisticsController extends Controller
             JOIN
                 scraped_products ls
             ON
-                sc.scraper_name=ls.website
+                sc.supplier_id=ls.supplier_id
             WHERE
                 sc.scraper_name IS NOT NULL AND
 
@@ -953,6 +953,15 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
 
+    public function killedList(Request $request)
+    {
+        $id = $request->id;
+
+        $histories = \App\ScraperKilledHistory::where("scraper_id", $request->id)->latest()->get();
+
+        return view("scrap.partials.killed", compact('histories', 'id'));
+    }
+
     public function addReply(Request $request)
     {
         $reply = $request->get("reply");
@@ -1232,5 +1241,10 @@ class ScrapStatisticsController extends Controller
             Scraper::where('id', $request->scrapper_id)->update(['assigned_to' => $assigendTo]);
         }
         return 'success';
+    }
+    public function changeUser(){
+        $insert = DB::insert('insert into `developer_tasks` (`priority`, `subject`, `task`, `responsible_user_id`, `assigned_to`, `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`, `updated_at`, `created_at`,`parent_id`,`estimate_date`,hubstaff_task_id)
+        select `priority`, `subject`, `task`, `responsible_user_id`, "500", `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`, `updated_at`, `created_at`,`parent_id`,`estimate_date`,hubstaff_task_id from `developer_tasks` where`assigned_to` = 472 and `status` = "In Progress"');
+        echo "Data inserted successfully";exit;
     }
 }

@@ -921,5 +921,54 @@ class ProductHelper extends Model
         return $websiteArray;
 
     }
+    
+    public static function getCategoryEuSize($product)
+    {
+      
+        $category = $product->categories;
+        $ids = [];
+        if($category) {
+            $ids[] = $product->category;
+            if($category && $category->parent) {
+                $parentModel = $category->parent;
+                if($parentModel) {
+                    $ids[] = $parentModel->id;
+                    $grandParentModel = $parentModel->parent;
+                    if($grandParentModel) {
+                        $ids[] = $grandParentModel->id;
+                    }
+                }
+            }
+        }
+
+
+        $ids = array_filter($ids);
+
+        $needToMatch = false;
+
+        $categoryIds = \App\SystemSizeManager::groupBy('category_id')->pluck('category_id')->toArray();
+        // this categories id need to fix
+        foreach($categoryIds as $k) {
+            if(in_array($k, $ids)) {
+                $needToMatch = true;
+            }
+        }
+
+        if($needToMatch) {
+
+            $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
+            ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
+            ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+            ->whereIn('category_id',$ids);
+           // $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+
+            return $sizeManager->groupBy("erp_size")->pluck('erp_size')->toArray();
+
+        }else{
+            return [];
+        }
+
+        return [];
+    }
 
 }

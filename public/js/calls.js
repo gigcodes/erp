@@ -182,8 +182,21 @@
 				},
 			})
 
+			$.ajax({
+				url: '/twilio/update_number_status',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					_token: "{{ csrf_token() }}",
+					authid : auth_id,
+					number : conn.parameters.From,
+					status: 0,
+				},
+			})
+
 			cleanup();
 		});
+		
 
 		device.on('incoming', function (conn) {
 
@@ -258,6 +271,20 @@
 						})
 					}, 2000);
 
+					add_number = setInterval(function(){  
+						$.ajax({
+							url: '/twilio/add_number',
+							type: 'POST',
+							dataType: 'json',
+							data: {
+								_token: "{{ csrf_token() }}",
+								authid : auth_id,
+								number : conn.parameters.From,
+								status: 1,
+							},
+						})
+					}, 2000);
+
 					conn.accept();
 				});
 
@@ -286,6 +313,19 @@
 							status: 0,
 						},
 					})
+
+					$.ajax({
+						url: '/twilio/update_number_status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							number : conn.parameters.From,
+							status: 0,
+						},
+					})
+
 					conn.reject();
 				});
 			});
@@ -323,6 +363,18 @@
 						status: 0,
 					},
 				})
+
+				$.ajax({
+					url: '/twilio/update_number_status',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						_token: "{{ csrf_token() }}",
+						authid : auth_id,
+						number : conn.parameters.From,
+						status: 0,
+					},
+				})
 			}
 		});
 	}
@@ -341,6 +393,19 @@
 	}
 
 	function callerHangup() {
+
+		$.ajax({
+			url: '/twilio/update_number_status',
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				_token: "{{ csrf_token() }}",
+				authid : auth_id,
+				number : currentConnection.parameters.From,
+				status: 0,
+			},
+		})
+
 		if (currentConnection) currentConnection.disconnect();
 
 		var auth_id = $('.call-twilio ').attr('data-auth-id');

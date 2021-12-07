@@ -87,7 +87,7 @@ class TicketController extends Controller
         $data['status_id'] = 1;
         $data['resolution_date'] = Carbon::now()->addDays(2)->format('Y-m-d H:i:s');
         if (isset($request->lang_code) && $request->lang_code != '') {
-            $lang = explode("_", $request->lang_code);
+            $lang = explode("_", str_replace("-","_",$request->lang_code));
             $data['lang_code'] = $lang[1];
         }
 
@@ -99,7 +99,7 @@ class TicketController extends Controller
             'model_id' => $ticket->id,
             'model_type' => Ticket::class,
             'from' => $emailClass->fromMailer,
-            'to' => @$ticket->customer->email,
+            'to' => @$ticket->email,
             'subject' => $emailClass->subject,
             'message' => $emailClass->render(),
             'template' => 'ticket-create',

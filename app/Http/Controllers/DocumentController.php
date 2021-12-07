@@ -19,6 +19,8 @@ use App\DocumentRemark;
 use App\DocumentHistory;
 use Mail;
 use finfo;
+use App\EmailAddress;
+
 
 class DocumentController extends Controller
 {
@@ -90,6 +92,7 @@ class DocumentController extends Controller
 
 
             $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
+            $emailAddresses = EmailAddress::orderBy('id', 'asc')->pluck('from_address','id');
             $category = DocumentCategory::select('id', 'name')->get();
             $api_keys = ApiKey::select('number')->get();
             return view('documents.index', [
@@ -97,6 +100,7 @@ class DocumentController extends Controller
                 'users' => $users,
                 'category' => $category,
                 'api_keys' => $api_keys,
+                'emailAddresses'=>$emailAddresses
             ]);
 
     }
@@ -133,7 +137,7 @@ class DocumentController extends Controller
             $data[ 'filename' ] = $file->getClientOriginalName();
             $data[ 'file_contents' ] = $file->openFile()->fread($file->getSize());
 
-            //$file->storeAs("documents", $data[ 'filename' ], 'files');
+            $file->storeAs("documents", $data[ 'filename' ], 'files');
 
             Document::create($data);
         }
@@ -144,6 +148,24 @@ class DocumentController extends Controller
     public function download($id)
     {
         $document = Document::find($id);
+
+        if(!empty($document->file_contents)) {
+
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->buffer($document->file_contents);
+
+            return response($document->file_contents)
+        ->header('Cache-Control', 'no-cache private')
+        ->header('Content-Description', 'File Transfer')
+        ->header('Content-Type', $mime)
+        ->header('Content-length', strlen($document->file_contents))
+        ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
+        ->header('Content-Transfer-Encoding', 'binary');
+
+            /*return response()->make($document->file_contents, 200, array(
+                'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($document->file_contents)
+            ));*/
+        }
 
         return Storage::disk('files')->download('documents/' . $document->filename);
     }
@@ -209,6 +231,7 @@ class DocumentController extends Controller
 
     public function sendEmailBulk(Request $request)
     {
+     //  dd($request->all());
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -228,25 +251,43 @@ class DocumentController extends Controller
                 $file_paths[] = "documents/$filename";
             }
         }
-
+       
         $document = Document::findOrFail($request->document_id);
 
         if ($document) {
             $file_paths[] = "documents/$document->filename";
         }
-
+    
+       // dd($file_paths);
         $cc = $bcc = [];
         if ($request->has('cc')) {
             $cc = array_values(array_filter($request->cc));
         }
         if ($request->has('bcc')) {
             $bcc = array_values(array_filter($request->bcc));
+        }   
+        $fromEmail='';
+        if(isset($request->from_select_id)){
+            $fromEmailArray = EmailAddress::where('id',$request->from_select_id )->first();
+            if($fromEmailArray){
+                $fromEmail =$fromEmailArray->from_address;
+            }
+            
         }
 
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
-
+                $user_email = $user->email;
+              //  dd($request->all());
+               /* echo $request["mitali1@gmail.com"];
+                 echo $user_email;
+                dd($request->all());
+                dd($request[$user->email]);
+                dd($request[$user_email]);*/
+                $reqKey = "selected_email_".$key;
+                $email = (isset($request[$reqKey]))?$request[$reqKey]:$user->email; 
+                
                 /*$mail = Mail::to($user->email);
 
                 if ($cc) {
@@ -264,14 +305,16 @@ class DocumentController extends Controller
                 $history[ 'document_id' ] = $document->id;
                 DocumentSendHistory::create($history);
 
+               
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
+                
                 $email = \App\Email::create([
                     'model_id'        => $user->id,
                     'model_type'      => \App\User::class,
-                    'from'            => $emailClass->fromMailer,
-                    'to'              => $user->email,
+                    'from'            => ($fromEmail!="")?$fromEmail:$emailClass->fromMailer,
+                    'to'              => $email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
                     'template'        => 'customer-simple',
@@ -316,11 +359,14 @@ class DocumentController extends Controller
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
+                $reqKey = "selected_email_".$key;
+                $email = (isset($request[$reqKey]))?$request[$reqKey]:$vendor->email; 
+
                 $email = \App\Email::create([
                     'model_id'        => $vendor->id,
                     'model_type'      => \App\Vendor::class,
-                    'from'            => $emailClass->fromMailer,
-                    'to'              => $vendor->email,
+                    'from'            => ($fromEmail!="")?$fromEmail:$emailClass->fromMailer,
+                    'to'              => $email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
                     'template'        => 'customer-simple',
@@ -351,7 +397,7 @@ class DocumentController extends Controller
                 $email = \App\Email::create([
                     'model_id'        => $contact->id,
                     'model_type'      => \App\Contact::class,
-                    'from'            => $emailClass->fromMailer,
+                    'from'            =>($fromEmail!="")?$fromEmail: $emailClass->fromMailer,
                     'to'              => $contact->email,
                     'subject'         => $emailClass->subject,
                     'message'         => $emailClass->render(),
@@ -391,7 +437,7 @@ class DocumentController extends Controller
                 $params = [
                     'model_id' => $contacts,
                     'model_type' => User::class,
-                    'from' => 'documents@amourint.com',
+                    'from' => ($fromEmail!="")?$fromEmail:'documents@amourint.com',
                     'seen' => 1,
                     'to' => $contacts,
                     'subject' => $request->subject,
@@ -455,6 +501,7 @@ class DocumentController extends Controller
         $document->version = ($document->version + 1);
         $file = $request->file('files');
         $document->filename = $file->getClientOriginalName();
+        $document->file_contents =  $file->openFile()->fread($file->getSize());
         $file->storeAs("documents", $document->filename, 'files');
         $document->save();
 
@@ -486,23 +533,23 @@ class DocumentController extends Controller
 
         if ($request->selected == 1) {
 
-            $user = User::select('id', 'name')->get();
+            $user = User::select('id', 'name','email')->get();
 
             $output = '';
 
             foreach ($user as $users) {
-                $output .= '<option value="' . $users[ "id" ] . '">' . $users[ "name" ] . '</option>';
+                $output .= '<option  rel="' . $users[ "email" ] . '" value="' . $users[ "id" ] . '" >' . $users[ "name" ] . '</option>';
             }
             echo $output;
 
         } elseif ($request->selected == 2) {
 
-            $vendors = Vendor::select('id', 'name')->get();
+            $vendors = Vendor::select('id', 'name','email')->get();
 
             $output = '';
 
             foreach ($vendors as $vendor) {
-                $output .= '<option value="' . $vendor[ "id" ] . '">' . $vendor[ "name" ] . '</option>';
+                $output .= '<option rel="' . $vendor[ "email" ] . '"  value="' . $vendor[ "id" ] . '">' . $vendor[ "name" ] . '</option>';
             }
             echo $output;
 
@@ -513,7 +560,7 @@ class DocumentController extends Controller
             $output = '';
 
             foreach ($contact as $contacts) {
-                $output .= '<option value="' . $contacts[ "id" ] . '">' . $contacts[ "name" ] . '</option>';
+                $output .= '<option   rel= "" value="' . $contacts[ "id" ] . '">' . $contacts[ "name" ] . '</option>';
             }
             echo $output;
 

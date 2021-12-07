@@ -592,11 +592,11 @@
     @include("usermanagement::templates.show-user-details")
 
 
-    <script type="text/javascript" src="/js/jsrender.min.js"></script>
-    <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
-    <script src="/js/jquery-ui.js"></script>
-    <script type="text/javascript" src="/js/common-helper.js"></script>
-    <script type="text/javascript" src="/js/user-management-list.js?v=1"></script>
+    <script type="text/javascript" src="{{env('APP_URL')}}/js/jsrender.min.js"></script>
+    <script type="text/javascript" src="{{env('APP_URL')}}/js/jquery.validate.min.js"></script>
+    <script src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="{{env('APP_URL')}}/js/common-helper.js"></script>
+    <script type="text/javascript" src="{{env('APP_URL')}}/js/user-management-list.js?v=1"></script>
 
 
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
@@ -651,6 +651,25 @@
                     $('#other_user_name').show();
                 } else {
                     $('#other_user_name').hide();
+                }
+            });
+          
+        });
+        $('.select-multiple').select2({width: '100%'});
+        $(document).on("click", ".number .whatsapp_number", function(e) {
+          //  alert("ddddd");        
+            e.preventDefault();
+            $("#loading-image").show();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('user.changewhatsapp') }}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id: $(this).attr('data-user-id'),
+                    whatsapp_number:$(this).val()
+                },
+                success:function(response){
+                    $("#loading-image").hide();
                 }
             });
         });

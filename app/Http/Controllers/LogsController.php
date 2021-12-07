@@ -12,7 +12,7 @@ class LogsController extends Controller
         $inputs = $request->input();
         $data = \App\SearchAttachedImagesLog::with('customer')->latest()->paginate(15);
 
-        return view('logs.index', compact('data'));
+        return view('image-logs.index', compact('data'));
     }
 
     public function deleteLog(Request $request)

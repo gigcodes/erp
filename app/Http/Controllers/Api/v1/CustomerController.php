@@ -9,6 +9,8 @@ use App\Product;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+use App\Flow;
 
 class CustomerController extends Controller
 {
@@ -60,6 +62,7 @@ class CustomerController extends Controller
                     $erp_lead->lead_status_id = 1;
                     $erp_lead->customer_id = $customer_id;
                     $erp_lead->product_id = $product->id;
+                    $erp_lead->store_website_id = $storeWebsite->id;
                     $erp_lead->category_id = $product->category;
                     $erp_lead->brand_id = $product->brand;
                     $erp_lead->brand_segment = $product->brands ? $product->brands->brand_segment : null;
@@ -120,6 +123,13 @@ class CustomerController extends Controller
             $input['comment'] = $request->comment;
             $input['status'] = 0;
             $reviews = \App\CustomerReview::create($input);
+			$flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
+			if($flowId != null and $checkCustomer->email != null) {
+				\App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
+				->where('template', 'flow#'.$flowId)->delete();
+			}
+			
+			
 
             if ($reviews) {
                 return response()->json(['status' => 'success', 'message' => 'Successfully Added'], 200);
@@ -136,7 +146,6 @@ class CustomerController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'website' => 'required',
-            'name' => 'required',
             'lang_code' => 'required',
             'platform_id' => 'required',
         ]);

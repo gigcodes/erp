@@ -563,6 +563,14 @@ class CategoryController extends Controller
             'user_id'        => \Auth::user()->id,
         ]);
 
+        \App\UserUpdatedAttributeHistory::create([
+            'old_value'      => $scrappedCategory->id,
+            'new_value'      => $selectedCategory->id,
+            'attribute_name' => 'scraped-category',
+            'attribute_id'   => $scrappedCategory->id,
+            'user_id'        => \Auth::user()->id,
+        ]);
+
         $scrappedCategory->update([
             'category_id' => $selectedCategory->id,
             'is_skip' => 1
@@ -596,6 +604,14 @@ class CategoryController extends Controller
                 'user_id'        => $loggedUser->id,
             ]);
 
+            \App\UserUpdatedAttributeHistory::create([
+                'old_value'      => $scrappedCategory->id,
+                'new_value'      => $selectedCategory->id,
+                'attribute_name' => 'scraped-category',
+                'attribute_id'   => $scrappedCategory->id,
+                'user_id'        => $loeggedUser->id,
+            ]);
+
             ScrappedCategoryMapping::where('id', $scrappedCategory->id)->update([
                 'category_id' => $selectedCategory->id,
                 'is_skip' => 1
@@ -611,21 +627,35 @@ class CategoryController extends Controller
 
     public function newCategoryReferenceIndex(Request $request)
     {
+        $users=[];
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::whereNull('category_id')
-        ->selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
+        $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
         ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
         ->groupBy('scrapped_category_mappings.id')
         ->groupBy('scrapped_category_mappings.name')
-        ->orderBy('total_products', 'DESC');
-
+        ->orderBy('total_products', 'DESC')
+        ->orderBy('is_skip', 'ASC');
 
         if($request->search){
             $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
         }
 
+        if(isset($request->is_skipped)) {
+            $scrapped_category_mapping->where('is_skip', $request->is_skipped);
+        }
+        if ($request->user_id != null) {
+            $matchedArray= \App\UserUpdatedAttributeHistory::where([
+                'attribute_name' => 'scraped-category',
+                'user_id'        => $request->user_id,
+            ])->pluck('attribute_id');
+            $scrapped_category_mapping = $scrapped_category_mapping->whereIn('scrapped_category_mappings.id', $matchedArray);
+            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
+
+        }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+
+        //dd($scrapped_category_mapping);
 
         $mappingCategory = $scrapped_category_mapping->toArray();
 
@@ -668,7 +698,7 @@ class CategoryController extends Controller
             }
         }
 
-        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping]);
+        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping,'users'=>$users]);
 
     }
 
@@ -690,8 +720,24 @@ class CategoryController extends Controller
 
     public function history(Request $request, $id)
     {
-        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", "category")->latest()->get();
+        $type = $request->get("type","category");
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
         return view("compositions.partials.show-update-history", compact('records'));
+    }
+
+    public function historyForScraper(Request $request, $id)
+    {
+        $type = $request->get("type","category");
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
+        dd($records);
+        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
+    }
+
+    public function ScraperUserHistory(Request $request)
+    {
+        $type = 'scraped-category';
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $request->id)->where("attribute_name", $request->type)->latest()->get();
+        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
     }
 
     public function deleteUnused()
@@ -792,6 +838,15 @@ class CategoryController extends Controller
                         'user_id'        => $loeggedUser->id,
                     ]);
 
+                    \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
+                        'attribute_name' => 'scraped-category',
+                        'attribute_id'   => $scrappedCategory->id,
+                        'user_id'        => $loeggedUser->id,
+                    ]);
+
+
                   $isUpdtaed =   $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
                         'is_skip' => 1,
@@ -842,6 +897,14 @@ class CategoryController extends Controller
                         'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'category',
                         'attribute_id'   => $selectedCategory->id,
+                        'user_id'        => $loeggedUser->id,
+                    ]);
+
+                    \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
+                        'attribute_name' => 'scraped-category',
+                        'attribute_id'   => $scrappedCategory->id,
                         'user_id'        => $loeggedUser->id,
                     ]);
 

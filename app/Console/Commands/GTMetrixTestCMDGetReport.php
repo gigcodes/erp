@@ -56,7 +56,7 @@ class GTMetrixTestCMDGetReport extends Command
             ->whereNotIn('status', ['completed','error', 'not_queued'])
             ->get();
 
-       $Api_key = env('Api_Key');
+       $Api_key = env('GTMETRIX_API_KEY');
 
         foreach ($storeViewList as $value) {
             $curl = curl_init();
@@ -127,7 +127,12 @@ class GTMetrixTestCMDGetReport extends Command
                     curl_close($curl);
                    // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
-                   $credits = $data->data->attributes->api_credits;
+					$credits = '';
+					if(isset($data->data->attributes->api_credits))
+					{
+						$credits = $data->data->attributes->api_credits;
+					}
+                   
                    // print_r($data->data->attributes->api_credits);
                     if($credits!= 0){
 
