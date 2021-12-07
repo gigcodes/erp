@@ -1898,6 +1898,8 @@ Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_ca
 Route::post('twilio/add_number', 'TwilioController@addNumber')->name('add_number');
 Route::post('twilio/update_number_status', 'TwilioController@updateNumberStatus')->name('update_number_status');
 Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
+Route::any('twilio/completed', 'TwilioController@completed')->name('completed');
+Route::any('twilio/saverecording', 'TwilioController@saveRecording')->name('saveRecording');
 
 Route::get(
     '/twilio/hangup',
