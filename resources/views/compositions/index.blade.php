@@ -123,12 +123,12 @@ Compositions
         </div>
         </form>
         {!! Form::open(["class" => "" , "route" => 'compositions.replace',"method" => "POST"]) !!}
-        <div class="col-md-2 p-1">
+        <div class="col-md-1 p-1">
             <div class="form-group">
                 <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name to replace" value="" />
             </div>
         </div>
-        <div class="col-md-3 d-flex align-items-center p-1">
+        <div class="col-md-2 d-flex align-items-center p-1">
             <div class="form-group" style="width:68%">
                 <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name with replace" value="" id="">
             </div>
@@ -138,15 +138,15 @@ Compositions
         </div>
         </form>
     </div>
-    <div class="col-md-12 mt-3 pl-4 compositions">
+    <div class="col-md-12">
         {!! Form::open(["class" => "" , "route" => 'compositions.index',"method" => "GET"]) !!}
-        <div class="col-md-1 p-1">
-            <div class="form-group change-data">
-                <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}" />
+       
+        <div class="col-md-12 d-flex align-items-center p-1">
+            <div class="col-md-1 p-1">
+                <div class="form-group change-data">
+                    <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}" />
+                </div>
             </div>
-        </div>
-        <div class="col-md-6 d-flex align-items-center p-1">
-
             <div class="form-group col-md-2">
                 <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User">
                     @if(isset($users->id))
