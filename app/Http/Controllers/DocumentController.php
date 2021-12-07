@@ -231,7 +231,7 @@ class DocumentController extends Controller
 
     public function sendEmailBulk(Request $request)
     {
-     //   dd($request->all());
+     //  dd($request->all());
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -255,7 +255,7 @@ class DocumentController extends Controller
         $document = Document::findOrFail($request->document_id);
 
         if ($document) {
-            $file_paths[] = storage_path('app/files/documents/'.$document->filename);
+            $file_paths[] = "documents/$document->filename";
         }
     
        // dd($file_paths);
@@ -274,7 +274,7 @@ class DocumentController extends Controller
             }
             
         }
-        
+
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
@@ -308,6 +308,7 @@ class DocumentController extends Controller
                
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
+
                 
                 $email = \App\Email::create([
                     'model_id'        => $user->id,

@@ -38,7 +38,7 @@ class DocumentEmail extends Mailable
     {
         $email = $this
             ->from('documents@amourint.com')
-            ->subject($this->fromMailer)
+            ->subject($this->subject)
             ->text('emails.documents.email_plain', ['body_message' => $this->message]);
 
         if (count($this->file_paths) > 0) {
