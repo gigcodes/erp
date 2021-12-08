@@ -87,7 +87,7 @@
             <div class="pull-left">
                 <div class="form-group">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-8">
                                 <input name="term" type="text" class="form-control"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="Search Referral Program" id="term">
@@ -101,36 +101,37 @@
                         </div>
                     </div>
             </div>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-target="#addGooleSetting" data-toggle="modal">
+            <div class="pull-right pr-4">
+                <button type="button" class="btn btn-secondary custom-button" data-target="#addGooleSetting" data-toggle="modal">
                     Add New Setting
                 </button>
-                <a class="btn btn-secondary" href="{{ route('translation.add') }}">+</a>
+                <a class="btn btn-secondary custom-button" href="{{ route('translation.add') }}">+</a>
             </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
-
-    <div class="table-responsive">
-        <table class="table table-bordered" id="translation-table">
-              <thead>
-            <tr>
-                <th>No</th>
-                <th>Translation From</th>
-                <th>Translation To</th>
-                <th>Original Text</th>
-                <th>Translated Text</th>
-                <th>Updated At</th>
-                <th>Created At</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-                @include('translation.partials.list-translation')
-            </tbody>
-        </table>
-    </div>
+     <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="translation-table">
+                  <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Translation From</th>
+                    <th>Translation To</th>
+                    <th>Original Text</th>
+                    <th>Translated Text</th>
+                    <th>Updated At</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @include('translation.partials.list-translation')
+                </tbody>
+            </table>
+        </div>
+   </div>
 
     {!! $data->render() !!}
 
