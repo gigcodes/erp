@@ -344,8 +344,8 @@ class ProductController extends Controller
 
         if ($request->get('user_id') > 0 && $request->get('submit_for_image_approval') == "on" ) {
             $newProducts = $newProducts->Join("log_list_magentos as llm", function ($join) use ($request) {
-                $join->on("llm.product_id", "products.id")
-                ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+                $join->on("llm.product_id", "products.id");
+              //  ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
             });
                 $newProducts = $newProducts->where("llm.user_id", $request->get('user_id'));
                 $newProducts =   $newProducts->addSelect("llm.user_id as last_approve_user");
@@ -355,7 +355,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->leftJoin("rejected_images as ri", function ($join) use ($request) {
                     $join->on("ri.product_id", "products.id");
            
-                    $join->where("ri.user_id", $request->get('user_id'))->where("ri.status", 0);
+                    $join->where("ri.user_id", $request->get('user_id'));
                 });
                 $newProducts =   $newProducts->addSelect("rejected_images.user_id as rejected_user_id","rejected_images.created_at as rejected_date");
         }
