@@ -50,6 +50,7 @@ table tbody tr td{
                 <tr>
                     <th width="10%">Model</th>
                     <th width="15%">Model Id</th>
+                    <th width="15%">Model Name</th>
                     <th width="10%">Keyword</th>
                     <th width="15%">Keyword Match</th>
                     <th width="10%">Message Send Id</th>
@@ -62,6 +63,7 @@ table tbody tr td{
                     <tr>
                         <td>{{$value->model}}</td>
                         <td>{{$value->model_id}}</td>
+                        <td>{{$value->typeName}}</td>
                         <td>{{$value->keyword}}</td>
                         <td>{{$value->keyword_match}}</td>
                         <td>{{$value->message_sent_id}}</td>
