@@ -14,6 +14,7 @@ namespace App;
 
 use Google\Cloud\Translate\V2\TranslateClient;
 use App\googleTraslationSettings;
+use App\Loggers\TranslateLog;
 
 class GoogleTranslate
 {
@@ -56,8 +57,26 @@ class GoogleTranslate
             ]);
             \Log::info(print_r(["Result of google",$result],true));
             return $result['text'];
-        } catch (\Exception $e) {
-            \Log::error($e);
+        } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
+           
+            // \Log::info("-----------------");
+            // \Log::info(json_decode($e));
+            // \Log::info($e->getServiceException());
+           \Log::error($e);
+            $message = json_decode($e->getMessage());
+           // dd($message->error);
+
+            if($message->error){
+                $translateLog = TranslateLog::log([
+                    "google_traslation_settings_id" => (!empty($lastFileId))?$lastFileId:0, 
+                    "messages" =>$message->error->message,
+                    "code" =>$message->error->code,
+                    "domain" =>$message->error->errors[0]->domain,
+                    "reason" =>$message->error->errors[0]->reason
+                ]);
+            // $translateLog = TranslateLog::log(["google_traslation_settings_id" => (!empty($lastFileId)), "messages" => $flow["name"] . " has found total Action  : " . $flowActions->count()]);
+                
+            }
             if (!empty($lastFileId)) {
                 $googleTraslationSettings = new googleTraslationSettings;
                 $googleTraslationSettings->where('id', $lastFileId)
@@ -65,7 +84,7 @@ class GoogleTranslate
                 ->update([
                     'status' => 0,
                 ]);
-                 goto someLine;
+                goto someLine;
             }
         }
     }
