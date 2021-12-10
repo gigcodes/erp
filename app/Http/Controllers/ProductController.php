@@ -346,6 +346,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->Join("log_list_magentos as llm", function ($join) use ($request) {
                 $join->on("llm.product_id", "products.id");
        //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+
             });
                 $newProducts = $newProducts->where("llm.user_id", $request->get('user_id'));
                 $newProducts =   $newProducts->addSelect("llm.user_id as last_approve_user");
