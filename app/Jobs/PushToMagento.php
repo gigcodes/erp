@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\StatusHelper;
 
 class PushToMagento implements ShouldQueue
 {
@@ -57,74 +58,88 @@ class PushToMagento implements ShouldQueue
         try {
 
             //$jobId = app(JobRepository::class)->id;
+            if($product->status_id == StatusHelper::$finalApproval){
 
-            if ($this->log) {
-                $this->log->sync_status = "started_push";
-                $this->log->message = "Product has been started to push";
-                $this->log->queue_id = $this->job->getJobId();
-                $this->log->job_start_time = $date_time;
-                $this->log->save();
-            }
+                if ($this->log) {
+                    $this->log->sync_status = "started_push";
+                    $this->log->message = "Product has been started to push";
+                    $this->log->queue_id = $this->job->getJobId();
+                    $this->log->job_start_time = $date_time;
+                    $this->log->save();
+                }
 
-            if (!$website->website_source || $website->website_source == '') {
-                ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null, null, $this->log->id);
-                $this->log->message = "Website source not found";
-                $this->log->sync_status = "error";
-                $this->log->job_end_time = date("Y-m-d H:i:s");
-                $this->log->save();
-                return false;
-            }
-
-            if ($website->disable_push == 1) {
-                ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null, null, $this->log->id);
-                $this->log->message = "Website is disable for push product";
-                $this->log->sync_status = "error";
-                $this->log->job_end_time = date("Y-m-d H:i:s");
-                $this->log->save();
-                return false;
-            }
-
-            // started to check the validation for the category size is available or not and if not then throw the error
-            $categorym = $product->categories;
-            if ($categorym && !$product->isCharity()) {
-                $categoryparent = $categorym->parent;
-                if ($categoryparent && $categoryparent->size_chart_needed == 1 && empty($categoryparent->getSizeChart($website->id))) {
-                    ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
-                    $this->log->message = "Size chart is needed for push product";
-                    $this->log->sync_status = "size_chart_needed";
+                if (!$website->website_source || $website->website_source == '') {
+                    ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null, null, $this->log->id);
+                    $this->log->message = "Website source not found";
+                    $this->log->sync_status = "error";
                     $this->log->job_end_time = date("Y-m-d H:i:s");
                     $this->log->save();
                     return false;
                 }
 
-                if ($categorym && $categorym->size_chart_needed == 1 && empty($categorym->getSizeChart($website->id))) {
-                    ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
-                    $this->log->message = "Size chart is needed for push product";
-                    $this->log->sync_status = "size_chart_needed";
+                if ($website->disable_push == 1) {
+                    ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null, null, $this->log->id);
+                    $this->log->message = "Website is disable for push product";
+                    $this->log->sync_status = "error";
                     $this->log->job_end_time = date("Y-m-d H:i:s");
                     $this->log->save();
                     return false;
                 }
-            }
 
-            // check the product has images or not and then if no image for push then assign error it
-            $images = $product->getImages("gallery_" . $website->cropper_color);
+                // started to check the validation for the category size is available or not and if not then throw the error
+                $categorym = $product->categories;
+                if ($categorym && !$product->isCharity()) {
+                    $categoryparent = $categorym->parent;
+                    if ($categoryparent && $categoryparent->size_chart_needed == 1 && empty($categoryparent->getSizeChart($website->id))) {
+                        ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
+                        $this->log->message = "Size chart is needed for push product";
+                        $this->log->sync_status = "size_chart_needed";
+                        $this->log->job_end_time = date("Y-m-d H:i:s");
+                        $this->log->save();
+                        return false;
+                    }
 
-            if (empty($images) && $charity == 0) {
-                ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'error', $website->id, null, null, $this->log->id);
-                $this->log->message = "Image(s) is needed for push product";
-                $this->log->sync_status = "image_not_found";
-                $this->log->job_end_time = date("Y-m-d H:i:s");
-                $this->log->save();
-                return false;
-            }
+                    if ($categorym && $categorym->size_chart_needed == 1 && empty($categorym->getSizeChart($website->id))) {
+                        ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'error', $website->id, null, null, $this->log->id);
+                        $this->log->message = "Size chart is needed for push product";
+                        $this->log->sync_status = "size_chart_needed";
+                        $this->log->job_end_time = date("Y-m-d H:i:s");
+                        $this->log->save();
+                        return false;
+                    }
+                }
 
-            $magentoService = new MagentoService($product, $website, $this->log);
-            $magentoService->pushProduct();
+                // check the product has images or not and then if no image for push then assign error it
+                $images = $product->getImages("gallery_" . $website->cropper_color);
 
-            if ($this->log) {
-                $this->log->job_end_time = date("Y-m-d H:i:s");
-                $this->log->save();
+                if (empty($images) && $charity == 0) {
+                    ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'error', $website->id, null, null, $this->log->id);
+                    $this->log->message = "Image(s) is needed for push product";
+                    $this->log->sync_status = "image_not_found";
+                    $this->log->job_end_time = date("Y-m-d H:i:s");
+                    $this->log->save();
+                    return false;
+                }
+
+                $magentoService = new MagentoService($product, $website, $this->log);
+                $magentoService->pushProduct();
+
+                if ($this->log) {
+                    $this->log->job_end_time = date("Y-m-d H:i:s");
+                    $this->log->save();
+                }
+            }else{
+                $errorMessage="Product have not set for final approval, current status is -".$product->status_id;
+                if ($this->log) {
+                    ProductPushErrorLog::log('', $product->id, $errorMessage, 'error', $website->id, null, null, $this->log->id);
+                    $this->log->message = $errorMessage;
+                    $this->log->sync_status = "error";
+                    $this->log->queue_id = $this->job->getJobId();
+                    $this->log->job_end_time = date("Y-m-d H:i:s");
+                    $this->log->save();
+                } else {
+                    \Log::error($errorMessage);
+                }
             }
 
         } catch (\Exception $e) {
