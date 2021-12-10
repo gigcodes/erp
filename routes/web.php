@@ -159,7 +159,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('flow-logs', 'FlowLogController@index')->name('logging.flow.log');
     Route::get('flow-logs-detail', 'FlowLogController@details')->name('logging.flow.detail');
-   
+    
 
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
@@ -3244,6 +3244,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
 //Translation
 Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('/list', 'TranslationController@index')->name('translation.list');
+    Route::get('translate-logs', 'TranslationController@translateLog')->name('translation.log');
     Route::DELETE('/delete/{id?}', 'TranslationController@destroy')->name('translation.destroy');
     Route::get('/add', 'TranslationController@create')->name('translation.add');
     Route::get('/{id?}/edit', 'TranslationController@edit')->name('translation.edit');
@@ -3468,8 +3469,8 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 Route::get('command', function () {
 	
- //   \Artisan::call('migrate');
-     \Artisan::call('meeting:getrecordings');
+    \Artisan::call('migrate');
+  //   \Artisan::call('meeting:getrecordings');
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
