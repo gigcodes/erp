@@ -3099,6 +3099,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
 
     Route::get('twilio/call-management', 'TwilioController@callManagement')->name('twilio-call-management');
+    Route::get('twilio/speech-to-text-logs', 'TwilioController@speechToTextLogs')->name('twilio-speech-to-text-logs');
     Route::get('twilio/incoming-calls/{number_sid}/{number}', 'TwilioController@getIncomingList')->name('twilio-incoming-calls');
     Route::get('twilio/incoming-calls-recording/{call_sid}', 'TwilioController@incomingCallRecording')->name('twilio-incoming-call-recording');
 
