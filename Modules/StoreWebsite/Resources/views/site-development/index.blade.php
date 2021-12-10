@@ -149,11 +149,16 @@
 							<div class="form-group">
 								<?php /* <label for="button">&nbsp;</label> */?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
-									<img src="/images/send.png" style="cursor: default;">
+									<img src="{{env('APP_URL')}}/images/send.png" style="cursor: default;">
 								</button>
 							</div>
 						</form>
-
+					
+							<div class="form-group" style="display:inline-block;width:300px">
+								<?php /* <label for="status">Status:</label> */?>
+								<?php echo Form::select("select_website", ["" => "All Website"] + $store_websites, isset($website->id)?$website->id:'', ["class" => "form-control globalSelect2", "id" => "change_website"]) ?>
+							</div>
+					
 
 					</div>
 
@@ -611,6 +616,11 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
+	$("#change_website").change(function(){
+		var websiteUrl='';
+		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
+		window.location=websiteUrl;
+	});
 	$('.assign-to.select2').select2({
 		width: "100%"
 	});
@@ -852,7 +862,7 @@
 
 			var val = $("#remark-field").val();
 			$.ajax({
-				url: '/site-development/' + id + '/remarks',
+				url: 'site-development/' + id + '/remarks',
 				type: 'POST',
 				headers: {
 					'X-CSRF-TOKEN': "{{ csrf_token() }}"
