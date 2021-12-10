@@ -609,7 +609,7 @@ class DevelopmentController extends Controller
         $title = 'Scrapping Task List';
         //$moduleIds = DeveloperModule::where('name', 'like', '%scrap%')->pluck('id')->toArray();
         $issues = DeveloperTask::with('assignedUser');
-        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id');
+        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id')->where('scraper_id', '<>', 0);
         //$issues = $issues->whereIn('developer_tasks.module_id', $moduleIds);
         
         $issues = $issues->select("developer_tasks.*");

@@ -18,6 +18,7 @@ class FlowLogMessages extends Model
         $flowLogMessages->leads =  $result["leads"];
         $flowLogMessages->store_website_id =  $result["store_website_id"];
         $flowLogMessages->flow_log_id =  $result["flow_log_id"];
+        $flowLogMessages->scraper_id =  $result["scraper_id"];
         $flowLogMessages->save();
 
         // Return
