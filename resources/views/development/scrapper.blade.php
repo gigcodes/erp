@@ -128,7 +128,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-center task_queue_list">
-                        @foreach($issues as $i=>$issue)
+                        @foreach($issues as $i=>$issue) 
                             <tr>
 								<td>{{ $issue['id'] }}</td>
 								<td>{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
@@ -170,10 +170,10 @@
               <table class="table table-bordered table-hover" style="table-layout:fixed;">
                 <thead>
                     
-                  <th style="width:7%">Flow Action</th>
-                  <th style="width:6%"> Modal Type </th>
-                  <th style="width:30%">Leads</th>
-                  <th style="width:30%">Message</th>
+                    <th style="width:10%">Flow Action</th>
+                  <th style="width:20%">Modal Type </th>
+                  <th style="width:20%">Leads</th>
+                  <th style="width:25%">Message</th>
                   <th style="width:15%">Website</th>
                   <th style="width:10%">Date</th>
                 </thead>

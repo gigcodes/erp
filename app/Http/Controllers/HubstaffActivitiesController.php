@@ -1603,7 +1603,8 @@ class HubstaffActivitiesController extends Controller
                                 $min     = $approved / 60;
                                 $min     = number_format($min, 2);
     
-                                $hour_rate =  $user_rate / 160;
+                                $hour_rate =  $user_rate ;
+                               // $hour_rate =  $user_rate / 160;
                                 $hours = $min / 60;
     
                                 $rate_estimated = $hours * $hour_rate;
@@ -1615,7 +1616,8 @@ class HubstaffActivitiesController extends Controller
                                 $min     = $approved / 60;
                                 $min     = number_format($min, 2);
     
-                                $hour_rate =  $user_rate / 160;
+                                $hour_rate =  $user_rate ;
+                            //    $hour_rate =  $user_rate / 160;
                                 $hours = $min / 60;
     
                                 $rate_estimated = $hours * $hour_rate;

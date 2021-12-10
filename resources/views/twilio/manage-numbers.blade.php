@@ -82,18 +82,18 @@
                                     <td>{{ @$number->assigned_stores->store_website->title }}</td>
                                     <td>{{ $number->status }}</td>
                                     <td>
-                                        <a href="javascript:void(0);" type="button" id="{{ $number->id }}" class="btn btn-image open_row">
+                                        <a href="javascript:void(0);" type="button" id="1" class="btn btn-image open_row">
                                             <img src="/images/forward.png" style="cursor: default;" width="2px;">
                                         </a>
-                                        <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="{{ $number->id }}" title="Call Forwarding" ><img src="/images/remark.png" style="cursor: default;"></a>
+                                        <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="1" title="Call Forwarding" ><img src="/images/remark.png" style="cursor: default;"></a>
                                         <a href="{{ route('twilio-call-recording', $account_id) }}" class="btn d-inline btn-image" title="Call Recording" ><img src="/images/view.png" style="cursor: default;"></a>
                                     </td>
                                 </tr>
-                                <tr class="hidden_row_{{ $number->id  }}" data-eleid="{{ $number->id }}" style="display:none;">
+                                <tr class="hidden_row_1" data-eleid="1" style="display:none;">
                                     <td colspan="3">
                                         <label>Store website:</label>
                                         <div class="input-group">
-                                            <select class="form-control store_websites" id="store_website_{{ $number->id }}">
+                                            <select class="form-control store_websites" id="store_website_1">
                                                 <option value="">Select store website</option>
                                                 @if(isset($store_websites))
                                                     @foreach($store_websites as $websites)
@@ -106,7 +106,7 @@
                                     <td colspan="1">
                                         <label>Workspace:</label>
                                         <div class="input-group">
-                                            <select class="form-control change-workspace" id="workspace_sid_{{ $number->id }}">
+                                            <select class="form-control change-workspace" id="workspace_sid_1">
                                                 <option value="">Select Workspace</option>
                                                 @if(isset($workspace))
                                                     @foreach($workspace as $wsp)
@@ -118,41 +118,41 @@
                                     </td>
                                     <td colspan="1">
                                         <label>Message when agent available</label>
-                                        <input type="text" class="form-control" name="message_available" id="message_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_available }}"/>
+                                        <input type="text" class="form-control" name="message_available" id="message_available_1" value="{{ @$number->assigned_stores->message_available }}"/>
                                     </td>
                                     <td colspan="2">
                                         <label>Message when agent not available</label>
-                                        <input type="text" class="form-control" name="message_not_available" id="message_not_available_{{ $number->id }}" value="{{ @$number->assigned_stores->message_not_available }}"/>
+                                        <input type="text" class="form-control" name="message_not_available" id="message_not_available_1" value="{{ @$number->assigned_stores->message_not_available }}"/>
                                     </td>
                                     <td colspan="3">
                                         <label>Message when agent is busy</label>
-                                        <input type="text" class="form-control" name="message_busy" id="message_busy_{{ $number->id }}" value="{{ @ $number->assigned_stores->message_busy }}"/>
+                                        <input type="text" class="form-control" name="message_busy" id="message_busy_1" value="{{ @ $number->assigned_stores->message_busy }}"/>
                                     </td>
                                     <td colspan="4">
                                         <label>Message when Working Hours is Over</label>
-                                        <input type="text" class="form-control" name="end_work_message" id="end_work_message_{{ $number->id }}" value="{{ @ $number->assigned_stores->end_work_message }}"/>
+                                        <input type="text" class="form-control" name="end_work_message" id="end_work_message_1" value="{{ @ $number->assigned_stores->end_work_message }}"/>
                                     </td>
                                     <td colspan="3">
-                                        <button class="btn btn-sm btn-image save-number-to-store" id="save_{{ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                        <button class="btn btn-sm btn-image save-number-to-store" id="save_1"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
 
                                 </tr>
-                                <tr class="call_forwarding_{{ $number->id  }}" style="display:none;">
+                                <tr class="call_forwarding_1" style="display:none;">
                                     <td colspan="3">
                                         <label>Select Agent</label>
                                         <div class="input-group">
-                                            <select class="form-control" id="agent_{{ $number->id }}">
+                                            <select class="form-control" id="agent_1">
                                                 <option value="">Select agent</option>
                                                 @if(isset($customer_role_users))
                                                     @foreach($customer_role_users as $user)
-                                                        <option value="{{ $user->user->id }}">{{ $user->user->name }}</option>
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
                                         </div>
                                     </td>
                                     <td colspan="3">
-                                        <button class="btn btn-sm btn-image call_forwarding_save" id="forward_{{ $number->id }}"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                        <button class="btn btn-sm btn-image call_forwarding_save" id="forward_1"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
 
                                 </tr>
