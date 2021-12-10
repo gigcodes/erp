@@ -7,7 +7,7 @@
         {{ $log->modalType }}
     </td>
     <td>
-        {{ $log->leads }}
+        {{ $log->lead_name }}
     </td>
     <td>
         {{ $log->messages }}

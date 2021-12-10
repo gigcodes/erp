@@ -206,8 +206,7 @@ class ScheduleEmails extends Command
 						'is_draft'     => 1,
 					];
 					Email::create($params);
-
-					FlowLogMessages::log([
+					$flowLogMessage = FlowLogMessages::where([
 						"flow_action" => $flowAction['type'],
 						"modalType" => $modalType,
 						"leads" => $lead['customer_email'],
@@ -215,7 +214,19 @@ class ScheduleEmails extends Command
 						"messages" => $bodyText.' ('.$created_date.')',
 						"flow_log_id" => $flow_log_id,
 						"scraper_id" => $scraper_id
-					]);
+					])->first();
+					
+					if($flowLogMessage == null) {
+						FlowLogMessages::log([
+							"flow_action" => $flowAction['type'],
+							"modalType" => $modalType,
+							"leads" => $lead['customer_email'],
+							"store_website_id" => $store_website_id,
+							"messages" => $bodyText.' ('.$created_date.')',
+							"flow_log_id" => $flow_log_id,
+							"scraper_id" => $scraper_id
+						]);
+					}
 				}
 			}
 			else{
@@ -251,7 +262,7 @@ class ScheduleEmails extends Command
 				];
 
 				$chatMessage = \App\ChatMessage::create($insertParams);
-				FlowLogMessages::log([
+				$flowLogMessage = FlowLogMessages::where([
 					"flow_action" => $flowAction['type'],
 					"modalType" => $modalType,
 					"leads" => $lead->customer_id,
@@ -259,7 +270,20 @@ class ScheduleEmails extends Command
 					"messages" => $flowAction['message_title'].' ('.$created_date.')',
 					"flow_log_id" => $flow_log_id,
 					"scraper_id" => $scraper_id
-				]);
+				])->first();
+				
+				if($flowLogMessage == null) {
+					FlowLogMessages::log([
+						"flow_action" => $flowAction['type'],
+						"modalType" => $modalType,
+						"leads" => $lead->customer_id,
+						"store_website_id" => $store_website_id,
+						"messages" => $flowAction['message_title'].' ('.$created_date.')',
+						"flow_log_id" => $flow_log_id,
+						"scraper_id" => $scraper_id
+					]);
+				}
+				
 			}
 		} else if ($flowAction['type'] == 'Condition') {
 			if ($flowAction['condition'] == 'customer has ordered before') {
