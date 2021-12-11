@@ -46,17 +46,25 @@ class GoogleTranslate
                 ];
 
                 $translate = new TranslateClient($keyFileArray);
+           
+            // echo $target." ".$text;
+                $result = $translate->translate($text, [
+                    'target' => $target
+                ]);
+                \Log::info(print_r(["Result of google",$result],true));
+                return $result['text'];
             }else{
-                $translate = new TranslateClient([
-                    'keyFile' => json_decode(file_get_contents($this->path), true)
+                // $translate = new TranslateClient([
+                //     'keyFile' => json_decode(file_get_contents($this->path), true)
+                // ]);
+                $translateLog = TranslateLog::log([
+                    "google_traslation_settings_id" => 0, 
+                    "messages" =>"Not any account found",
+                    "code" =>404,
+                    "domain" =>' ',
+                    "reason" =>' '
                 ]);
             }
-            // echo $target." ".$text;
-            $result = $translate->translate($text, [
-                'target' => $target
-            ]);
-            \Log::info(print_r(["Result of google",$result],true));
-            return $result['text'];
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
            
             // \Log::info("-----------------");
@@ -84,6 +92,12 @@ class GoogleTranslate
                 ->update([
                     'status' => 0,
                 ]);
+            }
+            $file = googleTraslationSettings::select('id','account_json')
+            ->where('status','1')
+            ->orderBy('id')
+            ->first();
+            if (!empty($file)) {
                 goto someLine;
             }
         }

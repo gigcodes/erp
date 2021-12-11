@@ -160,8 +160,9 @@ class ScheduleEmails extends Command
 
 	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $scraper_id = 0)
 	{
+		$scraper_id = 0;
 		
-		FlowLogMessages::log([
+		/*FlowLogMessages::log([
 			"flow_action" => ($flowAction['type'] == 'Condition') ? $flowAction['type'] . "-" . $flowAction['condition'] : $flowAction['type'],
 			"modalType" => $modalType,
 			"leads" => "",
@@ -169,12 +170,15 @@ class ScheduleEmails extends Command
 			"messages" => count($leads) . " founds to send message",
 			"flow_log_id" => $flow_log_id,
 			"scraper_id" => $scraper_id
-		]);
+		]);*/
 		if ($flowAction['type'] == 'Send Message') {
 			$message = FlowMessage::where('action_id', $flowAction['action_id'])->first();
 			
 			if ($message != null) {
 				foreach ($leads as $lead) {
+					if(isset($lead['scraper_id'])) {
+						$scraper_id = $lead['scraper_id'];
+					}
 					if ($message['mail_tpl'] != '') {
 						$bodyText  = @(string)view($message['mail_tpl']);
 					} else {
@@ -202,16 +206,27 @@ class ScheduleEmails extends Command
 						'is_draft'     => 1,
 					];
 					Email::create($params);
-
-					FlowLogMessages::log([
+					$flowLogMessage = FlowLogMessages::where([
 						"flow_action" => $flowAction['type'],
 						"modalType" => $modalType,
 						"leads" => $lead['customer_email'],
 						"store_website_id" => $store_website_id,
-						"messages" => $bodyText,
+						"messages" => $bodyText.' ('.$created_date.')',
 						"flow_log_id" => $flow_log_id,
 						"scraper_id" => $scraper_id
-					]);
+					])->first();
+					
+					if($flowLogMessage == null) {
+						FlowLogMessages::log([
+							"flow_action" => $flowAction['type'],
+							"modalType" => $modalType,
+							"leads" => $lead['customer_email'],
+							"store_website_id" => $store_website_id,
+							"messages" => $bodyText.' ('.$created_date.')',
+							"flow_log_id" => $flow_log_id,
+							"scraper_id" => $scraper_id
+						]);
+					}
 				}
 			}
 			else{
@@ -220,7 +235,7 @@ class ScheduleEmails extends Command
 					"modalType" => $modalType,
 					"leads" => "",
 					"store_website_id" => $store_website_id,
-					"messages" => "flow Message is not found for - ".$flowAction['action_id'],
+					"messages" => "flow Message is not found for email - ".$flowAction['action_id'],
 					"flow_log_id" => $flow_log_id,
 					"scraper_id" => $scraper_id
 				]);
@@ -231,6 +246,9 @@ class ScheduleEmails extends Command
 				$messageApplicationId = 3;
 			}
 			foreach ($leads as $lead) {
+				if(isset($lead['scraper_id'])) {
+					$scraper_id = $lead['scraper_id'];
+				}
 				$insertParams = [
 					"customer_id"            => $lead->customer_id,
 					"message"                => $flowAction['message_title'],
@@ -244,15 +262,28 @@ class ScheduleEmails extends Command
 				];
 
 				$chatMessage = \App\ChatMessage::create($insertParams);
-				FlowLogMessages::log([
+				$flowLogMessage = FlowLogMessages::where([
 					"flow_action" => $flowAction['type'],
 					"modalType" => $modalType,
 					"leads" => $lead->customer_id,
 					"store_website_id" => $store_website_id,
-					"messages" => $flowAction['message_title'],
+					"messages" => $flowAction['message_title'].' ('.$created_date.')',
 					"flow_log_id" => $flow_log_id,
 					"scraper_id" => $scraper_id
-				]);
+				])->first();
+				
+				if($flowLogMessage == null) {
+					FlowLogMessages::log([
+						"flow_action" => $flowAction['type'],
+						"modalType" => $modalType,
+						"leads" => $lead->customer_id,
+						"store_website_id" => $store_website_id,
+						"messages" => $flowAction['message_title'].' ('.$created_date.')',
+						"flow_log_id" => $flow_log_id,
+						"scraper_id" => $scraper_id
+					]);
+				}
+				
 			}
 		} else if ($flowAction['type'] == 'Condition') {
 			if ($flowAction['condition'] == 'customer has ordered before') {
@@ -286,19 +317,19 @@ class ScheduleEmails extends Command
 				$flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
 					->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name')
+					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.condition', 'flow_actions.time_delay_type', 'flows.flow_name', 'flow_paths.path_for')
 					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
 					->get()->groupBy('path_for');
-				foreach ($flowPathsNew as $path_for => $flowActiosnNew) {
+				foreach ($flowPathsNew as $path_for => $flowActiosnNew) { 
 					if ($path_for == 'yes') {
 						$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
 							->whereDate('developer_tasks.created_at', '<=', $created_date)->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')->where('is_pr_merged', 1)
-							->select('developer_tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+							->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 					} else {
 						$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
 							->whereDate('developer_tasks.created_at', '<=', $created_date)->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')->where('is_pr_merged', 0)
-							->select('developer_tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
-					}
+							->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+					}  
 					foreach ($flowActiosnNew as $flowActionNew) {
 						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
 					}
@@ -310,11 +341,11 @@ class ScheduleEmails extends Command
 					->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
 					->select('flows.store_website_id', 'flow_actions.id as action_id', 'flow_actions.time_delay', 'flow_actions.message_title', 'flow_types.type', 'flow_actions.time_delay_type', 'flows.flow_name')
 					->where('flow_paths.parent_action_id', '=', $flowAction['action_id'])->orderBy('flow_actions.rank', 'asc')
-					->where('path_for', 'yes')->get()->groupBy('path_for');
+					->where('path_for', 'yes')->get()->groupBy('path_for'); 
 				foreach ($flowPathsNew as $path_for => $flowActiosnNew) {
 					$leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
-						->whereDate('developer_tasks.created_at', '<=', $created_date)->where(['developer_tasks.status', '<>', 'Done'])->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')->where('is_pr_merged', 1)
-						->select('developer_tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+						->whereDate('developer_tasks.created_at', '<=', $created_date)->where('developer_tasks.status', '<>', 'Done')->where('scraper_id', '<>', 0)->whereNotNull('scraper_id')->where('is_pr_merged', 1)
+						->select('developer_tasks.id','developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 
 					foreach ($leads as $key => $scrapperTask) {
 						$log = ScrapLog::where('scraper_id', $scrapperTask['scraper_id'])->orderBy('id', 'desc')->first();
@@ -324,7 +355,7 @@ class ScheduleEmails extends Command
 						}
 					}
 					foreach ($flowActiosnNew as $flowActionNew) {
-						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $scrapperTask['scraper_id']);
+						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
 					}
 				}
 			}

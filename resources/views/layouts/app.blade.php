@@ -1702,9 +1702,19 @@ if (!empty($notifications)) {
                                                     <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                                 </li>
 
-                                                <li class="nav-item dropdown">
-                                                    <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                               <li class="nav-item dropdown dropdown-submenu">
+                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Call Management<span class="caret"></span></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('twilio-call-management') }}"> Call Management</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+                                                    </ul>
                                                 </li>
+												
                                                 <li class="nav-item dropdown dropdown-submenu">
                                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

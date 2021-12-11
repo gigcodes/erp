@@ -18,7 +18,7 @@
         <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Flow Log Detail</h4>
+              <h4 class="modal-title">Translation Error Log Detail</h4>
             </div>
             <div class="modal-body">
               <table class="table table-bordered table-hover" style="table-layout:fixed;">
