@@ -280,7 +280,7 @@ class TwilioController extends FindByNumberController
 		$number = $request->get("From");
 		$call_sid = $request->get("CallSid");
 		$account_sid = $request->get("AccountSid");
-		TwilioLog::create(['log'=>'Showing user profile for IVR: ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
+		TwilioLog::create(['log'=>'Call received.', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
         //Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 		
         $count = $request->get("count");
@@ -1006,10 +1006,9 @@ class TwilioController extends FindByNumberController
 				$recordedText = $inputs['SpeechResult'];
 			} else {
 				$recUrl = $inputs['RecordingUrl'];
-				//$recUrl = "https://erpdev3.theluxuryunlimited.com/audios/audio-file.flac"; 
 				$recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
 			}
-			//$recordedText = "Customer_Care_Contact_Us"; //dummy			
+					
 			$reply = ChatbotQuestion::where('value', 'like', '%'.$recordedText.'%')->orWhere('value','like', '%'.str_replace(' ', '_',$recordedText).'%')->pluck('suggested_reply')->first();			
 			$response = new VoiceResponse();
 			if($reply == '' || $reply == null) {
@@ -1019,10 +1018,15 @@ class TwilioController extends FindByNumberController
 				);
 			} else {
 				$response->Say(
-				   $reply,
+				    str_replace('_', ' ', $reply),
 					['voice' => 'alice', 'language' => 'en-GB']
 				);
 			}
+			
+			TwilioLog::create(
+				['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+			);
+			 
 			$response->say(
 				'Returning to the main menu',
 				['voice' => 'Alice', 'language' => 'en-GB']
@@ -1248,7 +1252,6 @@ class TwilioController extends FindByNumberController
 				}
 			}
 		} else {
-			TwilioLog::create(['log'=>json_encode($inputs)]);
 			if(isset($inputs['SpeechResult'])) {
 				$recordedText = str_replace('.','',$inputs['SpeechResult']);
 			} else {
@@ -1258,7 +1261,7 @@ class TwilioController extends FindByNumberController
 			}
 			$reply = ChatbotQuestion::where(\DB::raw('lower(value)'), 'like', '%'.strtolower($recordedText).'%')->orWhere(\DB::raw('lower(value)'),'like', '%'.str_replace(' ', '_',strtolower($recordedText)).'%')->pluck('suggested_reply')->first();			
 			$response = new VoiceResponse();
-			TwilioLog::create(['log'=>json_encode($recordedText)]);
+			
 			if($reply == '' || $reply == null) {
 				$response->Say(
 				   'Invalid Input '.$recordedText,
@@ -1270,6 +1273,9 @@ class TwilioController extends FindByNumberController
 					['voice' => 'alice', 'language' => 'en-GB']
 				);
 			}
+			TwilioLog::create(
+				['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+			);
 			$response->redirect(route('ivr', ['count'=>2], false));				
 			return $response;
 		}
@@ -3523,4 +3529,17 @@ class TwilioController extends FindByNumberController
 		$twilioLogs = $twilioLogs->paginate(20);		
 	    return view('twilio.erp_logs', compact('twilioLogs','input'));
     }
+	
+	public function speechToTextLogs(Request $request) {
+		$input = $request->input();
+		$twilioLogs = TwilioLog::where('type', 'speech')->orderBy('id', 'desc');
+		if(isset($input['caller'])) {
+			$twilioLogs = $twilioLogs->where('phone', 'like', '%'. $input['caller'].'%');
+		}
+		if(isset($input['log'])) {
+			$twilioLogs = $twilioLogs->where('log', 'like', '%'. $input['log'].'%');
+		}
+		$twilioLogs = $twilioLogs->paginate(20);		
+	    return view('twilio.speech_to_text_logs', compact('twilioLogs','input'));
+	}
 } 
