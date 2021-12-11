@@ -15,12 +15,13 @@
             background-color: #fff;
         }
     </style>
-    <div class="row m-0 pr-4 pl-4 cashflow-table">
-        <div class="col-lg-12 margin-tb p-0">
-            <h2 class="page-heading">Cash Flow
-            
+    <div class="row  pr-4 pl-4 cashflow-table">
+        <div class="col-md-12 margin-tb p-0">
+            <h2 class="page-heading">Cash Flow</h2>
+        </div>  
+        <div class="row m-0 pr-4 pl-4 cashflow-table">
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#cashCreateModal">+</button>
+              <button type="button" class="btn btn-secondary mr-2"style="padding: 4px 12px;" data-toggle="modal" data-target="#cashCreateModal">+</button>
             </div>
             </h2>
             
@@ -79,6 +80,7 @@
                 </div>    
                 
             </form>
+          </div>
           
         </div>
     </div>
