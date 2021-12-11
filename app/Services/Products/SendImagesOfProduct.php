@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 class SendImagesOfProduct
 {
     public $log = [];
+    public $keyword_match = [];
 
     public function check($chatMessage)
     {   
@@ -14,6 +15,7 @@ class SendImagesOfProduct
             "model"     => \App\Customer::class,
             "model_id"  => $chatMessage->customer_id,
             "message_sent_id"=> $chatMessage->id,
+            "keyword"=> $chatMessage->message
         ];
 
         $addKeyword = \App\KeywordAutoGenratedMessageLog::create($temp_log_params);
@@ -62,6 +64,7 @@ class SendImagesOfProduct
         }
 
         $addKeyword->comment = implode("\n\r",$this->log);
+        $addKeyword->keyword_match=implode("\n\r",$this->keyword_match);
         $addKeyword->save();
 
         //$addKeyword
@@ -73,7 +76,10 @@ class SendImagesOfProduct
             $brand = \App\Brand::where("name", "like", $s)->orderBy("id","asc")->first();
             if ($brand) {
                 $this->log[] = "Brand name matched with '".$s."' and id is '".$brand->id."'";
+                $this->keyword_match[]=$brand->name;
                 return $brand;
+            }else{
+                $this->log[] = "Brand name is not matched with '".$s."'";
             }
         }
 
@@ -86,7 +92,10 @@ class SendImagesOfProduct
             $category = \App\Category::where("title", "like", $s)->first();
             if ($category) {
                 $this->log[] = "Category name matched with '".$s."' and id is '".$category->id."'";
+                $this->keyword_match[]=$category->title;
                 return $category;
+            }else{
+                $this->log[] = "Category name is not matched with '".$s."'";
             }
         }
     }
