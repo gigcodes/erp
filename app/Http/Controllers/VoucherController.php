@@ -234,6 +234,9 @@ class VoucherController extends Controller
      */
     public function show($id)
     {
+        $task         = PaymentReceipt::where('id', $id)->first();
+        return response()->json($task);
+       
         //
     }
 
