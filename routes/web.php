@@ -2266,8 +2266,10 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
     Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
+    Route::get('/task-list-multiple', 'ScrapStatisticsController@taskListMultiple')->name('scrap.task-list-multiple');
     Route::get('/killed-list', 'ScrapStatisticsController@killedList')->name('scrap.killed-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
+    Route::post('/{id}/create-multiple', 'ScrapStatisticsController@taskCreateMultiple')->name('scrap.task-list.create-multiple');
     Route::get('change-user','ScrapStatisticsController@changeUser')->name('scrap.changeUser');
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');

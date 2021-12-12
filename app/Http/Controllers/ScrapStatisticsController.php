@@ -127,9 +127,7 @@ class ScrapStatisticsController extends Controller
         $data = [];
 
         foreach ($suppliers as $supplier) {
-
             if ($supplier->id !== null) {
-
                 $data[$supplier->id]['inventory'] = $supplier->inventory;
                 $data[$supplier->id]['last_date'] = $supplier->last_date;
 
@@ -139,7 +137,6 @@ class ScrapStatisticsController extends Controller
 //        dd($suppliers, $data);
 
         foreach ($activeSuppliers as $activeSupplier) {
-
             if (isset($data[$activeSupplier->supplier_id])) {
                 $activeSupplier->inventory = $data[$activeSupplier->supplier_id]['inventory'];
                 $activeSupplier->last_date = $data[$activeSupplier->supplier_id]['last_date'];
@@ -147,7 +144,6 @@ class ScrapStatisticsController extends Controller
                 $activeSupplier->inventory = 0;
                 $activeSupplier->last_date = null;
             }
-
         }
 
 //
@@ -566,7 +562,6 @@ class ScrapStatisticsController extends Controller
 
     public function updateField(Request $request)
     {
-
         $fieldName = request()->get("field");
         $fieldValue = request()->get("field_value");
         $search = request()->get("search");
@@ -629,7 +624,6 @@ class ScrapStatisticsController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => $suplier]);
-
     }
 
     public function updateScrapperField(Request $request)
@@ -683,11 +677,9 @@ class ScrapStatisticsController extends Controller
                 'old_value' => $oldValue,
                 'new_value' => $newValue,
             ]);
-
         }
 
         return response()->json(["code" => 200]);
-
     }
 
     public function updatePriority(Request $request)
@@ -729,12 +721,10 @@ class ScrapStatisticsController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => $history]);
-
     }
 
     private static function get_times($default = '19:00', $interval = '+60 minutes')
     {
-
         $output = [];
 
         $current = strtotime('00:00');
@@ -762,14 +752,12 @@ class ScrapStatisticsController extends Controller
             ->select(DB::raw('count(*) as inventory'), 'supplier_id as id', DB::raw('max(created_at) as last_date'))
             ->groupBy('supplier_id')->orderBy('created_at', 'desc')->get();
 
-// dd($lastRemark);
+        // dd($lastRemark);
         //        Supplier::with('inventory', 'lastProduct')->whereIn('id', $ids)->get();
         $data = [];
 
         foreach ($suppliers as $supplier) {
-
             if ($supplier->id !== null) {
-
                 $data[$supplier->id]['inventory'] = $supplier->inventory;
                 $data[$supplier->id]['last_date'] = $supplier->last_date;
 
@@ -778,7 +766,6 @@ class ScrapStatisticsController extends Controller
         }
 
         foreach ($lastRemark as $lastRemar) {
-
             if (isset($data[$lastRemar->supplier_id])) {
                 $lastRemar->inventory = $data[$lastRemar->supplier_id]['inventory'];
                 $lastRemar->last_date = $data[$lastRemar->supplier_id]['last_date'];
@@ -831,18 +818,15 @@ class ScrapStatisticsController extends Controller
 
     public function serverStatistics(Request $request)
     {
-
         try {
             $scrappers = Scraper::query();
             $scrap = $scrappers->where('inventory_lifetime', '!=', 0)->where('server_id', '!=', '');
 
             if ($request->type) {
-
                 if ($request->type == 'server_id_filter') {
                     if (!empty($request->order)) {
                         $scrappers->where('server_id', $request->order);
                     }
-
                 } elseif ($request->type == 'filter_by_text') {
                     if (!empty($request->order)) {
                         $scrappers->where('scraper_name', 'LIKE', '%' . $request->order . '%');
@@ -850,7 +834,6 @@ class ScrapStatisticsController extends Controller
                 } else {
                     $scrappers->orderBy($request->type, $request->order);
                 }
-
             }
 
             $scrappers = $scrap->paginate(50);
@@ -953,6 +936,13 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
 
+    public function taskListMultiple(Request $request)
+    {
+        $id = implode(',', $request->id);
+
+        return view("scrap.partials.task-multiple", compact('id'));
+    }
+
     public function killedList(Request $request)
     {
         $id = $request->id;
@@ -968,12 +958,10 @@ class ScrapStatisticsController extends Controller
         $autoReply = [];
         // add reply from here
         if (!empty($reply)) {
-
             $autoReply = \App\Reply::updateOrCreate(
                 ['reply' => $reply, 'model' => 'scrap-statistics', "category_id" => 1],
                 ['reply' => $reply]
             );
-
         }
 
         return response()->json(["code" => 200, 'data' => $autoReply]);
@@ -998,6 +986,44 @@ class ScrapStatisticsController extends Controller
         ]);
     }
 
+    public function taskCreateMultiple(Request $request, $id)
+    {
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+
+        // if(isset($request->type)) $scraper = \App\Brand::find($id);
+        if (isset($request->type) && $request->type == 'brand') {
+            $scraper = \App\Brand::whereIn('id', explode(',', $id))->get();
+        }
+
+        if ($scraper) {
+            foreach ($scraper as $_brand) {
+                $requestData->request->add([
+                    'priority' => 1,
+                    'issue' => 'EXTERNAL SCRAPPER '.$_brand->scraper_name,
+                    'status' => 'In Progress',
+                    'module' => 'Scraper',
+                    'subject' => 'EXTERNAL SCRAPPER '.$_brand->scraper_name,
+                    'assigned_to' => $request->get('assigned_to'),
+                    'scraper_id' => $_brand->id,
+                    'task_type_id' => 1,
+                ]);
+    
+                if (isset($request->type) && $request->type == 'brand') {
+                    $requestData->request->add([
+                        'brand_id' => $_brand->id,
+                        'scraper_id' => '',
+                        'subject' => 'EXTERNAL SCRAPPER ' . $_brand->name,
+                    ]);
+                }
+    
+                app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+            }
+        }
+      
+        return view("scrap.partials.task-multiple", compact('id'));
+    }
+
     public function taskCreate(Request $request, $id)
     {
         $requestData = new Request();
@@ -1011,7 +1037,6 @@ class ScrapStatisticsController extends Controller
         }
 
         if ($scraper) {
-
             $requestData->request->add([
                 'priority' => 1,
                 'issue' => $request->task_description,
@@ -1043,7 +1068,6 @@ class ScrapStatisticsController extends Controller
         $replies = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
-
     }
 
     public function autoRestart(Request $request)
@@ -1126,7 +1150,6 @@ class ScrapStatisticsController extends Controller
 
     public function logDetails(Request $request)
     {
-
         $logDetails = \App\ScrapLog::where("scraper_id", $request->scrapper_id)->latest()->get();
 
         return view("scrap.partials.log-details", compact('logDetails'));
@@ -1242,9 +1265,11 @@ class ScrapStatisticsController extends Controller
         }
         return 'success';
     }
-    public function changeUser(){
+    public function changeUser()
+    {
         $insert = DB::insert('insert into `developer_tasks` (`priority`, `subject`, `task`, `responsible_user_id`, `assigned_to`, `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`, `updated_at`, `created_at`,`parent_id`,`estimate_date`,hubstaff_task_id)
         select `priority`, `subject`, `task`, `responsible_user_id`, "500", `module_id`, `user_id`, `assigned_by`, `created_by`, `reference`, `status`, `task_type_id`, `scraper_id`, `brand_id`, `updated_at`, `created_at`,`parent_id`,`estimate_date`,hubstaff_task_id from `developer_tasks` where`assigned_to` = 472 and `status` = "In Progress"');
-        echo "Data inserted successfully";exit;
+        echo "Data inserted successfully";
+        exit;
     }
 }
