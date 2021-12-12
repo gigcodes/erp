@@ -835,6 +835,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings');
     Route::get('meetings/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@show')->name('meetings.show');
+    Route::get('meetings/all', 'Meeting\ZoomMeetingController@allMeetings')->name('meetings.all.data');
+
 
     Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
 

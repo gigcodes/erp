@@ -96,6 +96,7 @@ class ZoomMeetingController extends Controller
         $input['meeting_duration'] = $request->get("meeting_duration",5);
         $input['timezone']         = $request->get("timezone","Asia/Dubai");
         $input['meeting_agenda']   = $request->get("agenda","");
+        $input['timezone']   =( $input['timezone']  != "") ? $input['timezone']   :"Asia/Dubai";
         // gethering all data to pass to model function
         $data = [
             'user_id'   => $userId,
@@ -202,6 +203,20 @@ class ZoomMeetingController extends Controller
             'type' => $type
         ]);
     }
+    public function allMeetings(){
+      
+        $meetings = ZoomMeetings::join('vendors', 'zoom_meetings.user_id', '=', 'vendors.id')
+        ->select('zoom_meetings.*', 'vendors.name', 'vendors.phone', 'vendors.email', 'vendors.whatsapp_number')
+        ->orderBy('zoom_meetings.start_date_time', 'DESC')
+        ->get();
+       
+        return view('zoom-meetings.index', [
+            'meetingData' => $meetings,
+        ]);
+
+
+    }
+
 
     public function show(){
     $type = "";

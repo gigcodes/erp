@@ -187,21 +187,31 @@ class ZoomMeetings extends Model
      */
     public function getRecordings($zoomKey, $zoomSecret, $date)
     {
+        \Log::info("Get recording getRecordings ");
         $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();
+      
         $zoom = new LaravelZoom($zoomKey, $zoomSecret);
         $token = $zoom->getJWTToken(time() + 36000);
+        \Log::info("Find recording-->".count($allMeetingRecords));
         if (0 != count($allMeetingRecords)) {
             foreach ($allMeetingRecords as $meetings) {
                 $meetingId = $meetings->meeting_id;
+                \Log::info("Get Recording ".json_encode($meetings));
+                \Log::info("Get meetingId ".$meetingId);
                 //$recordingAll = $zoom->getRecordings('-ISK-roPRUyC3-3N5-AT_g', 10);
                 $recordingAll = $zoom->getMeetingRecordings($meetingId);
+                \Log::info(json_encode($recordingAll));
+
                 if ($recordingAll) {
                     if ('200' == $recordingAll[ 'status' ]) {
                         $recordingFiles = $recordingAll[ 'body' ][ 'recording_files' ];
+                        \Log::info("recordingFiles -->".json_encode($recordingFiles));
                         if ($recordingFiles) {
                             $folderPath = public_path() . "/zoom/0/" . $meetings->id;
+                            \Log::info("folderPath -->".$folderPath);
                             foreach ($recordingFiles as $recordings) {
                                 if ('shared_screen_with_speaker_view' == $recordings[ 'recording_type' ]) {
+                                    \Log::info('shared_screen_with_speaker_view');
                                     $fileName = $meetingId . '.mp4';
                                     $urlOfFile = $recordings[ 'download_url' ];
                                     $filePath = $folderPath . '/' . $fileName;
