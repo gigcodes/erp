@@ -361,6 +361,7 @@ class InstagramPostsController extends Controller
                         $influencer = new ScrapInfluencer;
                         $influencer->name = $postJson['Owner'];
                         $influencer->url = $postJson['URL'];
+                        $influencer->profile_url = $postJson['profile_url'];
                         $influencer->followers = $postJson['Followers'];
                         $influencer->following = $postJson['Following'];
                         $influencer->posts = $postJson['Posts'];
