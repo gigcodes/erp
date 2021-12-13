@@ -349,13 +349,14 @@ class InfluencersController extends Controller
     {   
         try{ 
             $name = $request->name;
-            $extraVars = \App\Helpers::getInstagramVars($name);
-            $name = str_replace(" ","",$name).$extraVars;
+         //   $extraVars = \App\Helpers::getInstagramVars($name);
+           // $name = str_replace(" ","",$name).$extraVars;
 
             $cURLConnection = curl_init();
 
             $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart';
             $data = json_encode(['name' => $name]);
+            \Log::info("INFLUENCER_loginstance -->".$data);
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURLConnection, CURLOPT_CUSTOMREQUEST, "POST");
@@ -396,8 +397,8 @@ class InfluencersController extends Controller
     {   
         try{
             $name = $request->name;
-            /*$extraVars = \App\Helpers::getInstagramVars($name);
-            $name = str_replace(" ","",$name).$extraVars;*/
+            $extraVars = \App\Helpers::getInstagramVars($name);
+            $name = str_replace(" ","",$name).$extraVars;
 
             $cURLConnection = curl_init();
             if($request->platform == "py_facebook") {
