@@ -13,7 +13,6 @@
         <div class="col-12">
             <h2 class="page-heading">Magento Order Status Mapping</h2>
           </div>
-
           <div class="col-12 mb-3">
             <div class="pull-left">
 
