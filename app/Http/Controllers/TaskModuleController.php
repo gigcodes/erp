@@ -60,6 +60,7 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
+
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
             $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
@@ -2422,9 +2423,12 @@ class TaskModuleController extends Controller
             ], 500);
         }
        
-
-        $issue->master_user_id = $masterUserId;
-
+        if($request->get("lead") == '1'){
+            $issue->master_user_id = $masterUserId;
+        } else {
+            $issue->second_master_user_id = $masterUserId;
+        }
+        
         $issue->save();
         
         // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
@@ -2438,8 +2442,6 @@ class TaskModuleController extends Controller
         }
         $message = "#" . $issue->id . ". " . $issue->task_subject . ". " . $issue->task_details;
         $summary = substr($message, 0, 200);
-
-        
 
         $hubstaffTaskId = $this->createHubstaffTask(
             $summary,
@@ -3080,6 +3082,17 @@ class TaskModuleController extends Controller
 
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
+
+    public function AssignTaskToUser(Request $request){
+        $task = Task::find($request->get('issue_id'));
+        $task->assign_to = $request->get('user_id');
+        $task->save();
+
+        $values = array('task_id' => $request->get('issue_id'),'user_id' => $request->get('user_id'), 'type' => 'App\User');
+        DB::table('task_users')->insert($values);
+
+        return response()->json(['status' => 'success']);
+    }   
 
   /**
      * return branch name or false
