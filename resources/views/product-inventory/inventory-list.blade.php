@@ -86,7 +86,7 @@ table tr td{
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
         </div>
-        <div class="form-group mr- mb-3 col-md-3">
+        <div class="form-group mr-pd col-md-3">
             {{-- {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!} --}}
 
             <select class="form-control globalSelect2" data-placeholder="Select a Supplier" data-ajax="{{ route('select2.suppliers',['sort'=>true]) }}"
@@ -107,18 +107,15 @@ table tr td{
         <div class="form-group mr-pd col-md-1">
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
-        <div class="form-group mr-pd col-md-1">
-            {!! Form::select('product_sub_status[]',\App\Helpers\StatusHelper::subStatus(), request("product_sub_status",[]), ['data-placeholder' => 'Select a sub status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-        </div>
+        <div class="col-md-12 p-0">
         <div class="form-group mr-pd col-md-2">
-            {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Category
-            {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Size
+            {!! Form::select('product_sub_status[]',\App\Helpers\StatusHelper::subStatus(), request("product_sub_status",[]), ['data-placeholder' => 'Select a sub status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
         <!-- <div class="form-group mr-pd col-md-1">
             
         </div> -->
         <div class="form-group mr-pd col-md-2">
-            {!! Form::text('supplier_count',request("supplier_count"), ['class' => 'form-control', 'placeholder' => 'Supplier count']) !!}
+            {!! Form::text('supplier_count',request("supplier_count"), ['class' => 'form-control w-100', 'placeholder' => 'Supplier count']) !!}
         </div>
         <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
@@ -128,35 +125,42 @@ table tr td{
                 </span>
             </div>
         </div>
-        <div class="form-group mr-3 mb-3">
-            <input type="text" name="discounted_percentage_min" class="form-control" placeholder="discounted min. %" value="{{ request('discounted_percentage_min','') }}">
-            <input type="text" name="discounted_percentage_max" class="form-control" placeholder="discounted max. %" value="{{ request('discounted_percentage_max','') }}">
+        <div class="form-group mr-pd col-md-3 d-flex align-items-center">
+            <input type="text" name="discounted_percentage_min" class="form-control mr-3" placeholder="discounted min. %" value="{{ request('discounted_percentage_min','') }}" style="width: 48%;">
+            <input type="text" name="discounted_percentage_max" class="form-control" placeholder="discounted max. %" value="{{ request('discounted_percentage_max','') }}" style="width: 49%;">
         </div>
-        <div class="form-group mr-pd col-md-1">
-            <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
+        <div class="form-group mr-pd col-md-3 d-flex align-items-center">
+            <div class="mr-3">
+                {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Category
+            </div>
+            <div class="mr-3">
+                {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Size
+            </div>
+            <div>
+                <button type="submit" class="btn btn-secondary custom-button"><i class="fa fa-filter"></i>Filter</button>
+            </div>
         </div>
+    </div>
     </form>
 </div>
-<div class="col-lg-12 margin-tb mb-5">
+<div class="col-lg-12 margin-tb mb-5 p-0">
+    <div class="col-md-12">
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('size_system',["" => "Select Size Sytem"] + \App\SystemSize::pluck('name','name')->toArray(), request("size_system"), ['data-placeholder' => 'Select a Size System','class' => 'form-control change-selectable-size']) !!}
         </div>
-        <div class="form-group mr-pd col-md-2">    
-            <button type="button" class="btn btn-secondary btn-change-size-system"></i>Change Size System</button>
-        </div>
-        <div class="form-group mr-pd col-md-2">
+        <div class="form-group mr-pd col-md-3 d-flex align-items-center">    
+            <button type="button" class="btn btn-secondary btn-change-size-system mr-3 custom-button"></i>Change Size System</button>
             {!! Form::select('size_system',["" => "Select status"] + \App\Helpers\StatusHelper::getStatus(), request("status"), ['data-placeholder' => 'Select status','class' => 'form-control change-status']) !!}
         </div>
-        <div class="form-group mr-pd col-md-2">    
-            <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
-            <button type="button" class="btn btn-secondary btn-change-status-all"></i>Change status all</button>
+        <div class="form-group mr-pd col-md-3 d-flex align-items-center">            
+            <button type="button" class="btn btn-secondary btn-change-status mr-3 custom-button"></i>Change status</button>
+            <button type="button" class="btn btn-secondary btn-change-status-all mr-3 custom-button"></i>Change status all</button>
+            <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary custom-button"></i>Report</button>
         </div>
-        <div class="form-group mr-pd col-md-2">    
-            <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
+        <div class="form-group mr-pd col-md-1">    
+            <button type="button" data-toggle="modal" data-target="#missing-report-scrap-modal" class="btn btn-secondary custom-button"></i>Scrapped Report</button>
         </div>
-        <div class="form-group mr-pd col-md-2">    
-            <button type="button" data-toggle="modal" data-target="#missing-report-scrap-modal" class="btn btn-secondary"></i>Scrapped Report</button>
-        </div>
+    </div>
 </div>
 <div id="inventory-data"> <!-- Purpose : Remove class="table-responsive" - DEVTASK-4138  -->
     <table class="table table-bordered infinite-scroll">
@@ -535,7 +539,7 @@ table tr td{
             data = JSON.parse(data)
             console.log(data)
             result += '<table class="table table-bordered">';
-            result += '<thead><th>Id</th><th>Sku</th><th>Name</th><th>Category / Brand</th><th>Price</th><th>Discount %</th><th>Supplier</th><th>Color</th><th>Composition</th><th>Size system</th><th>Size</th><th>Created Date</th></thead>';
+            result += '<thead><th>Id</th><th>Sku</th><th>Name</th><th>Category / Brand</th><th>Price</th><th>Discount %</th><th>Supplier</th><th>Color</th><th>Composition</th><th>Dimesion</th><th>Size system</th><th>Size</th><th>Created Date</th></thead>';
             result += '<tbody>';
             for (let value in data) {
                 result += '<tr>';
@@ -548,6 +552,11 @@ table tr td{
                 result += "<td>" +  (data[value].product_supplier  ? data[value].product_supplier :'-')+ "</td>"
                 result += "<td>" + (data[value].color ? data[value].color: '-' )+ "</td>"
                 result += "<td>" + (data[value].composition ? data[value].composition :'-') + "</td>"
+                if(data[value].properties && data[value].properties && data[value].properties.dimension) {
+                    result += "<td>" + (data[value].properties.dimension ? data[value].properties.dimension.join() :'-') + "</td>"
+                }else{
+                    result += "<td>-</td>"
+                }
                 result += "<td>" + (data[value].size_system ? data[value].size_system :'-') + "</td>"
                 result += "<td>" +( data[value].size ? data[value].size :'-') + "</td>"
                 result += "<td>" + (data[value].created_at ? data[value].created_at :'-') + "</td>"

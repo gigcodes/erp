@@ -293,6 +293,7 @@ class WhatsAppController extends FindByNumberController
                                                     'lead_status_id' => 3,
                                                     //'assigned_user' => 6,
                                                     'product_id' => $pid,
+                                                    'store_website_id' => 15,
                                                     'brand_id' => $product ? $product->brand : null,
                                                     'category_id' => $product ? $product->category : null,
                                                     'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
@@ -379,6 +380,7 @@ class WhatsAppController extends FindByNumberController
 
                     $lead = \App\ErpLeads::create([
                         'customer_id' => $customer->id,
+                        'store_website_id' => 15,
                         //'client_name' => $from,
                         //'contactno' => $from,
                         //'rating' => 2,
@@ -814,6 +816,7 @@ class WhatsAppController extends FindByNumberController
                                                 'customer_id' => $customer->id,
                                                 //'rating' => 1,
                                                 'lead_status_id' => 3,
+                                                'store_website_id' => 15,
                                                 //'assigned_user' => 6,
                                                 'product_id' => $pid,
                                                 'type' => 'whatsapp-incoming-message-new',
@@ -902,6 +905,7 @@ class WhatsAppController extends FindByNumberController
 
                     $lead = \App\ErpLeads::create([
                         'customer_id' => $customer->id,
+                        'store_website_id' => 15,
                         //'client_name' => $from,
                         //'contactno' => $from,
                         //'rating' => 2,
@@ -2048,7 +2052,7 @@ class WhatsAppController extends FindByNumberController
             if (Auth::user()->isAdmin()) {
                 $u_id = $request->user_id;
             }
-            $data['user_id'] = Auth::id();
+            $data['user_id'] = $u_id;
             $data['sent_to_user_id'] = $u_id;
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
             $module_id = $u_id;
@@ -2553,8 +2557,9 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     //START - Purpose : Email notification - DEVTASK-4359
+					$user = \App\User::find($issue->assigned_to);
 
-                    $message_ = ($issue->task_type_id == 1 ? "[ " . auth()->user()->name . " ] - #DEVTASK-" : "#ISSUE-") . $issue->id . ' - ' . $issue->subject . "\n\n" . $request->message;
+                    $message_ = ($issue->task_type_id == 1 ? "[ " . $user->name . " ] - #DEVTASK-" : "#ISSUE-") . $issue->id . ' - ' . $issue->subject . "\n\n" . $request->message;
 
                     MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id], $message_);
                     //END - DEVTASK-4359
@@ -2644,9 +2649,9 @@ class WhatsAppController extends FindByNumberController
                             DocumentSendHistory::create($history);
 
                             //Sending Document
-                            $this->sendWithThirdApi($user->phone, $request->whatsapp_number, '', $document_url, $chat_message->id, '');
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, '', $document_url, $chat_message->id, '');
                             //Sending Text
-                            $this->sendWithThirdApi($user->phone, $request->whatsapp_number, $request->message, '', $chat_message->id, '');
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message, '', $chat_message->id, '');
                         }
 
                         //Getting Vendor For Sending Documents
@@ -2671,9 +2676,9 @@ class WhatsAppController extends FindByNumberController
                             DocumentSendHistory::create($history);
 
                             //Sending Document
-                            $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, '', $document_url, $chat_message->id, '');
+                            $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, '', $document_url, $chat_message->id, '');
                             //Sending Text
-                            $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, $request->message, '', $chat_message->id, '');
+                            $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $request->message, '', $chat_message->id, '');
                         }
 
                         //Getting Contact For Sending Documents

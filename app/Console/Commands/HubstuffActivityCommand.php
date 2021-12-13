@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use Mail;
 use Auth;
 use Illuminate\Support\Facades\Log;
+use App\CashFlow;
+use App\PayentMailData;
 
 
 
@@ -280,6 +282,33 @@ class HubstuffActivityCommand extends Command
                 $hubstaff_activity->activity_excel_file = $path;
                 $hubstaff_activity->save();
 
+                // Add Code by Mitali for add in cash flow 
+                $admin_user_id = !empty(auth()->id()) ? auth()->id() : 6;
+
+                $paymentData=PayentMailData::where('user_id',$user->id)->orderBy('id','desc')->first();
+                $cashflow = new CashFlow;
+
+               
+                $cashflow->date=  $hubstaff_activity->created_at ;
+                $cashflow->user_id=  $user->id;
+                $cashflow->updated_by=  $admin_user_id;
+                $cashflow->cash_flow_able_id=  $hubstaff_activity->id;
+                $cashflow->cash_flow_able_type=  \App\HubstaffActivityByPaymentFrequency::class;
+                $cashflow->description=  "$payment_frequency Frequency Payment";
+                $cashflow->type= 'pending';
+                $cashflow->status=  1;
+                $cashflow->amount=$paymentData->payment;
+            //    $cashflow->currency=  ;
+                $cashflow->save();
+
+                //Query
+          //      $cashflow->type= 'pending';
+          //      $cashflow->currency=  $receipt->currency;
+          //      $cashflow->status=  1;
+          //      $cashflow->amount=  $receipt->created_at;
+
+
+                
                 // dd("555555");
 
                 dump('Mail Sent Successfully => '.$user->name);

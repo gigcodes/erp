@@ -26,4 +26,11 @@ class UserUpdatedAttributeHistory extends Model
   {
     return $this->hasOne('App\User','id','user_id');
   }
+
+  public function getobject()
+  {
+    if($this->attribute_name == "scraped-category") {
+        return \App\Category::find($this->new_value);
+    }
+  }
 }

@@ -16,7 +16,7 @@
         <a title="{{$log->url}}" href="{{$log->url}}">{{ str_limit($log->url, 30, '...')}}</a>
     </td>
     <td class="expand-row-msg" data-name="message" data-id="{{$log->id}}">
-        <span class="show-short-message-{{$log->id}}">{{ str_limit($log->message, 30, '...')}}</span>
+        <span class="show-short-message-{{$log->id}}">{{ $log->message }}</span>
         <span style="word-break:break-all;" class="show-full-message-{{$log->id}} hidden">{{$log->message}}</span>
     </td>
     <td class="expand-row-msg" data-name="request_data" data-id="{{$log->id}}">

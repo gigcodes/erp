@@ -54,11 +54,11 @@ class StoreLogScraper extends Command
                 'start_time' => Carbon::now(),
             ]);
 
+            $dateToCheck = date('jMy', strtotime("-1 days"));
             $dateBeforeSevenday = date("Y-m-d", strtotime("-7 day"));
 
-            ScrapRemark::where("scrap_field", 'last_line_error')->whereDate("created_at", "<=", $dateBeforeSevenday)->delete();
 
-            $yesterdayDate = date('j', strtotime("-1 days"));
+            ScrapRemark::where("scrap_field", 'last_line_error')->whereDate("created_at", "<=", $dateBeforeSevenday)->delete();
             // $root          = env('SCRAP_LOGS_FOLDER');
             $root          = config('env.SCRAP_LOGS_FOLDER');
 
@@ -67,10 +67,9 @@ class StoreLogScraper extends Command
             foreach (File::allFiles($root) as $file) {
                 $needed = explode('-', $file->getFilename());
                 if (isset($needed[1])) {
-                    $day      = explode('.', $needed[1]);
-                    if(isset($day[0]) && isset($day[1])) {
-                        $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
-                        if ($day[0] === $yesterdayDate) {
+                    if(isset($needed[1])) {
+                        $filePath = $file->getPathName();
+                        if ($needed[1] === $dateToCheck) {
                             $result   = File::get($filePath);
                             $lines    = array_filter(explode("\n", $result));
                             $lastLine = end($lines);

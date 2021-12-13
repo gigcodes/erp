@@ -706,6 +706,9 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" target="_blank" href="{{ route('logs.index') }}">Image Logs</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('order.call-management') }}">Call Management</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM Notifications</a>
@@ -1113,6 +1116,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('ReplyController@replyList') }}">Quick Reply List</a>
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
                                         </li>
@@ -1391,6 +1397,10 @@ if (!empty($notifications)) {
                                                 </li>
                                             </ul>
                                         </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('logging.flow.log') }}">Flow Log
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1475,7 +1485,9 @@ if (!empty($notifications)) {
                                 </li>
                             </ul>
                         </li>
-                      
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
+                        </li>
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1578,6 +1590,9 @@ if (!empty($notifications)) {
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -1687,9 +1702,19 @@ if (!empty($notifications)) {
                                                     <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                                 </li>
 
-                                                <li class="nav-item dropdown">
-                                                    <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                               <li class="nav-item dropdown dropdown-submenu">
+                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Call Management<span class="caret"></span></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('twilio-call-management') }}"> Call Management</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+                                                    </ul>
                                                 </li>
+												
                                                 <li class="nav-item dropdown dropdown-submenu">
                                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

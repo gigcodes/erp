@@ -22,7 +22,7 @@
     z-index: 1060;
 }
 .inner_loader {
-	top: 30%;
+    top: 30%;
     position: absolute;
     left: 40%;
     width: 100%;
@@ -69,18 +69,18 @@ table tr td {
 @endsection
 
 @section('large_content')
-	<div class="ajax-loader" style="display: none;">
-		<div class="inner_loader">
-		<img src="{{ asset('/images/loading2.gif') }}">
-		</div>
-	</div>
+    <div class="ajax-loader" style="display: none;">
+        <div class="inner_loader">
+        <img src="{{ asset('/images/loading2.gif') }}">
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Purchase Product Orders List</h2>
         </div>
          <div class="col-10" style="padding-left:0px;">
-            <div >
+            <div class="col-md-12">
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
 
@@ -111,133 +111,135 @@ table tr td {
 
 
     <div class="row">
-        <div class="infinite-scroll" style="width:100%;">
-	        <div class="table-responsive mt-2">
-                <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
-                    <thead>
-                        <tr>
-                            <th width="2%">#</th>
-                            <th width="3%">Order Id</th>
-                            <!-- <th width="8%">Product</th>
-                            <th width="8%">SKU</th>
-                            <th width="8%">Brand</th> -->
-                            <th width="5%">Supplier</th>
-                            <th width="2%">MRP</th>
-                            <th width="3%">Dis Pri</th>
-                            <th width="4%">Spc Price</th>
-                            <th width="5%">Invoice No</th>
-                            <th width="9%">Paym Details</th>
-                            <th width="6%">Cost Details</th>
-                            <th width="4%">Land cost</th>
-                            <th width="6%">Status</th>
-                            <th width="4%">Crea Date</th>
-                            <th width="5%">Action</th>
+        <div class="col-md-12">
+            <div class="infinite-scroll purchaseproductorders-list" style="width:100%;">
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th width="1.5%">#</th>
+                                <th width="3%">Order Id</th>
+                                <!-- <th width="8%">Product</th>
+                                <th width="8%">SKU</th>
+                                <th width="8%">Brand</th> -->
+                                <th width="6%">Supplier</th>
+                                <th width="2%">MRP</th>
+                                <th width="3%">Dis Prc</th>
+                                <th width="3%">Spc Prc</th>
+                                <th width="5%">Invoice No</th>
+                                <th width="9%">Paym Details</th>
+                                <th width="6%">Cost Details</th>
+                                <th width="4%">Land cost</th>
+                                <th width="6%">Status</th>
+                                <th width="4%">Crea Date</th>
+                                <th width="5%">Action</th>
 
-                        </tr>
-                    </thead>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                    @foreach($purchar_product_order as $key => $value)
-                        <tr class="row_{{$value->pur_pro_id}}">
-                            <td>{{$key+1}}</td>
-                            <td>{{$value->order_id}}</td>
-                            <!-- <td>{{$value->name}}</td>
-                            <td>{{$value->sku}}</td>
-                            <td>{{$value->brand_name}}</td> -->
-                            <td>{{$value->supplier}}</td>
-                            <td class="mrp_amount">
-                                {{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}
-                                <!-- <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
-                                <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i> -->
-                            </td>
-                            <td class="discount_amount">
-                                {{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}
-                                <!-- <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
-                                <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i> -->
-                            </td>
-                            <td class="special_price_amount">
-                            @php
-                            $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
-                            $special_amt = ($value->special_price ?? $value->price_special ?? 0);
-
-                            $final_special_amt = $special_amt - $discount_amt;
-
-                            @endphp
-                            {{ ($final_special_amt > 0 ? $final_special_amt : 0) }}
-                                <!-- <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
-                                <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
-                            </td>
-                            
-                            
-                            <td >
-                                <div class="add-invoice">
-                                    <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control  invoice_no" value="{{ $value->invoice ?? '' }}"style="width:50%;">
-                                    <button style="display: inline;width:5%; display:flex;" class="btn btn-sm btn-image add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                    <i class="fa fa-info-circle view_log" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"style="padding-top:6px; padding-left: 21px;"></i>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="currency-box">
-                                    <input type="text" name="payment_currency" placeholder="Currency" class="form-control  payment_currency" {{ $value->payment_currency ?? '' }}">
-                                    <input type="text" name="payment_amount" placeholder="Amount" class="form-control  payment_amount"style="margin-left:5px;" value="{{ $value->payment_amount ?? '' }}">
-                                    <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;"" value="{{ $value->payment_mode ?? '' }}">
-                                    <button style="display: inline;width: 5%; display: flex;" class="btn btn-sm btn-image add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                    <i class="fa fa-info-circle view_log" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="padding-top:6px;"></i>
-                                    <i class="fa fa-money view_flows" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="padding-top:6px;"></i>
-                                 </div>
-                            </td>
-                            <td>
-                                <div class="shiping">
-                                    <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control  shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
-                                    <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control  duty_cost" style="margin-left:5px;" value="{{ $value->duty_cost ?? '' }}">
-                                    <button style="display: inline;width:5%; display:flex;" class="btn btn-sm btn-image add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                    <i class="fa fa-info-circle view_log" style="padding-top:6px;" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
-                               </div>
-                            </td>
-                            <td class="landed_cost">
+                        <tbody>
+                        @foreach($purchar_product_order as $key => $value)
+                            <tr class="row_{{$value->pur_pro_id}}">
+                                <td>{{$key+1}}</td>
+                                <td>{{$value->order_id}}</td>
+                                <!-- <td>{{$value->name}}</td>
+                                <td>{{$value->sku}}</td>
+                                <td>{{$value->brand_name}}</td> -->
+                                <td>{{$value->supplier}}</td>
+                                <td class="mrp_amount">
+                                    {{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}
+                                    <!-- <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
+                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                    <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i> -->
+                                </td>
+                                <td class="discount_amount">
+                                    {{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}
+                                    <!-- <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
+                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                    <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i> -->
+                                </td>
+                                <td class="special_price_amount">
                                 @php
-                                $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
+                                $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
+                                $special_amt = ($value->special_price ?? $value->price_special ?? 0);
+
+                                $final_special_amt = $special_amt - $discount_amt;
+
                                 @endphp
-                                {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
-                                {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
-                            </td>
-                            <td>
-                                <div class="select">
-                                    <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
-                                        <option value="">Select</option>
-                                        <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
-                                        <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
-                                        <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
-                                        <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
-                                    </select>
-                                    <i class="fa fa-info-circle view_log" style="padding-top:6px;"" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
-                               </div>
-                            </td>
-                            @php
-                            $date = explode(" ",$value->created_at_date)
-                            @endphp
-                            <td>{{$date[0]}}</td>
-                            <td>
-                            @php
-                            $order_products_order_id = $value->order_products_order_id;
-                            $vowels = array("[", "]");
-                            $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
-                            @endphp
-                                <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
+                                {{ ($final_special_amt > 0 ? $final_special_amt : 0) }}
+                                    <!-- <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
+                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                    <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
+                                </td>
+                                
+                                
+                                <td >
+                                    <div class="add-invoice">
+                                        <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control  invoice_no" value="{{ $value->invoice ?? '' }}"style="width:50%;">
+                                        <button style="display: inline;width:5%; display:flex;" class="btn btn-sm add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
+                                        <i class="fa fa-info-circle view_log color-gray" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"></i>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="currency-box">
+                                        <input type="text" name="payment_currency" placeholder="Currency" class="form-control  payment_currency" {{ $value->payment_currency ?? '' }}">
+                                        <input type="text" name="payment_amount" placeholder="Amount" class="form-control  payment_amount"style="margin-left:5px;" value="{{ $value->payment_amount ?? '' }}">
+                                        <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;" value="{{ $value->payment_mode ?? '' }}">
+                                        <button style="display: inline;width: 5%;" class="btn btn-sm add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
+                                        <i class="fa fa-info-circle view_log p-0" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="margin-left:8px;"></i>
+                                        <i class="fa fa-money view_flows p-0 color-gray" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="margin-left:8px;"></i>
+                                     </div>
+                                </td>
+                                <td>
+                                    <div class="shiping">
+                                        <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control  shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
+                                        <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control  duty_cost" style="margin-left:5px;" value="{{ $value->duty_cost ?? '' }}">
+                                        <button style="display: inline;width:5%;" class="btn btn-sm add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px;"></button>
+                                        <i class="fa fa-info-circle view_log color-gray" style="" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
+                                   </div>
+                                </td>
+                                <td class="landed_cost">
+                                    @php
+                                    $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
+                                    @endphp
+                                    {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
+                                    {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
+                                </td>
+                                <td>
+                                    <div class="select">
+                                        <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
+                                            <option value="">Select</option>
+                                            <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
+                                            <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
+                                            <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
+                                            <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
+                                        </select>
+                                        <i class="fa fa-info-circle view_log color-gray" style="" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
+                                   </div>
+                                </td>
+                                @php
+                                $date = explode(" ",$value->created_at_date)
+                                @endphp
+                                <td>{{$date[0]}}</td>
+                                <td>
+                                @php
+                                $order_products_order_id = $value->order_products_order_id;
+                                $vowels = array("[", "]");
+                                $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
+                                @endphp
+                                    <i class="fa fa-list-ul view_full_order color-gray" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
 
-                                <i class="fa fa-upload upload_data_btn pl-2 pr-2" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
+                                    <i class="fa fa-upload upload_data_btn pl-2 pr-2 color-gray" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
 
-                                <a type="button" class="btn btn-xs btn-image load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt=""style="margin-top:-5px;"></a>
-                            </td>
+                                    <a type="button" class="btn btn-xs load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt="" width="16px"></a>
+                                </td>
 
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-	        </div>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -407,10 +409,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'invoice',
                 message : invoice,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -452,12 +454,12 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'payment_details',
                 payment_currency : payment_currency,
                 payment_amount : payment_amount,
                 payment_mode : payment_mode,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -490,11 +492,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'costs',
                 shipping_cost : shipping_cost,
                 duty_cost : duty_cost,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -525,10 +527,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'status',
                 status : status,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -557,10 +559,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'mrp',
                 mrp : mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -589,10 +591,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'discount_price',
                 discount_price : discount_price,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -621,10 +623,10 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'special_price',
                 special_price : special_price,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
             },
             dataType : "json",
             success: function (response) {
@@ -666,11 +668,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'product_order_mrp',
                 product_order_mrp_old: product_order_mrp_old,
                 product_order_mrp : product_order_mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_id: order_products_id,
                 product_order_mrp_total: product_order_mrp_total,
             },
@@ -716,11 +718,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'product_order_discounted_price',
                 product_order_mrp_old: product_order_mrp_old,
                 product_order_mrp : product_order_mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_id: order_products_id,
                 product_order_mrp_total:product_order_mrp_total,
             },
@@ -765,11 +767,11 @@ table tr td {
             type: "POST",
             url: "{{ route('purchaseproductorders.update') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 from : 'product_order_special_price',
                 product_order_mrp_old: product_order_mrp_old,
                 product_order_mrp : product_order_mrp,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_id: order_products_id,
                 product_order_mrp_total:product_order_mrp_total,
             },
@@ -802,9 +804,9 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.logs') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 header_name : header_name,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 purchase_order_products_id: purchase_order_products_id,
             },
             dataType : "json",
@@ -838,9 +840,9 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.flows') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 header_name : header_name,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 purchase_order_products_id: purchase_order_products_id,
             },
             dataType : "json",
@@ -886,9 +888,9 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.orderdata') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 order_id : order_id,
-				purchase_pro_id: purchase_pro_id,
+                purchase_pro_id: purchase_pro_id,
                 order_products_order_id:order_products_order_id,
                 supplier_id:supplier_id,
             },
@@ -997,7 +999,7 @@ table tr td {
             type: "GET",
             url: "{{ route('purchaseproductorders.orderdata') }}",
             data: {
-				_token: "{{ csrf_token() }}",
+                _token: "{{ csrf_token() }}",
                 order_products_order_id:order_products_order_id,
                 supplier_id:supplier_id,
             },
@@ -1039,15 +1041,15 @@ table tr td {
         if(files.length > 0 ){
 
             $.each(files,function(i,e){
-				fd.append('file[]',e);
-			})
+                fd.append('file[]',e);
+            })
             fd.append('order_product_id',order_product_id);
             fd.append('order_id',order_id);
             fd.append('_token',"{{ csrf_token() }}");
 
 
 
-			$.ajax({
+            $.ajax({
                 url: '{{route("purchaseproductorders.saveuploads")}}',
                 type: 'post',
                 data: fd,
@@ -1067,7 +1069,7 @@ table tr td {
                     $('.ajax-loader').hide();
                     toastr['error']('Data not Uploaded successfully!');
                 }
-			});
+            });
 
         }else{
             alert("Please select a file.");

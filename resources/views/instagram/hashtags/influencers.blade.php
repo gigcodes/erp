@@ -498,6 +498,7 @@ button[disabled]:hover {
                     <h4 class="modal-title">Instagram Logs</h4>
                 </div>
                 <div class="modal-body">
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -513,7 +514,6 @@ button[disabled]:hover {
     <script type="text/javascript">
 
         $(".select2-quick-reply").select2( { tags: true } );
-
         $(document).on("change", ".quickComments", function (e) {
             var message = $(this).val();
             var select = $(this);
@@ -1149,8 +1149,11 @@ button[disabled]:hover {
                     date : $date
                 },
                 success: function (data) {
-                   $("#manage-log-instance").find(".modal-body").html(data);
-                   $("#manage-log-instance").modal('show'); 
+                    if(data.type=="success"){
+                          $("#manage-log-instance").find(".modal-body").html(data.response);
+                          $("#manage-log-instance").modal('show'); 
+                    }else{
+                        alert(data.response)                     }
                 },
             });
         });

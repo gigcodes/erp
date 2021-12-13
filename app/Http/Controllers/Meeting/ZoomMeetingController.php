@@ -62,8 +62,8 @@ class ZoomMeetingController extends Controller
     {
         $this->validate( $request, [
             'meeting_topic' => 'required|min:3|max:255',
-            //'start_date_time' => 'required',
-            //'meeting_duration' => 'required',
+          //  'start_date_time' => 'required',
+           //  'meeting_duration' => 'required',
             //'timezone' => 'required'
         ]);
 
@@ -98,6 +98,7 @@ class ZoomMeetingController extends Controller
         $input['meeting_agenda']   = $request->get("agenda","");
         $input['timezone']   =( $input['timezone']  != "") ? $input['timezone']   :"Asia/Dubai";
         // gethering all data to pass to model function
+        $input['timezone']   =( $input['timezone']  != "") ? $input['timezone']   :"Asia/Dubai";
         $data = [
             'user_id'   => $userId,
             'topic'     => $input['meeting_topic'],
@@ -105,14 +106,15 @@ class ZoomMeetingController extends Controller
             'settings'  => $settings,
             'startTime' => new Carbon($input['start_date_time']),
             'duration'  => $input['meeting_duration'],
-            'timezone'  => $input['timezone'],
+            'timezone'  =>$input['timezone'] ,
         ];
         // Calling model calss
         $meetings       = new ZoomMeetings();
         $zoomKey        = $this->zoomkey;
         $zoomSecret     = $this->zoomsecret;
+      
         $createMeeting  = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
-
+       // dd($createMeeting);
         if($createMeeting){
          $input[ 'meeting_id' ] = empty( $createMeeting[ 'body' ]['id'] ) ? "" : $createMeeting[ 'body' ]['id'];
          $input[ 'host_zoom_id' ] = $this->zoomuser;
@@ -209,15 +211,12 @@ class ZoomMeetingController extends Controller
         ->select('zoom_meetings.*', 'vendors.name', 'vendors.phone', 'vendors.email', 'vendors.whatsapp_number')
         ->orderBy('zoom_meetings.start_date_time', 'DESC')
         ->get();
-       
         return view('zoom-meetings.index', [
             'meetingData' => $meetings,
         ]);
 
 
     }
-
-
     public function show(){
     $type = "";
     $upcomingMeetings = [];

@@ -234,6 +234,9 @@ class VoucherController extends Controller
      */
     public function show($id)
     {
+        $task         = PaymentReceipt::where('id', $id)->first();
+        return response()->json($task);
+       
         //
     }
 
@@ -695,7 +698,7 @@ class VoucherController extends Controller
         $task_id = $request->input('task_id');
         $html = '';
         $paymentData = \App\CashFlow::where('cash_flow_able_id', $task_id)
-            ->where('cash_flow_able_type', 'App\Voucher')
+            ->where('cash_flow_able_type', 'App\PaymentReceipt')
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
             ->get();

@@ -78,6 +78,7 @@ class TmpTaskController extends Controller
                     $erpLead->product_id = !empty($product) ? $product->id : null;
                     $erpLead->brand_id = isset($jsonBrand[0]) ? $jsonBrand[0] : null;
                     $erpLead->brand_segment = $brandSegment;
+                    $erpLead->store_website_id = 15;
                     $erpLead->category_id = isset($jsonCategory[0]) ? $jsonCategory[0] : null;
                     $erpLead->color = null;
                     $erpLead->size = $lead->size;

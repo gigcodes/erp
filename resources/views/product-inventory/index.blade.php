@@ -20,17 +20,17 @@
         </div>
         @if(auth()->user()->isAdmin())
           @if( $roletype != 'Selection' && $roletype != 'Sale' )
-          	  	<div class="col-lg-3 margin-tb">	
-	              	<div class="pt-2 col-md-3 pb-3">
-	              		<a href="{{ route('pending',$roletype) }}"><strong>Pending: </strong> {{ \App\Product::getPendingProductsCount($roletype) }}</a>
+          	  	<div class="col-lg-4 margin-tb">	
+	              	<div class="pt-2 col-md-3 pb-3 pr-0">
+	              		<a href="{{ route('pending',$roletype) }}" class="text-secondary"><strong>Pending: </strong> {{ \App\Product::getPendingProductsCount($roletype) }}</a>
 	              	</div>
 	              	@if ($roletype == 'Inventory')
-                  <div class="col-md-9 import-form">
+                  <div class="col-md-9 import-form pl-0">
 	                	<form class="form-inline mb-3" action="{{ route('productinventory.import') }}" method="POST" enctype="multipart/form-data">
 	                  		@csrf
 	                  		<div class="form-group">
 	                    		<input type="file" name="file" class="form-control-file" required>
-                        <button type="submit" class="btn btn-secondary ml-3">Import Inventory</button>
+                        <button type="submit" class="btn btn-secondary ml-3 custom-button">Import Inventory</button>
 	                  		</div>
 	                	</form>
                   </div>
@@ -39,23 +39,23 @@
           @endif
         @endif
         @if(auth()->user()->isAdmin())
-          <div class="col-lg-8 margin-tb brand-update-form"> 
+          <div class="col-lg-8 margin-tb brand-update-form pl-0"> 
               <form class="form-inline mb-3" action="{{ route('productinventory.merge-scrap-brand') }}" method="POST">
                   @csrf
-                  <div class="col-md-auto">
+                  <div class="col-md-auto pl-0">
                   <div class="form-group">
-                    <label for="scraper_brand">Scraper Brand</label>
+                    
                     <input type="text" name="scraper_brand" placeholder="Enter scraper Brand" class="form-control" required>
                   </div>
                 </div>
-                <div class="col-md-auto">
+                <div class="col-md-auto pl-0">
                   <div class="form-group">
-                    <label for="product_brand">Product Brand</label>
+                    
                     <input type="text" name="product_brand" placeholder="Enter product brand" class="form-control" required>
                   </div>
                 </div>
-                <div class="col-md-auto">
-                  <button type="submit" class="btn btn-secondary ml-3">Update Brand</button>
+                <div class="col-md-auto pl-0">
+                  <button type="submit" class="btn btn-secondary ml-3 custom-button">Update Brand</button>
                 </div>
               </form>
           </div>
@@ -101,53 +101,46 @@
                   	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple2 w-100', 'multiple' => true]) !!}
                   </div>
                 @endif
-                 
-                </div>
-                <div class="d-flex flex-wrap">
-
-                  <div class="form-group mb-3 col-md-3 col-12">
+                <div class="form-group mb-3 col-md-3 col-12">
                     <input name="size" type="text" class="form-control w-100" value="{{ request('size',null) }}" placeholder="Size">
                   </div>
-                
-                <div class="form-group mb-3 col-md-3 col-12">
-                  <strong class="mr-3">Price</strong>
-                    <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? $_GET['price_min'] : '' }}">
-                    <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? $_GET['price_max'] : '' }}">
-                </div>
-                <div class="form-group mb-3 col-md-4 col-12">
-                  <strong class="mr-3">Discounted Percentage</strong>
-                    <input type="text" name="discounted_percentage_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['discounted_percentage_min']) ? $_GET['discounted_percentage_min'] : '' }}">
-                    <input type="text" name="discounted_percentage_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['discounted_percentage_max']) ? $_GET['discounted_percentage_max'] : '' }}">
-                </div>
-                <div class="form-group mb-3 col-md-2 col-12">
-                  <div class='input-group date' id='filter-date'>
-                      <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
-                      <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                      </span>
+                 <div class="form-group mb-3 col-md-3 col-12">
+                    <input type="text" name="price_min" class="form-control w-100" placeholder="min. price" value="{{ isset($_GET['price_min']) ? $_GET['price_min'] : '' }}">
+                 </div>
+                 <div class="form-group mb-3 col-md-3 col-12">
+                    <input type="text" name="price_max" class="form-control w-100" placeholder="max. price" value="{{ isset($_GET['price_max']) ? $_GET['price_max'] : '' }}">
+                 </div>
+                 <div class="form-group mb-3 col-md-3 col-12">
+                    <input type="text" name="discounted_percentage_min" class="form-control w-100" placeholder="min. price" value="{{ isset($_GET['discounted_percentage_min']) ? $_GET['discounted_percentage_min'] : '' }}">
+                 </div>
+                 <div class="form-group mb-3 col-md-3 col-12">
+                    <input type="text" name="discounted_percentage_max" class="form-control w-100" placeholder="max. price" value="{{ isset($_GET['discounted_percentage_max']) ? $_GET['discounted_percentage_max'] : '' }}">
+                 </div>
+                 <div class="form-group mb-3 col-md-2 col-12">
+                    <div class='input-group date' id='filter-date'>
+                        <input type='text' class="form-control w-100" name="date" value="{{ request('date','') }}" placeholder="Date" />
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                 </div>
+                 <div class="form-group mb-3 col-md-7 col-12 d-flex justify-content-between">
+                    <div class="d-flex"><input {{ (request('is_on_sale')) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale" class="mr-2"><label for="is_on_sale">Sale</label></div>
+                    <div  class="d-flex"><input {{ (request('without_category')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_category" id="without_category" class="mr-2"><label for="without_category">Without Category?</label></div>
+                    <div  class="d-flex">
+                     <input {{ (request('without_color')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_color" id="without_color" class="mr-2"><label for="without_color">Without Color?</label>
                   </div>
-                </div>
-                </div>
-                <div class="d-flex flex-wrap checkbox-filter">
-                <div class="form-group col-md-auto mb-3">
-                   <input {{ (request('is_on_sale')) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
-                </div>
-                <div class="form-group col-md-auto mb-3">
-                   <input {{ (request('without_category')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_category" id="without_category"><label for="without_category">Without Category?</label>
-                </div>
-                <div class="form-group col-md-auto mb-3">
-                   <input {{ (request('without_color')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_color" id="without_color"><label for="without_color">Without Color?</label>
-                </div>
-                <div class="form-group col-md-auto mb-3">
-                   <input {{ (request('without_composition')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_composition" id="without_composition"><label for="without_composition">Without Composition?</label>
-                </div>
-                <div class="form-group col-md-auto mb-3">
-                   <input {{ (request('final_approval')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="final_approval" id="final_approval"><label for="final_approval">Final Approved?</label>
-                </div>
-                @if (isset($customer_id) && $customer_id != null)
-                  <input type="hidden" name="customer_id" value="{{ $customer_id }}">
-                @endif
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                  <div  class="d-flex">
+                     <input {{ (request('without_composition')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_composition" id="without_composition" class="mr-2"><label for="without_composition">Without Composition?</label>
+                  </div>
+                  <div  class="d-flex">
+                     <input {{ (request('final_approval')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="final_approval" id="final_approval" class="mr-2"><label for="final_approval">Final Approved?</label>
+                  </div  class="d-flex">
+                  @if (isset($customer_id) && $customer_id != null)
+                    <input type="hidden" name="customer_id" value="{{ $customer_id }}">
+                  @endif
+                  <div  class="d-flex"><button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button></div>
+                 </div>
                 </div>
                 </div>
         	</form>

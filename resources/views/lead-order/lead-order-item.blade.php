@@ -12,11 +12,23 @@
                 <span class="show-short-leadOrder-{{$key.'-'.$leadOrder['id']}}">{{ isset($leadOrder['name'])? str_limit($leadOrder['name'], 25, '..') : '' }}</span>
                 <span style="word-break:break-all;" class="show-full-leadOrder-{{$key.'-'.$leadOrder['id']}} hidden">{{ isset($leadOrder['name'])? $leadOrder['name'] : ''}}</span>
             </td>
+
             <td>{{ isset($leadOrder['brand_name'])? $leadOrder['brand_name'] : ''}}</td>
+            @if($orderOrLead == 'order')
             <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['default_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['default_price'] : 'N/A'}}</td>
             <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['segment_discount'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['segment_discount'] : 'N/A'}}</td>
             <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['duty_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['duty_price'] : 'N/A'}}</td>
             <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['override_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['override_price'] : 'N/A'}}</td>
+
+            @else
+
+            <td>{{ isset($leadOrder->storeWebsite->storeWebsiteProductPrice['default_price'])? $leadOrder->storeWebsite->storeWebsiteProductPrice['default_price'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder->storeWebsite->storeWebsiteProductPrice['segment_discount'])? $leadOrder->storeWebsite->storeWebsiteProductPrice['segment_discount'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder->storeWebsite->storeWebsiteProductPrice['duty_price'])? $leadOrder->storeWebsite->storeWebsiteProductPrice['duty_price'] : 'N/A'}}</td>
+            <td>{{ isset($leadOrder->storeWebsite->storeWebsiteProductPrice['override_price'])? $leadOrder->storeWebsite->storeWebsiteProductPrice['override_price'] : 'N/A'}}</td>
+
+            @endif
+           
             <td>{{ isset($leadOrder['price'])? $leadOrder['price'] : ''}}</td>
             <td>{{ isset($leadOrder['price_eur_discounted'])? $leadOrder['price_eur_discounted'] : ''}}</td>
             <td>

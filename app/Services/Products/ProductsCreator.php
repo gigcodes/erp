@@ -24,7 +24,7 @@ use Validator;
 class ProductsCreator
 {
     public function createProduct($image, $isExcel = 0)
-    {
+    { 
         // Debug log
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
@@ -200,8 +200,27 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
 
                 \App\ProductSizes::where('product_id', $product->id)->where('supplier_id', $supplierModel->id)->delete();
+				
                 if (empty($euSize)) {
-                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+					$sizeFound = 0;
+					foreach($sizes as $size) {
+						$systemSizeId = \App\SystemSize::where('name', $image->size_system)->pluck('id')->first();
+						$erp_sizeFound = \App\SizeAndErpSize::where(['size'=>$size, 'system_size_id'=>$systemSizeId])->first();
+						if($erp_sizeFound == null) {
+							 \App\SizeAndErpSize::create(['size'=>$size, 'system_size_id'=>$systemSizeId]);
+						} else if($erp_sizeFound['erp_size_id'] != null) {
+							$erp_size = \App\SystemSizeManager::where('id', $erp_sizeFound['erp_size_id'])->pluck('erp_size')->first();
+							\App\ProductSizes::updateOrCreate([
+								'product_id' => $product->id, 'supplier_id' => $supplierModel->id, 'size' => $erp_size,
+							], [
+								'product_id' => $product->id, 'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $erp_size,
+							]);
+							$sizeFound = 1;
+						}
+					}				
+					if($sizeFound == 0) {
+						$product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+					}
                 } else {
                     foreach ($euSize as $es) {
                         \App\ProductSizes::updateOrCreate([

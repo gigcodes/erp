@@ -34,17 +34,19 @@
                       <td class="p-2">
                         <a href="{{ route('document.download', $document->id) }}"  class="btn btn-image text-dark btn-xs p-0"><i class="fa fa-download"></i>
                         </a>
-                        <button type="button" class="btn btn-image sendWhatsapp btn-xs p-0" data-id="{{ $document->id }}"><img src="/images/send.png" /></button>
-                        <button type="button" class="btn btn-image sendEmail btn-xs p-0" data-id="{{ $document->id }}"><img src="/images/customer-email.png" /></button>
+                        <button type="button" class="btn btn-image sendWhatsapp btn-xs p-0" data-id="{{ $document->id }}"><img src="{{env('APP_URL')}}/images/send.png" /></button>
+                        <button type="button" class="btn btn-image sendEmail btn-xs p-0" data-id="{{ $document->id }}"><img src="{{env('APP_URL')}}/images/customer-email.png" /></button>
 
                         {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
 
                         <button type="submit" class="btn btn-image btn-xs p-0"><img src="/images/delete.png" /></button>
-                        <button type="button" class="btn btn-image make-remark d-inline btn-xs p-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button>
+                        <button type="button" class="btn btn-image make-remark d-inline btn-xs p-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="{{env('APP_URL')}}/images/remark.png" /></button>
 
                         {!! Form::close() !!}
-                        <button type="button" class="btn btn-image uploadDocument btn-xs p-0" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
-
+                        <button type="button" class="btn btn-image uploadDocument btn-xs p-0" data-id="{{ $document->id }}"><img src="{{env('APP_URL')}}/images/upload.png" /></button>
+                        
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='document' data-id="{{ $document->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                      
                      <p class="text-dark btn font-weight-bold btn-xs p-0">   V: {{ $document->version }}</p>
                     </td>
                 </tr>

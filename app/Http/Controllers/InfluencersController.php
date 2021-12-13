@@ -15,7 +15,8 @@ class InfluencersController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illum
+     * inate\Http\Response
      *
      * List all influencers
      */
@@ -23,6 +24,7 @@ class InfluencersController extends Controller
     {
         $hashtags = Influencers::all();
         $keywords = InfluencerKeyword::all();
+        dd($hastags);
         return view('instagram.influencers.index', compact('hashtags'));
     }
 
@@ -180,17 +182,22 @@ class InfluencersController extends Controller
 
 
             $cURLConnection = curl_init();
-            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
-            
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status';
+            $data = json_encode(['name' => $name]);
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
-
+            curl_setopt($cURLConnection, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($cURLConnection, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($cURLConnection, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
             $phoneList = curl_exec($cURLConnection);
             curl_close($cURLConnection);
-
+           // dd($phoneList);
             $jsonArrayResponse = json_decode($phoneList);
-            
-            $b64 = $jsonArrayResponse->status;
+           if(isset($jsonArrayResponse->status)){
+                $b64 = $jsonArrayResponse->status;
+            }else{
+                $b64=$phoneList;
+            }
             
             $history = array(
                 'influencers_name' => $name,
@@ -347,21 +354,23 @@ class InfluencersController extends Controller
 
             $cURLConnection = curl_init();
 
-            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
-
-            // echo $url;
-            // die();
-
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart';
+            $data = json_encode(['name' => $name]);
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
-
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
-
+            curl_setopt($cURLConnection, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($cURLConnection, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+            curl_setopt($cURLConnection, CURLOPT_POSTFIELDS, $data);
             $phoneList = curl_exec($cURLConnection);
-            curl_close($cURLConnection);
-
             $jsonArrayResponse = json_decode($phoneList);
+            if(isset($jsonArrayResponse->status)){
+                $b64 = $jsonArrayResponse->status;
+            }else{
+                $b64 = $phoneList;
+            }
+            curl_close($cURLConnection);
+            
 
-            $b64 = $jsonArrayResponse->status;
             
             $history = array(
                 'influencers_name' => $name,
@@ -372,6 +381,7 @@ class InfluencersController extends Controller
 
             return \Response::json(array('success' => true,'message' => $b64));
         } catch (\Throwable $th) {
+            dd("Sssss");
             $history = array(
                 'influencers_name' => $request->name,
                 'title'            => 'Restart script',
