@@ -148,8 +148,9 @@ class MessageHelper
      */
     public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null, $parentMessage = null)
     {
+        $j=0;
         if ($customer) {
-
+            $temp_log_params=["keyword"=>"","keyword_match"=>""];
             //START - Purpose : Add Data in array - DEVTASK-4233
             $log_comment = 'whatsAppSend : ';
             if (!empty($messageModel)) {
@@ -170,8 +171,13 @@ class MessageHelper
 
                 if (count($keywordassign) > 0) {
                     $log_comment = $log_comment . ' Keyword is ' . $exp_mesaages[$i];
+                    $temp_log_params['keyword_match']= $keywordassign[0]->task_description;
+                    $j++;
                     break;
                 }
+            }
+            if($j==0){
+                $log_comment = $log_comment . ' Not any keyword found';
             }
 
             \Log::info("Keyword assign found" . count($keywordassign));
@@ -213,6 +219,7 @@ class MessageHelper
                 if ($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
 
                     \Log::channel('whatsapp')->info("Auto Lend Send Price has been started for the customer with ID : " . $customer->id);
+                    $log_comment = $log_comment . 'Auto Lend Send Price has been started for the customer with ID : ' . $customer->id; //Purpose : Log Comment - DEVTASK-4233
 
                     if (!empty($parentMessage)) {
                         \Log::channel('whatsapp')->info("Auto Lend Send Price parent message with lead price has been found for customer with ID : " . $customer->id);
@@ -220,6 +227,8 @@ class MessageHelper
                         $log_comment = $log_comment . ' Auto Lend Send Price parent message with lead price has been found for customer with ID : ' . $customer->id; //Purpose : Log Comment - DEVTASK-4233
 
                         $parentMessage->sendLeadPrice($customer, $log_comment);
+                    }else{
+                        $log_comment = $log_comment . 'Auto Lend Send Price parent message with lead price has not been found for customer with ID : ' . $customer->id; //Purpose : Log Comment - DEVTASK-4233
                     }
 
                 } elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
@@ -234,13 +243,16 @@ class MessageHelper
                             ->select('*')
                             ->where('id', '=', $parentMessage->lead_id)
                             ->get();
-                        if (!empty($products[0]->selected_product)) {
+                       if (!empty($products[0]->selected_product)) {
                             $requestData = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $customer->id, 'dimension' => true, 'selected_product' => $products[0]->selected_product]);
 
                             app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                         }
+
+                    }else{
+                        $log_comment = $log_comment . ' Auto Dimension Send parent message with lead price has not been found for customer with ID : ' . $customer->id . ' >> '; //Purpose : Log Comment - DEVTASK-4233
 
                     }
                 } else {
