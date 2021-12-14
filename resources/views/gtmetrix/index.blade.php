@@ -18,7 +18,7 @@
 
 @include('partials.flash_messages')
 <div class = "row">
-    <div class="col-md-10 margin-tb">
+    <div class="col-md-9 margin-tb">
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="" method="GET">
                 <div class="form-group ml-3 cls_filter_inputbox">
@@ -58,7 +58,7 @@
             </form> 
         </div>
     </div>  
-    <div class="col-md-2 margin-tb">
+    <div class="col-md-3 margin-tb"style="margin-left:-20px">
         <div class="pull-right">
         <button class="btn multi-run-test-btn btn-xs text-dark" onclick="checkCheckbox()" title="Run Test">
             <i class="fa fa-play" aria-hidden="true"></i>
@@ -80,10 +80,10 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb p-5">
         <div class="panel-group" style="margin-bottom: 5px;">
             <div class="panel mt-3 panel-default">
-                <table class="table table-bordered table-striped table-responsive site-gtMetrix-data">
+                <table class="table table-bordered table-striped table-responsive site-gtMetrix-data"style="table-layout: fixed;display: table;">
                     <thead>
                         <tr>
                             @php
@@ -146,29 +146,29 @@
                                  $url2=$url.$p.$ord2;
 
                             @endphp
-                            <th width="1%">
+                            <th width="1.5%">
                                 <input type="checkbox" onclick="selectAll();" />
                             </th>
-                            <th width="15%">Website</th>
+                            <th width="4%">Website</th>
                             <th width="4%">Test id</th>
-                            <th width="3%">Status</th>
-                            <th width="15%">Error</th>
-                            <th width="3%">Report</th>
+                            <th width="5%">Status</th>
+                            <th width="3%">Error</th>
+                            <th width="4%">Report</th>
                             <th width="5%">HTML L T</th>
-                            <th width="5%">HTML BY</th>
+                            <th width="4.5%">HTML BY</th>
                             <th width="5%">PG LD TM</th>
                             <th width="4%">PG BY</th>
                             <th width="4%">PG ELE</th>
-                            <th width="6%">
+                            <th width="5.5%">
                                 <a class="text-dark" href="{{$url1}}">PG SPD SC</a>
                             </th>
-                            <th width="6%">
+                            <th width="5%">
                                 <a class="text-dark" href="{{$url2}}">YSLOW SC</a>
                             </th>
-                            <th width="8%">Resources</th>
-                            <th width="9%">Date</th>
+                            <th width="3%">Rsrc</th>
+                            <th width="5%">Date</th>
                             <th width="3%">PDF</th>
-                            <th width="6%">Action</th>
+                            <th width="9%">Action</th>
                         </tr>
                     </thead>
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
@@ -178,7 +178,7 @@
                                 <td>
                                     <input type="checkbox" name ="multi-run-test-type" class= "multi-run-test" value ="{{ $key->id }}">
                                 </td>
-                                <td>
+                                <td class="Website-task">
                                     <a class="text-dark" href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a>
                                 </td>
                                 <td>{{ $key->test_id }}</td>
@@ -210,11 +210,11 @@
                                      --
                                     @endif
                                     
-                                <td>{{ $key->created_at }}</td>
+                                <td class="Website-task" title="{{ $key->created_at }}">{{ $key->created_at }}</td>
                                 <td>
                                     <a class="text-dark" target="__blank" href="{{url('/')}}{{ $key->pdf_file }}"> {{ !empty($key->pdf_file) ? 'Open' : 'N/A' }} </a>
                                 </td>
-                                <td>  
+                                <td class="action-column">  
                                     <button class="btn show-history btn-xs text-dark" title="Show old history" data-url="{{ route('gtmetrix.web-hitstory',[ 'id'=>$key->website_url ])}}">
                                         <i class="fa fa-history" aria-hidden="true"></i>
                                     </button>
