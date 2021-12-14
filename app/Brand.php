@@ -108,6 +108,11 @@ class Brand extends Model
         return $this->hasMany( DeveloperTask::class, 'brand_id', 'id' );
     }
 
+    public function singleBrandTask()
+    {
+        return $this->hasOne( DeveloperTask::class, 'brand_id', 'id' )->latest();
+    }
+
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );
