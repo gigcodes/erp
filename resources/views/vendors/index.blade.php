@@ -206,7 +206,9 @@
                 <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorCreateModal"><i class="fa fa-plus"></i></button>
                 <a class="btn btn-secondary btn-xs create_broadcast" href="javascript:;">Create Broadcast</a>
-            
+                @if (auth()->user()->isAdmin())
+                <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
+                @endif
         </div>   
     </div>
 
@@ -257,6 +259,7 @@
                 <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
                 <th width="3%">WhatsApp</th>
                 <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                <th width="5%">Status</th>
                 <th width="5%">Name</th>
                 <th width="5%">Phone</th>
                 <th width="3%">Email</th>
@@ -286,6 +289,7 @@
     @include('vendors.partials.vendor-category-modals')
     @include('vendors.partials.modal-conference')
     @include('vendors.partials.change-hubstaff-role')
+    @include('vendors.partials.add-status')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">

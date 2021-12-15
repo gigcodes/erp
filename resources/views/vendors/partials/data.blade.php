@@ -29,6 +29,12 @@
             {{$vendor->category_name}}
         </span>
     </td>
+    <td class="expand-row-msg" data-name="status" data-id="{{$vendor->id}}">
+    <?php echo Form::select("vendor_status",[null=>'Select Status']+$statusList,$vendor->vendor_status,["class" => "form-control","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
+    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$vendor->id}}">
+                <i class="fa fa-info-circle"></i>
+    </button>
+    </td>
     <td class="expand-row-msg" data-name="name" data-id="{{$vendor->id}}">
         <span class="show-short-name-{{$vendor->id}}">
             {{ str_limit($vendor->name, 5, '..')}}
@@ -191,4 +197,62 @@
     </td>
 </tr>
 @endforeach
+
+<script>
+    function updateVendorStatus(obj, task_id) {
+        let id = task_id;
+        let status = $(obj).val();
+        let self = this;
+
+        console.log(status, id)
+        if(status!=''){
+            $.ajax({
+                url: "{{ route('vendor.status.update')}}",
+                method: "POST",
+                data: {
+                    id: id,
+                    status: status,
+                    user_id:<?php echo Auth::user()->id;?>
+                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function () {
+                    toastr["success"]("Status updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+    }
+
+    $(document).on('click', '.show-status-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#status_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('vendor.status.history.get') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data.data.length > 0) {
+                        $.each(data.data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#status_history_modal table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+item['status']+'</td>\
+                                    <td>'+item['user']['name']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#status_history_modal').modal('show');
+        });
+</script>
    
