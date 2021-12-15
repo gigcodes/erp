@@ -9,7 +9,7 @@ class CreateVendorStatusHistoryTable extends Migration
     public function up()
     {
         Schema::create('vendor_status_history', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->bigInteger('vendor_id');
             $table->bigInteger('user_id');
             $table->string('status')->nullable();
