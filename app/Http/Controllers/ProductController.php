@@ -3268,7 +3268,7 @@ class ProductController extends Controller
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         if (!empty($r) && !empty($g) && !empty($b)) {
                             $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size);
+                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size,"store"=>$website->title);
                         }
                     }
                 }
@@ -3428,13 +3428,15 @@ class ProductController extends Controller
                     if ($productMediacount <= $storeWebCount) {
                         $store_websites = StoreWebsite::where('cropper_color', "%" . $request->get('color'))->first();
                         if ($store_websites !== null) {
-                            $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                ->where('product_id', $product->id)->exists();
-                            if (!$exist) {
-                                SiteCroppedImages::create([
-                                    'website_id' => $store_websites->id,
-                                    'product_id' => $product->id,
-                                ]);
+                            if(isset($req["store"]) && $req["store"] == $store_websites->title ){
+                                $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                                    ->where('product_id', $product->id)->exists();
+                                if (!$exist) {
+                                    SiteCroppedImages::create([
+                                        'website_id' => $store_websites->id,
+                                        'product_id' => $product->id,
+                                    ]);
+                                }
                             }
                         }
                     }
