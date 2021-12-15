@@ -1454,7 +1454,7 @@ class DevelopmentController extends Controller
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
         }
-        return redirect(url('development/list'))->with('success', 'You have successfully added task!');
+        return redirect(url('development/summarylist'))->with('success', 'You have successfully added task!');
     }
 
     public function issueStore(Request $request)
