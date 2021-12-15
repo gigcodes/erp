@@ -707,7 +707,7 @@
                                             <span class="td-full-container hidden">
                                                 {{ $users_list }}
                                             </span>
-
+                                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
                                             <br>
                                             @if(auth()->user()->isAdmin())
@@ -757,7 +757,7 @@
                                                     @endif
                                                 @endif
                                             @endif
-
+                                          
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
                                                 <div class="form-group" style="padding-top:5px;">
@@ -1326,6 +1326,7 @@
 
     @include("development.partials.time-history-modal")
     @include("task-module.partials.tracked-time-history")
+    @include("development.partials.user_history_modal")
 @endsection
 
 @section('scripts')
@@ -1504,7 +1505,7 @@
                 isLoading = false;
                 page = 1;
                 $.ajax({
-                    url: "/task",
+                    url: "{{url('task')}}",
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     success: function (response) {
@@ -3699,6 +3700,29 @@ $(document).on("click",".btn-save-documents",function(e){
                 }
             });
 
+        });
+        $(document).on('click', '.show-user-history', function() {
+            var issueId = $(this).data('id');
+            $('#user_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task/user/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    
+                    $.each(data.users, function(i, item) {
+                            $('#user_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['user_type'] != null) ? item['user_type'] : '-') +'</td>\
+                                    <td>'+ ((item['old_name'] != null) ? item['old_name'] : '-') +'</td>\
+                                    <td>'+ ((item['new_name'] != null) ? item['new_name'] : '-') +'</td>\
+                                    <td>'+ item['updated_by']  +'</td>\
+                                </tr>'
+                            );
+                        });
+                }
+            });
+            $('#user_history_modal').modal('show');
         });
 
         
