@@ -3427,13 +3427,15 @@ class ProductController extends Controller
                     if ($productMediacount <= $storeWebCount) {
                         $store_websites = StoreWebsite::where('cropper_color', "%" . $request->get('color'))->first();
                         if ($store_websites !== null) {
-                            $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                ->where('product_id', $product->id)->exists();
-                            if (!$exist) {
-                                SiteCroppedImages::create([
-                                    'website_id' => $store_websites->id,
-                                    'product_id' => $product->id,
-                                ]);
+                            if(isset($req["store"]) && $req["store"] == $store_websites->title ){
+                                $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                                    ->where('product_id', $product->id)->exists();
+                                if (!$exist) {
+                                    SiteCroppedImages::create([
+                                        'website_id' => $store_websites->id,
+                                        'product_id' => $product->id,
+                                    ]);
+                                }
                             }
                         }
                     }
