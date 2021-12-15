@@ -819,7 +819,9 @@ class TaskModuleController extends Controller
                 if($user_id!=0){
                     $q->where('tasks.assign_to', $user_id)->orWhere("tasks.master_user_id", $user_id);
                 }
-                $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
+             ///   $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
+                $q->whereIn('tasks.id', $selected_issue);
+                
             });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
