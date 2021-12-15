@@ -360,8 +360,8 @@
 
             let self = this;
 
-            $.ajax({
-                url: '{{action('ProductController@addListingRemarkToProduct')}}',
+           $.ajax({
+                url: '{{route("product.listing.magento.remark")}}',
                 data: {
                     product_id: pid,
                     remark: remark,
