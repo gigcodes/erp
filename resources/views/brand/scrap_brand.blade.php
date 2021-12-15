@@ -42,6 +42,15 @@
                     value="{{ request()->get('term', '') }}" placeholder="Enter Brand name">
             </div>
 
+            <div class="form-group ml-3">
+                <select class="form-control" name="dev" id="developer" data-placeholder="Developers...">
+                    <option value="">Select Developer</option>
+                    @foreach ($alldevs as $k => $_dev)
+                        <option value="{{ $k }}" {{($k == $dev)?'selected':''}}>{{ $_dev }}</option>
+                    @endforeach
+                </select>
+            </div>
+
 
 
             <div class="form-group mb-3 col-md-2">
@@ -66,7 +75,8 @@
                             <th>In External Scraper</th>
                             <th>Scraped Brand</th>
                             <th>Brand Qty</th>
-                            <th>Functions</th>
+                            <th width="1%">Functions</th>
+                            <th>Developer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,12 +88,13 @@
                                 <td width="5%">{{ $brand->productCountInExternalScraper() }}</td>
                                 <td width="5%">{{ $brand->productFromExternalScraper() }}</td>
                                 <td width="5%">{{ $brand->total_products }}</td>
-                                <td width="14%">
+                                <td width="5%">
                                     <button style="padding: 3px" data-id="{{ $brand->id }}" type="button"
                                         class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                         <i class="fa fa-tasks"></i>
                                     </button>
                                 </td>
+                                <td width="5%">{{ ($brand->singleBrandTask)? $brand->singleBrandTask->assignedUser->name : 'N/A' }}</td>
                             </tr>
                         @endforeach
                 </table>
@@ -154,6 +165,7 @@
 @section('scripts')
     <script src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
+        //$("#developer").select2();
         $(document).on("change", ".quickComments", function(e) {
             var message = $(this).val();
             var select = $(this);
