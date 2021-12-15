@@ -957,8 +957,11 @@ class HashtagController extends Controller
             'response' =>'Please select Date'
                   ], 200);
      }
+
      
         $data = json_encode($data);
+        
+     \Log::info("INFLUENCER_loginstance -->".$data);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -966,10 +969,12 @@ class HashtagController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result1 = curl_exec($ch);
         $result = explode("\n",$result1);
+        
+       
         if(count($result)>1){
             return response()->json([
                 'type'=>'success',
-                'response' => $result1
+                'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
             ], 200); 
          
         }else{

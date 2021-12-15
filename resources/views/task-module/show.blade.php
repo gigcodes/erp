@@ -570,10 +570,10 @@
                                 <th width="8%">Date</th>
                                 <th width="6%" class="category">Category</th>
                                 <th width="10%">Task Subject</th>
-                                <th width="4%">Assign To</th>
+                                <th width="10%">Assign To</th>
                                 <th width="9%">Status</th>
                                 <th width="10%">Tracked time</th>
-                                <th width="33%">Communication</th>
+                                <th width="23%">Communication</th>
                                 <th width="18%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
@@ -583,6 +583,7 @@
                             <tbody class="pending-row-render-view infinite-scroll-pending-inner">
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
+
                             @php $task->due_date='';
                                  //$task->lead_hubstaff_task_id=0;
                                  //$task->status=1;
@@ -630,67 +631,88 @@
                                                 {{ $task->task_details }}
                                             </span>
                                     </td>
-                                <!-- <td class="expand-row table-hover-cell p-2">
-        @if (array_key_exists($task->assign_from, $users))
-                                    @if ($task->assign_from == Auth::id())
-                                        <span class="td-mini-container">
-                                            <a href="{{ route('users.show', $task->assign_from) }}">{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}</a>
-                        </span>
-                        <span class="td-full-container hidden">
-                            <a href="{{ route('users.show', $task->assign_from) }}">{{ $users[$task->assign_from] }}</a>
-                        </span>
-                    @else
-                                        <span class="td-mini-container">
-{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}
-                                                </span>
-                                                <span class="td-full-container hidden">
-{{ $users[$task->assign_from] }}
-                                                </span>
-@endif
-                                @else
-                                    Doesn't Exist
-@endif
+                                    <!-- <td class="expand-row table-hover-cell p-2">
+                                            @if (array_key_exists($task->assign_from, $users))
+                                                @if ($task->assign_from == Auth::id())
+                                                    <span class="td-mini-container">
+                                                        <a href="{{ route('users.show', $task->assign_from) }}">{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}</a>
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                        <a href="{{ route('users.show', $task->assign_from) }}">{{ $users[$task->assign_from] }}</a>
+                                                    </span>
+                                                @else
+                                                    <span class="td-mini-container">
+                                                        {{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                        {{ $users[$task->assign_from] }}
+                                                    </span>
+                                                @endif
+                                            @else
+                                                Doesn't Exist
+                                            @endif
                                         </td> -->
-                                    <td class="table-hover-cell p-2">
-                                        @php
-                                            $special_task = \App\Task::find($task->id);
-                                            $users_list = '';
-                                            foreach ($special_task->users as $key => $user) {
-                                                // dd($special_task);
-                                              if ($key != 0) {
-                                                $users_list .= ', ';
-                                              }
-                                              if (array_key_exists($user->id, $users)) {
-                                                $users_list .= $users[$user->id];
-                                              } else {
-                                                $users_list = 'User Does Not Exist';
-                                              }
-                                            }
+                                        <td class="table-hover-cell p-2">
+                                            @php
+                                                $special_task = \App\Task::find($task->id);
+                                                $users_list = '';
+                                                foreach ($special_task->users as $key => $user) {
+                                                    if ($key != 0) {
+                                                        $users_list .= ', ';
+                                                    }
+                                                    if (array_key_exists($user->id, $users)) {
+                                                        $users_list .= $users[$user->id];
+                                                    } else {
+                                                        $users_list = 'User Does Not Exist';
+                                                    }
+                                                }
 
-                                            $users_list .= ' ';
+                                                $users_list .= ' ';
 
-                                            foreach ($special_task->contacts as $key => $contact) {
-                                              if ($key != 0) {
-                                                $users_list .= ', ';
-                                              }
+                                                foreach ($special_task->contacts as $key => $contact) {
+                                                    if ($key != 0) {
+                                                        $users_list .= ', ';
+                                                    }
 
-                                              $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-                                            }
-                                        @endphp
+                                                    $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
+                                                }
+                                            @endphp
 
-                                        <span class="td-mini-container">
-                                        {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
-                                        </span>
+                                            <!--<span class="td-mini-container">
+                                                {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
+                                            </span>-->
 
-                                                                        <span class="td-full-container hidden">
-                                        {{ $users_list }}
-                                        </span>
+                                            @if(auth()->user()->isAdmin())
+                                                <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
+                                                    <option value="">Select...</option>
+                                                    <?php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; ?>
+                                                    @foreach($users as $id=>$name)
+                                                        @if( $masterUser == $id )
+                                                            <option value="{{$id}}" selected>{{ $name }}</option>
+                                                        @else
+                                                            <option value="{{$id}}">{{ $name }}</option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+                                            @else 
+                                                @if($task->assign_to)
+                                                    @if(isset($users[$task->assign_to]))
+                                                        <p>{{$users[$task->assign_to]}}</p>
+                                                    @else 
+                                                         <p>-</p>
+                                                    @endif
+                                                @endif
+                                            @endif
+
+                                            <span class="td-full-container hidden">
+                                                {{ $users_list }}
+                                            </span>
 
                                         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
                                             <br>
                                             @if(auth()->user()->isAdmin())
                                             <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
-                                            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+                                            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
                                                 <option value="">Select...</option>
                                                 <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
                                                 @foreach($users as $id=>$name)
@@ -711,6 +733,31 @@
                                                 @endif
                                             @endif
 
+                                            <br>
+
+                                            @if(auth()->user()->isAdmin())
+                                            <label for="" style="font-size: 12px;margin-top:10px;">Lead 2 :</label>
+                                            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="2" name="master_user_id" id="user_{{$task->id}}">
+                                                <option value="">Select...</option>
+                                                <?php $masterUser = isset($task->second_master_user_id) ? $task->second_master_user_id : 0; ?>
+                                                @foreach($users as $id=>$name)
+                                                    @if( $masterUser == $id )
+                                                        <option value="{{$id}}" selected>{{ $name }}</option>
+                                                    @else
+                                                        <option value="{{$id}}">{{ $name }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                            @else 
+                                                @if($task->second_master_user_id) 
+                                                    @if(isset($users[$task->second_master_user_id]))
+                                                        <p>{{$users[$task->second_master_user_id]}}</p>
+                                                    @else 
+                                                         <p>-</p>
+                                                    @endif
+                                                @endif
+                                            @endif
+
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
                                                 <div class="form-group" style="padding-top:5px;">
@@ -719,8 +766,8 @@
                                                         <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}"/>
 
                                                         <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
 
                                                     </div>
                                                 </div>
@@ -1034,7 +1081,7 @@
     </div>
 
     <div id="priority_model" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog" style="max-width: 100%; width:95%;">
 
             <!-- Modal content-->
             <div class="modal-content">
@@ -1046,11 +1093,11 @@
                     @csrf
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="col-md-2">
+                            <div class="col-md-6">
+                                
                                     <strong>User:</strong>
-                                </div>
-                                <div class="col-md-8">
+                                
+                                
                                     <div class="form-group">
                                         @if(auth()->user()->isAdmin())
                                             <select class="form-control"  id="priority_user_id">
@@ -1064,32 +1111,29 @@
                                             {{auth()->user()->name}}
                                         @endif
                                     </div>
-                                </div>
+                                
                             </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Remarks:</strong>
-                                </div>
-                                <div class="col-md-8">
+                            <div class="col-md-6">
+                               <strong>Remarks:</strong>
                                     @if(auth()->user()->isAdmin())
                                         <div class="form-group">
-                                            <textarea cols="45" class="form-control" name="global_remarkes"></textarea>
+                                            <textarea cols="45" class="form-control" name="global_remarkes"style="height:32px !important;"></textarea>
                                         </div>
                                     @endif
-                                </div>
+                            
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <table class="table table-bordered table-striped">
+                                <table class="table table-bordered table-striped"style="table-layout: fixed;">
                                     <tr>
-                                        <th width="1%">ID</th>
-                                        <th width="15%">Subject</th>
-                                        <th width="40%">Task</th>
-                                        <th width="20%">Communication</th>
-                                        <th width="9%">Date</th>
-                                        <th width="5%">Submitted By</th>
-                                        <th width="2%">Action</th>
+                                        <th width="4%">ID</th>
+                                        <th width="16%">Subject</th>
+                                        <th width="35%">Task</th>
+                                        <th width="10%">Communication</th>
+                                        <th width="13%">Date</th>
+                                        <th width="8%">Submitted By</th>
+                                        <th width="5%">Action</th>
                                     </tr>
                                     <tbody class="show_task_priority">
 
@@ -3217,20 +3261,21 @@
             else {
                 $('#no_of_milestone').removeAttr('required');
             }
-            });
+        });
 
-            $(document).on('change', '.assign-master-user', function () {
+        $(document).on('change', '.assign-master-user', function () {
             let id = $(this).attr('data-id');
+            let lead = $(this).attr('data-lead');
             let userId = $(this).val();
             if (userId == '') {
                 return;
             }
-
             $.ajax({
                 url: "{{action('TaskModuleController@assignMasterUser')}}",
                 data: {
                     master_user_id: userId,
-                    issue_id: id
+                    issue_id: id,
+                    lead: lead
                 },
                 success: function () {
                     toastr["success"]("Master User assigned successfully!", "Message")
@@ -3240,7 +3285,6 @@
                     
                 }
             });
-
         });
 
         $(document).on("click",".btn-file-upload",function() {
@@ -3633,6 +3677,31 @@ $(document).on("click",".btn-save-documents",function(e){
             });
 
         });
+
+        $(document).on('change', '.assign-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+            $.ajax({
+                url: "{{route('task.AssignTaskToUser')}}",
+                data: {
+                    user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+        
 
     </script>
 @endsection

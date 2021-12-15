@@ -11393,3 +11393,18 @@ table.table-striped-custom tbody tr td {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.action-column img{
+    filter: grayscale(100%);
+}
+.action-column i{
+    color: #8f8f8f;
+}
+.newsletwrp{
+   
+    width: 292px !important;
+}
+dark{
+    background-color: #f5f5f5;
+    color: black;
+    border-color: #ddd;
+}

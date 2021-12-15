@@ -96,6 +96,7 @@ class ZoomMeetingController extends Controller
         $input['meeting_duration'] = $request->get("meeting_duration",5);
         $input['timezone']         = $request->get("timezone","Asia/Dubai");
         $input['meeting_agenda']   = $request->get("agenda","");
+        $input['timezone']   =( $input['timezone']  != "") ? $input['timezone']   :"Asia/Dubai";
         // gethering all data to pass to model function
         $input['timezone']   =( $input['timezone']  != "") ? $input['timezone']   :"Asia/Dubai";
         $data = [

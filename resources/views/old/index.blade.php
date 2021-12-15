@@ -7,34 +7,36 @@
 @endsection
 
 @section('large_content')
-
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    
+    <div class="row ">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">{{ $title }}</h2>
-            <div class="pull-left">
-                <form class="form-inline" action="{{ route('old.index') }}" method="GET">
-                    <div class="form-group">
-                        <input name="term" type="text" class="form-control"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search">
-                    </div>
-                    <input type="hidden" name="type" value="{{ $type }}">
-                    <div class="form-group">
-                        <select class="form-control" name="status">
-                            <option value="">Select Status</option>
-                            @foreach($status as $stat)
-                            <option value="{{ $stat }}">{{ $stat }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+            <div class="p-4">
+                <div class="pull-left" style="padding-left: 0px;">
+                    <form class="form-inline" action="{{ route('old.index') }}" method="GET">
+                        <div class="form-group">
+                            <input name="term" type="text" class="form-control"
+                                   value="{{ isset($term) ? $term : '' }}"
+                                   placeholder="Search">
+                        </div>
+                        <input type="hidden" name="type" value="{{ $type }}">
+                        <div class="form-group"style="    margin-left: 5px;">
+                            <select class="form-control" name="status">
+                                <option value="">Select Status</option>
+                                @foreach($status as $stat)
+                                <option value="{{ $stat }}">{{ $stat }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                </form>
-            </div>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createOldCategorytModal">Create Category</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#oldCreateModal">+</button>
+                        <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    </form>
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createOldCategorytModal">Create Category</button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#oldCreateModal">+</button>
+                </div>
             </div>
         </div>
     </div>
@@ -43,7 +45,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel-group">
-                <div class="panel mt-5 panel-default">
+                <div class="panel mt-4 panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
@@ -77,26 +79,26 @@
 
         </div>
     </div>
-   <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+   <div class="table-responsive mt-1">
+        <table class="table table-bordered" style="table-layout: fixed;">
             <thead>
             <tr>
                 <th width="2%">ID</th>
-                <th width="2%">Category</a></th>
-                <th width="10%">Name</th>
-                <th width="5%">Phone</th>
-                <th width="10%">Email</th>
-                <th width="10%">Address</th>
-                 <th width="3%">Total Amount</th>
-                <th width="3%">Pending Amount</th>
-                <th width="20%">Send</th>
-                <th width="5%">Communication</th>
+                <th width="6%">Category</a></th>
+                <th width="15%">Name</th>
+                <th width="8%">Phone</th>
+                <th width="7%">Email</th>
+                <th width="8%">Address</th>
+                <th width="6%">Ttl Amt</th>
+                <th width="7%">Pend Amt</th>
+                <th width="10%">Send</th>
+                <th width="5%">Comms</th>
                 <th width="10%">Status</th>
                 @if($type != 2)
                 @else
-                 <th width="10%">Type</th>
+                 <th width="6%">Type</th>
                 @endif
-                <th width="10%">Action</th>
+                <th width="9%">Action</th>
             </tr>
             </thead>
 
@@ -106,10 +108,11 @@
                     <td>{{ $old->serial_no }}</td>
                     <td class="expand-row table-hover-cell">
                         <span class="td-full-container">
+                            kshdkjhk
                          @if(isset($old->category->category)) {{ $old->category->category }} @endif
                         </span>
                     </td>
-                    <td style="word-break: break-all;">{{ $old->name }}
+                    <td style="word-break: break-all;display:flex;">{{ $old->name }}
                     @if($old->phone)
                         <div>
                             <button type="button" class="btn btn-image call-twilio" data-context="old" data-id="{{ $old->id }}" data-phone="{{ $old->phone }}"><img src="/images/call.png"/></button>
@@ -123,14 +126,14 @@
                     @endif
                     </td>
                     <td>{{ $old->phone }}</td>
-                    <td class="expand-row table-hover-cell" style="word-break: break-all;">
+                    <td class="expand-row table-hover-cell Website-task" style="word-break: break-all;">
                         <span class="td-mini-container">
                          {{ $old->email }}
                         </span>
                     </td>
-                    <td style="word-break: break-all;">{{ $old->address }}</td>
+                    <td  style="word-break: break-all;" class="Website-task">{{ $old->address }}</td>
                     <td style="word-break: break-all;">{{ $old->amount }}</td>
-                    <td style="word-break: break-all;">{{ $old->pending_payment }}</td>
+                    <td style="word-break: break-all;" class="Website-task">{{ $old->pending_payment }}</td>
 
                     <td>
                         <div class="d-flex">
@@ -153,7 +156,7 @@
                     </td>
                     @if($type != 2)
                         @else
-                        <td> 
+                        <td class="Website-task"> 
                         @if($old->is_payable == 0) 
                             Recieving Payment 
                         @else Out Going Payment 
@@ -163,12 +166,12 @@
                     
                     <td>
                         <div class="d-flex">
-                            <a href="{{ route('old.show', $old->serial_no) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>
-                            <button type="button" class="btn btn-image edit-old" data-toggle="modal" data-target="#oldEditModal" data-old="{{ json_encode($old) }}"><img src="/images/edit.png"/></button>
-                            <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $old->serial_no }}"><img src="/images/remark.png"/></a>
+                            <a href="{{ route('old.show', $old->serial_no) }}" class="btn btn-image" href=""style="padding: 2px 4px;"><img src="/images/view.png"/></a>
+                            <button type="button" class="btn btn-image edit-old" data-toggle="modal" data-target="#oldEditModal" data-old="{{ json_encode($old) }}"style="padding: 2px 4px;"><img src="/images/edit.png"/></button>
+                            <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $old->serial_no }}"style="padding: 2px 4px;"><img src="/images/remark.png"/></a>
                                 <!-- <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $old->serial_no }}" data-type="old"><i class="fa fa-video-camera" aria-hidden="true"></i></button> -->
                                 {!! Form::open(['method' => 'DELETE','route' => ['old.destroy', $old->serial_no ],'style'=>'display:inline']) !!}
-                                <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                                <button type="submit" class="btn btn-image"style="padding: 2px 4px;"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
                         </div>
                     </td>
