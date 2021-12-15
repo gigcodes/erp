@@ -41,6 +41,7 @@ use Exception;
 use Response;
 use App\Hubstaff\HubstaffActivity;
 use App\Sop;
+use App\TaskUserHistory;
 
 
 class TaskModuleController extends Controller
@@ -63,10 +64,10 @@ class TaskModuleController extends Controller
 
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
-            $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-            $userquery = ' AND (master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (master_user_id = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
         
         if (!$request->input('type') || $request->input('type') == '') {
@@ -2426,9 +2427,14 @@ class TaskModuleController extends Controller
         }
        
         if($request->get("lead") == '1'){
+            $old_id=$issue->master_user_id;
             $issue->master_user_id = $masterUserId;
+            $task_type="leaddeveloper";
+
         } else {
+            $old_id=$issue->second_master_user_id;
             $issue->second_master_user_id = $masterUserId;
+            $task_type="second_leaddeveloper";
         }
         
         $issue->save();
@@ -2444,8 +2450,7 @@ class TaskModuleController extends Controller
         }
         $message = "#" . $issue->id . ". " . $issue->task_subject . ". " . $issue->task_details;
         $summary = substr($message, 0, 200);
-
-        $hubstaffTaskId = $this->createHubstaffTask(
+      /*$hubstaffTaskId = $this->createHubstaffTask(
             $summary,
             $hubstaffUserId,
             $hubstaff_project_id
@@ -2461,7 +2466,15 @@ class TaskModuleController extends Controller
             $task->hubstaff_project_id = $hubstaff_project_id;
             $task->summary = $message;
             $task->save();
-        }
+        }*/
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\Task';
+        $taskUser->model_id = $issue->id;
+        $taskUser->old_id = $old_id;
+        $taskUser->new_id = $masterUserId;
+        $taskUser->user_type = $task_type;
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
         return response()->json([
             'status' => 'success'
         ]);
@@ -3087,8 +3100,23 @@ class TaskModuleController extends Controller
 
     public function AssignTaskToUser(Request $request){
         $task = Task::find($request->get('issue_id'));
+        $old_id = $task->assign_to;
+        if (!$old_id) {
+            $old_id = 0;
+        }
         $task->assign_to = $request->get('user_id');
         $task->save();
+
+        
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\Task';
+        $taskUser->model_id = $task->id;
+        $taskUser->old_id = $old_id;
+        $taskUser->new_id = $request->get('user_id');
+        $taskUser->user_type = 'developer';
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
+
 
         $values = array('task_id' => $request->get('issue_id'),'user_id' => $request->get('user_id'), 'type' => 'App\User');
         DB::table('task_users')->insert($values);
@@ -3135,6 +3163,26 @@ class TaskModuleController extends Controller
             }
             return false;
         }
+    }
+    public function getUserHistory(Request $request)
+    {
+        $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+        
+        foreach ($users as $u) {
+            $old_name = null;
+            $new_name = null;
+            if ($u->old_id) {
+                $old_name = User::find($u->old_id)->name;
+            }
+            if ($u->new_id) {
+                $new_name = User::find($u->new_id)->name;
+            }
+            $u->new_name = $new_name;
+            $u->old_name = $old_name;
+        }
+        return response()->json([
+            'users' => $users
+        ], 200);
     }
 
    
