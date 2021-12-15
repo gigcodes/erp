@@ -65,7 +65,18 @@
                                             @endforeach
                                     </select>
                                 </div>
-                            </div>    
+                            </div>   
+                            
+                            <div class="form-group mr-2">
+                                <div class="col pr-0">
+                                    <select class="form-control" name="customer_id">
+                                        <option value="">Select customer</option>
+                                            @foreach(\App\Customer::pluck('name','id')->toArray() as $k => $customer)
+                                                <option value="{{ $k }}">{{ $customer }}</option>
+                                            @endforeach
+                                    </select>
+                                </div>
+                            </div>   
 
                             
                             
@@ -101,7 +112,8 @@
                           <tr>
                             <th width="5%">Date</th>
                             <th width="30%">Message</th>
-                            <th width="4%">Sender</th>
+                            <th width="4%">Sender Type</th>
+                            <th width="4%">Sender Name</th>
                             <th width="5%">Action</th>
                           </tr>
                         </thead>
