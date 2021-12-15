@@ -11403,3 +11403,8 @@ table.table-striped-custom tbody tr td {
    
     width: 292px !important;
 }
+dark{
+    background-color: #f5f5f5;
+    color: black;
+    border-color: #ddd;
+}

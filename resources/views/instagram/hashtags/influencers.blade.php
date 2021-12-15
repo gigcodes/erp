@@ -187,7 +187,7 @@ button[disabled]:hover {
       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 p-0">
            <h2 class="page-heading">Influencers (<span id="total">{{ $influencers->total() }}</span>)</h2>
         </div>
         <div class="col-md-12">
@@ -197,10 +197,10 @@ button[disabled]:hover {
                         <div class="form-group mr-2">
                             <input name="term" type="text" class="form-control" id="term"
                                 value="{{ isset($term) ? $term : '' }}"
-                                placeholder="Search...">
+                                placeholder="Search..." style="width:267px !important">
                         </div>
                         <div class="form-group mr-2">
-                            <select class="form-control" name="posts" id="">
+                            <select class="form-control" name="posts" id="" style="width:267px !important">
                                 <option value="">Posts</option>
                                 <option value="10" {{$posts == 10 ? 'selected' : ''}}>Greater than 10</option>
                                 <option value="20" {{$posts == 20 ? 'selected' : ''}}>Greater than 20</option>
@@ -210,7 +210,7 @@ button[disabled]:hover {
                             </select>
                         </div>
                         <div class="form-group mr-2">
-                            <select class="form-control" name="followers" id="">
+                            <select class="form-control" name="followers" id="" style="width:267px !important">
                                 <option value="">Followers</option>
                                 <option value="10" {{$followers == 10 ? 'selected' : ''}}>Greater than 10</option>
                                 <option value="20" {{$followers == 20 ? 'selected' : ''}}>Greater than 20</option>
@@ -220,7 +220,7 @@ button[disabled]:hover {
                             </select>
                         </div>
                         <div class="form-group mr-2">
-                            <select class="form-control" name="following" id="">
+                            <select class="form-control" name="following" id="" style="width:267px !important">
                                 <option value="">Following</option>
                                 <option value="10" {{$following == 10 ? 'selected' : ''}}>Greater than 10</option>
                                 <option value="20" {{$following == 20 ? 'selected' : ''}}>Greater than 20</option>
@@ -230,7 +230,7 @@ button[disabled]:hover {
                             </select>
                         </div>
                         <div class="form-group mr-2">
-                            <input type="date" name="date" id="date11" class="form-control">
+                            <input type="date" name="date" id="date11" class="form-control"style="width:276px !important">
                             <button type="submit" class="btn btn-image3 btn-sm text-dark">
                                 <i class="fa fa-filter"></i>
                             </button>
@@ -240,53 +240,56 @@ button[disabled]:hover {
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 form-inline">
-                    <div class="form-group mr-2">    
-                        <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary btn-xs" >Ceate Mailing List</a> 
+                <div class="col-md-12 form-inline" >
+                    <div class="form-group mr-2" >    
+                        <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary " style="width:267px !important;line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align:left;" >Ceate Mailing List</a> 
+                    </div>      
+                    <div class="form-group mr-2" >    
+                        <a href="#" class="btn btn-secondary  mailToInfluencers" style="width:267px !important; line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align: left;" >Send Mail</a> 
                     </div>      
                     <div class="form-group mr-2">    
-                        <a href="#" class="btn btn-secondary btn-xs mailToInfluencers" >Send Mail</a> 
-                    </div>      
-                    <div class="form-group mr-2">    
-                        <button class="btn btn-secondary btn-xs" onclick="sortData()">Sort Data</button> 
+                        <button class="btn btn-secondary " onclick="sortData()" style="width:267px !important; line-height: 1.5; background-color: #f5f5f5;color: #555;border-color: #ddd;text-align: left;">Sort Data</button> 
                     </div>        
-                    <div class="form-group mr-2">
-                            <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
+                    <div class="form-group mr-2" >
+                            <input name="name" type="text" class="form-control" style="width:267px !important;" id="keywordname" placeholder="New Keyword">
                     </div>
                     @php
                         $accountsList = ["" => "------ N/A ------"] + \App\Account::where('platform','instagram')->where('email',"!=",'')->get()->pluck('email','id')->toArray();
                     @endphp
-                    <div class="form-group mr-2">
+                    <div class="form-group mr-2"style="width:276px !important;">
                             <?php echo Form::select('instagram_account_id',$accountsList,null, ["class" => "form-control select2","id" => 'instagram_account_id']); ?>
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-image btn-xs text-dark" onclick="submitKeywork()"><i class="fa fa-plus"></i></button> 
+                        <button type="button" class="btn btn-image btn-xs text-dark" onclick="submitKeywork()" style="margin-left:11px;"><i class="fa fa-plus"></i></button> 
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-md-12">
-            @if(Session::has('message'))
-                <div class="alert alert-success">
-                    {{ Session::get('message') }}
-                </div>
-            @endif
-        </div>
-        <div class="col-md-12">
-             <div class="row">
-        <div class="col-md-12">
-            <div class="panel-group">
-                <div class="panel mt-5 panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
+            <div class="row">
+                <div class="col-md-10">
+                     <div class="panel-group">
+                        <div class="panel mt-3 panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title"style="color: #555;">
                             <a data-toggle="collapse" href="#collapse1">Keywords</a>
-                        </h4>
+                        </h4> 
+                            </div>
+                        </div>
+                     </div>
+                </div>
+                <div class="col-md-2 mt-3" style="padding:0px;">
+                       <a href="#" class="btn direct-message btn-secondary" style="width:209px;line-height: 1.6;background-color: #f5f5f5;color: #555; text-align: left;margin-top: 0;margin-bottom: 0;border-color: #ddd;"> Message</a>
                     </div>
-                    <div id="collapse1" class="panel-collapse collapse">
-                        <div class="panel-body">
-                           
-                            <table class="table table-bordered table-striped" id="phone-table">
+            </div>
+        </div>
+
+
+        
+        <div class="col-md-12 ">
+             <div class="row">
+                <div id="collapse1" class="panel-collapse collapse">
+                       <table class="table table-bordered table-striped" id="phone-table">
                                 <thead>
                                 <tr>
                                     <th>Name</th>
@@ -346,15 +349,9 @@ button[disabled]:hover {
     </div>
     
 <div class="row" style="padding:0px;margin:0px;">
-        <div class="col-md-12" style="padding:0px;">
-            <div class="pull-right">
-              <a href="#" class="btn btn-xs direct-message btn-secondary">
-                            Message
-              </a>
-            </div>
-        </div>
+        
     </div>
-    
+            <div class="col-md-12"style="padding-right: 28px;">
             <div class="table-responsive mt-2">
                 <table class="table-striped table table-bordered" id="data-table" style="table-layout:fixed;">
                     <thead >
@@ -372,7 +369,7 @@ button[disabled]:hover {
                         <th style="width:6%">Country</th>
                         <th style="width:8%">Description</th>
                         <th style="width:9%">Sender</th>
-                        <th style="width:13%">Communication</th>
+                        <th style="width:12%">Communication</th>
                         <th style="width:11%">Auto Reply</th>
                         <th style="width:6%">Action</th>
                         <!-- <th>Phone</th>
@@ -390,6 +387,7 @@ button[disabled]:hover {
                 
                  {!! $influencers->render() !!}
             </div>
+        </div>
         </div>
 
         

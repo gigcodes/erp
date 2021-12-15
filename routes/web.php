@@ -929,7 +929,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
-
+    Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
     Route::resource('learning', 'LearningModuleController');
@@ -1631,6 +1631,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendors.payments.update');
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendors.payments.destroy');
     Route::resource('vendors', 'VendorController');
+    Route::post('vendors/update-status', 'VendorController@updateStatus')->name('vendor.status.update');
+    
+    Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
+    
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
     Route::get('vendor-search-email', 'VendorController@vendorSearchEmail')->name('vendor-search-email');
@@ -1643,6 +1647,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::post('vendor/changeWhatsapp', 'VendorController@changeWhatsapp')->name('vendor.changeWhatsapp');
+    Route::post('vendor/status/create', 'VendorController@statusStore')->name('vendor.status.store');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', 'HubstaffPaymentController@index')->name('hubstaff-payment.index');

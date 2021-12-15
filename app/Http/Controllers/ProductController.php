@@ -984,7 +984,8 @@ class ProductController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    if(isset($category_tree[$parent->parent_id][$parent->id])) {
+                   
+                    if(isset($category_tree[$parent->parent_id]) && isset($category_tree[$parent->parent_id] [$parent->id])) {
                          @$category_tree[$parent->parent_id][$parent->id][$category->id];
                     }
                 } else {
@@ -1005,14 +1006,14 @@ class ProductController extends Controller
         $type = '';
         $assigned_to_users = '';
 
-        if ($request->brand[0] != null) {
+        if (isset($request->brand[0]) && $request->brand[0] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
         }
 
-        if ($request->color[0] != null) {
+        if (isset($request->color[0]) && $request->color[0] != null) {
             $newProducts = $newProducts->whereIn('color', $request->get('color'));
         }
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (isset($request->category) && $request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
