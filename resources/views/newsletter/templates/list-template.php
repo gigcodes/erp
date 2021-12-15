@@ -1,18 +1,18 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<div class="row">
-		<table class="table table-bordered">
+		<table class="table table-bordered"style="table-layout:fixed;">
 		    <thead>
 		      <tr>
 		      	<th width="2%"><?php echo '#'; ?></th>
 		      	<th width="2%">Id</th>
 		      	<th width="10%">Subject</th>
-		      	<th width="10%">StoreWebsite</th>
+		      	<th width="12%">StoreWebsite</th>
 		      	<th width="10%">Send On</th>
 		      	<th width="10%">Send At</th>
 		      	<th width="10%">Mail List</th>
 		      	<th width="10%">Products</th>
 		      	<th width="10%">Updated by</th>
-		        <th width="25%">Action</th>
+		        <th width="5%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -20,23 +20,23 @@
 			      <tr>
 			      	<td><input type="checkbox" value="{{:prop.id}}" name="check-product" class="check-product"></td>
 			      	<td>{{:prop.id}}</td>
-			      	<td>{{:prop.subject}}</td>
+			      	<td class="Website-task">{{:prop.subject}}</td>
 			      	<td>{{:prop.store_websiteName}}</td>
 			      	<td>{{:prop.sent_on}}</td>
 			      	<td>{{:prop.sent_at}}</td>
 			      	<td>{{:prop.mailinglist_name}}</td>
-			      	<td><a href="javascript:;" class="show-more-image" data-attr="section_p_{{:prop.id}}">View All</a></td>
+			      	<td ><a href="javascript:;" class="show-more-image" style="color: #333;"data-attr="section_p_{{:prop.id}}">View All</a></td>
 			      	<td>{{:prop.updated_by}}</td>
 			      	<td>
                         <div style="width:126px;">
-                            <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
+                            <button type="button" data-id="{{>prop.id}}" class="btn p-1 btn-edit-template" >
                             	<img width="15px" title="Edit" src="/images/edit.png">
                             </button>
-                            <button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template" title="Delete">
+                            <button type="button" data-id="{{>prop.id}}" class="btn p-1 btn-delete-template" title="Delete">
                             	<i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
-                            <a href="newsletters/{{>prop.id}}/preview" title="Preview">
-                            	<i class="fa fa-globe" aria-hidden="true"></i>
+                            <a href="newsletters/{{>prop.id}}/preview" class="p-1" title="Preview" style="color: gray;">
+                            	<i class="fa fa-globe " aria-hidden="true"></i>
                             </a>
                         </div>
 			        </td>
