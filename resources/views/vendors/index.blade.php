@@ -108,7 +108,14 @@
     .td-full-container{
         color: #333;
     }
-
+    .select-width{
+        width: 80% !important;
+    }
+    .i-vendor-status-history{
+        position: absolute;
+        top: 17px;
+        right: 10px;
+    }
   </style>
 @endsection
 
@@ -259,7 +266,7 @@
                 <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
                 <th width="3%">WhatsApp</th>
                 <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
-                <th width="5%">Status</th>
+                <th width="7%">Status</th>
                 <th width="5%">Name</th>
                 <th width="5%">Phone</th>
                 <th width="3%">Email</th>

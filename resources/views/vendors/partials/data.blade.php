@@ -29,10 +29,10 @@
             {{$vendor->category_name}}
         </span>
     </td>
-    <td class="expand-row-msg" data-name="status" data-id="{{$vendor->id}}">
-    <?php echo Form::select("vendor_status",[null=>'Select Status']+$statusList,$vendor->vendor_status,["class" => "form-control","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
+    <td class="expand-row-msg position-relative" data-name="status" data-id="{{$vendor->id}}">
+    <?php echo Form::select("vendor_status",[null=>'Select Status']+$statusList,$vendor->vendor_status,["class" => "form-control select-width","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
     <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$vendor->id}}">
-                <i class="fa fa-info-circle"></i>
+                <i class="fa fa-info-circle i-vendor-status-history"></i>
     </button>
     </td>
     <td class="expand-row-msg" data-name="name" data-id="{{$vendor->id}}">
