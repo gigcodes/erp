@@ -924,6 +924,7 @@ class ScrapStatisticsController extends Controller
 
     public function taskList(Request $request)
     {
+        
         $id = $request->id;
 
         if (isset($request->type) && $request->type == 'brand') {

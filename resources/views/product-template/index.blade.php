@@ -57,7 +57,7 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Product Templates</h2>
         <div class="pull-right">
-            <button type="button" class="btn btn-secondary create-product-template-btn">Add Product Template</button>
+            <button type="button" class="btn btn-secondary create-product-template-btn"style="margin-right: 9px;">Add Product Template</button>
         </div>
         <div class="pull-left">
         	<form action="?" method="get">

@@ -88,9 +88,31 @@
             }
         @endphp
 
-        <span class="td-mini-container">
+        <!--<span class="td-mini-container">
           {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
-        </span>
+        </span>-->
+
+        @if(auth()->user()->isAdmin())
+            <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
+                <option value="">Select...</option>
+                <?php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; ?>
+                @foreach($users as $id=>$name)
+                    @if( $masterUser == $id )
+                        <option value="{{$id}}" selected>{{ $name }}</option>
+                    @else
+                        <option value="{{$id}}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+        @else 
+            @if($task->assign_to)
+                @if(isset($users[$task->assign_to]))
+                    <p>{{$users[$task->assign_to]}}</p>
+                @else 
+                        <p>-</p>
+                @endif
+            @endif
+        @endif
 
         <span class="td-full-container hidden">
           {{ $users_list }}

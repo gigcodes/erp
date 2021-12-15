@@ -31,12 +31,12 @@
 			{{ session()->get('error') }}
 		</div>
 	@endif
-	<div class="col-lg-12 margin-tb">
+	<div class="col-lg-12 p-5 margin-tb"style="margin-top: -16px;">
 		<div class="row">
-			<div class="col col-md-3">
+			<div class="col col-md-1">
 				<div class="row">
 					<a href="/attachImages/newsletters">
-						<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+						<button style="display: inline-block;width: 10%;  margin-top: 0px;" class="btn btn-sm btn-image">
 							<img src="/images/attach.png" style="cursor: default;">
 						</button>
 					</a>
@@ -44,24 +44,26 @@
 			</div>
 			<div class="col">
 				<div class="h">
-					<form class="form-inline message-search-handler mb-2 fr" method="post" style="float: right;">
+					<form class="form-inline message-search-handler mb-5 fr" method="post">
 						<div class="row">
-							<div class="form-group" style="margin-left: 2px">
-								<label for="keyword">Product Id:</label>
-								<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter Product Id"]) ?>
+							<div class="form-group" style="margin-left:20px">
+								
+								<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control newsletwrp","placeholder" => "Enter Product Id " ]) ?>
 							</div>
-							<div class="form-group" style="margin-left: 2px">
-								<label for="">Date:</label>
-								<?php echo Form::date("date_from",request("date_from"),["class"=> "form-control","placeholder" => "From date"]) ?>
-								<?php echo Form::date("date_to",request("date_to"),["class"=> "form-control","placeholder" => "To date"]) ?>
+							<div class="form-group" style="margin-left: 20px">
+								
+								<?php echo Form::date("date_from",request("date_from"),["class"=> "form-control newsletwrp","placeholder" => "From date"]) ?>
 							</div>
-							<div class="form-group" style="margin-left: 2px">
-								<label for="">Send at:</label>
-								<?php echo Form::date("send_at",request("send_at"),["class"=> "form-control","placeholder" => "Send at"]) ?>
+							<div class="form-group" style="margin-left: 20px">
+								<?php echo Form::date("date_to",request("date_to"),["class"=> "form-control newsletwrp","placeholder" => "To date"]) ?>
 							</div>
-							<div class="form-group">
-								<label for="button">&nbsp;</label>
-								<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+							<div class="form-group" style="margin-left: 20px">
+								
+								<?php echo Form::date("send_at",request("send_at"),["class"=> "form-control newsletwrp","placeholder" => "Send at"]) ?>
+							</div>
+							<div class="form-group" style="margin-left:20px">
+								
+								<button style="display: inline-block;width:10%; margin-top: 1px;" class="btn btn-sm btn-image btn-search-action">
 									<img src="/images/search.png" style="cursor: default;">
 								</button>
 							</div>
