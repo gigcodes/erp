@@ -17,7 +17,7 @@
         </td>
 
         <td>
-            <a href="{{ $influencer->url }}" target="_blank" class="text-dark">
+            <a href="{{ $influencer->profile_url }}" target="_blank" class="text-dark">
               {{ str_limit($influencer->name, 7, '..')}}
             </a>
         </td>
@@ -181,7 +181,7 @@
                 data-id="{{ $influencer->id }}">
                 <i class="fa fa-forward"></i>
         </button>
-        @if($influencer->hasMedia('instagram-screenshot'))
+        <!-- @if($influencer->hasMedia('instagram-screenshot'))
           @php
             $url = $influencer->getMedia('instagram-screenshot')->first()->getUrl();
           @endphp
@@ -189,7 +189,12 @@
                 data-id="{{ $influencer->id }}">
                 <i class="fa fa-picture-o"></i>
           </a>
-        @endif
+        @endif -->
+        <a href="{{$influencer->url}}" target="_blank" class="btn btn-xs text-dark" 
+                data-id="{{ $influencer->id }}">
+                <i class="fa fa-picture-o"></i>
+          </a>
+
       </div>
     </td>
 </tr>

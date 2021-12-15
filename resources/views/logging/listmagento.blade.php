@@ -325,98 +325,77 @@
           <div class="modal-body">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="update_product_id" id="update_product_id" value="">
-            <div class="form-group col-md-8">
-              <label for="title">Name</label>
-              <input name="name" type="text" class="form-control" id="update_name" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <img src="" id="single_product_image" class="quick-image-container img-responive" style="width: 70px;" alt="">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Size</label>
-              <input name="size" type="text" class="form-control" id="update_size" value="">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Short Description</label>
-              <textarea name="short_description" class="form-control" id="update_short_description"></textarea>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price</label>
-              <input name="price" type="text" class="form-control" id="update_price" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Special</label>
-              <input name="price_eur_special" type="text" class="form-control" id="update_price_eur_special" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Discounted</label>
-              <input name="price_eur_discounted" type="text" class="form-control" id="update_price_eur_discounted" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price INR</label>
-              <input name="price_inr" type="text" class="form-control" id="update_price_inr" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Special</label>
-              <input name="price_inr_special" type="text" class="form-control" id="update_price_inr_special" value="" required>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">Price Discounted</label>
-              <input name="price_inr_discounted" type="text" class="form-control" id="update_price_inr_discounted" value="" required>
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Measurement Type</label>
-              <input name="measurement_size_type" type="text" class="form-control" id="update_measurement_size_type" value="">
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">L Measurement</label>
-              <input name="lmeasurement" type="text" class="form-control" id="update_lmeasurement" value="">
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">H Measurement</label>
-              <input name="hmeasurement" type="text" class="form-control" id="update_hmeasurement" value="">
-            </div>
-            <div class="form-group col-md-4">
-              <label for="title">D Measurement</label>
-              <input name="dmeasurement" type="text" class="form-control" id="update_dmeasurement" value="">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Composition</label>
-              <input name="composition" type="text" class="form-control" id="update_composition" value="" required>
-            </div>
             <div class="form-group col-md-6">
-              <label for="title">Made In</label>
-              <input name="made_in" type="text" class="form-control" id="update_made_in" value="">
+              <input name="name" type="text" class="form-control" id="update_name" value=""placeholder="Name" required>
             </div>
+            
             <div class="form-group col-md-6">
-              <label for="title">Brand</label>
-              <select name="brand" class="form-control" id="update_brand">
+              <input name="size" type="text" class="form-control" id="update_size" value=""placeholder="Size">
+            </div>
+            <div class="form-group col-md-12">
+              <textarea name="short_description" class="form-control" id="update_short_description"placeholder="Short Description"style="height: 34px;"></textarea>
+            </div>
+            <div class="form-group col-md-4">
+               <input name="price" type="text" class="form-control" id="update_price" value="" placeholder="price"   required>
+            </div>
+            <div class="form-group col-md-4">
+               <input name="price_eur_special" type="text" class="form-control" id="update_price_eur_special" value=""placeholder="Price Special"  required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="price_eur_discounted" type="text" class="form-control" id="update_price_eur_discounted" value="" placeholder="Price Discounted" required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="price_inr" type="text" class="form-control" id="update_price_inr" value="" placeholder="Price INR" required>
+            </div>
+            <div class="form-group col-md-4">
+             <input name="price_inr_special" type="text" class="form-control" id="update_price_inr_special" value="" placeholder="Price Special" required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="price_inr_discounted" type="text" class="form-control" id="update_price_inr_discounted" value="" pl placeholder="Price Discounted"      required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="measurement_size_type" type="text" class="form-control" id="update_measurement_size_type" value="" placeholder="Measurement Type">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="lmeasurement" type="text" class="form-control" id="update_lmeasurement" value=""placeholder="L Measurement">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="hmeasurement" type="text" class="form-control" id="update_hmeasurement" value=""placeholder="H Measurement">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="dmeasurement" type="text" class="form-control" id="update_dmeasurement" value=""placeholder="D Measurement">
+            </div>
+            <div class="form-group col-md-4">
+              <input name="composition" type="text" class="form-control" id="update_composition" value="" placeholder="Composition" required>
+            </div>
+            <div class="form-group col-md-4">
+              <input name="made_in" type="text" class="form-control" id="update_made_in" value=""placeholder="Made In">
+            </div>
+            <div class="form-group col-md-4">
+              <select name="brand" class="form-control" id="update_brand"placeholder="Brand">
                 <option value=""></option>
                 @foreach($brands as $brand)
                   <option value="{{$brand->id}}">{{$brand->name}}</option>
                 @endforeach
               </select>
             </div>
-            <div class="form-group col-md-6">
-              <label for="title">Category</label>
-              <select name="category" class="form-control" id="update_category">
+            <div class="form-group col-md-4">
+              <select name="category" class="form-control" id="update_category"placeholder="Category">
                 <option value=""></option>
                 @foreach($categories as $cat)
                   <option value="{{$cat->id}}">{{$cat->title}}</option>
                 @endforeach
               </select>
             </div>
+            <div class="form-group col-md-4">
+              <input name="supplier" type="text" class="form-control" id="update_supplier" placeholder="Supplier">
+            </div>
             <div class="form-group col-md-6">
-              <label for="title">Supplier</label>
-              <input name="supplier" type="text" class="form-control" id="update_supplier">
+              
+              <input name="supplier_link" type="text" class="form-control" id="update_supplier_link"placeholder="Supplier Link">
             </div>
-            <div class="form-group col-md-12">
-              <label for="title">Supplier Link</label>
-              <input name="supplier_link" type="text" class="form-control" id="update_supplier_link">
-            </div>
-            <div class="form-group col-md-12">
-              <label for="title">Product Link</label>
-              <input name="product_link" type="text" class="form-control" id="update_product_link">
+            <div class="form-group col-md-6">
+              <input name="product_link" type="text" class="form-control" id="update_product_link"placeholder="Product Link">
             </div>
           </div>
           <div class="modal-footer">

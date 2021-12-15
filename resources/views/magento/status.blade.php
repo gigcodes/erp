@@ -13,7 +13,6 @@
         <div class="col-12">
             <h2 class="page-heading">Magento Order Status Mapping</h2>
           </div>
-
           <div class="col-12 mb-3">
             <div class="pull-left">
 
@@ -23,31 +22,34 @@
             </div>
         </div>
     </div>
+    <div class="col-12">
     <div class="table-responsive">
-      <table class="table table-bordered">
+      
+      <table class="table table-bordered" style="padding:5px;">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Status</th>
-            <th>Magento Status</th>
-            <th>Message Text Template</th>
+            <th style="width: 3%; padding: 5px;">ID</th>
+            <th style="width: 18%;padding: 5px;">Status</th>
+            <th style="width: 10%;padding: 5px;">Magento Status</th>
+            <th style="width: 75%;padding: 5px;">Message Text Template</th>
           </tr>
         </thead>
 
         <tbody>
          @foreach($orderStatusList as $orderStatus)
             <tr>
-              <td>{{ $orderStatus->id }}</td>
-              <td>{{ $orderStatus->status }}</td>
-              <td><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
-              <td>
-                <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ !empty($orderStatus->message_text_tpl) ? $orderStatus->message_text_tpl : \App\Order::ORDER_STATUS_TEMPLATE }}</textarea>
+              <td style="padding: 5px;vertical-align: middle;">{{ $orderStatus->id }}</td>
+              <td style="padding: 5px;vertical-align: middle;">{{ $orderStatus->status }}</td>
+              <td style="padding: 5px;vertical-align: middle;"><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
+              <td style="display: flex;padding: 5px;">
+                <textarea class="form-control message-text-tpl" name="message_text_tpl" style="    height: 34px;">{{ !empty($orderStatus->message_text_tpl) ? $orderStatus->message_text_tpl : \App\Order::ORDER_STATUS_TEMPLATE }}</textarea>
                 <button type="button" class="btn btn-image edit-vendor" onclick="updateStatus({{ $orderStatus->id }})"><i class="fa fa-arrow-circle-right fa-lg"></i></button>
               </td>
             </tr>
           @endforeach
         </tbody>
       </table>
+    </div>
     </div>
 @endsection
 
