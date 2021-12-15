@@ -25,7 +25,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Document;
 
-
 class ChatMessagesController extends Controller
 {
     /**
@@ -98,6 +97,7 @@ class ChatMessagesController extends Controller
             //END - DEVTASK-4020
             case 'SOP':
                 $object = User::find($request->object_id);
+                // no break
             case 'document' :
                 $object = Document::find($request->object_id);
                 break;
@@ -237,7 +237,6 @@ class ChatMessagesController extends Controller
         $chatFileData = '';
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
-
             $objectname = null;
             if ($request->object == 'customer' || $request->object == 'charity' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
                 $objectname = $object->name;
@@ -304,11 +303,9 @@ class ChatMessagesController extends Controller
                             'product_id' => $productId,
                         ];
                     }
-
                 }
             }
             if ($request->object == 'customer') {
-
                 if (session()->has('encrpyt')) {
                     $public = PublicKey::first();
                     if ($public != null) {
@@ -481,12 +478,10 @@ class ChatMessagesController extends Controller
                 'messages' => $messages,
             ]);
         }
-
     }
 
     public function getSupplierIntials($string)
     {
-
         $expr = '/(?<=\s|^)[a-z]/i';
         preg_match_all($expr, $string, $matches);
 
@@ -504,7 +499,6 @@ class ChatMessagesController extends Controller
         }
 
         return $size;
-
     }
 
     public function setReviewed($id)
@@ -539,12 +533,10 @@ class ChatMessagesController extends Controller
         $title = "DND List";
 
         return view("dnd-list.index", compact('title'));
-
     }
 
     public function dndListRecords(Request $request)
     {
-
         $messages = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")->whereNull("chat_messages.number");
 
         $startTime = null;
@@ -612,17 +604,20 @@ class ChatMessagesController extends Controller
 
         $vendors = Vendor::orderBy('name')->get();
 
-        return view('custom-chat-message.index', compact('title', 'users', 'vendors'));
+        $customers = Customer::orderBy('name')->get();
+
+        return view('custom-chat-message.index', compact('title', 'users', 'vendors', 'customers'));
     }
 
     public function customChatRecords(Request $request)
     {
         $keyword = $request->get("keyword");
 
-        $records = ChatMessage::with('user', 'vendor')
+        $records = ChatMessage::with('user', 'vendor', 'customer')
             ->where(function ($query) {
                 $query->whereNotNull('vendor_id');
                 $query->orWhereNotNull('user_id');
+                $query->orWhereNotNull('customer_id');
             });
 
         if (!empty($keyword)) {
@@ -639,26 +634,33 @@ class ChatMessagesController extends Controller
             $records = $records->where("vendor_id", $request->vendor_id);
         }
 
+        if (!empty($request->customer_id)) {
+            $records = $records->where("customer_id", $request->customer_id);
+        }
+
         $records = $records->latest()->paginate(20);
 
         $recorsArray = [];
 
         foreach ($records as $row) {
-
             $type = $sender = '';
             if ($row->user_id) {
                 $type = 'user';
                 $sender = optional($row->user)->name;
-            } else if ($row->vendor_id) {
+            } elseif ($row->vendor_id) {
                 $type = 'vendor';
                 $sender = optional($row->vendor)->name;
+            } elseif ($row->customer_id) {
+                $type = 'customer';
+                $sender = optional($row->customer)->name;
             }
 
             $recorsArray[] = [
                 'created_at' => $row->created_at->format('d-m-y H:i:s'),
                 'type' => $type,
                 'message' => $row->message,
-                'sender' => $type . ' - ' . $sender,
+                'sender' => $type,
+                'sender_name' => $sender,
             ];
         }
 
@@ -669,7 +671,5 @@ class ChatMessagesController extends Controller
             "total" => $records->total(),
             "page" => $records->currentPage(),
         ]);
-
     }
-
 }
