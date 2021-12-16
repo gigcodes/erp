@@ -113,11 +113,11 @@
                 @endif
             @endif
         @endif
-
+            
         <span class="td-full-container hidden">
           {{ $users_list }}
         </span>
-
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>    
         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
             <br>
             <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
@@ -132,6 +132,30 @@
                     @endif
                 @endforeach
             </select>
+            <br/>
+            @if(auth()->user()->isAdmin())
+            <label for="" style="font-size: 12px;margin-top:10px;">Lead 2 :</label>
+            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="2" name="master_user_id" id="user_{{$task->id}}">
+                <option value="">Select...</option>
+                <?php $masterUser = isset($task->second_master_user_id) ? $task->second_master_user_id : 0; ?>
+                @foreach($users as $id=>$name)
+                    @if( $masterUser == $id )
+                        <option value="{{$id}}" selected>{{ $name }}</option>
+                    @else
+                        <option value="{{$id}}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+            @else 
+                @if($task->second_master_user_id) 
+                    @if(isset($users[$task->second_master_user_id]))
+                        <p>{{$users[$task->second_master_user_id]}}</p>
+                    @else 
+                            <p>-</p>
+                    @endif
+                @endif
+            @endif
+            
 
             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
             <div class="d-flex">
