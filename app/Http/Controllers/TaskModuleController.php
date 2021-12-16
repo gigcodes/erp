@@ -2428,11 +2428,17 @@ class TaskModuleController extends Controller
        
         if($request->get("lead") == '1'){
             $old_id=$issue->master_user_id;
+            if (!$old_id) {
+                $old_id = 0;
+            }
             $issue->master_user_id = $masterUserId;
             $task_type="leaddeveloper";
 
         } else {
             $old_id=$issue->second_master_user_id;
+            if (!$old_id) {
+                $old_id = 0;
+            }
             $issue->second_master_user_id = $masterUserId;
             $task_type="second_leaddeveloper";
         }
@@ -2450,7 +2456,7 @@ class TaskModuleController extends Controller
         }
         $message = "#" . $issue->id . ". " . $issue->task_subject . ". " . $issue->task_details;
         $summary = substr($message, 0, 200);
-      /*$hubstaffTaskId = $this->createHubstaffTask(
+      $hubstaffTaskId = $this->createHubstaffTask(
             $summary,
             $hubstaffUserId,
             $hubstaff_project_id
@@ -2466,11 +2472,11 @@ class TaskModuleController extends Controller
             $task->hubstaff_project_id = $hubstaff_project_id;
             $task->summary = $message;
             $task->save();
-        }*/
+        }
         $taskUser = new TaskUserHistory;
         $taskUser->model = 'App\Task';
         $taskUser->model_id = $issue->id;
-        $taskUser->old_id = $old_id;
+        $taskUser->old_id = ($old_id=="")?0:$old_id;
         $taskUser->new_id = $masterUserId;
         $taskUser->user_type = $task_type;
         $taskUser->updated_by = Auth::user()->name;
@@ -3103,10 +3109,52 @@ class TaskModuleController extends Controller
         $old_id = $task->assign_to;
         if (!$old_id) {
             $old_id = 0;
-        }
+        }else{
+            DB::delete('delete from task_users where task_id = ? AND user_id = ? AND type = ?', array($task->id,$old_id, User::class));
+     }
         $task->assign_to = $request->get('user_id');
         $task->save();
+    //    $task->users()->attach([$request->input('assign_to') => ['type' => User::class]]);
 
+
+             
+        //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+      $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+        $assignedUser = HubstaffMember::where('user_id', $request->input('user_id'))->first();
+        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+      
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $taskSummery = substr($message, 0, 200);
+              
+      
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $taskSummery,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
+      
+        if ($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
+        if ($hubstaffUserId) {
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
+            $task->summary = $message;
+            $task->save();
+        }
         
         $taskUser = new TaskUserHistory;
         $taskUser->model = 'App\Task';
