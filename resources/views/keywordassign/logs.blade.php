@@ -58,10 +58,10 @@ table tbody tr td{
             <tbody>
                 @foreach($keywordlogs as $key => $value)
                     <tr>
-                        <td>{{$value->model}}</td>
+                        <td class="Website-task"title="{{$value->model}}">{{$value->model}}</td>
                         <td>{{$value->model_id}}</td>
-                        <td>{{$value->keyword}}</td>
-                        <td>{{$value->keyword_match}}</td>
+                        <td class="Website-task" title="{{$value->keyword}}">{{$value->keyword}}</td>
+                        <td class="Website-task"title="{{$value->keyword_match}}">{{$value->keyword_match}}</td>
                         <td>{{$value->message_sent_id}}</td>
                         <td class="Website-task" title="{{ $value->comment }}">{{ $value->comment }}</td>
                         <td>{{$value->created_at}}</td>
