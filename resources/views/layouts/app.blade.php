@@ -2106,10 +2106,11 @@ if (!empty($notifications)) {
                     @if(Auth::check())
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
+                            @if (Auth::user()->hasRole('Admin'))
                             <li>
                                 <a class="quick-icon permission-request" href="#"><span><i class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
-                                
                             </li>
+                            @endif
                             <li>
                                 <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                             </li>
@@ -3542,6 +3543,39 @@ if (!\Auth::guest()) {
                     }
                     $("#permission-request-model").find(".show-list-records").html(t);
                     $("#permission-request-model").modal("show");
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on("click", ".permission-grant", function(e) {
+            e.preventDefault();
+            var permission = $(this).data('id');
+            var user = $(this).data('user');
+            var type = $(this).data('type');
+
+            $.ajax({
+                url: '/user-management/modifiy-permission',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    permission: permission,
+                    user: user,
+                    type: type
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(result) {
+                    $("#loading-image").hide();
+                    if (result.code == 200) {
+                        toastr["success"](result.data, "");
+                    } else {
+                        toastr["error"](result.data, "");
+                    }
                 },
                 error: function() {
                     $("#loading-image").hide();
