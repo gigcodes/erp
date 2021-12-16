@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\DB;
 use Mail;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Webklex\IMAP\Client;
+use App\VendorStatus;
+use App\VendorStatusHistory as VSHM;
 
 class VendorController extends Controller
 {
@@ -217,7 +219,7 @@ class VendorController extends Controller
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
+                  FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.vendor_status, vendors.account_swift,
                     vendors.created_at,vendors.updated_at,
                     vendors.updated_by,
                     vendors.reminder_from,
@@ -281,6 +283,7 @@ class VendorController extends Controller
         'links' => (string) $vendors->render()
         ], 200);
         } */
+        $statusList = \DB::table("vendor_status")->select("name")->pluck("name", "name")->toArray();
 
         $updatedProducts = \App\Vendor::join("users as u", "u.id", "vendors.updated_by")
             ->groupBy("vendors.updated_by")
@@ -288,7 +291,6 @@ class VendorController extends Controller
             ->get();
 
         $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1 and provider="Chat-API"');
-
         return view('vendors.index', [
             'vendors'           => $vendors,
             'vendor_categories' => $vendor_categories,
@@ -298,6 +300,7 @@ class VendorController extends Controller
             'replies'           => $replies,
             'updatedProducts'   => $updatedProducts,
             'totalVendor'       => $totalVendor,
+            'statusList'        => $statusList,
             'whatsapp'          => $whatsapp,
         ]);
     }
@@ -1370,5 +1373,36 @@ class VendorController extends Controller
         $vendor->$column = $request->value;
         $vendor->save();
         return response()->json(['message' => 'Successful'], 200);
+    }
+
+    public function statusStore(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|string'
+        ]);
+        $data = $request->except('_token');
+        VendorStatus::create($data);
+        return redirect()->back()->with('success', 'You have successfully created a status!');
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $vendor = Vendor::find($request->id);
+        $vendor->vendor_status = $request->status;
+        $vendor->save();
+
+        $vshm = new VSHM;
+        $vshm->vendor_id = $request->id;
+        $vshm->user_id = $request->user_id;
+        $vshm->status = $request->status;
+        $vshm->save();
+    }
+
+    public function vendorStatusHistory(Request $request)
+    {
+        $data = VSHM::with(['user'=>function($query){
+            // $query->select('name', 'email');
+        }])->where('vendor_id', $request->id)->get();
+        return response()->json(["code" => 200, "data" => $data, "message" => "Message sent successfully"]);
     }
 }
