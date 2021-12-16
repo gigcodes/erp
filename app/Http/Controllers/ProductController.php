@@ -984,7 +984,8 @@ class ProductController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    if(isset($category_tree[$parent->parent_id][$parent->id])) {
+                   
+                    if(isset($category_tree[$parent->parent_id]) && isset($category_tree[$parent->parent_id] [$parent->id])) {
                          @$category_tree[$parent->parent_id][$parent->id][$category->id];
                     }
                 } else {
@@ -1005,14 +1006,14 @@ class ProductController extends Controller
         $type = '';
         $assigned_to_users = '';
 
-        if ($request->brand[0] != null) {
+        if (isset($request->brand[0]) && $request->brand[0] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
         }
 
-        if ($request->color[0] != null) {
+        if (isset($request->color[0]) && $request->color[0] != null) {
             $newProducts = $newProducts->whereIn('color', $request->get('color'));
         }
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (isset($request->category) && $request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
@@ -3267,7 +3268,7 @@ class ProductController extends Controller
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         if (!empty($r) && !empty($g) && !empty($b)) {
                             $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size);
+                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size,"store"=>$website->title);
                         }
                     }
                 }
@@ -3427,13 +3428,15 @@ class ProductController extends Controller
                     if ($productMediacount <= $storeWebCount) {
                         $store_websites = StoreWebsite::where('cropper_color', "%" . $request->get('color'))->first();
                         if ($store_websites !== null) {
-                            $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                ->where('product_id', $product->id)->exists();
-                            if (!$exist) {
-                                SiteCroppedImages::create([
-                                    'website_id' => $store_websites->id,
-                                    'product_id' => $product->id,
-                                ]);
+                            if(isset($req["store"]) && $req["store"] == $store_websites->title ){
+                                $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                                    ->where('product_id', $product->id)->exists();
+                                if (!$exist) {
+                                    SiteCroppedImages::create([
+                                        'website_id' => $store_websites->id,
+                                        'product_id' => $product->id,
+                                    ]);
+                                }
                             }
                         }
                     }

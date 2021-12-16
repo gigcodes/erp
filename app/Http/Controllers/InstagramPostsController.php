@@ -373,7 +373,7 @@ class InstagramPostsController extends Controller
                             $influencer->email = $postJson['Email'];
                         }
                         if(isset($postJson['Country'])){
-                            $influencer->country = $postJson['Country'];
+                            $influencer->country = json_encode($postJson['Country']);
                         }
 
                         $influencer->platform    = "Instagram";

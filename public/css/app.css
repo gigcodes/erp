@@ -11382,7 +11382,7 @@ table.table-striped-custom tbody tr td {
 }
 .custom-button{
     background: #9393935e !important;
-    color: #000 !important;
+    color: #555 !important;
 }
 .inventory-listing .modal-dialog{
     max-width: 800px;

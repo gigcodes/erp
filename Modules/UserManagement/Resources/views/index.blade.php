@@ -237,40 +237,7 @@
             
         </div>
     </div>
-
-
-
-    <div id="permission-request-model" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Permission request list</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <button type="button" class="btn btn-default permission-delete-grant">Delete All</button>
-                    <div class="col-md-12" id="permission-request">
-                        <table class="table fixed_header">
-                            <thead>
-                                <tr>
-                                    <th>User name</th>
-                                    <th>Permission name</th>
-                                    <th>Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="show-list-records">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
     <div id="status-history" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
@@ -769,46 +736,6 @@
             });
         });
 
-        $(document).on("click", ".permission-request", function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/user-management/request-list',
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(result) {
-                    $("#loading-image").hide();
-                    if (result.code == 200) {
-                        var t = '';
-                        $.each(result.data, function(k, v) {
-                            t += `<tr><td>` + v.name + `</td>`;
-                            t += `<td>` + v.permission_name + `</td>`;
-                            t += `<td>` + v.request_date + `</td>`;
-                            t += `<td><button class="btn btn-secondary btn-xs permission-grant" data-type="accept" data-id="` +
-                                v.permission_id + `" data-user="` + v.user_id +
-                                `">Accept</button>
-                                 <button class="btn btn-secondary btn-xs permission-grant" data-type="reject" data-id="` + v.permission_id + `" data-user="` + v
-                                .user_id + `">Reject</button>
-                              </td></tr>`;
-                        });
-                        if (t == '') {
-                            t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-                        }
-                    }
-                    $("#permission-request-model").find(".show-list-records").html(t);
-                    $("#permission-request-model").modal("show");
-                },
-                error: function() {
-                    $("#loading-image").hide();
-                }
-            });
-        });
-
         $(document).on("click", ".erp-request", function(e) {
             e.preventDefault();
             $.ajax({
@@ -910,66 +837,6 @@
                 error: function() {
                     $("#loading-image").hide();
                     toastr["Error"]("An error occured!");
-                }
-            });
-        });
-
-        $(document).on("click", ".permission-grant", function(e) {
-            e.preventDefault();
-            var permission = $(this).data('id');
-            var user = $(this).data('user');
-            var type = $(this).data('type');
-
-            $.ajax({
-                url: '/user-management/modifiy-permission',
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    permission: permission,
-                    user: user,
-                    type: type
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(result) {
-                    $("#loading-image").hide();
-                    if (result.code == 200) {
-                        toastr["success"](result.data, "");
-                    } else {
-                        toastr["error"](result.data, "");
-                    }
-                },
-                error: function() {
-                    $("#loading-image").hide();
-                }
-            });
-        });
-
-        $(document).on("click", ".permission-delete-grant", function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/user-management/request-delete',
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(result) {
-                    $("#loading-image").hide();
-                    if (result.code == 200) {
-                        $("#permission-request").find(".show-list-records").html('');
-                        toastr["success"](result.data, "");
-                    } else {
-                        toastr["error"](result.data, "");
-                    }
-                },
-                error: function() {
-                    $("#loading-image").hide();
                 }
             });
         });
