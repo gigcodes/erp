@@ -529,7 +529,7 @@ class MagentoSettingsController extends Controller
             fwrite($myfile, $settings);
             fclose($myfile);
 
-            $cmd         = 'bash ' . 'magento-config-deployment.sh -r ' . $storeWebsiteDetails['repo_name'] . ' -f ' . $filePath;
+            $cmd         = "'bash " . "magento-config-deployment.sh -r " . $storeWebsiteDetails['repo_name'] . " -f " . $filePath."'";
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput); //Execute command
@@ -588,7 +588,7 @@ class MagentoSettingsController extends Controller
         $data = '';
         foreach ($logs as $log) {
             $cmdOutputs = json_decode($log['command_output']);
-            $data .= '<tr><td>' . $log['created_at'] . '</td><td>' . $log['command'] . '</td><td>' . $log['status'] . '</td><td>';
+            $data .= '<tr><td>' . $log['created_at'] . "</td><td>'" . $log['command'] . "'</td><td>" . $log['status'] . '</td><td>';
             if (!empty($cmdOutputs)) {
                 foreach ($cmdOutputs as $cmdOutput) {
                     $data .= $cmdOutput . '<br/>';
