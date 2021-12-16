@@ -14,50 +14,47 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2> User's Logs</h2>
-            </div>
-            <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('users.index') }}"> Back</a>
-            </div>
+            <h2 class="page-heading"> User's Logs</h2>
         </div>
     </div>
-    <div class="row input-daterange">
-                <div class="col-md-3">
-                    <input type="text" name="from_date" id="from_date" class="form-control" placeholder="From Date" readonly />
-                </div>
-                <div class="col-md-3">
-                    <input type="text" name="to_date" id="to_date" class="form-control" placeholder="To Date" readonly />
-                </div>
-                <div class="col-md-3">
-                    <select class="form-control selectpicker" data-live-search="true" id="username">
-                      @php
-                      $users = \App\User::select('name')->get();
-                      @endphp
-                      <option value="">Select User</option>
-                      @foreach($users as $user)
-                      <option value="{{ $user->name }}">{{ $user->name }}</option>
-                      @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button type="button" name="filter" id="filter" class="btn btn-primary">Filter</button>
-                    <button type="button" name="refresh" id="refresh" class="btn btn-default">Refresh</button>
-                </div>
-            </div>
-
-    <table class="table table-bordered" id="userlogs-table">
+     <div class="col-md-12">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="datetime-local" name="from_date" id="from_date" class="form-control" placeholder="From Date" />
+        </div>
+        <div class="col-md-3">
+            <input type="datetime-local" name="to_date" id="to_date" class="form-control" placeholder="To Date" />
+        </div>
+        <div class="col-md-3">
+            <select class="form-control selectpicker" data-live-search="true" id="username">
+              @php
+              $users = \App\User::select('name')->get();
+              @endphp
+              <option value="">Select User</option>
+              @foreach($users as $user)
+              <option value="{{ $user->name }}">{{ $user->name }}</option>
+              @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
+          <button type="button" name="filter" id="filter" class="btn custom-button"style="width: 150px;">Filter</button>
+            <button type="button" name="refresh" id="refresh" class="btn custom-button"style="width: 150px;margin-left:26px">Refresh</button>
+        </div>
+    </div>
+    </div>
+    <div class="col-md-12">
+    <table class="table table-bordered mt-2" id="userlogs-table" style="table-layout: fixed;">
         <thead>
-        <tr>
-            <th>Id</th>
-            <th>URL</th>
-            <th>User</th>
-            <th>Created At</th>
-            <th>Updated At</th>
+        <tr >
+            <th style="border-bottom: gray;">Id</th>
+            <th style="border-bottom: gray;">URL</th>
+            <th style="border-bottom: gray;">User</th>
+            <th style="border-bottom: gray;">Created At</th>
+            <th style="border-bottom: gray;">Updated At</th>
         </tr>
         </thead>
     </table>
-
+    </div>
 
 
 
