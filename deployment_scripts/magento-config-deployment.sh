@@ -57,16 +57,15 @@ do
                 ;;
         esac
 done
-
 ### Load environment variables
 . /var/www/erp.theluxuryunlimited.com/.env
 
 function set_variable {
 	if [ $type != "sensitive" ]
 	then
-		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value
+		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value"
 	else
-		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path $value"
+		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'"
         	if [ $? -ne 0 ]
 		then
 	                exit 1
