@@ -52,25 +52,30 @@
                     <th>From</th>
                     <th>To</th>
                     <th>Call Time</th>
+                    <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     
                     @foreach($reservedCalls as $reservedCall)
                         <tr>
-                        <td>
-                            {{$reservedCall->name}}
-                        </td>
-                        <td>
-                            {{$reservedCall->email}}
-                        </td>
-                        <td>
-                            {{$reservedCall->from}}
-                        </td>
-                        <td>
-                            {{$reservedCall->to}}
-                        </td>
-                        <td>{{$reservedCall->created_at}}</td>
+							<td>
+								{{$reservedCall->name}}
+							</td>
+							<td>
+								{{$reservedCall->email}}
+							</td>
+							<td>
+								{{$reservedCall->from}}
+							</td>
+							<td>
+								{{$reservedCall->to}}
+							</td>
+							<td>{{$reservedCall->created_at}}</td>
+							<td>
+								<a class="call__answer" >Accept</a>
+								<a class="call__canceled">Reject</a>
+							</td>
                         </tr>
                     @endforeach
                     
@@ -181,4 +186,14 @@
 
     
 
+@endsection
+
+@section('scripts')
+<script>
+$(".call__answer").click(function(){
+  $.get("https://erpdev3.theluxuryunlimited.com/twilio/accept?From=919463488313&To=+15106164481", function(data, status){
+    console.log("Data: " + "\nStatus: ");
+  });
+});
+</script>
 @endsection

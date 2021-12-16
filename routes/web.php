@@ -1894,8 +1894,8 @@ Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
 Route::post('twilio/events', 'TwilioController@twilioEvents');
 
-Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
-Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
+Route::any('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+Route::any('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
 Route::post('twilio/twilio_order_status_and_information_on_call', 'TwilioController@twilio_order_status_and_information_on_call')->name('twilio_order_status_and_information_on_call');
 Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@twilio_return_refund_exchange_on_call')->name('twilio_return_refund_exchange_on_call');
 
@@ -3117,6 +3117,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/reference', 'MissingBrandController@reference')->name('missing-brands.reference');
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
+
+	Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
 
     //subcategory route
 
