@@ -46,9 +46,9 @@
                         <tr>
                             <th width="2%">ID</th>
                             <th width="10%">Store website</th>
-                            <th width="25%">Category</th>
+                            <th width="19%">Category</th>
                             <th width="10%">Reply</th>
-                            <th width="5%">Model</th>
+                            <th width="7%">Model</th>
                             <th width="15%">Updated On</th>
                             <th width="5%">Action</th>
                         </tr>
