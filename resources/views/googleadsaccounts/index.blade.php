@@ -13,14 +13,16 @@
 </style>
 @endsection
 @section('content')
-<div class="container" style="margin-top: 10px">
-    <h4>Google AdWords Account (<span id="ads_account_count">{{ $totalentries }}</span>)</h4>
-
-
+<div class="container " style="max-width: 100%;width: 100%;">
+    <div class="row">
+    <div class="col-md-12 p-0">
+    <h4 class="page-heading">Google AdWords Account (<span id="ads_account_count">{{ $totalentries }}</span>)</h4>
+    </div>
+    </div>
     <div class="pull-left">
         <div class="form-group">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <select class="form-control select-multiple" id="website-select">
                         <option value="">Select Store Website</option>
                         @foreach($store_website as $key => $sw)
@@ -28,14 +30,14 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <input name="accountname" type="text" class="form-control" value="{{ isset($accountname) ? $accountname : '' }}" placeholder="Account Name" id="accountname">
                 </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
+                <div class="col-md-1">
+                    <button type="button" class="btn mt-0 btn-image" onclick="submitSearch()"><img src="/images/filter.png" /></button>
                 </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
+                <div class="col-md-1">
+                    <button type="button" class="btn mt-0 btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" /></button>
                 </div>
             </div>
         </div>
@@ -43,7 +45,7 @@
 
 
     <form method="get" action="/google-campaigns/ads-account/create">
-        <button type="submit" class="float-right mb-3">New Account</button>
+        <button type="submit" class="float-right custom-button btn  custom-button mb-3">New Account</button>
     </form>
 
     <div class="table-responsive mt-3">
