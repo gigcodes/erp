@@ -28,7 +28,7 @@
                     <div class="pull-left">
                         <form action="{{--{{ route('whatsapp.config.queue', $id) }}--}}" method="GET"
                               class="form-inline align-items-start form-filter">
-                            <div class="form-group mr-3 mb-3">
+                            <div class="form-group mr-3 mb-3 pl-2">
                                 <input name="term" type="text" class="form-control global" id="term"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="name , image count, text count">
@@ -43,17 +43,17 @@
                                   </span>
                                 </div>
                             </div>
-                            <button id="filter" type="submit" class="btn btn-image"><img src="/images/filter.png"/>
+                            <button id="filter" type="submit" class="btn mt-0 btn-image"><img src="/images/filter.png"/>
                             </button>
                         </form>
                     </div>
-                    <button type="button" class="btn btn-primary float-right create-new-template-btn"
+                    <button type="button" class="btn mr-4 custom-button  float-right create-new-template-btn"
                             data-toggle="modal"
                             data-target="#exampleModalCenter">
                         Create a new email template
                     </button>
 
-                    <button type="button" class="btn btn-primary float-right mr-3" data-toggle="modal"
+                    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal"
                             data-target="#addMailingListCategoryModal">
                         Add Category
                     </button>
@@ -245,37 +245,37 @@
     @if(Session::has('message'))
         <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
     @endif
-
+   <div class="col-md-12">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="passwords-table">
+        <table class="table table-bordered" id="passwords-table"style="table-layout: fixed;">
             <thead>
             <tr>
                 <!-- <th style="">ID</th> -->
-                <th style="">Name</th>
-                <th style="">Mail Tpl</th>
-                <th style="" width="8%">Subject</th>
-                <th style="">Static Template</th>
-                <th style="">Category</th>
-                <th style="">Store Website</th>
+                <th width="15%">Name</th>
+                <th width="10%">Mail Tpl</th>
+                <th width="10%">Subject</th>
+                <th width="9%">Static Tem</th>
+                <th width="6%">Category</th>
+                <th width="7%">Store Web</th>
                 <!-- <th style="">Image Count</th>
                 <th style="">Text Count</th> -->
-                <th style="">Template Example</th>
-                <th style="">Salutation</th>
-                <th style="">Introduction</th>
-                <th style="">Logo</th>
-                <th style="">Action</th>
+                <th width="7%">Template Ex</th>
+                <th width="6%">Salutation</th>
+                <th width="7%">Introduction</th>
+                <th width="7%">Logo</th>
+                <th width="7%">Action</th>
                 {{--  <th style="">File</th>--}}
             </tr>
             </thead>
             <tbody>
             @foreach($mailings as $value)
                    <tr>
-                    <td>{{$value["name"]}}</td>
-                    <td>{{$value["mail_tpl"]}}</td>
-                    <td>{{$value["subject"]}}</td>
-                    <td>{{$value["static_template"]}}</td>
-                    <td>{{$value->category !== null ? $value->category->title : '-' }}</td>
-                    <td>{{$value->storeWebsite !== null ? $value->storeWebsite->title : '-' }}</td>
+                    <td class="Website-task">{{$value["name"]}}</td>
+                    <td class="Website-task">{{$value["mail_tpl"]}}</td>
+                    <td class="Website-task">{{$value["subject"]}}</td>
+                    <td class="Website-task">{{$value["static_template"]}}</td>
+                    <td class="Website-task">{{$value->category !== null ? $value->category->title : '-' }}</td>
+                    <td class="Website-task">{{$value->storeWebsite !== null ? $value->storeWebsite->title : '-' }}</td>
                 <!-- <td>{{$value["image_count"]}}</td> -->
                 <!-- <td>{{$value["text_count"]}}</td> -->
                     <td>
@@ -291,20 +291,20 @@
                         @endif
                     </td>
                     <td>
-                        <a data-id="{{ $value['id'] }}" class="delete-template-act" href="javascript:;">
+                        <a data-id="{{ $value['id'] }}" class="delete-template-act" href="javascript:;"style="color: gray;">
                             <i class="fa fa-trash"></i>
                         </a>
                     | <a data-id="{{ $value['id'] }}" data-storage="{{ $value }}" class="edit-template-act"
-                            href="javascript:;">
+                            href="javascript:;" style="color: gray;">
                         <i class="fa fa-edit"></i>
                     </a>
 
                     | <a data-id="{{ $value['id'] }}"  class="add-content"
-                            href="javascript:;">
+                            href="javascript:;" style="color: gray;">
                         <i class="fa fa-send"></i>
                     </a>
                     <a data-id="{{ $value['id'] }}"  class="add-image"
-                            href="javascript:;">
+                            href="javascript:;" style="color: gray;">
                         <i class="fa fa-list"></i>
                     </a>
                     </td>
@@ -316,6 +316,7 @@
             {{$mailings->appends($_GET)->links()}}
         @endif
     </div>
+</div>
 @endsection
 
 @section('scripts')
