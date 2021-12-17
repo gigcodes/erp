@@ -424,6 +424,7 @@ class ChatMessagesController extends Controller
                 $messages[] = [
                     'id' => $chatMessage->id,
                     'type' => $request->object,
+                    'object_type_id' => $request->object_id,
                     'sop_name' => @$sopdata->name,
                     'sop_category' => @$sopdata->category,
                     'sop_content' => @$sopdata->content,
