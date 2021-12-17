@@ -349,7 +349,7 @@ class MagentoSettingsController extends Controller
 
                     //BASE SCRIPT
                     if (!empty($git_repository)):
-                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . ' -t ' . $datatype . ' -h ' . $server_name."'";
+                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command
@@ -411,7 +411,7 @@ class MagentoSettingsController extends Controller
 
                     //BASE SCRIPT
                     if (!empty($git_repository)):
-                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . ' -t ' . $datatype . ' -h ' . $server_name."'";
+                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command
@@ -476,7 +476,7 @@ class MagentoSettingsController extends Controller
                     //BASE SCRIPT
                     if (!empty($git_repository)):
 
-                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . ' -t ' . $datatype . ' -h ' . $server_name."'";
+                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
                         $allOutput   = array();
                         $allOutput[] = $cmd;
                         $result      = exec($cmd, $allOutput); //Execute command
