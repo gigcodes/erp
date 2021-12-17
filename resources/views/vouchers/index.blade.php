@@ -357,27 +357,27 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Show Counting</h4>
-                    <table>
+                </div>
+                <div class="modal-body">
+                <table class="table table-bordered">
                       <tr>
-                        <td>Total Minutes</td>
+                        <td width="65%">Total Minutes</td>
                         <td class="total_minutes"></td>
                       </tr>
                       <tr>
-                        <td>Worked in Hours</td>
+                        <td width="65%">Worked in Hours</td>
                         <td class="worked_in_hour"></td>
                       </tr>
                       <tr>
-                        <td>Rate Per Hour</td>
+                        <td width="65%">Rate Per Hour</td>
                         <td class="rate_per_hour"> </td>
                       </tr>
                       <tr>
-                        <td Total></td>
+                        <td width="65%"> Total (Worked in Hours * Rate Per Hour)</td>
                         <td class="total"></td>
                       </tr>
                     </table>
-                      <div class="total_minutes"></div>
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
+                      
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -532,7 +532,7 @@
         var issueId = $(this).data('id');
   
         $.ajax({
-            url: "/voucher/show/"+issueId,
+            url: "/voucher/"+issueId,
             data: {id: issueId},
             success: function (data) {
               $(".total_minutes").html(data.worked_minutes);
