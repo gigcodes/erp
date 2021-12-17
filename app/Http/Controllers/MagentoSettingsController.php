@@ -529,7 +529,7 @@ class MagentoSettingsController extends Controller
             fwrite($myfile, $settings);
             fclose($myfile);
 
-            $cmd         = "'bash " . "magento-config-deployment.sh -r " . $storeWebsiteDetails['repo_name'] . " -f " . $filePath."'";
+            $cmd         = "bash " . "magento-config-deployment.sh -r " . $storeWebsiteDetails['repo_name'] . " -f '" . $filePath."'";
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput); //Execute command
