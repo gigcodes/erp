@@ -77,12 +77,14 @@ class MailinglistController extends Controller
             return array('status'=>false, 'messages'=>$validation->getMessageBag());
         }
         $website_id = $request->website_id;
+        $store_website = StoreWebsite::Where('id'  , $website_id )->first();
         //Find Service 
         $service = Service::find($request->service_id);
 
         if($service){
           
             if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) {
+                $api_key=($store_website->send_in_blue_api !="")?$store_website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
                 $curl = curl_init();
                 $data = [
                     "folderId" => 1,
@@ -100,7 +102,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -346,6 +348,7 @@ class MailinglistController extends Controller
     {
         //getting mailing list 
         $list = Mailinglist::where('remote_id',$id)->first();
+       
 
         if($list->service && isset($list->service->name) ){
             if($list->service->name == 'AcelleMail'){
@@ -407,6 +410,9 @@ class MailinglistController extends Controller
             }    
         }
         
+        $website = \App\StoreWebsite::where('id',$list->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
 
         $curl = curl_init();
         $data = [
@@ -426,7 +432,7 @@ class MailinglistController extends Controller
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -448,7 +454,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -469,7 +475,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -501,6 +507,10 @@ class MailinglistController extends Controller
      */
     public function delete($id, $email)
     {
+        $mailinglist = Mailinglist::find($id);
+        $website = \App\StoreWebsite::where('id',$mailinglist->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/" . $email,
@@ -513,7 +523,7 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => "DELETE",
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -527,7 +537,7 @@ class MailinglistController extends Controller
             return redirect()->back()->withErrors($res->message);
         } else {
             $customer = Customer::where('email', $email)->first();
-            $mailinglist = Mailinglist::find($id);
+          
             $mailinglist->listCustomers()->detach($customer->id);
 
             return response()->json(['status' => 'success']);
@@ -542,6 +552,10 @@ class MailinglistController extends Controller
     {
         //getting mailing list 
         $list = Mailinglist::where('remote_id',$id)->first();
+        $website = \App\StoreWebsite::where('id',$list->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
+        
         
         if($list->service && isset($list->service->name) ){
             if($list->service->name == 'AcelleMail'){
@@ -577,7 +591,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -627,6 +641,11 @@ class MailinglistController extends Controller
     {
         $email = $request->email;
         $id = $request->id;
+        $mailinglist = Mailinglist::find($id);
+        $website = \App\StoreWebsite::where('id',$mailinglist->website_id)->first();
+        $api_key=(isset($website->send_in_blue_api) &&  $website->send_in_blue_api !="")?$website->send_in_blue_api: config('env.SEND_IN_BLUE_API');
+
+           
         $curl = curl_init();
         $data = [
             "email" => $email,
@@ -645,7 +664,7 @@ class MailinglistController extends Controller
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
+                "api-key: ".$api_key,
                 "Content-Type: application/json"
             ),
         ));
@@ -667,7 +686,7 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -688,7 +707,7 @@ class MailinglistController extends Controller
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
                         // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                        "api-key: ".config('env.SEND_IN_BLUE_API'),
+                        "api-key: ".$api_key,
                         "Content-Type: application/json"
                     ),
                 ));
@@ -699,7 +718,6 @@ class MailinglistController extends Controller
                     return response()->json(['status' => 'error']);
                 }
                 $customer = Customer::where('email', $email)->first();
-                $mailinglist = Mailinglist::find($id);
                 \DB::table('list_contacts')->where('customer_id', $customer->id)->delete();
                 $mailinglist->listCustomers()->attach($customer->id);
 

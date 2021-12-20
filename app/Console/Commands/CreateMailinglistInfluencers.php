@@ -48,14 +48,15 @@ class CreateMailinglistInfluencers extends Command
         $influencers = \App\ScrapInfluencer::where(function($q) {
             $q->orWhere("read_status","!=",1)->orWhereNull('read_status');
         })->where('email', '!=', "")->get();
-		
-        $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
+		$send_in_blue_apis=[];		
+        $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
 
         /*foreach ($influencers as $influencer) {
         $email_list[] = ['email' => $influencer->email, 'name' => $influencer->name, 'platform' => $influencer->platform];
         }*/
 
         foreach ($websites as $website) { 
+			$send_in_blue_apis[$website->id]=$website->send_in_blue_api;
 			$service = Service::find($website->mailing_service_id);
 			if($service){
 				$name = $website->title;
@@ -77,7 +78,7 @@ class CreateMailinglistInfluencers extends Command
 						$response = $this->callApi("https://api.sendinblue.com/v3/contacts/lists", "POST", $data = [
 							"folderId" => 1,
 							"name"     => $name,
-						]);
+						],$website->send_in_blue_api);
 						
 						if (isset($response->id)) {
 							$mailList->remote_id = $response->id;
@@ -201,10 +202,10 @@ class CreateMailinglistInfluencers extends Command
         }
     }
 
-    public function callApi($url, $method, $data = [])
+    public function callApi($url, $method, $data = [],$send_in_blue_api="")
     {
         $curl = curl_init();
-
+		$api_key=($send_in_blue_api=="")? getenv('SEND_IN_BLUE_API'):$send_in_blue_api;
         curl_setopt_array($curl, array(
             CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -216,7 +217,7 @@ class CreateMailinglistInfluencers extends Command
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_POSTFIELDS     => json_encode($data),
             CURLOPT_HTTPHEADER     => array(
-                "api-key: " . getenv('SEND_IN_BLUE_API'),
+                "api-key: " . $send_in_blue_api,
                 "Content-Type: application/json",
             ),
         ));
