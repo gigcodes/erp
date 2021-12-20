@@ -3479,8 +3479,8 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 Route::get('command', function () {
 	
-    \Artisan::call('migrate');
-  //   \Artisan::call('meeting:getrecordings');
+    //\Artisan::call('migrate');
+     \Artisan::call('create-mailinglist-influencers');
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/

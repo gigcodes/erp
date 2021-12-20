@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use App\Service;
 use App\Mailinglist;
 use App\MailinglistTemplate;
-
+use  App\Loggers\MailinglistIinfluencersLogs;
 class CreateMailinglistInfluencers extends Command
 {
     /**
@@ -44,17 +44,20 @@ class CreateMailinglistInfluencers extends Command
      */
     public function handle()
     {
-
+		
         $influencers = \App\ScrapInfluencer::where(function($q) {
             $q->orWhere("read_status","!=",1)->orWhereNull('read_status');
         })->where('email', '!=', "")->get();
+
+	//	$influencers = \App\ScrapInfluencer::where('email', '!=', "")->limit(10)->get();
+//		dd($influencers);
 		$send_in_blue_apis=[];		
         $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
 
         /*foreach ($influencers as $influencer) {
         $email_list[] = ['email' => $influencer->email, 'name' => $influencer->name, 'platform' => $influencer->platform];
         }*/
-
+	
         foreach ($websites as $website) { 
 			$send_in_blue_apis[$website->id]=$website->send_in_blue_api;
 			$service = Service::find($website->mailing_service_id);
@@ -67,6 +70,7 @@ class CreateMailinglistInfluencers extends Command
 				}
 
 				$mailingList = \App\Mailinglist::where('name', $name)->where('service_id', $website->mailing_service_id)->where("website_id", $website->id)->where('remote_id', ">", 0)->first();
+		
 				if (!$mailingList) {
 					
 					$mailList = \App\Mailinglist::create([
@@ -74,6 +78,7 @@ class CreateMailinglistInfluencers extends Command
 						'website_id' => $website->id,
 						'service_id' => $website->mailing_service_id,
 					]);
+				
 					if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) { 
 						$response = $this->callApi("https://api.sendinblue.com/v3/contacts/lists", "POST", $data = [
 							"folderId" => 1,
@@ -120,37 +125,54 @@ class CreateMailinglistInfluencers extends Command
 							
 						}   
 					}
+					//$this->mailList[] = $mailList;
 				}else{
 					$this->mailList[] = $mailingList;
 				}
             }
         }
-     
+   
         if (!empty($influencers) && !empty($this->mailList)) {  
-
-            $listIds = [];
+            $webListIds=$listIds = [];
             if (!empty($this->mailList)) {
                 foreach ($this->mailList as $mllist) {
                     $listIds[] = $mllist->remote_id;
-                    //$listIds[] = intval($mllist->remote_id);
+                 //   $listIds[] = intval($mllist->remote_id);
+					$webListIds[$mllist->website_id][] = $mllist->remote_id;
                 }
             }
-				
+			
             foreach ($influencers as $list) {
                 if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) { 
-					$response = $this->callApi("https://api.sendinblue.com/v3/contacts", "POST", [
-						"email"      => $list->email,
-						"listIds"    => $listIds,
-						"attributes" => ['firstname' => $list->name],
-						"updateEnabled" => true
-					]);
+					foreach ($webListIds as $key=>$listIdsData){
+						$api_key=isset($send_in_blue_apis[$key])?$send_in_blue_apis[$key]:'';
+						$reqData=[
+							"email"      => $list->email,
+							"listIds"    => $listIdsData,
+							"attributes" => ['firstname' => $list->name],
+							"updateEnabled" => true
+						];
+						$url="https://api.sendinblue.com/v3/contacts";
+						$response = $this->callApi($url, "POST", $reqData,$api_key );
+						MailinglistIinfluencersLogs::log([
+							"service"=>$service->name,
+							"maillist_id"=>json_encode($listIdsData),
+							"email"=>$list->email,
+							"name"=> $list->name,
+							"url"=>$url,
+							"request_data"=>json_encode($reqData),
+							"response_data"=>json_encode($response),
+
+						]);
+					}
 				} else if(strpos($service->name, 'AcelleMail') !== false) {
 					//Assign Customer to list
 					foreach($listIds as $listId) {
 						$curl = curl_init();
 
 						$ch = curl_init();
-						curl_setopt($ch, CURLOPT_URL, 'https://acelle.theluxuryunlimited.com/api/v1/subscribers?list_uid='.$listId);
+						$url='https://acelle.theluxuryunlimited.com/api/v1/subscribers?list_uid='.$listId;
+						curl_setopt($ch, CURLOPT_URL, $url);
 						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 						curl_setopt($ch, CURLOPT_POST, 1);
 						curl_setopt($ch, CURLOPT_POSTFIELDS, "api_token=".config('env.ACELLE_MAIL_API_TOKEN')."&EMAIL=".$list->email);
@@ -161,6 +183,16 @@ class CreateMailinglistInfluencers extends Command
 						curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 						$response = curl_exec($ch);
+						MailinglistIinfluencersLogs::log([
+							"service"=>$service->name,
+							"maillist_id"=>json_encode($listId),
+							"email"=>$list->email,
+							"name"=> $list->name,
+							"url"=>$url,
+							"request_data"=>"api_token=".config('env.ACELLE_MAIL_API_TOKEN')."&EMAIL=".$list->email,
+							"response_data"=>json_encode($response),
+
+						]);
 						if (curl_errno($ch)) {
 							echo 'Error:' . curl_error($ch);
 						}
@@ -199,6 +231,7 @@ class CreateMailinglistInfluencers extends Command
                 $list->read_status = 1;
                 $list->save();
             }
+			
         }
     }
 
