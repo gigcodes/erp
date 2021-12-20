@@ -42,7 +42,7 @@ class SearchAttachedImages implements ShouldQueue
         $id = $this->id;
         $ref_file = str_replace('|', '/', $this->url);
         $ref_file = str_replace("'", '', $ref_file);
-        $params = $this->req_data;
+        $params = $this->req_data; 
         $customer_id = false;
         $chat_message = false;
         if (isset($params['customer_id'])) {

@@ -142,10 +142,12 @@
                                         <label>Select Agent</label>
                                         <div class="input-group">
                                             <select class="form-control" id="agent_1">
-                                                <option value="">Select agent</option>
+                                                <option value="">Select agent</option> 
                                                 @if(isset($customer_role_users))
                                                     @foreach($customer_role_users as $user)
-                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+														@if(isset($user->user))
+															<option value="{{ $user->user->id }}">{{ $user->user->name }}</option>
+														@endif
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -154,7 +156,6 @@
                                     <td colspan="3">
                                         <button class="btn btn-sm btn-image call_forwarding_save" id="forward_1"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </td>
-
                                 </tr>
                             @endforeach
                         @endif

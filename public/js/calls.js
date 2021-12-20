@@ -94,7 +94,7 @@
 		bMute = false;
 	}
 
-	function loadTwilioDevice(token,agent) {
+	function loadTwilioDevice(token,agent) { console.log('97');
 		const $confirmModal = $('#receive-call-popup');
 		var set_status = '';
 		console.log("Token : "+token);
@@ -244,7 +244,7 @@
 				});
 
 				$buttonForAnswer.off().one('click', function () {
-
+					console.log('called');
 					$confirmModal.modal('hide');
 
 					sendTwilioEvents({
@@ -393,7 +393,7 @@
 	}
 
 	function callerHangup() {
-
+		console.log('caller hanged up');
 		$.ajax({
 			url: '/twilio/update_number_status',
 			type: 'POST',
@@ -423,6 +423,7 @@
 
 		device.disconnectAll();
 	}
+	
 
 	function callerMute(number) {
 		var conn = device.activeConnection();
