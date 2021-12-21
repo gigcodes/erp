@@ -919,6 +919,7 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList.log') }}">Mailinglist Log</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                             <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
