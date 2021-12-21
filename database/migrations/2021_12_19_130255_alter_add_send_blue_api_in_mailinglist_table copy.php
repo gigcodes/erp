@@ -13,10 +13,10 @@ class AlterAddSendBlueApiInStoreWebsitesTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
-            $table->string('send_in_blue_account')->nullable()->after("description");
+        Schema::table('mailinglists', function (Blueprint $table) {
+            $table->string('send_in_blue_account')->nullable()->after("remote_id");
             $table->string('send_in_blue_api')->nullable()->after("send_in_blue_account");
-            $table->string('send_in_blue_smtp_email_api')->nullable()->after("send_in_blue_api"); 
+           
          
         });
     }
@@ -28,10 +28,9 @@ class AlterAddSendBlueApiInStoreWebsitesTable extends Migration
      */
     public function down()
     {
-        Schema::table('store_websites', function (Blueprint $table) {
+        Schema::table('mailinglists', function (Blueprint $table) {
             $table->dropColumn('send_in_blue_api');
             $table->dropColumn('send_in_blue_account');
-            $table->dropColumn('send_in_blue_sms_email_api');
         });
     }
 }

@@ -51,7 +51,9 @@ class CreateMailinglistInfluencers extends Command
 
 	//	$influencers = \App\ScrapInfluencer::where('email', '!=', "")->limit(10)->get();
 //		dd($influencers);
-		$send_in_blue_apis=[];		
+		$send_in_blue_apis=[];	
+		$send_in_blue_account=[];		
+		$services=Service::pluck('name','id');
         $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
 
         /*foreach ($influencers as $influencer) {
@@ -60,13 +62,17 @@ class CreateMailinglistInfluencers extends Command
 	
         foreach ($websites as $website) { 
 			$send_in_blue_apis[$website->id]=$website->send_in_blue_api;
+			$send_in_blue_account[$website->id]=$website->send_in_blue_account;
+
 			$service = Service::find($website->mailing_service_id);
 			if($service){
 				$name = $website->title;
 				if ($name != '') {
 					$name = $name . "_" . date("d_m_Y");
+					$old_name=$name."_"."old_list";
 				} else {
 					$name = 'WELCOME_LIST_' . date("d_m_Y");
+					$old_name="WELCOME_LIST"."_"."old_list";
 				}
 
 				$mailingList = \App\Mailinglist::where('name', $name)->where('service_id', $website->mailing_service_id)->where("website_id", $website->id)->where('remote_id', ">", 0)->first();
@@ -77,6 +83,8 @@ class CreateMailinglistInfluencers extends Command
 						'name'       => $name,
 						'website_id' => $website->id,
 						'service_id' => $website->mailing_service_id,
+						'send_in_blue_api'=>$website->send_in_blue_api,
+						'send_in_blue_account'=>$website->send_in_blue_account,
 					]);
 				
 					if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) { 
@@ -226,6 +234,63 @@ class CreateMailinglistInfluencers extends Command
 						}	
 						/*** send welcome email to mailing list customers end**/						
                     }
+
+					// Added Code for the create maillist with backup
+					foreach ($this->mailList as $mllist) {
+						if (strpos(strtolower($services[$mllist->service_id]), strtolower('SendInBlue')) !== false) { 
+							$oldmailList = \App\Mailinglist::where('name', $old_name)->where("website_id", $mllist->website_id)->first();
+							
+							if (!empty($oldmailList)) {
+								$oldmailList = \App\Mailinglist::create([
+									'name'       => $name,
+									'website_id' =>$mllist->website_id,
+									'service_id' => $mllist->mailing_service_id,
+									'send_in_blue_api'=>$mllist->send_in_blue_api,
+									'send_in_blue_account'=>$mllist->send_in_blue_account,
+								]);
+							
+								$response = $this->callApi("https://api.sendinblue.com/v3/contacts/lists", "POST", $data = [
+									"folderId" => 1,
+									"name"     => $name,
+								],$mllist->send_in_blue_api);
+								
+								if (isset($response->id)) {
+									$oldmailList->remote_id = $response->id;
+									$oldmailList->save();
+								}
+								
+							}
+							if (!empty($influencers)){
+								foreach ($influencers as $list) {
+									$api_key=isset($send_in_blue_apis[$oldmailList->website_id])?$send_in_blue_apis[$oldmailList->website_id]:'';
+									$reqData=[
+										"email"      => $list->email,
+										"listIds"    => $mllist->remote_id ,
+																		];
+									$url="https://api.sendinblue.com/v3/contacts/lists/listId/contacts/remove";
+									$response = $this->callApi($url, "POST", $reqData,$api_key );
+
+									$reqData=[
+										"email"      => $list->email,
+										"listIds"    => $oldmailList->remote_id ,
+										"attributes" => ['firstname' => $list->name],
+										"updateEnabled" => true
+									];
+									$url="https://api.sendinblue.com/v3/contacts";
+									$response = $this->callApi($url, "POST", $reqData,$api_key );
+								}
+							}
+							foreach ($mllist->listCustomers() as $customer_id){
+								$oldmailList->listCustomers()->attach($customer_id);
+								$mailList->listCustomers()->detach($customer_id);
+
+							}
+						
+											
+							
+						}
+					}
+		
                 }
 
                 $list->read_status = 1;

@@ -16,6 +16,9 @@ use App\Http\Controllers\Controller;
 use App\MailinglistTemplate;
 use App\EmailEvent;
 use Validator;
+use  App\Loggers\MailinglistIinfluencersLogs;
+use App\Setting;
+
 
 class MailinglistController extends Controller
 {
@@ -24,9 +27,10 @@ class MailinglistController extends Controller
      */
     public function index()
     {		
-		$services = Service::all();
+		$services = Service::pluck("name","id");
         $list = Mailinglist::paginate(15);
         $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
+
         return view('marketing.mailinglist.index', compact('services', 'list','websites'));
     }
 
@@ -71,6 +75,7 @@ class MailinglistController extends Controller
             'name'=>'required',
             'subject'=>'required',
         ];
+
         $validation = Validator::make($request->all(), $rules);
         if ($validation->fails())
         {
@@ -120,6 +125,8 @@ class MailinglistController extends Controller
                     'website_id' => $website_id,
                     'service_id' => $request->service_id,
                     'remote_id' => $res->id,
+                    'send_in_blue_api'=>$store_website->send_in_blue_api,
+                    'send_in_blue_account'=>$store_website->send_in_blue_account,
                 ]);
             
             }
@@ -765,6 +772,7 @@ class MailinglistController extends Controller
 	}
 	
 	public function sendAutoEmails() {
+
 		$mailing_templates = MailinglistTemplate::where('auto_send', 1)->where('duration', '>', 0)->get();
 		foreach($mailing_templates as $mailing_item) { 
 			$now = Carbon::now();
@@ -783,11 +791,50 @@ class MailinglistController extends Controller
 				->whereNotIn('list_contacts.id', $spamedListContactIds)->whereNotNull('list_contacts.id')
 				->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'customers.name', 'list_contacts.id as list_contact_id')->get();
 				foreach($mailingLists as $mailingList) {
-					(new Mailinglist)->sendAutoEmails($mailingList, $mailing_item);
+                    $service = Service::find($mailingList->service_id)
+					(new Mailinglist)->sendAutoEmails($mailingList, $mailing_item,$service);
 				}
 			}
 		}
 	}
-	
+    public function getlog(Request $request)
+    {
+        if ($request->flow_name || $request->messages || $request->created_at) {
+
+            $query = MailinglistIinfluencersLogs::orderby('updated_at', 'desc')->select(['flow_logs.*','flows.flow_name'])
+            ->join('flows','flows.id','flow_logs.flow_id');
+
+           
+            if (request('messages') != null) {
+                $query->where('messages', 'LIKE', "%{$request->messages}%");
+            }
+
+            if (request('created_at') != null) {
+                $query->whereDate('created_at', request('created_at'));
+            }
+            if (request('flow_name') != null) {
+                $query->where('flows.flow_name', 'LIKE', "%{$request->flow_name}%");
+            }
+
+            
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
+        } else {
+
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = MailinglistIinfluencersLogs::orderby('created_at', 'desc')->paginate($paginate);
+
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('marketing.mailinglist.partials.logdata', compact('logs'))->render(),
+                'links' => (string) $logs->render(),
+                'count' => $logs->total(),
+            ], 200);
+        }
+
+        return view('marketing.mailinglist.log', compact('logs'));
+    }
 	
 }

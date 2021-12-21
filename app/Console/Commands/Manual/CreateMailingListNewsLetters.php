@@ -278,6 +278,8 @@ class CreateMailingListNewsLetters extends Command
 				'website_id' => $website->id,
 				'service_id' => 1,
 				'remote_id' => $res->id,
+                'send_in_blue_api'=>$website->send_in_blue_api,
+                'send_in_blue_account'=>$website->send_in_blue_account,
 			]);
 
 			$return_response['code'] = 200;

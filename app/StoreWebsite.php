@@ -91,7 +91,8 @@ class StoreWebsite extends Model
         'repository_id',
 		'semrush_project_id',
         'send_in_blue_account',
-        'send_in_blue_api'
+        'send_in_blue_api',
+        'send_in_blue_smtp_email_api'
 
     ];
 

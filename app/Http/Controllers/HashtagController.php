@@ -814,7 +814,7 @@ class HashtagController extends Controller
         $services = \App\Service::first();
         $service_id=$services->id;
         $influencers = \App\ScrapInfluencer::where('email','!=',"")->get();
-        $websites = \App\StoreWebsite::select('id','title','send_in_blue_api')->orderBy('id','desc')->get();
+        $websites = \App\StoreWebsite::select('id','title','send_in_blue_api','send_in_blue_account')->orderBy('id','desc')->get();
        
         $email_list=array();
         $email_list2=array();
@@ -879,6 +879,8 @@ class HashtagController extends Controller
                                  'service_id' => $service_id,
                                  'email' =>$email,
                                  'remote_id' =>$res->id,
+                                 'send_in_blue_api'=>$website->send_in_blue_api,
+                                 'send_in_blue_account'=>$website->send_in_blue_account,
                              ]);
                              $listIds[]=$res->id;
      

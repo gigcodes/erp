@@ -2689,6 +2689,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('facebook-broadcast', 'BroadcastController@facebook');
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
+    Route::get('mailinglist-log', 'MailinglistController@getlog')->name('mailingList');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
 
     Route::get('mailinglist/edit/{id}', 'MailinglistController@edit')->name('mailingList.edit');
