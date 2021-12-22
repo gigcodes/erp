@@ -2469,15 +2469,13 @@ class ScrapController extends Controller
             $query = ScrapPythonLog::orderby('updated_at', 'desc');
 
            
-            if (request('messages') != null) {
-                $query->where('messages', 'LIKE', "%{$request->messages}%");
-            }
+            
 
             if (request('created_at') != null) {
                 $query->whereDate('created_at', request('created_at'));
             }
-            if (request('flow_name') != null) {
-                $query->where('flows.flow_name', 'LIKE', "%{$request->flow_name}%");
+            if (request('website') != null) {
+                $query->where('website', 'LIKE', "%{$request->website}%");
             }
 
             

@@ -142,16 +142,16 @@
             //if(count > 0){    
              var formatedValue = e.date.format(e.date._f);
                 created_at = $('#created_date').val();
-                flow_name = $('#flow_name').val();
-                message = $('#message').val();
-                src = "{{ route('logging.flow.log') }}";
+                website = $('#website').val();
+               // message = $('#message').val();
+                src = "{{ route('get.python.log') }}";
                 $.ajax({
                     url: src,
                     dataType: "json",
                     data: {
                         created_at : created_at,
-                        flow_name : flow_name,
-                        message : message,
+                        website : website,
+                   
                       
                     },
                     beforeSend: function () {
@@ -178,11 +178,11 @@
 
 
         //Search    
-        src = "{{ route('logging.flow.log') }}";
+        src = "{{ route('get.python.log') }}";
         $(".search").autocomplete({
             source: function(request, response) {
-                message = $('#message').val();
-                flow_name = $('#flow_name').val();
+             
+                website = $('#website').val();
                 created_at = $('#created_date').val();
                 
                 $.ajax({
@@ -190,9 +190,8 @@
                         dataType: "json",
                         data: {
                             created_at : created_at,
-                            message : message,
-                            flow_name : flow_name,
-                        
+                            website : website,
+                            
                         },
                         beforeSend: function() {
                             $("#loading-image").show();
