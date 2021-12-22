@@ -89,7 +89,12 @@ class StoreWebsite extends Model
         'icon',
         'is_price_override',
         'repository_id',
-		    'semrush_project_id'
+		'semrush_project_id',
+        'logo_color',  
+        'logo_border_color',  
+        'text_color',   
+        'border_color',   
+        'border_thickness'
     ];
 
     const DB_CONNECTION = [

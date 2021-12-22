@@ -6,7 +6,7 @@
         <h2 class="page-heading">Quick Replies List</h2>
         <div class="pull-left">
             <div class="row">
-                <div class="col-md-12 ml-5">            
+                <div class="col-md-12 ml-sm-4">            
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-6 pd-sm">
@@ -44,11 +44,11 @@
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tr>
-                            <th width="2%" style="display:block;">ID</th>
-                            <th width="2%">Store website</th>
-                            <th width="25%">Category</th>
+                            <th width="2%">ID</th>
+                            <th width="10%">Store website</th>
+                            <th width="19%">Category</th>
                             <th width="10%">Reply</th>
-                            <th width="5%">Model</th>
+                            <th width="7%">Model</th>
                             <th width="15%">Updated On</th>
                             <th width="5%">Action</th>
                         </tr>

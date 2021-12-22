@@ -232,7 +232,7 @@ class ProductController extends Controller
         }
 
         // Run through query helper
-        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
+       $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -344,8 +344,9 @@ class ProductController extends Controller
 
         if ($request->get('user_id') > 0 && $request->get('submit_for_image_approval') == "on" ) {
             $newProducts = $newProducts->Join("log_list_magentos as llm", function ($join) use ($request) {
-                $join->on("llm.product_id", "products.id")
-                ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+                $join->on("llm.product_id", "products.id");
+       //         ->on('llm.id', '=', DB::raw("(SELECT max(id) from log_list_magentos WHERE log_list_magentos.product_id = products.id)"));
+
             });
                 $newProducts = $newProducts->where("llm.user_id", $request->get('user_id'));
                 $newProducts =   $newProducts->addSelect("llm.user_id as last_approve_user");
@@ -355,7 +356,8 @@ class ProductController extends Controller
             $newProducts = $newProducts->leftJoin("rejected_images as ri", function ($join) use ($request) {
                     $join->on("ri.product_id", "products.id");
            
-                    $join->where("ri.user_id", $request->get('user_id'))->where("ri.status", 0);
+                    //$join->where("ri.user_id", $request->get('user_id'))->where("ri.status", 0);
+                    $join->where("ri.user_id", $request->get('user_id'));
                 });
                 $newProducts =   $newProducts->addSelect("rejected_images.user_id as rejected_user_id","rejected_images.created_at as rejected_date");
         }
@@ -982,9 +984,12 @@ class ProductController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    $category_tree[$parent->parent_id][$parent->id][$category->id];
+                   
+                    if(isset($category_tree[$parent->parent_id]) && isset($category_tree[$parent->parent_id] [$parent->id])) {
+                         @$category_tree[$parent->parent_id][$parent->id][$category->id];
+                    }
                 } else {
-                    $category_tree[$parent->id][$category->id] = $category->id;
+                    @$category_tree[$parent->id][$category->id] = $category->id;
                 }
             }
 
@@ -1001,14 +1006,14 @@ class ProductController extends Controller
         $type = '';
         $assigned_to_users = '';
 
-        if ($request->brand[0] != null) {
+        if (isset($request->brand[0]) && $request->brand[0] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
         }
 
-        if ($request->color[0] != null) {
+        if (isset($request->color[0]) && $request->color[0] != null) {
             $newProducts = $newProducts->whereIn('color', $request->get('color'));
         }
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (isset($request->category) && $request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
@@ -3248,6 +3253,7 @@ class ProductController extends Controller
             //
         }
 
+    
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
         if (count($websiteArrays) == 0) {
@@ -3263,15 +3269,28 @@ class ProductController extends Controller
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         if (!empty($r) && !empty($g) && !empty($b)) {
                             $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size);
+                            $colors[] = array(
+                                'code' => $hexcode, 
+                                'color' => $website->cropper_color_name, 
+                                'size' => $website->cropping_size,
+                                "store"=>$website->title,
+                                "logo_color"=>$website->logo_color,
+                                "logo_border_color"=>$website->logo_border_color,
+                                "text_color"=>$website->text_color,
+                                "border_color"=>array('color'=> $website->border_color, 'thickness'=> $website->border_thickness )
+                            );
+
                         }
                     }
                 }
+
             }
         }
         if (!isset($colors)) {
             $colors = [];
         }
+
+
         if ($parent == null && $parent == '') {
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -3299,6 +3318,7 @@ class ProductController extends Controller
                 'category' => "$parent $child",
                 'colors' => $colors,
             ];
+
 
             $http = CropImageGetRequest::create([
                 'product_id' => $product->id,
@@ -3423,13 +3443,15 @@ class ProductController extends Controller
                     if ($productMediacount <= $storeWebCount) {
                         $store_websites = StoreWebsite::where('cropper_color', "%" . $request->get('color'))->first();
                         if ($store_websites !== null) {
-                            $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                                ->where('product_id', $product->id)->exists();
-                            if (!$exist) {
-                                SiteCroppedImages::create([
-                                    'website_id' => $store_websites->id,
-                                    'product_id' => $product->id,
-                                ]);
+                            if(isset($req["store"]) && $req["store"] == $store_websites->title ){
+                                $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                                    ->where('product_id', $product->id)->exists();
+                                if (!$exist) {
+                                    SiteCroppedImages::create([
+                                        'website_id' => $store_websites->id,
+                                        'product_id' => $product->id,
+                                    ]);
+                                }
                             }
                         }
                     }
@@ -4674,10 +4696,11 @@ class ProductController extends Controller
             ->groupBy("brand", "category")
             ->limit($limit)
             ->get();
-
+       
         foreach ($products as $key => $product) {
-
+   //         dd("testing");
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+     //       dd($websiteArrays);
             if (!empty($websiteArrays)) {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {

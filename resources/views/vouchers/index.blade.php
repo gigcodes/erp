@@ -144,8 +144,10 @@
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m-Y') }}</td>
               <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
-              <td>{{ $task->estimate_minutes }}</td>
-              <td>{{ $task->rate_estimated }}</td>
+              <td>{{ $task->estimate_minutes }} </td>
+              <td>  {{ $task->rate_estimated }} 
+                  <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-calculation" title="Show History" data-id="{{ $task->id }}"><i class="fa fa-info-circle"></i></button> 
+              </td>
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
@@ -350,7 +352,39 @@
             </div>
         </div>
     </div>
-
+    <div id="show_counting" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Show Counting</h4>
+                </div>
+                <div class="modal-body">
+                <table class="table table-bordered">
+                      <tr>
+                        <td width="65%">Total Minutes</td>
+                        <td class="total_minutes"></td>
+                      </tr>
+                      <tr>
+                        <td width="65%">Worked in Hours</td>
+                        <td class="worked_in_hour"></td>
+                      </tr>
+                      <tr>
+                        <td width="65%">Rate Per Hour</td>
+                        <td class="rate_per_hour"> </td>
+                      </tr>
+                      <tr>
+                        <td width="65%"> Total (Worked in Hours * Rate Per Hour)</td>
+                        <td class="total"></td>
+                      </tr>
+                    </table>
+                      
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -494,6 +528,24 @@
     //     enableFiltering: true,
     //    });
     // });
+    $(document).on('click', '.show-calculation', function() {
+        var issueId = $(this).data('id');
+  
+        $.ajax({
+            url: "/voucher/"+issueId,
+            data: {id: issueId},
+            success: function (data) {
+              $(".total_minutes").html(data.worked_minutes);
+              $(".worked_in_hour").html(data.worked_minutes/60);
+              $(".rate_per_hour").html(data.hourly_rate);
+              $(".total").html(data.rate_estimated);
+              
+              $("#show_counting").modal();   
+            }
+        });
+    
+  
+    });
 
   $(document).on("click",".btn-save-documents",function(e){
     e.preventDefault();

@@ -127,15 +127,17 @@ class SiteDevelopmentController extends Controller
         $allUsers = User::select('id', 'name')->get();
 
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
+        $store_websites = StoreWebsite::pluck("title","id")->toArray();
+        
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'));
     }
 
     public function SendTask(Request $request)

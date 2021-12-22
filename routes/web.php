@@ -159,7 +159,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     Route::get('flow-logs', 'FlowLogController@index')->name('logging.flow.log');
     Route::get('flow-logs-detail', 'FlowLogController@details')->name('logging.flow.detail');
-   
+    
 
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
@@ -330,7 +330,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
-    Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
+    Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct')->name('product.listing.magento.remark');;
     Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
     Route::post('product/crop_rejected_status', 'ProductController@crop_rejected_status');
     Route::post('product/all_crop_rejected_status', 'ProductController@all_crop_rejected_status');
@@ -878,6 +878,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
+    Route::get('task/AssignTaskToUser', 'TaskModuleController@AssignTaskToUser')->name('task.AssignTaskToUser'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
     Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
     Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
     Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
@@ -928,7 +929,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
-
+    Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
     Route::resource('learning', 'LearningModuleController');
@@ -1630,6 +1631,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendors.payments.update');
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendors.payments.destroy');
     Route::resource('vendors', 'VendorController');
+    Route::post('vendors/update-status', 'VendorController@updateStatus')->name('vendor.status.update');
+    
+    Route::get('vendor/status/history', 'VendorController@vendorStatusHistory')->name('vendor.status.history.get');
+    
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
     Route::get('vendor-search-email', 'VendorController@vendorSearchEmail')->name('vendor-search-email');
@@ -1642,6 +1647,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::post('vendor/changeWhatsapp', 'VendorController@changeWhatsapp')->name('vendor.changeWhatsapp');
+    Route::post('vendor/status/create', 'VendorController@statusStore')->name('vendor.status.store');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', 'HubstaffPaymentController@index')->name('hubstaff-payment.index');
@@ -1888,8 +1894,8 @@ Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
 Route::post('twilio/events', 'TwilioController@twilioEvents');
 
-Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
-Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
+Route::any('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+Route::any('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
 Route::post('twilio/twilio_order_status_and_information_on_call', 'TwilioController@twilio_order_status_and_information_on_call')->name('twilio_order_status_and_information_on_call');
 Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@twilio_return_refund_exchange_on_call')->name('twilio_return_refund_exchange_on_call');
 
@@ -2269,8 +2275,10 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
     Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
+    Route::get('/task-list-multiple', 'ScrapStatisticsController@taskListMultiple')->name('scrap.task-list-multiple');
     Route::get('/killed-list', 'ScrapStatisticsController@killedList')->name('scrap.killed-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
+    Route::post('/{id}/create-multiple', 'ScrapStatisticsController@taskCreateMultiple')->name('scrap.task-list.create-multiple');
     Route::get('change-user','ScrapStatisticsController@changeUser')->name('scrap.changeUser');
 
     Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
@@ -2582,8 +2590,8 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::post('category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing');
 
     Route::post('task/change/status', 'TaskModuleController@updateStatus')->name('task.change.status');
-
     Route::post('task/status/create', 'TaskModuleController@createStatus')->name('task.status.create');
+    
 });
 
 // pages notes started from here
@@ -3102,6 +3110,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
 
     Route::get('twilio/call-management', 'TwilioController@callManagement')->name('twilio-call-management');
+    Route::get('twilio/speech-to-text-logs', 'TwilioController@speechToTextLogs')->name('twilio-speech-to-text-logs');
     Route::get('twilio/incoming-calls/{number_sid}/{number}', 'TwilioController@getIncomingList')->name('twilio-incoming-calls');
     Route::get('twilio/incoming-calls-recording/{call_sid}', 'TwilioController@incomingCallRecording')->name('twilio-incoming-call-recording');
 
@@ -3111,6 +3120,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/reference', 'MissingBrandController@reference')->name('missing-brands.reference');
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
+
+	Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
 
     //subcategory route
 
@@ -3247,6 +3258,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
 //Translation
 Route::prefix('translation')->middleware('auth')->group(function () {
     Route::get('/list', 'TranslationController@index')->name('translation.list');
+    Route::get('translate-logs', 'TranslationController@translateLog')->name('translation.log');
     Route::DELETE('/delete/{id?}', 'TranslationController@destroy')->name('translation.destroy');
     Route::get('/add', 'TranslationController@create')->name('translation.add');
     Route::get('/{id?}/edit', 'TranslationController@edit')->name('translation.edit');
@@ -3328,6 +3340,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/database-log', 'ScrapLogsController@databaseLog');
 });
+
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix-url', 'gtmetrix\WebsiteStoreViewGTMetrixController@website_url')->name('gt-metrix-url');
 Route::post('gtmetrix-url/add', 'gtmetrix\WebsiteStoreViewGTMetrixController@add_website_url')->name('gt-metrix-add-url');
@@ -3470,9 +3483,13 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 
 Route::get('command', function () {
-	
+
   //  \Artisan::call('migrate');
      \Artisan::call('get:pythonLogs');
+
+   // \Artisan::call('migrate');
+  //   \Artisan::call('meeting:getrecordings');
+
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/

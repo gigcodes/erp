@@ -10,6 +10,7 @@ class TwilioLog extends Model
         'account_sid', 
         'call_sid', 
         'phone',
-        'log'
+        'log',
+        'type'
 	];
 }

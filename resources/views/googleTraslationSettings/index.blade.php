@@ -14,6 +14,36 @@
     </div>
 
     @include('partials.flash_messages')
+    <div id="ErrorLogModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Translation Error Log Detail</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                    
+                  <th style="width:7%">Error Code</th>
+                  <th style="width:30%">Message </th>
+                  <th style="width:20%">Domain</th>
+                  <th style="width:30%">Reason</th>
+                  <th style="width:10%">Date</th>
+                </thead>
+                <tbody class="error-log-data">
+    
+                </tbody>
+              </table>
+    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
     <div id="addGooleSetting" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -114,6 +144,8 @@
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-xs text-dark pull-left"><i class="fa fa-trash"></i></button>
                 </form>
+                <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $setting->id}}"><i class="fa fa-eye"></i></button>
+                
               </td>
             </tr>
           @endforeach
@@ -135,5 +167,24 @@
     function copyDataToClipBoard(data) {
       navigator.clipboard.writeText(data);
     }
+    $(document).ready(function () {
+          
+      $(document).on("click", ".show_error_logs", function() {
+          var id = $(this).data('id');
+          $.ajax({
+                method: "GET",
+                url: "{{ route('translation.log') }}" ,
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "id" : id,
+                },
+                dataType: 'html'
+              }).done(function(result) {
+                $('#ErrorLogModal').modal('show');
+              $('.error-log-data').html(result);
+          });
+
+      });
+    });
 </script>
 @endsection

@@ -35,8 +35,8 @@
 </div>
 <form action="" method="get">   
     
-        <div class="col-md-2">
-            <label >  website: </label>
+        <div class="col-md-1">
+           
             <div class="form-group">
                 <select name="website" class="form-control">
                     <option value=""> website</option>
@@ -47,7 +47,7 @@
             </div>
         </div>
         <div class="col-md-1">
-            <label > Browser: </label>
+            
             <div class="form-group">
                 <select name="browser" class="form-control">
                     <option value=""> Browser</option>
@@ -58,7 +58,7 @@
             </div>
         </div>
         <div class="col-md-1">
-            <label > Os: </label>
+           
             <div class="form-group">
                 <select name="os" class="form-control">
                     <option value=""> Os</option>
@@ -68,8 +68,8 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-2">
-            <label > Country: </label>
+        <div class="col-md-1">
+            
             <div class="form-group">
                 <select name="country" class="form-control">
                     <option value=""> Country</option>
@@ -80,7 +80,7 @@
             </div>
         </div>
         <div class="col-md-1">
-            <label > User Type : </label>
+           
             <div class="form-group">
                 <select name="user_type" class="form-control">
                     <option value=""> User Type</option>
@@ -92,19 +92,19 @@
         </div>
      
         <div class="col-md-2">
-            <label >Start date : </label>
+            
             <div class="form-group">
                 <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
             </div>
         </div>
         <div class="col-md-2">
-            <label >End date : </label>
+            
             <div class="form-group">
                 <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
             </div>
         </div>
-        <div class="form-group col-md-1 pt-4" style="">
-            <label >  </label>
+        <div class="form-group col-md-1 pt-2" style="">
+           
             <button class="btn btn-image search"><img src="https://erp.theluxuryunlimited.com/images/search.png" alt="Search" style="cursor: nwse-resize; width: 0px;"></button>
             <a href="{{ url('/display/analytics-data') }}" class="btn btn-image">
                 <i class="fa fa-history" aria-hidden="true"></i>
@@ -337,13 +337,13 @@
         </thead>
         <tbody>
             <tr>
-                <td class="Website-task">theunlimitedlulxury.com</td>
+                <td class="Website-task"title="theunlimitedlulxury.com">theunlimitedlulxury.com</td>
                 <td>chrome</td>
                 <td>windows</td>
-                <td>india</td>
+                <td class="Website-task"title="india">india</td>
                 <td>IN</td>
-                <td class="Website-task">Returuning Visitor</td>
-                <td class="Website-task">video/6254471?key=84644b22536310e75ea9cc07535f06a1</td>
+                <td class="Website-task"title="Returuning Visitor">Returuning Visitor</td>
+                <td class="Website-task"title="video/6254471?key=84644b22536310e75ea9cc07535f06a1">video/6254471?key=84644b22536310e75ea9cc07535f06a1</td>
                 <td>22.667</td>
                 <td>4</td>
                 <td>2</td>
@@ -353,7 +353,7 @@
                 <td></td>
                 <td></td>
                 <td>2</td>
-                <td class="Website-task">2021-11-25</td>
+                <td class="Website-task"title="2021-11-25">2021-11-25</td>
             </tr>
             @foreach ($google_analytics_data as $data)
                 <tr>

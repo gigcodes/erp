@@ -110,6 +110,25 @@ class TwilioController extends FindByNumberController
      * @uses Auth
      * @uses ClientToken
      */
+	 
+	public function acceptCall(Request $request) {
+		$response = new VoiceResponse();
+		 $url = 'https://'.$request->getHost() . "/twilio/recordingStatusCallback"; 
+        // $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
+         $actionurl = 'https://'.$request->getHost(). "/twilio/handleDialCallStatus";
+		 //$recordurl = 'https://'.$request->getHost() . "/twilio/storetranscript";
+		 $dial = $response->dial('+919463488313',[
+                       'record' => 'true',
+                       'recordingStatusCallback' => $url,
+                       'action' => $actionurl,
+                       'timeout' => '60'
+                  ]);
+
+       $dial->client(10410);
+
+		return $response;
+	}
+	
     public function createToken(Request $request)
     {
 //        return response()->json(['agent' => \Auth::check()]);
@@ -128,9 +147,8 @@ class TwilioController extends FindByNumberController
                 $twilio_active_credential = StoreWebsiteTwilioNumber::join('twilio_active_numbers','twilio_active_numbers.id','store_website_twilio_numbers.twilio_active_number_id')
                 ->where('store_website_twilio_numbers.store_website_id',$check_is_agent->store_website_id)
                 ->select('twilio_active_numbers.twilio_credential_id')
-                ->first();
-
-                Log::channel('customerDnd')->info('twilio_active_credential ==> '.$twilio_active_credential->twilio_credential_id);
+                ->first(); 
+				 Log::channel('customerDnd')->info('twilio_active_credential ==> '.$twilio_active_credential->twilio_credential_id);
 
                 $devices = TwilioCredential::where('status',1)->whereNotNull('twiml_app_sid')->where('id',$twilio_active_credential->twilio_credential_id)->get();
 
@@ -196,7 +214,7 @@ class TwilioController extends FindByNumberController
 
 	public function twilioEvents(Request $request, Client $twilioClient) {
 		$missedCallEvents = config('services.twilio')['missedCallEvents'];
-
+		TwilioLog::create(['log'=>'twilio_event'.json_encode($request->input())]);
         $eventTypeName = $request->input("EventType");
         if (in_array($eventTypeName, $missedCallEvents) and strtolower($eventTypeName) == "$eventTypeName") {
             $taskAttr = $this->parseAttributes("TaskAttributes", $request);
@@ -281,7 +299,7 @@ class TwilioController extends FindByNumberController
 		$number = $request->get("From");
 		$call_sid = $request->get("CallSid");
 		$account_sid = $request->get("AccountSid");
-		TwilioLog::create(['log'=>'Showing user profile for IVR: ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
+		TwilioLog::create(['log'=>'Call received.', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
         //Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 		
         $count = $request->get("count");
@@ -322,7 +340,7 @@ class TwilioController extends FindByNumberController
         TwilioLog::create(['log'=>'Number From :: >> '.$request->get("Called"), 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
         Log::channel('customerDnd')->info(' Number From :: >> '.$request->get("Called"));
         $call_from = TwilioActiveNumber::where('phone_number',$request->get("Called"))->first();
-
+		  
         if($call_from)
         {
             $storewebsitetwiliono_data = StoreWebsiteTwilioNumber::where('twilio_active_number_id', '=', $call_from->id)->first();
@@ -449,7 +467,7 @@ class TwilioController extends FindByNumberController
 						);
 		
                         $gather->say(
-                            'Currently All Lines are bussy' .
+                            'Currently All Lines are bussy 451' .
                             'Please press 1 for a leave a message. Press 2 for a ' .
                             'Hold a Call response.',
                             ['loop' => 3]
@@ -492,13 +510,14 @@ class TwilioController extends FindByNumberController
                     }
 
                     $clients = $this->getConnectedClients('customer_call_agent');
-
+				TwilioLog::create(['log'=>json_encode($clients), 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
+			           
                     $is_available = 0;
                     foreach ($clients as $client) {
                         $user_details = User::find($client['agent_id']);
                         $is_online = $user_details->isOnline();
 
-                        TwilioLog::create(['log'=>'agent id >>'.$client['agent_id'].' &  is_available >>'.$is_available.'  & is_online >> '.$is_online, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
+                        TwilioLog::create(['log'=>'500 agent id >>'.$client['agent_id'].' &  is_available >>'.$is_available.'  & is_online >> '.$is_online, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 			            //Log::channel('customerDnd')->info('agent id >>'.$client['agent_id'].' &  is_available >>'.$is_available.'  & is_online >> '.$is_online);
                         
                         if($is_available == 0 && $is_online)
@@ -575,8 +594,8 @@ class TwilioController extends FindByNumberController
 
                     if($is_available == 0)
                     {
-                    
-                        TwilioLog::create(['log'=>' Not Available ---- >> ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
+						//.json_encode($check_agent_available)
+                        TwilioLog::create(['log'=>' Not Available ---- >>579 ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 						//Log::channel('customerDnd')->info(' Not Available ---- >> ');
 
                         $call_history = TwilioCallData::updateOrCreate([
@@ -754,7 +773,7 @@ class TwilioController extends FindByNumberController
                         );
                 
                         $gather->say(
-                            'Currently All Lines are bussy' .
+                            'Currently All Lines are bussy 756' .
                             'Please press 1 for a leave a message. Press 2 for a ' .
                             'Hold a Call response.',
                             ['loop' => 3]
@@ -801,6 +820,7 @@ class TwilioController extends FindByNumberController
                     $clients = $this->getConnectedClients('customer_call_agent');
 
                     // Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
+					TwilioLog::create(['log'=>json_encode($clients)]);
                     /** @var Helpers $client */
                     $is_available = 0;
                     foreach ($clients as $client) {
@@ -845,7 +865,7 @@ class TwilioController extends FindByNumberController
                             TwilioLog::create(['log'=>' is_available >> '.$is_available, 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 							//Log::channel('customerDnd')->info(' is_available >> '.$is_available);
 
-                            if($is_available == 1)
+                            if($is_available == 1 )
                             {
                                 $dial = $response->dial('',[
                                     'record' => 'true',
@@ -890,7 +910,7 @@ class TwilioController extends FindByNumberController
                     if($is_available == 0)
                     {
                     
-                        TwilioLog::create(['log'=>' Not Available ---- >> ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
+                        TwilioLog::create(['log'=>' Not Available ---- >>893 ', 'account_sid'=> $account_sid,'call_sid'=>$call_sid, 'phone'=>$number]);
 						//Log::channel('customerDnd')->info(' Not Available ---- >> ');
                         // $call_history_params = [
                         //     'call_sid' => ($request->get("CallSid") ?? 0),
@@ -990,8 +1010,8 @@ class TwilioController extends FindByNumberController
 			}
 			else if($selectedOption == 2)
 			{
-				$response->redirect(route('ivr', ['count'=>3], false));
-		
+				//$response->redirect(route('ivr', ['count'=>3], false));
+		       $response->enqueue();
 				return $response;
 			}else{
 
@@ -1006,10 +1026,9 @@ class TwilioController extends FindByNumberController
 				$recordedText = $inputs['SpeechResult'];
 			} else {
 				$recUrl = $inputs['RecordingUrl'];
-				//$recUrl = "https://erpdev3.theluxuryunlimited.com/audios/audio-file.flac"; 
 				$recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
 			}
-			//$recordedText = "Customer_Care_Contact_Us"; //dummy			
+					
 			$reply = ChatbotQuestion::where('value', 'like', '%'.$recordedText.'%')->orWhere('value','like', '%'.str_replace(' ', '_',$recordedText).'%')->pluck('suggested_reply')->first();			
 			$response = new VoiceResponse();
 			if($reply == '' || $reply == null) {
@@ -1019,10 +1038,15 @@ class TwilioController extends FindByNumberController
 				);
 			} else {
 				$response->Say(
-				   $reply,
+				    str_replace('_', ' ', $reply),
 					['voice' => 'alice', 'language' => 'en-GB']
 				);
 			}
+			
+			TwilioLog::create(
+				['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+			);
+			 
 			$response->say(
 				'Returning to the main menu',
 				['voice' => 'Alice', 'language' => 'en-GB']
@@ -1248,17 +1272,16 @@ class TwilioController extends FindByNumberController
 				}
 			}
 		} else {
-			TwilioLog::create(['log'=>json_encode($inputs)]);
 			if(isset($inputs['SpeechResult'])) {
-				$recordedText = $inputs['SpeechResult'];
+				$recordedText = str_replace('.','',$inputs['SpeechResult']);
 			} else {
 				$recUrl = $inputs['RecordingUrl'];
 				//$recUrl = "https://erpdev3.theluxuryunlimited.com/audios/audio-file.flac"; 
 				$recordedText = (new CallBusyMessage)->convertSpeechToText($recUrl);
 			}
-			//$recordedText = "Customer_Care_Contact_Us"; //dummy			
-			$reply = ChatbotQuestion::where('value', 'like', '%'.strtolower($recordedText).'%')->orWhere('value','like', '%'.str_replace(' ', '_',strtolower($recordedText)).'%')->pluck('suggested_reply')->first();			
+			$reply = ChatbotQuestion::where(\DB::raw('lower(value)'), 'like', '%'.strtolower($recordedText).'%')->orWhere(\DB::raw('lower(value)'),'like', '%'.str_replace(' ', '_',strtolower($recordedText)).'%')->pluck('suggested_reply')->first();			
 			$response = new VoiceResponse();
+			
 			if($reply == '' || $reply == null) {
 				$response->Say(
 				   'Invalid Input '.$recordedText,
@@ -1266,10 +1289,13 @@ class TwilioController extends FindByNumberController
 				);
 			} else {
 				$response->Say(
-				   $reply,
+				   str_replace('_', ' ', $reply),
 					['voice' => 'alice', 'language' => 'en-GB']
 				);
 			}
+			TwilioLog::create(
+				['log'=>'Speech - '.$recordedText.'<br> Response - '. $reply, 'account_sid'=> ($request->input("AccountSid") ?? 0),'call_sid'=>($request->input("CallSid") ?? 0), 'phone'=>($request->input("From") ?? 0), 'type'=>'speech']
+			);
 			$response->redirect(route('ivr', ['count'=>2], false));				
 			return $response;
 		}
@@ -1716,6 +1742,20 @@ class TwilioController extends FindByNumberController
         }
     }
 
+    public function addNumber(Request $request)
+    {
+        $agent_id = $request->get("authid");
+        $number = $request->get("number");
+        $status = $request->get("status");
+        $add_number = \App\TwilioCurrentCall::create(['agent_id'=>$agent_id,'number'=>$number,'status'=>$status]);
+    }
+
+    public function updateNumberStatus(Request $request)
+    {
+        $agent_id = $request->get("authid");
+        $number = $request->get("number");
+        $update_number = \App\TwilioCurrentCall::where(['agent_id'=>$agent_id,'number'=>$number,'status'=>1])->update(['status'=>0]);
+    }
 
     public function change_agent_call_status(Request $request)
     {
@@ -2040,6 +2080,7 @@ class TwilioController extends FindByNumberController
         // $hods = Helpers::getUsersByRoleName('HOD of CRM');
         // $hods = Helpers::getUsersRoleName('crm');
         $hods = User::Join('twilio_agents','twilio_agents.user_id','users.id')->where('twilio_agents.status','1')->select('users.*')->get();
+		TwilioLog::create(['log'=>json_encode($hods)]);
         // Log::channel('customerDnd')->info('hods:::::::::'.$hods);
         Log::channel('customerDnd')->info('getConnectedClients >> hods:::::::::');
         $andy = User::find(216);
@@ -2386,9 +2427,9 @@ class TwilioController extends FindByNumberController
      * @return \Illuminate\Http\Response
      * @Rest\Post("/twilio/hangup")
      */
-    public function showHangup()
+    public function showHangup(Request $request)
     {
-        // $response = new Twiml();
+        TwilioLog::create(['log'=>json_encode($request->input())]);
         $response = new VoiceResponse();
         $response->Say(
             'Thanks for your message. Goodbye',
@@ -2521,9 +2562,8 @@ class TwilioController extends FindByNumberController
             //get account details
             $check_account = TwilioCredential::where(['id' => $id])->where('twiml_app_sid','!=',null)->firstOrFail();
             $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
-      
-		   $store_websites = StoreWebsite::all();
-            $customer_role_users = RoleUser::where(['role_id' => 27])->with('user')->get();
+		    $store_websites = StoreWebsite::all();
+            $customer_role_users = RoleUser::where(['role_id' => 1])->with('user')->get();
             $workspace = TwilioWorkspace::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
             // $worker = TwilioWorker::where('twilio_credential_id', '=', $id)->where('deleted',0)->get();
 
@@ -2852,6 +2892,7 @@ class TwilioController extends FindByNumberController
 
     public function eventsFromFront(Request $request){
 //        dump($request->all());
+		TwilioLog::create(['log'=>'twilio_front_event'.json_encode($request->input())]);
         $status = $request->status ?? null;
         $phone = str_replace('+','',$request->From??'+');
         $call_id = $request->CallSid;
@@ -2985,7 +3026,6 @@ class TwilioController extends FindByNumberController
         ]);
         return new JsonResponse(['status' => 1, 'message' => 'Time Set Successfully']);
     }
-
 
     public function getWebsiteAgent(Request $request){
         
@@ -3523,4 +3563,17 @@ class TwilioController extends FindByNumberController
 		$twilioLogs = $twilioLogs->paginate(20);		
 	    return view('twilio.erp_logs', compact('twilioLogs','input'));
     }
+	
+	public function speechToTextLogs(Request $request) {
+		$input = $request->input();
+		$twilioLogs = TwilioLog::where('type', 'speech')->orderBy('id', 'desc');
+		if(isset($input['caller'])) {
+			$twilioLogs = $twilioLogs->where('phone', 'like', '%'. $input['caller'].'%');
+		}
+		if(isset($input['log'])) {
+			$twilioLogs = $twilioLogs->where('log', 'like', '%'. $input['log'].'%');
+		}
+		$twilioLogs = $twilioLogs->paginate(20);		
+	    return view('twilio.speech_to_text_logs', compact('twilioLogs','input'));
+	}
 } 

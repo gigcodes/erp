@@ -41,6 +41,7 @@ use Exception;
 use Response;
 use App\Hubstaff\HubstaffActivity;
 use App\Sop;
+use App\TaskUserHistory;
 
 
 class TaskModuleController extends Controller
@@ -60,12 +61,13 @@ class TaskModuleController extends Controller
 
     public function index(Request $request)
     {
+
         if ($request->input('selected_user') == '') {
             $userid = Auth::id();
-            $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (assign_from = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
             $userid = $request->input('selected_user');
-            $userquery = ' AND (master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+            $userquery = ' AND (master_user_id = ' . $userid . ' OR  second_master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
         
         if (!$request->input('type') || $request->input('type') == '') {
@@ -818,7 +820,9 @@ class TaskModuleController extends Controller
                 if($user_id!=0){
                     $q->where('tasks.assign_to', $user_id)->orWhere("tasks.master_user_id", $user_id);
                 }
-                $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
+             ///   $q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
+                $q->whereIn('tasks.id', $selected_issue);
+                
             });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
@@ -2422,9 +2426,23 @@ class TaskModuleController extends Controller
             ], 500);
         }
        
+        if($request->get("lead") == '1'){
+            $old_id=$issue->master_user_id;
+            if (!$old_id) {
+                $old_id = 0;
+            }
+            $issue->master_user_id = $masterUserId;
+            $task_type="leaddeveloper";
 
-        $issue->master_user_id = $masterUserId;
-
+        } else {
+            $old_id=$issue->second_master_user_id;
+            if (!$old_id) {
+                $old_id = 0;
+            }
+            $issue->second_master_user_id = $masterUserId;
+            $task_type="second_leaddeveloper";
+        }
+        
         $issue->save();
         
         // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
@@ -2438,10 +2456,7 @@ class TaskModuleController extends Controller
         }
         $message = "#" . $issue->id . ". " . $issue->task_subject . ". " . $issue->task_details;
         $summary = substr($message, 0, 200);
-
-        
-
-        $hubstaffTaskId = $this->createHubstaffTask(
+      $hubstaffTaskId = $this->createHubstaffTask(
             $summary,
             $hubstaffUserId,
             $hubstaff_project_id
@@ -2458,6 +2473,14 @@ class TaskModuleController extends Controller
             $task->summary = $message;
             $task->save();
         }
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\Task';
+        $taskUser->model_id = $issue->id;
+        $taskUser->old_id = ($old_id=="")?0:$old_id;
+        $taskUser->new_id = $masterUserId;
+        $taskUser->user_type = $task_type;
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
         return response()->json([
             'status' => 'success'
         ]);
@@ -3081,6 +3104,74 @@ class TaskModuleController extends Controller
   		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
 
+    public function AssignTaskToUser(Request $request){
+        $task = Task::find($request->get('issue_id'));
+        $old_id = $task->assign_to;
+        if (!$old_id) {
+            $old_id = 0;
+        }else{
+            DB::delete('delete from task_users where task_id = ? AND user_id = ? AND type = ?', array($task->id,$old_id, User::class));
+     }
+        $task->assign_to = $request->get('user_id');
+        $task->save();
+    //    $task->users()->attach([$request->input('assign_to') => ['type' => User::class]]);
+
+
+             
+        //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+      $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+        $assignedUser = HubstaffMember::where('user_id', $request->input('user_id'))->first();
+        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+      
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $taskSummery = substr($message, 0, 200);
+              
+      
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $taskSummery,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
+      
+        if ($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
+        if ($hubstaffUserId) {
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
+            $task->summary = $message;
+            $task->save();
+        }
+        
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\Task';
+        $taskUser->model_id = $task->id;
+        $taskUser->old_id = $old_id;
+        $taskUser->new_id = $request->get('user_id');
+        $taskUser->user_type = 'developer';
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
+
+
+        $values = array('task_id' => $request->get('issue_id'),'user_id' => $request->get('user_id'), 'type' => 'App\User');
+        DB::table('task_users')->insert($values);
+
+        return response()->json(['status' => 'success']);
+    }   
+
   /**
      * return branch name or false
      */
@@ -3120,6 +3211,26 @@ class TaskModuleController extends Controller
             }
             return false;
         }
+    }
+    public function getUserHistory(Request $request)
+    {
+        $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+        
+        foreach ($users as $u) {
+            $old_name = null;
+            $new_name = null;
+            if ($u->old_id) {
+                $old_name = User::find($u->old_id)->name;
+            }
+            if ($u->new_id) {
+                $new_name = User::find($u->new_id)->name;
+            }
+            $u->new_name = $new_name;
+            $u->old_name = $old_name;
+        }
+        return response()->json([
+            'users' => $users
+        ], 200);
     }
 
    
