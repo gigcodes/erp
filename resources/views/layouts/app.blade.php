@@ -435,6 +435,10 @@ if (!empty($notifications)) {
 										<li class="nav-item">
 											<a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
 										</li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('product.templates.log') }}">Product Template Log</a>
+                                        </li>
+                                        
 									</ul>
 								</li>
 

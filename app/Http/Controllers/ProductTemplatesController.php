@@ -13,6 +13,7 @@ use App\Template;
 use App\Category;
 use App\Product;
 use App\StoreWebsite;
+use App\ProductTemplateLog;
 
 class ProductTemplatesController extends Controller
 {
@@ -23,6 +24,8 @@ class ProductTemplatesController extends Controller
      */
     public function index(Request $request)
     {
+
+        
         //$productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
         $images = $request->get('images', false);
         $productArr = null;
@@ -418,6 +421,7 @@ class ProductTemplatesController extends Controller
 
      public function create(Request $request)
     {
+       
         // dd( $request->store_website_id );
         $template = new \App\ProductTemplate;
         $params = request()->all();
@@ -541,7 +545,14 @@ class ProductTemplatesController extends Controller
                             $data[ "image" ] = $images;
                         }
                         \Log::info(json_encode($data,true));
-                        $response = \App\Helpers\GuzzleHelper::post(env("PYTHON_PRODUCT_TEMPLATES")."/api/product-template", $data,[]);
+                        $url=env("PYTHON_PRODUCT_TEMPLATES")."/api/product-template";
+                        $response = \App\Helpers\GuzzleHelper::post($url, $data,[]);
+                        $log = new ProductTemplateLog();
+                        $log->url=$url;
+                        $log->data=json_encode($data);
+                        $log->response=$response;
+                        $log->save();
+
                     }catch(\Exception $e) {
                         \Log::info("Product Templates controller : 541 ".$e->getMessage());
                     }
@@ -675,5 +686,9 @@ class ProductTemplatesController extends Controller
         curl_close($ch);
 
         return $response;
+    }
+    public function getlog(){
+        $template_logs=ProductTemplateLog::paginate(15);
+        return view("product-template.logs", compact('template_logs'));
     }
 }
