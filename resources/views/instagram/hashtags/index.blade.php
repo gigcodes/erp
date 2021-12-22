@@ -88,6 +88,8 @@ input:checked + .slider:before {
                     alert("{{Session::get('message')}}")
                 </script>
             @endif
+        <div>
+            <div class="col-md-12">
             <div class="row">
                 <div class="col-md-6">
                     
@@ -97,73 +99,66 @@ input:checked + .slider:before {
                                         <div class="col-md-5">
                                             <input name="term" type="text" class="form-control"
                                                    value="{{ isset($term) ? $term : '' }}"
-                                                   placeholder="Tag Name">
+                                                   placeholder="Tag Name"style="width: 300px;">
 
                                         </div>
-                                        <div class="col-md-1">
-                                            <input type="checkbox" name="priority">Priority  
+                                        <div class="col-md-3 ml-5"style="display: flex;">
+                                             <label class="mt-2 col-ml-sm-3">Priority </label>
+                                            <input type="checkbox" name="priority"class=" mt-3"style="width: 300px;"> 
                                         </div>
-                                       <div class="col-md-6">
+                                       <div class="col-md-1 mt-2">
                                         <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                                         </div>
 
                                     </div>
                                 </div>
                             </form>
-                    
-                </div>
+                    </div>
                 <div class="col-md-6">
-                     
-               <form method="post" action="{{ action('HashtagController@store') }}">
+                      <form method="post" action="{{ action('HashtagController@store') }}">
                 @csrf
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="col-md-6">
                         <div class="form-group">
-                            <label for="name">Hashtag (without # symbol)</label>
-                            <input type="text" name="name" id="name" placeholder="sololuxuryindia (without hash)" class="form-control">
+                            <input type="text" name="name" id="name" placeholder="sololuxuryindia (without hash)" class="form-control"style="width: 300px;">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Add?</label>
                             <button class="btn-block btn btn-default">Add Hashtag</button>
                         </div>
-                    </div>
                 </div>
             </form>
-
-            
-                </div>
+        </div>
             </div>
-            
+           </div> 
            
         </div>
         <div class="col-md-12">
-            <table class="table-striped table-bordered table table-sm">
+            <table class="table-striped table-bordered table table-sm"style="table-layout: fixed;">
                 <tr>
-                    <th>S.N</th>
-                    <th>Tag Name</th>
-                    <th>Comments</th>
-                    <th>Users</th>
-                    <th>Post Count</th>
-                    <th>User Links</th>
-                    <th>Priority</th>
+                    <th width="1%">S.N</th>
+                    <th width="2%">Tag Name</th>
+                    <th width="2%">Comments</th>
+                    <th width="2%">Users</th>
+                    <th width="2%">Post Count</th>
+                    <th width="4%">User Links</th>
+                    <th width="1%">Priority</th>
                 </tr>
                 @foreach($hashtags as $key=>$hashtag)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td>
-                            <a href="{{ action('HashtagController@showGrid',$hashtag->id) }}">
+                        <td >
+                            <a href="{{ action('HashtagController@showGrid',$hashtag->id) }}"style="color:black;">
                                 {{ $hashtag->hashtag }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ action('HashtagController@showGridComments',$hashtag->id) }}">
+                            <a href="{{ action('HashtagController@showGridComments',$hashtag->id) }}"style="color:black;">
                                 Link
                             </a>
                         </td>
                         <td>
-                            <a href="{{ action('HashtagController@showGridUsers',$hashtag->hashtag) }}">
+                            <a href="{{ action('HashtagController@showGridUsers',$hashtag->hashtag) }}"style="color:black;">
                                 Link
                             </a>
                         </td>
@@ -186,7 +181,7 @@ input:checked + .slider:before {
                                 
                             </form>
                         </td> -->
-                        <td>
+                        <td style="display: flex; justify-content: space-between; border-bottom: none;">
 <!--                           <label class="switch">
                                   @if($hashtag->priority == 1)
                                   <input type="checkbox" checked class="checkbox" value="{{ $hashtag->id }}">
@@ -195,9 +190,15 @@ input:checked + .slider:before {
                                   @endif
                                   <span class="slider round"></span>
                                 </label> -->
-                          <button class="form-control" onclick="runCommand('{{ $hashtag->id }}')">Start</button> 
-                          <button class="form-control" onclick="killCommand('{{ $hashtag->id }}')">Kill Script</button>
-                          <button class="form-control" onclick="checkStatusCommand('{{ $hashtag->id }}')">Check Status</button>
+                          <a onclick="runCommand('{{ $hashtag->id }}')"title="start">
+                              <i class="fa fa-play-circle"></i>
+                          </a> 
+                          <a onclick="killCommand('{{ $hashtag->id }}')"title="Kill Script">
+                              <i class="fa fa-trash-o" aria-hidden="true"></i>
+                          </a>
+                          <a onclick="checkStatusCommand('{{ $hashtag->id }}')"title="Check Status">
+                              <i class="fa fa-check-circle" aria-hidden="true"></i>
+                          </a>
                                 
                         </td>
                     </tr>
