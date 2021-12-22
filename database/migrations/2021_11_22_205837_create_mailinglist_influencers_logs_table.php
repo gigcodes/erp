@@ -33,6 +33,6 @@ class CreateMailinglistInfluencersLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('flow_logs');
+        Schema::dropIfExists('mailinglist_iInfluencers_logs');
     }
 }
