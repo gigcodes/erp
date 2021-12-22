@@ -315,7 +315,7 @@ class CreateMailinglistInfluencers extends Command
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_POSTFIELDS     => json_encode($data),
             CURLOPT_HTTPHEADER     => array(
-                "api-key: " . $send_in_blue_api,
+                "api-key: " . $api_key,
                 "Content-Type: application/json",
             ),
         ));
