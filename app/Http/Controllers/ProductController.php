@@ -3269,7 +3269,16 @@ class ProductController extends Controller
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         if (!empty($r) && !empty($g) && !empty($b)) {
                             $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size,"store"=>$website->title,"logo_color"=>$website->logo_color,"logo_border_color"=>$website->logo_border_color,"text_color"=>$website->text_color,"border_color"=>$website->border_color, "border_thickness"=>$website->border_thickness);
+                            $colors[] = array(
+                                'code' => $hexcode, 
+                                'color' => $website->cropper_color_name, 
+                                'size' => $website->cropping_size,
+                                "store"=>$website->title,
+                                "logo_color"=>$website->logo_color,
+                                "logo_border_color"=>$website->logo_border_color,
+                                "text_color"=>$website->text_color,
+                                "border_color"=>array('color'=> $website->border_color, 'thickness'=> $website->border_thickness )
+                            );
 
                         }
                     }
