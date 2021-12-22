@@ -2208,6 +2208,9 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 });
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
+    Route::get('python-site-log', 'ScrapController@getPythonLog')->name('get.python.log');
+    
+    
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
@@ -3468,8 +3471,8 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 Route::get('command', function () {
 	
- //   \Artisan::call('migrate');
-     \Artisan::call('meeting:getrecordings');
+  //  \Artisan::call('migrate');
+     \Artisan::call('get:pythonLogs');
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
