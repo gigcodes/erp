@@ -260,8 +260,8 @@ class CreateMailinglistInfluencers extends Command
 								}
 								
 							}
-							if (!empty($influencers)){
-								foreach ($influencers as $list) {
+						//	if (!empty($influencers)){
+						//		foreach ($influencers as $list) {
 									$api_key=isset($send_in_blue_apis[$oldmailList->website_id])?$send_in_blue_apis[$oldmailList->website_id]:'';
 									$reqData=[
 										"email"      => $list->email,
@@ -278,13 +278,13 @@ class CreateMailinglistInfluencers extends Command
 									];
 									$url="https://api.sendinblue.com/v3/contacts";
 									$response = $this->callApi($url, "POST", $reqData,$api_key );
-								}
-							}
-							foreach ($mllist->listCustomers() as $customer_id){
-								$oldmailList->listCustomers()->attach($customer_id);
-								$mailList->listCustomers()->detach($customer_id);
+							//	}
+						//	}
+						//	foreach ($mllist->listCustomers() as $customer_id){
+								$oldmailList->listCustomers()->attach($customer->id);
+								$mailList->listCustomers()->detach($customer->id);
 
-							}
+						//	}
 						
 											
 							
