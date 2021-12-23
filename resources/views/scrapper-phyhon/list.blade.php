@@ -231,7 +231,9 @@
                 <th style="width:17%">Website</th>
                 <th style="width:10%">Name</th>
                 <th style="width:10%">Language</th>
-                <th style="width:35%">No of Images</th>
+                <th style="width:5%">Desktop</th>
+                <th style="width:5%">Mobile</th>
+                <th style="width:5%">Tablet</th>
                 <th style="width:10%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
