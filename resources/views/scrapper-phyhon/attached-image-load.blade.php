@@ -5,7 +5,9 @@
         {{-- <td>{{ $list->storeWebsite->website ?? '' }}</td> --}}
         {{-- <td>{{ $list->name }}</td> --}}
         {{-- <td></td> --}}
-
+         {{-- <td></td> --}}
+          {{-- <td></td> --}}
+           {{-- <td></td> --}}
         {{-- <td> --}}
             {{-- <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" --}}
                 {{-- data-suggestedproductid="{{ $list->id }}"> --}}
@@ -38,7 +40,9 @@
         @endif
             @foreach ($store->storeViewMany as $item)
                 @php 
-                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->select(["device", \DB::raw('count(*) as total')])->groupBy('device')->get()->toArray();
+                    $imagesDesktop = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','desktop')->get()->count();
+                    $imagesMobile = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','mobile')->get()->count();
+                    $imagesTablet = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','tablet')->get()->count();
                 @endphp
                 <tr class="expand-{{ $list->id }}">
                     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
@@ -48,18 +52,10 @@
                         <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
                     </td>
                     <td>{{ $store->name }}</td>
-                    <td>{{ $item->name }}({{ $item->code }})</td>
-                    <td>
-                        @if(!empty($images))
-                            @foreach($images as $d => $img) 
-                                @if(request('device') == null  ||  strtolower(request('device')) == strtolower($img['device']))
-                                    {{ucwords($img['device'])." : ".$img['total']}}
-                                @endif
-                            @endforeach
-                        @else
-                            {{ "No images" }}
-                        @endif
-                    </td>
+                    <td class="{{ $list->store_website_id }} {{ $item->code }}">{{ $item->name }}({{ $item->code }})</td>
+                        <td> @if($imagesDesktop > 0) {{ $imagesDesktop }} @else {{ 'No Images' }} @endif</td>
+                        <td>@if($imagesMobile > 0) {{ $imagesMobile }} @else {{ 'No Images' }} @endif</td>
+                        <td>@if($imagesTablet > 0) {{ $imagesTablet }} @else {{ 'No Images' }} @endif</td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
