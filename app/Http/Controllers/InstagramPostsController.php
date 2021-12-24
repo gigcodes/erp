@@ -743,9 +743,12 @@ class InstagramPostsController extends Controller
         $ig = new \InstagramAPI\Instagram();
 
         try {
-            $ig->login('satyam_t', 'Schoolrocks93');
+			$account = \App\Account::where('platform','instagram')->where('status',1)->inRandomOrder()->first();
+			$ig->login($account->last_name, $account->password);
+           // $ig->login('avoir.chic', 'Ym@123456');
+            //$ig->login('satyam_t', 'Schoolrocks93');
         } catch (\Exception $e) {
-            $msg = 'Instagram login failed: '.$e->getMessage();
+            $msg = 'Instagram login failed: '.$account->id.' - '.$e->getMessage();
             return response()->json(['message' => $msg, 'code' => 413],413);
         }
         try {
