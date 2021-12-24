@@ -748,7 +748,7 @@ class InstagramPostsController extends Controller
            $ig->login('technodeviser03', '123321deviser*');
             //$ig->login('satyam_t', 'Schoolrocks93');
         } catch (\Exception $e) {
-            $msg = 'Instagram login failed: '.$account->id.' - '.$e->getMessage();
+            $msg = 'Instagram login failed:  - '.$e->getMessage();
             return response()->json(['message' => $msg, 'code' => 413],413);
         }
         try {
