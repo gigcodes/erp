@@ -13,7 +13,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Instagram Posts</h2>
+            <h2 class="page-heading">Instagram Postsfghhff</h2>
         </div>
         <div class="col-md-12 mt-4">
             {{ $posts->render() }}

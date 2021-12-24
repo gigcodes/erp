@@ -91,7 +91,7 @@
     <div class="col-md-2 margin-tb">
         <div class="pull-right mt-3">
 
-            <button type="button" class="class=" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#add-vendor-info-modal" title="" data-id="1">Create Post</button>
+            <button type="button" class="btn custom-button" title="" data-id="1">Create Post</button>
         </div>
     </div>
 </div>
@@ -105,18 +105,18 @@
                     </h4>
                 </div>
                 <div class="panel-body">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped"style="table-layout: fixed;">
                         <tr>
                             <th width="9%">Date</th>
                             <th width="8%">Account</th>
-                            <th width="15%">Comment</th>
-                            <th width="6%">Hash Tags</th>
-                            <th width="9%">Schedule date</th>
-                            <th width="5%">Type</th>
-                            <th width="8%">Location</th>
-                            <th width="20%">Instagram Link</th>
-                            <th width="20%">Status</th>
-                            <th>Action</th>
+                            <th width="12%">Comment</th>
+                            <th width="5%">Hash Tags</th>
+                            <th width="7%">Schedule date</th>
+                            <th width="7%">Type</th>
+                            <th width="7%">Location</th>
+                            <th width="13%">Instagram Link</th>
+                            <th width="3%">Status</th>
+                            <th width="4%">Action</th>
                         </tr>
                         @foreach ($posts as $post)
                             
@@ -134,10 +134,10 @@
                                     <div class="col-md-10">
                                         <input type="text" class="form-control post_comment" value="{{$post->comment}}">
                                     </div>
-                                    <button class="btn btn-sm btn-image btn-update-comment"><img src="/images/filled-sent.png"></button>
+                                    <button class="btn btn-sm btn-image btn-update-comment mt-1"><img src="/images/filled-sent.png"></button>
                                 </td>
                                 <td>
-                                    <button type="button" data-hashtag = '{{$post->hashtags}}' data-id = '{{$post->id}}' class="btn-modal-hashtag" data-toggle="modal" data-target="#show-hashtag-model" title="">Show Hashtags</button>
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </td>
                                 <td>{{$post->scheduled_at}}</td>
                                 <td>
@@ -150,19 +150,19 @@
                                 <td>{{$post->location}}</td>
                                 <!--td>{{$post->ig}}</td-->
                                
-                                <td>
+                                <td class="Website-task">
                                     @foreach($accounts as $account)
                                         @if($post->account_id==$account->id)
-                                            <a href='https://www.instagram.com/{{$account->last_name}}'>https://www.instagram.com/{{$account->last_name}}</a>
+                                            <a href='https://www.instagram.com/{{$account->last_name}}'style="color: black;">https://www.instagram.com/{{$account->last_name}}</a>
                                             @php
                                             break;
                                             @endphp
                                         @endif
                                     @endforeach
                                 </td>
-                                <td>{{$post->status == 1 ? "Published" : "Not Published"}}</td>
+                                <td><i class="fa fa-check" aria-hidden="true"></i></td>
                                 <td>
-                                    <a href="{{url('instagram/post/publish-post')}}/{{$post->id}}" class="btn btn-primary" >Publish</a>
+                                   <i class="fa fa-backward" aria-hidden="true"></i>
                                     <!--button type="button" class="btn-post-save" data-toggle="modal" title="" data-id="{{$post->id}}">Update</button-->
                                     <!--button type="button" class="btn-post-publish" data-toggle="modal" data-id="{{$post->id}}">Publish</button-->
                                     

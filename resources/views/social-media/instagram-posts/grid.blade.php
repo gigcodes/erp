@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Instagram Posts (Grid)</h2>
+            <h2 class="page-heading">Instagram Postsefg (Grid)</h2>
         </div>
         <div class="col-md-12 mt-4">
             {{ $posts->appends($request->all())->render() }}
