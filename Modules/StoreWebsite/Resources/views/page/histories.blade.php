@@ -53,7 +53,7 @@
         </div>
         <div class="col-md-12 margin-tb p-0" id="page-view-result">
             <div class="table-responsive ">
-                <table class="table table-bordered"style="table-layout: fixed;">
+                <table class="table table-bordered page-history-table"style="table-layout: fixed;">
                     <thead>
                     <tr>
                         <th width="1%">Id</th>
@@ -68,10 +68,10 @@
                                             <?php foreach($records as $record) {  ?>
                                                 <tr>
                                                     <td><?php echo $record->id; ?></td>
-                                                    <td><?php echo $record->store_website_name; ?></td>
-                                                    <td><?php echo $record->url_key; ?></td>
-                                                    <td><?php echo $record->url; ?></td>
-                                                    <td class="Website-task"><?php echo $record->result; ?></td>
+                                                    <td class="Website-task"title="<?php echo $record->store_website_name; ?>"><?php echo $record->store_website_name; ?></td>
+                                                    <td class="Website-task"title="<?php echo $record->url_key; ?>"><?php echo $record->url_key; ?></td>
+                                                    <td class="Website-task"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->result; ?>"><?php echo $record->result; ?></td>
                                                     <td><?php echo $record->result_type; ?></td>
                                                 </tr>
                                             <?php } ?>
