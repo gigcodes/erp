@@ -2067,6 +2067,7 @@ Route::middleware('auth')->group(function () {
     Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest');
 });
 
+Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
