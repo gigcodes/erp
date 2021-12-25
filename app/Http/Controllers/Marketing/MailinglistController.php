@@ -799,32 +799,10 @@ class MailinglistController extends Controller
 	}
     public function getlog(Request $request)
     {
-        if ($request->flow_name || $request->messages || $request->created_at) {
-
-            $query = MailinglistIinfluencersLogs::orderby('updated_at', 'desc')->select(['flow_logs.*','flows.flow_name'])
-            ->join('flows','flows.id','flow_logs.flow_id');
-
-           
-            if (request('messages') != null) {
-                $query->where('messages', 'LIKE', "%{$request->messages}%");
-            }
-
-            if (request('created_at') != null) {
-                $query->whereDate('created_at', request('created_at'));
-            }
-            if (request('flow_name') != null) {
-                $query->where('flows.flow_name', 'LIKE', "%{$request->flow_name}%");
-            }
-
-            
-            $paginate = (Setting::get('pagination') * 10);
-            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
-        } else {
+      
 
             $paginate = (Setting::get('pagination') * 10);
             $logs     = MailinglistIinfluencersLogs::orderby('created_at', 'desc')->paginate($paginate);
-
-        }
 
         if ($request->ajax()) {
             return response()->json([
