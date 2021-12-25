@@ -137,6 +137,7 @@
             
                 <div class="form-group">    
                     <div class="row m-0">
+                    <div class="col-md-9">
                     <form action="" method="POST" id="scrapper-python-form">
                       @csrf
                         <div class="col-md-2">
@@ -147,7 +148,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <input class="mt-2" type="radio" name="name" id="start" value="start" checked>
                             <label class="form-check-label pr-1 mt-2" for="start">
                                 Start
@@ -165,11 +166,11 @@
                                 Desktop
                             </label>
                             <input class="mt-2" type="radio" name="type" id="mobile" value="mobile">
-                            <label class="form-check-label pr-1 mt-2" for="mobile">
+                            <label class="form-check-label  mt-2" for="mobile">
                                 Mobile
                             </label>
                             <input class="mt-2" type="radio" name="type" id="tablet" value="tablet">
-                            <label class="form-check-label pr-1 mt-2" for="tablet">
+                            <label class="form-check-label  mt-2" for="tablet">
                                 Tablet
                             </label>
                             <button type="submit" class="btn btn-secondary btn-xs" >Send Request</button>
@@ -178,20 +179,25 @@
                            
                         </div>
                     </form>
-                        <div class="col-md-3">
-                            <form action="" method="POST" id="scrapper-image-delete-form">
-                            <div class="col-md-3">
-                            <div class='input-group' id='log-created-date1'>
+                    </div>
+                    <div class="col-md-3">
+                         <form action="" method="POST" id="scrapper-image-delete-form">
+                       
+                           
+                            
+                            <div class='input-group mr-2' id='log-created-date1' style="width: 150px; float:left;">
                                 <input type='text' class="form-control " name="delete_date" value="" placeholder="Date for delete" id="delete_date" />
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
-                            </div>
+                           
                             </div>
                             <button type="submit" class="btn btn-secondary btn-xs" >Delete Images</button>
 
-                            </form>
-                        </div>
+                            
+                        
+                        </form>
+                    </div>
                     </div>
                 </div>
            
