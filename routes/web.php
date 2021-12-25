@@ -574,8 +574,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/references/chamge', 'SizeController@referenceAdd');
     Route::get('sizes/affected-product', 'SizeController@affectedProduct');
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
-	Route::get('sizes/new-references', 'SizeController@newSizeReferences');
-	Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
+    Route::get('sizes/new-references', 'SizeController@newSizeReferences');
+    Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
     Route::resource('category', 'CategoryController');
     Route::resource('category-segment', 'CategorySegmentController');
 
@@ -1398,9 +1398,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
     
     Route::get('scrap/development/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrap.index');
-	Route::get('development/change-user', 'DevelopmentController@changeUser')->name('development.issue.change_user');
+    Route::get('development/change-user', 'DevelopmentController@changeUser')->name('development.issue.change_user');
     Route::post('development/change-user', 'DevelopmentController@changeUserStore')->name('development.changeuser.store');
-	
+    
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
@@ -3119,7 +3119,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
 
-	Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
+    Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
 
     //subcategory route
 
@@ -3481,11 +3481,10 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 
 Route::get('command', function () {
-	
+    
     \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');
-	/* php artisan migrate */
+    /* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
-

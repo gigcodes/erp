@@ -21,20 +21,18 @@
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get">
-                            <div class="form-group mr-2 d-flex">
-                                <label for="store_website_id">Store Websites:</label>
-                            </div>
+                            
                             <div class="form-group  d-flex">
 
                                 <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
                             </div>
 
                             <div class="form-group ml-5 d-flex">
-                                <label for="keyword" class="mr-2">Keyword:</label>
+                               
                                 <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
                             </div>
                             <div class="form-group ml-2 d-flex">
-                                <label for="button">&nbsp;</label>
+                                
                                 <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
                                     <img src="/images/search.png" style="cursor: default;">
                                 </button>

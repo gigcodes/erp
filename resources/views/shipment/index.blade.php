@@ -35,7 +35,7 @@
         <h2 class="page-heading">Shipment List</h2>
     </div>
 </div>
-<div class="infinite-scroll">
+<div class="col-md-12">
     <div class="row col-md-12">
         
     </div>
@@ -65,39 +65,39 @@
     </form>
 
 	<div class="table-responsive mt-3 table-res">
-      <table class="table table-bordered">
+      <table class="table table-bordered"style="table-layout: fixed;">
         <thead>
           <tr>
-            <th>AWB</th>
-            <th>Order</th>
-            <th>Customer name</th>
-            <th>Destination</th>
-            <th>Shipped Date</th>
-            <th>Current Status</th>
-            <th>Weight of Shipment</th>
-            <th>Cost of Shipment</th>
-            <th>Duty Cost</th>
-            <th>Invoice Number</th>
-            <th>Invoice</th>
-            <th>Due Date</th>
-            <th>Paid Date</th>
-            <th>Location</th>
-            <th style="width: 120px">Action</th>
+            <th  width="3%">AWB</th>
+            <th  width="4%">Order</th>
+            <th  width="5%">C name</th>
+            <th  width="6%">Destination</th>
+            <th  width="7%">S Date</th>
+            <th  width="6%">C Status</th>
+            <th  width="7%">W Shipment</th>
+            <th  width="7%">C Shipment</th>
+            <th  width="5%">D Cost</th>
+            <th  width="6%">I Number</th>
+            <th  width="5%">Invoice</th>
+            <th  width="6%">Due Date</th>
+            <th  width="7%">Paid Date</th>
+            <th  width="5%">Location</th>
+            <th  width="20%">Action</th>
           </tr>
         </thead>
 
         <tbody>
             @forelse ($waybills_array as $key => $item)
                 <tr>
-                    <td>{{ @$item->awb }}</td>
+                    <td class="Website-task">{{ @$item->awb }}</td>
                     <td>{{ @$item->order->id }}</td>
-                    <td>{{ @$item->to_customer_name}}</td>
-                    <td>{{ @$item->to_customer_address_1 }}</td>
+                    <td class="Website-task">{{ @$item->to_customer_name}}</td>
+                    <td class="Website-task">{{ @$item->to_customer_address_1 }}</td>
                     <td>{{ ($item->created_at) ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
-                    <td>{{ @$item->order->order_status }}</td>
+                    <td class="Website-task">{{ @$item->order->order_status }}</td>
                     <td>{{ @$item->actual_weight }}</td>
-                    <td>{{ @$item->cost_of_shipment?? 'N/A' }}</td>
-                    <td>{{ @$item->duty_cost?? 'N/A' }}</td>
+                    <td class="Website-task">{{ @$item->cost_of_shipment?? 'N/A' }}</td>
+                    <td class="Website-task">{{ @$item->duty_cost?? 'N/A' }}</td>
                     <td>{{ @$item->invoice_number?? 'N/A' }}</td>
                     <td>{{ @$item->invoice_amount ? $item->currency.$item->invoice_amount : 'N/A' }}</td>
                     <td>{{ @$item->due_date?? 'N/A' }}</td>
