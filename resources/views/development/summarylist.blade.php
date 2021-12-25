@@ -263,18 +263,31 @@
     @include("partials.plain-modal")
 
 
-    <div id="chat-list-history" class="modal fade" role="dialog">
+    <div id="python-action-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>
-                    <input type="text" name="search_chat_pop" class="form-control search_chat_pop"
-                        placeholder="Search Message" style="width: 200px;">
-                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
-                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
-                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                    <h4 class="modal-title">Action History</h4>
+                   
                 </div>
-                <div class="modal-body" style="background-color: #999999;">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="python-action-history_div">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Old Status</th>
+                                        <th>New Status</th>
+                                        <th>Updated by</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
