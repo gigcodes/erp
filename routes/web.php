@@ -1843,6 +1843,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
         Route::get('image', 'ProductTemplatesController@imageIndex');
+        Route::get('/get-log', 'ProductTemplatesController@loginstance')->name("product.templates.getlog");
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
