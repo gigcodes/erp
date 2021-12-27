@@ -337,6 +337,7 @@
                                     @endforeach
                                     </div>
                                     <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
+                                    <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a>  
                                 </div>
                             @else
                                 <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 p-0" style="position: relative;display: flex">
