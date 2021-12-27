@@ -394,6 +394,11 @@ class scrapperPhyhon extends Controller
 
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 
+           
+            $image_parts =explode('_',$request->image_name);
+            $image_date = $image_parts[2];
+           
+
             $newImage = array(
                 'website_id' => $request->country_code,
                 'store_website' => $StoreWebsite->id ?? 0,
@@ -403,6 +408,8 @@ class scrapperPhyhon extends Controller
                 'coordinates'=> $coordinates,
                 'height'=> $height,
                 'width'=> $width,
+                'url'=>$request->url,
+                'scrap_date'=>$image_parts[2],
                 'created_at' => \Carbon\Carbon::now(),
                 'updated_at' => \Carbon\Carbon::now(),
             );
@@ -573,6 +580,14 @@ class scrapperPhyhon extends Controller
         }
         return ['message'=>count($images)." Deleted Successfully.", 'statusCode'=>200];
      }
+
+     public function imageUrlList(){
+        $urls = DB::table('scraper_imags')->whereRaw('url != "" and url IS  NOT NULL');
+        $urls=$urls->paginate(Setting::get('pagination'));
+        return view('scrapper-phyhon.list_urls', compact('urls'));
+
+    
+    }
 }
 
 
