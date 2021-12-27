@@ -36,7 +36,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Validator;
-
+use App\Loggers\ScrapPythonLog;
 class ScrapController extends Controller
 {
     private $googleImageScraper;
@@ -2462,7 +2462,44 @@ class ScrapController extends Controller
         }
         return view()->make('scrap.server-statistics',compact('servers', 'data'));
     }
+    public function getPythonLog(Request $request){
+        $storeWebsites = StoreWebsite::all();
+        if ($request->website || $request->created_at) {
 
+            $query = ScrapPythonLog::orderby('updated_at', 'desc');
+
+           
+            
+
+            if (request('created_at') != null) {
+                $query->whereDate('created_at', request('created_at'));
+            }
+            if (request('website') != null) {
+                $query->where('website', 'LIKE', "%{$request->website}%");
+            }
+
+            
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
+        } else {
+
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = ScrapPythonLog::orderby('created_at', 'desc')->paginate($paginate);
+
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('scrap.partials.python_logdata', compact('logs'))->render(),
+                'links' => (string) $logs->render(),
+                'count' => $logs->total(),
+            ], 200);
+        }
+
+        return view('scrap.python_log', compact('logs'));
+
+
+    }
 
 
 }
