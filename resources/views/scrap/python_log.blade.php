@@ -17,17 +17,64 @@
 @endsection
 
 @section('content')
+    <div id="manage-log-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Instagram Logs</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Python Site Logs</h2>
-             <div class="pull-right">
-                {{-- <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a> --}}
-                <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
-            </div>
+            
+           
 
+        </div>
+     
+    </div>
+
+    <div class="pull-left1">
+        <div class="row">
+            <form name="get-logs" id="get-logs" style="width: 100%;">
+
+                    <div class="col-md-2">
+                        <select class="form-control" tabindex="-1" aria-hidden="true" name="website" id="store_website">
+                            <option value="">Select Website</option>
+                            @foreach($storeWebsites as $websiteRow)
+                                @if(isset($request->website) && $websiteRow->id==$request->website)
+                                    <option value="{{$websiteRow}}" selected="selected">{{$websiteRow}}</option>
+                                @else
+                                <option value="{{$websiteRow}}">{{$websiteRow}}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <?php echo Form::select('device',["desktop" => "Desktop" , "mobile" => "Mobile", "tablet" => "Tablet"],request('device'), ["class" => "form-control","id"=>"store_devide"]) ?>
+                    </div>
+                    <div class="col-md-2">
+                    <input type="date" name="date" id="date11" class="form-control"style="width:200px !important">
+                    </div>
+                    
+                    <div class="col-md-1">
+                    <button type="submit" class="btn btn-info btn-log-instances">
+                        GetLogs
+                    </button>
+                    </div>
+            </form>
         </div>
     </div>
 
@@ -70,37 +117,7 @@
 
         </table>
     </div>
-    <div id="ErrorLogModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Flow Log Detail</h4>
-            </div>
-            <div class="modal-body">
-              <table class="table table-bordered table-hover" style="table-layout:fixed;">
-                <thead>
-                    
-                  <th style="width:7%">Flow Action</th>
-                  <th style="width:6%">Modal Type </th>
-                  <th style="width:30%">Leads</th>
-                  <th style="width:30%">Message</th>
-                  <th style="width:15%">Website</th>
-                  <th style="width:10%">Date</th>
-                </thead>
-                <tbody class="error-log-data">
-    
-                </tbody>
-              </table>
-    
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-            </div>
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
+  
 
 @endsection
 
@@ -242,6 +259,29 @@
             alert('No response from server');
         });
     }
+    $(document).on("click",".btn-log-instances",function(e) {
+            e.preventDefault();
+            var $store_website=  $('#store_website').val();
+            var $store_devide=  $('#store_devide').val();
+            var $date=  $('#date11').val();
+
+            $.ajax({
+                url: '{{url("scrap/python/get-log")}}',
+                method:"get",
+                data : {
+                    website:$store_website,
+                    date:$date,
+                    device:$store_devide
+                },
+                success: function (data) {
+                    if(data.type=="success"){
+                          $("#manage-log-instance").find(".modal-body").html(data.response);
+                          $("#manage-log-instance").modal('show'); 
+                    }else{
+                        alert(data.response)                     }
+                },
+            });
+        });
 
     </script>
 @endsection

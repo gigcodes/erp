@@ -2215,6 +2215,7 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('python-site-log', 'ScrapController@getPythonLog')->name('get.python.log');
+    Route::get('python/get-log', 'ScrapController@loginstance')->name('get.python.logapi');
     
     
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');

@@ -46,11 +46,11 @@ class GetPytonLogs extends Command
     {
 		//dd("test");
 		$storeWebsites = ["sololuxury", "avoir-chic", "brands-labels", "o-labels", "suvandnat", "veralusso"];
-	//	$devices=["mobile", "desktop", "tablet"];
-		$devices=[ "desktop"];
+		$devices=["mobile", "desktop", "tablet"];
+	//	$devices=[ "desktop"];
         foreach($storeWebsites as $website){
-			$url=env("PYTHON_PRODUCT_TEMPLATES")."/get-logs";
-			//foreach($devices as $device){
+			$url="http://167.86.88.58:5000/get-logs";
+			foreach($devices as $device){
                 $date=Carbon::yesterday()->format("m-d-Y");
               //  $date = "12-10-2021";
 				$data=["website"=>$website, "date" =>$date,"device" => "desktop"];
@@ -66,7 +66,7 @@ class GetPytonLogs extends Command
                 }
 				
 				ScrapPythonLog::create($data);
-		//	}
+			}
 
         }
        

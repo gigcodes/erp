@@ -2463,7 +2463,9 @@ class ScrapController extends Controller
         return view()->make('scrap.server-statistics',compact('servers', 'data'));
     }
     public function getPythonLog(Request $request){
-        $storeWebsites = StoreWebsite::all();
+        $storeWebsites = ["sololuxury", "avoir-chic", "brands-labels", "o-labels", "suvandnat", "veralusso"];
+		$devices=["mobile", "desktop", "tablet"];
+
         if ($request->website || $request->created_at) {
 
             $query = ScrapPythonLog::orderby('updated_at', 'desc');
@@ -2496,10 +2498,67 @@ class ScrapController extends Controller
             ], 200);
         }
 
-        return view('scrap.python_log', compact('logs'));
+        return view('scrap.python_log', compact('logs','storeWebsites','devices'));
 
 
     }
+     
+    public function loginstance(Request $request)
+    {
+    
+        $url ='167.86.88.58:5000/get-logs ';
+        $date=($request->date!='')?\Carbon\Carbon::parse($request->date)->format('m-d-Y'):'';
+        
+    $data=array();
+     //   echo $url;exit;
+     if(!empty($date)){
+        $data=["website"=>$request->website, "date" =>$date,"device" => $request->device];
+        
+     }else{
+        return response()->json([
+            'type'=>'error',
+            'response' =>'Please select Date'
+                  ], 200);
+     }
+    // {"date": "12-10-2021","website":"sololuxury","device" :"desktop"}
+    // dd(json_encode($data));
+    // dd($data);
+  //   \Log::info("INFLUENCER_loginstance -->".$data);
+  $insertData=$data;
+  $data = json_encode($data);
+     $ch = curl_init($url);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+     $result1 = curl_exec($ch);
 
+     if($result1 == "Log File Not Found"){
+        $insertData["log_text"]=$result1;
+    }else{
+        $file_name="python_logs/python_site_log_".$insertData["website"]."_".$insertData["device"].".log";
+        Storage::put($file_name, $result1);
+        $insertData["log_text"]=url('/storage/app/'.$file_name);
+    }
+    
+    ScrapPythonLog::create($insertData);
+     $result = explode("\n",$result1);
+     
+    
+     if(count($result)>1){
+         return response()->json([
+             'type'=>'success',
+             'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
+         ], 200); 
+      
+     }else{
+         return response()->json([
+         'type'=>'error',
+         'response' =>"Log File Not Found"
+         ], 200);
+      
+     }
+
+    }
 
 }
