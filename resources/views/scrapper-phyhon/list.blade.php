@@ -123,24 +123,11 @@
                                 <option value="">Select Store</option>
                             </select>
                         </div> */?>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mt-3  pl-19">
                             <button type="submit" class="btn btn-xs btn-image" ><img src="/images/filter.png"></button>
                             <button type="button" onclick="resetForm(this)" class="btn btn-image btn-xs" id=""><img src="/images/resend2.png"></button>
                         </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="row m-0">
-        <div class="col-md-12 margin-tb p-0">
-            
-                <div class="form-group">    
-                    <div class="row m-0">
-                    <div class="col-md-9">
-                    <form action="" method="POST" id="scrapper-python-form">
-                      @csrf
-                        <div class="col-md-2">
+                         <div class="col-md-2">
                             <select class="form-control select-multiple" id="store_website" tabindex="-1" aria-hidden="true" name="store_website" onchange="showStores(this)">
                                 <option value="">Select Website</option>
                                 @foreach($storewebsite as $key=>$web)
@@ -148,7 +135,28 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-9">
+                        <div class='input-group mr-2' id='log-created-date1' style="width: 226px; float:left;">
+                                <input type='text' class="form-control " name="delete_date" value="" placeholder="Date for delete" id="delete_date" />
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                           
+                            </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-12 margin-tb p-0">
+            
+                <div class="form-group">    
+                    <div class="row m-0">
+                    <div class="col-md-9">
+                    <form action="" method="POST" id="scrapper-python-form">
+                      @csrf
+                       
+                        <div class="col-md-5">
                             <input class="mt-2" type="radio" name="name" id="start" value="start" checked>
                             <label class="form-check-label pr-1 mt-2" for="start">
                                 Start
@@ -173,31 +181,16 @@
                             <label class="form-check-label  mt-2" for="tablet">
                                 Tablet
                             </label>
-                            <button type="submit" class="btn btn-secondary btn-xs" >Send Request</button>
-                            <button type="submit"  class="btn btn-secondary action_history btn-xs" >Action History</button>
-                            <button type="submit" class="btn btn-secondary view_history btn-xs" >History</button>
-                           
+                            </div>
+                              <div class="col-md-7 "style="display: flex;">
+                            <button type="submit" class="btn btn-secondary custom-button btn-xs"style="height: 34px; width: 300px !important;" >Send Request</button>
+                            <button type="submit"  class="btn ml-5 btn-secondary custom-button action_history btn-xs"style="height: 34px; width: 300px !important;">Action History</button>
+                            <button type="submit" class="btn btn-secondary ml-5 custom-button view_history btn-xs" style="height: 34px; width: 300px !important;">History</button>
+                            <button type="submit" class="btn btn-secondary ml-5 custom-button btn-xs"style="height: 34px; width: 300px !important;" >Delete Images</button>
                         </div>
                     </form>
                     </div>
-                    <div class="col-md-3">
-                         <form action="" method="POST" id="scrapper-image-delete-form">
-                       
-                           
-                            
-                            <div class='input-group mr-2' id='log-created-date1' style="width: 150px; float:left;">
-                                <input type='text' class="form-control " name="delete_date" value="" placeholder="Date for delete" id="delete_date" />
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                           
-                            </div>
-                            <button type="submit" class="btn btn-secondary btn-xs" >Delete Images</button>
-
-                            
-                        
-                        </form>
-                    </div>
+                    
                     </div>
                 </div>
            
@@ -248,17 +241,18 @@
 
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
-            <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
+            <table class="table table-bordered" style="table-layout:fixed;">
                 <thead>
-                <th style="width:5%">Date</th>
-                <!-- <th style="width:5%">Id</th> -->
-                <th style="width:17%">Website</th>
-                <th style="width:10%">Name</th>
+                <th style="width:4%">Date</th>
+                <th style="width:4%">Id</th>
+                <th style="width:20%">Website</th>
+                <th style="width:12%">Name</th>
                 <th style="width:10%">Language</th>
                 <th style="width:5%">Desktop</th>
                 <th style="width:5%">Mobile</th>
                 <th style="width:5%">Tablet</th>
-                <th style="width:10%">Action</th>
+                <th style="width:6%">Set as Default</th>
+                <th style="width:4%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load_new')
