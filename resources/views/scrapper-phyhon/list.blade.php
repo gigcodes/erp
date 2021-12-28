@@ -224,17 +224,18 @@
 
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
-            <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
+            <table class="table table-bordered"style="table-layout:fixed;">
                 <thead>
-                <th style="width:5%">Date</th>
-                <th style="width:5%">Id</th>
-                <th style="width:17%">Website</th>
-                <th style="width:10%">Name</th>
+                <th style="width:4%">Date</th>
+                <th style="width:4%">Id</th>
+                <th style="width:20%">Website</th>
+                <th style="width:12%">Name</th>
                 <th style="width:10%">Language</th>
                 <th style="width:5%">Desktop</th>
                 <th style="width:5%">Mobile</th>
                 <th style="width:5%">Tablet</th>
-                <th style="width:10%">Action</th>
+                <th style="width:6%">Set as Default</th>
+                <th style="width:4%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                     @include('scrapper-phyhon.attached-image-load')
