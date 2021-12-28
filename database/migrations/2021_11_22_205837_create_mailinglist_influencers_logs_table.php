@@ -15,13 +15,7 @@ class CreateMailinglistInfluencersLogsTable extends Migration
     {
         Schema::create('mailinglist_iInfluencers_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('service');
-            $table->string('maillist_id');
-            $table->string('email');
-            $table->string('name');
-            $table->string('url');
-            $table->text('request_data');
-            $table->text('response_data');
+            $table->text('message');
             $table->timestamps();
         });
     }
