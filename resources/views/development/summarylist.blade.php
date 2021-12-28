@@ -211,7 +211,7 @@
                     
                 </form>
                 @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal"
+                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
                     data-target="#newTaskModal">Add New Dev Task </a>
             @endif
                 
@@ -226,13 +226,13 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">MODULE</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Lead</th>
-                        <th width="35%">Communication</th>
-                        <th style="width:10%;">Est Completion Time</th>
-                        <th width="10%">Send To</th>
+                        <th width="6%">ID</th>
+                        <th width="7%">MODULE</th>
+                        <th width="7%">Assigned To</th>
+                        <th width="7%">Lead</th>
+                        <th width="20%">Communication</th>
+                        <th width="13%;">Est Cm Time</th>
+                        <th width="6%">Send To</th>
                         <th width="10%">Status</th>
                     </tr>
                 </thead>
