@@ -1,89 +1,39 @@
-@foreach ($websites as $list)
-    {{-- <tr> --}}
-        {{-- <td>{{ \Carbon\Carbon::parse($list->created_at)->format('d-m-y') }} </td> --}}
-        {{-- <td>{{ $list->id }}</td> --}}
-        {{-- <td>{{ $list->storeWebsite->website ?? '' }}</td> --}}
-        {{-- <td>{{ $list->name }}</td> --}}
-        {{-- <td></td> --}}
-         {{-- <td></td> --}}
-          {{-- <td></td> --}}
-           {{-- <td></td> --}}
-        {{-- <td> --}}
-            {{-- <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" --}}
-                {{-- data-suggestedproductid="{{ $list->id }}"> --}}
-                {{-- <img src="/images/forward.png" style="cursor: default;"> --}}
-            {{-- </button> --}}
-            {{-- <button title="Send Images" type="button" class="btn btn-image sendImageMessage no-pd" data-id="{{$list->id}}" data-suggestedproductid="{{$list->id}}"><img src="/images/filled-sent.png" /></button> --}}
-        {{-- </td> --}}
-    {{-- </tr> --}}
 
-
-    @if (!$list->stores)
-
-        <tr class="expand-{{ $list->id }} hidden">
-            <td colspan="4" class="text-center">Stores</td>
-        </tr>
-
-        <tr class="expand-{{ $list->id }} hidden">
-            <td>{{ 'No Store found' }}</td>
-        </tr>
-    @endif
-
-    @foreach ($list->stores as $stIndex => $store)
-
-        @if ($stIndex == 0)
-            <tr class="expand-{{ $list->id }} hidden">
-                <td colspan="4" class="text-center">
-                    <h4>Stores</h4>
-                </td>
-            </tr>
-        @endif
-            @foreach ($store->storeViewMany as $item)
-                @php 
-                    $imagesDesktop = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','desktop')->get()->count();
-                    $imagesMobile = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','mobile')->get()->count();
-                    $imagesTablet = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$item->code)->where('device','tablet')->get()->count();
-                @endphp
-                <tr class="expand-{{ $list->id }}">
-                    <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
-                    <td>{{ $store->id }}</td>
-                    <td class="expand-row-msg" data-name="storeWebsite" data-id="{{$store->id}}">
+            @foreach ($images  as $item)
+           
+                <tr class="expand-{{ $item->id }}">
+                    <td>{{ \Carbon\Carbon::parse($item->date_created_at)->format('d-m-y') }}</td>
+                    <?php /*<td class="expand-row-msg" data-name="storeWebsite" data-id="{{$store->id}}">
                         <span class="show-short-storeWebsite-{{$store->id}}">{{ str_limit($list->storeWebsite->website, 30, '..')}}</span>
                         <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
-                    </td>
-                    <td>{{ $store->name }}</td>
-                    <td class="{{ $list->store_website_id }} {{ $item->code }}">{{ $item->name }}({{ $item->code }})</td>
-                        <td> @if($imagesDesktop > 0) {{ $imagesDesktop }} @else {{ 'No Images' }} @endif</td>
-                        <td>@if($imagesMobile > 0) {{ $imagesMobile }} @else {{ 'No Images' }} @endif</td>
-                        <td>@if($imagesTablet > 0) {{ $imagesTablet }} @else {{ 'No Images' }} @endif</td>
+                    </td>*/?>
+                    
+                    <td>{{ isset($storewebsiteUrls[$item->store_website])?$storewebsiteUrls[$item->store_website]:'' }}</td>
+                    <td>{{$item->store_name}}</td>
+                    <td>{{ $item->lang }}({{ $item->website_id }})</td>
+                    
+                        <td> @if($item->desktop > 0) {{ $item->desktop }} @else {{ 'No Images' }} @endif</td>
+                        <td>@if($item->mobile > 0) {{ $item->mobile }} @else {{ 'No Images' }} @endif</td>
+                        <td>@if($item->tablet > 0) {{ $item->tablet }} @else {{ 'No Images' }} @endif</td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
                         </button> -->
                         
 
-                        <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $store->id,'web_id' => $list->id,'code' => $item->code, 'startDate' => $current_date, 'endDate' => $current_date ]) }}" title="Open Images"
+                         <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $item->website_stores_id,'web_id' => $item->website_store_views_id,'code' => $item->website_id, 'startDate' => $item->date_created_at, 'endDate' => $item->date_created_at ]) }}" title="Open Images"
                             type="button" class="btn show-scrape-images btn-image no-pd"
-                            data-suggestedproductid="{{ $store->id }}">
-                            <img src="/images/forward.png" style="cursor: default;">
-                        </button>
+                            data-suggestedproductid="{{ $item->website_stores_id }}">
+                            <img src="{{env('APP_URL')}}/images/forward.png" style="cursor: default;">
+                        </button> 
 
-                        <span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $store->is_default ? 'checked' : '' }}
-                                onclick="setStoreAsDefault(this)" data-website-id="{{ $list->id }}"
-                                data-store-id="{{ $store->id }}" /> Set as default</span>
+                   
 
-                        <!-- Button trigger modal -->
-
-
-                        {{-- <button title="Send Images" type="button" class="btn btn-image sendImageMessage no-pd" data-id="{{$store->id}}" data-suggestedproductid="{{$list->id}}"><img src="/images/filled-sent.png" /></button> --}}
-                    </td>
-
-                    <!--  <td colspan="7" id="attach-image-list-{{ $list['id'] }}">
-                    @if ($list['scrapper_image'])
-                    {{-- @include('scrapper-phyhon.list-image-products') --}}
-                        
-                    @endif
-                    </td> -->
+     <span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $item->website_stores_default ? 'checked' : '' }}
+                                onclick="setStoreAsDefault(this)" data-website-id="{{ $item->website_table_id }}"
+                                data-store-id="{{ $item->website_stores_id }}" /> Set as default</span> 
+                       
+                       
                 </tr>
 
             @endforeach
@@ -91,28 +41,6 @@
 
 
 
-        <tr class="expand-images-{{ $store->id }} hidden">
-            <td colspan="7" id="attach-image-list-{{ $store->id }}">
-                {{-- @if ($store->scrapperImage) --}}
-                {{-- @include('scrapper-phyhon.list-image-products') --}}
-                {{-- @endif --}}
-            </td>
-        </tr>
-
-    @endforeach
-
-    <tr class="expand-{{ $list->id }} hidden">
-        <td colspan="4" class="text-center">
-            <hr>
-        </td>
-    </tr>
-
-@endforeach
-{{--<tr>--}}
-{{--    <td colspan="4">--}}
-{{--        {{ $websites->appends(request()->except('page'))->links() }}--}}
-{{--    </td>--}}
-{{--</tr>--}}
 
 <!-- Modal -->
 <div class="modal fade" id="scrapper-python-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
