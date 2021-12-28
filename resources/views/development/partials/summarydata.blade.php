@@ -56,7 +56,7 @@
             @endforeach
         </select>
     </td>
-    <td class="communication-td devtask-com">
+    <td class="communication-td devtask-com Website-task"style="border-bottom: none;">
     <!-- class="expand-row" -->
   
    
@@ -82,38 +82,35 @@
 </div>
     </td>
     <td data-id="{{ $issue->id }}">
-        <div class="form-group">
-            <div class='input-group estimate_minutes'>
-                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
+        <div style="display:flex; justify-content: space-between;">
+        <div class="">
+            <div class="input-group"style="display:flex;justify-content: space-between;">
+                <input style="min-width:75px;width: 75px" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
-            </div>
-            <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
+                 <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
                 @if($issue->ApprovedDeveloperTaskHistory)
                     <span>Approved : {{$issue->ApprovedDeveloperTaskHistory ? $issue->ApprovedDeveloperTaskHistory->new_value:0  }}</span>
                     @else 
-                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
+                    <p class="mt-2" style="color:grey;"><strong>Unap</strong> </p>
                 @endif
+            </div>
+          
         </div>
 
      
 
         @if(auth()->user()->id == $issue->assigned_to)
-        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="developer">Meeting time</button>
-        @elseif(auth()->user()->id == $issue->master_user_id)
-        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="lead">Meeting time</button>
-        @elseif(auth()->user()->id == $issue->tester_id) 
-        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="tester">Meeting time</button>
-        @elseif(auth()->user()->isAdmin())
-        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="admin">Meeting time</button>
+        
         @endif
 
-        <div class="form-group mt-2">
-            <span>Lead dev : </span>
-            <div class='input-group estimate_minutes'>
-                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->lead_estimate_time }}" type="text" class="form-control lead-estimate-time-change" name="lead_estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="lead_estimate_minutes_{{$issue->id}}">
-                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-lead-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+        <div class="">
+           
+            <div class='input-group '>
+                <input style="min-width:75px;width:75px" placeholder="E.minutes" value="{{ $issue->lead_estimate_time }}" type="text" class="form-control lead-estimate-time-change" name="lead_estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="lead_estimate_minutes_{{$issue->id}}">
+                <button style="float:right;padding-right:0px;" type="button" class="btn mt-3 btn-xs show-lead-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
             </div>
         </div>
+    </div>
     </td>
     <td class="send-to-str">
     <?php echo Form::select("send_message_".$issue->id,[
@@ -126,7 +123,7 @@
     </td>
   
     
-    <td style="display:flex;">
+    <td style="display:flex; border-bottom:none;">
         @if($issue->is_resolved)
             <strong>Done</strong>
         @else

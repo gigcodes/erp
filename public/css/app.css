@@ -11392,6 +11392,7 @@ table.table-striped-custom tbody tr td {
     overflow:hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    word-break: break-all;
 }
 .action-column img{
     filter: grayscale(100%);
