@@ -1431,6 +1431,9 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
                                 </li>
                                 <li class="nav-item">
@@ -1626,6 +1629,9 @@ if (!empty($notifications)) {
 													</li>
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
+													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
 													</li>
 												</ul>
 											</li>

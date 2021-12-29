@@ -211,7 +211,7 @@
                     
                 </form>
                 @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal"
+                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
                     data-target="#newTaskModal">Add New Dev Task </a>
             @endif
                 
@@ -226,13 +226,14 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">MODULE</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Lead</th>
-                        <th width="35%">Communication</th>
-                        <th width="10%">Send To</th>
-                        <th width="10%">Status</th>
+                        <th width="6%">ID</th>
+                        <th width="7%">MODULE</th>
+                        <th width="6%">Assigned To</th>
+                        <th width="5%">Lead</th>
+                        <th width="28%">Communication</th>
+                        <th width="11%;">Est Cm Time</th>
+                        <th width="5%">Send To</th>
+                        <th width="5%">Status</th>
                     </tr>
                 </thead>
 
@@ -331,6 +332,7 @@
     </div>
 
 @endsection
+@include("development.partials.time-history-modal")
 
 @section('scripts')
     <script
@@ -1588,6 +1590,185 @@
                 }
             });
         });
+
+        $(document).on('click', '.show-time-history', function() {
+            var data = $(this).data('history');
+            var userId = $(this).data('userid'); 
+            var issueId = $(this).data('id');
+            $('#time_history_div table tbody').html('');
+
+            const hasText = $(this).siblings('input').val()
+
+            if(!hasText){
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            }
+
+            $.ajax({
+                url: "{{ route('development/time/history') }}",
+                data: {id: issueId, user_id: userId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $('input[name="developer_task_id"]').val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                                    <td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );  
+                        });
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
+                        );
+                    }
+                    $('#time_history_modal').modal('show');
+                }
+            }); 
+        });
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendRemindMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+
+        $(document).on('click', '.revise_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+
+        $(document).on('click', '.show-lead-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#lead_time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/lead/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+
+                    if(data != 'error') {
+                        $("#lead_developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = '';
+                            }
+                            $('#lead_time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#lead_time-history-modal').modal('show');
+        });
+
+        
+        $(document).on('keyup', '.estimate-time-change', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let issueId = $(this).data('id');
+            let estimate_minutes = $("#estimate_minutes_" + issueId).val();
+            $.ajax({
+                url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
+                data: {
+                    estimate_minutes: estimate_minutes,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message");
+                }
+            });
+
+        });
+        $(document).on('keyup', '.lead-estimate-time-change', function (event) {
+            if (event.keyCode == 13) {
+                return;
+            }
+            let issueId = $(this).data('id');
+            let lead_estimate_minutes = $("#lead_estimate_minutes_" + issueId).val();
+            $.ajax({
+                url: "{{action('DevelopmentController@saveLeadEstimateTime')}}",
+                data: {
+                    lead_estimate_minutes: lead_estimate_minutes,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Lead estimate Minutes updated successfully!", "Message");
+                }
+            });
+
+        });
+        $(document).on('click', '.approved_history', function() {
+    var data = $(this).data('history');
+   //var issueId = $(this).data('id');
+   var issueId = $('#developer_task_id').val();
+
+    $('#approve_history_form table tbody').html('');
+    $.ajax({
+        url: "{{ route('development/time/history/approved') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $('input[name="developer_task_id"]').val(issueId);
+                $.each(data, function(i, item) {
+                    if(item['is_approved'] == 1) {
+                        var checked = 'checked';
+                    }
+                    else {
+                        var checked = ''; 
+                    }
+                    $('#approve_history_form table tbody').append(
+                        '<tr>\
+                            <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                            <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                            <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                        </tr>'
+                    );
+                });
+            }
+        }
+    });
+
+       $('#ApprovedHistory').modal('show');
+   });
+
 
     </script>
 @endsection

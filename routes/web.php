@@ -1843,6 +1843,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
         Route::get('image', 'ProductTemplatesController@imageIndex');
+        Route::get('/get-log', 'ProductTemplatesController@loginstance')->name("product.templates.getlog");
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -2067,6 +2068,7 @@ Route::middleware('auth')->group(function () {
     Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest');
 });
 
+Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
@@ -2215,6 +2217,10 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 });
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
+    Route::get('python-site-log', 'ScrapController@getPythonLog')->name('get.python.log');
+    Route::get('python/get-log', 'ScrapController@loginstance')->name('get.python.logapi');
+    
+    
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
@@ -3484,9 +3490,13 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 
 Route::get('command', function () {
-	
-    \Artisan::call('migrate');
+
+  //  \Artisan::call('migrate');
+     \Artisan::call('get:pythonLogs');
+
+   // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');
+
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/

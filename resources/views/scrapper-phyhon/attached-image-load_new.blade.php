@@ -7,14 +7,19 @@
                         <span class="show-short-storeWebsite-{{$store->id}}">{{ str_limit($list->storeWebsite->website, 30, '..')}}</span>
                         <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
                     </td>*/?>
-                    
+                    <td>{{ $item->id }} </td>
                     <td>{{ isset($storewebsiteUrls[$item->store_website])?$storewebsiteUrls[$item->store_website]:'' }}</td>
                     <td>{{$item->store_name}}</td>
                     <td>{{ $item->lang }}({{ $item->website_id }})</td>
                     
-                        <td> @if($item->desktop > 0) {{ $item->desktop }} @else {{ 'No Images' }} @endif</td>
-                        <td>@if($item->mobile > 0) {{ $item->mobile }} @else {{ 'No Images' }} @endif</td>
-                        <td>@if($item->tablet > 0) {{ $item->tablet }} @else {{ 'No Images' }} @endif</td>
+                        <td> @if($item->desktop > 0) {{ $item->desktop }} @else {{ '1' }} @endif</td>
+                        <td>@if($item->mobile > 0) {{ $item->mobile }} @else {{ '0' }} @endif</td>
+                        <td>@if($item->tablet > 0) {{ $item->tablet }} @else {{ '0' }} @endif</td>
+                        <td>
+                             <span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $item->website_stores_default ? 'checked' : '' }}
+                                onclick="setStoreAsDefault(this)" data-website-id="{{ $item->website_table_id }}"
+                                data-store-id="{{ $item->website_stores_id }}" /></span> 
+                        </td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
@@ -29,9 +34,7 @@
 
                    
 
-     <span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $item->website_stores_default ? 'checked' : '' }}
-                                onclick="setStoreAsDefault(this)" data-website-id="{{ $item->website_table_id }}"
-                                data-store-id="{{ $item->website_stores_id }}" /> Set as default</span> 
+    
                        
                        
                 </tr>
