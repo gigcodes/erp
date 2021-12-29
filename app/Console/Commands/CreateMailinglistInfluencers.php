@@ -50,7 +50,7 @@ class CreateMailinglistInfluencers extends Command
 		
         $influencers = \App\ScrapInfluencer::where(function($q) {
             $q->orWhere("read_status","!=",1)->orWhereNull('read_status');
-        })->where('email', '!=', "")->get();
+        })->where('email', '!=', "")->limit(1)->get();
 		MailinglistIinfluencersLogs::log(count($influencers). " influencers found for CreateMailinglistInfluencers on ->".now());
 		
 	//	$influencers = \App\ScrapInfluencer::where('email', '!=', "")->limit(10)->get();
