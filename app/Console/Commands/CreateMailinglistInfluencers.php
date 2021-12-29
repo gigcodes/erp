@@ -59,6 +59,7 @@ class CreateMailinglistInfluencers extends Command
 		$send_in_blue_account=[];		
 		$services=Service::pluck('name','id');
         $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
+		//$websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->where('id',1)->orderBy('id', 'desc')->get();
 		MailinglistIinfluencersLogs::log(count($websites). " websites found for CreateMailinglistInfluencers on ->".now());
 
         /*foreach ($influencers as $influencer) {
@@ -156,7 +157,7 @@ class CreateMailinglistInfluencers extends Command
 					MailinglistIinfluencersDetailLogs::Create([
 						"service"=>$service->name,
 						"maillist_id"=>$mailList->id,
-						"url"=>$url,
+						 "url"=>$url,
 						"request_data"=>json_encode($req),
 						"response_data"=>json_encode($response),
 						'message'=>'Mailist created'
@@ -174,7 +175,7 @@ class CreateMailinglistInfluencers extends Command
 			}
         }
 
-   
+
         if (!empty($influencers) && !empty($this->mailList)) {  
 			MailinglistIinfluencersLogs::log( "find influencers and mailList");
             $webListIds=$listIds = [];
@@ -377,7 +378,7 @@ class CreateMailinglistInfluencers extends Command
 									]);
 						//	foreach ($mllist->listCustomers() as $customer_id){
 								$oldmailList->listCustomers()->attach($customer->id);
-								$mailList->listCustomers()->detach($customer->id);
+								$mllist->listCustomers()->detach($customer->id);
 								$maillist_customer_history = new MaillistCustomerHistory;
 								$maillist_customer_history->customer_id = $customer->id;
 								$maillist_customer_history->attribute = 'maillist';

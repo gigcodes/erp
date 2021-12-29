@@ -802,7 +802,7 @@ class MailinglistController extends Controller
       
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs     = \App\Loggers\MailinglistIinfluencersDetailLogs::orderby('created_at', 'desc')->paginate($paginate);
+            $logs     = \App\Loggers\MailinglistIinfluencersDetailLogs::orderby('id', 'desc')->paginate($paginate);
 
         if ($request->ajax()) {
             return response()->json([
@@ -821,5 +821,15 @@ class MailinglistController extends Controller
 
         return view('marketing.mailinglist.flowlog', compact('logs'));
     }
+    public function customerlog(Request $request)
+    {
+        $paginate = (Setting::get('pagination') * 10);
+        $customers=\App\Customer::pluck("email","id")->toArray();
+        $mailists=\App\Mailinglist::pluck("name","id")->toArray();
+        $logs     = \App\MaillistCustomerHistory::orderby('id', 'desc')->paginate($paginate);
+
+        return view('marketing.mailinglist.customerlog', compact('logs','customers','mailists'));
+    }
+
 	
 }
