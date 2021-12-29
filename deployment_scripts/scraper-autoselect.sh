@@ -59,40 +59,6 @@ function scraper_restart_list
 	done < $ScriptDIR/scraper-list.txt
 }
 	
-########### Restart Scraper #####
-function scraper_restart
-{
-	echo "############ Below Scrappers will be Restarted ##############################"
-	cat /tmp/scrap_restart
-	while read scraperjs
-	do
-		scraper_memory < /dev/null
-		scraper=`echo $scraperjs|cut -d'.' -f1`
-		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
-		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
-		if [ $minmemory -gt 75 ]
-		then
-			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
-			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com
-			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com 
-			echo "No server has free memory more than 10%"
-			exit
-		fi
-		echo $server $scraper
-		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" < /dev/null`
-		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null
-		if [ $? -eq 0 ]
-		then
-	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 
-			date=`date +'%F-%T'`
-			day=`date +'%d'`
-			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history
-		fi
-		echo "Wait for 60 Seconds before starting another scrapper"
-		sleep 60
-	done < /tmp/scrap_restart
-}
-
 ####################    Kill all chromium browser process which scrapers are not running #######
 function chromium_kill
 {
@@ -111,6 +77,41 @@ function chromium_kill
 			ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
 		fi
 	done < /tmp/chromimum_service
+}
+
+########### Restart Scraper #####
+function scraper_restart
+{
+	echo "############ Below Scrappers will be Restarted ##############################"
+	cat /tmp/scrap_restart
+	while read scraperjs
+	do
+		scraper_memory < /dev/null
+		scraper=`echo $scraperjs|cut -d'.' -f1`
+		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
+		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
+		if [ $minmemory -gt 75 ]
+		then
+			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com 
+			echo "No server has free memory more than 10%"
+			chromium_kill
+			exit
+		fi
+		echo $server $scraper
+		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" < /dev/null`
+		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null
+		if [ $? -eq 0 ]
+		then
+	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 
+			date=`date +'%F-%T'`
+			day=`date +'%d'`
+			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history
+		fi
+		echo "Wait for 60 Seconds before starting another scrapper"
+		sleep 60
+	done < /tmp/scrap_restart
 }
 
 scraper_status
