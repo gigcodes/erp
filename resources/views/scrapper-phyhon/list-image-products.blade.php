@@ -225,7 +225,7 @@
     </form>
 </div>
 <!-- END - DEVTASK-4271 -->
-
+{{ $images->appends(request()->except('page'))->links() }}
 <!-- Purpose : Add class infinite-scroll - DEVTASK-4271 -->
 <div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
         @php
@@ -272,13 +272,14 @@
         <div class="row">
             <div class="col-md-12">
                 <br>
-                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{count($images)}}</h5> 
+                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{$images->total()}}</h5> 
 
                 <hr style="margin: 5px 0px;">
             </div>
         </div> 
 
         @foreach($images as $image)
+                <?php $image = $image->toArray();?>
                 {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
 
                 <?php
@@ -374,6 +375,7 @@
         {{-- @endforeach --}}
         @endforeach
         <br>
+      
 </div>
 <!--Remark Modal-->
 <div id="remark-area-list" class="modal fade" role="dialog">
