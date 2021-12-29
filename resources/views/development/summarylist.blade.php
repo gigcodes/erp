@@ -228,12 +228,12 @@
                     <tr>
                         <th width="6%">ID</th>
                         <th width="7%">MODULE</th>
-                        <th width="7%">Assigned To</th>
-                        <th width="7%">Lead</th>
-                        <th width="20%">Communication</th>
-                        <th width="13%;">Est Cm Time</th>
-                        <th width="6%">Send To</th>
-                        <th width="10%">Status</th>
+                        <th width="6%">Assigned To</th>
+                        <th width="5%">Lead</th>
+                        <th width="28%">Communication</th>
+                        <th width="11%;">Est Cm Time</th>
+                        <th width="5%">Send To</th>
+                        <th width="5%">Status</th>
                     </tr>
                 </thead>
 
