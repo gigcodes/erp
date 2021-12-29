@@ -7,7 +7,7 @@
                         <span class="show-short-storeWebsite-{{$store->id}}">{{ str_limit($list->storeWebsite->website, 30, '..')}}</span>
                         <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
                     </td>*/?>
-                    <td>{{ $item->id }} </td>
+                    <!-- <td>{{ $item->id }} </td> -->
                     <td>{{ isset($storewebsiteUrls[$item->store_website])?$storewebsiteUrls[$item->store_website]:'' }}</td>
                     <td>{{$item->store_name}}</td>
                     <td>{{ $item->lang }}({{ $item->website_id }})</td>
