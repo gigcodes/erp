@@ -230,7 +230,7 @@ class scrapperPhyhon extends Controller
 
 
     public function listImages(Request $request){
-
+      
         $store_id = $request->id;
 
         $oldDate = null;
@@ -266,8 +266,12 @@ class scrapperPhyhon extends Controller
                         $images = $images->orWhereNull('device')->whereNotIn('device',['mobile','tablet']);
                     }
 
-                    $images = $images->get()
-                    ->toArray();
+               //     $images = $images->get()
+                 //   ->toArray();
+                 $images =  $images->paginate(Setting::get('pagination'));
+                // $images =  $images->paginate(2);
+               
+
                 }
             }
 
