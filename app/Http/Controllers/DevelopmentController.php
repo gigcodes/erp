@@ -968,6 +968,7 @@ class DevelopmentController extends Controller
 
         // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(15);
+        
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
