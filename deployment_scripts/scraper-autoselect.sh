@@ -4,7 +4,7 @@
 ScriptDIR=`dirname "$0"`
 datetime=`date +%d%b%y-%H:%M`
 
-rm /tmp/scrap_* /opt/scrap_status
+rm /tmp/scrap_* /opt/scrap_status /tmp/chromimum_service
 echo "" > /opt/scrap_restart
 
 ####################    Get all running Scraper details in all servers #######
@@ -59,6 +59,26 @@ function scraper_restart_list
 	done < $ScriptDIR/scraper-list.txt
 }
 	
+####################    Kill all chromium browser process which scrapers are not running #######
+function chromium_kill
+{
+	for server in 0{1..9} {10..10}
+	do
+	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep chromium|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$3}'" >> /tmp/chromimum_service 2>/dev/null
+	done
+
+	while read process
+	do
+		chromium_time=`echo $process|cut -d' ' -f3|cut -d'.' -f1`
+		if [ $chromium_time -gt 72 ]				### if chromium process running from more than 72 hrs
+		then
+			server=`echo $process|cut -d' ' -f1`
+			pid=`echo $process|cut -d' ' -f2`
+			ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
+		fi
+	done < /tmp/chromimum_service
+}
+
 ########### Restart Scraper #####
 function scraper_restart
 {
@@ -76,6 +96,7 @@ function scraper_restart
 			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com
 			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com 
 			echo "No server has free memory more than 10%"
+			chromium_kill
 			exit
 		fi
 		echo $server $scraper
@@ -96,3 +117,4 @@ function scraper_restart
 scraper_status
 scraper_restart_list
 scraper_restart < /dev/null
+chromium_kill
