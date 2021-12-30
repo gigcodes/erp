@@ -14,8 +14,18 @@
 
         @if($data->count() > 0)
         <div class="row row-cards">
-            @foreach($data as $post)
-            <?php $detail = json_decode($post->ig); $media = \Plank\Mediable\Media::whereIn('id',$detail->media)->first(); ?>
+            @foreach($data as $key=>$post) 
+            <?php $detail = json_decode($post->ig); //if($key == 8) {dd($detail);}
+				$media = null;
+				if($detail->media != null) { 
+					if(is_array($detail->media)) {
+						$media = \Plank\Mediable\Media::whereIn('id',$detail->media)->first();
+					} else{
+						$media = \Plank\Mediable\Media::where('id',$detail->media)->first();
+					}
+					
+				} 
+			?>
             <div class="col-sm-6 col-lg-3">
                 <div class="card">
                     @if($media)
@@ -43,7 +53,7 @@
                     </div>
 
                 </div>
-            </div>
+            </div> 
             @endforeach
         </div>
         @endif

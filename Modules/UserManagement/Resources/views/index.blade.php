@@ -841,39 +841,6 @@
             });
         });
 
-        $(document).on("click", ".permission-grant", function(e) {
-            e.preventDefault();
-            var permission = $(this).data('id');
-            var user = $(this).data('user');
-            var type = $(this).data('type');
-
-            $.ajax({
-                url: '/user-management/modifiy-permission',
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    permission: permission,
-                    user: user,
-                    type: type
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(result) {
-                    $("#loading-image").hide();
-                    if (result.code == 200) {
-                        toastr["success"](result.data, "");
-                    } else {
-                        toastr["error"](result.data, "");
-                    }
-                },
-                error: function() {
-                    $("#loading-image").hide();
-                }
-            });
-        });
-
         $('.due-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });

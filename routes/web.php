@@ -1835,6 +1835,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-templates')->middleware('auth')->group(function () {
         Route::get('/', 'ProductTemplatesController@index')->name('product.templates');
+        Route::get('/log', 'ProductTemplatesController@getlog')->name('product.templates.log');
         Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
@@ -1842,6 +1843,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
         Route::get('image', 'ProductTemplatesController@imageIndex');
+        Route::get('/get-log', 'ProductTemplatesController@loginstance')->name("product.templates.getlog");
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -1894,8 +1896,8 @@ Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
 Route::post('twilio/events', 'TwilioController@twilioEvents');
 
-Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
-Route::post('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
+Route::any('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+Route::any('twilio/twilio_call_menu_response', 'TwilioController@twilio_call_menu_response')->name('twilio_call_menu_response');
 Route::post('twilio/twilio_order_status_and_information_on_call', 'TwilioController@twilio_order_status_and_information_on_call')->name('twilio_order_status_and_information_on_call');
 Route::post('twilio/twilio_return_refund_exchange_on_call', 'TwilioController@twilio_return_refund_exchange_on_call')->name('twilio_return_refund_exchange_on_call');
 
@@ -2066,6 +2068,7 @@ Route::middleware('auth')->group(function () {
     Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest');
 });
 
+Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
@@ -2214,6 +2217,10 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 });
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
+    Route::get('python-site-log', 'ScrapController@getPythonLog')->name('get.python.log');
+    Route::get('python/get-log', 'ScrapController@loginstance')->name('get.python.logapi');
+    
+    
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
@@ -3118,6 +3125,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
 
+	Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
+
     //subcategory route
 
 });
@@ -3307,9 +3316,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/image-remark/sotre', 'scrapperPhyhon@imageRemarkStore')->name('image-remark.store');
     Route::get('/change-category/remarks-show', 'scrapperPhyhon@changeCatRemarkList')->name('change-category.remarks-show');
     Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+    Route::post('/scrapper-python/delete', 'scrapperPhyhon@delete')->name('scrapper.phyhon.delete');
     Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
     Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
     Route::get('/scrapper-python/history', 'scrapperPhyhon@history')->name('scrapper.history');
+    Route::get('/scrapper-python/actionHistory', 'scrapperPhyhon@actionHistory')->name('scrapper.action.history');
+    Route::get('/scrapper-python/image/url_list', 'scrapperPhyhon@imageUrlList')->name('scrapper.image.urlList');
 
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
@@ -3478,11 +3490,14 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 
 Route::get('command', function () {
-	
-    \Artisan::call('migrate');
+
+  //  \Artisan::call('migrate');
+     \Artisan::call('get:pythonLogs');
+
+   // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');
+
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
-

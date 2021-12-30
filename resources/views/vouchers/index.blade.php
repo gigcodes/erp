@@ -114,21 +114,23 @@
 
      <div class="col-sm">
         <div class="table-responsive vendor-payments-list">
-        <table class="table table-bordered">
+        <table class="table table-bordered"style="table-layout: fixed;">
         <tr>
-          <th style="width:2%";>-</th>
-          <th style="width:5%";>User</th>
-          <th style="width:5%";>Date</th>
-          <th>Details</th>
-          <th>Category</th>
-          <th>Tm St</th>
-          <th>Amount</th>
-          <th>Currency</th>
-          <th style="width:6%";>Amt Pd</th>
-          <th style="width:5%";>Balance</th>
-          <th>Due Date</th>
-          <th>Communication</th>
-          <th colspan="2" class="text-center">Action</th>
+          <th style="width:1%;">-</th>
+          <th style="width:2%";>User</th>
+          <th style="width:3%";>Date</th>
+          <th style="width:2%;">Details</th>
+          <th style="width:2%;">Category</th>
+          <th style="width:2%;">Tm St</th>
+          <th style="width:2%;">Hours</th>
+          <th style="width:2%;">Rate</th>
+          <th style="width:2.5%;">Amount</th>
+          <th style="width:2%;">Currency</th>
+          <th style="width:2%";>Amt Pd</th>
+          <th style="width:2%";>Balance</th>
+          <th style="width:2%;">Due Date</th>
+          <th style="width:5%;">Communication</th>
+          <th style="width:3%;">Action</th>
         </tr>
           @php
             $totalRateEstimate = 0;
@@ -138,15 +140,17 @@
           @foreach ($tasks as $task)
             <tr>
               <td><input type="checkbox" class="paid-all-payment" name="paid_all[]" value="{{$task->id}}"></td>
-              <td>
+              <td class="Website-task">
                 @if(isset($task->user)) {{  $task->user->name }} @endif
               </td>
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m-Y') }}</td>
-              <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
+              <td class="Website-task">{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
               <td>{{ $task->estimate_minutes }} </td>
-              <td>  {{ $task->rate_estimated }} 
-                  <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-calculation" title="Show History" data-id="{{ $task->id }}"><i class="fa fa-info-circle"></i></button> 
+              <td>{{ number_format((float)$task->estimate_minutes/60, 2, '.', '') }} </td>
+              <td>{{ $task->user->hourly_rate }} </td>
+              <td style="display:flex;border-bottom: none;">  {{ $task->rate_estimated }} 
+                  <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $task->id }}"><i class="fa fa-info-circle"></i></button> 
               </td>
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
@@ -155,10 +159,11 @@
               <td>
                 <div class="row">
                     <div class="col-md-12 form-inline cls_remove_rightpadding"style="display: flex;">
-                        <textarea rows="1" class="form-control quick-message-field cls_quick_message " id="messageid_{{ $task->id }}" name="message" placeholder="Message"></textarea>
-                        <button class="btn btn-sm btn-image send-message1 " data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                            
+                        <textarea rows="1" class="form-control quick-message-field cls_quick_message " id="messageid_{{ $task->id }}" name="message" placeholder="Message"style="width:60% !important;"></textarea>
+                        <div class="ml-4 pl-0">
+                        <button class="btn btn-sm p-0 m-0 btn-image send-message1 " data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                        <button type="button" class="btn btn-xs  p-0 m-0  btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                           </div> 
                         </div>
                     </div>
                 </div>
@@ -357,27 +362,27 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Show Counting</h4>
-                    <table>
+                </div>
+                <div class="modal-body">
+                <table class="table table-bordered">
                       <tr>
-                        <td>Total Minutes</td>
+                        <td width="65%">Total Minutes</td>
                         <td class="total_minutes"></td>
                       </tr>
                       <tr>
-                        <td>Worked in Hours</td>
+                        <td width="65%">Worked in Hours</td>
                         <td class="worked_in_hour"></td>
                       </tr>
                       <tr>
-                        <td>Rate Per Hour</td>
+                        <td width="65%">Rate Per Hour</td>
                         <td class="rate_per_hour"> </td>
                       </tr>
                       <tr>
-                        <td Total></td>
+                        <td width="65%"> Total (Worked in Hours * Rate Per Hour)</td>
                         <td class="total"></td>
                       </tr>
                     </table>
-                      <div class="total_minutes"></div>
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
+                      
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -532,7 +537,7 @@
         var issueId = $(this).data('id');
   
         $.ajax({
-            url: "/voucher/show/"+issueId,
+            url: "/voucher/"+issueId,
             data: {id: issueId},
             success: function (data) {
               $(".total_minutes").html(data.worked_minutes);

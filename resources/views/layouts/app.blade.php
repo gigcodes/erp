@@ -435,6 +435,10 @@ if (!empty($notifications)) {
 										<li class="nav-item">
 											<a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
 										</li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('product.templates.log') }}">Product Template Log</a>
+                                        </li>
+                                        
 									</ul>
 								</li>
 
@@ -1427,6 +1431,9 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
                                 </li>
                                 <li class="nav-item">
@@ -1568,7 +1575,10 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Python</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
@@ -1619,6 +1629,9 @@ if (!empty($notifications)) {
 													</li>
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
+													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
 													</li>
 												</ul>
 											</li>
@@ -2106,10 +2119,11 @@ if (!empty($notifications)) {
                     @if(Auth::check())
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
+                            @if (Auth::user()->hasRole('Admin'))
                             <li>
                                 <a class="quick-icon permission-request" href="#"><span><i class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
-                                
                             </li>
+                            @endif
                             <li>
                                 <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                             </li>
@@ -3542,6 +3556,39 @@ if (!\Auth::guest()) {
                     }
                     $("#permission-request-model").find(".show-list-records").html(t);
                     $("#permission-request-model").modal("show");
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on("click", ".permission-grant", function(e) {
+            e.preventDefault();
+            var permission = $(this).data('id');
+            var user = $(this).data('user');
+            var type = $(this).data('type');
+
+            $.ajax({
+                url: '/user-management/modifiy-permission',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    permission: permission,
+                    user: user,
+                    type: type
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(result) {
+                    $("#loading-image").hide();
+                    if (result.code == 200) {
+                        toastr["success"](result.data, "");
+                    } else {
+                        toastr["error"](result.data, "");
+                    }
                 },
                 error: function() {
                     $("#loading-image").hide();
