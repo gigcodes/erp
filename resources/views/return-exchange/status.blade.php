@@ -6,7 +6,7 @@
 @section('large_content')
 
 <div class="row" id="return-exchange-page">
-	<div class="col-lg-12 margin-tb">
+	<div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading">Return Exchange Status <span id="total-counter">({{$status->count()}})</span></h2>
     </div>
     <br>
@@ -17,8 +17,9 @@
 		    		<form class="form-inline return-exchange-handler" method="get">
 					  <div class="row">
 				  		<div class="col">
-				  			<div class="form-group">
-							    <?php echo Form::text("search",request("search"),["class"=> "form-control","placeholder" => "Search by keyword"]) ?>
+				  			<div class="form-group pl-4 return-input">
+							    <?php echo Form::text("search",request("search"),["class"=> "
+                                  form-control","placeholder" => "Search by keyword"]) ?>
 						  	</div>
 						  	<div class="form-group">
 						  		<!--<label for="button">&nbsp;</label>-->
@@ -39,7 +40,7 @@
                 <th width="2%">Id</th>
                 <th>Status</th>
                 <th>Message</th>
-                <th width="10%">Action</th>
+                <th width="5%">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -47,13 +48,13 @@
                     <tr data-id="<?php echo $s->id; ?>">
                         <td><?php echo $s->id; ?></td>
                         <td>
-                            <div class="form-group">
+                            <div class="form-group" style="margin-bottom:-3px !important;">
                                 <input type="text" value="<?php echo $s->status_name; ?>" class="form-control text-editor-textarea" data-field="status_name" placeholder="Enter status">
                             </div>
                         </td>
                         <td>
-                            <div class="form-group">
-                                <textarea class="form-control text-editor-textarea" data-field="message"><?php echo $s->message; ?></textarea>
+                            <div class="form-group"style="margin-bottom:-3px !important;">
+                                <textarea class="form-control text-editor-textarea" data-field="message"style="height: 34px"><?php echo $s->message; ?></textarea>
                             </div>
                         </td>
                         <td>

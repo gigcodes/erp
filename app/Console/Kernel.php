@@ -476,7 +476,7 @@ class Kernel extends ConsoleKernel
         //This command saves the twilio call logs in call_busy_messages table...
         //2020-02-17 $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
-        // $schedule->command('meeting:getrecordings')->hourly();
+         $schedule->command('meeting:getrecordings')->hourly();
         // $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         // Check scrapers

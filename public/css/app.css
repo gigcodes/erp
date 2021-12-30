@@ -11408,3 +11408,6 @@ dark{
     color: black;
     border-color: #ddd;
 }
+.return-input input{
+    width: 250px !important;
+}
