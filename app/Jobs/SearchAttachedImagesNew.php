@@ -13,7 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 
-class SearchAttachedImages implements ShouldQueue
+class SearchAttachedImagesNew implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -42,7 +42,7 @@ class SearchAttachedImages implements ShouldQueue
         $id = $this->id;
         $ref_file = str_replace('|', '/', $this->url);
         $ref_file = str_replace("'", '', $ref_file);
-        $params = $this->req_data;  dd($params);
+        $params = $this->req_data;
         $customer_id = false;
         $chat_message = false;
         if (isset($params['customer_id'])) {

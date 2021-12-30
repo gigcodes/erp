@@ -574,8 +574,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/references/chamge', 'SizeController@referenceAdd');
     Route::get('sizes/affected-product', 'SizeController@affectedProduct');
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
-    Route::get('sizes/new-references', 'SizeController@newSizeReferences');
-    Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
+	Route::get('sizes/new-references', 'SizeController@newSizeReferences');
+	Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
     Route::resource('category', 'CategoryController');
     Route::resource('category-segment', 'CategorySegmentController');
 
@@ -1398,9 +1398,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/scrapping/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrapping.index');
     
     Route::get('scrap/development/list', 'DevelopmentController@scrappingTaskIndex')->name('development.scrap.index');
-    Route::get('development/change-user', 'DevelopmentController@changeUser')->name('development.issue.change_user');
+	Route::get('development/change-user', 'DevelopmentController@changeUser')->name('development.issue.change_user');
     Route::post('development/change-user', 'DevelopmentController@changeUserStore')->name('development.changeuser.store');
-    
+	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
@@ -1843,6 +1843,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
         Route::get('image', 'ProductTemplatesController@imageIndex');
+        Route::get('/get-log', 'ProductTemplatesController@loginstance')->name("product.templates.getlog");
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -2067,6 +2068,7 @@ Route::middleware('auth')->group(function () {
     Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest');
 });
 
+Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
 
@@ -2215,6 +2217,10 @@ Route::prefix('seo')->middleware('auth')->group(function () {
 });
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
+    Route::get('python-site-log', 'ScrapController@getPythonLog')->name('get.python.log');
+    Route::get('python/get-log', 'ScrapController@loginstance')->name('get.python.logapi');
+    
+    
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
@@ -3119,7 +3125,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
 
-    Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
+	Route::get('twilio/accept', 'TwilioController@incomingCall')->name('twilio-accept-call');
 
     //subcategory route
 
@@ -3310,9 +3316,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/image-remark/sotre', 'scrapperPhyhon@imageRemarkStore')->name('image-remark.store');
     Route::get('/change-category/remarks-show', 'scrapperPhyhon@changeCatRemarkList')->name('change-category.remarks-show');
     Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+    Route::post('/scrapper-python/delete', 'scrapperPhyhon@delete')->name('scrapper.phyhon.delete');
     Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
     Route::post('/scrapper-python/call', 'scrapperPhyhon@callScrapper')->name('scrapper.call');
     Route::get('/scrapper-python/history', 'scrapperPhyhon@history')->name('scrapper.history');
+    Route::get('/scrapper-python/actionHistory', 'scrapperPhyhon@actionHistory')->name('scrapper.action.history');
+    Route::get('/scrapper-python/image/url_list', 'scrapperPhyhon@imageUrlList')->name('scrapper.image.urlList');
 
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
@@ -3481,10 +3490,14 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 
 Route::get('command', function () {
-    
-    \Artisan::call('migrate');
+
+  //  \Artisan::call('migrate');
+     \Artisan::call('get:pythonLogs');
+
+   // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');
-    /* php artisan migrate */
+
+	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });

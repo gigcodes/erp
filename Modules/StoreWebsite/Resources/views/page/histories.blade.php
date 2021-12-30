@@ -21,7 +21,7 @@
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get">
-                            
+
                             <div class="form-group  d-flex">
 
                                 <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
@@ -51,25 +51,25 @@
         </div>
         <div class="col-md-12 margin-tb p-0" id="page-view-result">
             <div class="table-responsive ">
-                <table class="table table-bordered">
+                <table class="table table-bordered page-history-table"style="table-layout: fixed;">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Store Website</th>
-                        <th>Url Key</th>
-                        <th>URl</th>
-                        <th>Result</th>
-                        <th>Result Type</th>
+                        <th width="1%">Id</th>
+                        <th width="2%">Store Website</th>
+                        <th width="2%">Url Key</th>
+                        <th width="5%">URl</th>
+                        <th width="15%">Result</th>
+                        <th width="2%">Result Type</th>
                     </tr>
                     </thead>
                     <tbody>
                                             <?php foreach($records as $record) {  ?>
                                                 <tr>
                                                     <td><?php echo $record->id; ?></td>
-                                                    <td><?php echo $record->store_website_name; ?></td>
-                                                    <td><?php echo $record->url_key; ?></td>
-                                                    <td><?php echo $record->url; ?></td>
-                                                    <td><?php echo $record->result; ?></td>
+                                                    <td class="Website-task"title="<?php echo $record->store_website_name; ?>"><?php echo $record->store_website_name; ?></td>
+                                                    <td class="Website-task"title="<?php echo $record->url_key; ?>"><?php echo $record->url_key; ?></td>
+                                                    <td class="Website-task"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
+                                                    <td class="Website-task result"title="<?php echo $record->result; ?>"><?php echo $record->result; ?></td>
                                                     <td><?php echo $record->result_type; ?></td>
                                                 </tr>
                                             <?php } ?>
