@@ -265,13 +265,13 @@
             <tr>
                 <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
                 <th width="3%">WhatsApp</th>
-                <th width="3%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
                 <th width="7%">Status</th>
                 <th width="6%">Name</th>
                 <th width="5%">Phone</th>
                 <th width="3%">Email</th>
                 <th width="21%">Communication</th>
-                <th width="14%">Action</th>
+                <th width="15%">Action</th>
             </tr>
             </thead>
 

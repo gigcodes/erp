@@ -211,7 +211,7 @@
                     
                 </form>
                 @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal"
+                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
                     data-target="#newTaskModal">Add New Dev Task </a>
             @endif
                 
@@ -226,14 +226,14 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">MODULE</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Lead</th>
-                        <th width="35%">Communication</th>
-                        <th style="width:10%;">Est Completion Time</th>
-                        <th width="10%">Send To</th>
-                        <th width="10%">Status</th>
+                        <th width="6%">ID</th>
+                        <th width="7%">MODULE</th>
+                        <th width="6%">Assigned To</th>
+                        <th width="5%">Lead</th>
+                        <th width="28%">Communication</th>
+                        <th width="11%;">Est Cm Time</th>
+                        <th width="5%">Send To</th>
+                        <th width="5%">Status</th>
                     </tr>
                 </thead>
 
@@ -264,18 +264,31 @@
     @include("partials.plain-modal")
 
 
-    <div id="chat-list-history" class="modal fade" role="dialog">
+    <div id="python-action-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>
-                    <input type="text" name="search_chat_pop" class="form-control search_chat_pop"
-                        placeholder="Search Message" style="width: 200px;">
-                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
-                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
-                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                    <h4 class="modal-title">Action History</h4>
+                   
                 </div>
-                <div class="modal-body" style="background-color: #999999;">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="python-action-history_div">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Old Status</th>
+                                        <th>New Status</th>
+                                        <th>Updated by</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
