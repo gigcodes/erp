@@ -241,10 +241,10 @@
 
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
-            <table class="table table-bordered" style="table-layout:fixed;">
+            <table class="table table-bordered"style="table-layout:fixed;">
                 <thead>
                 <th style="width:4%">Date</th>
-                <!-- <th style="width:4%">Id</th> -->
+                <th style="width:4%">Id</th>
                 <th style="width:20%">Website</th>
                 <th style="width:12%">Name</th>
                 <th style="width:10%">Language</th>
