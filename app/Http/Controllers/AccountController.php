@@ -115,7 +115,7 @@ class AccountController extends Controller
         try {
             $this->ig->login($account->last_name, $account->password);
         } catch (\Exception $exception) {
-            return redirect()->back()->with('message', 'Please connect your account to server before starting growth!');
+            return redirect()->back()->with('message', 'Please connect your account to server before starting growth!'.$exception->getMessage());
         }
 
         $account->is_seeding = 1;

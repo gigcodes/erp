@@ -1835,7 +1835,7 @@ class HubstaffActivitiesController extends Controller
                 PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s"),"hourly_rate"=>$hour_rate ]);
 
             }else{
-                $info_log[]=" get payment_receipt".$payment_receipt->id;
+                //$info_log[]=" get payment_receipt".$payment_receipt->id;
                 $min     = $approved / 60;
                 $info_log[]=" min = ".$min;
                 $min     = number_format($min, 2);
