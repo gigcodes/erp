@@ -124,7 +124,7 @@ class StoreWebsiteController extends Controller
         if (!$records) {
             $records = new StoreWebsite;
         }
-
+       
         $records->fill($post);
         $records->save();
 

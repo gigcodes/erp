@@ -1140,7 +1140,7 @@ button[disabled]:hover {
             var $id = $(this).data("id");
             var $date=  $('#date11').val();
             $.ajax({
-                url: '{{url('instagram/influencers/get-log')}}',
+                url: '{{url("instagram/influencers/get-log")}}',
                 method:"get",
                 data : {
                     id : $id,

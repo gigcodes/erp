@@ -1532,5 +1532,38 @@
             });
             $('#user_history_modal').modal('show');
         });
+        $(document).on('click', '.approved_history', function() {
+            var data = $(this).data('history');
+        //var issueId = $(this).data('id');
+        var issueId = $('#developer_task_id').val();
+
+            $('#approve_history_form table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approved') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $('input[name="developer_task_id"]').val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#approve_history_form table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+
+            $('#ApprovedHistory').modal('show');
+        });
     </script>
 @endsection

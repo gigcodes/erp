@@ -52,9 +52,10 @@
 @if(Session::has('message'))
     <p class="alert alert-info">{{ Session::get('message') }}</p>
 @endif
+<div class="col-md-12 pl-xl-0">
 <div class = "row">
     <div class="col-md-10 margin-tb">
-        <div class="pull-left cls_filter_box">
+        <div class="cls_filter_box">
             <form class="form-inline" action="{{ url('instagram/post/create') }}" method="GET">
                 <div class="form-group ml-3 cls_filter_inputbox">
                     <input type="text" id="select_date" name="select_date" value="Select Date"  class="form-control">
@@ -89,12 +90,14 @@
         </div>
     </div>  
     <div class="col-md-2 margin-tb">
-        <div class="pull-right mt-3">
+        <div class="pull-right mt-3"style="margin-top:2px !important;">
 
-            <button type="button" class="class=" btn="" btn-success="" btn-block="" btn-publish="" mt-0="" data-toggle="modal" data-target="#add-vendor-info-modal" title="" data-id="1">Create Post</button>
+            <button type="button" class=" btn btn-success btn-block custom-button btn-publish mt-0" data-toggle="modal" data-target="#add-vendor-info-modal" title="" data-id="1" >Create Post</button>
         </div>
     </div>
 </div>
+</div>
+<div class="col-md-12 -5">
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="panel-group" style="margin-bottom: 5px;">
@@ -104,19 +107,23 @@
                        Posts
                     </h4>
                 </div>
-                <div class="panel-body">
-                    <table class="table table-bordered table-striped">
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="row">
+                <div class="mt-3">
+                    <table class="table table-bordered table-striped"style="table-layout: fixed;">
                         <tr>
                             <th width="9%">Date</th>
                             <th width="8%">Account</th>
-                            <th width="15%">Comment</th>
-                            <th width="6%">Hash Tags</th>
-                            <th width="9%">Schedule date</th>
-                            <th width="5%">Type</th>
-                            <th width="8%">Location</th>
-                            <th width="20%">Instagram Link</th>
-                            <th width="20%">Status</th>
-                            <th>Action</th>
+                            <th width="13%">Comment</th>
+                            <th width="8%">Hash Tags</th>
+                            <th width="7%">Schedule date</th>
+                            <th width="8%">Type</th>
+                            <th width="5%">Location</th>
+                            <th width="7%">Instagram Link</th>
+                            <th width="6%">Status</th>
+                            <th width="5%">Action</th>
                         </tr>
                         @foreach ($posts as $post)
                             
@@ -134,10 +141,10 @@
                                     <div class="col-md-10">
                                         <input type="text" class="form-control post_comment" value="{{$post->comment}}">
                                     </div>
-                                    <button class="btn btn-sm btn-image btn-update-comment"><img src="/images/filled-sent.png"></button>
+                                    <button class="btn btn-sm mt-0 btn-image btn-update-comment"><img src="/images/filled-sent.png"></button>
                                 </td>
                                 <td>
-                                    <button type="button" data-hashtag = '{{$post->hashtags}}' data-id = '{{$post->id}}' class="btn-modal-hashtag" data-toggle="modal" data-target="#show-hashtag-model" title="">Show Hashtags</button>
+                                    <button type="button" data-hashtag = '{{$post->hashtags}}' data-id = '{{$post->id}}' class="btn btn-primary custom-button" data-toggle="modal" data-target="#show-hashtag-model" title=""style="border: 1px solid #bfbaba;">Show Hashtags</button>
                                 </td>
                                 <td>{{$post->scheduled_at}}</td>
                                 <td>
@@ -150,10 +157,10 @@
                                 <td>{{$post->location}}</td>
                                 <!--td>{{$post->ig}}</td-->
                                
-                                <td>
+                                <td class="Website-task">
                                     @foreach($accounts as $account)
                                         @if($post->account_id==$account->id)
-                                            <a href='https://www.instagram.com/{{$account->last_name}}'>https://www.instagram.com/{{$account->last_name}}</a>
+                                            <a href='https://www.instagram.com/{{$account->last_name}}'style="color: black;">https://www.instagram.com/{{$account->last_name}}</a>
                                             @php
                                             break;
                                             @endphp
@@ -162,7 +169,7 @@
                                 </td>
                                 <td>{{$post->status == 1 ? "Published" : "Not Published"}}</td>
                                 <td>
-                                    <a href="{{url('instagram/post/publish-post')}}/{{$post->id}}" class="btn btn-primary" >Publish</a>
+                                    <a href="{{url('instagram/post/publish-post')}}/{{$post->id}}" class="btn custom-button btn-primary"style="border: 1px solid #bfbaba;" >Publish</a>
                                     <!--button type="button" class="btn-post-save" data-toggle="modal" title="" data-id="{{$post->id}}">Update</button-->
                                     <!--button type="button" class="btn-post-publish" data-toggle="modal" data-id="{{$post->id}}">Publish</button-->
                                     
@@ -173,6 +180,7 @@
                     {{ $posts->links() }}
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </div>
