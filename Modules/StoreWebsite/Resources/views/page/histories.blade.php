@@ -21,7 +21,6 @@
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get">
-
                             <div class="form-group  d-flex">
 
                                 <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
