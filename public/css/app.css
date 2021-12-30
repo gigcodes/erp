@@ -11403,8 +11403,14 @@ table.table-striped-custom tbody tr td {
    
     width: 292px !important;
 }
-
-}
 .return-input input{
     width: 250px !important;
+}
+.page-history-table tbody .result:hover{
+    overflow: visible;
+    text-overflow: unset;
+    white-space: initial;
+}
+.input-button{
+    width: 20%;
 }

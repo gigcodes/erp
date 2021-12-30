@@ -1,6 +1,4 @@
-/**
- * @SWG\Definition(type="object", @SWG\Xml(name="User"))
- */<?php
+<?php
 
 namespace App;
 /**

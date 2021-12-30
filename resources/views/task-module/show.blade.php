@@ -181,7 +181,7 @@
     @include('task-module.partials.modal-task-view')
     @include('task-module.partials.modal-whatsapp-group')
     @include('task-module.partials.modal-task-bell')
-
+    @include('task-module.partials.modal-chat')
     @include('partials.flash_messages')
 
     <div class="row">
@@ -1992,10 +1992,35 @@
             }else{
                 var message = $('#getMsg'+task_id).val();
             }
-            alert(message)
+            if(message!=""){
+                $("#message_confirm_text").html(message);
+                $("#confirm_task_id").val(task_id);
+                $("#confirm_message").val(message);
+                $("#confirm_status").val(1);
+                $("#confirmMessageModal").modal();
+            }
+        });
+        $(document).on('click', '.confirm-messge-button', function () {   
+            
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $("#confirm_task_id").val();
+            var message = $("#confirm_message").val();
+            var status = $("#confirm_status").val();
+
+        //    alert(message)
             data.append("task_id", task_id);
             data.append("message", message);
-            data.append("status", 1);
+            data.append("status", status);
+
+           // var checkedValue = $('.send_message_recepients:checked').val();
+            var checkedValue = [];
+            var i=0;
+            $('.send_message_recepients:checked').each(function () {
+                checkedValue[i++] = $(this).val();
+            });   
+            data.append("send_message_recepients",checkedValue); 
+          //  console.log(checkedValue);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
@@ -2012,8 +2037,10 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+
                         $(thiss).siblings('input').val('');
                         $('#getMsg'+task_id).val('');
+                        $('#confirmMessageModal').modal('hide');
 
                         if (cached_suggestions) {
                             suggestions = JSON.parse(cached_suggestions);
@@ -2048,6 +2075,7 @@
 
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
+                        $('#confirmMessageModal').modal('hide');
                         $(thiss).attr('disabled', false);
 
                         alert("Could not send message");
