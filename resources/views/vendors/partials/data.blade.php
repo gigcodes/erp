@@ -123,38 +123,14 @@
                 </div>        
             </div> 
         </div>
-        <div class="row cls_mesg_box mt-1">
-            <div class="col-md-12">
-                <div class="col-md-12 expand-row">
-                @if(isset($vendor->chat_messages[0]))
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
-                    </span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->chat_messages[0]->message }}
-                    </span>
-                @endif
-                @if(isset($vendor->message))
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                    {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
-                    </span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
-                      {{ $vendor->message }}
-                    </span>
-                @else
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}"></span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>
-                @endif
-                </div>
-            </div>
-        </div>
+        
     </td>
 
 
 
     <td>
         <div class="cls_action_btn">
-            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
+            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/style="color: gray;"></a>
 			
 			@php 
 			$iconReminderColor = '';

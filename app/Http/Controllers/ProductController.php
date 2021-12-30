@@ -232,7 +232,7 @@ class ProductController extends Controller
         }
 
         // Run through query helper
-       $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
+ //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -423,7 +423,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->groupBy("products.id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->paginate(20);
+        $newProducts = $newProducts->select(["products.*"])->paginate(10);
         
         if (!auth()->user()->isAdmin()) {
 
