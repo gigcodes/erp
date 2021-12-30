@@ -281,8 +281,13 @@ class scrapperPhyhon extends Controller
 
         $startDate = $request->startDate;
         $endDate = $request->endDate;
+        if ($request->ajax()) {
+            $view_path =  'scrapper-phyhon.list-image-products_ajax';
+        }else{
+            $view_path =  'scrapper-phyhon.list-image-products';
+        }
 
-        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id','allWebsites','categories','startDate','endDate'));
+        return view($view_path, compact('images', 'website_id','allWebsites','categories','startDate','endDate'));
 
     }
 
