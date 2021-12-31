@@ -252,19 +252,19 @@ float: left;
     </div>
     <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
 
-        <div class="space-right">
+        <div class="col-md-12">
 
-            <div class="table-responsive">
-                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="NameTable">
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable">
                     <thead>
                         <tr>
-                            <th width="4%">ID</th>
-                            <th width="10%">Name</th>
+                            <th width="2%">ID</th>
+                            <th width="13%">Name</th>
                             <th width="10%">Category</th>
-                            <th width="20%">Content</th>
-                            <th width="20%">Communication</th>
-                            <th width="8%">Created at</th>
-                            <th width="12%">Action</th>
+                            <th width="10%">Content</th>
+                            <th width="12%">Communication</th>
+                            <th width="6%">Created at</th>
+                            <th width="7%">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -280,7 +280,7 @@ float: left;
                                     <span class="show-short-category-{{$value->id}}">{{ str_limit($value->category, 17, '..')}}</span>
                                     <span style="word-break:break-all;" class="show-full-category-{{$value->id}} hidden">{{$value->category}}</span>
                                 </td>
-                                <td class="expand-row-msg" data-name="content" data-id="{{$value->id}}">
+                                <td class="expand-row-msg Website-task " data-name="content" data-id="{{$value->id}}">
                                     <span class="show-short-content-{{$value->id}}">{{ str_limit($value->content, 50, '..')}}</span>
                                     <span style="word-break:break-all;" class="show-full-content-{{$value->id}} hidden">{{$value->content}}</span>
                                 </td>
@@ -288,7 +288,7 @@ float: left;
                                 <td class="table-hover-cell p-1">
                                     <div class="select_table">
 										<div class="w-50-25-main">
-											<div class="w-50">
+											<div class="w-100">
 												<select name="sop_user_id" class="form-control select2-for-user" id="user_{{$value->id}}">
 													<option value="">Select User</option>
 													@foreach ($users as $user)
@@ -302,7 +302,7 @@ float: left;
 												<textarea rows="1" class="form-control" id="messageid_{{ $value->id }}" name="message" placeholder="Message">{!! strip_tags($value->content) !!}</textarea>
 											</div>
 											<div class="w-25 pull-left pull_button">
-												<div class="pull-left pull_button_inner">
+												<div class=" pull_button_inner d-flex">
 													<button class="btn btn-xs send-message-open pull-left" data-user_id="{{ $value->user_id }}" data-id="{{ $value->id }}">
 														<i class="fa fa-paper-plane"></i>
 													</button>

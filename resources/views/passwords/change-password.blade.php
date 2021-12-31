@@ -35,6 +35,7 @@
                     <th>#ID</th>
                     <th>Username</th>
                     <th>Email</th>
+                    <th>Send WhatsApp</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -43,6 +44,7 @@
                             <td > <input type="checkbox" class="checkbox_ch" id="u{{ $user->id }}" name="userIds[]" value="{{ $user->id }}"></td>
                             <td><label for="u{{ $user->id }}"> {{ $user->name }} </label></td>
                             <td><label for="u{{ $user->id }}" > {{ $user->email }}</label></td>
+                            <td>Send WhatsApp</td>
                       </tr>
                     @endforeach
                 </tbody>

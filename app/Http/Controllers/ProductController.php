@@ -232,7 +232,7 @@ class ProductController extends Controller
         }
 
         // Run through query helper
-       $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
+ //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -423,7 +423,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->groupBy("products.id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->paginate(20);
+        $newProducts = $newProducts->select(["products.*"])->paginate(10);
         
         if (!auth()->user()->isAdmin()) {
 
@@ -3253,6 +3253,7 @@ class ProductController extends Controller
             //
         }
 
+    
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
         if (count($websiteArrays) == 0) {
@@ -3268,15 +3269,28 @@ class ProductController extends Controller
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         if (!empty($r) && !empty($g) && !empty($b)) {
                             $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                            $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name, 'size' => $website->cropping_size,"store"=>$website->title);
+                            $colors[] = array(
+                                'code' => $hexcode, 
+                                'color' => $website->cropper_color_name, 
+                                'size' => $website->cropping_size,
+                                "store"=>$website->title,
+                                "logo_color"=>$website->logo_color,
+                                "logo_border_color"=>$website->logo_border_color,
+                                "text_color"=>$website->text_color,
+                                "border_color"=>array('color'=> $website->border_color, 'thickness'=> $website->border_thickness )
+                            );
+
                         }
                     }
                 }
+
             }
         }
         if (!isset($colors)) {
             $colors = [];
         }
+
+
         if ($parent == null && $parent == '') {
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -3304,6 +3318,7 @@ class ProductController extends Controller
                 'category' => "$parent $child",
                 'colors' => $colors,
             ];
+
 
             $http = CropImageGetRequest::create([
                 'product_id' => $product->id,
