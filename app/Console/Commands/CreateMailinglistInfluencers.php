@@ -58,8 +58,8 @@ class CreateMailinglistInfluencers extends Command
 		$send_in_blue_apis=$old_names=[];	
 		$send_in_blue_account=[];		
 		$services=Service::pluck('name','id');
-        $websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
-		//$websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->where('id',1)->orderBy('id', 'desc')->get();
+        //$websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->orderBy('id', 'desc')->get();
+		$websites = \App\StoreWebsite::select('id', 'title', 'mailing_service_id','send_in_blue_api','send_in_blue_account')->where("website_source", "magento")->whereNotNull('mailing_service_id')->where('mailing_service_id', '>', 0)->where('id',1)->orderBy('id', 'desc')->get();
 		MailinglistIinfluencersLogs::log(count($websites). " websites found for CreateMailinglistInfluencers on ->".now());
 
         /*foreach ($influencers as $influencer) {
@@ -165,7 +165,7 @@ class CreateMailinglistInfluencers extends Command
 					]);
 					$this->mailList[] = $mailList;
 				}else{
-					MailinglistIinfluencersLogs::log( " mailList  for this website is  -->".$mailingList->id);
+					MailinglistIinfluencersLogs::log( " mailList  for this website found  is  -->".$mailingList->id);
 
 					$this->mailList[] = $mailingList;
 				}
@@ -177,7 +177,7 @@ class CreateMailinglistInfluencers extends Command
 
 
         if (!empty($influencers) && !empty($this->mailList)) {  
-			MailinglistIinfluencersLogs::log( "find influencers and mailList");
+		//	MailinglistIinfluencersLogs::log( "find influencers and mailList");
             $webListIds=$listIds = [];
             // if (!empty($this->mailList)) {
             //     foreach ($this->mailList as $mllist) {
@@ -188,20 +188,21 @@ class CreateMailinglistInfluencers extends Command
             // }
 			
             foreach ($influencers as $list) {
-				MailinglistIinfluencersLogs::log( "find influencers".json_encode($list));
+		//		MailinglistIinfluencersLogs::log( "find influencers".json_encode($list));
 				foreach( $this->mailList as $mllist){
-					MailinglistIinfluencersLogs::log( "find mllist".json_encode($mllist));
+		//			MailinglistIinfluencersLogs::log( "find mllist".json_encode($mllist));
 					$serviceName = isset($services[$mllist["service_id"]])?$services[$mllist["service_id"]]:0;
 						if (strpos(strtolower($serviceName), strtolower('SendInBlue')) !== false) { 
 						
 							$api_key=isset($send_in_blue_apis[$mllist->website_id])?$send_in_blue_apis[$mllist->website_id]:'';
 							$reqData=[
-								"email"      => $list->email,
-								"listId"    => $mllist->remote_id,
+								"emails"      =>[$list->email] ,
+							//	"listId"    => $mllist->remote_id,
 								"attributes" => ['firstname' => $list->name],
 								"updateEnabled" => true
 							];
-							$url="https://api.sendinblue.com/v3/contacts";
+							$url="https://api.sendinblue.com/v3/contacts/lists/". $mllist->remote_id."/contacts/add";
+						//	$url="https://api.sendinblue.com/v3/contacts";
 							$response = $this->callApi($url, "POST", $reqData,$api_key );
 							MailinglistIinfluencersDetailLogs::Create([
 								"service"=>$service->name,
@@ -233,7 +234,7 @@ class CreateMailinglistInfluencers extends Command
 							curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	
 							$response = curl_exec($ch);
-							MailinglistIinfluencersDetailLogs::log([
+							MailinglistIinfluencersDetailLogs::create([
 								"service"=>$service->name,
 								"maillist_id"=>$mllist->id,
 								"email"=>$list->email,
@@ -269,11 +270,12 @@ class CreateMailinglistInfluencers extends Command
 				
                 $mailing_item = MailinglistTemplate::where('auto_send', 1)->where('duration', 0)->first();
 				if (!empty($this->mailList)) {
-					MailinglistIinfluencersLogs::log( "Get Mailing Item".json_encode($mailing_item));
+				//	MailinglistIinfluencersLogs::log( "Get Mailing Item".json_encode($mailing_item));
                     foreach ($this->mailList as $mllist) {
 
                         $mllist->listCustomers()->attach($customer->id);
 						MailinglistIinfluencersLogs::log( $list->email. "Addded to ".$mllist->name);
+						$api_key=isset($send_in_blue_apis[$mllist->website_id])?$send_in_blue_apis[$mllist->website_id]:'';
 
 						$maillist_customer_history = new MaillistCustomerHistory;
 						$maillist_customer_history->customer_id = $customer->id;
@@ -287,18 +289,19 @@ class CreateMailinglistInfluencers extends Command
 						if($mailing_item != null and !empty($mailing_item['static_template'])) { 
 							$mllist['email'] = $list->email;
 							$mllist['name'] = $list->name;
-							MailinglistIinfluencersLogs::log( $list->email. "email send  to ".$mailing_item['static_template']->name);
+							MailinglistIinfluencersLogs::log( $list->email. " email send  to ".$mailing_item['static_template']->name);
 							(new Mailinglist)->sendAutoEmails($mllist, $mailing_item, $service);
 						}	
 						/*** send welcome email to mailing list customers end**/						
                     }
 
 					// Added Code for the create maillist with backup
-					foreach ($this->mailList as $mllist) {
+				//	foreach ($this->mailList as $mllist) {
 						if (strpos(strtolower($services[$mllist->service_id]), strtolower('SendInBlue')) !== false) { 
 							$old_name = $old_names[$mllist->website_id]."_old_list";
 							//dd($old_name);
 							$oldmailList = \App\Mailinglist::where('name', $old_name)->where("website_id", $mllist->website_id)->first();
+						//	$api_key=isset($send_in_blue_apis[$mllist->website_id])?$send_in_blue_apis[$oldmailList->website_id]:'';
 							if (!$oldmailList ) {
 								\Log::info("come to create");
 								\Log::info($old_name);
@@ -311,20 +314,24 @@ class CreateMailinglistInfluencers extends Command
 								]);
 								\Log::info($oldmailList);
 								
-								MailinglistIinfluencersLogs::log( "New Mailing listcreated ->".$old_name);
+								MailinglistIinfluencersLogs::log( "create backup Mailing list created ->".$old_name);
+					//			MailinglistIinfluencersLogs::log( "apikey for maillist is ->".$mllist->send_in_blue_api);
 							
 								$response = $this->callApi("https://api.sendinblue.com/v3/contacts/lists", "POST", $data = [
 									"folderId" => 1,
 									"name"     => $old_name,
-								],$mllist->send_in_blue_api);
+								],$api_key);
+
+								
 								
 								if (isset($response->id)) {
 									$oldmailList->remote_id = $response->id;
 									$oldmailList->save();
 								}
-								MailinglistIinfluencersDetailLogs::log([
+								MailinglistIinfluencersDetailLogs::create([
 									"service"=>$service->name,
 									"maillist_id"=>$oldmailList->id,
+									"message"=>"Added  Mailist $old_name",
 									"email"=>$list->email,
 									"name"=> $list->name,
 									"url"=>"https://api.sendinblue.com/v3/contacts/lists",
@@ -333,47 +340,49 @@ class CreateMailinglistInfluencers extends Command
 										"name"     => $name,
 									]),
 									"response_data"=>json_encode($response),
-									"message"=>"Added customer $list->email to Mailist $old_name"
+								
 		
 								]);
+							}else{
+								MailinglistIinfluencersLogs::log( "Already exist store backup mailing  list ->".$old_name);
 							}
 							\Log::info($oldmailList);
-									$api_key=isset($send_in_blue_apis[$mllist->website_id])?$send_in_blue_apis[$oldmailList->website_id]:'';
+								//	$api_key=isset($send_in_blue_apis[$mllist->website_id])?$send_in_blue_apis[$oldmailList->website_id]:'';
 									$reqData=[
-										"email"      => $list->email,
-										"listIds"    => $mllist->remote_id ,
+										"emails"      => [$list->email],
+									//	"listId"    => $mllist->remote_id ,
 																		];
-									$url="https://api.sendinblue.com/v3/contacts/lists/listId/contacts/remove";
+									$url="https://api.sendinblue.com/v3/contacts/lists/". $mllist->remote_id."/contacts/remove";
 									$response = $this->callApi($url, "POST", $reqData,$api_key );
-									MailinglistIinfluencersDetailLogs::log([
+									MailinglistIinfluencersDetailLogs::create([
 										"service"=>$service->name,
 										"maillist_id"=>$mllist->id,
+										"message"=>"Removed customer   $list->email from  Mailist $mllist->name",
 										"email"=>$list->email,
 										"name"=> $list->name,
 										"url"=>$url,
 										"request_data"=>json_encode($reqData),
 										"response_data"=>json_encode($response),
-										"message"=>"Removed customer  from $list->email to Mailist $mllist->name"
-			
+										
 									]); 	
 
 									$reqData=[
-										"email"      => $list->email,
-										"listIds"    => $oldmailList->remote_id ,
+										"emails"      => [$list->email],
 										"attributes" => ['firstname' => $list->name],
 										"updateEnabled" => true
 									];
-									$url="https://api.sendinblue.com/v3/contacts";
+									$url="https://api.sendinblue.com/v3/contacts/lists/". $oldmailList->remote_id."/contacts/add";
 									$response = $this->callApi($url, "POST", $reqData,$api_key );
-									MailinglistIinfluencersDetailLogs::log([
+									MailinglistIinfluencersDetailLogs::create([
 										"service"=>$service->name,
 										"maillist_id"=>$mllist->id,
+										"message"=>"added customer   $list->email to Mailist $oldmailList->name",
 										"email"=>$list->email,
 										"name"=> $list->name,
 										"url"=>$url,
 										"request_data"=>json_encode($reqData),
 										"response_data"=>json_encode($response),
-										"message"=>"added customer   $list->email to Mailist $oldmailList->name"
+									
 			
 									]);
 						//	foreach ($mllist->listCustomers() as $customer_id){
@@ -391,7 +400,7 @@ class CreateMailinglistInfluencers extends Command
 											
 							
 						}
-					}
+				//	}
 		
                 }
 

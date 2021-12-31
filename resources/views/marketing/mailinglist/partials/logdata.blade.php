@@ -7,6 +7,7 @@
         <td>{{  $log->email  }}</td>
         <td>{{  $log->name  }}</td>
         <td>{{  $log->url  }}</td>
+        <td>{{  $log->message  }}</td>
         <?php 
             $requests='';
             if($log->request_data!=''){

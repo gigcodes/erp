@@ -43,6 +43,7 @@
                 <th width="10%">Email</th>
                 <th width="10%">Name</th>
                 <th width="10%">URL</th>
+                <th width="10%">Message</th>
                 <th width="10%">Request Data</th>
                 <th width="10%">Response Data</th>
                 <th width="10%">Date</th>
