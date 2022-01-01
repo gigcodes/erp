@@ -37,12 +37,14 @@
                         {{($cash_flow->monetaryAccount)?$cash_flow->monetaryAccount->name: "N/A"}}
                        </td>
                        <td>{{ ucwords($cash_flow->type) }}</td>
+                       <td>{{ \Carbon\Carbon::parse($cash_flow->$billing_due_date)->format('d-m-Y') }}</td>
                        <td>
                            <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
                            {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                            <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                            {!! Form::close() !!}
                        </td>
+                      
                    </tr>
                @endforeach
         
