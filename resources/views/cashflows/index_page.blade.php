@@ -24,7 +24,12 @@
                                </ul>
                            @endif
                        </td>
-                       <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
+                       <td>
+                           @if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}
+                           @if($cash_flow->cash_flow_able_type =="App\HubstaffActivityByPaymentFrequency")
+                           <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $cash_flow->id }}"><i class="fa fa-info-circle"></i></button> 
+                           @endif             
+                       </td>
                        <td>{{ $cash_flow->amount_eur }}</td>
                        <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
                        <td>{{ $cash_flow->erp_eur_amount }}</td>
