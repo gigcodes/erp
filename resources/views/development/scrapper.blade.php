@@ -121,8 +121,10 @@
                             <th scope="col" class="text-center">Id</th>
                             <th scope="col" class="text-center">Module</th>
                             <th scope="col" class="text-center">Subject</th>
+                            <th style="width:22%;">Communication </th>
                             <th scope="col" class="text-center">Task</th>
                             <th scope="col" class="text-center">Assigned To</th>
+                            
                             <th scope="col" class="text-center">Status</th>
                             <th scope="col" class="text-center">Action</th>
                         </tr>
@@ -136,6 +138,30 @@
 									<span class="show-short-subject-{{$i}}">{{ str_limit($issue->subject, 10, '...')}}</span>
 									<span style="word-break:break-all;" class="show-full-subject-{{$i}} hidden">{{ $issue->subject }}</span>
 								</td>
+                                <td class="expand-row">
+                                    <!-- class="expand-row" -->
+                                    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+                                    <input type="text" class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
+                                    <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
+                                    <?php echo Form::select("send_message_".$issue->id,[
+                                                        "to_developer" => "Send To Developer",
+                                                        "to_master" => "Send To Master Developer",
+                                                        "to_team_lead" => "Send To Team Lead",
+                                                        "to_tester" => "Send To Tester"
+                                                    ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); 
+                                    ?>
+                                    
+                                    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="{{env('APP_URL')}}/images/filled-sent.png"/></button>
+
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="{{env('APP_URL')}}/images/chat.png" alt=""></button>
+                                    <br>
+                                        <div class="td-full-container hidden">
+                                            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
+                                            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+                                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
+                                        </div>
+                                 </td>
+
 								<td class="expand-row-msg" data-name="task" data-id="{{$i}}">
 									<span class="show-short-task-{{$i}}">{{ str_limit($issue->task, 20, '...')}}</span>
 									<span style="word-break:break-all;" class="show-full-task-{{$i}} hidden">{{ $issue->task }}</span>
@@ -150,7 +176,7 @@
 									{{ $issue->status}}
 								</td>
                                 <td>
-                                    <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $issue->scraper_id}}"><i class="fa fa-eye"></i></button>
+                                    <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $issue->scraper_id}}" data-assigned="{{$issue->assigned_to}}"><i class="fa fa-eye"></i></button>
                          
                                 </td>
 							</tr>
@@ -227,6 +253,42 @@
         "tags": true
     });
 
+    $(document).on('click', '#submit_message', function (event) {
+            let self = this;
+            let developer_task_id = $(this).attr('data-id');
+            let message = $("#message_" + developer_task_id).val();
+
+            // if (event.which != 13) {
+            //     return;
+            // }
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'developer_task')}}",
+                type: 'POST',
+                data: {
+                    _token: "{{csrf_token()}}",
+                    message: message,
+                    developer_task_id: developer_task_id,
+                    status: 2
+                },
+                success: function () {
+                    $(self).removeAttr('disabled');
+                    $("#message_" + developer_task_id).removeAttr('disabled');
+                    $(self).val('');
+                    $("#message_" + developer_task_id).val('');
+                    toastr['success']('Message sent successfully!', 'Message');
+                },
+                error: function () {
+                    $(self).removeAttr('disabled');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                    $("#message_" + developer_task_id).attr('disabled', true);
+                }
+            });
+        });
+
+
 
     $(document).on('click', '.reset', function () {
         var url = "{{ route('development.scrap.index') }}";
@@ -243,12 +305,14 @@
     });
     $(document).on("click", ".show_error_logs", function() {
         var id = $(this).data('id');
+        var assigned = $(this).data('assigned');
         $.ajax({
             method: "GET",
             url: "{{ route('logging.flow.detail') }}" ,
             data: {
                 "_token": "{{ csrf_token() }}",
                 "scraper_id" : id,
+                "assigned" : assigned
             },
             dataType: 'html'
             })

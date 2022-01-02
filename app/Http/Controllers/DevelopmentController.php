@@ -609,7 +609,7 @@ class DevelopmentController extends Controller
         $title = 'Scrapping Task List';
         //$moduleIds = DeveloperModule::where('name', 'like', '%scrap%')->pluck('id')->toArray();
         $issues = DeveloperTask::with('assignedUser');
-        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id')->where('scraper_id', '<>', 0);
+        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('developer_tasks.scraper_id')->where('developer_tasks.scraper_id', '<>', 0);
         //$issues = $issues->whereIn('developer_tasks.module_id', $moduleIds);
         
         $issues = $issues->select("developer_tasks.*");
@@ -626,27 +626,31 @@ class DevelopmentController extends Controller
         }
         
         if (@$inputs['module']) {
-            $issues->where('module_id', $inputs['module']);
+            $issues->where('developer_tasks.module_id', $inputs['module']);
         }
 
         if (@$inputs['subject']) {
-            $issues->where('subject', 'like', '%'.$inputs['subject'].'%');
+            $issues->where('developer_tasks.subject', 'like', '%'.$inputs['subject'].'%');
         }
 
         if (@$inputs['task']) {
-            $issues->where('task', 'like', '%'.$inputs['task'].'%');
+            $issues->where('developer_tasks.task', 'like', '%'.$inputs['task'].'%');
         }
 
         if (@$inputs['user_id']) {
-            $issues->where('assigned_to', $inputs['user_id']);
+            $issues->where('developer_tasks.assigned_to', $inputs['user_id']);
             $users=\App\User::where("id", $request->user_id)->select(['id','name'])->first();
         }
 
         if (@$inputs['status']) {
-            $issues->where('status', $inputs['status']);
+            $issues->where('developer_tasks.status', $inputs['status']);
         }
 
-        $issues =  $issues->orderBy('id', 'desc')->groupBy("developer_tasks.id");
+   //     $issues =  $issues->orderBy('developer_tasks.id', 'desc')
+        $issues =  $issues->join(DB::raw("(SELECT scraper_id, MAX(id) id FROM developer_tasks GROUP BY scraper_id) as _e"), function ($join) {
+            $join->on('developer_tasks.id', '=', '_e.id')->on('developer_tasks.scraper_id', '=', '_e.scraper_id');
+        });
+      //  ->groupBy("developer_tasks.id");
         $issues = $issues->paginate(50);
 
         $modules = DeveloperModule::all()->pluck('name', 'id');
