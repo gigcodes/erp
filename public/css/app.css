@@ -11415,3 +11415,7 @@ table.table-striped-custom tbody tr td {
 .input-button{
     width: 20%;
 }
+.scrapper-python-image .image-1 img{
+    width:100% !important;
+    object-fit: cover;
+}
