@@ -100,12 +100,27 @@
                 <thead>
                     <th style="width:5%">Id</th>
                     <th style="width:70%">URL</th>
+                    <th style="width: 20%;">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                 @foreach ($urls  as $item)
-                    <tr>
+                    <tr id = "{{$item->id}}">
                         <td>{{$item->id}}</td>
                         <td>{{$item->url}}</td>
+                        <td>
+                        @if ($item->is_flaged_url==1)
+                        {!! Form::open(['method' => 'POST','route' => ['scrapper.url.flag', $item->id],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="{{env('APP_URL')}}/images/starred.png" /></button>
+                        {!! Form::close() !!}
+                        @else
+                        {!! Form::open(['method' => 'POST','route' => ['scrapper.url.flag', $item->id],'style'=>'display:inline']) !!}
+                        <button type="submit" class="btn btn-image"><img src="{{env('APP_URL')}}/images/unstarred.png" /></button>
+                        {!! Form::close() !!}
+                        @endif
+
+                          
+
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -115,4 +130,21 @@
         {{ $urls->appends(request()->except('page'))->links() }}
     </div>
 
+
+ <script>
+      
+      $(document).ready(function() { 
+        
+     <?php if($flagUrl!= "") { ?>
+        if($('{{$flagUrl}}').length){
+            var rowpos = $('{{$flagUrl}}').position();
+          //  alert(rowpos);
+         $(window).scrollTop(rowpos.top);
+            $('{{$flagUrl}}').css('background-color', 'yellow');
+        }
+     <?php } ?>
+      });
+
+     
+ </script>
  @endsection

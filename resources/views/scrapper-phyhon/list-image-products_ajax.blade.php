@@ -118,7 +118,8 @@
                                             </div>
                                         </div>
                                         <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <a class="btn btn-secondarys" href="{{$image['img_url']}}" target="_blank">Go to Url</a>  
+                                        <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a> 
+                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a>  
                                         {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
                                     </div>
                                 @endif

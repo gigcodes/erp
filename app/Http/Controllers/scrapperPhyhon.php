@@ -268,6 +268,7 @@ class scrapperPhyhon extends Controller
 
                //     $images = $images->get()
                  //   ->toArray();
+         //        dd($images->pluck("id"));
                  $images =  $images->paginate(Setting::get('pagination'));
                 // $images =  $images->paginate(2);
                
@@ -590,12 +591,59 @@ class scrapperPhyhon extends Controller
         return ['message'=>count($images)." Deleted Successfully.", 'statusCode'=>200];
      }
 
-     public function imageUrlList(){
-        $urls = DB::table('scraper_imags')->whereRaw('url != "" and url IS  NOT NULL');
-        $urls=$urls->paginate(Setting::get('pagination'));
-        return view('scrapper-phyhon.list_urls', compact('urls'));
+     public function imageUrlList(Request $request){
+         $flagUrl=isset($request->flagUrl)?"#".$request->flagUrl:'';
+        if(isset($request->id)){
+            $store_id = $request->id;
+
+            $urls = [];
+
+        
+            $webStore = \App\WebsiteStore::where('id',$store_id)->first();
+            $list =  Website::where('id',$webStore->website_id)->first();
+            if( $webStore ){
+
+                $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
+
+                if( $website_store_views ){
+                    $urls = \App\scraperImags::where('store_website',$list->store_website_id)
+                    ->where('website_id',$request->code) // this is language code. dont be confused with column name
+                    ->whereRaw('url != "" and url IS  NOT NULL');
+                    if(isset($request->startDate) && isset($request->endDate)){
+
+                        $urls = $urls->whereDate('created_at','>=',date($request->startDate))
+                        ->whereDate('created_at','<=',date($request->endDate));
+                    }else{
+                        //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                    }
+
+                    
+                    $urls =  $urls->paginate(Setting::get('pagination'));
+                // $images =  $images->paginate(2);
+                
+
+                }
+            }
+        }else{
+               $urls = DB::table('scraper_imags')->whereRaw('url != "" and url IS  NOT NULL');
+             $urls=$urls->paginate(Setting::get('pagination'));
+        
+
+        }
+       
+        return view('scrapper-phyhon.list_urls', compact('urls','flagUrl'));
+
 
     
+    }
+    public function flagImageUrl($id)
+    {
+        $image = \App\scraperImags::find($id);
+        $image->is_flaged_url =($image->is_flaged_url==1)?0:1;
+        $status  =($image->is_flaged_url==1)?"Flagged":"un-flagged";
+        $image->save();
+        return redirect()->back()
+            ->with('success', "Url $status successfully");
     }
 }
 
