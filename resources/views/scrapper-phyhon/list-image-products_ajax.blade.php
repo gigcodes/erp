@@ -1,5 +1,5 @@
 <!-- Purpose : Add class infinite-scroll - DEVTASK-4271 -->
-<div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
+<div class="infinite-scroll scrapper-python-image customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
         @php
             $oldDate = null;
             $count   = 0;
@@ -35,7 +35,8 @@
 
                 <hr style="margin: 5px 0px;">
             </div>
-        </div> 
+        </div>
+        <div class="image-1"> 
         @if(!$images->isEmpty())
             @foreach($images as $image)
                     <?php $image = $image->toArray();?>
@@ -97,8 +98,8 @@
                                         @endforeach
                                         </div>
                                         <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a>  
-                                        {{ \Carbon\Carbon::parse($image['scrap_date'])->format('d-m-y') }}
+                                        <a class="btn btn-secondarys" href="{{$image['img_url']}}" target="_blank">Go to Url</a>  
+                                        {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
                                     </div>
                                 @else
                                     <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 p-0" style="position: relative;display: flex">
@@ -117,8 +118,8 @@
                                             </div>
                                         </div>
                                         <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a>  
-                                        {{ \Carbon\Carbon::parse($image['scrap_date'])->format('d-m-y') }}
+                                        <a class="btn btn-secondarys" href="{{$image['img_url']}}" target="_blank">Go to Url</a>  
+                                        {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
                                     </div>
                                 @endif
                             </div>
@@ -136,6 +137,7 @@
                 @php $count++;  @endphp
             {{-- @endforeach --}}
             @endforeach
+        </div>
         @else
         <div class="col-md-12">No more Images</div>
         @endif
