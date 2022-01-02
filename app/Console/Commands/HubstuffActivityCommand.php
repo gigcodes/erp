@@ -106,10 +106,12 @@ class HubstuffActivityCommand extends Command
                 $today_week = new Carbon();
                 dump('weekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
                 $day = Carbon::now();
-                $weekStartDate = $day->startOfWeek()->format('Y-m-d H:i');
-                $weekEndDate = $day->endOfWeek()->format('Y-m-d H:i');
-                $req->request->add(["start_date" => $weekStartDate]);
-                 $req->request->add(["end_date" => $weekEndDate]);
+              //  $weekStartDate = $day->startOfWeek()->format('Y-m-d H:i');
+                //$weekEndDate = $day->endOfWeek()->format('Y-m-d H:i');
+                $from = date("Y-m-d ", strtotime("last week monday"));
+                $to = date("Y-m-d ", strtotime("last week sunday"));
+                $req->request->add(["start_date" => $from]);
+                 $req->request->add(["end_date" => $to]);
 
                  
                  if($today_week->dayOfWeek == Carbon::MONDAY){
@@ -125,6 +127,26 @@ class HubstuffActivityCommand extends Command
             if($payment_frequency == "biweekly"){
 
                 $today_week = new Carbon();
+                if($today_week->dayOfWeek == Carbon::MONDAY){
+                    $from = date("Y-m-d ", strtotime("last week friday"));
+                    $to = date("Y-m-d ", strtotime("last week sunday"));
+                    $req->request->add(["start_date" => $from]);
+                     $req->request->add(["end_date" => $to]);
+
+                    dump('Get Report ......');
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                      
+                }
+                if($today_week->dayOfWeek == Carbon::FRIDAY){
+                    $from = date("Y-m-d ", strtotime("last week monday"));
+                    $to = date("Y-m-d ", strtotime("last week thursday"));
+                    $req->request->add(["start_date" => $from]);
+                     $req->request->add(["end_date" => $to]);
+
+                    dump('Get Report ......');
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                      
+                }
 
                 dump('biweekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
