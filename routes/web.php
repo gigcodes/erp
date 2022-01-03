@@ -12,7 +12,7 @@
  */
 
 Auth::routes();
-
+Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
@@ -1402,6 +1402,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/change-user', 'DevelopmentController@changeUserStore')->name('development.changeuser.store');
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
+    Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -2595,6 +2596,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
     Route::post('task/change/status', 'TaskModuleController@updateStatus')->name('task.change.status');
     Route::post('task/status/create', 'TaskModuleController@createStatus')->name('task.status.create');
+
     
 });
 
@@ -3322,7 +3324,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrapper-python/history', 'scrapperPhyhon@history')->name('scrapper.history');
     Route::get('/scrapper-python/actionHistory', 'scrapperPhyhon@actionHistory')->name('scrapper.action.history');
     Route::get('/scrapper-python/image/url_list', 'scrapperPhyhon@imageUrlList')->name('scrapper.image.urlList');
-
+    
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
     Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
@@ -3501,3 +3503,4 @@ Route::get('command', function () {
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
+
