@@ -95,7 +95,9 @@ class CashFlow extends Model
         } else if ($this->cash_flow_able_type == \App\AssetsManager::class) {
             return ($this->assetsManager) ? $this->assetsManager->name : "N/A";
         } else if ($this->cash_flow_able_type == \App\PaymentReceipt::class) {
-            return ($this->paymentReceipt) ? $this->paymentReceipt->remarks : "N/A";
+            return ($this->user) ?  $this->user->name :"N/A";
+        }else if ($this->cash_flow_able_type ==  \App\HubstaffActivityByPaymentFrequency::class) {
+            return ($this->user) ? $this->user->name : "N/A";
         } else {
             return "Cash";
         }

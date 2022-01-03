@@ -45,6 +45,7 @@
                                 <option value="order"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='order') {  echo "selected='selected'" ;} ?> >Order</option>
                                 <option value="payment_receipt"  <?php if (isset($_GET['module_type']) && $_GET['module_type']=='payment_receipt') {  echo "selected='selected'" ;} ?> >Payment Receipt</option>
                                 <option value="assent_manager" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='assent_manager') {  echo "selected='selected'" ;} ?> >Assent Manager</option>
+                                <option value="vendor_frequency" <?php if (isset($_GET['module_type']) && $_GET['module_type']=='vendor_frequency') {  echo "selected='selected'" ;} ?> >Vendor Payment Manager</option>
                           
                             </select>
                         </div>
@@ -120,6 +121,7 @@
                      <th>Erp Amount(EUR)</th>
                      <th>Monetary Account</th>
                      <th>Type</th>
+                     <th>Billing Date </th>
                      <th>Actions</th>
                  </tr>
                  </thead>
@@ -150,7 +152,11 @@
                                  </ul>
                              @endif
                          </td>
-                         <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}</td>
+                         <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}
+                            @if($cash_flow->cash_flow_able_type =="App\HubstaffActivityByPaymentFrequency")
+                              <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $cash_flow->id }}"><i class="fa fa-info-circle"></i></button> 
+                            @endif
+                         </td>
                          <td>{{ $cash_flow->amount_eur }}</td>
                          <td>{{$cash_flow->currency}} {{ $cash_flow->erp_amount }}</td>
                          <td>{{ $cash_flow->erp_eur_amount }}</td>
@@ -158,12 +164,14 @@
                           {{($cash_flow->monetaryAccount)?$cash_flow->monetaryAccount->name: "N/A"}}
                          </td>
                          <td>{{ ucwords($cash_flow->type) }}</td>
+                         <td>{{ \Carbon\Carbon::parse($cash_flow->billing_due_date)->format('d-m-Y') }}</td>
                          <td>
                              <a title="Do Payment" data-id="{{ $cash_flow->id }}" data-mnt-amount="{{ $cash_flow->amount }}" data-mnt-account="{{ $cash_flow->monetary_account_id }}" class="do-payment-btn"><span><i class="fa fa-money" aria-hidden="true"></i></span></a>
                              {!! Form::open(['method' => 'DELETE','route' => ['cashflow.destroy', $cash_flow->id],'style'=>'display:inline']) !!}
                              <button type="submit" class="btn pt-0 pb-0 btn-image"><img src="/images/delete.png" /></button>
                              {!! Form::close() !!}
                          </td>
+                        
                      </tr>
                  @endforeach
                  </tbody>
@@ -330,6 +338,40 @@
   </div>
 </div>
 
+<div id="show_counting" class="modal fade"  style="width:100%">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Payment Details</h4>
+                </div>
+                <div class="modal-body">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Date</th>
+                      <th>Details</th>
+                      <th>Category</th>
+                      <th>Tm St</th>
+                      <th>Hours</th>
+                      <th>Rate</th>
+                      <th>Amount</th>
+                      <th>Currency</th>
+                    
+                    </tr>
+                  </thead>
+                 <tbody class="show_counting_data"><tbody>
+
+                </table>
+                      
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -339,7 +381,23 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script>
   $(function() {
-    $('input[name="daterange"]').daterangepicker({
+    $(document).on('click', '.show-calculation', function() {
+        var issueId = $(this).data('id');
+  
+        $.ajax({
+            url: "{{route('cashflow.getPaymentDetails')}}",
+            data: {id: issueId},
+            success: function (data) {
+              $(".show_counting_data").html(data);
+              $("#show_counting").modal();   
+            }
+        });
+    
+  
+    });
+
+
+  $('input[name="daterange"]').daterangepicker({
       autoUpdateInput: false,
       opens: 'left'
     }, function(start, end, label) {

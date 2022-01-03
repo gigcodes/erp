@@ -146,6 +146,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 use App\Console\Commands\GetPytonLogs;
+use App\Console\Commands\HubstuffActivityCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -296,7 +297,8 @@ class Kernel extends ConsoleKernel
         UpdateCharities::class,
         UpdateLanguageToGroup::class,
         BuildStatus::class,
-        GetPytonLogs::class
+        GetPytonLogs::class,
+        HubstuffActivityCommand::class
     ];
 
     /**
@@ -307,7 +309,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        
+        $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('project:filemanagementdate')->daily();
 

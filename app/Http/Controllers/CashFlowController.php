@@ -14,6 +14,8 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Storage;
+use Carbon\Carbon;
+
 
 class CashFlowController extends Controller
 {
@@ -24,6 +26,9 @@ class CashFlowController extends Controller
      */
     public function index(Request $request)
     {
+        $date_fornightly = Carbon::now()->format('d');
+
+
         $cash_flow = CashFlow::with(['user', 'files']);
         if ($request->type!='')
             $cash_flow->where('type',$request->type);
@@ -56,6 +61,18 @@ class CashFlowController extends Controller
                         {
                         $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
                         $cash_flow->where('name','like',"%$request->b_name%");
+                        }
+                  
+                         
+
+                  }  
+                  if ($request->module_type=='vendor_frequency')
+                  {
+                        $cash_flow->where('cash_flow_able_type',\App\HubstaffActivityByPaymentFrequency::class); 
+                        if ($request->b_name!='')
+                        {
+                     //   $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
+                     //   $cash_flow->where('name','like',"%$request->b_name%");
                         }
                   
                          
@@ -292,7 +309,24 @@ class CashFlowController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
     }
 
-
+    public function getPaymentDetails(Request $request){
+        $cashflow_id=$request->id;
+        $cash_flow = CashFlow::find($cashflow_id);
+        
+        $payment_receipts = [];
+        if($cash_flow){
+         $hubstaffActivityByPaymentFrequency = \App\HubstaffActivityByPaymentFrequency::where("id",$cash_flow->cash_flow_able_id)->first();
+         
+         if($hubstaffActivityByPaymentFrequency){
+             $payment_receipts = json_decode($hubstaffActivityByPaymentFrequency->payment_receipt_ids);
+             if(!empty($payment_receipts)){
+                $tasks         = \App\PaymentReceipt::with('chat_messages','user')->whereIn('id', $payment_receipts)->get();
+              
+                return view("cashflows.payment_receipts", compact('tasks'));
+             }
+         }   
+        }
+    }
     public function getBnameList(Request $request)
     {
          
