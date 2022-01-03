@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Wetransfer;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Setting;
-
+use App\Activity;
+use Response;
 class WeTransferController extends Controller
 {
     public function index()
@@ -62,24 +63,34 @@ class WeTransferController extends Controller
      */
     public function storeFile(Request $request)
     {
-        $wetransfer = Wetransfer::find($request->id);
-        if($request->status){
+		$wetransfer = Wetransfer::find($request->id);
+        /*if($request->status){
             $wetransfer->is_processed = 2;
             $wetransfer->update();
             return json_encode(['success' => 'Wetransfer Status has been updated']);
-        }
+        }*/
 
         if($request->file){
-
-            $wetransfer->is_processed = 1;
+		    $file = $request->file('file');
+			$fileN = time(). $file->getClientOriginalName();
+			$path = public_path() . '/wetransfer/'.$request->id;
+			$file->move($path, $fileN);
+			
+            $wetransfer->is_processed = 2;
+			
+			if($wetransfer->files_list == null || $wetransfer->files_list == '') {
+				$wetransfer->files_list = $fileN;
+			} else {
+				$wetransfer->files_list = $wetransfer->files_list.','.$fileN;
+			}
             $wetransfer->update();
-            $file = $request->file('file');
+			
+   		
             $attachments_array = [];
-            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+            /*if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 $attachments = ErpExcelImporter::excelZipProcess($file, $file->getClientOriginalName(), $wetransfer->supplier, '', $attachments_array);
                 
-            }
-
+            }*/
             return json_encode(['success' => 'Wetransfer has been stored']);
         }	
     }
@@ -92,9 +103,19 @@ class WeTransferController extends Controller
 
         if ( !empty( $list ) ) {
             // foreach ($queuesList as $list) {
+               /* if($list['files_list'] != null and $list['files_list'] != '') {
+					$files = explode(',', $list['files_list']);
+					foreach($files as $file){
+						$filepath = public_path('/wetransfer/'.$list['id'].'/'. $file);
+						 Response::download($filepath); 
+					} 
+				} else{
+					
+				}*/
+				$this->downloadFromURL( $list->id, $list->url, $list->supplier );
                 
-                $this->downloadFromURL( $list->url, $list->supplier );
-                $file  = $this->downloadWetransferFiles( $list->url );
+				
+                /*$file  = $this->downloadWetransferFiles( $list->url );
                 
                 if ( !empty( $file ) ) {
                     
@@ -142,9 +163,13 @@ class WeTransferController extends Controller
                         'files_list'   => null,
                         'is_processed' => 0,
                 );
-                Wetransfer::where( 'id', $list->id )->update( $update );
+                Wetransfer::where( 'id', $list->id )->update( $update );*/
                
             // }	
+			 return response()->json([
+                        'status'      => true,
+                        'message'     => 'Download completed'
+                    ], 200);
         }
         return response()->json([
             'status'      => true,
@@ -261,11 +286,39 @@ class WeTransferController extends Controller
         return false;
     }
 
-    public static function downloadFromURL($url, $supplier)
+    public static function downloadFromURL($id, $url, $supplier)
     {
-        $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'http://75.119.154.85:100/download',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS =>'{
+			"url":'.$url.',
+			"id":'.$id.'
+		}',
+		  CURLOPT_HTTPHEADER => array(
+			'Content-Type: text/plain'
+		  ),
+		));
 
+		$response = curl_exec($curl);
 
+		curl_close($curl);
+		if($response == "Request Submitted!") {
+			return true;
+		} else {
+			return false;
+		}
+		
+		
+		
+       /* $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
 
         if (strpos($url, 'https://we.tl/') !== false) {
             
@@ -395,6 +448,6 @@ class WeTransferController extends Controller
                     }           
                 return true;
             }
-        return false;
+        return false; */
     }
 }

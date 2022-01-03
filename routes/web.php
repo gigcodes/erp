@@ -1575,6 +1575,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
     Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
+    Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
 
@@ -3494,7 +3495,7 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 Route::get('command', function () {
 
   //  \Artisan::call('migrate');
-     \Artisan::call('get:pythonLogs');
+     \Artisan::call('HubstuffActivity:Command');
 
    // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');

@@ -56,7 +56,7 @@ class HubstuffActivityCommand extends Command
        
         $users = User::where('payment_frequency', '!=' ,'')->get();
         $today = Carbon::now()->toDateTimeString();
-
+     //   dd($users);
         foreach ($users as $key => $user) {
             
             
@@ -89,6 +89,7 @@ class HubstuffActivityCommand extends Command
             $req->request->add(["end_date" => $from]);
             $req->request->add(["status" => null]);
             $req->request->add(["submit" => "report_download"]);
+            $req->request->add(["response_type" => "with_payment_receipt"]);
 
 
             // $res = $tasks_controller->getActivityUsers($req, $req);
@@ -100,123 +101,91 @@ class HubstuffActivityCommand extends Command
 
             $data["email"] = $user->email;
             $data["title"] = "Hubstuff Activities Report";
-
+            $payment_frequency = "fornightly";
             if($payment_frequency == "weekly" ){
                 $today_week = new Carbon();
-                // dump('weekly => '.$user->name.', Current Day => '.$diff_in_days);
                 dump('weekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
+                $day = Carbon::now();
+              //  $weekStartDate = $day->startOfWeek()->format('Y-m-d H:i');
+                //$weekEndDate = $day->endOfWeek()->format('Y-m-d H:i');
+                $from = date("Y-m-d ", strtotime("last week monday"));
+                $to = date("Y-m-d ", strtotime("last week sunday"));
+                $req->request->add(["start_date" => $from]);
+                 $req->request->add(["end_date" => $to]);
 
-               
-                if($today_week->dayOfWeek == Carbon::MONDAY){
+                 
+                 if($today_week->dayOfWeek == Carbon::MONDAY){
+
                     dump('Get Report ......');
-                    // if ($diff_in_days == 7 ) {
-                    
-                        $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                        $path = $res;
-                        // $z = (array) $res;
-                        // foreach($z as $zz){
-                        //     if($path == null){
-
-                        //         $path = $zz->getRealPath();
-
-                        //     }
-                        // }
-                    // }
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                      
                 }
 
-                // if ($diff_in_days == 7 ) {
-
-                //     $res = $tasks_controller->getActivityUsers($req, $req);
-
-                //     $z = (array) $res;
-
-                //     foreach($z as $zz){
-                //         if($path == null){
-
-                //             $path = $zz->getRealPath();
-
-                //         }
-                //     }
-                // }
+                
             }
 
             if($payment_frequency == "biweekly"){
 
                 $today_week = new Carbon();
+                if($today_week->dayOfWeek == Carbon::MONDAY){
+                    $from = date("Y-m-d ", strtotime("last week friday"));
+                    $to = date("Y-m-d ", strtotime("last week sunday"));
+                    $req->request->add(["start_date" => $from]);
+                     $req->request->add(["end_date" => $to]);
+
+                    dump('Get Report ......');
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                      
+                }
+                if($today_week->dayOfWeek == Carbon::FRIDAY){
+                    $from = date("Y-m-d ", strtotime("last week monday"));
+                    $to = date("Y-m-d ", strtotime("last week thursday"));
+                    $req->request->add(["start_date" => $from]);
+                     $req->request->add(["end_date" => $to]);
+
+                    dump('Get Report ......');
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+                      
+                }
 
                 dump('biweekly => '.$user->name.', Day =>'.$today_week->dayOfWeek.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
-                if($today_week->dayOfWeek == Carbon::MONDAY || $today_week->dayOfWeek == Carbon::THURSDAY){
-                    dump('Get Report ......');
-                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                    $path = $res;
-                    // $z = (array) $res;
-                    // foreach($z as $zz){
-                    //     if($path == null){
 
-                    //         $path = $zz->getRealPath();
-
-                    //     }
-                    // }
-                }
-
-                // if ($diff_in_days == 14) {
-
-                //     $res = $tasks_controller->getActivityUsers($req, $req);
-
-                //     $z = (array) $res;
-
-                //     foreach($z as $zz){
-
-                //         if($path == null){
-
-                //             $path = $zz->getRealPath();
-                //     }
-                // }
-                // }
+               
             }
 
             if($payment_frequency == "fornightly"){
                 $date_fornightly = Carbon::now()->format('d');
 
-                // dump('fornightly => '.$user->name.', Current Day => '.$diff_in_days);
                 dump('fornightly => '.$user->name.', Today Date =>'.$date_fornightly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
-                if($date_fornightly == 15){
-                    dump('Get Report ......');
+                if($date_fornightly == 16){
+                    $last_month_first_date = new Carbon('first day of last month');
+                    $last_month_last_date =  new Carbon('last day of last month');
+                    $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date);
+                    $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date->subdays(-14));
+                    $req->request->add(["start_date" => $from]);
+                    $req->request->add(["end_date" => $to]);
+
                     $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                    $path = $res;
-                    // $z = (array) $res;
-                    // foreach($z as $zz){
-                    //     if($path == null){
-
-                    //         $path = $zz->getRealPath();
-
-                    //     }
-                    // }
+                    
+                }
+                if($date_fornightly == 1){
+                    $last_month_first_date = new Carbon('first day of last month');
+                    $last_month_last_date =  new Carbon('last day of last month');
+                    $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date->subdays(-15));
+                    $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_last_date);
+                    dump('fornightly => '.$user->name.', Today Date =>'.$date_fornightly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
+                    $req->request->add(["start_date" => $from]);
+                    $req->request->add(["end_date" => $to]);
+                    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
+               
                 }
 
-                // if ($diff_in_days == 15) {
-
-                //     $res = $tasks_controller->getActivityUsers($req, $req);
-
-                //     $z = (array) $res;
-
-                //     foreach($z as $zz){
-
-                //         if($path == null){
-
-                //             $path = $zz->getRealPath();
-                //         }
-                //     }
-                // }
             }
 
             if($payment_frequency == "monthly"){
                 $date_monthly = Carbon::now()->format('d');
-
-                // dump('monthly => '.$user->name.', Current Day => '.$diff_in_days);
-
 
                 $last_month_first_date = new Carbon('first day of last month');
                 $last_month_last_date = new Carbon('last day of last month');
@@ -231,34 +200,15 @@ class HubstuffActivityCommand extends Command
                 if($date_monthly == 1){
 
                     dump('Get Report ......');
-                    
                     $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
-                    $path = $res;
-                    // $z = (array) $res;
-                    // foreach($z as $zz){
-                    //     if($path == null){
-
-                    //         $path = $zz->getRealPath();
-
-                    //     }
-                    // }
+                   
+                    
                 }
 
-                // if ($diff_in_days == 30) {
-
-                //     $res = $tasks_controller->getActivityUsers($req, $req);
-
-                //     $z = (array) $res;
-
-                //     foreach($z as $zz){
-
-                //         if($path == null){
-
-                //             $path = $zz->getRealPath();
-                //         }
-                //     }
-                // }
             }
+            
+            //dd($res);
+            $path = $res["file_data"];
 
             if ($path) {
 
@@ -276,10 +226,14 @@ class HubstuffActivityCommand extends Command
                 $user->save();
 
                 // $storage_path = substr($path, strpos($path, 'framework'));
-                    
+            
                 $hubstaff_activity = new HubstaffActivityByPaymentFrequency;
                 $hubstaff_activity->user_id = $user->id;
                 $hubstaff_activity->activity_excel_file = $path;
+                $hubstaff_activity->start_date = isset($res["start_date"])?$res["start_date"]:'';
+                $hubstaff_activity->end_date = isset($res["end_date"])?$res["end_date"]:'';
+                $hubstaff_activity->type = $payment_frequency;
+                $hubstaff_activity->payment_receipt_ids = isset($res["receipt_ids"])?json_encode($res["receipt_ids"]):'';
                 $hubstaff_activity->save();
 
                 // Add Code by Mitali for add in cash flow 
@@ -288,6 +242,9 @@ class HubstuffActivityCommand extends Command
                 $paymentData=PayentMailData::where('user_id',$user->id)->orderBy('id','desc')->first();
                 $cashflow = new CashFlow;
 
+                if($user->billing_frequency_day > 0) {
+                    $cashflow->billing_due_date = date("Y-m-d",strtotime(now()." +".$user->billing_frequency_day));
+                }
                
                 $cashflow->date=  $hubstaff_activity->created_at ;
                 $cashflow->user_id=  $user->id;
@@ -297,10 +254,11 @@ class HubstuffActivityCommand extends Command
                 $cashflow->description=  "$payment_frequency Frequency Payment";
                 $cashflow->type= 'pending';
                 $cashflow->status=  1;
-                $cashflow->amount=$paymentData->payment;
+                $cashflow->amount=$paymentData->total_balance;
             //    $cashflow->currency=  ;
                 $cashflow->save();
 
+                
                 //Query
           //      $cashflow->type= 'pending';
           //      $cashflow->currency=  $receipt->currency;
