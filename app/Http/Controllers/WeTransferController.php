@@ -7,7 +7,7 @@ use App\Wetransfer;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Setting;
 use App\Activity;
-
+use Response;
 class WeTransferController extends Controller
 {
     public function index()
@@ -71,28 +71,26 @@ class WeTransferController extends Controller
         }*/
 
         if($request->file){
-
-            $wetransfer->is_processed = 1;
+		    $file = $request->file('file');
+			$fileN = time(). $file->getClientOriginalName();
+			$path = public_path() . '/wetransfer/'.$request->id;
+			$file->move($path, $fileN);
+			
+            $wetransfer->is_processed = 2;
+			
 			if($wetransfer->files_list == null || $wetransfer->files_list == '') {
-				$wetransfer->files_list = $request->filename;
+				$wetransfer->files_list = $fileN;
 			} else {
-				$wetransfer->files_list = ', '.$request->filename;
+				$wetransfer->files_list = $wetransfer->files_list.','.$fileN;
 			}
             $wetransfer->update();
 			
-            $file = $request->file('file');
-			
-			$fileN = time(). $file->getClientOriginalName();
-			$file->move(public_path() . '/wetransfer/'.$request->id.'/', $fileN);
-    
-			
-			
+   		
             $attachments_array = [];
             /*if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 $attachments = ErpExcelImporter::excelZipProcess($file, $file->getClientOriginalName(), $wetransfer->supplier, '', $attachments_array);
                 
             }*/
-
             return json_encode(['success' => 'Wetransfer has been stored']);
         }	
     }
@@ -105,9 +103,19 @@ class WeTransferController extends Controller
 
         if ( !empty( $list ) ) {
             // foreach ($queuesList as $list) {
+               /* if($list['files_list'] != null and $list['files_list'] != '') {
+					$files = explode(',', $list['files_list']);
+					foreach($files as $file){
+						$filepath = public_path('/wetransfer/'.$list['id'].'/'. $file);
+						 Response::download($filepath); 
+					} 
+				} else{
+					
+				}*/
+				$this->downloadFromURL( $list->id, $list->url, $list->supplier );
                 
-                $this->downloadFromURL( $list->id, $list->url, $list->supplier );
-                $file  = $this->downloadWetransferFiles( $list->url );
+				
+                /*$file  = $this->downloadWetransferFiles( $list->url );
                 
                 if ( !empty( $file ) ) {
                     
@@ -155,9 +163,13 @@ class WeTransferController extends Controller
                         'files_list'   => null,
                         'is_processed' => 0,
                 );
-                Wetransfer::where( 'id', $list->id )->update( $update );
+                Wetransfer::where( 'id', $list->id )->update( $update );*/
                
             // }	
+			 return response()->json([
+                        'status'      => true,
+                        'message'     => 'Download completed'
+                    ], 200);
         }
         return response()->json([
             'status'      => true,
