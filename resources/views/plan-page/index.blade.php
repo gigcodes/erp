@@ -411,7 +411,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                         <div class="form-group">
                           <label class="col-form-label">Type</label>
-                          <input type="text" class="form-control" name="type" list="type" />
+                          <input type="text" class="form-control" name="type" list="type" required="required" />
                             <datalist id="type">
                               @foreach($typeList as $value )
                                     <option value="{{$value->type}}">{{$value->type}}</option>
@@ -422,7 +422,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                         <div class="form-group">
                           <label class="col-form-label">Category</label>
-                          <input type="text" class="form-control" name="category" list="category" />
+                          <input type="text" class="form-control" name="category" list="category"  required="required" />
                           <datalist id="category">
                             @foreach($categoryList as $value )
                                   <option value="{{$value->category}}">{{$value->category}}</option>
@@ -435,7 +435,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Subject:</label>
-                            <input type="text" name="subject" class="form-control">
+                            <input type="text" name="subject" class="form-control" required="required">
                           </div>
                       </div>
                       <div class="col-md-6">
