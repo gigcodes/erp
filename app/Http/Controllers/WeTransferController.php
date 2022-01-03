@@ -63,20 +63,30 @@ class WeTransferController extends Controller
      */
     public function storeFile(Request $request)
     {
-		Activity::create(['description'=>json_encode($request->input())]);
-		Activity::create(['description'=>json_encode($request)]);
-        $wetransfer = Wetransfer::find($request->id);
-        if($request->status){
+		$wetransfer = Wetransfer::find($request->id);
+        /*if($request->status){
             $wetransfer->is_processed = 2;
             $wetransfer->update();
             return json_encode(['success' => 'Wetransfer Status has been updated']);
-        }
+        }*/
 
         if($request->file){
 
             $wetransfer->is_processed = 1;
+			if($wetransfer->files_list == null || $wetransfer->files_list == '') {
+				$wetransfer->files_list = $request->filename;
+			} else {
+				$wetransfer->files_list = ', '.$request->filename;
+			}
             $wetransfer->update();
+			
             $file = $request->file('file');
+			
+			$fileN = time(). $file->getClientOriginalName();
+			$file->move(public_path() . '/wetransfer/'.$request->id.'/', $fileN);
+    
+			
+			
             $attachments_array = [];
             /*if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 $attachments = ErpExcelImporter::excelZipProcess($file, $file->getClientOriginalName(), $wetransfer->supplier, '', $attachments_array);
