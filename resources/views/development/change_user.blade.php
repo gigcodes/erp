@@ -168,11 +168,13 @@
                     <td><input type="checkbox" name="taskIds[]" value="{{ $issue->id }}" checked></td>
                     <td>
                         {{ $issue->id }}
-                        {{-- <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
-                    @if ($issue->is_resolved == 0)	
-                        <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
-                    @endif	
-                </a> --}}
+                        {{--
+							<a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+								@if ($issue->is_resolved == 0)	
+									<input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
+								@endif	
+							</a> 
+						--}}
                     </td>
                     <td><a
                             href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a>
@@ -181,6 +183,7 @@
                     <td>{{ $issue->subject }}</td>
                 </tr>
             @endforeach
+			{{$issues->links()}}
         </table>
     </div>
 
