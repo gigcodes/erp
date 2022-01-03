@@ -992,4 +992,13 @@ class HashtagController extends Controller
 
         
     }
+    public function changeCronSetting(Request $request){
+        $setting = Setting::get('run_mailing_command');
+        $value = ($setting ==1)?0:1;
+        $action = ($setting ==1)?"Stopped":"Started";
+        Setting::set("run_mailing_command", $value, $type = 'int');
+
+        return redirect()->back()->with('message', "Maillist command has  $action successfully.");  
+        
+    }
 }

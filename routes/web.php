@@ -2127,6 +2127,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencers/history', 'HashtagController@history')->name('influencers.index.history');
     Route::post('influencers/reply/add', 'HashtagController@addReply')->name('influencers.reply.add');
     Route::post('influencers/reply/delete', 'HashtagController@deleteReply')->name('influencers.reply.delete');
+    Route::post('influencers', 'HashtagController@changeCronSetting')->name('instagram.change.mailing');
 
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
@@ -3484,8 +3485,8 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 
 Route::get('command', function () {
 	
- // \Artisan::call('migrate');
- //   \Artisan::call('create-mailinglist-influencers');
+// \Artisan::call('migrate');
+    \Artisan::call('create-mailinglist-influencers');
 	/* php artisan migrate */
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/

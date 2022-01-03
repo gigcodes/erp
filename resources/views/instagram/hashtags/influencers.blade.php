@@ -241,22 +241,32 @@ button[disabled]:hover {
             </div>
             <div class="row">
                 <div class="col-md-12 form-inline" >
+                    <div class="form-group mr-2" >
+                        {!! Form::open(['method' => 'POST','route' => ['instagram.change.mailing'],'style'=>'display:inline']) !!}
+                        @if(\APP\Setting::get('run_mailing_command')==1)
+                        <button type="submit" class="btn btn-xs btn-secondary">Stop Mailing Command</button>
+                        @else
+                        <button type="submit" class="btn btn-xs btn-secondary">Start Mailing Command</button>
+                        @endif
+                        {!! Form::close() !!}
+                        <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary " style="width:180px !important;line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align:left;" >Ceate Mailing List</a> 
+                    </div>
                     <div class="form-group mr-2" >    
-                        <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary " style="width:267px !important;line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align:left;" >Ceate Mailing List</a> 
+                        <a href="{{url('instagram/addmailinglist')}}" class="btn btn-secondary " style="width:180px !important;line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align:left;" >Ceate Mailing List</a> 
                     </div>      
                     <div class="form-group mr-2" >    
-                        <a href="#" class="btn btn-secondary  mailToInfluencers" style="width:267px !important; line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align: left;" >Send Mail</a> 
+                        <a href="#" class="btn btn-secondary  mailToInfluencers" style="width:180px !important; line-height: 1.5; background-color: #f5f5f5;color: #555; border-color: #ddd; text-align: left;" >Send Mail</a> 
                     </div>      
                     <div class="form-group mr-2">    
-                        <button class="btn btn-secondary " onclick="sortData()" style="width:267px !important; line-height: 1.5; background-color: #f5f5f5;color: #555;border-color: #ddd;text-align: left;">Sort Data</button> 
+                        <button class="btn btn-secondary " onclick="sortData()" style="width:180px !important; line-height: 1.5; background-color: #f5f5f5;color: #555;border-color: #ddd;text-align: left;">Sort Data</button> 
                     </div>        
                     <div class="form-group mr-2" >
-                            <input name="name" type="text" class="form-control" style="width:267px !important;" id="keywordname" placeholder="New Keyword">
+                            <input name="name" type="text" class="form-control" style="width:180px !important;" id="keywordname" placeholder="New Keyword">
                     </div>
                     @php
                         $accountsList = ["" => "------ N/A ------"] + \App\Account::where('platform','instagram')->where('email',"!=",'')->get()->pluck('email','id')->toArray();
                     @endphp
-                    <div class="form-group mr-2"style="width:276px !important;">
+                    <div class="form-group mr-2"style="width:180px !important;">
                             <?php echo Form::select('instagram_account_id',$accountsList,null, ["class" => "form-control select2","id" => 'instagram_account_id']); ?>
                     </div>
                     <div class="form-group">
