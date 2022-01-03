@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Wetransfer;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Setting;
+use App\Activity;
 
 class WeTransferController extends Controller
 {
@@ -62,6 +63,8 @@ class WeTransferController extends Controller
      */
     public function storeFile(Request $request)
     {
+		Activity::create(['description'=>json_encode($request->input())]);
+		Activity::create(['description'=>json_encode($request)]);
         $wetransfer = Wetransfer::find($request->id);
         if($request->status){
             $wetransfer->is_processed = 2;
@@ -75,10 +78,10 @@ class WeTransferController extends Controller
             $wetransfer->update();
             $file = $request->file('file');
             $attachments_array = [];
-            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+            /*if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                 $attachments = ErpExcelImporter::excelZipProcess($file, $file->getClientOriginalName(), $wetransfer->supplier, '', $attachments_array);
                 
-            }
+            }*/
 
             return json_encode(['success' => 'Wetransfer has been stored']);
         }	
@@ -93,7 +96,7 @@ class WeTransferController extends Controller
         if ( !empty( $list ) ) {
             // foreach ($queuesList as $list) {
                 
-                $this->downloadFromURL( $list->url, $list->supplier );
+                $this->downloadFromURL( $list->id, $list->url, $list->supplier );
                 $file  = $this->downloadWetransferFiles( $list->url );
                 
                 if ( !empty( $file ) ) {
@@ -261,11 +264,39 @@ class WeTransferController extends Controller
         return false;
     }
 
-    public static function downloadFromURL($url, $supplier)
+    public static function downloadFromURL($id, $url, $supplier)
     {
-        $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'http://75.119.154.85:100/download',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS =>'{
+			"url":'.$url.',
+			"id":'.$id.'
+		}',
+		  CURLOPT_HTTPHEADER => array(
+			'Content-Type: text/plain'
+		  ),
+		));
 
+		$response = curl_exec($curl);
 
+		curl_close($curl);
+		if($response == "Request Submitted!") {
+			return true;
+		} else {
+			return false;
+		}
+		
+		
+		
+       /* $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
 
         if (strpos($url, 'https://we.tl/') !== false) {
             
@@ -395,6 +426,6 @@ class WeTransferController extends Controller
                     }           
                 return true;
             }
-        return false;
+        return false; */
     }
 }
