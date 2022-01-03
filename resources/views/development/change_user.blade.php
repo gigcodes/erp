@@ -183,7 +183,7 @@
                     <td>{{ $issue->subject }}</td>
                 </tr>
             @endforeach
-			{{$issues->links()}}
+			{{$issues->appends(['user'=>request()->input('user')])->links()}}
         </table>
     </div>
 
