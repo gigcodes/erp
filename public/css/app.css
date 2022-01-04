@@ -11419,3 +11419,9 @@ table.table-striped-custom tbody tr td {
     width:100% !important;
     object-fit: cover;
 }
+.td-mini-container a{
+  color: black;
+}
+.green_img {
+    background: grey !important;
+}
