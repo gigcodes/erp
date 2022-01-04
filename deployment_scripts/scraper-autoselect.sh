@@ -70,7 +70,7 @@ function chromium_kill
 	while read process
 	do
 		chromium_time=`echo $process|cut -d' ' -f3|cut -d'.' -f1`
-		if [ $chromium_time -gt 72 ]				### if chromium process running from more than 72 hrs
+		if [ $chromium_time -gt 50 ]				### if chromium process running from more than 72 hrs
 		then
 			server=`echo $process|cut -d' ' -f1`
 			pid=`echo $process|cut -d' ' -f2`

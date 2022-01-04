@@ -12,7 +12,7 @@
  */
 
 Auth::routes();
-
+Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
@@ -508,6 +508,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reply-list', 'ReplyController@replyList')->name('reply.replyList');
     Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
     Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
+    Route::get('reply-history', 'ReplyController@getReplyedHistory')->name('reply.replyhistory');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
@@ -1403,6 +1404,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/change-user', 'DevelopmentController@changeUserStore')->name('development.changeuser.store');
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
+    Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -1571,12 +1573,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('sku/color-codes-update', 'SkuController@colorCodesUpdate')->name('sku.color-codes-update');
 
     // Cash Flow Module
+    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
+    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
+
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
     Route::post('cashflow/do-payment', 'CashFlowController@doPayment')->name('cashflow.do-payment');
     Route::get('cashflow/getbnamelist', 'CashFlowController@getBnameList');
+    Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
+    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
+    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
+    
+
+
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');
@@ -2596,6 +2607,7 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
     Route::post('task/change/status', 'TaskModuleController@updateStatus')->name('task.change.status');
     Route::post('task/status/create', 'TaskModuleController@createStatus')->name('task.status.create');
+
     
 });
 
@@ -2847,6 +2859,8 @@ Route::post('/failedjobs/delete-multiple', 'FailedJobController@deleteMultiple')
 Route::any('/failedjobs/alldelete/{id}', 'FailedJobController@alldelete')->middleware('auth')->name('failedjobs.alldelete');
 
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
+Route::get('/wetransfer/logs', 'WeTransferController@logs')->middleware('auth')->name('wetransfer.logs');
+
 Route::post('/wetransfer/re-downloads-files', 'WeTransferController@reDownloadFiles')->middleware('auth')->name('wetransfer.reDownload.files');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->middleware('auth')->name('manageScrapedBrands');
@@ -3494,7 +3508,7 @@ Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->
 Route::get('command', function () {
 
   //  \Artisan::call('migrate');
-     \Artisan::call('get:pythonLogs');
+     \Artisan::call('HubstuffActivity:Command');
 
    // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');
@@ -3503,3 +3517,4 @@ Route::get('command', function () {
    /* \Artisan::call('command:schedule_emails');
     dd("Done");*/
 });
+

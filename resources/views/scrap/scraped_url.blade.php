@@ -31,9 +31,13 @@
 
         </div>
     </div> -->
+    <div class="row">
+        <div class="col-md-12 p-0"> 
+             <div class="page-heading-title page-heading">Scraped URLs</div>
+        </div>
+    </div>
 <div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="page-heading-title">Scraped URLs</div>
+    <div class=" margin-tb">
         <div class="pull-left cls_filter_box">
             <form class="form-inline" method="post" style='padding-left:25px;'>
                 <div class="form-group mr-3 mb-3">
@@ -49,14 +53,14 @@
                     </select>
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="url" placeholder='URL' size="22">
+                    <input type="text" class="search form-control" id="url" placeholder='URL' size="22" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="sku" placeholder='SKU' size="17">
+                    <input type="text" class="search form-control" id="sku" placeholder='SKU' size="17" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
                     @php $brands = \App\Brand::getAll(); @endphp
-                    <select class="form-control select-multiple2" name="brand[]" id="brand" data-placeholder="Select brand.." multiple>
+                    <select class="form-control select-multiple2" name="brand[]" id="brand" data-placeholder="Select brand.." multiple style="    width: 142px;">
                         <optgroup label="Brands">
                             @foreach ($brands as $key => $name)
                             <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
@@ -65,47 +69,47 @@
                     </select>
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="title" placeholder='Title' size="17">
+                    <input type="text" class="search form-control" id="title" placeholder='Title' size="17" style="background: none;width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="currency" placeholder='Currency' size="17">
+                    <input type="text" class="search form-control" id="currency" placeholder='Currency' size="17" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="price" placeholder='Price' size="20">
+                    <input type="text" class="search form-control" id="price" placeholder='Price' size="20" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="color" placeholder='Color' size="22">
+                    <input type="text" class="search form-control" id="color" placeholder='Color' size="22" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="psize" placeholder='Sizes' size="17">
+                    <input type="text" class="search form-control" id="psize" placeholder='Sizes' size="17" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="dimension" placeholder='Dimensions' size="17">
+                    <input type="text" class="search form-control" id="dimension" placeholder='Dimensions' size="17" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="category" placeholder='Category' size="17">
+                    <input type="text" class="search form-control" id="category" placeholder='Category' size="17" style="width: 142px;">
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <input type="text" class="search form-control" id="product_id" placeholder='PID eg.123,124,125' size="17">
+                    <input type="text" class="search form-control" id="product_id" placeholder='PID eg.123,124,125' size="17" style="width: 142px;">
                 </div>
 
                 <div class="form-group mr-3 mb-3">
                     <div class='input-group' id='created-date'>
-                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" size="12" />
+                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" size="12"/ style="width: 142px;" >
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <select class="search form-control" id="prod_img_filter" name="prod_img_filter">
+                    <select class="search form-control" id="prod_img_filter" name="prod_img_filter" style="width: 142px;">
                         <option value="">FIlter Images</option>
                         <option value="0">With Images</option>
                         <option value="1">Without Images</option>
                     </select>
                 </div>
                 <div class="form-group mr-3 mb-3">
-                    <select class="search form-control" id="prod_error_filter" name="prod_error_filter">
+                    <select class="search form-control" id="prod_error_filter" name="prod_error_filter" style="width: 142px;">
                         <option value="">Filter Errors</option>
                         <option value="0">With Errors</option>
                         <option value="1">Without Errors</option>
@@ -183,26 +187,26 @@
     </div>
 </div>
 <div class="mt-3 col-md-12">
-    <table class="table table-bordered table-striped" id="log-table">
+    <table class="table table-bordered table-striped" id="log-table"style="table-layout: fixed;">
         <thead>
             <tr>
                 <th width="5%">PId</th>
                 <th width="5%">Website</th>
-                <th width="10%">Url</th>
-                <th width="10%">Sku</th>
-                <th width="10%">Brand</th>
-                <th width="10%">Title</th>
-                <th width="10%">Currency</th>
-                <th width="5%">Price</th>
-                <th width="5%">Image</th>
-                <th width="5%">Created_at</th>
+                <th width="4%">Url</th>
+                <th width="5%">Sku</th>
+                <th width="5%">Brand</th>
+                <th width="5%">Title</th>
+                <th width="6%">Currency</th>
+                <th width="10%">Price</th>
+                <th width="4%">Image</th>
+                <th width="7%">Created_at</th>
                 <!-- <th width="10%"><button class="btn btn-link" onclick="sortByDateUpdated()" id="header-updated" value="0">Updated_at</button></th> -->
                 @if($response != null)
                 @if(in_array('color',$response['columns']))
                 <th width="5%">Color</th>
                 @endif
                 @if(in_array('category',$response['columns']))
-                <th width="5%">Category</th>
+                <th width="7%">Category</th>
                 @endif
                 @if(in_array('description',$response['columns']))
                 <th>Description</th>
@@ -220,10 +224,10 @@
                 <th>Composition</th>
                 @endif
                 @if(in_array('size',$response['columns']))
-                <th width="5%">Sizes</th>
+                <th width="7%">Sizes</th>
                 @endif
                 @if(in_array('dimension',$response['columns']))
-                <th width="5%">Dimensions</th>
+                <th width="7%">Dimensions</th>
                 @endif
                 @if(in_array('lmeasurement',$response['columns']))
                 <th>Lmeasurement</th>
@@ -240,7 +244,7 @@
 
                 @endif
                 <th width="5%">Errors</th>
-                <th>Action</th>
+                <th width="4%">Action</th>
             </tr>
             <!-- <tr>
                 <th width="30%">

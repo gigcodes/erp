@@ -148,7 +148,7 @@
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
               <td>{{ $task->estimate_minutes }} </td>
               <td>{{ number_format((float)$task->estimate_minutes/60, 2, '.', '') }} </td>
-              <td>{{ $task->user->hourly_rate }} </td>
+              <td>{{ isset($task->user)?$task->user->hourly_rate:'' }} </td>
               <td style="display:flex;border-bottom: none;">  {{ $task->rate_estimated }} 
                   <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $task->id }}"><i class="fa fa-info-circle"></i></button> 
               </td>

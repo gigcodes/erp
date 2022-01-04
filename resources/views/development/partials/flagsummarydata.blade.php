@@ -2,32 +2,10 @@
 
 <tr style="color:grey;">
     <td style="display:table-cell;vertical-align: baseline;">
-
-    <a style="color: #555;" href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
-            @if($issue->is_resolved==0)
-                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}> 
-            @endif
-
-        </a>
-
-
-      
-        <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
-        <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
-        
+    {{ $issue->id }}
     </td>
     <td>    
-        <select name="module" class="form-control task-module" data-id="{{$issue->id}}">
-            <option value=''>Select Module..</option>
-            @foreach($modules as $module)
-
-             @if( isset($issue->module_id) && (int) $issue->module_id == $module->id )
-                <option value="{{$module->id}}" selected>{{$module->name}}</option>
-                @else
-                <option value="{{$module->id}}">{{$module->name}}</option>
-                @endif
-            @endforeach
-        </select>
+       {{ $issue->subject }}
     </td>
        <td>
      <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
@@ -44,19 +22,18 @@
         </select>
    <!--     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>-->
     </td>
+     <td>
+                                        
+                                            
+                                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+                                    </td>
     <td>
-    <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
-            <option value="">Select...</option>
-            <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
-            @foreach($users as $id=>$name)
-                @if( $masterUser == $id )
-                    <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                    <option value="{{$id}}">{{ $name }}</option>
-                @endif
-            @endforeach
-        </select>
+   {{ $issue->estimate_time }}
+
+   <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show  History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
     </td>
+    <td>{{ $issue->estimate_date }}
+    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button></td>
     <td class="communication-td devtask-com">
     <!-- class="expand-row" -->
   
@@ -81,19 +58,8 @@
          </div> 
     </span>
 </div>
-    </td>
-    <td class="send-to-str">
-    <?php echo Form::select("send_message_".$issue->id,[
-                        "to_developer" => "Send To Developer",
-                        "to_master" => "Send To Master Developer",
-                        "to_team_lead" => "Send To Team Lead",
-                        "to_tester" => "Send To Tester"
-                    ],null,["class" => "form-control send-message-number", "style" => "width:100% !important;display: inline;"]); ?>
-
-    </td>
-  
-    
-    <td style="display:flex;">
+    </td>    
+    <td >
         @if($issue->is_resolved)
             <strong>Done</strong>
         @else
@@ -110,6 +76,7 @@
     </td>
  
 </tr>
+
 <script>
     $(document).on('click', '.flag-task', function () {
             var task_id = $(this).data('id');
@@ -146,4 +113,61 @@
                 console.log(response);
             });
         });
+     $(document).on('click', '.show-tracked-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.tracked.history') }}",
+                data: {id: issueId,type:type},
+                success: function (data) {
+                    console.log(data);
+                    if(data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['starts_at_date']).format('DD-MM-YYYY') +'</td>\
+                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                                    <td>'+humanizeDuration(sec,'s')+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
+        });
+     $(document).on('click', '.show-status-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#status_quick_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/status/history') }}",
+                data: {
+                    id: issueId
+                },
+                success: function(data) {
+                    if (data != 'error') {
+                        $.each(data, function(i, item) {
+                            if (item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            } else {
+                                var checked = '';
+                            }
+                            $('#status_quick_history_modal table tbody').append(
+                                '<tr>\
+                                            <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                            <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
+                                            <td>' + item['new_value'] + '</td>\
+                                            <td>' + item['name'] + '</td>\
+                                        </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#status_quick_history_modal').modal('show');
+        });
+
 </script>
