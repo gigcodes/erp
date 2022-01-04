@@ -11422,3 +11422,6 @@ table.table-striped-custom tbody tr td {
 .text-center.task_queue_list td{
     text-align: left;
 }
+.green_img {
+    background: grey !important;
+}
