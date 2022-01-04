@@ -61,7 +61,7 @@ class PlanController extends Controller
 
     public function store(Request $request)
     {   
-        //dd( $request->all() );
+      //  dd( $request->all() );
             $rules = [
                 'priority' => 'required',
                 //'date' => 'required',
@@ -72,23 +72,33 @@ class PlanController extends Controller
                $request->all(),
                $rules
             );
-            $type = PlanTypes::find($request->type);
-            if(!$type){
-                $data = array(
-                    'type' => $request->type,
-                );
-
-                PlanTypes::insert($data);
+            if(isset($request->parent_id)){
+               $plan = Plan::find($request->parent_id);
+               $type =  $plan->type;
+               $category =  $plan->category;
+              
+            }else{
+                $type = PlanTypes::find($request->type);
+                if(!$type){
+                    $data = array(
+                        'type' => $request->type,
+                    );
+    
+                    PlanTypes::insert($data);
+                }
+    
+                $category = PlanCategories::find($request->category);
+                if(!$category){
+                    $data = array(
+                        'category' => $request->category,
+                    );
+    
+                    PlanCategories::insert($data);
+                }
             }
+           
 
-            $category = PlanCategories::find($request->category);
-            if(!$category){
-                $data = array(
-                    'category' => $request->category,
-                );
-
-                PlanCategories::insert($data);
-            }
+           
 
             $basis = PlanBasisStatus::find($request->basis);
             if(!$basis){
@@ -226,8 +236,8 @@ class PlanController extends Controller
 
     public function delete($id = null)
     {
-        StoreWebsiteAnalytic::whereId($id)->delete();
-        return redirect()->to('/store-website-analytics/index')->with('success','Record deleted successfully.');
+        Plan::whereId($id)->delete();
+        return redirect()->back()->with('success','Plan deleted successfully.');
     }
 
     public function report($id = null) 
