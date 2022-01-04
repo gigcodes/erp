@@ -72,7 +72,7 @@ class WeTransferController extends Controller
             $wetransfer->update();
             return json_encode(['success' => 'Wetransfer Status has been updated']);
         }*/
-
+	    WeTransferLog::create(['link'=>'', 'log_description'=>'we transfer item found']);
         if($request->file){
 		    $file = $request->file('file');
 			$fileN = time(). $file->getClientOriginalName();
@@ -94,10 +94,16 @@ class WeTransferController extends Controller
                 $attachments = ErpExcelImporter::excelZipProcess($file, $file->getClientOriginalName(), $wetransfer->supplier, '', $attachments_array);
                 
             }*/
+			WeTransferLog::create(['link'=>'', 'log_description'=>'Wetransfer has been stored']);
             return json_encode(['success' => 'Wetransfer has been stored']);
         }	
     }
 
+	public function logs() {
+		$logs = WeTransferLog::orderBy('id', 'desc')->paginate(30);
+		return view('wetransfer.logs', compact('logs'));
+	}
+	
     public function reDownloadFiles(Request $request)
     {   
 
@@ -115,8 +121,8 @@ class WeTransferController extends Controller
 				} else{
 					
 				}*/
-				$this->downloadFromURL( $list->id, $list->url, $list->supplier );
-                
+				$response = $this->downloadFromURL( $list->id, $list->url, $list->supplier );
+                WeTransferLog::create(['link'=>$list->url, 'log_description'=>'Downloaded '. $response]);
 				
                 /*$file  = $this->downloadWetransferFiles( $list->url );
                 

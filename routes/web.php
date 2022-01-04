@@ -2857,6 +2857,8 @@ Route::post('/failedjobs/delete-multiple', 'FailedJobController@deleteMultiple')
 Route::any('/failedjobs/alldelete/{id}', 'FailedJobController@alldelete')->middleware('auth')->name('failedjobs.alldelete');
 
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
+Route::get('/wetransfer/logs', 'WeTransferController@logs')->middleware('auth')->name('wetransfer.logs');
+
 Route::post('/wetransfer/re-downloads-files', 'WeTransferController@reDownloadFiles')->middleware('auth')->name('wetransfer.reDownload.files');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->middleware('auth')->name('manageScrapedBrands');
