@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use App\Wetransfer;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Setting;
-use App\Activity;
+use App\WeTransferLog;;
 use Response;
+
 class WeTransferController extends Controller
 {
     public function index()
@@ -63,6 +64,8 @@ class WeTransferController extends Controller
      */
     public function storeFile(Request $request)
     {
+		WeTransferLog::create(['link'=>'', 'log_description'=>json_encode($request->all())]);
+		//WeTransferLog::create(['link'=>'', 'log_description'=>json_encode($request->)]);
 		$wetransfer = Wetransfer::find($request->id);
         /*if($request->status){
             $wetransfer->is_processed = 2;
