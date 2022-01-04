@@ -11419,6 +11419,9 @@ table.table-striped-custom tbody tr td {
     width:100% !important;
     object-fit: cover;
 }
+.text-center.task_queue_list td{
+    text-align: left;
+}
 .green_img {
     background: grey !important;
 }
