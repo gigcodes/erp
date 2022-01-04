@@ -609,7 +609,7 @@ class DevelopmentController extends Controller
         $title = 'Scrapping Task List';
         //$moduleIds = DeveloperModule::where('name', 'like', '%scrap%')->pluck('id')->toArray();
         $issues = DeveloperTask::with('assignedUser');
-        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('developer_tasks.scraper_id')->where('developer_tasks.scraper_id', '<>', 0);
+        $issues = $issues->where('developer_tasks.task_type_id', '1')->whereNotNull('scraper_id')->where('scraper_id', '<>', 0);
         //$issues = $issues->whereIn('developer_tasks.module_id', $moduleIds);
         
         $issues = $issues->select("developer_tasks.*");
@@ -626,31 +626,27 @@ class DevelopmentController extends Controller
         }
         
         if (@$inputs['module']) {
-            $issues->where('developer_tasks.module_id', $inputs['module']);
+            $issues->where('module_id', $inputs['module']);
         }
 
         if (@$inputs['subject']) {
-            $issues->where('developer_tasks.subject', 'like', '%'.$inputs['subject'].'%');
+            $issues->where('subject', 'like', '%'.$inputs['subject'].'%');
         }
 
         if (@$inputs['task']) {
-            $issues->where('developer_tasks.task', 'like', '%'.$inputs['task'].'%');
+            $issues->where('task', 'like', '%'.$inputs['task'].'%');
         }
 
         if (@$inputs['user_id']) {
-            $issues->where('developer_tasks.assigned_to', $inputs['user_id']);
+            $issues->where('assigned_to', $inputs['user_id']);
             $users=\App\User::where("id", $request->user_id)->select(['id','name'])->first();
         }
 
         if (@$inputs['status']) {
-            $issues->where('developer_tasks.status', $inputs['status']);
+            $issues->where('status', $inputs['status']);
         }
 
-   //     $issues =  $issues->orderBy('developer_tasks.id', 'desc')
-        $issues =  $issues->join(DB::raw("(SELECT scraper_id, MAX(id) id FROM developer_tasks GROUP BY scraper_id) as _e"), function ($join) {
-            $join->on('developer_tasks.id', '=', '_e.id')->on('developer_tasks.scraper_id', '=', '_e.scraper_id');
-        });
-      //  ->groupBy("developer_tasks.id");
+        $issues =  $issues->orderBy('id', 'desc')->groupBy("developer_tasks.id");
         $issues = $issues->paginate(50);
 
         $modules = DeveloperModule::all()->pluck('name', 'id');
@@ -971,9 +967,7 @@ class DevelopmentController extends Controller
         $issues =  $issues->with('communications');
 
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(10);
-
-//        $issues = $issues->paginate(Setting::get('pagination'));
+        $issues = $issues->paginate(Setting::get('pagination'));
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
@@ -996,6 +990,138 @@ class DevelopmentController extends Controller
             // 'languages' => $languages
         ]);
     }
+
+     public function flagtask(Request $request)
+    {
+        $type = $request->tasktype ? $request->tasktype : 'all';
+
+        $title = 'Flag Task List';
+
+        $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
+       
+       if ($type == 'issue') {
+            $issues = $issues->where('developer_tasks.task_type_id', '3');
+        }
+        if ($type == 'devtask') {
+            $issues = $issues->where('developer_tasks.task_type_id', '1');
+        }
+        if ((int) $request->get('submitted_by') > 0) {
+            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
+        }
+        if ((int) $request->get('responsible_user') > 0) {
+            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
+        }
+
+        if ((int) $request->get('corrected_by') > 0) {
+            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
+        }
+
+        if ((int) $request->get('assigned_to') > 0) {
+            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
+        }
+        if ($request->get('module')) {
+            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
+        }
+        if (!empty($request->get('task_status', []))) {
+            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
+        } else {
+            $issues = $issues->where('developer_tasks.status', 'In Progress');
+        }
+
+        $whereCondition = "";
+        if ($request->get('subject') != '') {
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $issues = $issues->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere("task", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+
+        if ($request->get('last_communicated', "off") == "on") {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+
+        $issues = $issues->select("developer_tasks.*", "chat_messages.message");
+        $modules = DeveloperModule::orderBy('name')->get();
+
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        $statusList = \DB::table("task_statuses")->select("name")->orderBy('name')->pluck("name", "name")->toArray();
+
+        $statusList = array_merge([
+            "" => "Select Status",
+        ], $statusList);
+
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+            $issues = $issues->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id);
+            });
+        }
+
+        $issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
+
+        $countPlanned = [];
+        if (!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countPlanned[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+        // category filter start count
+        $issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
+        $countInProgress = [];
+        if (!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countInProgress[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+        // Sort
+        if ($request->order == 'priority') {
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+        } elseif ($request->order == 'latest_task_first') {
+            $issues = $issues->orderBy('developer_tasks.id', 'DESC');
+        } else {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+
+        $issues =  $issues->with('communications');
+
+        // return $issues = $issues->limit(20)->get();
+        $issues = $issues->paginate(Setting::get('pagination'));
+        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
+        return view('development.flagtask', [
+            'issues' => $issues,
+            'users' => $users,
+            'modules' => $modules,
+            'request' => $request,
+            'title' => $title,
+            'type' => $type,
+            'priority' => $priority,
+            'countPlanned' => $countPlanned,
+            'countInProgress' => $countInProgress,
+            'statusList' => $statusList
+            // 'languages' => $languages
+        ]);
+    }
+
 
     public function summaryList1(Request $request)
     {
@@ -2264,7 +2390,7 @@ class DevelopmentController extends Controller
         $issue = DeveloperTask::find($request->get('issue_id'));
         if ($issue->is_resolved == 1) {
             return response()->json([
-                'message'	=> 'DONE Status can not change further.'
+                'message'   => 'DONE Status can not change further.'
             ], 500);
         }
         if (strtolower($request->get('is_resolved')) == "done") {
@@ -2275,7 +2401,7 @@ class DevelopmentController extends Controller
                 $assigned_to = User::find($issue->assigned_to);
                 if (!$assigned_to) {
                     return response()->json([
-                        'message'	=> 'Please assign the task.'
+                        'message'   => 'Please assign the task.'
                     ], 500);
                 }
                 $team_user = \DB::table('team_user')->where('user_id', $issue->assigned_to)->first();
@@ -2291,8 +2417,8 @@ class DevelopmentController extends Controller
                 }
                 if ($dev_task_user && $dev_task_user->fixed_price_user_or_job == 0) {
                     return response()->json([
-                        // 'message'	=> 'Please provide salary payment method for user. '
-                        'message'	=> 'Please provide salary payment method for '.$dev_task_user->name.' .'
+                        // 'message'    => 'Please provide salary payment method for user. '
+                        'message'   => 'Please provide salary payment method for '.$dev_task_user->name.' .'
                     ], 500);
                 }
                 // dd($dev_task_user);
@@ -2301,7 +2427,7 @@ class DevelopmentController extends Controller
                     // Fixed price task.
                     if ($issue->cost == null) {
                         return response()->json([
-                            'message'	=> 'Please provide cost for fixed price task.'
+                            'message'   => 'Please provide cost for fixed price task.'
                         ], 500);
                     }
 
@@ -2365,7 +2491,7 @@ class DevelopmentController extends Controller
                 ]);
             } else {
                 return response()->json([
-                    'message'	=> 'Only admin can change status to DONE.'
+                    'message'   => 'Only admin can change status to DONE.'
                 ], 500);
             }
         } else {

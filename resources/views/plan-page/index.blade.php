@@ -186,7 +186,7 @@ div#plan-action textarea {height: 200px;}
                         <td>{{$sublist->date}}</td>
                         <td>
                             <button type="button" class="btn btn-secondary edit-plan" data-id="{{$sublist->id}}"><i class="fa fa-edit"></i></button>
-                            <a href="{{route('plan.delete',$sublist->id)}}" class="btn btn-image" title="Delete Record"><img src="/images/delete.png"></a>
+                            <a href="{{route('plan.delete',$sublist->id)}}" class="btn btn-image" title="Delete Record"><img src="{{env('APP_URL')}}/images/delete.png"></a>
                         </td>
                     </tr>
                 @endforeach
@@ -417,7 +417,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                         <div class="form-group">
                           <label class="col-form-label">Type</label>
-                          <input type="text" class="form-control" name="type" list="type" />
+                          <input type="text" class="form-control" name="type" list="type" id="plan_type" required="required"/>
                             <datalist id="type">
                               @foreach($typeList as $value )
                                     <option value="{{$value->type}}">{{$value->type}}</option>
@@ -428,7 +428,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                         <div class="form-group">
                           <label class="col-form-label">Category</label>
-                          <input type="text" class="form-control" name="category" list="category" />
+                          <input type="text" class="form-control" name="category" list="category" id="plan_cat" required="required" />
                           <datalist id="category">
                             @foreach($categoryList as $value )
                                   <option value="{{$value->category}}">{{$value->category}}</option>
@@ -441,7 +441,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Subject:</label>
-                            <input type="text" name="subject" class="form-control">
+                            <input type="text" name="subject" class="form-control" required="required">
                           </div>
                       </div>
                       <div class="col-md-6">
@@ -540,6 +540,109 @@ div#plan-action textarea {height: 200px;}
   </div>
 </div>
 
+
+<div class="modal fade" id="mySubModal" tabindex="-1" role="dialog" aria-labelledby="mySubModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="myModal">Add Sub Plan</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form method="post" id="sub_planadd" action="{{ route('plan.store') }}">
+          <div class="modal-body">
+            <div class="container-fluid">
+                  @csrf
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="form-group">
+                            <label  class="col-form-label">Priority:</label>
+                            <select class="form-control" name="priority" required>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                          </div>
+                      </div>
+                      <input type="hidden" id="sub_edit_id" name="id">
+                      <input type="hidden" id="sub_parent_id" name="parent_id">
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label  class="col-form-label">Status:</label>
+                            <select class="form-control" name="status" required>
+                                <option value="complete">complete</option>
+                                <option value="pending">pending</option>
+                            </select>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row subject-field">
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label  class="col-form-label">Budget:</label>
+                            <input type="number" name="budget" class="form-control">
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Deadline:</label>
+                            <input type="date" name="deadline" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                  <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Basis:</label>
+                            <input type="text" class="form-control" name="basis" list="basis" />
+                            <datalist id="basis">
+                              @foreach($basisList as $value )
+                                    <option value="{{$value->status}}">{{$value->status}}</option>
+                                @endforeach;
+                            </datalist>
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Implications</label>
+                            <input type="text" name="implications" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label  class="col-form-label">Date:</label>
+                            <input type="date" name="date" class="form-control">
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                      <div class="form-group">
+                            <label class="col-form-label">Description:</label>
+                            <textarea class="form-control" name="description"></textarea>
+                          </div>
+                    </div>
+                  </div>
+                  <div class="row remark-field hidden" >
+                      <div class="col-md-12">
+                         <div class="form-group">
+                            <label  class="col-form-label">Remark:</label>
+                            <textarea class="form-control" name="remark"></textarea>
+                          </div>
+                      </div>
+                  </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Save</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 <script>
@@ -550,6 +653,7 @@ $(document).on('click','.new-plan', function (event) {
     $('.remark-field').addClass('hidden');
     $('.subject-field').removeClass('hidden')
     $('#planadd')[0].reset();
+
 });
 
 $('#myModal').on('hidden.bs.modal', function () {
@@ -565,11 +669,10 @@ $(document).on('click', '.preview-attached-img-btn', function (e) {
 });
 $(document).on('click','.add-sub-plan', function (event) {
     var id = $(this).data('id');
-    $('#edit_id').val('');
-    $('#parent_id').val(id);
-    $('#planadd')[0].reset();
-    $('.subject-field').addClass('hidden')
-    $('.remark-field').removeClass('hidden');
+    $('#sub_edit_id').val('');
+    $('#sub_parent_id').val(id);
+    $('#sub_planadd')[0].reset();
+   
 });
 
     $(document).on('click','.edit-plan', function (event) {
