@@ -625,8 +625,10 @@ class scrapperPhyhon extends Controller
                 }
             }
         }else{
+           
                $urls = DB::table('scraper_imags')->whereRaw('url != "" and url IS  NOT NULL');
-             $urls=$urls->paginate(Setting::get('pagination'));
+               $urls=$urls->paginate(Setting::get('pagination'));
+        //        $urls=$urls->get();
         
 
         }

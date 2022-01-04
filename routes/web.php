@@ -910,6 +910,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
     Route::post('task/time/history/approve/sendMessage', 'TaskModuleController@sendReviseMessage')->name('task.time.history.approve.sendMessage');
     Route::post('task/time/history/approve/sendRemindMessage', 'TaskModuleController@sendRemindMessage')->name('task.time.history.approve.sendRemindMessage');
+    Route::get('/get-site-development-task', 'TaskModuleController@getSiteDevelopmentTask')->name('get.site.development.task');
     //END - DEVTASK-4354
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');

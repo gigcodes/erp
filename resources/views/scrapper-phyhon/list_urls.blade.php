@@ -117,6 +117,7 @@
                         <button type="submit" class="btn btn-image"><img src="{{env('APP_URL')}}/images/unstarred.png" /></button>
                         {!! Form::close() !!}
                         @endif
+                        <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn d-inline count-dev-customer-tasks" title="Show task history" data-id="{{$item->id}}"><i class="fa fa-info-circle"></i></button>
 
                           
 
@@ -130,7 +131,36 @@
         {{ $urls->appends(request()->except('page'))->links() }}
     </div>
 
+    <div id="dev_task_statistics" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Dev Task statistics</h2>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Task type</th>
+                                    <th>Task Id</th>
+                                    <th>Assigned to</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dev_task_statistics_content">
 
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
  <script>
       
       $(document).ready(function() { 
@@ -143,6 +173,46 @@
             $('{{$flagUrl}}').css('background-color', 'yellow');
         }
      <?php } ?>
+
+     $(document).on("click", ".count-dev-customer-tasks", function() {
+
+         $this = $(this);
+// var user_id = $(this).closest("tr").find(".ucfuid").val();
+        var site_id = $(this).data("id");
+        $.ajax({
+                type: 'get',
+                url: '{{route("get.site.development.task")}}',
+                data: {site_id:site_id},
+                dataType: "json",
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(data) {
+                    for (var i = 0; i < data.taskStatistics.length; i++) {
+                        var str = data.taskStatistics[i].subject;
+                        var res = str.substr(0, 100);
+                        var status = data.taskStatistics[i].status;
+                        if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
+                        table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td class="expand-row-msg" data-name="asgTo" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-asgTo-'+data.taskStatistics[i].id+'">'+data.taskStatistics[i].assigned_to_name.replace(/(.{6})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-asgTo-'+data.taskStatistics[i].id+' hidden">'+data.taskStatistics[i].assigned_to_name+'</span></td><td class="expand-row-msg" data-name="res" data-id="'+data.taskStatistics[i].id+'"><span class="show-short-res-'+data.taskStatistics[i].id+'">'+res.replace(/(.{7})..+/, "$1..")+'</span><span style="word-break:break-all;" class="show-full-res-'+data.taskStatistics[i].id+' hidden">'+res+'</span></td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+                        table = table + '<a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+                        table = table + '<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
+                        table = table + '</tr>';
+                    }
+                   // table = table + '</table></div>';
+                    $("#loading-image").hide();
+                    $(".modal").css("overflow-x", "hidden");
+                    $(".modal").css("overflow-y", "auto");
+                    $("#dev_task_statistics_content").html(table);
+                    $("#dev_task_statistics").modal();
+                },
+                error: function(error) {
+                    console.log(error);
+                    $("#loading-image").hide();
+                }
+            });
+
+
+    });
       });
 
      
