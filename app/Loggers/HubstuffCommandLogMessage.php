@@ -9,7 +9,7 @@ class HubstuffCommandLogMessage extends Model
     protected $guarded = [];  
 
    
-    public function flowlog()
+    public function hubstuffCommandLog()
     {
         return $this->belongsTo('App\Loggers\HubstuffCommandLog');
     }
