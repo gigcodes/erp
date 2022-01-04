@@ -26,7 +26,7 @@ class FlowLogMessages extends Model
     }
     public function flowlog()
     {
-        return $this->belongsTo('App\Loggers\FlowLogMessages');
+        return $this->belongsTo('App\Loggers\FlowLog');
     }
 
 }

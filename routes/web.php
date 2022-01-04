@@ -1577,6 +1577,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
+    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
+    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
+    
+
+
 
     //URL Routes Module
     Route::get('routes', 'RoutesController@index')->name('routes.index');
