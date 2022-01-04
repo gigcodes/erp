@@ -5,15 +5,15 @@
 
     <a style="color: #555;" href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
             @if($issue->is_resolved==0)
-                <input type="checkbox" name="selected_issue[]"  value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
+                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}> 
             @endif
 
         </a>
 
 
       
-        <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;margin-top: -6px;"><a>
-        <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default; margin-top: -6px;"><a>
+        <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
+        <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
         
     </td>
     <td>    
@@ -57,15 +57,15 @@
             @endforeach
         </select>
     </td>
-    <td class="communication-td devtask-com Website-task"style="border-bottom: none;">
+    <td class="communication-td devtask-com">
     <!-- class="expand-row" -->
   
    
-    <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="width:53%;display:inline;"/>
+    <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:40%;display:inline;"/>
    
     <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
     <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
-    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;width: 40%; data-id="{{$issue->id}}">
+    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
     <span class="td-mini-container-{{$issue->id}}" style="margin:0px;">
                     {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
     </span>
@@ -93,15 +93,57 @@
     </td>
   
     
-    <td style="display:flex; border-bottom:none; ">
+    <td style="display:flex;">
         @if($issue->is_resolved)
             <strong>Done</strong>
         @else
-            <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue w-100","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
+            <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
         @endif
+         @if ($issue->is_flagged == 1)
+         <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
+         @else
+         <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
+         @endif
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
                 <i class="fa fa-info-circle"></i>
             </button>
     </td>
  
 </tr>
+<script>
+    $(document).on('click', '.flag-task', function () {
+            var task_id = $(this).data('id');
+            var thiss = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('task.flag') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    task_id: task_id,
+                    task_type:'DEVTASK'
+                },
+                beforeSend: function () {
+                    $(thiss).text('Flagging...');
+                }
+            }).done(function (response) {
+                if (response.is_flagged == 1) {
+                    // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+                    //
+                    // $(thiss).parent().append(badge);
+                    $(thiss).html('<img src="/images/flagged.png" />');
+                } else {
+                    $(thiss).html('<img src="/images/unflagged.png" />');
+                    // $(thiss).parent().find('.badge').remove();
+                }
+
+                // $(thiss).remove();
+            }).fail(function (response) {
+                $(thiss).html('<img src="/images/unflagged.png" />');
+
+                alert('Could not flag task!');
+
+                console.log(response);
+            });
+        });
+</script>
