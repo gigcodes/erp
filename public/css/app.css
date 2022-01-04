@@ -11419,3 +11419,6 @@ table.table-striped-custom tbody tr td {
     width:100% !important;
     object-fit: cover;
 }
+.green_img {
+    background: grey !important;
+}
