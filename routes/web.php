@@ -508,6 +508,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reply-list', 'ReplyController@replyList')->name('reply.replyList');
     Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
     Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
+    Route::get('reply-history', 'ReplyController@getReplyedHistory')->name('reply.replyhistory');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');

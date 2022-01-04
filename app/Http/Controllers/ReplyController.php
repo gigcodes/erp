@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Reply;
+use App\ReplyUpdateHistory;
 use App\Setting;
 use App\ReplyCategory;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionReply;
 use App\WatsonAccount;
 use App\ChatbotQuestionExample;
+use Illuminate\Support\Facades\Auth;
 
 class ReplyController extends Controller
 {
@@ -32,7 +35,7 @@ class ReplyController extends Controller
             }    
 
             $replies = $replies->paginate(Setting::get('pagination'));
-  	
+    
         return view('reply.index',compact('replies','reply_categories'))
         ->with('i', (request()->input('page', 1) - 1) * 10);
     }
@@ -50,7 +53,7 @@ class ReplyController extends Controller
         $data['modify'] = 0;
         $data['reply_categories'] = ReplyCategory::all();
 
-  		return view('reply.form',$data);
+        return view('reply.form',$data);
     }
 
     /**
@@ -64,19 +67,19 @@ class ReplyController extends Controller
 
         $this->validate($request,[
             'reply'       => 'required|string',
-  			'category_id' => 'required|numeric',
-  			'model'       => 'required'
-  		]);
+            'category_id' => 'required|numeric',
+            'model'       => 'required'
+        ]);
 
-  		$data = $request->except('_token','_method');
+        $data = $request->except('_token','_method');
         $data['reply'] = trim($data['reply']);
-  		$reply->create($data);
+        $reply->create($data);
 
       if ($request->ajax()) {
         return response()->json(trim($request->reply));
       }
 
-  		return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
+        return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
     }
 
     public function categoryStore(Request $request)
@@ -112,10 +115,10 @@ class ReplyController extends Controller
     public function edit(Reply $reply)
     {
       $data = $reply->toArray();
-  		$data['modify'] = 1;
+      $data['modify'] = 1;
       $data['reply_categories'] = ReplyCategory::all();
 
-  		return view('reply.form',$data);
+        return view('reply.form',$data);
     }
 
     /**
@@ -128,15 +131,15 @@ class ReplyController extends Controller
     public function update(Request $request, Reply $reply)
     {
       $this->validate($request,[
-  			'reply' => 'required|string',
-  			'model' => 'required'
-  		]);
+            'reply' => 'required|string',
+            'model' => 'required'
+        ]);
 
-  		$data = $request->except('_token','_method');
+        $data = $request->except('_token','_method');
 
-  		$reply->update($data);
+        $reply->update($data);
 
-  		return redirect()->route('reply.index')->with('success','Quick Reply updated successfully');
+        return redirect()->route('reply.index')->with('success','Quick Reply updated successfully');
     }
 
     /**
@@ -151,7 +154,7 @@ class ReplyController extends Controller
       if ($request->ajax()) {
           return response()->json(['message' => "Deleted successfully"]);
       }
-  		return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
+        return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
     }
 
     public function chatBotQuestion(Request $request)
@@ -257,12 +260,25 @@ class ReplyController extends Controller
     {
         $id     = $request->get("id");
         $reply  = \App\Reply::find($id);
+        $replies = Reply::where('id',$id)->first();
+        $ReplyUpdateHistory = new ReplyUpdateHistory;
+        $ReplyUpdateHistory->last_message = $replies->reply;
+        $ReplyUpdateHistory->reply_id = $replies->id;
+        $ReplyUpdateHistory->user_id = Auth::id();
+        $ReplyUpdateHistory->save();
+
         if($reply) {
             $reply->reply = $request->reply;
             $reply->save();
         }
 
         return redirect()->back()->with('success','Quick Reply Updated successfully');
+    }
+    public function getReplyedHistory(Request $request)
+    {
+        $id = $request->id;
+        $reply_histories = DB::select( DB::raw("SELECT reply_update_histories.id,reply_update_histories.reply_id,reply_update_histories.user_id,reply_update_histories.last_message,reply_update_histories.created_at,users.name FROM `reply_update_histories` JOIN `users` ON users.id = reply_update_histories.user_id where reply_update_histories.reply_id = ".$id));
+        return response()->json(['histories' => $reply_histories]);
     }
 
 }
