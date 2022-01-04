@@ -11422,6 +11422,9 @@ table.table-striped-custom tbody tr td {
 .td-mini-container a{
   color: black;
 }
+.text-center.task_queue_list td{
+    text-align: left;
+}
 .green_img {
     background: grey !important;
 }

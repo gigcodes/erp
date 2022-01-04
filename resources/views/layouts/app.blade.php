@@ -1666,6 +1666,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.hubstuff.log') }}">Hubstuff Command Log</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('monetary-account') }}">Monetary Account</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
