@@ -27,18 +27,23 @@ table td{font-weight: normal;font-size: 14px;color: #757575;}
 td button.btn {padding: 0;}
 div#plan-action textarea {height: 200px;}
 </style>
-<div class="row mb-5">
+<div class="col-md-12 p-0">
+  <h2 class="page-heading">Plans page</h2>
+</div>
+<div class="col-md-12">
+<div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Plans page</h2>
-        <div class="row">
+        
+        <!-- <div class="row"> -->
+
           <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
-              <div class="form-group col-md-2 mr-3s mb-3 no-pd">
+              <div class="form-group col-md-1 mr-3s mb-3 no-pd">
                   <input name="term" type="text" class="form-control" value="{{ request('term') }}" placeholder="Search.." style="width:100%;">
               </div>
               <div class="form-group col-md-2 mr-3s mb-3 no-pd">
                   <input name="date" type="date" class="form-control" value="{{ request('date') }}" placeholder="Search.." style="width:100%;">
               </div>
-              <div class="form-group col-md-2 mr-3s no-pd">
+              <div class="form-group col-md-1 mr-3s no-pd">
                 <select class="form-control" name="typefilter">
                     <option value="">Select Type</option>
                     @foreach($typeList as $value )
@@ -46,7 +51,7 @@ div#plan-action textarea {height: 200px;}
                     @endforeach;
                 </select>
               </div>
-              <div class="form-group col-md-2 mr-3s no-pd">
+              <div class="form-group col-md-1 mr-3s no-pd">
                 <select class="form-control" name="categoryfilter">
                     <option value="">Select Type</option>
                     @foreach($categoryList as $value )
@@ -54,7 +59,7 @@ div#plan-action textarea {height: 200px;}
                     @endforeach;
                 </select>
               </div>
-              <div class="form-group col-md-3 mr-3s no-pd">
+              <div class="form-group col-md-1 mr-3s no-pd">
                   <select class="form-control" name="priority">
                       <option value="">Select priority</option>
                       <option value="high">High</option>
@@ -62,62 +67,63 @@ div#plan-action textarea {height: 200px;}
                       <option value="low">Low</option>
                   </select>
               </div>
-              <div class="form-group col-md-2 mr-3s no-pd">
+              <div class="form-group col-md-1 mr-3s no-pd">
                   <select class="form-control" name="status">
                       <option value="">Select status</option>
                       <option value="complete">complete</option>
                       <option value="pending">pending</option>
                   </select>
               </div>
-              <div class="col-md-* no-pd">
-              <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+              <div class="col-md-1 no-pd">
+              <button type="submit" class="btn mt-0 btn-image image-filter-btn"><img src="/images/filter.png"/></button>
               </div>
-          </form>
+              
+              <div class="col-md-4">
+              <div class="align-right mb-">
+                  <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myModal">New plan</button>
+                  <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myBasis">New basis</button>
+                  <button type="button" class="btn btn-secondary new-type" data-toggle="modal" data-target="#newtype">New Type</button>
+                  <button type="button" class="btn btn-secondary new-category" data-toggle="modal" data-target="#newcategory">New Category</button>
+              </div>
+            </div>
+           <!-- </div> -->
+         </form>
         </div>
-        <div class="row float-right">
-          <div class="col-md-6"></div>
-          <div class="align-right mb-">
-              <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myModal">New plan</button>
-              <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myBasis">New basis</button>
-              <button type="button" class="btn btn-secondary new-type" data-toggle="modal" data-target="#newtype">New Type</button>
-              <button type="button" class="btn btn-secondary new-category" data-toggle="modal" data-target="#newcategory">New Category</button>
-          </div>
-        </div>
-    </div>
+       
 </div>
-
+</div>
 @include('partials.flash_messages')
-
+ <div class="col-md-12">
 <div class="table-responsive">
-    <table class="table table-bordered" id="store_website-analytics-table">
+    <table class="table table-bordered" id="store_website-analytics-table"style="table-layout: fixed;">
         <thead>
             <tr>
-                <th>#ID</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Subject</th>
-                <th>Sub subject</th>
-                <th>Description</th>
-                <th>Priority</th>
-                <th>Budget</th>
-                <th>Basis</th>
-                <th>Implications</th>
-                <th width="15%">Solutions</th>
-                <th>DeadLine</th>
-                <th>status</th>
-                <th>Date</th>
-                <th width="15%" style="width: 20%;">Action</th>
+                <th width="3%">#ID</th>
+                <th width="5%">Type</th>
+                <th width="6%">Category</th>
+                <th width="6%">Subject</th>
+                <th width="7%">Sub subject</th>
+                <th width="8%">Description</th>
+                <th width="5%">Priority</th>
+                <th width="5%">Budget</th>
+                <th width="4%">Basis</th>
+                <th width="7%">Implications</th>
+                <th width="8%">Solutions</th>
+                <th width="6%">DeadLine</th>
+                <th width="5%">status</th>
+                <th width="7%">Date</th>
+                <th width="8%">Action</th>
             </tr>
         </thead>
         <tbody class="searchable">
             @foreach($planList as $key => $record)
             <tr>
-                <td>{{$record->id}}</td>
-                <td>{{$record->type}}</td>
-                <td>{{$record->category}}</td>
-                <td>{{$record->subject}}</td>
-                <td>{{$record->sub_subject}}</td>
-                <td width="15%">
+                <td style="vertical-align:middle">{{$record->id}}</td>
+                <td style="vertical-align:middle">{{$record->type}}</td>
+                <td class="Website-task" style="vertical-align:middle">{{$record->category}}</td>
+                <td class="Website-task" style="vertical-align:middle">{{$record->subject}}</td>
+                <td class="Website-task" style="vertical-align:middle">{{$record->sub_subject}}</td>
+                <td width="15%" style="vertical-align:middle">
                     <span class="toggle-title-box has-small" data-small-title="<?php echo substr($record->description, 0, 10).'..' ?>" data-full-title="<?php echo ($record->description) ? $record->description : '' ?>">
                         <?php
                             if($record->description) {
@@ -126,28 +132,28 @@ div#plan-action textarea {height: 200px;}
                          ?>
                      </span>
                 </td>
-                <td>{{$record->priority}}</td>
-                <td>{{$record->budget}}</td>
-                <td>{{$record->basis}}</td>
-                <td>{{$record->implications}}</td>
-                <td><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle"></i></button></td>
-                <td class="r-date">{{$record->deadline}}</td>
+                <td style="vertical-align:middle">{{$record->priority}}</td>
+                <td style="vertical-align:middle">{{$record->budget}}</td>
+                <td class="Website-task"style="vertical-align:middle">{{$record->basis}}</td>
+                <td class="Website-task"style="vertical-align:middle">{{$record->implications}}</td>
+                <td style="display: flex; vertical-align: middle;"><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle ml-2"></i></button></td>
+                <td class="r-date" style="vertical-align:middle">{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
-                <td class="r-date">{{$record->date}}</td>
-                <td class="actions-main">
-                    <button type="button" class="btn btn-secondary edit-plan" data-id="{{$record->id}}"><i class="fa fa-edit"></i></button>
-                    <a href="{{route('plan.delete',$record->id)}}" class="btn btn-image delete-btn" title="Delete Record"><img src="/images/delete.png"></a>
+                <td class="r-date"style="vertical-align:middle">{{$record->date}}</td>
+                <td class="actions-main"style="vertical-align:middle">
+                    <button type="button" class="btn mt-0 btn-secondary edit-plan" data-id="{{$record->id}}"><i class="fa fa-edit"></i></button>
+                    <a href="{{route('plan.delete',$record->id)}}" class="btn mt-0 btn-image delete-btn" title="Delete Record"><img src="/images/delete.png"></a>
                     <button title="Add step" type="button" class="btn btn-secondary btn-sm add-sub-plan" data-id="{{$record->id}}" data-toggle="modal" data-target="#myModal">+</button>
-                    <button title="Open step" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$record->id}}">
+                    <button title="Open step" type="button" class="btn mt-0 preview-attached-img-btn btn-image no-pd" data-id="{{$record->id}}">
                         <img src="/images/forward.png" style="cursor: default;">
                     </button>
-                    <button title="Open Action" type="button" class="btn plan-action btn-image no-pd" data-id="{{$record->id}}">
+                    <button title="Open Action" type="button" class="btn  mt-0 plan-action btn-image no-pd" data-id="{{$record->id}}">
                         <i class="fa fa-info-circle"></i>
                     </button>
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="6"></th>
+                <th colspan="9" style="border:none;"></th>
                 <th>Remark</th>
                 <th>description</th>
                 <th>priority</th>
@@ -156,7 +162,7 @@ div#plan-action textarea {height: 200px;}
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="6" class="no-border"></td>
+                        <td colspan="9" class="no-border"></td>
                         <td width="10%">
                             <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
                                 <?php
@@ -192,7 +198,7 @@ div#plan-action textarea {height: 200px;}
         </tbody>
     </table>
 </div>
-
+</div>
 <!-- The Modal -->
 <div class="modal fade" id="myBasis" tabindex="-1" role="dialog" aria-labelledby="myBasis" aria-hidden="true">
   <div class="modal-dialog modal-md" role="document">
