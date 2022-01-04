@@ -1968,7 +1968,7 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
-        // dd($request->all());
+    
 
         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
@@ -2101,74 +2101,124 @@ class WhatsAppController extends FindByNumberController
                 } else {
                     $data['message'] = $task->task_subject . ". " . $data['message'];
                 }
-
-                if (count($task->users) > 0) {
-                    if ($task->assign_from == Auth::id()) {
-                        foreach ($task->users as $key => $user) {
-                            if ($key == 0) {
-                                $data['erp_user'] = $user->id;
-                            } else {
-                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+               
+                if($request->send_message_recepients){
+                    $recepients = explode(",",$request->send_message_recepients);
+                  //  dd($recepients);
+                    foreach($recepients as $recepient){
+                        if($recepient=="assign_by"){
+                            $adm = User::find($task->assign_from);
+                            if ($adm) {
+                                $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
                             }
-                        }
-                    } else if ($task->master_user_id == Auth::id()) {
-                        foreach ($task->users as $key => $user) {
-                            if ($key == 0) {
-                                $data['erp_user'] = $user->id;
-                            } else {
-                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
-                            }
-                        }
-                        $adm = User::find($task->assign_from);
-                        if ($adm) {
-                            $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
-                        }
-                    } else {
-                        if (!$task->users->contains(Auth::id())) {
-                            $data['erp_user'] = $task->assign_from;
-
+                        }elseif($recepient=="assigned_to"){
                             foreach ($task->users as $key => $user) {
-                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                  $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                
                             }
-                        } else {
+
+                        }elseif($recepient=="master_user_id"){
+                            if (!empty($task->master_user_id)) {
+                                $userMaster = User::find($task->master_user_id);
+                                if ($userMaster) {
+                                    $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                }
+                            }
+
+                        }elseif($recepient=="second_master_user_id"){
+                            if (!empty($task->second_master_user_id)) {
+                                $userMaster = User::find($task->second_master_user_id);
+                                if ($userMaster) {
+                                    $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                }
+                            }
+
+                        }elseif($recepient=="contacts"){
+                            if (count($task->contacts) > 0) {
+                                // if ($task->assign_from == Auth::id()) {
+                                foreach ($task->contacts as $key => $contact) {
+                                    if ($key == 0) {
+                                        $data['contact_id'] = $task->assign_to;
+                                    } else {
+                                        $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
+                                    }
+                                }
+                                // } else {
+                                // $data['contact_id'] = $task->assign_from;
+                                // }
+                            }
+                        }
+                    }
+
+                }else{
+
+                    if (count($task->users) > 0) {
+                        if ($task->assign_from == Auth::id()) {
                             foreach ($task->users as $key => $user) {
                                 if ($key == 0) {
-                                    $data['erp_user'] = $task->assign_from;
+                                    $data['erp_user'] = $user->id;
                                 } else {
-                                    if ($user->id != Auth::id()) {
-                                        $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                }
+                            }
+                        } else if ($task->master_user_id == Auth::id()) {
+                            foreach ($task->users as $key => $user) {
+                                if ($key == 0) {
+                                    $data['erp_user'] = $user->id;
+                                } else {
+                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                }
+                            }
+                            $adm = User::find($task->assign_from);
+                            if ($adm) {
+                                $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
+                            }
+                        } else {
+                            if (!$task->users->contains(Auth::id())) {
+                                $data['erp_user'] = $task->assign_from;
+
+                                foreach ($task->users as $key => $user) {
+                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                }
+                            } else {
+                                foreach ($task->users as $key => $user) {
+                                    if ($key == 0) {
+                                        $data['erp_user'] = $task->assign_from;
+                                    } else {
+                                        if ($user->id != Auth::id()) {
+                                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                if (count($task->contacts) > 0) {
-                    // if ($task->assign_from == Auth::id()) {
-                    foreach ($task->contacts as $key => $contact) {
-                        if ($key == 0) {
-                            $data['contact_id'] = $task->assign_to;
-                        } else {
-                            $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
+                    if (count($task->contacts) > 0) {
+                        // if ($task->assign_from == Auth::id()) {
+                        foreach ($task->contacts as $key => $contact) {
+                            if ($key == 0) {
+                                $data['contact_id'] = $task->assign_to;
+                            } else {
+                                $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
+                            }
+                        }
+                        // } else {
+                        // $data['contact_id'] = $task->assign_from;
+                        // }
+                    }
+
+                    // this will send message to the lead developer
+                    if (!empty($task->master_user_id)) {
+                        $userMaster = User::find($task->master_user_id);
+                        if ($userMaster) {
+                            $extraUser = $data;
+                            $extraUser['erp_user'] = $task->master_user_id;
+                            $extraUser['user_id'] = $task->master_user_id;
+                            $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
                         }
                     }
-                    // } else {
-                    // $data['contact_id'] = $task->assign_from;
-                    // }
                 }
-
-                // this will send message to the lead developer
-                if (!empty($task->master_user_id)) {
-                    $userMaster = User::find($task->master_user_id);
-                    if ($userMaster) {
-                        $extraUser = $data;
-                        $extraUser['erp_user'] = $task->master_user_id;
-                        $extraUser['user_id'] = $task->master_user_id;
-                        $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
-                    }
-                }
-
                 $params['approved'] = 1;
                 $params['status'] = 2;
                 $chat_message = ChatMessage::create($data);

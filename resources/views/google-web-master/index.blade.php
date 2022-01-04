@@ -32,7 +32,7 @@
 </div>
 
 <div id="accounts" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg"style="max-width: 100%;width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Google Client Apps</span></h4>

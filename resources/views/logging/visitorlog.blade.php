@@ -33,20 +33,20 @@
     @include('partials.flash_messages')
 
     <div class="mt-3 col-md-12">
-        <table class="table table-bordered table-striped" id="log-table">
+        <table class="table table-bordered table-striped" id="log-table"style="table-layout: fixed;">
             <thead>
             <tr>
-                <th width="10%">Ip</th>
+                <th width="8%">Ip</th>
                 <th width="10%">Browser</th>
                 <th width="10%">Location</th>
-                <th width="10%">Current Page</th>
-                <th width="10%">Visits</th>
-                <th width="10%">Pages</th>
-                <th width="10%">Chats</th>
-                <th width="10%">Customer Name</th>
+                <th width="18%">Current Page</th>
+                <th width="6%">Visits</th>
+                <th width="15%">Pages</th>
+                <th width="5%">Chats</th>
+                <th width="8%">Customer Name</th>
                 <th width="10%">Last Visit</th>
             </tr>
-            <tr>
+           <!--  <tr>
                 
                 <th width="10%"><input type="text" class="search form-control" id="ip"></th>
                 <th width="10%"><input type="text" class="search form-control" id="browser"></th>
@@ -58,7 +58,7 @@
                 <th></th>
                 <th></th>
 
-                <!-- <th> <div class='input-group' id='log-created-date'>
+                <th> <div class='input-group' id='log-created-date'>
                         <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="log_created" />
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
@@ -78,8 +78,8 @@
                             <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
-                    </th> -->
-            </tr>
+                    </th>
+            </tr> -->
             </thead>
 
             <tbody id="content_data">

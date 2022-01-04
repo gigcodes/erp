@@ -443,12 +443,16 @@ class HubstaffActivitiesController extends Controller
             $request->start_date = $params['start_date']; 
             $request->end_date = $params['end_date']; 
             $request->status = $params['status'];
-            $request->submit = $params['submit']; 
+            $request->submit = $params['submit'];
+            $request->response_type = $params['response_type']; 
             Auth::login($request->user);
+         //   dd($params);
         }
+        
 
         if($where == 'HubstuffActivityCommand')
         {
+          
 
             $title      = "Hubstaff Activities";
             $start_date    = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
@@ -456,8 +460,9 @@ class HubstaffActivitiesController extends Controller
             $task_status   = $request->task_status ? $request->task_status : null;
             $user_id    = $request->user_id ? $request->user_id : null;
             
-            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
-
+            $tasks         = PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->get();
+            $taskIds= PaymentReceipt::with('chat_messages','user')->where('user_id', $user_id)->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date)->pluck('id');
+//            dd($taskIds);
             foreach ($tasks as $task) {
                 $task->user;
 
@@ -1035,6 +1040,10 @@ class HubstaffActivitiesController extends Controller
                 'total_balance' => round($total_balance,2),
                 'payment_date' => $payment_date,
             ]);
+            
+            if(isset($request->response_type) && $request->response_type =="with_payment_receipt"){
+                return ["receipt_ids"=>$taskIds,"file_data"=>$file_data,"start_date"=>$start_date,"end_date"=>$end_date];
+            }
 
             return $file_data;
 
@@ -1626,7 +1635,7 @@ class HubstaffActivitiesController extends Controller
                                 PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s") ,"hourly_rate"=>$hour_rate]);
     
                             }else{
-                                $info_log[]= "not get payment_receipt";
+                                $info_log[]= "notget payment_receipt";
                                 $min     = $approved / 60;
                                 $info_log[]= "approved  -->  $approved";
                                 $min     = number_format($min, 2);
@@ -1835,7 +1844,7 @@ class HubstaffActivitiesController extends Controller
                 PaymentReceipt::where('id',$payment_receipt->id)->update(['worked_minutes' => $min,'rate_estimated' => $rate_estimated,'updated_at' => date("Y-m-d H:i:s"),"hourly_rate"=>$hour_rate ]);
 
             }else{
-                $info_log[]=" get payment_receipt".$payment_receipt->id;
+                //$info_log[]=" get payment_receipt".$payment_receipt->id;
                 $min     = $approved / 60;
                 $info_log[]=" min = ".$min;
                 $min     = number_format($min, 2);

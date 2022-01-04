@@ -11383,6 +11383,7 @@ table.table-striped-custom tbody tr td {
 .custom-button{
     background: #9393935e !important;
     color: #555 !important;
+    border: 1px solid #bfbaba !important;
 }
 .inventory-listing .modal-dialog{
     max-width: 800px;
@@ -11403,8 +11404,18 @@ table.table-striped-custom tbody tr td {
    
     width: 292px !important;
 }
-dark{
-    background-color: #f5f5f5;
-    color: black;
-    border-color: #ddd;
+.return-input input{
+    width: 250px !important;
+}
+.page-history-table tbody .result:hover{
+    overflow: visible;
+    text-overflow: unset;
+    white-space: initial;
+}
+.input-button{
+    width: 20%;
+}
+.scrapper-python-image .image-1 img{
+    width:100% !important;
+    object-fit: cover;
 }

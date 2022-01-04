@@ -435,6 +435,10 @@ if (!empty($notifications)) {
 										<li class="nav-item">
 											<a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
 										</li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('product.templates.log') }}">Product Template Log</a>
+                                        </li>
+                                        
 									</ul>
 								</li>
 
@@ -1427,6 +1431,9 @@ if (!empty($notifications)) {
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
                                 </li>
                                 <li class="nav-item">
@@ -1568,7 +1575,10 @@ if (!empty($notifications)) {
                                                 <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Python</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
@@ -1620,6 +1630,9 @@ if (!empty($notifications)) {
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
 													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
+													</li>
 												</ul>
 											</li>
 										</ul>
@@ -1651,6 +1664,9 @@ if (!empty($notifications)) {
                                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.hubstuff.log') }}">Hubstuff Command Log</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('monetary-account') }}">Monetary Account</a>

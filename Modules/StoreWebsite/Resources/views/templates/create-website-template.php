@@ -146,6 +146,36 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="logo_color">Logo Color</label>
+                  <input type="text" name="logo_color" value="{{if data}}{{:data.logo_color}}{{/if}}" class="form-control" id="logo_color" placeholder="Enter Logo Color">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="logo_border_color">Logo Border Color</label>
+                  <input type="text" name="logo_border_color" value="{{if data}}{{:data.logo_border_color}}{{/if}}" class="form-control" id="logo_border_color" placeholder="Enter Logo Border Color">
+               </div>
+            </div>
+             <div class="col-md-4">
+               <div class="form-group">
+                  <label for="text_color"> Text Color</label>
+                  <input type="text" name="text_color" value="{{if data}}{{:data.text_color}}{{/if}}" class="form-control" id="text_color" placeholder="Enter Text Color">
+               </div>
+            </div>
+             <div class="col-md-4">
+               <div class="form-group">
+                  <label for="border_color">Border Color</label>
+                  <input type="text" name="border_color" value="{{if data}}{{:data.border_color}}{{/if}}" class="form-control" id="border_color" placeholder="Enter Border Color">
+               </div>
+            </div>
+             <div class="col-md-4">
+               <div class="form-group">
+                  <label for="border_thickness">Border Thickness</label>
+                  <input type="text" name="border_thickness" value="{{if data}}{{:data.border_thickness}}{{/if}}" class="form-control" id="border_thickness" placeholder="Enter Border Thickness">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="country_duty">Country Duty</label>
                   <select name="country_duty" class="form-control">
                      <option value="">-- N/A --</option>
