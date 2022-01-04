@@ -3233,19 +3233,26 @@ class TaskModuleController extends Controller
         ], 200);
     }
     public function getSiteDevelopmentTask(Request $request){
-      /*  $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
 
-        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
-        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
-        $taskStatistics = $query->get();
-        //print_r($taskStatistics);
-        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
-        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
-        $othertaskStatistics = $query1->get();
-        $merged = $othertaskStatistics->merge($taskStatistics);*/
+        $site_developement_id = \App\SiteDevelopment::where("website_id",$request->site_id)->pluck("id");
+    //    dd($site_developement_id);
+        $merged=[];
+        if(!empty($site_developement_id)){
+            $taskStatistics['Devtask'] = DeveloperTask::whereIn('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
 
-   //     return response()->json(["code" => 200, "taskStatistics" => $merged]);
+            $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+            $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+            $taskStatistics = $query->get();
+          //  print_r($taskStatistics);
+            $othertask = Task::whereIn('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+            $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+            $othertaskStatistics = $query1->get();
+            $merged = $othertaskStatistics->merge($taskStatistics);
+        }
+     //   return view('task-module.partials.site-development-task', compact('merged'));
+
+        return response()->json(["code" => 200, "taskStatistics" => $merged]);
     }
    
 }

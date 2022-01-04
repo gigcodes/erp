@@ -117,7 +117,7 @@
                         <button type="submit" class="btn btn-image"><img src="{{env('APP_URL')}}/images/unstarred.png" /></button>
                         {!! Form::close() !!}
                         @endif
-                        <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn d-inline count-dev-customer-tasks" title="Show task history" data-id="{{$item->id}}"><i class="fa fa-info-circle"></i></button>
+                        <button type="button" class="btn count-dev-customer-tasks" title="Show task history" data-id="{{$item->store_website}}"><i class="fa fa-info-circle"></i></button>
 
                           
 
@@ -173,7 +173,38 @@
             $('{{$flagUrl}}').css('background-color', 'yellow');
         }
      <?php } ?>
+     $(document).on("click",".delete-dev-task-btn",function() {
+		var x = window.confirm("Are you sure you want to delete this ?");
+            if(!x) {
+                return;
+            }
+            var $this = $(this);
+            var taskId = $this.data("id");
+			var tasktype = $this.data("task-type");
+            if(taskId > 0) {
+                $.ajax({
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
+                    type: 'get',
+                    url: "{{route('site.development.delete.task')}}",
+                    headers: {'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')},
+                    data: {id : taskId,tasktype:tasktype},
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        $this.closest("tr").remove();
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    alert('Could not update!!');
+                });
+            }
 
+        });
+
+   
      $(document).on("click", ".count-dev-customer-tasks", function() {
 
          $this = $(this);
@@ -188,6 +219,7 @@
                     $("#loading-image").show();
                 },
                 success: function(data) {
+                    var table='';
                     for (var i = 0; i < data.taskStatistics.length; i++) {
                         var str = data.taskStatistics[i].subject;
                         var res = str.substr(0, 100);
