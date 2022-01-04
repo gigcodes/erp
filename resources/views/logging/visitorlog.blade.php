@@ -43,7 +43,7 @@
                 <th width="6%">Visits</th>
                 <th width="15%">Pages</th>
                 <th width="5%">Chats</th>
-                <th width="8%">Customer Name</th>
+                <th width="9%">Customer Name</th>
                 <th width="10%">Last Visit</th>
             </tr>
            <!--  <tr>
