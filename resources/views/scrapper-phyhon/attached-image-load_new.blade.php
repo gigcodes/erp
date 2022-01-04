@@ -24,7 +24,13 @@
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
                         </button> -->
-                        
+
+                         <!-- <button data-url="{{ route('scrapper.image.urlList', ['id' => $item->website_stores_id,'web_id' => $item->website_store_views_id,'code' => $item->website_id, 'startDate' => $item->date_created_at, 'endDate' => $item->date_created_at ]) }}" title="Open Urls"
+                            type="button" class="btn show-scrape-images btn-image no-pd"
+                            data-suggestedproductid="{{ $item->website_stores_id }}">
+                            <img src="{{env('APP_URL')}}/images/view.png" style="cursor: default;">
+                        </button> -->
+
 
                          <button data-url="{{ route('scrapper.phyhon.listImages', ['id' => $item->website_stores_id,'web_id' => $item->website_store_views_id,'code' => $item->website_id, 'startDate' => $item->date_created_at, 'endDate' => $item->date_created_at ]) }}" title="Open Images"
                             type="button" class="btn show-scrape-images btn-image no-pd"
