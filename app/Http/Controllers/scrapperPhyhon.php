@@ -592,7 +592,7 @@ class scrapperPhyhon extends Controller
      }
 
      public function imageUrlList(Request $request){
-         $flagUrl=isset($request->flagUrl)?"#".$request->flagUrl:'';
+         $flagUrl=isset($request->flagUrl)?$request->flagUrl:'';
         if(isset($request->id)){
             $store_id = $request->id;
 
@@ -629,7 +629,9 @@ class scrapperPhyhon extends Controller
 
                $urls = DB::table('scraper_imags')->whereRaw('url != "" and url IS  NOT NULL');
                if(!empty($flagUrl)){
+               
                 $urls = $urls->where("id",$flagUrl);
+                $flagUrl="#".$flagUrl;
                }
                $urls=$urls->paginate(Setting::get('pagination'));
         //        $urls=$urls->get();
