@@ -952,7 +952,7 @@ class ProductInventoryController extends Controller
     	ini_set("memory_limit", -1);
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
-
+		
 		// started to update status request
 		if($request->get("update_status",false) ==  true) {
 			foreach($inventory_data as $upd) {

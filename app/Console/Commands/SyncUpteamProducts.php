@@ -7,6 +7,11 @@ use App\Product;
 use App\Brand;
 use App\Category;
 use App\UpteamLog;
+use App\Setting;
+use App\ProductSupplier;
+use Plank\Mediable\Mediable;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Image;
 
 class SyncUpteamProducts extends Command
 {
@@ -68,7 +73,7 @@ class SyncUpteamProducts extends Command
 		} 
 		UpteamLog::create(['log_description'=>'Total Results Found '.count($productWithKeys)]);
 		
-		foreach($productWithKeys as $product) {
+		foreach($productWithKeys as $product) { //dd($product);
 			UpteamLog::create(['log_description'=>'Product importing '.$product['product_name'].' with details '.json_encode($product)]);
 			$brand = Brand::firstOrCreate(['name'=>$product['brand']]);
 			$category = Category::where(['title'=>$product['category']])->first();
@@ -85,19 +90,14 @@ class SyncUpteamProducts extends Command
 				$measurement_size_type = 'size';
 				$size_value = $product['belt_size'];
 			}
-			/*$photos = explode(',',$product['photos']);
-			foreach() {
-				
-			}
-			$contents = file_get_contents($url);
-			$file = '/tmp/' . $info['basename'];
-			file_put_contents($file, $contents);*/
 			
-			Product::updateOrCreate(['sku'=>$product['sku']], 
+          
+				
+			$insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
 				[
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
-					'stock'=>$product['stock'],
+					'stock'=> (int)$product['stock'],
 					'brand'=>$brand['id'],
 					'name'=>$product['product_name'],
 					'category'=>$category['id'],
@@ -111,9 +111,44 @@ class SyncUpteamProducts extends Command
 					'made_in'=>$product['country_of_origin'],
 					'supplier'=>'UPTEAM',
 					'supplier_id'=>5633,
+					'comments'=>$product['comments'],
+					'rating'=>$product['rating'],
+					'price_usd'=>$product['rrp'],
+					'price_usd_special'=>$product['selling_price_usd'],
+					'status_id'=>3,
+					'is_scraped'=>1,
+					'is_on_sale'=>1,
+					'price_inr'=>round(Setting::get('usd_to_inr') * $product['rrp']),
+					'price_inr_special'=>round(Setting::get('usd_to_inr') * $product['selling_price_usd']),
 				]
-			);
+			); 
+			ProductSupplier::updateOrCreate(['product_id' => $insertedProd->id], [
+                'product_id' => $insertedProd->id,
+                'supplier_id' => 5633,
+                'sku' => $insertedProd->sku,
+                'title' => $insertedProd->name,
+                'description' => $insertedProd->short_description,
+                'supplier_link' => $insertedProd->supplier_link,
+                'price' => $insertedProd->price_usd,
+                'stock' => $insertedProd->stock,
+                'price_special' => $insertedProd->price_usd_special,
+                'size' => $insertedProd->size,
+                'color' => $insertedProd->color,
+                'composition' => $insertedProd->composition,
+            ]);
+			
+			
+			
 			UpteamLog::create(['log_description'=>'Product imported '.$product['product_name']]);
+			$photos = explode(',',$product['photos']);
+			foreach($photos as $photo) {
+				$jpg = Image::make($product['directory'].$photo)->encode('jpg');
+				$filename = $photo;
+				$media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($insertedProd->id / 10000))->useFilename($filename)->upload();
+                        $insertedProd->attachMedia($media, config('constants.media_tags'));
+				UpteamLog::create(['log_description'=>'Image  saved for '.$product['product_name']]);
+			}
+			
 		}
     }
 }
