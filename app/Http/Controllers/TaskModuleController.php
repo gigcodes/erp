@@ -2964,10 +2964,19 @@ class TaskModuleController extends Controller
    	    try {
 
    	    	$task=Task::find($request->task_id);
+               $old_status = $task->status;
 
    	    	$task->status=$request->status;
 
    	    	$task->save();
+               DeveloperTaskHistory::create([
+                'developer_task_id' => $request->task_id,
+                'model' => 'App\Task',
+                'attribute' => "task_status",
+                'old_value' => $old_status,
+                'new_value' => $task->status,
+                'user_id' => Auth::id(),
+            ]);
 
 			if($task->status == 1){
 				
@@ -3020,6 +3029,8 @@ class TaskModuleController extends Controller
 						'by_command'        => 4,
 						'task_id'           => $task->id,
 					]);
+                    
+                      
                    
 				} 
 				
@@ -3214,7 +3225,16 @@ class TaskModuleController extends Controller
     }
     public function getUserHistory(Request $request)
     {
-        $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+            if(isset($request->type)){
+                if($request->type == "developer"){
+                    $users = TaskUserHistory::where('model', 'App\DeveloperTask')->where('model_id', $request->id)->get();
+                }else{
+                    $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+                }
+        }else{
+            $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+
+        }
         
         foreach ($users as $u) {
             $old_name = null;
