@@ -12,7 +12,7 @@
  */
 
 Auth::routes();
-Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
+//Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
