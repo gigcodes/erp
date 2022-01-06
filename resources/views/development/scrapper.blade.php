@@ -57,14 +57,13 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="row">
-                <div class="col-lg-12 margin-tb">
+                <div class="col-lg-12 margin-tb pr-0">
                     <h2 class="page-heading">Scrapper Task List</h2>
                     <div class="pull-left cls_filter_box">
                         {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
 
                             <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="leads_email">Module</label>
-                                <select id="module" name="module" class="form-control">
+                                <select id="module" name="module" class="form-control"placeholder="Module">
                                     <option value=""> Select Module</option>
                                     @foreach ($modules as $key => $item)
                                         <option value="{{ $key }}" {{ @$inputs['module'] == $key ? 'selected' : '' }}> {{ $item }}</option>
@@ -73,17 +72,14 @@
                             </div>
                          
                             <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="name">Subject</label>
                                 {{Form::text('subject', @$inputs['subject'], array('class'=>'form-control'))}}
                             </div>
 
                             <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="name">Task</label>
                                 {{Form::text('task', @$inputs['task'], array('class'=>'form-control'))}}
                             </div>
 
-                            <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="leads_email">Assigned To</label>
+                            <div class="form-group ml-3 cls_filter_inputbox" style="width: 194px;">
                                 <select name="user_id" id="user_id" class="form-control" aria-placeholder="Select User" style="float: left">
                                     @if (isset($users->id))
                                         <option value="{{ $users->id }}" selected="selected">{{ $users->name }}</option>
@@ -91,19 +87,16 @@
                                 </select>
                             </div>
 
-                            <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="leads_email">Status</label>
+                            <div class="form-group ml-3 cls_filter_inputbox" style="width: 194px;">
                                 {{Form::select('status', [''=>'Select','In Review'=>'In Review','In Progress'=>'In Progress'], @$inputs['status'], array('class'=>'form-control'))}}
                             </div>
 
-                            <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="leads_email">&nbsp;</label>
-                                <button type="submit" class="btn btn-secondary ml-4">Search</button>
+                            <div class="form-group  cls_filter_inputbox">
+                                <button type="submit" class="btn btn-secondary ml-3" style="width:100px">Search</button>
                             </div>
 
-                            <div class="form-group ml-3 cls_filter_inputbox">
-                                <label for="leads_email">&nbsp;</label>
-                                <button type="button" class="btn btn-secondary ml-4 reset" >Reset</button>
+                            <div class="form-group  cls_filter_inputbox">
+                                <button type="button" class="btn btn-secondary ml-3 reset" style="width:100px">Reset</button>
                             </div>
                             
                         </form>
@@ -112,21 +105,20 @@
             </div>
         </div>
     </div>
-
+    <div class="col-md-12  pl-5">
 	<div class="row mb-3">
 		<div class="mt-3 col-md-12">
-		    <table class="table table-bordered table-striped">
+		    <table class="table table-bordered table-striped"style="table-layout: fixed;">
                     <thead>
                         <tr>
-                            <th scope="col" class="text-center">Id</th>
-                            <th scope="col" class="text-center">Module</th>
-                            <th scope="col" class="text-center">Subject</th>
-                            <th style="width:22%;">Communication </th>
-                            <th scope="col" class="text-center">Task</th>
-                            <th scope="col" class="text-center">Assigned To</th>
-                            
-                            <th scope="col" class="text-center">Status</th>
-                            <th scope="col" class="text-center">Action</th>
+                            <th width="3%">Id</th>
+                            <th width="6%">Module</th>
+                            <th width="6%">Subject</th>
+                            <th width="18%">Communication </th>
+                            <th width="7%" >Task</th>
+                            <th width="6%" >Assigned To</th>
+                            <th width="6%" >Status</th>
+                            <th width="3%">Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-center task_queue_list">
@@ -140,9 +132,10 @@
 								</td>
                                 <td class="expand-row">
                                     <!-- class="expand-row" -->
+                                    <div style="display:flex; justify-content: space-between;">
                                     <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
-                                    <input type="text" class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
-                                    <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
+                                    <input type="text" class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="width: 200px;">
+                                    <input class="mt-3 add_to_autocomplete" name="add_to_autocomplete"  type="checkbox" value="true">
                                     <?php echo Form::select("send_message_".$issue->id,[
                                                         "to_developer" => "Send To Developer",
                                                         "to_master" => "Send To Master Developer",
@@ -151,25 +144,26 @@
                                                     ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); 
                                     ?>
                                     
-                                    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="{{env('APP_URL')}}/images/filled-sent.png"/></button>
+                                    <button style="display: inline-block;width:10%; padding: 0;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="{{env('APP_URL')}}/images/filled-sent.png"/></button>
 
-                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="{{env('APP_URL')}}/images/chat.png" alt=""></button>
-                                    <br>
+                                        <button type="button" class="btn btn-xs btn-image pr-0 load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;" title="Load messages"><img src="{{env('APP_URL')}}/images/chat.png" alt=""></button>
+                                    
                                         <div class="td-full-container hidden">
-                                            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
-                                            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+                                            <button class="btn btn-secondary m-0 btn-xs" onclick="sendImage({{ $issue->id }} )" >Send Attachment</button>
+                                            <button class="btn btn-secondary m-0 btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
                                             <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
                                         </div>
+                                    </div>
                                  </td>
 
-								<td class="expand-row-msg" data-name="task" data-id="{{$i}}">
-									<span class="show-short-task-{{$i}}">{{ str_limit($issue->task, 20, '...')}}</span>
-									<span style="word-break:break-all;" class="show-full-task-{{$i}} hidden">{{ $issue->task }}</span>
+								<td class="expand-row-msg Website-task" data-name="task" data-id="{{$i}}">
+									<span class="Website-task show-short-task-{{$i}}">{{ str_limit($issue->task, 20, '...')}}</span>
+									<span style="word-break:break-all;" class="Website-task show-full-task-{{$i}} hidden">{{ $issue->task }}</span>
 								</td>
-								 <td>   @if($issue->assignedUser)
-											<p>{{ $issue->assignedUser->name }}</p>
+								 <td class="Website-task">   @if($issue->assignedUser)
+											<p class="Website-task">{{ $issue->assignedUser->name }}</p>
 										@else
-											<p>Unassigned</p>
+											<p class="Website-task">Unassigned</p>
 										@endif
 								</td>
                                 <td>
@@ -185,7 +179,8 @@
             </table>
 			{{$issues->links()}}
         </div>
-    </div>     
+    </div> 
+    </div    
     <div id="ErrorLogModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
           <div class="modal-content">

@@ -1722,7 +1722,7 @@
 		var site_id = $(this).data("id");
 		$.ajax({
 			type: 'get',
-			url: '/site-development/countdevtask/' + site_id,
+			url: 'countdevtask/' + site_id,
 			dataType: "json",
 			beforeSend: function() {
 				$("#loading-image").show();

@@ -911,6 +911,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
     Route::post('task/time/history/approve/sendMessage', 'TaskModuleController@sendReviseMessage')->name('task.time.history.approve.sendMessage');
     Route::post('task/time/history/approve/sendRemindMessage', 'TaskModuleController@sendRemindMessage')->name('task.time.history.approve.sendRemindMessage');
+    Route::get('/get-site-development-task', 'TaskModuleController@getSiteDevelopmentTask')->name('get.site.development.task');
     //END - DEVTASK-4354
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
@@ -3336,7 +3337,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrapper-python/history', 'scrapperPhyhon@history')->name('scrapper.history');
     Route::get('/scrapper-python/actionHistory', 'scrapperPhyhon@actionHistory')->name('scrapper.action.history');
     Route::get('/scrapper-python/image/url_list', 'scrapperPhyhon@imageUrlList')->name('scrapper.image.urlList');
-    
+    Route::post('/scrapper-python/{id}/url', 'scrapperPhyhon@flagImageUrl')->name('scrapper.url.flag');
+
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
     Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
