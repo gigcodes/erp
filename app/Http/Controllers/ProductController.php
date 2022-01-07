@@ -65,6 +65,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Qoraiche\MailEclipse\MailEclipse;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\PushToMagentoCondition;
 
 class ProductController extends Controller
 {
@@ -4720,6 +4721,17 @@ class ProductController extends Controller
         return response()->json(["code" => 200, "message" => "Push product successfully"]);
 
     }
+	
+	public function pushToMagentoConditions() {
+		$conditions = PushToMagentoCondition::all();
+		return view('products.conditions', compact('conditions'));
+	}
+	
+	public function updateConditionStatus(Request $request) {
+		$input = $request->input();
+		PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
+		return 'Status Updated';
+	}
 
     public function getPreListProducts()
     {
