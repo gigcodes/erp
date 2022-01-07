@@ -92,11 +92,6 @@
             <strong>Inventory LifeTime:</strong>
             <input type="text" name="inventory_lifetime" class="form-control" value="{{ old('inventory_lifetime') }}">
           </div>
-		  
-		   <div class="form-group">
-            <strong>Product Type:</strong>
-            {!!Form::select('product_type', ['NEW'=>'NEW', 'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm'])!!}
-          </div>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-secondary">Add</button>

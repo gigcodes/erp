@@ -238,7 +238,7 @@
 		    	{{props data}}
 			      <tr id="preview-category-{{:prop.id}}">
 			      	<td><input class="preview-checkbox" type="checkbox" name="push_category" value="{{:prop.id}}"></td>
-			      	<td>{{:prop.website_mode}}</td>
+			      	<td>{{:prop.title}}</td>
 			        <td>
 			        	<button type="button" data-category-id="{{:prop.id}}" class="btn btn-delete-preview-category">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>

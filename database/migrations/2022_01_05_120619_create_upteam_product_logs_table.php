@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterSupplierAddProductsType extends Migration
+class CreateUpteamProductLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AlterSupplierAddProductsType extends Migration
      */
     public function up()
     {
-        Schema::table("suppliers",function(Blueprint $table) {
-			$table->enum('product_type', [1, 2])->default(1);
+        Schema::create('upteam_product_logs', function (Blueprint $table) {
+            $table->increments('id');
+			$table->longText('log_description');
+            $table->timestamps();
         });
     }
 
@@ -25,6 +27,6 @@ class AlterSupplierAddProductsType extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('upteam_product_logs');
     }
 }

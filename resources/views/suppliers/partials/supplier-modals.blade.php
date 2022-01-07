@@ -94,7 +94,7 @@
 		  
 		  <div class="form-group">
             <strong>Product Type:</strong>
-            {!!Form::select('product_type', ['NEW'=>'NEW', 'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm'])!!}
+            {!!Form::select('product_type', ['1'=>'NEW', '2'=>'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm'])!!}
           </div>
         </div>
         <div class="modal-footer">
@@ -202,7 +202,7 @@
           </div>
 		<div class="form-group">
             <strong>Product Type:</strong>
-            {!!Form::select('product_type', ['NEW'=>'NEW', 'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm', 'id'=>'product_type'])!!}
+            {!!Form::select('product_type', ['1'=>'NEW', '2'=>'PREOWNED'], old('product_type') , ['class' => 'form-control form-control-sm', 'id'=>'product_type'])!!}
           </div>
         </div>
         <div class="modal-footer">

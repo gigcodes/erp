@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterSupplierAddProductsType extends Migration
+class AlterStoreWebsiteAddOldProductSale extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AlterSupplierAddProductsType extends Migration
      */
     public function up()
     {
-        Schema::table("suppliers",function(Blueprint $table) {
-			$table->enum('product_type', [1, 2])->default(1);
+        Schema::table('store_websites',function(Blueprint $table) {
+            $table->enum('sale_old_products', [0, 1])->default(0);
         });
     }
 
