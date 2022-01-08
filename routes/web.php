@@ -729,6 +729,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //  Route::resource('task','TaskController');
 
     // Instruction
+
+
     Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
     Route::post('instruction/store-instruction-end-time', 'InstructionController@storeInstructionEndTime');
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
@@ -3505,10 +3507,19 @@ Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-s
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
 
 
+Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'social'], function () {
+    Route::get('config', 'SocialConfigController@index')->name('social.config.index');
+    Route::post('config/store', 'SocialConfigController@store')->name('social.config.store');
+    Route::post('config/edit', 'SocialConfigController@edit')->name('social.config.edit');
+    Route::post('config/delete', 'SocialConfigController@destroy')->name('social.config.delete');
+   
+
+
+});
 Route::get('command', function () {
 
-  //  \Artisan::call('migrate');
-     \Artisan::call('HubstuffActivity:Command');
+    \Artisan::call('migrate');
+  //   \Artisan::call('HubstuffActivity:Command');
 
    // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');
