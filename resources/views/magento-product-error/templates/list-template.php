@@ -9,6 +9,7 @@
 		        <th width="15%">Message</th>
 		        <th width="15%">Request data</th>
 		        <th width="15%">Response Data</th>
+		        <th width="15%">Condition Checked</th>
 		        <th width="12%">Status</th>
 		      </tr>
 		    </thead>
@@ -21,6 +22,7 @@
 			      	<td class="message_load_data">{{:prop.message}}</td>
 			      	<td class="request_message_load_data">{{:prop.request_data}}</td>
 			      	<td class="response_message_load_data">{{:prop.response_data}}</td>
+					<td>{{:prop.condition_id}}</td>
 			      	<td>{{:prop.response_status}}  </td>
 			      </tr>
 			    {{/props}}  

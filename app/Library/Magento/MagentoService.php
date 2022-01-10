@@ -1250,7 +1250,7 @@ class MagentoService
         $category = $this->product->categories;
 
         if (empty($category)) {
-            $this->storeLog("error", "Product has no category found");
+            $this->storeLog("error", "Product has no category found", null, null, ['error_condition'=>$this->conditionsWithIds['validate_product_category']]);
         }
 
         $this->category = $category;
@@ -1283,7 +1283,7 @@ class MagentoService
         $website_sizes = $this->storeWebsiteSize;
 
         if (count($website_sizes) <= 0 && !$pushSingle) {
-            $this->storeLog("error", "Product has no store website sizes available");
+            $this->storeLog("error", "Product has no store website sizes available", null, null, ['error_condition'=>$this->conditionsWithIds['validate_store_website_size']]);
             return false;
         }
 
@@ -1296,7 +1296,7 @@ class MagentoService
         $brand = $this->product->brands;
 
         if (empty($brand->name)) {
-            $this->storeLog("error", "Product has no brand found");
+            $this->storeLog("error", "Product has no brand found", null, null, ['error_condition'=>$this->conditionsWithIds['validate_brand']]);
             return false;
         }
 
@@ -1326,7 +1326,7 @@ class MagentoService
         $readiness = ProductHelper::checkReadinessForLive($this->product, $this->storeWebsite, $this->log);
 
         if (!$readiness) {
-            $this->storeLog("error", "Product has been failed into readiness test");
+            $this->storeLog("error", "Product has been failed into readiness test", null, null, ['error_condition'=>$this->conditionsWithIds['validate_readiness']]);
             $this->changeProductStatus(StatusHelper::$manualAttribute);
             return false;
         }
@@ -1347,7 +1347,7 @@ class MagentoService
     {
         $categories = $this->getCategories();
         if (count($categories) == 0) {
-            $this->storeLog("error", "Product has no categoies assigned with remote id");
+            $this->storeLog("error", "Product has no categoies assigned with remote id", null, null, ['error_condition'=>$this->conditionsWithIds['validate_category']]);
             return false;
         }
         return $categories;
@@ -1368,7 +1368,7 @@ class MagentoService
     {
         $token = $this->hasToken();
         if (empty($token)) {
-            $this->storeLog("error", "Not able to generate token for website " . $this->storeWebsite->title);
+            $this->storeLog("error", "Not able to generate token for website " . $this->storeWebsite->titlenull, null,null, ['error_condition'=>$this->conditionsWithIds['check_if_website_token_exists']]);
             return false;
         } else {
             $this->token = $token;
