@@ -184,29 +184,35 @@ class MagentoService
 		}
         \Log::info($this->product->id . " #13 => " . date("Y-m-d H:i:s"));
 		if(in_array('get_store_website_color', $this->conditions)) {
+			$this->storeLog("success", "fetch colors for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_store_website_color']]);
 			$this->storeWebsiteColor = $this->storeWebsiteColor();
 		}
         \Log::info($this->product->id . " #14 => " . date("Y-m-d H:i:s"));
 		if(in_array('get_measurements', $this->conditions)) {
+			$this->storeLog("success", "fetch measurements for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_measurements']]);
 			$this->measurement = $this->getMeasurements();
 		}
         \Log::info($this->product->id . " #15 => " . date("Y-m-d H:i:s"));
 		
 		if(in_array('get_estimate_minimum_days', $this->conditions)) {
+			$this->storeLog("success", "estimate minimum for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_estimate_minimum_days']]);
 			$this->estMinimumDays = $this->getEstimateMinimumDays();
 		}
         \Log::info($this->product->id . " #16 => " . date("Y-m-d H:i:s"));
 		if(in_array('get_size_chart', $this->conditions)) {
+			$this->storeLog("success", "get size chart for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_size_chart']]);
 			$this->sizeChart = $this->getSizeChart();
 		}
         \Log::info($this->product->id . " #17 => " . date("Y-m-d H:i:s"));
 		if(in_array('get_store_color', $this->conditions)) {
+			$this->storeLog("success", "fetch store color" . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_store_color']]);
 			$this->storeColor = $this->getStoreColor();
 		}
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
 		if(in_array('get_price', $this->conditions)) {
+			$this->storeLog("success", "fetch pricing" . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_store_color']]);
 			$this->getPricing();
 		}
 
@@ -333,7 +339,7 @@ class MagentoService
         $colorFromSite = \App\StoreWebsiteColor::where("store_website_id", $this->storeWebsite->id)
             ->pluck("erp_color", "platform_id")
             ->toArray();
-
+		    
         return $colorFromSite;
     }
 
@@ -1250,7 +1256,7 @@ class MagentoService
         $category = $this->product->categories;
 
         if (empty($category)) {
-            $this->storeLog("error", "Product has no category found", null, null, ['error_condition'=>$this->conditionsWithIds['validate_product_category']]);
+            $this->storeLog("error", "Product has no category found");
         }
 
         $this->category = $category;
@@ -1283,7 +1289,7 @@ class MagentoService
         $website_sizes = $this->storeWebsiteSize;
 
         if (count($website_sizes) <= 0 && !$pushSingle) {
-            $this->storeLog("error", "Product has no store website sizes available", null, null, ['error_condition'=>$this->conditionsWithIds['validate_store_website_size']]);
+            $this->storeLog("error", "Product has no store website sizes available");
             return false;
         }
 
@@ -1296,7 +1302,7 @@ class MagentoService
         $brand = $this->product->brands;
 
         if (empty($brand->name)) {
-            $this->storeLog("error", "Product has no brand found", null, null, ['error_condition'=>$this->conditionsWithIds['validate_brand']]);
+            $this->storeLog("error", "Product has no brand found");
             return false;
         }
 
@@ -1326,7 +1332,7 @@ class MagentoService
         $readiness = ProductHelper::checkReadinessForLive($this->product, $this->storeWebsite, $this->log);
 
         if (!$readiness) {
-            $this->storeLog("error", "Product has been failed into readiness test", null, null, ['error_condition'=>$this->conditionsWithIds['validate_readiness']]);
+            $this->storeLog("error", "Product has been failed into readiness test");
             $this->changeProductStatus(StatusHelper::$manualAttribute);
             return false;
         }
@@ -1347,7 +1353,7 @@ class MagentoService
     {
         $categories = $this->getCategories();
         if (count($categories) == 0) {
-            $this->storeLog("error", "Product has no categoies assigned with remote id", null, null, ['error_condition'=>$this->conditionsWithIds['validate_category']]);
+            $this->storeLog("error", "Product has no categoies assigned with remote id");
             return false;
         }
         return $categories;
@@ -1368,10 +1374,11 @@ class MagentoService
     {
         $token = $this->hasToken();
         if (empty($token)) {
-            $this->storeLog("error", "Not able to generate token for website " . $this->storeWebsite->titlenull, null,null, ['error_condition'=>$this->conditionsWithIds['check_if_website_token_exists']]);
+            $this->storeLog("error", "Not able to generate token for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['check_if_website_token_exists']]);
             return false;
         } else {
             $this->token = $token;
+            $this->storeLog("success", "Token generated  for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['check_if_website_token_exists']]);
             return $token;
         }
     }
@@ -1394,7 +1401,11 @@ class MagentoService
             $this->log = LogListMagento::log($product->id, $message, $type, $storeWebsite->id, $type);
         }
 
-        ProductPushErrorLog::log(null, $product->id, $message, $type, $storeWebsite->id, null, null, $this->log->id);
+		$condition = null;
+		if(isset($extraFiels['error_condition'])) {
+			$condition = $extraFiels['error_condition'];
+		}
+        ProductPushErrorLog::log(null, $product->id, $message, $type, $storeWebsite->id, null, null, $this->log->id, $condition);
 
         return false;
     }

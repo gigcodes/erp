@@ -80,6 +80,7 @@ class PushToMagento implements ShouldQueue
 							$this->log->save();
 							return false;
 						}
+						ProductPushErrorLog::log('', $product->id, 'Website Source  found', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['website_source']);
 					}
 					if(in_array('disable_push', $conditions)){
 						if ($website->disable_push == 1) {
@@ -90,8 +91,9 @@ class PushToMagento implements ShouldQueue
 							$this->log->save();
 							return false;
 						}
+						ProductPushErrorLog::log('', $product->id, 'Website is enabled for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['disable_push']);
 					}
-
+							
 					// started to check the validation for the category size is available or not and if not then throw the error
 					$categorym = $product->categories;
 					if ($categorym && !$product->isCharity()) {
@@ -114,6 +116,7 @@ class PushToMagento implements ShouldQueue
 								$this->log->save();
 								return false;
 							}
+							ProductPushErrorLog::log('', $product->id, 'Size chart is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_size_chart_exists']);
 						}
 					}
 
@@ -128,6 +131,7 @@ class PushToMagento implements ShouldQueue
 							$this->log->save();
 							return false;
 						}
+						ProductPushErrorLog::log('', $product->id, 'Image(s) is needed for push product', 'success', $website->id, null, null, $this->log->id, $conditionsWithIds['check_if_images_exists']);
 					}
 
 					$magentoService = new MagentoService($product, $website, $this->log);
