@@ -8,7 +8,7 @@
         <div class="modal-body">
             <div class="form-group">
                 <label>Picture <small class="text-danger">* You can select multiple images only </small></label>
-                <input type="file" multiple  name="source[]" class="form-control-file">
+                <input type="file"  multiple="multiple"  name="source[]" class="form-control-file">
                 @if ($errors->has('source.*'))
                 <p class="text-danger">{{$errors->first('source.*')}}</p>
                 @endif

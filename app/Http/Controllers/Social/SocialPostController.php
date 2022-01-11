@@ -343,17 +343,43 @@ class SocialPostController extends Controller
 
                         
                     }*/
-                //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
-                    $mediaurl = "https://www.imore.com/sites/imore.com/files/styles/xlarge_wm_brw/public/field/image/2015/01/instagram_iphone_6_plus_non_square_hero.jpg";
-                    $media_id = $this->addMedia($config,$post,$mediaurl,$insta_id);
-                    if(!empty($media_id)){
-                       $res =  $this->publishMedia($config,$post,$media_id,$insta_id);
+
+                    if ($request->hasfile('source')) {
+                        $this->socialPostLog($config->id,$post->id,$config->platform,"come to image","source");
+                        foreach ($request->file('source') as $image) {
+                            $media = MediaUploader::fromSource($image)
+                                ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $post->attachMedia($media, config('constants.media_tags'));
+                        }
                     }
-                    if(!empty($res)){
-                        $res =  $this->publishMedia($config,$post,$media_id,$insta_id);
-                        $post->status=1;
-                        $post->save();
-                     }
+                    if ($request->hasfile('video1')) {
+                        $this->socialPostLog($config->id,$post->id,$config->platform,"come to video","video");
+                            $media = MediaUploader::fromSource($request->file('video1'))
+                                ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $post->attachMedia($media, config('constants.media_tags'));
+                        
+                    }
+
+                    if ($post->getMedia(config('constants.media_tags'))->first()){
+                        $this->socialPostLog($config->id,$post->id,$config->platform,"come to getMedia","find media");
+                        foreach ($post->getMedia(config('constants.media_tags')) as $i => $file){
+                            $mediaurl = $file->getUrl();
+                            $media_id = $this->addMedia($config,$post,$mediaurl,$insta_id);
+                            if(!empty($media_id)){
+                            $res =  $this->publishMedia($config,$post,$media_id,$insta_id);
+                            }
+                            if(!empty($res)){
+                                $post->status=1;
+                                $post->save();
+                            }
+                            
+                        }
+                    }                 
+                
+                //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
+                    
 
             }
             
