@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\TaskCategory;
 
 use App\Http\Controllers\TaskModuleController;
 
@@ -323,12 +324,14 @@ class SiteDevelopmentController extends Controller
 					}
 						
 				}
+				$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
+					
                 $requests = array(
                     '_token' => $request->_token,
                     'task_subject' => $request->websiteId,
                     'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
-                    'task_asssigned_to' => 412,
-                    'category_id'=>49,
+                    'task_asssigned_to' => 6,
+                    'category_id'=>$designCategoryId,
                     'site_id'=>$site_id,
                     'task_type'=>0,
                     'repository_id'=>null,
