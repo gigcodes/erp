@@ -11383,6 +11383,7 @@ table.table-striped-custom tbody tr td {
 .custom-button{
     background: #9393935e !important;
     color: #555 !important;
+    border: 1px solid #bfbaba !important;
 }
 .inventory-listing .modal-dialog{
     max-width: 800px;
@@ -11403,6 +11404,35 @@ table.table-striped-custom tbody tr td {
    
     width: 292px !important;
 }
+.dark{
+    background-color: #f5f5f5;
+    color: black;
+    border-color: #ddd;
+}
+#userlogs-table_wrapper{
+    margin-top: 1rem !important;
+}
+#userlogs-table_length label, #userlogs-table_filter label{
+    align-items: center;
+   display: flex;
+}
+#userlogs-table_filter label input, #userlogs-table_length label select {
+        display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 .return-input input{
     width: 250px !important;
 }
@@ -11410,4 +11440,17 @@ table.table-striped-custom tbody tr td {
     overflow: visible;
     text-overflow: unset;
     white-space: initial;
+}
+.input-button{
+    width: 20%;
+}
+.scrapper-python-image .image-1 img{
+    width:100% !important;
+    object-fit: cover;
+}
+.text-center.task_queue_list td{
+    text-align: left;
+}
+.green_img {
+    background: grey !important;
 }

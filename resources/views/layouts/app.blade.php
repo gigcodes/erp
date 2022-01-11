@@ -1666,6 +1666,9 @@ if (!empty($notifications)) {
                                                         <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.hubstuff.log') }}">Hubstuff Command Log</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('monetary-account') }}">Monetary Account</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -1981,6 +1984,7 @@ if (!empty($notifications)) {
 
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                         <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                                        <a class="dropdown-item" href="{{ route('development.flagtask') }}">Flag Tasks</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                                         <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>

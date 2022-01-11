@@ -60,7 +60,9 @@
                                 <td style="cursor:pointer;" id="reply_text" class="change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
                                 <td id="reply_model">{{ $reply->model }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
-                                <td id="reply_action"><i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}"></i></td>
+                                <td id="reply_action">
+                                    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+                                    <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}"></i></td>
                             </tr>
                         @endforeach
                     </table>
@@ -94,6 +96,38 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="reply_history_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tracked time history</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reply_history_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Last Message</th>
+                                    <th>Updated Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -132,6 +166,27 @@ $(document).on("click",".change-reply-text",function(e) {
     $("#reply-update-form-modal").modal("show");
 });
 
-
+$(document).on('click', '.show-reply-history', function() {
+    var issueId = $(this).data('id');
+    $('#reply_history_div table tbody').html('');
+    $.ajax({
+        url: "{{ route('reply.replyhistory') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $.each(data.histories, function(i, item) {
+                    $('#reply_history_div table tbody').append(
+                        '<tr>\
+                        <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                        <td>'+ ((item['last_message'] != null) ? item['last_message'] : '') +'</td>\
+                        <td>'+ ((item['created_at'] != null) ? item['created_at'] : '') +'</td>\
+                        </tr>'
+                        );
+                });
+            }
+        }
+    });
+    $('#reply_history_modal').modal('show');
+});
 </script>
 @endsection

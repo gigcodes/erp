@@ -53,9 +53,12 @@
                     </td>
                     <td>{{ $store->name }}</td>
                     <td class="{{ $list->store_website_id }} {{ $item->code }}">{{ $item->name }}({{ $item->code }})</td>
-                        <td> @if($imagesDesktop > 0) {{ $imagesDesktop }} @else {{ 'No Images' }} @endif</td>
-                        <td>@if($imagesMobile > 0) {{ $imagesMobile }} @else {{ 'No Images' }} @endif</td>
-                        <td>@if($imagesTablet > 0) {{ $imagesTablet }} @else {{ 'No Images' }} @endif</td>
+                        <td> @if($imagesDesktop > 0) {{ $imagesDesktop }} @else {{ '1' }} @endif</td>
+                        <td>@if($imagesMobile > 0) {{ $imagesMobile }} @else {{ '0' }} @endif</td>
+                        <td>@if($imagesTablet > 0) {{ $imagesTablet }} @else {{ '0' }} @endif</td>
+                        <td><span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $store->is_default ? 'checked' : '' }}
+                                onclick="setStoreAsDefault(this)" data-website-id="{{ $list->id }}"
+                                data-store-id="{{ $store->id }}" /></span></td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
@@ -68,9 +71,7 @@
                             <img src="/images/forward.png" style="cursor: default;">
                         </button>
 
-                        <span class="btn p-0"> <input type="checkbox" class="defaultInput" {{ $store->is_default ? 'checked' : '' }}
-                                onclick="setStoreAsDefault(this)" data-website-id="{{ $list->id }}"
-                                data-store-id="{{ $store->id }}" /> Set as default</span>
+                        
 
                         <!-- Button trigger modal -->
 

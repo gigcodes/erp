@@ -2132,7 +2132,7 @@
             var date = $(this).siblings().find('.due_date_cls').val();
             if (date != '') {
                 $.ajax({
-                        url: '/task/update/due_date',
+                        url: "{{route('task.update.due_date')}}",
                         type: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')

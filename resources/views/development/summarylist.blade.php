@@ -211,7 +211,7 @@
                     
                 </form>
                 @if (auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal"
+                <a href="javascript:" class="btn custom-button mt-3"style="height: 35px;" id="newTaskModalBtn" data-toggle="modal"
                     data-target="#newTaskModal">Add New Dev Task </a>
             @endif
                 

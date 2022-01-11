@@ -2964,10 +2964,19 @@ class TaskModuleController extends Controller
    	    try {
 
    	    	$task=Task::find($request->task_id);
+               $old_status = $task->status;
 
    	    	$task->status=$request->status;
 
    	    	$task->save();
+               DeveloperTaskHistory::create([
+                'developer_task_id' => $request->task_id,
+                'model' => 'App\Task',
+                'attribute' => "task_status",
+                'old_value' => $old_status,
+                'new_value' => $task->status,
+                'user_id' => Auth::id(),
+            ]);
 
 			if($task->status == 1){
 				
@@ -3020,6 +3029,8 @@ class TaskModuleController extends Controller
 						'by_command'        => 4,
 						'task_id'           => $task->id,
 					]);
+                    
+                      
                    
 				} 
 				
@@ -3214,7 +3225,16 @@ class TaskModuleController extends Controller
     }
     public function getUserHistory(Request $request)
     {
-        $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+            if(isset($request->type)){
+                if($request->type == "developer"){
+                    $users = TaskUserHistory::where('model', 'App\DeveloperTask')->where('model_id', $request->id)->get();
+                }else{
+                    $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+                }
+        }else{
+            $users = TaskUserHistory::where('model', 'App\Task')->where('model_id', $request->id)->get();
+
+        }
         
         foreach ($users as $u) {
             $old_name = null;
@@ -3232,6 +3252,27 @@ class TaskModuleController extends Controller
             'users' => $users
         ], 200);
     }
+    public function getSiteDevelopmentTask(Request $request){
 
+        $site_developement_id = \App\SiteDevelopment::where("website_id",$request->site_id)->pluck("id");
+    //    dd($site_developement_id);
+        $merged=[];
+        if(!empty($site_developement_id)){
+            $taskStatistics['Devtask'] = DeveloperTask::whereIn('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+            $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+            $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+            $taskStatistics = $query->get();
+          //  print_r($taskStatistics);
+            $othertask = Task::whereIn('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+            $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+            $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+            $othertaskStatistics = $query1->get();
+            $merged = $othertaskStatistics->merge($taskStatistics);
+        }
+     //   return view('task-module.partials.site-development-task', compact('merged'));
+
+        return response()->json(["code" => 200, "taskStatistics" => $merged]);
+    }
    
 }

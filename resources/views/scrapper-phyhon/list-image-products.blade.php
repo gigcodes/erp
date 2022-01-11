@@ -128,17 +128,22 @@
         .infinite-scroll-images{
             max-width:1150px;
             margin:0 auto;
+         
+
         }
 
         .infinite-scroll-images-mobile{
             max-width:360px;
             margin:0 auto;
+         
         }
 
         .infinite-scroll-images-tablet{
             max-width:767px;
             margin:0 auto;
+         
         }
+        
     </style>
 @endsection
 
@@ -225,156 +230,13 @@
     </form>
 </div>
 <!-- END - DEVTASK-4271 -->
-
+{{ $images->appends(request()->except('page'))->links() }}
 <!-- Purpose : Add class infinite-scroll - DEVTASK-4271 -->
 <div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
-        @php
-            $oldDate = null;
-            $count   = 0;
-            /*$images = null;
-            // dd( $list->store_website_id );
-            $webStore = \App\WebsiteStore::where('website_id',$list->id)->first();
-            if( $webStore ){
-                $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
-                if( $website_store_views ){
-                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$website_store_views->code)->get()->toArray();
-                }
-            }*/
-
-            // dump($list);
-            // dump($webStore);
-            // dump($website_store_views);
-            // dd($images);
-            $device = ((isset($_REQUEST['device'])) ? $_REQUEST['device'] : '' );
-
-            if($device == "desktop" || $device == ""){
-                 $imageHeight = 'fit-content';
-                 $imageWidth = 'infinite-scroll-images';
-                 $imageDimensioClass ='image-diamention-rasio-desktop';
-                 $width = 'fit-content';
-            }
-            else if($device == "tablet"){
-                 $imageHeight = '800px';
-                 $imageWidth = 'infinite-scroll-images-tablet';
-                 $imageDimensioClass ='image-diamention-rasio-desktop';
-                 $width = '100%';
-
-            }
-            else if($device == "mobile"){
-                 $imageHeight = '600px';
-                 $imageWidth = 'infinite-scroll-images-mobile';
-                 $imageDimensioClass ='image-diamention-rasio-mobile';
-                 $width = '100%';
-            }
-            
-        @endphp
-
-        <div class="row">
-            <div class="col-md-12">
-                <br>
-                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{count($images)}}</h5> 
-
-                <hr style="margin: 5px 0px;">
-            </div>
-        </div> 
-
-        @foreach($images as $image)
-                {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
-
-                <?php
-                    if ( date( 'Y-m-d' ,strtotime($image['created_at'])) !== $oldDate ) { 
-                        $count = 0; 
-                        $oldDate = date( 'Y-m-d' ,strtotime($image['created_at']));
-                    ?>
-                        <!-- <div class="row">
-                            <div class="col-md-12">
-                                <br>
-                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($images)}}</h5> 
-
-                                <hr style="margin: 5px 0px;">
-                            </div>
-                        </div>  -->
-
-                    <?php } ?>
-                    
-                @if ($image['img_name'] )
-                    @php
-                    if($count == 6){
-                        $count = 0;
-                    }
-                    
-                    @endphp
-                        {{-- START - Purpose : Comment Code - DEVTASK-4271 --}}
-                        {{--  @if($count == 0)
-                              <div class="row parent-row">
-                        @endif --}}
-                        {{-- END - DEVTASK-4271 --}}
-                        <div class="{{ $imageWidth }}">               
-                            @if ($image['coordinates'])
-                                @php 
-                                    $x = 0;
-                                    $coordinates = explode(',',$image['coordinates']);
-                                    array_push($coordinates,$image['height']);
-                                    $total_img_height = $image['height'];
-                                @endphp
-
-
-                                <div  style="position: relative;display: flex">
-                                    <div class="image-diamention-rasio {{ $imageDimensioClass }}"  style="max-height: {{ $imageHeight }};">
-                                        @foreach ($coordinates as $z)
-                                        @php
-                                            if($device == "mobile"){
-                                                $z = ceil((2372*$z)/$total_img_height);
-                                            }
-                                            if($device == "tablet"){
-                                                $z = ceil((5070*$z)/$total_img_height);
-                                            }
-                                        @endphp
-                                        <td>
-                                            <img data-coordinates="{{ $z}}" class="manage-product-image" src="{{ asset( 'scrappersImages/'.$image['img_name']) }}" style="object-position: 100% -{{ $x }}px;height:{{ $z - $x+20 }}px;width:{{ $width }}">
-                                        </td>
-                                        @php $x = $z; @endphp
-                                    @endforeach
-                                    </div>
-                                    <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                    <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a>  
-                                </div>
-                            @else
-                                <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 p-0" style="position: relative;display: flex">
-                                    <div class="product-list-card" style="position: relative;padding:0;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow-y:auto;overflow-x: hidden">
-
-                                        <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
-                                            <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
-                                                <div class="carousel-inner maincarousel">
-                                                    <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" style="height: 100%; width: 100%; max-width:fit-content; display: block;margin-left: auto;margin-right: auto;"> </a> </div>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
-                        
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                </div>
-                            @endif
-                        </div>
-                    
-
-                    {{-- START - Purpose : Comment Code - DEVTASK-4271 --}}
-                    {{-- @php
-                    if( $count == 0 || $count == 6){
-                        echo '</div>';
-                    }
-                    @endphp--}}
-                    {{-- END - DEVTASK-4271 --}}
-
-                @endif
-            @php $count++;  @endphp
-        {{-- @endforeach --}}
-        @endforeach
-        <br>
+    @include("scrapper-phyhon.list-image-products_ajax")   
+      
 </div>
+<img class="infinite-scroll-products-loader center-block" src="{{env('APP_URL')}}/images/loading.gif" alt="Loading..." style="display: none" />
 <!--Remark Modal-->
 <div id="remark-area-list" class="modal fade" role="dialog">
 	<div class="modal-dialog modal-lg">
@@ -784,6 +646,47 @@
         $("#date_value_show").css("display", "none");
 
     });
+
+    $(window).scroll(function() {
+    if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+        console.log("ffff");
+        loadMoreProducts();
+    }
+    });
+        var isLoadingProducts ;
+            function loadMoreProducts() {
+                if (isLoadingProducts)
+                    return;
+                isLoadingProducts = true;
+                if(!$('.pagination li.active + li a').attr('href'))
+                return;
+
+                var $loader = $('.infinite-scroll-products-loader');
+                $.ajax({
+                    url: $('.pagination li.active + li a').attr('href'),
+                    type: 'GET',
+                    beforeSend: function() {
+                        $loader.show();
+                        $('ul.pagination').remove();
+                    }
+                })
+                .done(function(data) {
+                    if('' === data.trim())
+                        return;
+
+                    $loader.hide();
+
+                    $('.infinite-scroll-data').append(data);
+
+                    isLoadingProducts = false;
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                    console.error('something went wrong');
+
+                    isLoadingProducts = false;
+                });
+            }
+    
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection
