@@ -3519,6 +3519,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('post/edit', 'SocialPostController@edit')->name('social.post.edit');
     Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
     Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
+    Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
 
 
 
