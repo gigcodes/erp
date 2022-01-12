@@ -261,8 +261,7 @@
                 </tbody>
             </table>
         </div>
-        <?php echo $issues->appends(request()->except('page'))->links(); ?>
-
+        
     </div>
     @include("development.partials.upload-document-modal")
     @include("development.partials.time-tracked-modal")
