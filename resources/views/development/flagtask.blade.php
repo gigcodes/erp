@@ -162,7 +162,7 @@
             <?php $base_url = URL::to('/'); ?>
 
             <div class="pull-left cls_filter_box">
-                <form class="form-inline" action="{{ route('development.flagtask') }}" method="GET">
+                <form class="form-inline form-search-data" action="{{ route('development.flagtask') }}" method="GET">
 
                     <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
                     <div class="col-md-2 pd-sm pd-rt">
@@ -338,6 +338,7 @@
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
 @endsection
 
@@ -350,7 +351,55 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
+	
+	<script>
+        
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('development/flagtask')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {  console.log(data);                   
+                        $loader.hide();
+                        $('#vendor-body').append(data); 
+						isLoading = false;
+						if(data == "") {
+							isLoading = true;
+						}						
+                        
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+       
+
+  </script>  
+	
     <script type="text/javascript">
+	
         $(document).ready(function() {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Please Select'
