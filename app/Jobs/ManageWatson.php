@@ -54,7 +54,7 @@ class ManageWatson implements ShouldQueue
      */
     public function handle()
     {
-// dd($this->storeParams);
+
         $all_watson_accounts = WatsonAccount::get();
         if ($this->type) {
             $value = $this->question->{$this->type};
@@ -104,10 +104,12 @@ class ManageWatson implements ShouldQueue
             else {
                 $success = 0;
             }
-            if ($this->service === 'dialog') {
+            if ($this->service === 'dialog') { 
                 $errorlog = new ChatbotDialogErrorLog;
                 $errorlog->chatbot_dialog_id = $this->question->id;
+                $errorlog->reply_id = $this->storeParams['reply_id'];
                 $errorlog->store_website_id = $account->store_website_id;
+				$errorlog->request = json_encode($this->storeParams);
                 $errorlog->status = $success;
                 $errorlog->response = $result->getContent();
                 $errorlog->save();
