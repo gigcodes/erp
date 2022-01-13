@@ -11394,6 +11394,11 @@ table.table-striped-custom tbody tr td {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.modal-body .Website-task:hover{
+    overflow: visible;
+     white-space:normal;
+}
+
 .action-column img{
     filter: grayscale(100%);
 }
@@ -11433,6 +11438,7 @@ table.table-striped-custom tbody tr td {
     -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
     -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
 .return-input input{
     width: 250px !important;
 }
