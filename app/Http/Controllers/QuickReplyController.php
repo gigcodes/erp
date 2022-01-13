@@ -171,6 +171,7 @@ class QuickReplyController extends Controller
                 //update reply
                 Reply::where('id', '=', $request->reply_id)->update([
                     'reply' => $request->reply,
+					'pushed_to_watson'=>0
                 ]);
                 return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Reply updated successfully']);
             } else {
@@ -179,6 +180,7 @@ class QuickReplyController extends Controller
                     'store_website_id' => $request->store_website_id,
                     'reply' => $request->reply,
                     'model' => 'Store Website',
+					'pushed_to_watson'=>0
                 ]);
                 return new JsonResponse(['status' => 1, 'data' => $request->reply, 'message' => 'Reply added successfully']);
             }
