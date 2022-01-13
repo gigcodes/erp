@@ -13,7 +13,7 @@ class ChatbotDialogErrorLog extends Model
       * @SWG\Property(property="status",type="string")
      * @SWG\Property(property="response",type="string")
      */
-    protected $fillable = ['status','response'];
+    protected $fillable = ['status','response', 'reply_id', 'request'];
     public function storeWebsite()
     {
     	return $this->belongsTo("App\StoreWebsite");

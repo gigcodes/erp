@@ -12,7 +12,7 @@
  */
 
 Auth::routes();
-Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
+//Route::get('task/flagtask', 'TaskModuleController@flagtask')->name('task.flagtask');
 Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 Route::post('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
 Route::get('sendgrid/notifyurl', 'Marketing\MailinglistController@notifyUrl');
@@ -509,6 +509,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
     Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
     Route::get('reply-history', 'ReplyController@getReplyedHistory')->name('reply.replyhistory');
+    Route::get('reply-logs', 'ChatbotMessageLogsController@replyLogs')->name('reply.replylogs');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
@@ -729,6 +730,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //  Route::resource('task','TaskController');
 
     // Instruction
+
+
     Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
     Route::post('instruction/store-instruction-end-time', 'InstructionController@storeInstructionEndTime');
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
@@ -911,6 +914,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
     Route::post('task/time/history/approve/sendMessage', 'TaskModuleController@sendReviseMessage')->name('task.time.history.approve.sendMessage');
     Route::post('task/time/history/approve/sendRemindMessage', 'TaskModuleController@sendRemindMessage')->name('task.time.history.approve.sendRemindMessage');
+    Route::get('/get-site-development-task', 'TaskModuleController@getSiteDevelopmentTask')->name('get.site.development.task');
     //END - DEVTASK-4354
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
@@ -3336,7 +3340,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrapper-python/history', 'scrapperPhyhon@history')->name('scrapper.history');
     Route::get('/scrapper-python/actionHistory', 'scrapperPhyhon@actionHistory')->name('scrapper.action.history');
     Route::get('/scrapper-python/image/url_list', 'scrapperPhyhon@imageUrlList')->name('scrapper.image.urlList');
-    
+    Route::post('/scrapper-python/{id}/url', 'scrapperPhyhon@flagImageUrl')->name('scrapper.url.flag');
+
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 
     Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
@@ -3469,6 +3474,7 @@ Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('c
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
+Route::post('push-reply-to-watson', 'ChatbotMessageLogsController@pushRepyToWaston');
 
 Route::get('chatbot-message-log/{id}/history', 'ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
@@ -3503,10 +3509,19 @@ Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-s
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
 
 
+Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'social'], function () {
+    Route::get('config', 'SocialConfigController@index')->name('social.config.index');
+    Route::post('config/store', 'SocialConfigController@store')->name('social.config.store');
+    Route::post('config/edit', 'SocialConfigController@edit')->name('social.config.edit');
+    Route::post('config/delete', 'SocialConfigController@destroy')->name('social.config.delete');
+   
+
+
+});
 Route::get('command', function () {
 
-  //  \Artisan::call('migrate');
-     \Artisan::call('HubstuffActivity:Command');
+    \Artisan::call('migrate');
+  //   \Artisan::call('HubstuffActivity:Command');
 
    // \Artisan::call('migrate');
   //   \Artisan::call('meeting:getrecordings');

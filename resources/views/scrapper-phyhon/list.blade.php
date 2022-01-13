@@ -186,7 +186,7 @@
                             <button type="submit" class="btn btn-secondary custom-button btn-xs"style="height: 34px; width: 300px !important;" >Send Request</button>
                             <button type="submit"  class="btn ml-5 btn-secondary custom-button action_history btn-xs"style="height: 34px; width: 300px !important;">Action History</button>
                             <button type="submit" class="btn btn-secondary ml-5 custom-button view_history btn-xs" style="height: 34px; width: 300px !important;">History</button>
-                            <button type="submit" class="btn btn-secondary ml-5 custom-button btn-xs"style="height: 34px; width: 300px !important;" >Delete Images</button>
+                            <button type="submit" class="btn btn-secondary ml-5 delete-image-btn custom-button btn-xs"style="height: 34px; width: 300px !important;" >Delete Images</button>
                         </div>
                     </form>
                     </div>
@@ -244,7 +244,7 @@
             <table class="table table-bordered"style="table-layout:fixed;">
                 <thead>
                 <th style="width:4%">Date</th>
-                <th style="width:4%">Id</th>
+                
                 <th style="width:20%">Website</th>
                 <th style="width:12%">Name</th>
                 <th style="width:10%">Language</th>
@@ -1537,7 +1537,7 @@
 
         
         $('#delete_date').datetimepicker({ format: 'YYYY-MM-DD' });
-         $(document).on('submit', '#scrapper-image-delete-form', function(e) {
+         $(document).on('click', '.delete-image-btn', function(e) {
 
             e.preventDefault();
             if( $('#delete_date').val()==""){
