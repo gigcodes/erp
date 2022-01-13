@@ -269,7 +269,8 @@ class ReplyController extends Controller
 
         if($reply) {
             $reply->reply = $request->reply;
-            $reply->save();
+            $reply->pushed_to_watson = 0;
+			$reply->save();
         }
 
         return redirect()->back()->with('success','Quick Reply Updated successfully');

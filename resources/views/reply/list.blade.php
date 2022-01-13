@@ -50,7 +50,8 @@
                             <th width="15%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="7%">Updated On</th>
-                            <th width="3%">Action</th>
+                            <th width="15%">Is Pushed To Watson</th>
+                            <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr>
@@ -60,8 +61,11 @@
                                 <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
                                 <td id="reply_model">{{ $reply->model }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
+                                <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td id="reply_action">
                                     <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+                                    <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}"></i>
+                                  @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}"></i> @endif
                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}"></i></td>
                             </tr>
                         @endforeach
@@ -131,6 +135,38 @@
         </div>
     </div>
 </div>
+<div class="modal" tabindex="-1" role="dialog" id="reply_logs_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Watson push Logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reply_logs_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Request</th>
+                                    <th>Response</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 
 $(document).on("click",".fa-trash-bin-record",function() {
@@ -152,6 +188,31 @@ $(document).on("click",".fa-trash-bin-record",function() {
                 location.reload();
             }else{
                toastr["error"]('Record is unable to delete!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image").hide();
+      });
+});
+
+$(document).on("click",".push_to_watson",function() {
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push-reply-to-watson') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: $this.data("id")
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
+      }).done( function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                //location.reload();
+            }else{
+               toastr["error"]('Unable to push!');
             }
       }).fail(function(errObj) {
             $("#loading-image").hide();
@@ -187,6 +248,29 @@ $(document).on('click', '.show-reply-history', function() {
         }
     });
     $('#reply_history_modal').modal('show');
+});
+
+$(document).on('click', '.show_logs', function() {
+    var issueId = $(this).data('id');
+    $('#reply_logs_div table tbody').html('');
+    $.ajax({
+        url: "{{ route('reply.replylogs') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $.each(data.logs, function(i, item) {
+                    $('#reply_logs_div table tbody').append(
+                        '<tr>\
+                        <td>'+ ((item['created_at'] != null) ? item['created_at'] : '') +'</td>\
+                        <td>'+ ((item['request'] != null) ? item['request'] : '') +'</td>\
+                        <td>'+ ((item['response'] != null) ? item['response'] : '') +'</td>\
+                        </tr>'
+                        );
+                });
+            }
+        }
+    });
+    $('#reply_logs_modal').modal('show');
 });
 </script>
 @endsection

@@ -509,6 +509,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
     Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
     Route::get('reply-history', 'ReplyController@getReplyedHistory')->name('reply.replyhistory');
+    Route::get('reply-logs', 'ChatbotMessageLogsController@replyLogs')->name('reply.replylogs');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
@@ -3473,6 +3474,7 @@ Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('c
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
+Route::post('push-reply-to-watson', 'ChatbotMessageLogsController@pushRepyToWaston');
 
 Route::get('chatbot-message-log/{id}/history', 'ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 

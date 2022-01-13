@@ -106,23 +106,23 @@
    <div class="row pr-4 pl-4 cashflow-table">
         <div class="col-md-12">
           <div class="table-responsive ">
-             <table class="table table-bordered">
+             <table class="table table-bordered" style="table-layout: fixed;">
                  <thead>
                  <tr>
-                     <th>Date</th>
-                     <th>Module</th>
-                     <th>Website</th>
-                     <th>Beneficiary Name</th>
-                     <th>Type</th>
-                     <th>Description</th>
-                     <th>Amount</th>
-                     <th>Amount(EUR)</th>
-                     <th>Erp Amount</th>
-                     <th>Erp Amount(EUR)</th>
-                     <th>Monetary Account</th>
-                     <th>Type</th>
-                     <th>Billing Date </th>
-                     <th>Actions</th>
+                     <th width="2%">Date</th>
+                     <th width="2%">Module</th>
+                     <th width="2%">Website</th>
+                     <th width="3%">Bene Name</th>
+                     <th width="2%">Type</th>
+                     <th width="3%">Description</th>
+                     <th width="2%">Amount</th>
+                     <th width="2%">Am(EUR)</th>
+                     <th width="2%">Erp A</th>
+                     <th width="3%">Erp A(EUR)</th>
+                     <th width="3%">Monetary Ac</th>
+                     <th width="2%">Type</th>
+                     <th width="3%">Bill Date </th>
+                     <th width="2%">Actions</th>
                  </tr>
                  </thead>
 
@@ -138,11 +138,10 @@
                              @default
                                
                              @endswitch 
-
                          </td>
-                         <td>{!! $cash_flow->get_bname()!!} </td>
-                         <td>{{ class_basename($cash_flow->cashFlowAble) }}</td>
-                         <td>
+                         <td class="Website-task">{!! $cash_flow->get_bname()!!} </td>
+                         <td class="Website-task">{{ class_basename($cash_flow->cashFlowAble) }}</td>
+                         <td class="Website-task">
                              {{ $cash_flow->description }}
                              @if ($cash_flow->files && count($cash_flow->files) > 0)
                                  <ul>
@@ -152,7 +151,7 @@
                                  </ul>
                              @endif
                          </td>
-                         <td>@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}
+                         <td class="Website-task">@if(!is_numeric($cash_flow->currency))  {{$cash_flow->currency}}  @endif{{ $cash_flow->amount }}
                             @if($cash_flow->cash_flow_able_type =="App\HubstaffActivityByPaymentFrequency")
                               <button  type="button" class="btn btn-xs show-calculation"style="margin-top: -2px;" title="Show History" data-id="{{ $cash_flow->id }}"><i class="fa fa-info-circle"></i></button> 
                             @endif
