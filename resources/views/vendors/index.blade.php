@@ -123,10 +123,14 @@
     <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
+   <div class="row">
+       <div class="col-md-12 p-0">
+           <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
+       </div>
+   </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
-            <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
             <div class="cls_filter_box mb-3">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
                     <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
