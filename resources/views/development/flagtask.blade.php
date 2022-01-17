@@ -157,14 +157,16 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
-    <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
+    <div class="row">
+        <div class="col-md-12 p-0">
+            <h2 class="page-heading">Quick Dev Task</h2>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
-
-            <div class="pull-left cls_filter_box">
+            <div class=" cls_filter_box" style="margin-left: -13px;">
                 <form class="form-inline form-search-data" action="{{ route('development.flagtask') }}" method="GET">
-
-                    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
                     <div class="col-md-2 pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
                             placeholder="Issue Id / Subject" class="form-control"
@@ -223,13 +225,13 @@
                 <thead>
                     <tr>
                         <th width="8%">ID</th>
-                        <th width="12%">Subject</th>
-                        <th width="13%">Assigned To</th>
+                        <th width="11%">Subject</th>
+                        <th width="14%">Assigned To</th>
                         <th width="13%">Tracked Time</th>
-                        <th width="13%">Estimated Time</th>
-                        <th width="13%">Delivery Date</th>
+                        <th width="11%">Estimated Time</th>
+                        <th width="10%">Delivery Date</th>
                         <th width="35%">Communication</th>
-                        <th width="10%">Status</th>
+                        <th width="13%">Status</th>
                     </tr>
                 </thead>
 
