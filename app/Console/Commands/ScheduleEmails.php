@@ -58,7 +58,7 @@ class ScheduleEmails extends Command
 		$modalType = "";
 		$leads = [];
 		$flows = Flow::select('id', 'flow_name as name')->get();
-		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
+		//$flows = Flow::whereIn('flow_name', ['site_dev', 'task_pr'])->select('id', 'flow_name as name')->get();  
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
 
 		//$this->log[]="Flow action started to check and found total flows : ".$flows->count();
@@ -161,7 +161,6 @@ class ScheduleEmails extends Command
 	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $leadType = 'customer')
 	{
 		$scraper_id = 0;
-		
 		/*FlowLogMessages::log([
 			"flow_action" => ($flowAction['type'] == 'Condition') ? $flowAction['type'] . "-" . $flowAction['condition'] : $flowAction['type'],
 			"modalType" => $modalType,
@@ -244,7 +243,7 @@ class ScheduleEmails extends Command
 			$messageApplicationId = '';
 			if ($flowAction['type'] == 'SMS') {
 				$messageApplicationId = 3;
-			}
+			} 
 			foreach ($leads as $lead) {
 				if(isset($lead['scraper_id'])) {
 					$scraper_id = $lead['scraper_id'];
