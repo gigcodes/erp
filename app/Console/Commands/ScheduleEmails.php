@@ -58,7 +58,7 @@ class ScheduleEmails extends Command
 		$modalType = "";
 		$leads = [];
 		$flows = Flow::select('id', 'flow_name as name')->get();
-		//$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();  
+		//$flows = Flow::whereIn('flow_name', ['site_dev', 'task_pr'])->select('id', 'flow_name as name')->get();  
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
 
 		//$this->log[]="Flow action started to check and found total flows : ".$flows->count();
@@ -158,10 +158,9 @@ class ScheduleEmails extends Command
 		}
 	}
 
-	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $scraper_id = 0)
+	public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $leadType = 'customer')
 	{
 		$scraper_id = 0;
-		
 		/*FlowLogMessages::log([
 			"flow_action" => ($flowAction['type'] == 'Condition') ? $flowAction['type'] . "-" . $flowAction['condition'] : $flowAction['type'],
 			"modalType" => $modalType,
@@ -244,24 +243,43 @@ class ScheduleEmails extends Command
 			$messageApplicationId = '';
 			if ($flowAction['type'] == 'SMS') {
 				$messageApplicationId = 3;
-			}
+			} 
 			foreach ($leads as $lead) {
 				if(isset($lead['scraper_id'])) {
 					$scraper_id = $lead['scraper_id'];
 				}
-				$insertParams = [
-					"customer_id"            => $lead->customer_id,
-					"message"                => $flowAction['message_title'],
-					"status"                 => 1,
-					"is_queue"               => 1,
-					"approved"               => 1,
-					"user_id"                => 6,
-					"number"                 => null,
-					"message_application_id" => $messageApplicationId,
-					'scheduled_at'     => $created_date,
-				];
+				if($leadType == 'customer') {
+					$insertParams = [
+						"customer_id"            => $lead->customer_id,
+						"message"                => $flowAction['message_title'],
+						"status"                 => 1,
+						"is_queue"               => 1,
+						"approved"               => 1,
+						//"user_id"                => 6,
+						"number"                 => null,
+						"message_application_id" => $messageApplicationId,
+						'scheduled_at'     => $created_date,
+					];
+					$chatMessage = \App\ChatMessage::firstOrCreate(["customer_id"=>$lead->customer_id,
+						"message"=>$flowAction['message_title'],"status"=>1,"is_queue"=>1,
+						"approved"=>1,"message_application_id"=>$messageApplicationId], $insertParams);
+				} else {
+					$insertParams = [
+						"user_id"            => $lead->customer_id,
+						"message"                => $flowAction['message_title'],
+						"status"                 => 1,
+						"is_queue"               => 1,
+						"approved"               => 1,
+						"number"                 => null,
+						"message_application_id" => $messageApplicationId,
+						'scheduled_at'     => $created_date,
+					];
+					$chatMessage = \App\ChatMessage::firstOrCreate(["user_id"=> $lead->customer_id,"message"=>$flowAction['message_title'],
+						"status"=>1,"is_queue"=>1,"approved"=>1,"message_application_id"=>$messageApplicationId], $insertParams);
+				}
+				
 
-				$chatMessage = \App\ChatMessage::create($insertParams);
+				
 				$flowLogMessage = FlowLogMessages::where([
 					"flow_action" => $flowAction['type'],
 					"modalType" => $modalType,
@@ -331,7 +349,7 @@ class ScheduleEmails extends Command
 							->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 					}  
 					foreach ($flowActiosnNew as $flowActionNew) {
-						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
+						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, 'user');
 					}
 				}
 			} elseif ($flowAction['condition'] == 'check_scrapper_error_logs') {
@@ -355,7 +373,7 @@ class ScheduleEmails extends Command
 						}
 					}
 					foreach ($flowActiosnNew as $flowActionNew) {
-						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id);
+						$this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, 'user');
 					}
 				}
 			}
