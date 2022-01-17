@@ -71,13 +71,13 @@
         <thead>
           <tr>
             <!-- <th style="width: 3% !important;">ID</th> -->
-            <th style="width: 10% !important;">Website</th>
+            <th style="width: 5% !important;">Website</th>
             <th style="width: 5% !important;">Platform</th>
             <th style="width: 5% !important;">Name</th>
             <th style="width: 5% !important;">UserName</th>
             <th style="width: 5% !important;">Status</th>
             <th style="width: 5% !important;">Started At</th>
-            <th style="width: 3% !important;">Actions</th>
+            <th style="width: 5% !important;">Actions</th>
           </tr>
 
           <!-- <tr>
