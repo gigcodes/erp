@@ -58,8 +58,8 @@ class ScheduleEmails extends Command
 		$created_date = Carbon::now();
 		$modalType = "";
 		$leads = [];
-		$flows = Flow::select('id', 'flow_name as name')->get();
-		//$flows = Flow::whereIn('flow_name', ['site_dev'])->select('id', 'flow_name as name')->get();  
+		//$flows = Flow::select('id', 'flow_name as name')->get();
+		$flows = Flow::whereIn('flow_name', ['site_dev'])->select('id', 'flow_name as name')->get();  
 		FlowLog::log(["flow_id" => 0, "messages" => "Flow action started to check and found total flows : " . $flows->count()]);
 
 		//$this->log[]="Flow action started to check and found total flows : ".$flows->count();
@@ -373,7 +373,9 @@ class ScheduleEmails extends Command
 					$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
 					if ($path_for == 'yes') { 
 						$tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-							    ->whereDate('tasks.created_at', '<=', $created_date)->where('category', $designCategoryId)->whereNotNull('is_completed')
+							    ->whereDate('tasks.created_at', '<=', $created_date)
+								->where('category', $designCategoryId)
+								->whereNotNull('is_completed')
 							    ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 						$devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
 						foreach($tasks as $task) { 
@@ -383,7 +385,7 @@ class ScheduleEmails extends Command
 									'task_subject' => $task['task_subject'],
 									'task_detail' => $task['task_details'],
 									'task_asssigned_to' => 6,
-									'task_asssigned_from' => 6,
+									//'task_asssigned_from' => 10410,
 									'category_id'=>$devCategoryId,
 									'site_id'=>$task['site_developement_id'],
 									'task_type'=>0,
@@ -392,7 +394,8 @@ class ScheduleEmails extends Command
 									'task_id'=>null,
 									'customer_id'=>null,
 									'parent_task_id'=>$task['id']
-								);
+								); 
+								//app('App\Http\Controllers\TaskModuleController')->createTaskFromSortcut($requests);
 								$check = (new Task)->createTaskFromSortcuts($requests);
 							}
 						} 

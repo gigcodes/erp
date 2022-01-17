@@ -287,9 +287,10 @@ class SiteDevelopmentController extends Controller
                 }
                 $requests = array(
                     '_token' => $request->_token,
-                    'task_subject' => $request->websiteId,
+                    'task_subject' => $request->text,
                     'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
                     'task_asssigned_to' => 6,
+                   // 'task_asssigned_from' => 10410,
                     'category_id'=>49,
                     'site_id'=>$site_id,
                     'task_type'=>0,
@@ -328,7 +329,7 @@ class SiteDevelopmentController extends Controller
 					
                 $requests = array(
                     '_token' => $request->_token,
-                    'task_subject' => $request->websiteId,
+                    'task_subject' => $request->text,
                     'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
                     'task_asssigned_to' => 6,
                     'category_id'=>$designCategoryId,
