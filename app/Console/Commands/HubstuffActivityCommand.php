@@ -250,12 +250,12 @@ class HubstuffActivityCommand extends Command
                 $path = $res["file_data"];
                 Auth::logout($user);
 
-                $path = storage_path('app/files').'/'.$path;
+               // $path = storage_path('app/files').'/'.$path;
 
-                Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
-                    $message->to($data["email"], $data["email"])
-                            ->subject($data["title"])->attach($path);
-                });
+                // Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
+                //     $message->to($data["email"], $data["email"])
+                //             ->subject($data["title"])->attach($path);
+                // });
 
                 $user->last_mail_sent_payment = $today;
                 $user->save();
