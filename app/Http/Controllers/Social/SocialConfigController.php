@@ -105,8 +105,8 @@ class SocialConfigController extends Controller
             'store_website_id' => 'required',
             'platform' => 'required',
             'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
+          //  'email' => 'required',
+         //   'password' => 'required',
             "status"=> 'required',
         ]);
         $config = SocialConfig::findorfail($request->id);
