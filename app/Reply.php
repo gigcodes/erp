@@ -21,7 +21,7 @@ class Reply extends Model
 
     use SoftDeletes;
 
-    protected $fillable = ['category_id', 'store_website_id', 'reply', 'model'];
+    protected $fillable = ['category_id', 'store_website_id', 'reply', 'model', 'push_to_watson'];
 
     protected $dates = ['deleted_at'];
 
