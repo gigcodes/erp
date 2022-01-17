@@ -180,7 +180,8 @@ class SocialPostController extends Controller
 
 		// Message
 		$message=$request->input('message');
-
+        if($this->page_access_token != ""){
+    
         if($config->platform == "facebook"){
             $this->socialPostLog($config->id,$post->id,$config->platform,"message","comes to facebook condition");
 //            dd("sss");
@@ -382,8 +383,10 @@ class SocialPostController extends Controller
                     
 
             }
-            
+        } 
 
+        }else{
+            return redirect()->back()->withError('Error in creating post');
         }
         return redirect()->route('social.post.index',$config->id);
 		
@@ -458,6 +461,7 @@ class SocialPostController extends Controller
         ));
     }
     public function getPageAccessToken($config,$fb,$post_id){
+        $response="";
 
         try {
             $token = $config->token;
@@ -473,17 +477,19 @@ class SocialPostController extends Controller
             $this->socialPostLog($config->id,$post_id,$config->platform,"error","not get accounts->".$e->getMessage());
            
         }
+        if($response!= ""){
     
-        try {
-            $pages = $response->getGraphEdge()->asArray();
-            foreach ($pages as $key) {
-                if ($key['id'] == $page_id) {
-                    return $key['access_token'];
+            try {
+                $pages = $response->getGraphEdge()->asArray();
+                foreach ($pages as $key) {
+                    if ($key['id'] == $page_id) {
+                        return $key['access_token'];
+                    }
                 }
+            } catch (\exception $e) {
+                $this->socialPostLog($config->id,$post_id,$config->platform,"error","not get token->".$e->getMessage());
+            
             }
-        } catch (\exception $e) {
-            $this->socialPostLog($config->id,$post_id,$config->platform,"error","not get token->".$e->getMessage());
-           
         }
     }
     
