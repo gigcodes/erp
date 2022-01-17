@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/products/published', 'ProductController@published');
     Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
     Route::get('/customers/accounts', 'CustomerController@accounts');
+    Route::post('/customer/update', 'CustomerController@customerUpdate');
+    Route::get('/customer/update/history/{id}', 'CustomerController@customerUpdateHistory');
 
 //Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
