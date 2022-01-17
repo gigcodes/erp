@@ -2837,8 +2837,9 @@ class DevelopmentController extends Controller
     public function saveEstimateDate(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
+       
         //$issue = Issue::find($request->get('issue_id'));
-        $estimate_date = date("Y-m-d", strtotime($request->estimate_date));
+        $estimate_date = date("Y-m-d H:i:s", strtotime($request->estimate_date));
         if ($issue && $request->estimate_date) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
@@ -2849,7 +2850,7 @@ class DevelopmentController extends Controller
                 'user_id' => Auth::id(),
             ]);
         }
-
+      //  dd($estimate_date);
         $issue->estimate_date = $estimate_date;
         $issue->save();
 
