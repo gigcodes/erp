@@ -55,7 +55,7 @@
         @endphp
 
     <div class="row mb-5">
-        <div class="col-lg-12 margin-tb">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Quick Supplier Scrapping Info <span class="total-info"></span></h2>
         </div>
     </div>
@@ -71,21 +71,21 @@
                     <i class="fa fa-search"></i>
                 </button>
             </div>
-            <div class="form-group col-md-2">
+      <!--       <div class="form-group col-md-2">
                 <select class="form-control" name="column">
                     <option value="">Select column</option>
                     <option value="last_started_at" {{ request('column') == 'last_started_at' ? 'selected' : '' }}>Last started</option>
                     <option value="least_product" {{ request('column') == 'least_product' ? 'selected' : '' }}>Least product</option>
                 </select>
-            </div>
-            <div class="form-group col-md-2">
+            </div> -->
+    <!--         <div class="form-group col-md-2">
                 <select class="form-control" name="order_by">
                     <option value="">Select orderBy</option>
                     <option value="asc" {{ request('order_by') == 'asc' ? 'selected' : '' }}>ASC</option>
                     <option value="desc" {{ request('order_by') == 'desc' ? 'selected' : '' }}>DESC</option>
                 </select>
-            </div>
-            <div class="form-group col-md-2">
+            </div> -->
+   <!--          <div class="form-group col-md-2">
                 <select class="form-control" name="assigned_to[]" multiple id="assigned_to">
                     @if($assignedUsers)
                     @foreach($assignedUsers as $k=> $_user)
@@ -93,7 +93,7 @@
                     @endforeach
                     @endif
                 </select>
-            </div>
+            </div> -->
             <div class="form-group col-md-2">
                 <button type="submit" class="btn btn-xs btn-sm bg-transparent mt-2">
                     <i class="fa fa-sort"></i>
@@ -316,14 +316,14 @@
                                             </button>
                                         @else
                                             <button type="button" class="btn btn-xs flag-scraper-developer bg-transparent" data-flag="1" data-id="{{ $supplier->id }}">
-                                                <i class="fa fa-flag" style="color: yellow;"></i>
+                                                <i class="fa fa-flag" ></i>
                                             </button>
                                         @endif
                                     </div>
                                 @endif
                                 @if($supplier->children_scraper_count != 0) 
                                     <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-xs btn-link">
-                                        <i class="fa fa-caret-down" style="font-size:24px"></i>
+                                        <i class="fa fa-caret-down" style="font-size:24px;"></i>
                                     </button> 
                                 @endif
                             </td>
