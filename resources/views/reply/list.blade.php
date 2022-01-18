@@ -42,7 +42,7 @@
         <div class="row" style="margin:10px;"> 
             <div class="col-12">
                 <div class="table-responsive">
-                    <table class="table table-bordered" style="table-layout: fixed;">
+                    <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="2%">ID</th>
                             <th width="8%">Store website</th>
