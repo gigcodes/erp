@@ -3509,13 +3509,28 @@ Route::prefix('lead-order')->middleware('auth')->group(function () {
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
-
+Route::get('/hubstuff_activity_command', function () {
+    \Artisan::call('HubstuffActivity:Command');
+});
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'social'], function () {
     Route::get('config', 'SocialConfigController@index')->name('social.config.index');
     Route::post('config/store', 'SocialConfigController@store')->name('social.config.store');
     Route::post('config/edit', 'SocialConfigController@edit')->name('social.config.edit');
     Route::post('config/delete', 'SocialConfigController@destroy')->name('social.config.delete');
+
+
+    Route::get('posts/{id}', 'SocialPostController@index')->name('social.post.index');
+    Route::post('post/store', 'SocialPostController@store')->name('social.post.store');
+    Route::post('post/edit', 'SocialPostController@edit')->name('social.post.edit');
+    Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
+    Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
+    Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
+
+
+
+
+
    
 
 

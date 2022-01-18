@@ -133,7 +133,7 @@ class HubstuffActivityCommand extends Command
                  $HubstuffCommandLogMessage->start_date = $from;
                  $HubstuffCommandLogMessage->end_date = $to;
                  
-                 if($today_week->dayOfWeek == Carbon::MONDAY){
+                 if($today_week->dayOfWeek == Carbon::TUESDAY){
                     $HubstuffCommandLogMessage->message =  $HubstuffCommandLogMessage->message ."-->go to monday condition";
                     dump('Get Report ......');
                     $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
@@ -147,7 +147,7 @@ class HubstuffActivityCommand extends Command
                 $biweekly++;
                 $HubstuffCommandLogMessage->message = "Go to biweekly condition"; 
                 $today_week = new Carbon();
-                if($today_week->dayOfWeek == Carbon::MONDAY){
+                if($today_week->dayOfWeek == Carbon::TUESDAY){
                     $from = date("Y-m-d ", strtotime("last week friday"));
                     $to = date("Y-m-d ", strtotime("last week sunday"));
                     $req->request->add(["start_date" => $from]);
@@ -185,7 +185,7 @@ class HubstuffActivityCommand extends Command
                 $HubstuffCommandLogMessage->message = "Go to fornightly condition";
                 dump('fornightly => '.$user->name.', Today Date =>'.$date_fornightly.', Least Mail Date => '.($last_mail_sent ?? 'No').', Start Date => '.$to.', End Date => '.$from);
 
-                if($date_fornightly == 16){
+                if($date_fornightly == 18){
                     $last_month_first_date = new Carbon('first day of last month');
                     $last_month_last_date =  new Carbon('last day of last month');
                     $from = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date);
