@@ -3525,6 +3525,13 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
     Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
 
+    Route::get('campaigns', 'SocialCampaignController@index')->name('social.campaign.index');
+    Route::post('campaign/store', 'SocialCampaignController@store')->name('social.campaign.store');
+    Route::post('campaign/edit', 'SocialCampaignController@edit')->name('social.campaign.edit');
+    Route::post('campaign/delete', 'SocialCampaignController@destroy')->name('social.campaign.delete');
+    Route::get('campaign/create', 'SocialCampaignController@create')->name('social.campaign.create');
+    Route::post('campaign/history', 'SocialCampaignController@history')->name('social.campaign.history');
+
 
 
 
