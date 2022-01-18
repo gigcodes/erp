@@ -10,21 +10,21 @@
         </form>
     </div>  
     <div class="col-md-12">
-        <table class="table table-bordered table-striped sort-priority-scrapper" style="table-layout: fixed;">
+        <table class="table table-bordered table-striped sort-priority-scrapper">
             <thead>
                 <tr>
-                    <th width="6%">#</th>
-                    <th width="8%">Task</th>
-                    <th width="50%">Communication</th>
-                    <th width="12%">Assigned to</th>
-                    <th width="17%">Created at</th>
+                    <th>#</th>
+                    <th>Task</th>
+                    <th>Communication</th>
+                    <th>Assigned to</th>
+                    <th>Created at</th>
                 </tr>
             </thead>
             <tbody class="conent">
                 @foreach ($developerTasks as $developerTask)
                     <tr>
                         <td>{{ $developerTask->id }}</td>
-                        <td class="Website-task">{{ $developerTask->subject }}
+                        <td>{{ $developerTask->subject }}
                             <br>
                             @if (isset($developerTask->timeSpent) && $developerTask->timeSpent->task_id > 0)
                               Developer : {{ formatDuration($developerTask->timeSpent->tracked) }}
@@ -45,11 +45,15 @@
                             @endphp
 
                          <td class="table-hover-cell " style="word-break: break-all;padding: 5px;">
-                                <div class="form-inline d cls_remove_rightpadding">
-                                    <div class=" cls_textarea_subbox w-100 align-items-center">
-                                        <div class=" d-flex cls_remove_rightpadding align-items-center">
-                                            <textarea rows="1" cols="25" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $developerTask->id }}" name="message"  placeholder="Message" style="width:30%;"></textarea>
-                                            <div id="message-chat-txt-{{ $developerTask->id }}" class="ml-3 Website-task" style="width:30%;">{{ substr($message,0,15) }}</div>
+                            <div class="row">
+                                <div class="col-md-12 form-inline cls_remove_rightpadding">
+                                    <div class="row cls_textarea_subbox w-100 align-items-center">
+                                        <div class="col-md-5 cls_remove_rightpadding align-items-center">
+                                            <textarea rows="1" cols="25" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $developerTask->id }}" name="message"  placeholder="Message"></textarea>
+                                            <div id="message-chat-txt-{{ $developerTask->id }}" class="ml-3">{{ substr($message,0,15) }}</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex">
                                                 <select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 50% !important;" >
                                                     <option  data-vendorid="{{ $developerTask->id }}"  value="">Auto Reply</option>
                                                     <?php
@@ -74,15 +78,20 @@
                                                       ],null,["class" => "form-control send-message-number-".$developerTask->id]); 
                                                     ?>
                                                 </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-1 text-right">
                                             <button class="btn btn-sm btn-image send-message1" data-task-id="{{ $developerTask->id }}"style="padding:0;"><img src="/images/filled-sent.png"></button>
                                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="" data-object="developer_task" data-id="{{ $developerTask->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         </td>   
-                        <td class="Website-task">
+                        <td>
                           {{ ($developerTask->assignedUser) ? $developerTask->assignedUser->name : "N/A" }}
-                        </td >
+                        </td>
                         <td>{{ $developerTask->created_at }}</td>
                     </tr>
                 @endforeach
