@@ -3496,7 +3496,9 @@ Route::prefix('lead-order')->middleware('auth')->group(function () {
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
-
+Route::get('/hubstuff_activity_command', function () {
+    \Artisan::call('HubstuffActivity:Command');
+});
 
 Route::get('command', function () {
 
