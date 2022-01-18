@@ -224,13 +224,13 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="11%">Subject</th>
-                        <th width="14%">Assigned To</th>
-                        <th width="13%">Tracked Time</th>
-                        <th width="11%">Estimated Time</th>
-                        <th width="10%">Delivery Date</th>
-                        <th width="35%">Communication</th>
+                        <th width="7%">ID</th>
+                        <th width="9%">Subject</th>
+                        <th width="12%">Assigned To</th>
+                        <th width="10%">Tracked Time</th>
+                        <th width="9%">Estimated Time</th>
+                        <th width="12%">Delivery Date</th>
+                        <th width="22%">Communication</th>
                         <th width="13%">Status</th>
                     </tr>
                 </thead>
