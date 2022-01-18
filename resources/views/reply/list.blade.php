@@ -50,16 +50,16 @@
                             <th width="15%">Reply</th>
                             <th width="7%">Model</th>
                             <th width="7%">Updated On</th>
-                            <th width="15%">Is Pushed To Watson</th>
-                            <th width="5%">Action</th>
+                            <th width="10%">Is Pushed To Watson</th>
+                            <th width="4%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td id="reply-store-website">{{ $reply->website }}</td>
-                                <td id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
+                                <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
+                                <td class="Website-task" id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
                                 <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
-                                <td id="reply_model">{{ $reply->model }}</td>
+                                <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td id="reply_action">
@@ -238,7 +238,7 @@ $(document).on('click', '.show-reply-history', function() {
                 $.each(data.histories, function(i, item) {
                     $('#reply_history_div table tbody').append(
                         '<tr>\
-                        <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                        <td class="Website-task">'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
                         <td class="Website-task">'+ ((item['last_message'] != null) ? item['last_message'] : '') +'</td>\
                         <td>'+ ((item['created_at'] != null) ? item['created_at'] : '') +'</td>\
                         </tr>'
