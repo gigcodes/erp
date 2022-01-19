@@ -8,6 +8,7 @@ use App\Library\Product\ProductSearch;
 use App\Library\Shopify\Client as ShopifyClient;
 use App\Stage;
 use App\Supplier;
+use App\UpteamLog;
 use Illuminate\Http\Request;
 use App\Services\Scrap\GoogleImageScraper;
 
@@ -112,6 +113,11 @@ class NewProductInventoryController extends Controller
 
         return view("product-inventory.index", compact('category_selection','productCount','suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
     }
+	
+	public function upteamLogs() {
+		$logs = UpteamLog::orderBy('id', 'desc')->paginate(30);
+		return view("product-inventory.upteam_logs", compact('logs'));
+	}
 //
     public function pushInStore(Request $request)
     {
