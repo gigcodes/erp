@@ -91,10 +91,7 @@ class SyncUpteamProducts extends Command
 				$size_value = $product['belt_size'];
 			}
 			
-          
-				
-			$insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
-				[
+			$productToInsert = [
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
 					'stock'=> (int)$product['stock'],
@@ -120,7 +117,12 @@ class SyncUpteamProducts extends Command
 					'is_on_sale'=>1,
 					'price_inr'=>round(Setting::get('usd_to_inr') * $product['rrp']),
 					'price_inr_special'=>round(Setting::get('usd_to_inr') * $product['selling_price_usd']),
-				]
+				];
+          UpteamLog::create(['log_description'=>'Product values to insert '.$product['product_name'].' with details '.json_encode($productToInsert)]);
+			
+				
+			$insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
+				$productToInsert
 			); 
 			ProductSupplier::updateOrCreate(['product_id' => $insertedProd->id], [
                 'product_id' => $insertedProd->id,
