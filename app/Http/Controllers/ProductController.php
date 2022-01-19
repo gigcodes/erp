@@ -4711,7 +4711,7 @@ class ProductController extends Controller
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
                         \Log::info("Product started website found For website" . $website->website);
-                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id, "waiting");
+                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id.' status id '.$product->status_id, 'info', $website->id, "waiting");
                         //currently we have 3 queues assigned for this task.
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
@@ -4720,7 +4720,7 @@ class ProductController extends Controller
 						PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         $i++;
                     } else{
-						ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'success', $website->id, null, null, null, null);
+						ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'error', $website->id, null, null, null, null);
 					}
                 }
             } else{
