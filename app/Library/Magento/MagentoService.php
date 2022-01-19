@@ -143,23 +143,26 @@ class MagentoService
 			$this->meta = $this->getMeta();
 		}
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
+		$this->translations = [];
 		if(in_array('get_langauages_translation', $this->conditions)) {
 			$this->translations = $this->getTranslations();
 			if (!$this->translations) {
 				$this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
 				return false;
 			}
+			
+			 // after the translation that validate translation from her
+			$this->activeLanguages = $this->getActiveLanguages();
+			if (!$this->validateTranslation()) {
+				return false;
+			}
+
+			\Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
+
+			$this->totalRequest += count($this->translations);
 		}
         
-        // after the translation that validate translation from her
-        $this->activeLanguages = $this->getActiveLanguages();
-        if (!$this->validateTranslation()) {
-            return false;
-        }
-
-        \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
-
-        $this->totalRequest += count($this->translations);
+       
 
         \Log::info($this->product->id . " #7 => " . date("Y-m-d H:i:s"));
         $this->sizes = $this->getSizes();
@@ -214,8 +217,9 @@ class MagentoService
 
         // get normal and special prices
 		if(in_array('get_price', $this->conditions)) {
-			$this->storeLog("success", "fetch pricing" . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_store_color']]);
+			$this->storeLog("success", "fetch pricing " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_price']]);
 			$this->getPricing();
+			$this->storeLog("success", "fetched pricing " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_price']]);
 		}
 
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
@@ -824,7 +828,7 @@ class MagentoService
                 $this->log = LogListMagento::log($this->product->id, $res, 'info', $this->storeWebsite->id, 'error');
             }
             unset($productData['product']['media_gallery_entries']);
-            ProductPushErrorLog::log($url, $this->product->id, $res, 'error', $this->storeWebsite->id, $productData, json_decode($res), $this->log->id);
+            ProductPushErrorLog::log($url, $this->product->id, $res, 'error', $this->storeWebsite->id, $productData, $res, $this->log->id);
         } else {
             if ($this->log) {
                 $this->log->message = "Product (" . $this->productType . ") with SKU " . $this->sku . " successfully pushed to Magento";
@@ -1050,6 +1054,7 @@ class MagentoService
                     $ovverridePrice = 0;
                     $segmentDiscount = 0;
                     $dutyPrice = 0;
+					$price = 0;
                     if ($webStore->is_price_ovveride) {
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
