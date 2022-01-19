@@ -1518,6 +1518,9 @@ if (!empty($notifications)) {
 											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('products.push.conditions') }}">Magento product push conditions</a>
+                                            </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                             </li>
@@ -1984,6 +1987,7 @@ if (!empty($notifications)) {
 
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                         <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                                        <a class="dropdown-item" href="{{ route('development.flagtask') }}">Flag Tasks</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                                         <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>

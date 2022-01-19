@@ -19,13 +19,13 @@
     </div>
      <div class="col-md-12">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <input type="datetime-local" name="from_date" id="from_date" class="form-control" placeholder="From Date" />
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <input type="datetime-local" name="to_date" id="to_date" class="form-control" placeholder="To Date" />
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <select class="form-control selectpicker" data-live-search="true" id="username">
               @php
               $users = \App\User::select('name')->get();
@@ -36,21 +36,22 @@
               @endforeach
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
           <button type="button" name="filter" id="filter" class="btn custom-button"style="width: 150px;">Filter</button>
-            <button type="button" name="refresh" id="refresh" class="btn custom-button"style="width: 150px;margin-left:26px">Refresh</button>
+          <button type="button" name="refresh" id="refresh" class="btn custom-button"style="width: 150px;margin-left:26px">Refresh</button>
         </div>
+       
     </div>
     </div>
     <div class="col-md-12">
-    <table class="table table-bordered mt-2" id="userlogs-table" style="table-layout: fixed;">
+    <table class="table table-bordered mt-2" id="userlogs-table" style="table-layout: fixed; border-bottom:1px solid #dadada!important;">
         <thead>
         <tr >
-            <th style="border-bottom: gray;">Id</th>
-            <th style="border-bottom: gray;">URL</th>
-            <th style="border-bottom: gray;">User</th>
-            <th style="border-bottom: gray;">Created At</th>
-            <th style="border-bottom: gray;">Updated At</th>
+            <th style="border-bottom: gray;width: 5% !important;">Id</th>
+            <th style="border-bottom: gray;width: 15%;">URL</th>
+            <th style="border-bottom: gray;width: 5%;">User</th>
+            <th style="border-bottom: gray;width: 5%;">Created At</th>
+            <th style="border-bottom: gray;width: 5%;">Updated At</th>
         </tr>
         </thead>
     </table>
@@ -90,7 +91,8 @@ $(document).ready(function(){
         },
         {
              data:'url',
-             name:'url'
+             name:'url',
+             class:'Website-task'
         },
         {
              data:'user_name',
