@@ -42,8 +42,9 @@ class SendScheduledEmails extends Command
         $created_date = Carbon::now()->format('Y-m-d');
 		$emails = Email::where('schedule_at', 'like',$created_date.'%')->whereNotNull('schedule_at')->where('is_draft', 1)->where('type', 'outgoing')->get();
 		
+		
 		foreach ($emails as $email) {
-			  \App\Jobs\SendEmail::dispatch($email);
+			  $result = \App\Jobs\SendEmail::dispatch($email); 
 		}
 		
     }

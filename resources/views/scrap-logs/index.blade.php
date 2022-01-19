@@ -20,6 +20,20 @@
 				@endfor
 			</select>
 		</div>
+		<div class="col-lg-1">
+			<select name="month" id="monthpicker" class="form-control">
+				@foreach(["","Jan","Feb","Mar","Apr","May","Jun","July","Aug","Sep","Oct","Nov","Dec"] as $mon)
+					<option value="{{$mon}}" @if((request("month") - 1) == $mon) selected @endif>{{$mon}}</option>
+				@endforeach
+			</select>
+		</div>
+		<div class="col-lg-1">
+			<select name="year" id="yearpicker" class="form-control">
+				@foreach(["","19","20","21","22","23","24","25"] as $year)
+					<option value="{{$year}}" @if((request("year") - 1) == $year) selected @endif>{{$year}}</option>
+				@endforeach
+			</select>
+		</div>
 		<div class="col-lg-2">
 			<select name="date" id="datepicker" class="form-control server_id-value">
 				<option value="">Select Server</option>
@@ -31,23 +45,33 @@
 		<div class="col-lg-2">
 			<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $name }}">
 		</div>
-        <div class="col-lg-2">
+        <div class="col-lg-1">
             <select class="form-control" name="download_option">
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
             </select>
         </div>
-		<div class="col-lg-1">
+        <div class="col-lg-1">
 			<button type="button" id="tabledata" class="btn btn-image">
-			<img src="/images/filter.png">
+			<img src="/images/filter.png"style="margin-left:17px;">
 			</button>
 		</div>
-		<div class="col-lg-2 text-rights">
+		<div class="creat-stutush">
+		<div class="text-rights">
 			<button class ="btn-dark" type="button" onclick="window.location='{{url('development/issue/create')}}'">Create an Issue</button>
 		</div>
-		<div class="col-lg-2 text-rights">
+		<div class="text-rights">
 			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#status-create">Create Status</button>
 		</div>
+		<div class="text-rights">
+			<button class ="btn-dark" type="button" data-toggle="modal" id ="logdatahistory" data-target="#logdatacounter">Log History</button>
+		</div>
+
+		<div class="col-lg-2 text-rights">
+			<button class ="btn-dark" type="button" data-toggle="modal" data-target="#logdatastatus">Map Log Status</button>
+		</div>
+
+
 	</div>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
@@ -120,6 +144,73 @@
             </div>
         </div>
     </div>
+    <div id="logdatacounter" class="modal fade" role="dialog">
+    	   <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Data</h4>
+                </div>
+                <div class="modal-body">
+                	<table class="table table-bordered table-striped">
+	                	<thead></thead>
+					    <tbody></tbody>
+                	</table>
+                </div>
+            </div>
+        </div>
+    </div>
+	<div id="datacounter" class="modal fade" role="dialog">
+    	   <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Same Data Count</h4>
+                </div>
+                <div class="modal-body">
+                	<table class="table table-bordered table-striped">
+                	<thead></thead>
+				    <tbody></tbody>
+                	</table>
+                </div>
+            </div>
+        </div>
+    </div>
+	<div id="logdatastatus" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    	   <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Data Status</h4>
+                </div>
+                <div class="modal-body">
+                	<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th width="70%">Log Message</th>
+								<th width="30%">Status</th>
+							</tr>
+						</thead>
+						<tbody> 
+							@foreach($scrapLogsStatus as $scrapLogStatus) 
+								<tr>
+									<td width="70%"> {{$scrapLogStatus['log_message']}} </td>
+									<td width="30%"> 
+										@if($scrapLogStatus['status'] != "" and $scrapLogStatus['status'] != null)
+											{{$scrapLogStatus['status']}}
+										@else 
+											<select name="status" id='log_status_{{$scrapLogStatus["id"]}}' onchange='saveStatus({{$scrapLogStatus["id"]}})'>
+												<option value="">Select Status</option>
+												<option value="success">Success</option>
+												<option value="error">Error</option>
+											</select>
+										@endif
+									</td>
+								</tr>
+							@endforeach
+						</tbody>
+                	</table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="makeRemarkModal" class="modal fade" role="dialog">
 	  <div class="modal-dialog <?php echo (!empty($type) && ($type == 'scrap' || $type == 'email')) ? 'modal-lg' : ''  ?>">
 
@@ -180,11 +271,69 @@
 
 	  </div>
 </div>
+<div id="loghistory" class="modal fade" role="dialog">
+	  <div class="modal-dialog ">
+	  	<!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h4 class="modal-title">log history</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	  	<div class="modal-body">
+	  		<tbody id="log_history"></tbody>
+	  	</div>
+	  	<div class="modal-footer">
+	  	</div>
+	  </div>
+	 </div>
+</div>
+<div id="history" class="modal fade" role="dialog">
+	  <div class="modal-dialog ">
+	  	<!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h4 class="modal-title">Last 7 days history</h4>
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	      </div>
+	  	<div class="modal-body">
+	  		<tbody id="history"></tbody>
+	  	</div>
+	  	<div class="modal-footer">
+	  	</div>
+	  </div>
+	 </div>
+</div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @endsection
 
 @section('scripts')
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script>
+  function saveStatus(log_status_id) {
+	  var log_status = $('#log_status_'+log_status_id).val();
+	  if(log_status == '') {
+		  alert('Select status');
+		  return false;
+	  }
+	  $.ajax({
+				url: BASE_URL+"/scrap-logs/status/save",
+				method:"post",
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data:{'id':log_status_id, "log_status":log_status},
+				cache: false,
+				success: function(data) {
+					 $("#loading-image").hide();
+					toastr['success']('Products updated successfully', 'success');
+				}
+			});
+  }
 	$(document).ready(function() 
 	{
 		tableData(BASE_URL);
@@ -208,13 +357,17 @@
 				headers: {
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				  },
-				data:{'server_id':server_id},
+				data:{'server_id':server_id, month : $("#monthpicker").val(),"year" : $("#yearpicker").val()},
 				cache: false,
 				success: function(data) {
+
 						console.log(data)
-						$("tbody").empty();
+						$("#log-table tbody").empty();
+
+
 						$.each(data.file_list, function(i,row){
-							$("tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button></td></tr>");
+							$("#log-table tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td><td>"+row['status']+"</td><td><button style='padding:3px;' type='button' class='btn btn-image make-remark d-inline' data-toggle='modal' data-target='#makeRemarkModal' data-name='"+row['scraper_id']+"'><img width='2px;' src='/images/remark.png'/></button><button style='padding:3px;' type='button' class='btn btn-image log-history d-inline' data-toggle='modal' data-target='#loghistory' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-sticky-note'></i></button><button style='padding:3px;' type='button' class='btn btn-image history d-inline' data-toggle='modal' data-target='#history' data-filename='"+row['filename']+"' data-name='"+row['scraper_id']+"'><i class='fa fa-history'></i></button></td></tr>");
+
 						});
 						
 					}
@@ -267,5 +420,78 @@
                 $("#makeRemarkModal").find('#remark-list').html(html);
             });
         });
+
+	$(document).on('click', '.log-history', function (e) {
+            e.preventDefault();
+            var filename = $(this).data('filename');           
+            var url = '{{ route("scarp.loghistory",':filename') }}';
+            url = url.replace(":filename", filename);
+             $.ajax({
+                type: 'GET', 	 	
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url
+            })
+             .done(response => {	
+             	var html = '<table class="table table-bordered table-striped"><thead><tr><td width="18%">Date</td><td>Log Message</td></thead><tbody>';
+			    $.each(response, function (key) {
+			    	var log = response[key]['log_messages'];
+			    	var date = response[key]['created_at'];
+			    	 html += '<tr><td>' + date + '</td><td>' + log + '</td></tr>';
+                });
+
+			   html += "</tbody></table>";
+           		$("#loghistory .modal-body").html(html);
+            }); 	            
+	});
+
+	$(document).on('click', '.history', function (e) {
+            e.preventDefault();
+            var filename = $(this).data('filename');           
+            var url = '{{ route("scarp.history",':filename') }}';
+            url = url.replace(":filename", filename);
+             $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url
+            })
+             .done(response => {	
+             	var html = '<table class="table scraper-name table-bordered table-striped"><thead><tr><td width="15%">Scraper Name</td><td>Remark</td><td width="20%">Date</td></thead><tbody>'; 		
+			    $.each(response, function (key) {
+			    	var scraper_name = response[key]['scraper_name'];
+			    	var remark = response[key]['remark'];
+			    	var date = response[key]['created_at'];
+			    	 html += '<tr><td>' + scraper_name + '</td><td>' + remark + '</td><td>' + date + '</td></tr>';
+                });
+			   html += "</tbody></table>";
+           		$("#history .modal-body").html(html);
+            }); 	            
+	});
+
+	$(document).on('click','#logdatahistory',function(e) {  
+		e.preventDefault(); 		
+		$.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route("scrap.logdata") }}',
+                beforeSend: function() {
+                    $("#logdatacounter .modal-body table tbody").html("<h4>Loading data...</h4>");
+                }
+      	})
+      	.done(response => {
+      		$("#loading-image").hide();
+      		var html = '<table class="table table-bordered table-striped"><thead><tr><th style="width: 20%;">Scraper nameee</th><th>Log Message</th><th style="width: 8%;">Log count</th></thead><tbody>';
+      		 $.each(response, function (key) {
+      				html += '<tr><td>' + response[key]['scraper_name'] + '</td><td>'+ response[key]['remark'] + '</td><td>' + response[key]['log_count'] + '</td>';
+      		 });
+      		 html += "</tbody></table>";
+      		$("#logdatacounter .modal-body").html(html);
+      	});
+	});
 </script> 
 @endsection

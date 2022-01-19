@@ -49,7 +49,7 @@ class ZoomMeetingRecordings extends Command
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
+         //   dd($report);
             $zoomKey    = $this->zoomkey;
             $zoomSecret = $this->zoomsecret;
             $meetings   = new ZoomMeetings();

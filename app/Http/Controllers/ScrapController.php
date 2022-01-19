@@ -36,7 +36,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Validator;
-
+use App\Loggers\ScrapPythonLog;
 class ScrapController extends Controller
 {
     private $googleImageScraper;
@@ -450,6 +450,7 @@ class ScrapController extends Controller
         $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
         $this->saveScrapperRequest($scrap_details, $errorLog);
 
+        
         // Create or update product
         app(ProductsCreator::class)->createProduct($scrapedProduct);
 
@@ -459,6 +460,31 @@ class ScrapController extends Controller
         ]);
     }
 
+	public function storeUnknownSizes(Request $request) {
+		$statusId = \App\Helpers\StatusHelper::$unknownSize;
+		$products = Product::where('status_id', $statusId)->select('id', 'size', 'supplier_id')->get();
+		foreach($products as $product) {
+			$size_system = ScrapedProducts::where('product_id', $product->id)->pluck('size_system')->first();
+			$systemSizeId = \App\SystemSize::where('name', $size_system )->pluck('id')->first();
+			$sizes = explode(',', $product['size']);
+			foreach($sizes as $size) {
+				$erp_sizeFound = \App\SizeAndErpSize::where(['size'=>$size])->first();
+				if($erp_sizeFound == null) {
+					 \App\SizeAndErpSize::updateOrCreate(['size'=>$size, 'system_size_id'=>$systemSizeId], ['size'=>$size, 'system_size_id'=>$systemSizeId]);
+				} else if($erp_sizeFound['erp_size_id'] != null) {
+					 $erp_size = SystemSizeManager::where('id', $erp_sizeFound['erp_size_id'])->pluck('erp_size')->first();
+						 
+					 \App\ProductSizes::updateOrCreate([
+						 'product_id' => $product->id, 'supplier_id' => $product->supplier_id, 'size' => $erp_size,
+					  ], [
+						 'product_id' => $product->id, 'quantity' => 1, 'supplier_id' => $product->supplier_id, 'size' => $erp_size,
+					 ]);
+				}
+			}
+		}
+		return redirect(url('/'));
+	}
+	
     public function saveScrapperRequest($scrap_details, $errorLog)
     {
         try {
@@ -2436,7 +2462,103 @@ class ScrapController extends Controller
         }
         return view()->make('scrap.server-statistics',compact('servers', 'data'));
     }
+    public function getPythonLog(Request $request){
+        $storeWebsites = ["sololuxury", "avoir-chic", "brands-labels", "o-labels", "suvandnat", "veralusso"];
+		$devices=["mobile", "desktop", "tablet"];
+
+        if ($request->website || $request->created_at) {
+
+            $query = ScrapPythonLog::orderby('updated_at', 'desc');
+
+           
+            
+
+            if (request('created_at') != null) {
+                $query->whereDate('created_at', request('created_at'));
+            }
+            if (request('website') != null) {
+                $query->where('website', 'LIKE', "%{$request->website}%");
+            }
+
+            
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
+        } else {
+
+            $paginate = (Setting::get('pagination') * 10);
+            $logs     = ScrapPythonLog::orderby('created_at', 'desc')->paginate($paginate);
+
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('scrap.partials.python_logdata', compact('logs'))->render(),
+                'links' => (string) $logs->render(),
+                'count' => $logs->total(),
+            ], 200);
+        }
+
+        return view('scrap.python_log', compact('logs','storeWebsites','devices'));
 
 
+    }
+     
+    public function loginstance(Request $request)
+    {
+    
+        $url ='167.86.88.58:5000/get-logs ';
+        $date=($request->date!='')?\Carbon\Carbon::parse($request->date)->format('m-d-Y'):'';
+        
+    $data=array();
+     //   echo $url;exit;
+     if(!empty($date)){
+        $data=["website"=>$request->website, "date" =>$date,"device" => $request->device];
+        
+     }else{
+        return response()->json([
+            'type'=>'error',
+            'response' =>'Please select Date'
+                  ], 200);
+     }
+    // {"date": "12-10-2021","website":"sololuxury","device" :"desktop"}
+    // dd(json_encode($data));
+    // dd($data);
+  //   \Log::info("INFLUENCER_loginstance -->".$data);
+  $insertData=$data;
+  $data = json_encode($data);
+     $ch = curl_init($url);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+     $result1 = curl_exec($ch);
+
+     if($result1 == "Log File Not Found"){
+        $insertData["log_text"]=$result1;
+    }else{
+        $file_name="python_logs/python_site_log_".$insertData["website"]."_".$insertData["device"].".log";
+        Storage::put($file_name, $result1);
+        $insertData["log_text"]=url('/storage/app/'.$file_name);
+    }
+    
+    ScrapPythonLog::create($insertData);
+     $result = explode("\n",$result1);
+     
+    
+     if(count($result)>1){
+         return response()->json([
+             'type'=>'success',
+             'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
+         ], 200); 
+      
+     }else{
+         return response()->json([
+         'type'=>'error',
+         'response' =>"Log File Not Found"
+         ], 200);
+      
+     }
+
+    }
 
 }

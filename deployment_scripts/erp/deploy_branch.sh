@@ -1,15 +1,22 @@
 BRANCH_NAME=$1
 COMPOSER_UPDATE=$2
 scriptPath="$(cd "$(dirname "$0")"; pwd)"
-cd $scriptPath;
-cd ../..
-git checkout $BRANCH_NAME;
-git pull;
-./artisan migrate
-echo $BRANCH_NAME;
-if $COMPOSER_UPDATE  == "true"
+
+if [ $BRANCH_NAME == "stage" ]
 then
-   composer update
-else 
-    echo "Finished" 
+	ssh -p2112 root@95.216.202.87 "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/erp/deploy_branch.sh stage $COMPOSER_UPDATE"
+else
+	cd $scriptPath;
+	cd ../..
+	git checkout $BRANCH_NAME;
+	git reset --hard origin/$BRANCH_NAME
+	git pull origin $BRANCH_NAME
+	./artisan migrate
+	echo $BRANCH_NAME;
+	if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]
+	then
+		composer update
+	else 
+		echo "Finished" 
+	fi
 fi

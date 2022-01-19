@@ -13,7 +13,7 @@
                 <div class="col-md-12 col-sm-12">
                   <div class="col-10" style="padding-left:0px;">
                         <div>
-                            <form class="form-inline" action="{{ route('lead-order.index') }}" method="GET">
+                            <form class="form-inline form-search-data" action="{{ route('lead-order.index') }}" method="GET">
                                 <div class="form-group col-md-4 pd-3">
                                   <input style="width:100%;" name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" 
                                          placeholder="Customer Name, Lead or Order Id, Product Id">
@@ -29,7 +29,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-md-1 pd-3">
-                                    <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                                    <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
                                 </div>
                             </form>
                         </div>
@@ -46,7 +46,32 @@
     @endif
 
     <div class="productGrid" id="productGrid">
-      @include('lead-order.lead-order-item')
+	<div class="table-responsive-lg">
+		<table class="table table-bordered" style="margin-top: 25px">
+		<thead>
+			<tr>
+				<th style="width: 5%">ID</th>
+				<th style="width: 17%">Customer</th>
+				<th style="width: 8%">Date</th>
+				<th style="width: 5%">Prod ID</th>
+				<th style="width: 17%">Prod</th>
+				<th style="width: 15%">Brand</th>
+				<th style="width: 15%">Default Price</th>
+				<th style="width: 15%">Segement Discount</th>
+				<th style="width: 15%">Duty Price</th>
+				<th style="width: 15%">Override Price</th>
+				<th style="width: 7%">Prod Price</th>
+				<th style="width: 7%">Disc</th>
+				<th style="width: 8%">Final Price</th>
+				<th style="width: 10%">GMU</th>
+			</tr>
+			</thead>
+			<tbody class="infinite-scroll-api-inner">
+			  @include('lead-order.lead-order-item')
+			</tbody>
+		</table>
+	</div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -58,11 +83,11 @@
       });
       $(".select2").select2({tags:true});
     });
-      $(document).on('click', '.pagination a, th a', function(e) {
+      /*$(document).on('click', '.pagination a, th a', function(e) {
         e.preventDefault();
         var url = $(this).attr('href');
         getProducts(url);
-      });
+      });*/
       $(document).on('click', '.check-lead', function() {
         var id = $(this).data('leadid');
         if ($(this).prop('checked') == true) {
@@ -76,7 +101,47 @@
         console.log(attached_leads);
       });
     </script>
+<script>      
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+             $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
 
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('lead-order')}}?page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        $('.infinite-scroll-api-inner').append(data);
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+  </script>    
 @endsection
 @section('scripts')
   

@@ -14,6 +14,7 @@ use App\StoreWebsiteBrand;
 use App\ProductPushErrorLog;
 use App\SystemSizeManager;
 use App\Helpers\ProductHelper;
+use App\PushToMagentoCondition;
         
 class ProductHelper extends Model
 {
@@ -730,15 +731,18 @@ class ProductHelper extends Model
         }
 
         // Check for price range
-        if (((int)$product->price < 62.5 || (int)$product->price > 5000) && !$product->isCharity()) {
-            // Log info
-            //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
-            if(!$log) {
-               $log = LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
-            }
-            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'error',$storeWebsiteId,null,null,$log->id);
-            // Return false
-            return false;
+		$priceRangeCheck = PushToMagentoCondition::where(['condition'=>'price_range_check', 'status'=>1])->first();
+		if($priceRangeCheck != null) {
+			if (((int)$product->price < 62.5 || (int)$product->price > 5000) && !$product->isCharity()) {
+				// Log info
+				//LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
+				if(!$log) {
+				   $log = LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
+				}
+				ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'error',$storeWebsiteId,null,null,$log->id);
+				// Return false
+				return false;
+			}
         }
 
         // Return
@@ -921,5 +925,64 @@ class ProductHelper extends Model
         return $websiteArray;
 
     }
+    
+    public static function getCategoryEuSize($product)
+    {
+      
+        $category = $product->categories;
+        $ids = [];
+        if($category) {
+            $ids[] = $product->category;
+            if($category && $category->parent) {
+                $parentModel = $category->parent;
+                if($parentModel) {
+                    $ids[] = $parentModel->id;
+                    $grandParentModel = $parentModel->parent;
+                    if($grandParentModel) {
+                        $ids[] = $grandParentModel->id;
+                    }
+                }
+            }
+        }
+
+
+        $ids = array_filter($ids);
+
+        $needToMatch = false;
+
+        $categoryIds = \App\SystemSizeManager::groupBy('category_id')->pluck('category_id')->toArray();
+        // this categories id need to fix
+        foreach($categoryIds as $k) {
+            if(in_array($k, $ids)) {
+                $needToMatch = true;
+            }
+        }
+
+        if($needToMatch) {
+
+            $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
+            ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
+            ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+            ->whereIn('category_id',$ids);
+           // $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+
+            return $sizeManager->groupBy("erp_size")->pluck('erp_size')->toArray();
+
+        }else{
+            return [];
+        }
+
+        return [];
+    }
+	
+	public static function getTopParent($categoryId)
+    {
+        $category = Category::find($categoryId);
+        if($category->parent_id == 0) {
+			return $newCat = $category->title;
+        } else {
+			return ProductHelper::getTopParent($category->parent_id);
+		}
+	}
 
 }

@@ -47,6 +47,7 @@ class Supplier extends Model
         'supplier', 
         'size_system_id',
         'address', 
+        'language_id',
         'phone', 
         'default_phone', 
         'whatsapp_number', 
@@ -63,7 +64,8 @@ class Supplier extends Model
         'supplier_status_id',
         'is_blocked',
         'supplier_price_range_id',
-        'est_delivery_time'
+        'est_delivery_time',
+        'product_type'
     ];
 
     protected static function boot()

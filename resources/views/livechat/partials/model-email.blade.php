@@ -99,7 +99,7 @@
      </div>
 </div> --}}
 
-<div id="viewmore" class="modal fade in" role="dialog">
+<div id="viewmore" class="modal chat-list-view-more fade-in" role="dialog">
      <div class="modal-dialog">        
           <div class="modal-content">
                <div class="modal-header">

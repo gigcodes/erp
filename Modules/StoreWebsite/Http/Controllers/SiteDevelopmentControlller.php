@@ -12,12 +12,19 @@ use App\SiteDevelopmentMasterCategory;
 use App\StoreWebsite;
 use App\Task;
 use App\User;
+use App\ChatMessage;
+use App\ChatMessagesQuickData;
+use App\Hubstaff\HubstaffMember;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\TaskCategory;
+
+use App\Http\Controllers\TaskModuleController;
+
 
 class SiteDevelopmentController extends Controller
 {
@@ -127,15 +134,18 @@ class SiteDevelopmentController extends Controller
         $allUsers = User::select('id', 'name')->get();
 
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
+        $store_websites = StoreWebsite::pluck("title","id")->toArray();
+    
+
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'));
     }
 
     public function SendTask(Request $request)
@@ -249,6 +259,8 @@ class SiteDevelopmentController extends Controller
 
             //Cross Check if title is present
             $categoryCheck = SiteDevelopmentCategory::where('title', $request->text)->first();
+            $websiteId = $request->websiteId;
+
 
             if (empty($categoryCheck)) {
                 //Save the Category
@@ -259,18 +271,44 @@ class SiteDevelopmentController extends Controller
 
                 $all_website = StoreWebsite::get();
 
+                $site_id = 0;
+
                 foreach ($all_website as $key => $value) {
                     $site = new SiteDevelopment;
                     $site->site_development_category_id = $develop->id;
                     $site->site_development_master_category_id = $develop->master_category_id;
                     $site->website_id = $value->id;
                     $site->save();
+
+                    if($websiteId == $value->id){
+                        $site_id = $site->id;
+                    }
+
                 }
+                $requests = array(
+                    '_token' => $request->_token,
+                    'task_subject' => $request->text,
+                    'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
+                    'task_asssigned_to' => 6,
+                   // 'task_asssigned_from' => 10410,
+                    'category_id'=>49,
+                    'site_id'=>$site_id,
+                    'task_type'=>0,
+                    'repository_id'=>null,
+                    'cost'=>null,
+                    'task_id'=>null,
+                    'customer_id'=>null,
+                );
+                $check = (new Task)->createTaskFromSortcuts($requests);
+
                 return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
             } else {
 				
 				$all_website = StoreWebsite::get();
 				$i=1;
+
+                $site_id = 0;
+
 				foreach ($all_website as $key => $value) {
 					$develop = SiteDevelopment::where('site_development_category_id',$categoryCheck->id )->where('website_id', $value->id)->first();
 					if(empty($develop)) {
@@ -280,15 +318,39 @@ class SiteDevelopmentController extends Controller
 						$site->site_development_master_category_id = $categoryCheck->master_category_id;
 						$site->website_id = $value->id;
 						$site->save();
+
+                        if($websiteId == $value->id){
+                            $site_id = $site->id;
+                        }
 					}
 						
 				}
+				$designCategoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
+					
+                $requests = array(
+                    '_token' => $request->_token,
+                    'task_subject' => $request->text,
+                    'task_detail' => "TEST".$request->websiteId.' '.$request->text.' '.$request->master_category_id,
+                    'task_asssigned_to' => 6,
+                    'category_id'=>$designCategoryId,
+                    'site_id'=>$site_id,
+                    'task_type'=>0,
+                    'repository_id'=>null,
+                    'cost'=>null,
+                    'task_id'=>null,
+                    'customer_id'=>null,
+                );
+                $check = (new Task)->createTaskFromSortcuts($requests);
+
 				if($i ==1){
 					return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
 				} else{
-					return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
+
+					return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully',]);
 				}
             }
+
+
 
         } else {
             return response()->json(["code" => 500, "messages" => 'Please Enter Text']);
@@ -414,7 +476,6 @@ class SiteDevelopmentController extends Controller
 
     public function editCategory(Request $request)
     {
-
         $category = SiteDevelopmentCategory::find($request->categoryId);
         if ($category) {
             $category->title = $request->category;
@@ -851,4 +912,6 @@ class SiteDevelopmentController extends Controller
         $site->save();
         return response()->json(['message' => "Status updated successfully", 'status' => $allStatus, 'site' => $site]);
     }
+
+    
 }

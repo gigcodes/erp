@@ -86,6 +86,15 @@
                 </select>
             </div>
             <div class="form-group col-md-2">
+                <select class="form-control" name="assigned_to[]" multiple id="assigned_to">
+                    @if($assignedUsers)
+                    @foreach($assignedUsers as $k=> $_user)
+                     <option value="{{$k}}" {{ (request('assigned_to'))?in_array($k,request('assigned_to')) ? 'selected' : '' : '' }}>{{$_user}}</option>
+                    @endforeach
+                    @endif
+                </select>
+            </div>
+            <div class="form-group col-md-2">
                 <button type="submit" class="btn btn-xs btn-sm bg-transparent mt-2">
                     <i class="fa fa-sort"></i>
                 </button>
@@ -272,6 +281,9 @@
                                 </button>
                                 <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list">
                                      <i class="fa fa-tasks"></i>
+                                </button>
+                                <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-tasks-killed bg-transparent" title="Scraper killed histories">
+                                     <i class="fa fa-history"></i>
                                 </button>
                                 <button data-id="{{ $supplier->id }}" type="button" class="btn btn-xs get-position-history bg-transparent" title="Histories">
                                      <i class="fa fa-address-card"></i>
@@ -486,6 +498,9 @@
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
                                              <i class="fa fa-tasks"></i>
+                                        </button>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-killed">
+                                            <i class="fa fa-history"></i>
                                         </button>
                                         <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
                                              <i class="fa fa-address-card"></i>
@@ -1447,7 +1462,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: '/scrap/task-list',
+                url: '{{ route("scrap.task-list")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -1457,6 +1472,28 @@
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".get-tasks-killed",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/killed-list',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper Killed Histories List");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {
@@ -1683,6 +1720,11 @@
             } else {
                 alert('Please enter a message first');
             }
+        });
+
+        $("#assigned_to").select2({
+            placeholder: 'Select Users',
+            allowClear: true
         });
 
         $(document).on("click",".toggle-title-box",function(ele) {

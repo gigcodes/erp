@@ -65,7 +65,18 @@
                                             @endforeach
                                     </select>
                                 </div>
-                            </div>    
+                            </div>   
+                            
+                            <div class="form-group mr-2">
+                                <div class="col pr-0">
+                                    <select class="form-control" name="customer_id">
+                                        <option value="">Select customer</option>
+                                            @foreach(\App\Customer::pluck('name','id')->toArray() as $k => $customer)
+                                                <option value="{{ $k }}">{{ $customer }}</option>
+                                            @endforeach
+                                    </select>
+                                </div>
+                            </div>   
 
                             
                             
@@ -94,15 +105,16 @@
 
     <div class="row ml-2 mr-2">
         <div class="col-md-12">
-            <div class="margin-tb" id="page-view-result">
+            <div class="margin-tb custom-table" id="page-view-result">
                 <div class="table-responsive mt-3">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" style="table-layout: fixed;">
                         <thead>
                           <tr>
-                            <th width="10%">Date</th>
-                            <th width="10%">Message</th>
-                            <th width="10%">Sender</th>
-                            <th width="15%">Action</th>
+                            <th width="5%">Date</th>
+                            <th width="30%">Message</th>
+                            <th width="4%">Sender Type</th>
+                            <th width="4%">Sender Name</th>
+                            <th width="5%">Action</th>
                           </tr>
                         </thead>
                         <tbody id="chatmessagecontent">

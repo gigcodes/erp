@@ -240,6 +240,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
+        $(".select2").select2();
         $('#filter-date').datetimepicker({
             format: 'YYYY-MM-DD'
         });
@@ -386,6 +387,7 @@
                                 $('.user_select_id').html(data);
                                 $('.user_select_id').multiselect('rebuild');
 
+
                             }
                         })
                     }
@@ -397,7 +399,21 @@
                 includeSelectAllOption: true,
                 enableFiltering: true,
                 enableCaseInsensitiveFiltering: true,
+                onChange: function(option, checked) {
+                    if (checked) {
+
+                        var html = "<input type='text' class='form-control' id = 'selected_email_"+$(option).val()+"'  name='selected_email_"+$(option).val()+"' value='"+$(option).attr('rel')+"'/>";
+                        $("#selected_emails").append(html);
+                     }
+                     else {
+                         console.log("#selected_email_"+$(option).val());
+                         $("#selected_email_"+$(option).val()).remove();
+                        //console.log($(option).attr('rel'));
+                     }
+                   // alert("testsss");
+                }
             });
+           
         });
 
         // cc

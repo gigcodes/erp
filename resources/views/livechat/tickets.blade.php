@@ -19,6 +19,7 @@
     .tickets>tbody>tr>td, .tickets>tbody>tr>th, .tickets>tfoot>tr>td, .tickets>tfoot>tr>th, .tickets>thead>tr>td, .tickets>thead>tr>th{
         padding: 6px !important;
     }
+
     .tickets .page-heading{
         font-size: 16px;
         text-align: left;
@@ -134,9 +135,9 @@
                             @endforeach
                         </select>
                     </div>
-                        
+
                     <div class="col-md-2 pl-3 pr-0">
-                        <?php echo Form::select("status_id",["" => "Select Status"] + \App\TicketStatuses::pluck("name","id")->toArray(),request('status_id'),["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
+                        <?php echo Form::select("status_id", ["" => "Select Status"]+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
@@ -147,7 +148,7 @@
                             </span>
                         </div>
                     </div>
-                
+
                     <div class="col-md-2 pl-3 pr-0">
                         <input name="term" type="text" class="form-control"
                                 value="{{ isset($term) ? $term : '' }}"
@@ -190,10 +191,10 @@
 
                 </div>
 
-               
-           
+
+
             </div>
-           
+
         </div>
 {{--        <div class="col-lg-12 margin-tb">--}}
 {{--            <div class="pull-right mt-3">--}}
@@ -203,7 +204,7 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right infinite-scroll">
+    <div class="space-right infinite-scroll chat-list-table">
 
         <div class="table-responsive">
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
@@ -222,6 +223,7 @@
                     <th style="width: 5%;">Ord no</th>
                     <th style="width: 6%;">Ph no</th>
                     <th style="width: 13%;">Msg Box</th>
+                    <th style="width: 13%;">Resolution Date</th>
                     <th style="width: 6%;">Status</th>
                     <th style="width: 5%;">Created</th>
                     <th style="width: 12%;">Action</th>
@@ -235,7 +237,7 @@
 
 
     </div>
-    
+
 
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
@@ -258,7 +260,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <strong>Status</strong>
-                            <input type="text" name="name"  class="form-control"  required> 
+                            <input type="text" name="name"  class="form-control"  required>
                         </div>
                     </div>
 
@@ -327,14 +329,14 @@
     </div>
 
 
-    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
               50% 50% no-repeat;display:none;">
     </div>
-	
+
 	 <div id="ticketsEmails" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-               
+
                     <div class="modal-header">
                         <h4 class="modal-title">Emails sent</h4>
                     </div>
@@ -356,7 +358,7 @@
 								  </tr>
 								</thead>
 								<tbody id="ticketEmailData">
-								
+
 								</tbody>
 							  </table>
 						</div>
@@ -448,7 +450,7 @@ function opnMsg(email) {
 
 		function showEmails(ticketId) {
 			$('#ticketEmailData').html('');
-		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){ 
+		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){
 				$('#ticketEmailData').html(data);
 				$('#ticketsEmails').modal('show');
 		    });
@@ -496,9 +498,9 @@ function opnMsg(email) {
                         $('.infinite-scroll-products-loader').hide();
                     }
                     $('.globalSelect2').select2();
-                    
+
                     $('.infinite-scroll-products-loader').hide();
-                  
+
                     $('.infinite-scroll-pending-inner').append(data.tbody);
                 },
                 error: function () {
@@ -511,7 +513,7 @@ function opnMsg(email) {
         $('#viewmore #contentview').html($(this).data('content'));
         $('#viewmore').modal("show");
     });
-        
+
 
    $(document).on('click', '.send-email-to-vender', function () {
 
@@ -528,7 +530,7 @@ function opnMsg(email) {
 
     });
 
-        
+
    $('#filter_date').datetimepicker({
         format: 'YYYY-MM-DD'
     });
@@ -577,7 +579,7 @@ function opnMsg(email) {
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
                 });
-                
+
             }
 
     function resetSearch(){
@@ -673,7 +675,7 @@ function opnMsg(email) {
             let id = task_id;
             let status = $(obj).val();
             let self = this;
-            
+
 
             $.ajax({
                 url: "{{ route('tickets.status.change')}}",
@@ -685,6 +687,28 @@ function opnMsg(email) {
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+
+        function changeDate(obj, ticket_id) {
+            let id = ticket_id;
+            let date = $(obj).val();
+            let self = this;
+
+            $.ajax({
+                url: "{{ route('tickets.date.change')}}",
+                method: "POST",
+                data: {
+                    id: id,
+                    date: date
+                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function () {
+                    toastr["success"]("Date updated!", "Message")
                 },
                 error: function (error) {
                     toastr["error"](error.responseJSON.message);
@@ -717,18 +741,18 @@ function opnMsg(email) {
                         //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
                         if(message.length > 30)
                         {
-                            var res_msg = message.substr(0, 27)+"..."; 
+                            var res_msg = message.substr(0, 27)+"...";
                             $("#message-chat-txt-"+ticket_id).html(res_msg);
-                            $("#message-chat-fulltxt-"+ticket_id).html(message);    
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
                         }
                         else
                         {
-                            $("#message-chat-txt-"+ticket_id).html(message); 
-                            $("#message-chat-fulltxt-"+ticket_id).html(message);      
+                            $("#message-chat-txt-"+ticket_id).html(message);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);
                         }
-                        
+
                         $("#messageid_"+ticket_id).val('');
-                        
+
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
@@ -783,14 +807,14 @@ function opnMsg(email) {
                 $("#loading-image").hide();
                 toastr["error"]("Please select atleast 1 task!");
             }
-        });  
+        });
 
 </script>
 <script>
     $(document).on("click","#softdeletedata",function() {
-        
-       var id = $(this).data("id"); 
-       
+
+       var id = $(this).data("id");
+
        if(confirm('Do you really want to delete this record'))
        {
            $.ajax({
@@ -807,10 +831,10 @@ function opnMsg(email) {
                toastr["success"](response.message);
                $("#loading-image").hide();
                location.reload();
-           
+
            }).fail(function (response) {
                $("#loading-image").hide();
-               
+
            });
        }
    });
@@ -820,7 +844,7 @@ function opnMsg(email) {
  {
     $('#model_email_txt ').html($(t).data('content'));
     $("#model_email").modal("show");
- }   
+ }
 
   $(document).on('click', '.resend-email-btn', function(e) {
       e.preventDefault();
@@ -844,7 +868,7 @@ function opnMsg(email) {
         }).fail(function(errObj) {
           $("#loading-image").hide();
         });
-    });  
+    });
 </script>
 @endsection
 

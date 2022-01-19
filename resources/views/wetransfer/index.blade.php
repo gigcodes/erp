@@ -42,7 +42,8 @@
                 <th width="10%">Total files</th>
                
             </tr>
-            @foreach($wetransfers as $wetransfer)
+            @foreach($wetransfers as $i=>$wetransfer)
+			@php $files = explode(',', $wetransfer['files_list']); @endphp 
              <tr>
                     <td>{{ $wetransfer->type }}</td>
                     <td class="expand-row table-hover-cell"><span class="td-mini-container">
@@ -56,7 +57,7 @@
                     <td>@if($wetransfer->is_processed == 1) Pending @elseif($wetransfer->is_processed == 2) Success @else Failed @endif</td>
                     <td>{{ $wetransfer->updated_at->format('d-m-Y : H:i:s') }}</td>     
                     <td> 
-                        <button style="padding:3px;" type="button" class="btn btn-success show-files-list d-inline" data-json="{{ $wetransfer->files_list }}" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $wetransfer->id }}"> {{ $wetransfer->files_count ?? 0 }} </button>
+                        <button style="padding:3px;" type="button" class="btn btn-success show-files-list d-inline" data-json="{{ json_encode($files) }}" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $wetransfer->id }}"> @if(isset($files[0]) and $files[0] != ''){{ count($files) }}@else 0 @endif </button>
                         <button style="padding:3px;" type="button" class="btn btn-info show-files-list d-inline re-download-files" data-id="{{ $wetransfer->id }}"> <i class="fa fa-repeat"></i></button>
                     </td>     
             </tr>
@@ -103,7 +104,7 @@
         $(document).on('click', '.show-files-list', function () {
             $('.files-list-body').empty();
             var data = $(this).data();
-            var asset = '{{ asset("public/wetransfer/") }}';
+            var asset = '{{ asset("wetransfer/") }}'+'/'+data.id;
             if ( data.json !== null ) {
                 $.each(data.json, function (index, valueOfElement) { 
                     $('.files-list-body').append('<div class="form-group"><a href="'+asset+'/'+valueOfElement+'"> '+valueOfElement+' </a></div>');
@@ -127,11 +128,15 @@
 				beforeSend: function () {
 						$("#loading-image").show();
 					},
-				}).done( function(response) {
+				}).done( function(response) { 
 					if (response.status === true) {
 						toastr['success'](response.message);
 					}else{
-                        toastr['error'](response.message);
+						if(response.message) {
+							toastr['error'](response.message);
+						} else {
+							toastr['error'](response);
+						}
 					}
 					$("#loading-image").hide();
 				}).fail(function(errObj) {

@@ -26,6 +26,7 @@ use Plank\Mediable\Media;
 use App\StoreSocialContent;
 use App\InstagramPostLog;
 use App\InstagramLog;
+use App\InstagramUserLog;
 use UnsplashSearch;
 use App\Jobs\InstaSchedulePost;
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
@@ -361,6 +362,7 @@ class InstagramPostsController extends Controller
                         $influencer = new ScrapInfluencer;
                         $influencer->name = $postJson['Owner'];
                         $influencer->url = $postJson['URL'];
+                        $influencer->profile_url = $postJson['profile_url'];
                         $influencer->followers = $postJson['Followers'];
                         $influencer->following = $postJson['Following'];
                         $influencer->posts = $postJson['Posts'];
@@ -734,6 +736,11 @@ class InstagramPostsController extends Controller
         return json_encode($users);
         
     }
+	
+	public function instagramUserLogs() {
+		$logs = InstagramUserLog::orderby('id', 'desc')->paginate(20);
+		return view('instagram.log',compact('logs'));
+	}
 
     public function userPost($id)
     {
@@ -742,22 +749,31 @@ class InstagramPostsController extends Controller
         $ig = new \InstagramAPI\Instagram();
 
         try {
-            $ig->login('satyam_t', 'Schoolrocks93');
+			$account = \App\Account::where('platform','instagram')->where('status',1)->first();
+			$ig->login($account->last_name, $account->password);
+          // $ig->login('technodeviser03', '123321deviser*');
+            //$ig->login('satyam_t', 'Schoolrocks93');
+			$this->instagramUserLog($account->id,"success",'Logged In');
         } catch (\Exception $e) {
-            $msg = 'Instagram login failed: '.$e->getMessage();
+			$msg = 'Instagram login failed:  - '.$e->getMessage();
+			$this->instagramUserLog($account->id,"error",$msg);
             return response()->json(['message' => $msg, 'code' => 413],413);
         }
         try {
             $user_id = $ig->people->getUserIdForName($user->username);
+			$this->instagramUserLog($account->id,"success",'User Id found '. $user_id);
         } catch (\Exception $e) {
             $msg = 'Something went wrong: '.$e->getMessage();
+			$this->instagramUserLog($account->id,"error",$msg);
             return response()->json(['message' => $msg, 'code' => 413],413);
         }
 
         try {
             $feed = $ig->timeline->getUserFeed($user_id);
+			$this->instagramUserLog($account->id,"success",'Feed retreived ');
         } catch (\Exception $e) {
             $msg = 'Something went wrong: '.$e->getMessage();
+			$this->instagramUserLog($account->id,"error",$msg);
             return response()->json(['message' => $msg, 'code' => 413],413);
         }
 
@@ -773,6 +789,7 @@ class InstagramPostsController extends Controller
             $caption = $media['caption']['text'];
             $user_id = $user_id;
             $mediaDetail = [];
+			$this->instagramUserLog($account->id,"success",'Media type is '.$media['media_type'] .' for post id '. $postId);
             if ($media['media_type'] === 1) {
                 $mediaDetail[] = [
                     'media_type' => 1,
@@ -829,6 +846,7 @@ class InstagramPostsController extends Controller
             $media->media_url = json_encode($mediaDetail);
             $media->posted_at = now();
             $media->save();
+			$this->instagramUserLog($account->id,"success",'Post saved.');
             $mediaId = $media->id;
 
             foreach ($mediaDetail as $mediaFile) {
@@ -1338,6 +1356,15 @@ class InstagramPostsController extends Controller
 
     public function instagramLog($account_id,$title,$description){
             $InstagramLog = new InstagramLog();
+            $InstagramLog->account_id = $account_id;
+            $InstagramLog->log_title = $title;
+            $InstagramLog->log_description = $description;
+            $InstagramLog->save();
+            return true;
+    }
+
+    public function instagramUserLog($account_id,$title,$description){
+            $InstagramLog = new InstagramUserLog();
             $InstagramLog->account_id = $account_id;
             $InstagramLog->log_title = $title;
             $InstagramLog->log_description = $description;

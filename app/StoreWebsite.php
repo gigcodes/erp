@@ -89,7 +89,13 @@ class StoreWebsite extends Model
         'icon',
         'is_price_override',
         'repository_id',
-		    'semrush_project_id'
+		'semrush_project_id',
+        'logo_color',  
+        'logo_border_color',  
+        'text_color',   
+        'border_color',   
+        'border_thickness',
+        'sale_old_products'
     ];
 
     const DB_CONNECTION = [
@@ -123,6 +129,11 @@ class StoreWebsite extends Model
             return $urlStr = 'http://' . ltrim($url, '/');
         }
         return $url;
+    }
+
+    public function storeWebsiteProductPrice()
+    {
+        return $this->hasOne(\App\StoreWebsiteProductPrice::class, "store_website_id", "id");
     }
 
     /**

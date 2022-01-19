@@ -15,7 +15,7 @@
                       </span>
                    </div>
                 </div>
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                <button type="submit" class="btn btn-xs"><i class="fa fa-filter ml-3"></i></button>
              </form>
           </div>
        </div>
@@ -28,7 +28,7 @@
                    <tr>
                       <th width="5%">Time</th>
                       <?php foreach($totalServers as $totalServer){ ?>
-                            <th>{{ $totalServer }}</th>
+                            <th width="8%">{{ $totalServer }}</th>
                       <?php } ?>
                    </tr>
                 </thead>
@@ -36,18 +36,51 @@
                    <?php foreach($timeSlots as $k => $timeSlot) { ?> 
                        <tr>
                           <td>{{ date("g:i A",strtotime($timeSlot.":00")) }}</td>
-                          <?php foreach($totalServers as $s => $totalServer){ ?>
-                              <td class="p-2">
+                          <?php foreach($totalServers as $s => $totalServer){ 
+                              $rndid = $totalServer.'_'.rand(10,10000000);
+                              ?>
+                              <td class="p-2 expand-row-msg" data-name="error" data-id="{{$rndid}}">
                                   <?php
                                     if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
                                         $loops = $listOfServerUsed[$k][$totalServer];
                                         foreach($loops as $l) {
-                                            $deleteBtn = "";
-                                            if(!empty($l['pid'])) {
-                                                $deleteBtn = '&nbsp;<i data-server-id="'.$totalServer.'" data-p-id="'.$l['pid'].'" class="fa fa-window-close stop-job" aria-hidden="true"></i>';
-                                            }
-                                            echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].$deleteBtn.'</span><br>';
+                                            ?>
+                                            <span class="show-short-error-{{$rndid}}">{{ str_limit($l['memory_string'], 13, '..')}}</span>
+                                            <span style="word-break:break-all;" class="show-full-error-{{$rndid}} hidden">{{$l['memory_string']}}</span>
+                                            <?php
+                                            break;
                                         }
+
+                                        ?>
+                                        <button class="btn btn-sm p-0" data-toggle="modal" data-target="#scrapers-{{$totalServer}}-{{$k}}"><i class="fa fa-info-circle"></i></button>
+                                        <div class="modal fade" id="scrapers-{{$totalServer}}-{{$k}}" tabindex="-1" role="dialog" aria-labelledby="scrapers" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header p-0 pt-2 pl-2 pr-2">
+                                                        <h5 class="modal-title" id="exampleModalLongTitle">All Scrapers</h5>
+                                                        <button type="button" class="close btn-xs p-0 mr-2" data-dismiss="modal" aria-label="Close">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <ul class="list-group">
+                                                            <?php
+                                                            $loops = $listOfServerUsed[$k][$totalServer];
+                                                            foreach($loops as $l) {
+                                                                $deleteBtn = "";
+                                                                if(!empty($l['pid'])) {
+                                                                    $deleteBtn = '<button class="btn btn-xs pull-right"> <i class="fa fa-trash stop-job" data-server-id="'.$totalServer.'" data-p-id="'.$l["pid"].'"></i> </button>';
+                                                                }
+                                                                echo '<li class="list-group-item">'.$l['scraper_name'].$deleteBtn.'</li>';
+
+                                                            }
+                                                            ?>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php
                                     }
                                   ?>
                               </td>
@@ -70,6 +103,16 @@
             $('.date-type').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
+        });
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+            var id = $(this).data('id');
+            console.log(name);
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
         });
 
         $(document).on("click",".stop-job",function(e) {

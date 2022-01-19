@@ -33,33 +33,78 @@
         <h2 class="page-heading">New Google Analytics</h2>
     </div>
 </div>
-<form action="" method="get">
+<form action="" method="get">   
     
-        <div class="col-md-2">
-            <label > Select website: </label>
+        <div class="col-md-1">
+           
             <div class="form-group">
                 <select name="website" class="form-control">
-                    <option value="">Select website</option>
+                    <option value=""> website</option>
                     @foreach ($website_list as $item)
                         <option value="{{ $item['id'] }}" {{ request('website') == $item['id'] ? 'selected' : null }}> {{ $item['website'] }} </option>
                     @endforeach
                 </select>
             </div>
         </div>
+        <div class="col-md-1">
+            
+            <div class="form-group">
+                <select name="browser" class="form-control">
+                    <option value=""> Browser</option>
+                    @foreach ($browsers as $item)
+                        <option value="{{ $item }}" {{ request('browser') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+           
+            <div class="form-group">
+                <select name="os" class="form-control">
+                    <option value=""> Os</option>
+                    @foreach ($os as $item)
+                        <option value="{{ $item }}" {{ request('os') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+            
+            <div class="form-group">
+                <select name="country" class="form-control">
+                    <option value=""> Country</option>
+                    @foreach ($countries as $item)
+                        <option value="{{ $item }}" {{ request('country') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+           
+            <div class="form-group">
+                <select name="user_type" class="form-control">
+                    <option value=""> User Type</option>
+                    @foreach ($user_types as $item)
+                        <option value="{{ $item }}" {{ request('user_type') == $item ? 'selected' : null }}> {{ $item }} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+     
         <div class="col-md-2">
-            <label >Start date : </label>
+            
             <div class="form-group">
                 <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
             </div>
         </div>
         <div class="col-md-2">
-            <label >End date : </label>
+            
             <div class="form-group">
                 <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
             </div>
         </div>
-        <div class="form-group col-md-3 pt-4" style="">
-            <label >  </label>
+        <div class="form-group col-md-1 pt-2" style="">
+           
             <button class="btn btn-image search"><img src="https://erp.theluxuryunlimited.com/images/search.png" alt="Search" style="cursor: nwse-resize; width: 0px;"></button>
             <a href="{{ url('/display/analytics-data') }}" class="btn btn-image">
                 <i class="fa fa-history" aria-hidden="true"></i>
@@ -268,29 +313,48 @@
 </div> --}}
 
 <div class="col-md-12">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" style="table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width:3%">Website</th>
-                <th style="width:3%">Browser</th>
-                <th style="width:3%">OS</th>
-                <th style="width:3%">Country</th>
-                <th style="width:3%">Iso Code</th>
-                <th style="width:3%">User Type</th>
-                <th style="width:10%">Page</th>
-                <th style="width:7%">Avg Time</th>
-                <th style="width:7%">Page Views</th>
-                <th style="width:4%">U. Page Views</th>
-                <th style="width:4%">Exist Rate</th>
+                <th style="width:3.5%">Website</th>
+                <th style="width:3.5%">Browser</th>
+                <th style="width:3.5%">OS</th>
+                <th style="width:3.5%">Country</th>
+                <th style="width:4.5%">Iso Code</th>
+                <th style="width:5%">User Type</th>
+                <th style="width:6%">Page</th>
+                <th style="width:4.5%">Avg Time</th>
+                <th style="width:5%">Page Views</th>
+                <th style="width:6%">U. Page Views</th>
+                <th style="width:5%">Exist Rate</th>
                 <th style="width:4%">Entrances</th>
-                <th style="width:5%">Entrance Rate</th>
-                <th style="width:3%">Age</th>
+                <th style="width:6%">Entrance Rate</th>
+                <th style="width:2%">Age</th>
                 <th style="width:3%">Gender</th>
                 <th style="width:4%">Session</th>
                 <th style="width:4%">Date</th>
             </tr>
         </thead>
         <tbody>
+            <tr>
+                <td class="Website-task"title="theunlimitedlulxury.com">theunlimitedlulxury.com</td>
+                <td>chrome</td>
+                <td>windows</td>
+                <td class="Website-task"title="india">india</td>
+                <td>IN</td>
+                <td class="Website-task"title="Returuning Visitor">Returuning Visitor</td>
+                <td class="Website-task"title="video/6254471?key=84644b22536310e75ea9cc07535f06a1">video/6254471?key=84644b22536310e75ea9cc07535f06a1</td>
+                <td>22.667</td>
+                <td>4</td>
+                <td>2</td>
+                <td>25.0</td>
+                <td>2</td>
+                <td>50</td>
+                <td></td>
+                <td></td>
+                <td>2</td>
+                <td class="Website-task"title="2021-11-25">2021-11-25</td>
+            </tr>
             @foreach ($google_analytics_data as $data)
                 <tr>
                     <td>{{ $data->website }}</td>

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class ReplyCategory extends Model
 {
 
-    public $fillable = ['name', 'parent_id'];
+    public $fillable = ['name', 'parent_id', 'pushed_to_watson', 'dialog_id', 'intent_id'];
 
     public function approval_leads()
     {
@@ -56,5 +56,37 @@ class ReplyCategory extends Model
     {
         return $this->hasMany('App\Reply', 'category_id')->where('model', 'Supplier');
     }
+
+    public function parent()
+    {
+        return $this->hasOne('App\ReplyCategory', 'id', 'parent_id');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'category_id');
+    }
+
+    public function parentList()
+    {
+        $parent = $this->parent;
+        $arr    = [];
+        if ($parent) {
+            $arr[]  = $parent->name;
+            $parent = $parent->parent;
+            if ($parent) {
+                $arr[]  = $parent->name;
+                $parent = $parent->parent;
+                if ($parent) {
+                    $arr[]  = $parent->name;
+                    $parent = $parent->parent;
+                }
+            }
+        }
+
+        return implode(" > ", array_reverse($arr));
+    }
+
+
 
 }

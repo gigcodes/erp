@@ -21,7 +21,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Users Management (<span id="user_count">{{ $data->total() }}</span>)</h2>
+            <h2 class="page-heading">Users Managementddfdfg (<span id="user_count">{{ $data->total() }}</span>)</h2>
             <div class="pull-left">
                 <div class="form-group">
                         <div class="row">
@@ -60,6 +60,7 @@
               <thead>
             <tr>
                 <th>No</th>
+                <th>Sender Number</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Roles</th>
@@ -161,6 +162,22 @@
             alert('No response from server');
         });
     }
+    $(".number .whatsapp_number").change(function(e){        
+            e.preventDefault();
+            $("#loading-image").show();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('user.changewhatsapp') }}",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    user_id: $(this).attr('data-user-id'),
+                    whatsapp_number:$(this).val()
+                },
+                success:function(response){
+                    $("#loading-image").hide();
+                }
+            });
+        });
 </script>
 
 @endsection

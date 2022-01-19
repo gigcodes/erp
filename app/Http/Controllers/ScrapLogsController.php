@@ -14,11 +14,35 @@ class ScrapLogsController extends Controller
     {	
 		$name = "";
 		$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
-		return view('scrap-logs.index',compact('name','servers'));
+		/*$scrapLogs = \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
+    	->whereNotNull('scrap_type')
+    	->groupBy('scrap_type','log_messages')
+    	->get(); */
+		
+		$scrapLogsStatus =  \App\LogMessageStatus::all();
+		return view('scrap-logs.index',compact('name','servers', 'scrapLogsStatus'));
     }
 
+	public function updateLogStatus(Request $request) {
+		$input = $request->input();
+		\App\LogMessageStatus::where('id', $input['id'])->update(['status'=>$input['log_status']]);
+		return 'success';
+	}
+
 	public function filter($searchVal, $dateVal, Request $request) 
-    {
+    { 
+		if(!empty($request->get("month"))) {
+			$month = $request->get("month");
+		}else{
+			$month = Carbon::now()->format('M');
+		}
+
+		if(!empty($request->get("year"))) {
+			$month .= $request->get("year");
+		}else{
+			$month .= Carbon::now()->format('y');
+		}
+
     	$serverArray = [];
     	$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
     	if ($request->server_id !== null) {
@@ -28,32 +52,52 @@ class ScrapLogsController extends Controller
     		$serverArray[] = $server['server_id'];
     	}
 		
-		$file_list = [];
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
+		
+	/*	$fileName = "spinnaker-16Oct21-13:01.log";
+		 $day_of_file = explode('-', $fileName);
+			$day_of_file = str_replace('.log', '', $day_of_file);
+			if( $day_of_file[1] == $dateVal.$month ) {
+				dd('matched');
+			}
+			echo $dateVal.$month;
+			*/
+
+		
 		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
-		$date = $dateVal;
+		
+	   $date = $dateVal;
+
+
+	    $date = strlen($dateVal) == 1  ? "0$dateVal"  : $dateVal;
+
 
         $lines = [];
         $log_status= '';
 		$status_lists = DB::table('scrapper_log_status')->get();
 		
         foreach ($files as $key => $val) {
-			
-            $day_of_file = explode('-', $val->getFilename());
+			$day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
 
-            if( ( (end($day_of_file) == $date) || (end($day_of_file) == '0'.$date) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-				
+		
+          // if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+
+
+
+            if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  strtolower($day_of_file[1]) == strtolower($date.$month)) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+
 				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
 				}
 
-				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				
+				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				//$file_path_new = storage_path(config('env.SCRAP_LOGS_FOLDER'))."/".$val->getRelativepath()."/".$val->getFilename();
 
 				$file = file($file_path_new);
 				
@@ -83,15 +127,18 @@ class ScrapLogsController extends Controller
 				if($log_msg == "") {
 					$log_msg = "Log data not found.";	
 				}
+				$logStatus = \App\LogMessageStatus::firstOrCreate(['log_message'=>$log_msg], ['log_message'=>$log_msg]);
 				
                 array_push($file_list, array(
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
 	        			"log_msg"=>$log_msg,
-	        			"status"=>$log_status,
+	        		//	"status"=>$log_status,
+	        			"status"=>$logStatus['status'],
 	        			"scraper_id"=>$file_name_str
 	    			)
 	    		);
+				
 			}
 		}
 
@@ -193,6 +240,32 @@ class ScrapLogsController extends Controller
 		
 		//return  response()->json(["file_list" => $file_list]);
     }
+
+    public function logdata(){
+    	return \App\ScrapRemark::select('scraper_name','remark',\DB::raw('count(*) as log_count'),\DB::raw("group_concat(scraper_name SEPARATOR ' ') as scraper_name"))
+    	->where('scrap_field','last_line_error')
+    	->whereDate('created_at',date('Y-m-d'))
+    	->groupBy('remark')
+    	->get();	
+    }
+
+    public function loghistory($filename){
+
+    	$day_of_file = explode('-', $filename);
+		$day_of_file = str_replace('.log', '', $day_of_file);
+
+		$fileLogs = [];
+
+		$scraper = \App\Scraper::where('scraper_name',$day_of_file[0])->first();
+		if($scraper) {
+	    	$toDate = date('Y-m-d',strtotime('+1 day'));    	
+			$fromDate = date('Y-m-d', strtotime('-7 days'));		
+			$fileLogs = \App\ScrapLog::where('scraper_id',$scraper->id)->whereBetween('created_at',[$fromDate, $toDate])->get();
+		}
+
+		return $fileLogs;
+    }
+
     public function fetchlog()
     {
     	$file_list = [];
@@ -209,6 +282,16 @@ class ScrapLogsController extends Controller
 			);
 		}
 		return  response()->json(["file_list" => $file_list]);
+    }
+
+	public function history(Request $request)
+    {
+		$day_of_file = explode('-', $request->filename);
+		$day_of_file = str_replace('.log', '', $day_of_file);
+
+		$cdate = Carbon::now()->subDays(7);
+		$last7days =  \App\ScrapRemark::where('scraper_name','like',$day_of_file[0])->where('created_at', '>=', $cdate)->get();
+		return $last7days;
     }
 
     public function fileView($filename, $foldername) {

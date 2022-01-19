@@ -26,11 +26,11 @@
             {{ str_limit($ticket->subject,6,'..')}}
         </a>
     </td>
-    <td>
-       
-        
-            {{ str_limit($ticket->message,6,'..')}}
-       
+    <td class="chat-msg">
+
+
+            {{ $ticket->message}}
+
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>
     <td class="row-ticket" data-content="Brand : {{ !empty($ticket->brand) ? $ticket->brand : 'N/A' }}<br>
@@ -63,36 +63,41 @@
                     <i class="fa fa-paper-plane"></i>
                 </button>
                 <?php
-                    $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at','desc')->get();
-                    $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
-                    foreach( $messages as $m)
-                    {                  
-                        $table.="<tr><td>".$m->created_at."</td>";
-                        $table.="<td>".$m->message."</td>";
-                        $table.="<td>".$m->message_en."</td></tr>";
-                    }
-                    $table.="</tbody></table>";
-                ?>
+$messages = \App\ChatMessage::where('ticket_id', $ticket->id)->orderBy('created_at', 'desc')->get();
+$table = " <table class='table table-bordered ticket-list' ><thead><tr><td>Date</td><td>orignal</td><td>Message</td></tr></thead><tbody>";
+foreach ($messages as $m) {
+    $table .= "<tr><td>" . $m->created_at . "</td>";
+    $table .= "<td>" . $m->message . "</td>";
+    $table .= "<td>" . $m->message_en . "</td></tr>";
+}
+$table .= "</tbody></table>";
+?>
                 <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-content="{{ $table }}">
                     <i class="fa fa-comments-o"></i>
                 </a>
             </div>
         </div>
     </td>
-
+    <td>
+        <div class="btn-toolbar" role="toolbar">
+                <div class="w-75">
+                    <input type="date" class="form-control" onchange="changeDate(this,{{$ticket->id}})" id="date_{{ $ticket->id }}" value="{{($ticket->resolution_date)?date('Y-m-d',strtotime($ticket->resolution_date)):''}}" name="resolution_date" placeholder="Resolution date"/>
+                </div>
+        </div>
+    </td>
     <td>
         <?php echo Form::select(
-                                "ticket_status_id",
-                                 $statusList,$ticket->status_id,
-                                 [
-                                     "class" => "resolve-issue border-0 globalSelect2",
-                                     "onchange" => "resolveIssue(this,".$ticket->id.")",
-                           ]); ?>
+    "ticket_status_id",
+    $statusList, $ticket->status_id,
+    [
+        "class" => "resolve-issue border-0 globalSelect2",
+        "onchange" => "resolveIssue(this," . $ticket->id . ")",
+    ]); ?>
     </td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
             {{ str_limit(date('d-m-y', strtotime($ticket->created_at)),5,'..')}}
-            
+
         </a>
         </td>
     <td>
@@ -105,17 +110,29 @@
                   data-id="{{$ticket->id}}">
             <i class="fa fa-envelope"></i>
           </button>
-
-          <button type="button"
-                  class="btn btn-xs load-communication-modal "
-                  data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
-                  data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
-                  data-object="ticket" data-id="{{$ticket->id}}"
-                  data-load-type="text"
-                  data-all="1"
-                  title="Load messages">
-                  <i class="fa fa-whatsapp"></i>
-          </button>
+          @if($ticket->customer_id > 0)
+              <button type="button"
+                      class="btn btn-xs load-communication-modal "
+                      data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
+                      data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
+                      data-object="customer" data-id="{{$ticket->customer_id}}"
+                      data-load-type="text"
+                      data-all="1"
+                      title="Load messages">
+                      <i class="fa fa-whatsapp"></i>
+              </button>
+          @else
+             <button type="button"
+                      class="btn btn-xs load-communication-modal "
+                      data-is_admin="{{ Auth::user()->hasRole('Admin') }}"
+                      data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"
+                      data-object="ticket" data-id="{{$ticket->id}}"
+                      data-load-type="text"
+                      data-all="1"
+                      title="Load messages">
+                      <i class="fa fa-whatsapp"></i>
+              </button>
+          @endif
 
           <button type="button"
                   class="btn btn-xs btn-assigned-to-ticket "
@@ -124,37 +141,30 @@
             </button>
 
             <?php
-        $messages = \App\Email::where('model_type','App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at','desc')->get();
-        $table=" <table class='table table-bordered' ><thead><tr><td>Date</td><td>Original</td><td>Message</td></tr></thead><tbody>";
-        $tableemail=" <table style='width:1000px' class='table table-bordered' ><thead><tr><td>Date</td><td>Sender</td><td>Receiver</td><td>Mail <br> Type</td><td>Subject</td><td>Message</td><td>Action</td></tr></thead><tbody>";
- 
-        
-        foreach( $messages as $m)
-        {
-                    
-            $table.="<tr><td>".$m->created_at."</td>";
-            $table.="<td>".$m->message."</td>";
-            $table.="<td>".$m->message_en."</td></tr>";
+$messages = \App\Email::where('model_type', 'App\Tickets')->where('model_id', $ticket->id)->orderBy('created_at', 'desc')->get();
+$table = " <table class='table table-bordered' ><thead><tr><td>Date</td><td>Original</td><td>Message</td></tr></thead><tbody>";
+$tableemail = " <table style='width:1000px' class='table table-bordered' ><thead><tr><td>Date</td><td>Sender</td><td>Receiver</td><td>Mail <br> Type</td><td>Subject</td><td>Message</td><td>Action</td></tr></thead><tbody>";
 
-            $tableemail.="<tr><td>".$m->created_at."</td>";
-            $tableemail.="<td>".$m->from."</td>";
-            $tableemail.="<td>".$m->to."</td>";
-            $tableemail.="<td>".$m->type."</td>";
-            $tableemail.="<td>".$m->subject."</td>";
-            $tableemail.="<td>".$m->message."</td>";
-            $tableemail.='<td><a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="'.$m->id.'" >
+foreach ($messages as $m) {
+
+    $table .= "<tr><td>" . $m->created_at . "</td>";
+    $table .= "<td>" . $m->message . "</td>";
+    $table .= "<td>" . $m->message_en . "</td></tr>";
+
+    $tableemail .= "<tr><td>" . $m->created_at . "</td>";
+    $tableemail .= "<td>" . $m->from . "</td>";
+    $tableemail .= "<td>" . $m->to . "</td>";
+    $tableemail .= "<td>" . $m->type . "</td>";
+    $tableemail .= "<td>" . $m->subject . "</td>";
+    $tableemail .= "<td>" . $m->message . "</td>";
+    $tableemail .= '<td><a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="' . $m->id . '" >
                     <i class="fa fa-repeat"></i> </a></td></tr>';
-            
-            
-           
 
-            
-        }
-        $table.="</tbody></table>";
-        $tableemail.="</tbody></table>";
-        
-         
-       ?>
+}
+$table .= "</tbody></table>";
+$tableemail .= "</tbody></table>";
+
+?>
         <a href="javascript:void(0)" class="btn btn-xs  row-ticket " data-content="{{ $table}}">
             <i class="fa fa-envelope"></i>
         </a>
@@ -164,8 +174,8 @@
 
         </a>
             <button type="button" class="btn btn-xs  btn-delete-template no_pd" id="softdeletedata" data-id="{{$ticket->id}}">
-                <i class="fa fa-trash"></i></button> 
-				
+                <i class="fa fa-trash"></i></button>
+
 		<button type="button" class="btn btn-xs  no_pd" onclick="showEmails('{{$ticket->id}}')">
                 <i class="fa fa-envelope" ></i></button>
 

@@ -22,7 +22,9 @@ div#flowPathModal .cross_sec_label label {     width: 100%;     float: left;    
 div#flowPathModal .cross_sec_label label::after {     font-family: 'FontAwesome' !important;     content: '\f0e0 ';     position: absolute;     left: 0;     font-size: 12px;     color: #fff;     top: 50%;     transform: translateY(-50%);     transition: all ease 0.3s; }
 div#flowPathModal .cross_sec_label .cross_sub_label {     width: 100%;     float: left; }
 div#flowPathModal .cross_sec_label .cross_sub_label label {     width: 100%;     float: left; }
-div#flowPathModal .cross_first_remove {     text-align: right; }
+div#flowPathModal .cross_first_remove { padding: 0 15px 0 0 !important;    text-align: right !important; }
+div#flowPathModal .cross.cross_first .cross_first_label {     padding: 0; }
+div#flowPathModal .cross.cross_first .cross_first_label_time {     padding: 0 12px; }
 div#flowPathModal .cross_sec_remove {     text-align: right; }
 div#flowPathModal .cross_sec_remove i.fa.fa-pencil-square-o {     padding: 0 10px 0 0; }
 div#flowPathModal .modal-header { 	  display: -ms-flexbox;     display: -webkit-flex;     display: flex; 	   -webkit-align-items: center;     -ms-flex-align: center;     align-items: center; }
@@ -35,6 +37,20 @@ div#flowPathModal a {     color: rgba(0, 0, 0, 0.5); }
 .erp_yes_no_condition_inner {     width: 100%;     float: left; 	background: #fff; padding:15px;}
 .erp_yes_no_condition_left {     padding-left: 0 !important; }
 .erp_yes_no_condition_right {     padding-right: 0 !important;; }
+
+
+div#flowPathModal .modal-dialog.modal-lg {     width: 1080px;     max-width: 1080px; }  
+div#flowPathModal .erp_yes_no_condition .action_con .col-lg-3 {  width: 100%;     float: left;     max-width: 100%;   padding: 0; }
+div#flowPathModal .erp_yes_no_condition .action_con label.col-lg-3.col-form-label {     padding: 8px 0 0 8px ; }
+div#flowPathModal .erp_yes_no_condition .action_con label.col-lg-2.col-form-label {     padding: 0; }
+div#flowPathModal .erp_yes_no_condition .action_con .form-group {padding: 0 10px;}
+div#flowPathModal .erp_yes_no_condition .action_con {     width: 100%;     float: left; }  
+div#flowPathModal .action_con_2 {     width: 45%;     float: left; }  
+div#flowPathModal .action_con_2 label.col-lg-2.col-form-label {     width: 100%;     float: left;     max-width: 100%; }
+div#flowPathModal .action_con_2 .col-lg-3 {     width: 100%;     float: left;     max-width: 100%; }
+div#flowPathModal .erp_yes_no_condition.actions .action_con.two {     width: 90%; }
+.erp_yes_no_condition_left .erp_yes_no_condition_left .form-group {     flex-wrap: inherit; }
+.erp_yes_no_condition_left .erp_yes_no_condition_left .form-group .col-lg-1 {     padding-left: 0; }
 
 
 

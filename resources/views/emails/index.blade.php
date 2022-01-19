@@ -602,9 +602,47 @@
 @endsection
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
+    $(window).scroll(function() {
+        if($(window).scrollTop() == $(document).height() - $(window).height()) {
+          console.log('ajax call or some other logic to show data here');
+          $(".pagination-custom").find(".pagination").find(".active").next().find("a").click();
+        }
+    });
+
+    $(".pagination-custom").on("click", ".page-link", function (e) {
+            e.preventDefault();
+
+            var activePage = $(this).closest(".pagination").find(".active").text();
+            var clickedPage = $(this).text();
+            console.log(activePage+'--'+clickedPage);
+            if (clickedPage == "‹" || clickedPage < activePage) {
+                $('html, body').animate({scrollTop: ($(window).scrollTop() - 50) + "px"}, 200);
+                get_data_pagination($(this).attr("href"));
+            } else {
+                get_data_pagination($(this).attr("href"));
+            }
+
+        });
+
+      function get_data_pagination(url){
+     console.log(window.url);
+        $.ajax({
+          url: url,
+          type: 'get',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          $("#loading-image").hide();
+            $("#email-table tbody").append(response.tbody);
+            $(".pagination-custom").html(response.links);
+
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    }
 	
 		function fetchEvents(originId) {
 			if(originId == ''){

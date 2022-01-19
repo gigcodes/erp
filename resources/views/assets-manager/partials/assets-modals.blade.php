@@ -65,9 +65,9 @@
             @endif
           </div>
 
-          
+
           <div class="form-group othercat" style="display: none;" >
-            <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
+            <input type="text" name="other" class="form-control" value="{{ old('other') }}">
           </div>
 
           <div class="form-group">
@@ -115,7 +115,16 @@
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
             @endif
-          </div> 
+          </div>
+
+          <div class="form-group">
+            <strong>Start Date:</strong>
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+
+            @if ($errors->has('start_date'))
+              <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
+            @endif
+          </div>
 
           <div class="form-group">
             <strong>Currency:</strong>
@@ -151,6 +160,98 @@
           <button type="submit" class="btn btn-secondary">Add</button>
         </div>
       </form>
+    </div>
+
+  </div>
+</div>
+
+<div id="cashflows" class="modal fade" role="dialog" >
+  <div class="modal-dialog" style="max-width:100%;width:70%">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+          <h4 class="modal-title">All Cash Flows</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+        <div class="mt-3 col-md-12">
+      <table class="table table-responsive table-bordered table-striped">
+        <thead>
+          <tr>
+            <th width="3%">ID</th>
+            <th width="5%">User</th>
+            <th width="5%">Date</th>
+            <th width="5%">Desc</th>
+            <th width="5%">Amt</th>
+            <th width="7%">E Amt</th>
+            <th width="10%">E EU Amt</th>
+            <th width="8%">EU Amt</th>
+            <th width="11%">DU EU Amt</th>
+            <th width="5%">Type</th>
+            <th width="4%">Curr</th>
+            <th width="7%">Ast Id</th>
+            <th width="8%">Ast Typ</th>
+            <th width="8%">Ord Sts</th>
+            <th width="5%">Created</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @php $i=1; @endphp
+          @foreach ($cashflows as $cash)
+            <tr>
+              <td>{{ $i }}</td>
+              <td class="expand-row-msg" data-name="user_id" data-id="{{$i}}">
+                <span class="show-short-user_id-{{$i}}">{{ str_limit($cash->user_id, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-user_id-{{$i}} hidden">{{$cash->user_id}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="date" data-id="{{$i}}">
+                <span class="show-short-date-{{$i}}">{{ str_limit($cash->date, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-date-{{$i}} hidden">{{$cash->date}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="description" data-id="{{$i}}">
+                <span class="show-short-description-{{$i}}">{{ str_limit($cash->description, 4, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-description-{{$i}} hidden">{{$cash->description}}</span>
+              </td>
+              <td>{{ $cash->amount }}</td>
+              <td>{{ $cash->erp_amount??'N/A' }}</td>
+
+              <td>{{ $cash->erp_eur_amount??'N/A' }}</td>
+              <td>{{ $cash->amount_eur??'N/A' }}</td>
+              <td>{{ $cash->due_amount_eur??'N/A' }}</td>
+              <td class="expand-row-msg" data-name="type" data-id="{{$i}}">
+                <span class="show-short-type-{{$i}}">{{ str_limit($cash->type, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-type-{{$i}} hidden">{{$cash->type}}</span>
+              </td>
+              <td>{{ $cash->currency }}</td>
+              <td>{{ $cash->cash_flow_able_id }}</td>
+              <td class="expand-row-msg" data-name="cash_flow_able_type" data-id="{{$i}}">
+                <span class="show-short-cash_flow_able_type-{{$i}}">{{ str_limit($cash->cash_flow_able_type, 4, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-cash_flow_able_type-{{$i}} hidden">{{$cash->cash_flow_able_type}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="order_status" data-id="{{$i}}">
+                <span class="show-short-order_status-{{$i}}">{{ str_limit($cash->order_status, 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-order_status-{{$i}} hidden">{{$cash->order_status}}</span>
+              </td>
+              <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
+                <span class="show-short-created_at-{{$i}}">{{ str_limit($cash->created_at->format('Y-m-d'), 3, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{$cash->created_at->format('Y-m-d')}}</span>
+              </td>
+            </tr>
+            @php $i++; @endphp
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+
     </div>
 
   </div>
@@ -209,7 +310,7 @@
             @endif
           </div>
 
-          
+
           <div class="form-group">
             <strong>Category:</strong>
             <select class="form-control" name="category_id" id="category_id2">
@@ -224,7 +325,7 @@
             @endif
           </div>
           <div class="form-group othercatedit" style="display: none;" >
-            <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
+            <input type="text" name="other" class="form-control" value="{{ old('other') }}">
           </div>
 
           <div class="form-group">
@@ -276,6 +377,15 @@
           </div>
 
           <div class="form-group">
+            <strong>Start Date:</strong>
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date') }}">
+
+            @if ($errors->has('start_date'))
+              <div class="alert alert-danger">{{$errors->first('start_date')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Currency:</strong>
             <input type="text" name="currency" class="form-control" value="{{ old('currency') }}" id="currency" required>
 
@@ -301,7 +411,7 @@
               <div class="alert alert-danger">{{$errors->first('usage')}}</div>
             @endif
           </div>
-          
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -311,4 +421,3 @@
     </div>
   </div>
 </div>
-

@@ -75,7 +75,7 @@ class ReferaFriend extends Controller
             'website' => 'required|exists:store_websites,website',
         ]);
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("refera.friend.failed.validation", $storeweb->id, $default = 'Please check validation errors !', request('lang_code'));
+            $message = $this->generate_erp_response("refera.friend.failed.validation", 0, $default = 'Please check validation errors !', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         $storeweb = StoreWebsite::where('website',$request->input('website'))->first(); 
@@ -284,7 +284,7 @@ class ReferaFriend extends Controller
             $email             = \App\Email::create([
                 'model_id'         => $data['model_id'],
                 'model_type'       => $data['model_type'],
-                'from'             => 'customercare@sololuxury.co.in',
+                'from'             => $emailClass->fromMailer,
                 'to'               => $to,
                 'subject'          => $emailClass->subject,
                 'message'          => $emailClass->render(),

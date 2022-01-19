@@ -285,6 +285,7 @@ class LeadsController extends Controller
                     "customer_id" => $request->customer_id,
                     "product_id" => $product_id,
                     "brand_id" => $product->brand,
+                    'store_website_id' => 15,
                     "brand_segment" => !empty($product->brands->brand_segment) ? $product->brands->brand_segment : '',
                     "category_id" => $product->category,
                     "color" => $product->color,
@@ -611,6 +612,10 @@ class LeadsController extends Controller
                 }
             }
 
+            if (is_numeric($special_price)) {
+                $special_price = ceil($special_price / 10) * 10;
+            }
+
             if ($request->has('dimension')) {
 
                 $product_names .= "$brand_name $product->name" . ' (' . "Length: $product->lmeasurement cm, Height: $product->hmeasurement cm & Depth: $product->dmeasurement cm) \n";
@@ -855,6 +860,7 @@ class LeadsController extends Controller
         $sourcePaginateArr = array();
         // print_r($brands);
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
+        $erpLeadTypes = \App\ErpLeads::select('id', 'type')->where('type', '!=', '')->whereNotNull('type')->groupBy('type')->get()->toArray();
         $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
             ->leftJoin("customers as c", "c.id", "erp_leads.customer_id")
             ->leftJoin("store_websites as SW", "SW.id", "c.store_website_id")
@@ -924,7 +930,7 @@ class LeadsController extends Controller
         }
 
         if ($request->get('lead_type')) {
-            $source = $source->where('erp_leads.type', 'like', '%' . $request->get('lead_type') . '%');
+            $source = $source->whereIn('erp_leads.type', $request->get('lead_type'));
         }
 
         if ($request->get('brand_segment')) {
@@ -1081,6 +1087,7 @@ class LeadsController extends Controller
             //'clothing_size_group' => $clothing_size_group,
             'brands' => $brands,
             'erpLeadStatus' => $erpLeadStatus,
+            'erpLeadTypes' => $erpLeadTypes,
             'recordsTotal' => $total,
             'sourceData' => $source,
             'lead_type' => @$request->get('lead_type'),
@@ -1348,7 +1355,8 @@ class LeadsController extends Controller
             $params["size"] = $customer->size;
         }
 
-        $params["type"] = 'store-erp-lead';
+        $params["type"] = 'WHATSAPP';
+        $params["store_website_id"] = 15;
         $erpLeads = \App\ErpLeads::where("id", $id)->first();
         if (!$erpLeads) {
             $erpLeads = new \App\ErpLeads;
@@ -1416,6 +1424,8 @@ class LeadsController extends Controller
     {
         $customerIds = array_unique($request->get('customers', []));
         $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->get();
+        //Create broadcast
+        $broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         if (!empty($customerArr)) {
             $productIds = array_unique($request->get('products', []));
 
@@ -1477,6 +1487,13 @@ class LeadsController extends Controller
             foreach ($customerArr as $customer) {
                 $params['customer_id'] = $customer->id;
                 MessageQueue::create($params);
+
+                $message = [
+                    'type_id' => $customer->id,
+                    'type' => App\Customer::class,
+                    'broadcast_message_id' => $broadcast->id,
+                ];
+                $broadcastnumber = \App\BroadcastMessageNumber::create($message);
             }
         }
         $message = "Message sent successfully";
@@ -1585,6 +1602,7 @@ class LeadsController extends Controller
         $history->save();
 
         $erp_leads->lead_status_id = $request->status_id;
+        $erp_leads->store_website_id = 15;
         $erp_leads->type = 'erp-lead-status-update';
         $erp_leads->save();
 

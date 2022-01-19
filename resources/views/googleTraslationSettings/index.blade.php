@@ -7,13 +7,43 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Google Translation Settings List</h2>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#googleServerCreateModal">+</button>
+            <div class="pull-left col-md-12">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addGooleSetting"><i class="fa fa-plus"></i></button>
             </div>
         </div>
     </div>
 
     @include('partials.flash_messages')
+    <div id="ErrorLogModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Translation Error Log Detail</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                    
+                  <th style="width:7%">Error Code</th>
+                  <th style="width:30%">Message </th>
+                  <th style="width:20%">Domain</th>
+                  <th style="width:30%">Reason</th>
+                  <th style="width:10%">Date</th>
+                </thead>
+                <tbody class="error-log-data">
+    
+                </tbody>
+              </table>
+    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
     <div id="addGooleSetting" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -78,12 +108,12 @@
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Account JSON</th>
-            <th>status</th>
-            <th>Last Note</th>
-            <th>Action</th>
+            <th width="5%">ID</th>
+            <th width="10%">Email</th>
+            <th width="30%">Account JSON</th>
+            <th width="5%">status</th>
+            <th width="5%">Last Note</th>
+            <th width="10%">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -94,8 +124,11 @@
                 {{ $setting->email }}
               </td>
               <td>
-                {!! ($setting->account_json )?"<span class='lesstext'>".(\Illuminate\Support\Str::limit($setting->account_json , 10, '<a href="javascript:void(0)" class="readmore">...<i class="fa fa-plus" aria-hidden="true"></i></a>'))."</span>":"-" !!}
-                {!! ($setting->account_json )?"<span class='alltext' style='display:none;'>".$setting->account_json ."<a href='javascript:void(0)' class='readless'>...<i class='fa fa-minus' aria-hidden='true'></i></a></span>":"-" !!}
+                {!! ($setting->account_json )?"<span class='lesstext'>".(\Illuminate\Support\Str::limit($setting->account_json , 10, '<a href="javascript:void(0)" class="readmore btn btn-xs text-dark">...<i class="fa fa-plus" aria-hidden="true"></i></a>'))."</span>":"-" !!}
+                {!! ($setting->account_json )?"<span class='alltext' style='display:none;'>".$setting->account_json ."<a href='javascript:void(0)' class='readless btn btn-xs text-dark'>...<i class='fa fa-minus' aria-hidden='true'></i></a></span>":"-" !!}
+                <?php if(!empty($setting->account_json)){ ?>
+                  <button class="btn btn-xs text-dark" onclick="copyDataToClipBoard('<?php echo $setting->account_json; ?>')"><i class="fa fa-copy"></i></button>
+                <?php } ?>
               </td>
               <td>
                 {{ $setting->status }}
@@ -104,13 +137,15 @@
                 {{ $setting->last_note }}
               </td>
               <td>
-                <a href="{{ route('google-traslation-settings.edit',$setting->id) }}" class="btn btn-secondary">Edit</a>
+                <a href="{{ route('google-traslation-settings.edit',$setting->id) }}" class="btn btn-xs text-dark pull-left"><i class="fa fa-edit"></i></a>
                 <form action="{{ route('google-traslation-settings.destroy', $setting->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
                     <input type="hidden" name="setting" value="{{ $setting->id }}">
                     <input type="hidden" name="_method" value="DELETE">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="submit" class="btn btn-danger" value="Delete">
+                    <button type="submit" class="btn btn-xs text-dark pull-left"><i class="fa fa-trash"></i></button>
                 </form>
+                <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $setting->id}}"><i class="fa fa-eye"></i></button>
+                
               </td>
             </tr>
           @endforeach
@@ -128,6 +163,28 @@
     $(document).on('click', '.readless', function() {
         $(this).parent('.alltext').hide();
         $(this).parent('.alltext').prev('.lesstext').show();
+    });
+    function copyDataToClipBoard(data) {
+      navigator.clipboard.writeText(data);
+    }
+    $(document).ready(function () {
+          
+      $(document).on("click", ".show_error_logs", function() {
+          var id = $(this).data('id');
+          $.ajax({
+                method: "GET",
+                url: "{{ route('translation.log') }}" ,
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "id" : id,
+                },
+                dataType: 'html'
+              }).done(function(result) {
+                $('#ErrorLogModal').modal('show');
+              $('.error-log-data').html(result);
+          });
+
+      });
     });
 </script>
 @endsection

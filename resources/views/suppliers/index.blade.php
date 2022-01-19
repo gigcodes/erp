@@ -202,6 +202,7 @@
               <th width="2%">ID</th>
               <th width="10%">Name</th>
               <th width="5%">Scrapper</th>
+              <th width="5%">Language</th>
               <th width="5%">Designers</th>
               <th width="7%">Status</th>
               <th width="5%">Size System</th>
@@ -242,6 +243,15 @@
               <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
               <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
               <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
+        </select>
+        </td>
+        <td>
+        <select class="form-control language" name="language" data-scrapper-id="<?php echo $supplier->id; ?>">
+               <option value="">Select Language</option>
+                @forelse ($languages as $key => $item)
+                    <option value="{{ $item->id }}" {{ (@$supplier->language_id == $item->id) ? 'selected' : ''}} >{{ $item->name }}</option>
+                @empty
+                @endforelse
         </select>
         </td>
 				{{-- <td>{{ $supplier->source }}</td> --}}
@@ -809,6 +819,7 @@
       $('#scraper_name').val(supplier.scraper_name);
       $('#inventory_lifetime').val(supplier.inventory_lifetime);
       $('#est_delivery_time').val(supplier.est_delivery_time);
+      $('#product_type').val(supplier.product_type);
     });
 
     $(document).on('click', '.send-supplier-email', function() {
@@ -1523,6 +1534,27 @@ console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
         })
     });
 
+    $(document).on('change', '.language', function() {
+        var language = $(this).val();
+        var supplierId = $(this).data('scrapper-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/language') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                language : language
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+
+        })
+    });
+
     $(document).on('click', '.create_broadcast', function () {
         var suppliers = [];
         $(".supplier_message").each(function () {
@@ -1550,6 +1582,11 @@ console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
             return false;
         }
 
+        if ($("#send_message").find("#name").val() == "") {
+            alert('Please type name ');
+            return false;
+        }
+
         if ($("#send_message").find("#message_to_all_field").val() == "") {
             alert('Please type message ');
             return false;
@@ -1561,6 +1598,7 @@ console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
             data: {
                 _token: "{{ csrf_token() }}",
                 message: $("#send_message").find("#message_to_all_field").val(),
+                name: $("#send_message").find("#name").val(),
                 suppliers: suppliers
             }
         }).done(function () {

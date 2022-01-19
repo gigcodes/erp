@@ -56,13 +56,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         .message_textareas.cls_message_textareas{width: 85%;display: inline;float: left;}
     </style>
         <div class="row">
-            <div class="col-lg-12 margin-tb">
+            <div class="col-lg-12 margin-tb p-0">
                 <h2 class="page-heading">Direct Message</h2>
-                <div class="pull-right">
-                    <div class="pb-2">
-                        <button type="button" class="btn btn-xs btn-secondary" id="fetchNewMessage">Fetch new message</button>
-                    </div>
-                </div>
+                
             </div>
         </div>
         @include('partials.flash_messages')
@@ -72,10 +68,10 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
               @if (Auth::user()->hasRole('Admin'))
                 <form action="" class="form-inline" method="GET">
                     <div class="form-group mr-3">
-                            <input type="text" name="keyword" class="form-control" placeholder="Search keywords" value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" class="form-control" placeholder="Search keywords" value="{{ request('keyword') }}"style="width: 257px;">
                     </div>
 
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-3"style="width: 257px;">
                         <select class="form-control from_account_list" name="form_account">
                             <option value="">Select option</option>
                             @foreach ($accounts as $item)
@@ -83,26 +79,29 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             @endforeach
                         </select>
                     </div>
-                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                  <button type="submit" class="btn btn-image"style="margin-top: 2px;"><img src="/images/filter.png" /></button>
+                   <div class="pb-2 mt-3">
+                        <button type="button" class="btn  custom-button " id="fetchNewMessage"style="height: 34px;width: 250px;padding-right: 95px;">Fetch new message</button>
+                    </div>
                 </form>
               @endif
             </div>
         </div>
     </div>
-
+      <div class="col-md-12">
         <div class="row">
             <div class="table-responsive">
-                <table class="table table-bordered" id="direct-table">
+                <table class="table table-bordered" id="direct-table"style="table-layout: fixed;">
                     <thead>
                         <tr>
-                            <th style="">Sr. No.</th>
-                            <th style="">Site Name</th>
-                            <th style="">To</th>
-                            <th style="">From</th>
-                            <th style="width:10%">Translation Language</th>
-                            <th style="width: 25%;">Communication</th>
-                            <th style="">Quick Replies</th>
-                            <th style="width: 7%;">Actions</th>
+                            <th style="width:4% ;">Sr. No.</th>
+                            <th style="width:5% ;">Site Name</th>
+                            <th style="width:8% ;">To</th>
+                            <th style="width:5%;">From</th>
+                            <th style="width:9%">Translation Language</th>
+                            <th style="width:9%;">Communication</th>
+                            <th style="width:23%;">Quick Replies</th>
+                            <th style="width:5%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -111,6 +110,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 </table>
             </div>
         </div>
+    </div>
      <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
             <div class="modal-content">

@@ -17,7 +17,7 @@
         </td>
 
         <td>
-            <a href="{{ $influencer->url }}" target="_blank" class="text-dark">
+            <a href="{{ $influencer->profile_url }}" target="_blank" class="text-dark">
               {{ str_limit($influencer->name, 7, '..')}}
             </a>
         </td>
@@ -111,11 +111,11 @@
                   <input type="hidden" id="message-id" name="message-id" />
                   <a  class="btn btn-xs text-dark  btn-image send-message" href="javascript:void(0)">
                     <span class="send_btn" data-id="{{$influencer->id}}">
-                      <i class="fa fa-plus"></i>
+                      <i class="fa fa-plus" style="margin-top: 5px;"></i>
                     </span>
                   </a>
-                  <a class="btn btn-image btn-xs text-dark delete_quick_comment">
-                    <i class="fa fa-trash"></i>
+                  <a class="btn btn-image  btn-xs text-dark delete_quick_comment">
+                    <i class="fa fa-trash"style="color: gray; margin-top: 5px;"></i>
                   </a>
               </div>
               <div class="col-md-4 form-inline p-0" >
@@ -174,14 +174,14 @@
 
         <button title="Retrieve latest post and comment." 
                 class="btn btn-image latest-post pd-2 action-icon btn-xs text-dark" data-id="{{ $influencer->id }}">
-          <i class="fa fa-plus"></i>
+          <i class="fa fa-plus"style="color: gray; margin-top: 9px;"></i>
         </button>
             
         <button class="btn btn-image expand-row-btn pd-2 action-icon btn-xs text-dark" 
                 data-id="{{ $influencer->id }}">
-                <i class="fa fa-forward"></i>
+                <i class="fa fa-forward"style="color: gray; margin-top: 9px;"></i>
         </button>
-        @if($influencer->hasMedia('instagram-screenshot'))
+        <!-- @if($influencer->hasMedia('instagram-screenshot'))
           @php
             $url = $influencer->getMedia('instagram-screenshot')->first()->getUrl();
           @endphp
@@ -189,7 +189,12 @@
                 data-id="{{ $influencer->id }}">
                 <i class="fa fa-picture-o"></i>
           </a>
-        @endif
+        @endif -->
+        <a href="{{$influencer->url}}" target="_blank" class="btn btn-xs text-dark" 
+                data-id="{{ $influencer->id }}">
+                <i class="fa fa-picture-o"style="color: gray; margin-top: 5px;"></i>
+          </a>
+
       </div>
     </td>
 </tr>

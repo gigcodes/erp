@@ -59,6 +59,7 @@ class ScrapInfluencer extends Model
         'cover_photo',
         'interests',
         'work_at',
-        'platform'
+        'platform',
+        'profile_url'
     ];
 }

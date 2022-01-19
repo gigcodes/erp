@@ -39,8 +39,8 @@ class SendEmail implements ShouldQueue
 
         try {
 
-            $multimail = \MultiMail::to($email->to);
-
+           $multimail = \MultiMail::to($email->to);
+          
             // $multimail->from($email->from);
             
             if(!empty($email->cc)) {

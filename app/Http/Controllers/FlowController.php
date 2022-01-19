@@ -207,7 +207,7 @@ class FlowController extends Controller
 				if($inputs['action_type'][$actionId] == "Time Delay") {
 					$data = ['time_delay'=>$inputs['time_delay'][$actionId], 'time_delay_type'=>$inputs['time_delay_type'][$actionId], 'rank'=>$key];
 					FlowAction::where('id', $actionId)->update($data);
-				} else if($inputs['action_type'][$actionId] == "Whatsapp" || $inputs['action_type'][$actionId] == "SMS") {
+				} else if(isset($inputs['message_title'][$actionId]) and ($inputs['action_type'][$actionId] == "Whatsapp" || $inputs['action_type'][$actionId] == "SMS")) {
 					$data = ['message_title'=>$inputs['message_title'][$actionId], 'rank'=>$key];
 					FlowAction::where('id', $actionId)->update($data);
 				}  else {

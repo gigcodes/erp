@@ -13,12 +13,12 @@ $metaData = '';
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php
-        if(isset($metaData->page_title) && $metaData->page_title!='') {
-            $title = $metaData->page_title;
-        }else{
-            $title = trim($__env->yieldContent('title'));
-        }
-    ?>
+if (isset($metaData->page_title) && $metaData->page_title != '') {
+    $title = $metaData->page_title;
+} else {
+    $title = trim($__env->yieldContent('title'));
+}
+?>
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
@@ -396,24 +396,20 @@ $metaData = '';
 
                         <?php
 
-                        //getting count of unreach notification
-                        $unread = 0;
-                        if(!empty($notifications)){
-                            foreach($notifications as $notification)
-                            {
-                                if(!$notification->isread)
-                                {
-                                    $unread++;
-                                }
+//getting count of unreach notification
+$unread = 0;
+if (!empty($notifications)) {
+    foreach ($notifications as $notification) {
+        if (!$notification->isread) {
+            $unread++;
+        }
 
-                            }
-                        }
+    }
+}
 
-
-
-                        /* ?>
-                        @include('partials.notifications')
-                        <?php */ ?>
+/* ?>
+@include('partials.notifications')
+<?php */?>
                         {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
                         </li> --}}
@@ -423,6 +419,28 @@ $metaData = '';
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+								
+								<li class="nav-item dropdown dropdown-submenu">
+									<a id="navbarDropdown" class="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
+									<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
+										</li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('product.templates.log') }}">Product Template Log</a>
+                                        </li>
+                                        
+									</ul>
+								</li>
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
@@ -470,7 +488,8 @@ $metaData = '';
                                                 @if(auth()->user()->checkPermission('productlister-list'))
                                                 <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
                                                 @endif
-                                                <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
+												<a class="dropdown-item" href="{{ route('products.push.conditions') }}">Magento product push conditions</a>
+												<a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
@@ -509,6 +528,7 @@ $metaData = '';
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
+										
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -615,6 +635,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
+                                            <a class="dropdown-item" href="{{ url('scrap/log/list') }}">Scrapper Task Logs</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -677,19 +698,42 @@ $metaData = '';
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('products.listing.approved.images')}}/images">Final Apporval Images</a>
                                 </li>
+								<li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('customer.charity')}}">Charity Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">CRM <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+								<li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('logs.index') }}">Image Logs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="{{ route('order.call-management') }}">Call Management</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                     <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM Notifications</a>
                                 </li>
+								<li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown"class="" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Scheduled Flows<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('flow.index') }}">Flows</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/erp-customer') }}">Customers - NEW</a>
@@ -703,7 +747,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ url('customer/credit') }}">Customer Credit</a>
                                             <a class="dropdown-item" href="{{ url('chatbot-message-log') }}">Chatbot Message Log</a>
                                             <a class="dropdown-item" href="{{ url('customers/accounts') }}">Store website customer</a>
-                                            <a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
+                                            <a class="dropdown-item" href="{{ route('product.customer-reviews') }}" >Customer Reviews</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -789,6 +833,8 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.status') }}">Return-Exchange Status</a>
                                                 <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
+                                                <a class="dropdown-item" href="{{ route('lead-order.index') }}">Lead order</a>
+                                                <a class="dropdown-item" href="{{ url('order/charity-order') }}">Charity order</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1075,6 +1121,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('ReplyController@replyList') }}">Quick Reply List</a>
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
                                         </li>
@@ -1353,6 +1402,10 @@ $metaData = '';
                                                 </li>
                                             </ul>
                                         </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('logging.flow.log') }}">Flow Log
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1379,10 +1432,16 @@ $metaData = '';
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/change-user') }}">Change User</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
@@ -1434,59 +1493,9 @@ $metaData = '';
                                 </li>
                             </ul>
                         </li>
-                        <li id="product-template" class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
-                                </li>
-                            </ul>
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{route('messages.index')}}">Broadcast messages</a>
                         </li>
-
-
-                            @if(auth()->user()->isAdmin())
-                                <li id="queues" class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
-                                    <ul class="dropdown-menu multi-level">
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li id="messages" class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Scheduled Flows<span class="caret"></span></a>
-                                    <ul class="dropdown-menu multi-level">
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            @endif
-
-
-
-
-
-
-
                     </ul>
                     <div>
                         <div id="nav-dotes"  class="nav-item dropdown dots mr-3 ml-3">
@@ -1504,8 +1513,13 @@ $metaData = '';
 
                                         <ul class="dropdown-menu multi-level">
                                             <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ url('products/pushproductlist') }}">
+												Push Product List</a>
+                                            </li>
+											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
+											
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                             </li>
@@ -1563,7 +1577,10 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                                <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Python</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('scrapper.image.urlList') }}">Scrapper Phyhon Urls</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
@@ -1586,6 +1603,9 @@ $metaData = '';
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/store-website-product-prices') }}">Store website product price</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('list.daily-push-log') }}">Magento Daily Product Push Log</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 @endif
@@ -1594,12 +1614,51 @@ $metaData = '';
                                         {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>--}}
 
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
+										
+										<ul class="dropdown-menu multi-level">
+										
+											<li class="nav-item dropdown dropdown-submenu">
+												<a id="twilioDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Twilio<span class="caret"></span></a>
+												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="twilioDropdown">
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.errors') }}">Twilio Errors</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('twilio.erp_logs') }}">Twilio ERP Logs</a>
+													</li>
+                                                    <li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('get.python.log') }}">Python Site Logs</a>
+													</li>
+												</ul>
+											</li>
+										</ul>
 
                                         <ul class="dropdown-menu multi-level">
-                                            
+										
+											<li class="nav-item dropdown dropdown-submenu">
+												<a id="queueDropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
+												<ul class="dropdown-menu dropdown-menu-right"aria-labelledby="queueDropdown">
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
+													</li>
+												</ul>
+											</li>
+
                                             <li class="nav-item dropdown">
                                                 <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
-                                            </li>    
+                                            </li>
 
                                             {{-- Sub Menu Product --}}
                                             <li class="nav-item dropdown dropdown-submenu">
@@ -1607,6 +1666,9 @@ $metaData = '';
                                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ route('cashflow.hubstuff.log') }}">Hubstuff Command Log</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{ url('monetary-account') }}">Monetary Account</a>
@@ -1652,17 +1714,25 @@ $metaData = '';
                                                 </ul>
                                             </li>
                                             @if(auth()->user()->isAdmin())
-                                                <li class="nav-item dropdown">
-                                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
-                                                </li>
+                                               
 
                                                 <li class="nav-item dropdown">
                                                     <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                                 </li>
 
-                                                <li class="nav-item dropdown">
-                                                    <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                               <li class="nav-item dropdown dropdown-submenu">
+                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Call Management<span class="caret"></span></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('twilio-call-management') }}"> Call Management</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('twilio-speech-to-text-logs')}}">Twilio Speech to text Logs</a>
+                                                        </li>
+                                                    </ul>
                                                 </li>
+												
                                                 <li class="nav-item dropdown dropdown-submenu">
                                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1863,6 +1933,9 @@ $metaData = '';
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
                                             </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('gt-metrix-url') }}">GTMetrix Url's</a>
+                                            </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('GtMetrixAccount.index') }}">GTMetrix Account</a>
                                             </li>
@@ -1913,6 +1986,7 @@ $metaData = '';
 
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                         <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                                        <a class="dropdown-item" href="{{ route('development.flagtask') }}">Flag Tasks</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                                         <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
@@ -2018,7 +2092,7 @@ $metaData = '';
                                     </ul>
                                 </li>
 
-                              
+
                          <!------    System Menu     !-------->
 
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -2051,6 +2125,11 @@ $metaData = '';
                     @if(Auth::check())
                     <nav id="quick-sidebars">
                         <ul class="list-unstyled components mr-1">
+                            @if (Auth::user()->hasRole('Admin'))
+                            <li>
+                                <a class="quick-icon permission-request" href="#"><span><i class="fa fa-reply fa-2x"></i>{{-- $permissionRequest --}}</span></a>
+                            </li>
+                            @endif
                             <li>
                                 <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                             </li>
@@ -2062,7 +2141,7 @@ $metaData = '';
                                     <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                 </a>
                             </li>
-                     
+
 
                             <li>
                                 <a id="message-chat-data-box" class="quick-icon">
@@ -2100,6 +2179,37 @@ $metaData = '';
                             </li>
                         </ul>
                     </nav>
+                    <div id="permission-request-model" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-lg">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Permission request list</h5>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <button type="button" class="btn btn-default permission-delete-grant">Delete All</button>
+                                    <div class="col-md-12" id="permission-request">
+                                        <table class="table fixed_header">
+                                            <thead>
+                                                <tr>
+                                                    <th>User name</th>
+                                                    <th>Permission name</th>
+                                                    <th>Date</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="show-list-records">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @endif
                 </div>
 
@@ -2198,14 +2308,16 @@ $metaData = '';
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
         @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
+			
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
             $key = \App\LivechatincSetting::first();
-        @endphp
-        @if($liveChatUsers != '' && $liveChatUsers != null)
+        @endphp 
+		
+     
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
-        @endif
+        
         @include('partials.modals.quick-chatbox-window')
         @endif
 {{--        @if(Auth::check())--}}
@@ -2326,6 +2438,7 @@ $metaData = '';
                                     @foreach ($chatIds as $chatId)
                                         @php
                                         $customer = $chatId->customer;
+                                        if($customer) {
                                         $customerInital = substr($customer->name, 0, 1);
                                         @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
@@ -2342,6 +2455,7 @@ $metaData = '';
                                             @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
                                         </div>
                                     </li>
+                                    @php } @endphp
 
                                     @endforeach
 
@@ -2461,7 +2575,7 @@ $metaData = '';
     <!--Sop Create Modal -->
     <div id="Create-Sop-Shortcut" class="modal fade" role="dialog">
         <div class="modal-dialog">
-    
+
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -2479,6 +2593,7 @@ $metaData = '';
                             <option value="knowledge_base">Knowledge Base</option>
                         </select>
                     </div>
+                    <input type="hidden" name="chat_message_id" value="" class="chat_message_id"/>
                     <div class="add_sop_div mt-3">
                         <tr>
                             <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
@@ -2503,7 +2618,11 @@ $metaData = '';
                         </tr>
                         <tr>
                             <td>Name:</td>
-                            <td><input type="text" name="name" class="form-control mb-3"></td>
+                            <td><input type="text" name="name" class="form-control mb-3 name"></td>
+                        </tr>
+                        <tr>
+                            <td>Category:</td>
+                            <td><input type="text" name="category" class="form-control mb-3 category"></td>
                         </tr>
                         <tr>
                             <td>Description:</td>
@@ -2517,7 +2636,7 @@ $metaData = '';
                 </div>
             </form>
         </div>
-    
+
         </div>
     </div>
 
@@ -2589,7 +2708,7 @@ $metaData = '';
                 $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
             }
         })
-        
+
         $(document).on('change','.knowledge_base',function(){
             var val = $(this).val();
             if ($(this).val() == "chapter" || $(this).val() == "page") {
@@ -2598,7 +2717,7 @@ $metaData = '';
                 $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden',true).val('');
             }
         })
-        
+
         $(document).on('change','.knowledge_base_book',function(){
             var val = $(this).val();
             if (val.length > 0) {
@@ -2614,7 +2733,10 @@ $metaData = '';
             });
             var formdata = $('#createShortcutForm').serialize();
             var val = $(this).parents('#createShortcutForm').find('.knowledge_base').val();
+            var chatID = $(this).parents('#createShortcutForm').find('[name="chat_message_id"]').val();
             var name = $(this).parents('#createShortcutForm').find('[name="name"]').val();
+            var category = $(this).parents('#createShortcutForm').find('[name="category"]').val();
+            var content = $(this).parents('#createShortcutForm').find('[name="description"]').text();
             var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
             if (val.length === 0) {
                 $.ajax({
@@ -3060,11 +3182,11 @@ $metaData = '';
     @endif
     <script>
          <?php
-            if(!\Auth::guest()) {
-            $path = Request::path();
-            $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
-            if($hasPage) {
-         ?>
+if (!\Auth::guest()) {
+    $path = Request::path();
+    $hasPage = \App\AutoRefreshPage::where("page", $path)->where("user_id", \Auth()->user()->id)->first();
+    if ($hasPage) {
+        ?>
 
             var idleTime = 0;
             function reloadPageFun() {
@@ -3087,7 +3209,7 @@ $metaData = '';
                 });
             });
 
-        <?php } } ?>
+        <?php }}?>
 
         function filterFunction() {
             var input, filter, ul, li, a, i;
@@ -3407,6 +3529,105 @@ $metaData = '';
             });
         });
 
+        $(document).on("click", ".permission-request", function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/user-management/request-list',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(result) {
+                    $("#loading-image").hide();
+                    if (result.code == 200) {
+                        var t = '';
+                        $.each(result.data, function(k, v) {
+                            t += `<tr><td>` + v.name + `</td>`;
+                            t += `<td>` + v.permission_name + `</td>`;
+                            t += `<td>` + v.request_date + `</td>`;
+                            t += `<td><button class="btn btn-secondary btn-xs permission-grant" data-type="accept" data-id="` +
+                                v.permission_id + `" data-user="` + v.user_id +
+                                `">Accept</button>
+                                 <button class="btn btn-secondary btn-xs permission-grant" data-type="reject" data-id="` + v.permission_id + `" data-user="` + v
+                                .user_id + `">Reject</button>
+                              </td></tr>`;
+                        });
+                        if (t == '') {
+                            t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                        }
+                    }
+                    $("#permission-request-model").find(".show-list-records").html(t);
+                    $("#permission-request-model").modal("show");
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on("click", ".permission-grant", function(e) {
+            e.preventDefault();
+            var permission = $(this).data('id');
+            var user = $(this).data('user');
+            var type = $(this).data('type');
+
+            $.ajax({
+                url: '/user-management/modifiy-permission',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    permission: permission,
+                    user: user,
+                    type: type
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(result) {
+                    $("#loading-image").hide();
+                    if (result.code == 200) {
+                        toastr["success"](result.data, "");
+                    } else {
+                        toastr["error"](result.data, "");
+                    }
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
+        $(document).on("click", ".permission-delete-grant", function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/user-management/request-delete',
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(result) {
+                    $("#loading-image").hide();
+                    if (result.code == 200) {
+                        $("#permission-request").find(".show-list-records").html('');
+                        toastr["success"](result.data, "");
+                    } else {
+                        toastr["error"](result.data, "");
+                    }
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                }
+            });
+        });
 
     </script>
     @if ($message = Session::get('actSuccess'))

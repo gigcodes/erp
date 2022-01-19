@@ -7,16 +7,23 @@
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-
+<div class="row"> 
+ <div class="col-md-12">
+     <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+   </div>  
+ </div>
 <div class="row" id="common-page-layout">
+    <div class="col-md-12">
     <div class="col-lg-12 margin-tb mb-3">
-        <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
-            <a class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
-            <a class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
-            <a class="btn btn-secondary btn-xs" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
-            <a class="btn btn-secondary btn-xs hubstaff_activity_command text-light" data-toggle="modal" data-target="#hubstaff_activity_modal">Hubstuff Activity Command</a>
+      
+            <a class="btn custom-button btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;height: 34px;">Fetch Activity</a>
+            <a class="btn custom-button btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;height: 34px;">Add manual timings</a>
+            <a class="btn custom-button btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
+            <a class="btn btn-secondary custom-button h-100  hubstaff_activity_command text-light" data-toggle="modal" data-target="#hubstaff_activity_modal"style="height: 34px;">Hubstuff Activity Command</a>
     </div>
+</div>
     <div class="col-lg-12 margin-tb">
+        <div class="col-md-12">
         <div class="row">
             <div class="col-md-12 margin-tb">
                 <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
@@ -66,37 +73,38 @@
                             </select>
                         </div>
                         <div class="form-group col-md-2">
-                            <button type="submit" name="submit" class="btn btn-xs text-dark">
+                            <button type="submit" name="submit" class="btn mt-2 btn-xs text-dark">
                                 <i class="fa fa-search"></i>
                             </button>
-                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-xs btn-secondary">
+                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn  custom-button  btn-secondary"style="height: 34px;width:184px;">
                                 Download report
                             </button>
                         </div>  
-                    </div>    
+                    </div>   
                 </form> 
             </div>
-            
-            <div class="col-md-12 margin-tb">
+            </div>
+            <div class="col-md-12 margin-tb p-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered"style='table-layout: fixed;'>
                         <tr>
-                        <th width="1%">Date</th>
-                            <th width="1%">User</th>
-                            <th width="1%">Tm Trk</th>
-                            <th width="7%">Tasks</th>
+                        <th width="3%">Date</th>
+                            <th width="3%">User</th>
+                            <th width="3%">Tm Trk</th>
+                            <th width="3%">Tasks</th>
                             <th width="3%">Tm Trk</th>
                             <th width="3%">Tm Est</th>
                             <th width="3%" title="Time Diffrent">Tm Diff</th>
-                            <th width="1%">Sts</th>
+                            <th width="2%">Sts</th>
                             <th width="3%">Tm App</th>
                             <th width="3%">Tm App</th>
-                            <th width="3%">Tm Pen</th>
+                            <th width="4%">Tm Pen</th>
                             <th width="4%">Usr Req</th>
                             <th width="5%">Pen Pmt Tm</th>
-                            <th width="1%">Sts</th>
-                            <th width="1%">Note</th>
-                            <th width="6%">Frequency</th>
+                            <th width="2%">Sts</th>
+                            <th width="2%">Note</th>
+                            <th width="4%">Frequency</th>
+                            <th width="3%">Salary</th>
                             <th width="6%">Action</th>
                         </tr>
                         @php
@@ -109,9 +117,9 @@
                         @foreach ($activityUsers as $index => $user)
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
-                            <td class="expand-row-msg" data-name="userName" data-id="{{$index}}">
+                            <td class="expand-row-msg Website-task" data-name="userName" data-id="{{$index}}">
                                 <span class="show-short-userName-{{$index}}">{{ str_limit($user['userName'], 5, '..')}}</span>
-                                <span style="word-break:break-all;" class="show-full-userName-{{$index}} hidden">{{$user['userName']}}</span>
+                                <span style="word-break:break-all;" class="show-full-userName-{{$index}} hidden Website-task">{{$user['userName']}}</span>
                             </td>
                             @php
                                 $totalTracked +=  $user['total_tracked'];
@@ -122,7 +130,7 @@
                             @endphp
                             <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
                             <td colspan="6">
-                                <table class="w-100 table-hover">
+                                <table class="w-100 table-hover"style="table-layout:fixed;">
                                 <?php if(!empty($user['tasks'])) { ?>
                                     <?php foreach($user['tasks'] as $ut) { ?>
                                         <?php 
@@ -138,31 +146,31 @@
                                         ?>
                                         @if ( $taskid )
                                         <tr>
-                                            <td width="26%" class="expand-row-msg" data-name="devtask" data-id="{{$taskid}}">
+                                            <td width="15%" class="expand-row-msg Website-task" data-name="devtask" data-id="{{$taskid}}">
                                                 <?php if(Auth::user()->isAdmin()) { ?> 
                                                 <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">
-                                                    <span class="show-short-devtask-{{$taskid}}">{{ str_limit($devtask, 12, '..')}}</span>
+                                                    <span class="show-short-devtask-{{$taskid}}">{{ $devtask }}</span>
                                                     <span style="word-break:break-all;" class="show-full-devtask-{{$taskid}} hidden">{{$devtask}}</span>
                                                 </a>
                                                 <?php }else{ ?>
                                                 <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">
-                                                    <span class="show-short-devtask-{{$taskid}}">{{ str_limit($devtask, 12, '..')}}</span>
+                                                    <span class="show-short-devtask-{{$taskid}}">{{ $devtask }}</span>
                                                     <span style="word-break:break-all;" class="show-full-devtask-{{$taskid}} hidden">{{$devtask}}</span>
                                                 </a>
                                                 <?php } ?>
                                             </td>
-                                            <td width="10%">
+                                            <td width="10%"class="Website-task">
                                                 @if ($taskName)
                                                     {{ (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A' }}
                                                 @endif
                                             </td>
-                                            <td width="11%" class="p-0 pt-1 pl-2">
+                                            <td width="11%" class="p-0 pt-1 pl-2 Website-task">
                                                 @if ($taskName)
                                                     {{ $estimation }}
                                                 @endif
                                                 <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$devTaskId}}"><i class="fa fa-info-circle"></i></button>
                                             </td>
-                                            <td width="11%" class="p-0 pt-1 pl-2">
+                                            <td width="11%" class="p-0 pt-1 Website-task pl-2">
                                                 @if ( $taskName )
                                                     @if (is_numeric($estimation) && $trackedTime && $taskName)
                                                         {{ $estimation . '-' . number_format($trackedTime / 60,2,".",",") }}
@@ -172,12 +180,12 @@
                                                     <button type="button" class="btn btn-xs task-notes" title="Show notes" data-task="{{$devTaskId}}"><i class="fa fa-info-circle"></i></button>
                                                 @endif
                                             </td>
-                                            <td width="8%">
+                                            <td width="8%"class="Website-task">
                                                 @if ( $taskName )
                                                     {{ $status ? $status : 'N/A' }}
                                                 @endif
                                             </td>
-                                            <td width="11%">
+                                            <td width="4%">
                                                 {{ $est_time }}
                                             </td>
                                         </tr>
@@ -204,10 +212,12 @@
                             elseif($user['fixed_price_user_or_job'] == 3)
                                 $fixed_price_user_or_job = 'Salaried';                  
                             @endphp
-                            <td class="m-0 p-0 pt-1 pl-2">
-                                <p class="m-0">S/F PX : {{$fixed_price_user_or_job}}</p>
+                            <td class="m-0 p-0 pt-1 Website-task pl-2">
                                 <p class="m-0">Frequency : {{$user['payment_frequency']}} </p>
                                 <!-- <p>Last Voucher Date : {{ \Carbon\Carbon::parse($user['last_mail_sent_payment'])->format('d-m-y') }}</p> -->
+                            </td>
+                            <td class="m-0 p-0 pt-1 Website-task pl-2">
+                                <p class="m-0">S/F PX : {{$fixed_price_user_or_job}}</p>
                             </td>
                             <td class="m-0 p-0 pt-1 pl-2">
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
@@ -216,10 +226,10 @@
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                                     <a class="btn btn-xs text-dark show-activities"><i class="fa fa-plus"></i></a>
                                     <i class="fa fa-list list_history_payment_data"  data-user-id="{{$user['user_id_data']}}" aria-hidden="true"></i>
-                                </form>
+                               
                                 @endif
                                 @if(Auth::user()->isAdmin())
-                                <form action="">
+                               
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                                     <a class="btn btn-xs text-dark show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
@@ -572,14 +582,15 @@ $(document).on('click', '.show-time-history', function() {
     });
     $('#time_history_modal').modal('show');
 });
-
-$(document).on('click', '.expand-row-msg', function () {
+$(document).ready(function () {
+    $(document).on('click', '.expand-row-msg', function () {
     var name = $(this).data('name');
     var id = $(this).data('id');
     var full = '.expand-row-msg .show-short-'+name+'-'+id;
     var mini ='.expand-row-msg .show-full-'+name+'-'+id;
     $(full).toggleClass('hidden');
     $(mini).toggleClass('hidden');
+});
 });
 
 $(document).on('click', '.expand-row', function () {
@@ -770,9 +781,9 @@ let r_s = jQuery('input[name="start_date"]').val();
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            $('#records-modal').modal('show');
-            $('#record-content').html(response);
+                $("#loading-image").hide();
+                $('#records-modal').modal('show');
+                $('#record-content').html(response);
             }).fail(function(errObj) {
             $("#loading-image").hide();
             toastr['error'](errObj.responseJSON.message, 'error');

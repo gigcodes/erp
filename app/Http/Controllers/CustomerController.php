@@ -271,7 +271,6 @@ class CustomerController extends Controller
     {
         // Set search term
         $term = $request->term;
-
         // Set delivery status
         $delivery_status = [
             'Follow up for advance',
@@ -2411,6 +2410,7 @@ class CustomerController extends Controller
                         'customer_id' => $customer->id,
                         //'rating' => 1,
                         'lead_status_id' => 3,
+                        'store_website_id' => 15,
                         //'assigned_user' => 6,
                         'product_id' => $pid,
                         'brand_id' => $product ? $product->brand : null,
@@ -2971,19 +2971,19 @@ class CustomerController extends Controller
         $customers_all->join('store_websites', 'store_websites.id', 'customers.store_website_id');
 
         if ($request->name != '') {
-            $customers_all->where('name', $request->name);
+            $customers_all->where('name', 'like', '%'.$request->name.'%');
         }
 
         if ($request->email != '') {
-            $customers_all->where('email', $request->email);
+            $customers_all->where('email', 'like', '%'.$request->email.'%');
         }
 
         if ($request->phone != '') {
-            $customers_all->where('phone', $request->phone);
+            $customers_all->where('phone', 'like', '%'.$request->phone.'%');
         }
 
         if ($request->store_website != '') {
-            $customers_all->where('store_website_id', $request->store_website);
+            $customers_all->where('store_website_id', 'like', $request->store_website);
         }
 
         $customers_all->orderBy('created_at', 'desc');
@@ -3006,6 +3006,34 @@ class CustomerController extends Controller
         }
 
     }
+	
+	public function customerUpdate(Request $request) {
+		$input = $request->input();
+		unset($input['_token']);
+		$details = Customer::where('id', $input['customer_id'])->select('id as customer_id', 'name','email','phone','address','city','country','pincode')->first()->toArray();
+		\App\CustomerDetailHistory::create($details);
+		$customerId = $input['customer_id']; unset($input['customer_id']);
+		Customer::where('id', $customerId)->update($input);
+		
+		return response()->json(['message' => "Details updated", 'code' => 200, 'status' => 'success']);
+	}
+	
+	public function customerUpdateHistory($customerId) {
+		$history = \App\CustomerDetailHistory::where('customer_id', $customerId)->get();
+		$records = '';
+		foreach($history as $c) {
+			$records .= '<tr>
+              <td>'. $c->id .'</td>
+              <td>'.  $c->name .'</td>
+              <td>'.  $c->email .'</td>
+              <td>'.  $c->phone .'</td>
+              <td>'.  $c->address .'</td>
+              <td>'.  $c->city .'</td>
+              <td>'.  $c->pincode .'</td>
+              <td>'.  $c->country .'</td> </tr>';
+		}
+		return response()->json(['records' => $records, 'code' => 200, 'status' => 'success']); 
+	}
 
     public function addCredit(Request $request)
     {

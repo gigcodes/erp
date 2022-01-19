@@ -13,6 +13,7 @@ use App\Template;
 use App\Category;
 use App\Product;
 use App\StoreWebsite;
+use App\ProductTemplateLog;
 
 class ProductTemplatesController extends Controller
 {
@@ -23,6 +24,8 @@ class ProductTemplatesController extends Controller
      */
     public function index(Request $request)
     {
+
+        
         //$productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
         $images = $request->get('images', false);
         $productArr = null;
@@ -418,6 +421,7 @@ class ProductTemplatesController extends Controller
 
      public function create(Request $request)
     {
+       
         // dd( $request->store_website_id );
         $template = new \App\ProductTemplate;
         $params = request()->all();
@@ -541,7 +545,14 @@ class ProductTemplatesController extends Controller
                             $data[ "image" ] = $images;
                         }
                         \Log::info(json_encode($data,true));
-                        $response = \App\Helpers\GuzzleHelper::post(env("PYTHON_PRODUCT_TEMPLATES")."/api/product-template", $data,[]);
+                        $url=env("PYTHON_PRODUCT_TEMPLATES")."/api/product-template";
+                        $response = \App\Helpers\GuzzleHelper::post($url, $data,[]);
+                        $log = new ProductTemplateLog();
+                        $log->url=$url;
+                        $log->data=json_encode($data);
+                        $log->response=$response;
+                        $log->save();
+
                     }catch(\Exception $e) {
                         \Log::info("Product Templates controller : 541 ".$e->getMessage());
                     }
@@ -675,5 +686,56 @@ class ProductTemplatesController extends Controller
         curl_close($ch);
 
         return $response;
+    }
+    public function getlog(){
+        $template_logs=ProductTemplateLog::paginate(15);
+        return view("product-template.logs", compact('template_logs'));
+    }
+
+    public function loginstance(Request $request)
+    {
+      
+
+        $url = env("PYTHON_PRODUCT_TEMPLATES")."/api/get-logs";
+        $date=($request->date!='')?\Carbon\Carbon::parse($request->date)->format('m-d-Y'):'';
+     //   echo $url;exit;
+     \Log::info("Payment_Template_loginstance -->".$url);
+     if(!empty($date)){
+        $data = ['date'=>$date];
+     }else{
+        return response()->json([
+            'type'=>'error',
+            'response' =>'Please select Date'
+                  ], 200);
+     }
+
+     
+        $data = json_encode($data);
+        
+     \Log::info("Payment_Template_loginstance -->".$data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $result1 = curl_exec($ch);
+        \log::info($result1);
+        $result = explode("\n",$result1);
+        \log::info($result);
+        if(count($result)>1){
+            return response()->json([
+                'type'=>'success',
+                'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
+            ], 200); 
+         
+        }else{
+            return response()->json([
+            'type'=>'error',
+            'response' =>($result[0]=='')?'Please select Date':"Product Template for $date is  not found"
+            ], 200);
+         
+        }
+
+        
     }
 }

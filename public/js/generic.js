@@ -89,7 +89,7 @@ var getHtml = function(response) {
         else {
             fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'">'; 
         }
-        fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
+        fullHtml = fullHtml + '<td style="width:5%"><input data-object_type_id="'+message.object_type_id+'" data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';
         // Check for attached media (ERP attached media)
         if (currentChatParams.data.load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
@@ -232,7 +232,7 @@ var getHtml = function(response) {
                image_url = message.media[0].image;
            }
         }
-        button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+        button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" data-object_type_id="'+message.object_type_id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
 
         if(message.type == "developer_task" ) {
             if (message.status == 0) {
@@ -270,7 +270,7 @@ var getHtml = function(response) {
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
-        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-asterisk" aria-hidden="true"></i></a>';
+        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+message.sop_category+'" data-name="'+message.sop_name+'" data-message="'+message.sop_content+'" data-id="' + message.id + '"><i class="fa fa-asterisk" aria-hidden="true"></i></a>';
         button += '<a title="White list IP" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-whitelist-ip" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-server" aria-hidden="true"></i></a>';
         // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
@@ -653,6 +653,12 @@ $(document).on('click','.delete-message',function(e) {
 
 $(document).on("click",'.create_short_cut', function(){
     var msg = $(this).data('message');
+    var name = $(this).data('name');
+    var chatID = $(this).data('id');
+    var category = $(this).data('category');
+    $('#Create-Sop-Shortcut').find('.name').val(name);
+    $('#Create-Sop-Shortcut').find('.chat_message_id').val(chatID);
+    $('#Create-Sop-Shortcut').find('.category').val(category);
     $('#Create-Sop-Shortcut').find('.sop_description').text(msg);
 })
 

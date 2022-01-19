@@ -15,6 +15,7 @@
              <td>{{ $used_credit }}</td>
              <td>{{ ($c->credit + $credit_in ) - $used_credit }}</td>
              <td><a href="#" onclick="getLogs('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
+             <td><a href="#" onclick="getHistories('{{ $c->id}}')"><i class="fa fa-eye"></i></a></td>
              
            
            </tr>

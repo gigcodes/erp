@@ -11,6 +11,8 @@ class OrderConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
+    const STORE_ERP_WEBSITE = 15;
+
     /**
      * Create a new message instance.
      *
@@ -51,8 +53,13 @@ class OrderConfirmation extends Mailable
             }
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate($storeWebsiteOrder->website_id);
         } else {
+            $emailAddress = \App\EmailAddress::where('store_website_id',self::STORE_ERP_WEBSITE)->first();
+            if($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate();
         }
+        
 
         if ($template) {
             if ($template->from_email!='')

@@ -21,6 +21,8 @@ use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Customer;
 use App\MailinglistTemplate;
+use Illuminate\Support\Facades\Http;
+
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -940,20 +942,49 @@ class HashtagController extends Controller
     
     public function loginstance(Request $request)
     {
-        $url = 'http://173.212.203.50:100/get-logs';
-        $date=$request->date;
+      
+
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-logs';
+       $date=($request->date!='')?\Carbon\Carbon::parse($request->date)->format('m-d-Y'):'';
         $id=$request->id;
 
-
+     //   echo $url;exit;
+     if(!empty($date)){
         $data = ['name' => $id,'date'=>$date];
+     }else{
+        return response()->json([
+            'type'=>'error',
+            'response' =>'Please select Date'
+                  ], 200);
+     }
+
+     
         $data = json_encode($data);
+        
+     \Log::info("INFLUENCER_loginstance -->".$data);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'accept: application/json'));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $result = curl_exec($ch);
-        echo $result;
+        $result1 = curl_exec($ch);
+        $result = explode("\n",$result1);
+        
+       
+        if(count($result)>1){
+            return response()->json([
+                'type'=>'success',
+                'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render()
+            ], 200); 
+         
+        }else{
+            return response()->json([
+            'type'=>'error',
+            'response' =>($result[0]=='')?'Please select Date':"Instagram Scrapter for $id not found"
+            ], 200);
+         
+        }
 
+        
     }
 }

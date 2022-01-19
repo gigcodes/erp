@@ -47,6 +47,9 @@
       height: 20px;
         width: auto;
     }
+	.border-red {
+		border: 1px solid red;
+	}
 </style>
 @endsection
 
@@ -56,7 +59,7 @@
   </div>
   <div class="row m-0">
     <div class="col-lg-12 margin-tb p-0">
-      <h2 class="page-heading">Chat Bot Message Log ({{ $total_count }}) <br>
+      <h2 class="page-heading">Chat Bot Message Log ({{ $total_count }})
       {!! Session::has('msg') ? Session::get("msg") : '' !!}
       <div class="pull-right">
         <button type="button" class="btn btn-image pr-0" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
@@ -65,7 +68,7 @@
   </div>
 
   <div class="row">
-       <div class="col-lg-12 margin-tb">
+       <div class="col-lg-12 margin-tb mb-3">
           
            <div class="pull-left">
              <form class="form-inline" action="{{url('chatbot-message-log')}}" method="GET">
@@ -123,30 +126,28 @@
 
      <div class="row m-0">
         <div class="table-responsive">
-          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
+          <table id="magento_list_tbl_895" class="table table-bordered table-hover">
             <thead>
               <th >ID</th>
               <th >Customer Name</th>
               <th style="width:6%">Message</th>
-              <th >Type</th>
+              <th style="width:8%">Type</th>
               <th >Intent / Entity / ERP Entity</th>
               <th >Suggestion</th>
-              <th >Category</th>
+              <th style="width:7%">Category</th>
               <th >Status</th>
               <th>Push to</th>
               <th>Account</th>
-              <th >Last Updated</th>
               <th >Action</th>
             </thead>
             
             <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
 
               @foreach($logListMagentos as $item)
-          <tr>
-                 <form method="post" action="{{url('pushwaston')}}" >
-                 @csrf
-                  <td>
-                    <a class="show-product-information" data-id="{{ $item->id }}" href="/products/{{ $item->id }}" target="__blank">{{ $item->id }}</a>
+           <tr id="tr_{{$item->id}}">
+		  {{Form::open(array('url'=>'pushwaston', 'id'=>'form_'.$item->id))}}
+                 <td>
+                    <a class="show-product-information" data-id="{{ $item->id }}" href="/products/{{ $item->id }}" target="__blank" style="color:#333">{{ $item->id }}</a>
                   </td>
                   <td> {{$item->cname}} </td>
                   
@@ -165,7 +166,7 @@
                          }
                     @endphp
                      <input type="hidden" name="question[]" value="{{$message}}" >
-                    <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 6, '...')}}</span>
+                    <span class="show-short-message-{{$item->id}}">{{ str_limit($message, 36, '...')}}</span>
                     <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$message}}</span>
                   </td>
                   <td> <select name="keyword_or_question" id="" class="form-control view_details_div">
@@ -175,10 +176,10 @@
                 <option value="priority-customer">Priority Customer</option>
             </select> </td>
             <td> 
-            <input type="text" name="value"  placeholder="Enter your value" required>
+            <input type="text" name="value"  placeholder="Enter your value" required style="width:unset;" class="form-control">
            </td>
            <td> 
-            <input type="text" name="suggested_reply"  placeholder="Suggested Reply" required>
+            <input type="text" name="suggested_reply"  placeholder="Suggested Reply" required style="width:unset;" class="form-control">
            </td>
            
                   <td>  <select name="category_id" id="" class="form-control">
@@ -204,15 +205,9 @@
                 @endif
             </select></td>
                   
-                  <td>
-                    @if(isset($item->updated_at))
-                      {{ date('M d, Y',strtotime($item->updated_at))}}
-                    @endif
-                  </td>
-                  
-                  <td style="padding: 1px 7px">
+                  <td class="align-middle">
                     <button class="btn btn-xs btn-none-border chatbot-log-list" data-id="{{$item->id}}"><i class="fa fa-eye"></i></button>
-                    <button type="submit"><i class="fa fa-save"></i></button>  
+                     <button class="btn btn-xs btn-none-border" type="button" onclick="submitForm('{{$item->id}}')"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>  
                   </td>
                   </form>       
                 </tr>
@@ -283,8 +278,53 @@
         $("#loading-image").hide();
       });
   });
-
-
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+	function submitForm(form_id) {
+		var formId = 'form_'+form_id;
+        $('#'+formId).find(".error").remove();
+        $('#'+formId).find(".border-red").removeClass('border-red');
+		let myForm =  document.getElementById(formId);
+        var form = $('#tr_'+form_id);
+        $.ajax({
+            type: 'POST',
+            url: "{{url('pushwaston')}}",
+            data: new FormData(myForm),
+			dataType:'json',
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.success)
+                {
+                    window.location.href = data.extra.redirect;
+                } else {
+                   
+                    $.each(data.error, function(i, v) {
+                        var error = '<div class="error">' + v + '</div>';
+                        var split = i.split('.'); 
+                        if (split[2]) {
+                            var ind = split[0] + '[' + split[1] + ']' + '[' + split[2] + ']';
+                            form.find("[name='" + ind + "']").addClass('border-red');
+                            form.find("[name='" + ind + "']").parent().append(error);
+                        } else if (split[1]) {
+                            var ind = split[0] + '[' + split[1] + ']';
+                            form.find("[name='" + ind + "']").addClass('border-red');
+                            form.find("[name='" + ind + "']").parent().append(error);
+                        } else {console.log(split);console.log(i);
+                            form.find("[name='" + i + "']").addClass('border-red');
+                            form.find("[name='" + i + "']").parent().append(error);
+                        }
+                    });
+                }
+            },
+            error: function(data) {
+                console.log('An error occurred.');
+            }
+        });
+	}
 
 </script>
 
