@@ -48,6 +48,7 @@ use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
+use App\TaskMessage;
 
 class DevelopmentController extends Controller
 {
@@ -1124,6 +1125,7 @@ class DevelopmentController extends Controller
             }
 			return $data;
 		}
+		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
         return view('development.flagtask', [
             'issues' => $issues,
             'users' => $users,
@@ -1133,6 +1135,7 @@ class DevelopmentController extends Controller
             'type' => $type,
             'priority' => $priority,
             'tasks'=>$tasks,
+            'taskMessage'=>$taskMessage,
            // 'countPlanned' => $countPlanned,
             //'countInProgress' => $countInProgress,
             'statusList' => $statusList,
@@ -1140,6 +1143,14 @@ class DevelopmentController extends Controller
             "task_statuses"=>$task_statuses
         ]);
     }
+
+	public function saveTaskMessage(Request $request) {
+		$input = $request->input();
+		TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+		return response()->json([
+		  'success'
+		]);
+	}
 
 
     public function summaryList1(Request $request)

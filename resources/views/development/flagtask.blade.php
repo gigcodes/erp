@@ -208,8 +208,9 @@
 
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-
-                       
+					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
+                    </a>   
                     
                 </form>
                 
@@ -341,6 +342,38 @@
 @include("development.partials.user_history_modal")
 <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
+<div id="reminderMessageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set / Edit Reminder</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+					{{ Form::model($taskMessage, array('url'=>route('development.taskmessage'), 'id'=>'task_message_form'))}}
+						<div class="form-group">
+							<label for="frequency">Frequency</label>
+							<?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency", 'required']); ?>
+						</div>
+						<div class="form-group">
+							<label for="reminder_message">Reminder Message</label>
+							{{Form::textarea('message', null, array('class'=>'form-control', 'required'))}}
+						</div>
+						<div class="form-group">
+							{{Form::hidden('message_type', 'date_time_reminder_message')}}
+							{{Form::hidden('id', null)}}
+							<button type="button" class="btn btn-secondary task-submit-reminder">Save</button>
+						</div>
+					</form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -354,7 +387,22 @@
     <script src="/js/bootstrap-multiselect.min.js"></script>
 	
 	<script>
-        
+       $(document).on('click', '.task-submit-reminder', function () {
+            var task_message_form = $("#task_message_form").serialize();
+            $.ajax({
+                url: "{{route('development.taskmessage')}}",
+                type: 'POST',
+				data: task_message_form,
+                success: function () {
+                    toastr['success']('message updated successfully!');
+                },
+                error: function (){
+                    toastr['error']('Something went wrong, Please try again!');
+                }
+            });
+        });
+		
+		
         var isLoading = false;
         var page = 1;
         $(document).ready(function () {
