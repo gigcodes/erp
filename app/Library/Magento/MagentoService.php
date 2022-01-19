@@ -828,7 +828,7 @@ class MagentoService
                 $this->log = LogListMagento::log($this->product->id, $res, 'info', $this->storeWebsite->id, 'error');
             }
             unset($productData['product']['media_gallery_entries']);
-            ProductPushErrorLog::log($url, $this->product->id, $res, 'error', $this->storeWebsite->id, $productData, $res, $this->log->id);
+            ProductPushErrorLog::log($url, $this->product->id, $res, 'error', $this->storeWebsite->id, $productData, json_decode($res), $this->log->id);
         } else {
             if ($this->log) {
                 $this->log->message = "Product (" . $this->productType . ") with SKU " . $this->sku . " successfully pushed to Magento";
