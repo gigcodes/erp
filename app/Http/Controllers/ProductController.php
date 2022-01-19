@@ -4707,7 +4707,7 @@ class ProductController extends Controller
           
             if (!empty($websiteArrays)) {
                 $i = 1;
-                foreach ($websiteArrays as $websiteArray) {
+                foreach ($websiteArrays as $websiteArray) { 
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
                         \Log::info("Product started website found For website" . $website->website);

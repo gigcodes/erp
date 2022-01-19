@@ -974,5 +974,15 @@ class ProductHelper extends Model
 
         return [];
     }
+	
+	public static function getTopParent($categoryId)
+    {
+        $category = Category::find($categoryId);
+        if($category->parent_id == 0) {
+			return $newCat = $category->title;
+        } else {
+			return ProductHelper::getTopParent($category->parent_id);
+		}
+	}
 
 }
