@@ -1078,7 +1078,7 @@ class DevelopmentController extends Controller
         
         
         if (!auth()->user()->isReviwerLikeAdmin()) {
-            $task = $issues->where(function ($query) use ($request) {
+            $issues = $issues->where(function ($query) use ($request) {
                 $query->where("developer_tasks.assigned_to", auth()->user()->id)
                 ->orWhere("developer_tasks.master_user_id", auth()->user()->id);
             });
