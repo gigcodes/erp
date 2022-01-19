@@ -1,10 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
-
+<?php $base_url = URL::to('/');?>
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <h2 class="page-heading">Order/Refund Status Messages</h2>
+      <div class="pull-left cls_filter_box">
+          <form class="form-inline" action="{{ route('order.status.messages') }}" method="GET">
+              <div class="form-group ml-3 cls_filter_inputbox">
+                  <label for="with_archived">Search Order/Refund No.</label>
+                  <input name="order_id" type="text" class="form-control" placeholder="Search" id="order-search" data-allow-clear="true">
+              </div>
+              <div class="form-group ml-3 cls_filter_inputbox">
+                  <label for="with_archived">Search Customer Name</label>
+                  <input name="customer_name" type="text" class="form-control" placeholder="Search" id="customer-name" data-allow-clear="true">
+              </div>
+              <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+          </form>
+      </div>
   </div>
 </div>
 
