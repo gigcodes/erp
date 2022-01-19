@@ -60,6 +60,7 @@ class MagentoService
     public $activeLanguages = [];
     public $charity;
     public $conditions;
+    public $conditionsWithIds;
 
     const SKU_SEPERATOR = "-";
 
@@ -73,7 +74,8 @@ class MagentoService
         if ($p) {
             $this->charity = 1;
         }
-		$this->conditions = PushToMagentoCondition::where('status', 1)->pluck('condition')->toArray();
+		$this->conditionsWithIds = PushToMagentoCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $this->conditions = array_keys($this->conditionsWithIds);
     }
 
     public function pushProduct()
