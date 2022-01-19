@@ -1518,6 +1518,9 @@ if (!empty($notifications)) {
 											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
+											<li class="nav-item">
+                                                <a class="dropdown-item" href="{{ route('products.push.conditions') }}">Magento product push conditions</a>
+                                            </li>
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                             </li>

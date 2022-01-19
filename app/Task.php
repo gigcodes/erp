@@ -80,7 +80,11 @@ class Task extends Model {
 		'reminder_from',
 		'reminder_last_reply',
         'last_send_reminder',
-        'parent_task_id'
+
+        'parent_task_id',
+
+		'last_date_time_reminder'
+
 	];
 
 	const TASK_TYPES = [

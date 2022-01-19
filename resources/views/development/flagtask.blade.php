@@ -157,14 +157,16 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
-    <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
+    <div class="row">
+        <div class="col-md-12 p-0">
+            <h2 class="page-heading">Quick Dev Task</h2>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
-
-            <div class="pull-left cls_filter_box">
-                <form class="form-inline" action="{{ route('development.flagtask') }}" method="GET">
-
-                    <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
+            <div class=" cls_filter_box" style="margin-left: -13px;">
+                <form class="form-inline form-search-data" action="{{ route('development.flagtask') }}" method="GET">
                     <div class="col-md-2 pd-sm pd-rt">
                         <input type="text" style="width:100%;" name="subject" id="subject_query"
                             placeholder="Issue Id / Subject" class="form-control"
@@ -206,8 +208,9 @@
 
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-
-                       
+					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
+                    </a>   
                     
                 </form>
                 
@@ -222,14 +225,14 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">Subject</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Tracked Time</th>
-                        <th width="13%">Estimated Time</th>
-                        <th width="13%">Delivery Date</th>
-                        <th width="35%">Communication</th>
-                        <th width="10%">Status</th>
+                        <th width="7%">ID</th>
+                        <th width="9%">Subject</th>
+                        <th width="12%">Assigned To</th>
+                        <th width="10%">Tracked Time</th>
+                        <th width="9%">Estimated Time</th>
+                        <th width="12%">Delivery Date</th>
+                        <th width="22%">Communication</th>
+                        <th width="13%">Status</th>
                     </tr>
                 </thead>
 
@@ -261,8 +264,7 @@
                 </tbody>
             </table>
         </div>
-        <?php echo $issues->appends(request()->except('page'))->links(); ?>
-
+        
     </div>
     @include("development.partials.upload-document-modal")
     @include("development.partials.time-tracked-modal")
@@ -338,6 +340,39 @@
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
+<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+<div id="reminderMessageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set / Edit Reminder</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+					{{ Form::model($taskMessage, array('url'=>route('development.taskmessage'), 'id'=>'task_message_form'))}}
+						<div class="form-group">
+							<label for="frequency">Frequency</label>
+							<?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency", 'required']); ?>
+						</div>
+						<div class="form-group">
+							<label for="reminder_message">Reminder Message</label>
+							{{Form::textarea('message', null, array('class'=>'form-control', 'required'))}}
+						</div>
+						<div class="form-group">
+							{{Form::hidden('message_type', 'date_time_reminder_message')}}
+							{{Form::hidden('id', null)}}
+							<button type="button" class="btn btn-secondary task-submit-reminder">Save</button>
+						</div>
+					</form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+</div>
 
 @endsection
 
@@ -350,7 +385,70 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
+	
+	<script>
+       $(document).on('click', '.task-submit-reminder', function () {
+            var task_message_form = $("#task_message_form").serialize();
+            $.ajax({
+                url: "{{route('development.taskmessage')}}",
+                type: 'POST',
+				data: task_message_form,
+                success: function () {
+                    toastr['success']('message updated successfully!');
+                },
+                error: function (){
+                    toastr['error']('Something went wrong, Please try again!');
+                }
+            });
+        });
+		
+		
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
+            });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "{{url('development/flagtask')}}?ajax=1&page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {  console.log(data);                   
+                        $loader.hide();
+                        $('#vendor-body').append(data); 
+						isLoading = false;
+						if(data == "") {
+							isLoading = true;
+						}						
+                        
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
+       
+
+  </script>  
+	
     <script type="text/javascript">
+	
         $(document).ready(function() {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Please Select'

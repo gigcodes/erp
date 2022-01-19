@@ -17,7 +17,7 @@ use App\ProductPushErrorLog;
 use App\Exports\MagentoProductCommonError;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\PushToMagentoCondition;
 
 class MagentoProductPushErrors extends Controller
 {
@@ -80,9 +80,13 @@ class MagentoProductPushErrors extends Controller
         $records = $records->latest()->paginate(50);
 
         $recorsArray = [];
-
+		$conditions = PushToMagentoCondition::pluck('condition', 'id')->toArray();
+		
         foreach ($records as $row) {
-
+			$condition = '';
+			if($row->condition_id != null and isset($conditions[$row->condition_id])) {
+				$condition = $conditions[$row->condition_id];
+			}
             $recorsArray[] = [
                 'product_id'      => '<a class="show-product-information" data-id="'.$row->product_id.'" href="/products/'.$row->product_id.'" target="__blank">'.$row->product_id.'</a>',
                 'updated_at'      => $row->created_at->format('d-m-y H:i:s'),
@@ -91,6 +95,7 @@ class MagentoProductPushErrors extends Controller
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
                 'request_data'    => str_limit($row->request_data, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
+				'condition_id'   => $condition,
                 'response_data'   => str_limit($row->response_data, 30, 
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
 //                'response_status' => $row->response_status,

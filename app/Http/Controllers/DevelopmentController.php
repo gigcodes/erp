@@ -48,6 +48,7 @@ use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
+use App\TaskMessage;
 
 class DevelopmentController extends Controller
 {
@@ -1012,7 +1013,7 @@ class DevelopmentController extends Controller
         $title = 'Flag Task List';
 
         $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
-        $task =  Task::with('timeSpent')->where('is_flagged', '1');
+        $task =  Task::with('timeSpent')->where('is_flagged', '1'); 
        
        if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -1098,11 +1099,33 @@ class DevelopmentController extends Controller
         }
      //   dd($task->get());
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination'));
+        $issues = $issues->paginate(Setting::get('pagination'));//
         $tasks = $task->paginate(Setting::get('pagination'));
- //      dd($tasks);
+     
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
+		
+		if($request->ajax()) {
+			$data = '';
+			$isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
+            $userID = Auth::user()->id;
+            foreach ($issues as $key => $issue){
+                if ($isReviwerLikeAdmin) {
+                    $data .= view("development.partials.flagsummarydata", compact('issue', 'users', 'statusList', 'task_statuses'));
+				}elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||$issue->assigned_to == $userID) {
+                    $data .= view("development.partials.flagdeveloper-row-view", compact('issue', 'users', 'statusList', 'task_statuses'));
+                }
+            }
+            foreach ($tasks as $key => $issue) {
+                if ($isReviwerLikeAdmin) {
+                    $data .= view("task-module.partials.flagsummarydata", compact('issue', 'users', 'statusList', 'task_statuses'));
+				} elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID) {
+                    $data .= view("task-module.partials.flagdeveloper-row-view", compact('issue', 'users', 'statusList', 'task_statuses'));
+                }
+            }
+			return $data;
+		}
+		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
         return view('development.flagtask', [
             'issues' => $issues,
             'users' => $users,
@@ -1112,6 +1135,7 @@ class DevelopmentController extends Controller
             'type' => $type,
             'priority' => $priority,
             'tasks'=>$tasks,
+            'taskMessage'=>$taskMessage,
            // 'countPlanned' => $countPlanned,
             //'countInProgress' => $countInProgress,
             'statusList' => $statusList,
@@ -1119,6 +1143,14 @@ class DevelopmentController extends Controller
             "task_statuses"=>$task_statuses
         ]);
     }
+
+	public function saveTaskMessage(Request $request) {
+		$input = $request->input();
+		TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+		return response()->json([
+		  'success'
+		]);
+	}
 
 
     public function summaryList1(Request $request)
@@ -2816,8 +2848,9 @@ class DevelopmentController extends Controller
     public function saveEstimateDate(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
+       
         //$issue = Issue::find($request->get('issue_id'));
-        $estimate_date = date("Y-m-d", strtotime($request->estimate_date));
+        $estimate_date = date("Y-m-d H:i:s", strtotime($request->estimate_date));
         if ($issue && $request->estimate_date) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
@@ -2828,7 +2861,7 @@ class DevelopmentController extends Controller
                 'user_id' => Auth::id(),
             ]);
         }
-
+      //  dd($estimate_date);
         $issue->estimate_date = $estimate_date;
         $issue->save();
 
