@@ -86,12 +86,14 @@ class SyncUpteamProducts extends Command
 			}
 			$measurement_size_type = 'measurement';
 			$size_value = null;
-			if($product['ring_size'] > 0) {
+			if($product['ring_size'] != "" and $product['ring_size'] > 0) {
+				UpteamLog::create(['log_description'=>$product['product_name'].' ring size assigned']);
 				$measurement_size_type = 'size';
 				$size_value = $product['ring_size'];
-			}else if($product['belt_size'] > 0) {
+			}else if($product['belt_size'] != "" and $product['belt_size'] > 0) {
 				$measurement_size_type = 'size';
 				$size_value = $product['belt_size'];
+				UpteamLog::create(['log_description'=>$product['product_name'].' belt size assigned']);
 			}
 			
 			$productToInsert = [
