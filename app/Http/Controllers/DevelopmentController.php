@@ -1099,8 +1099,8 @@ class DevelopmentController extends Controller
         }
      //   dd($task->get());
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination'));//
-        $tasks = $task->paginate(Setting::get('pagination'));
+        $issues = $issues->paginate(1);//Setting::get('pagination')
+        $tasks = $task->paginate(1);
      
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
