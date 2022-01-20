@@ -1444,6 +1444,9 @@ if (!empty($notifications)) {
                                     <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/automatic/tasks') }}">Automatic Tasks</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
                                 </li>
                                   <li class="nav-item">

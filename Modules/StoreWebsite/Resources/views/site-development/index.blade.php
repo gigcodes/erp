@@ -76,6 +76,7 @@
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
 		<div class="pull-right pr-2 d-flex">
+			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal" id="">Create Tasks</button>
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
 				<button style=" color: #757575" class="btn btn-secondary btn-image ml-2">
@@ -593,6 +594,32 @@
   </div>
 </div>
 
+<div id="createTasksModal" class="modal fade" role="dialog" style="display: none;">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Create Tasks</h4>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Task Category</label>
+            <div class="input-group">
+				{{ Form::select('task_category', ['Design'=>'Design', 'Development'=>'Functionality'], null, array('class'=>'form-control')) }}
+            </div>
+		 </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary" onClick="createTasks()">Create</button>
+        </div>
+    </div>
+  </div>
+</div>
+
 <div id="previewDoc" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -616,6 +643,35 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
+	function createTasks() {
+		var text = $('#task_category').val()
+		if (text === '') {
+			alert('Please Enter Master Category');
+		} else {
+			$.ajax({
+					url: '{{ route('site-development.create.task') }}',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						text: text,
+						websiteId: {{$website->id}},
+						"_token": "{{ csrf_token() }}"
+					},
+					beforeSend: function() {
+						$("#loading-image").show();
+					},
+				}).done(function(data) {
+					$("#loading-image").hide();
+					toastr["success"](data.messages);
+					setTimeout(function(){ refreshPage(); }, 2000);
+				}).fail(function(data) {
+					$('#masterCategorySingle').val('')
+					console.log(data)
+					console.log("error");
+				});
+		}
+	}
+
 	$("#change_website").change(function(){
 		var websiteUrl='';
 		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
@@ -721,7 +777,6 @@
 					console.log(data)
 					console.log("error");
 				});
-
 		}
 	}
 
