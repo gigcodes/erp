@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableSocialCampaigns extends Migration
+class CreateTableSocialAds extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,15 @@ class CreateTableSocialCampaigns extends Migration
      */
     public function up()
     {
-        Schema::create('social_campaigns', function (Blueprint $table) {
+        Schema::create('social_ads', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('config_id');
-            $table->string('name')->nullable();
-            $table->string('objective_name')->nullable();
-            $table->string('buying_type')->nullable();
-            $table->string('daily_budget')->nullable();
+            $table->string('adset_id');
+            $table->string('name');
+            $table->string('creative_id')->nullable();
             $table->string('status')->nullable();
-            $table->string('ref_campaign_id')->nullable();
-            
+            $table->string('live_status')->nullable();
+            $table->string('ref_ads_id')->nullable();
             $table->timestamps();
         });
     }
@@ -34,6 +33,6 @@ class CreateTableSocialCampaigns extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('instagram_logs');
+        Schema::dropIfExists('social_ads');
     }
 }

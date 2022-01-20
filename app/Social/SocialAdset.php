@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
-class SocialCampaign extends Model
+class SocialAdset extends Model
 {
     use Mediable;
 

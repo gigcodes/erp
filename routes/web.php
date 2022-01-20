@@ -1588,8 +1588,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
-    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
     
 
 
@@ -3531,6 +3529,23 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('campaign/delete', 'SocialCampaignController@destroy')->name('social.campaign.delete');
     Route::get('campaign/create', 'SocialCampaignController@create')->name('social.campaign.create');
     Route::post('campaign/history', 'SocialCampaignController@history')->name('social.campaign.history');
+
+    
+    Route::get('adsets', 'SocialAdsetController@index')->name('social.adset.index');
+    Route::post('adset/store', 'SocialAdsetController@store')->name('social.adset.store');
+    Route::post('adset/edit', 'SocialAdsetController@edit')->name('social.adset.edit');
+    Route::post('adset/delete', 'SocialAdsetController@destroy')->name('social.adset.delete');
+    Route::get('adset/create', 'SocialAdsetController@create')->name('social.adset.create');
+    Route::post('adset/history', 'SocialAdsetController@history')->name('social.adset.history');
+
+
+    
+    Route::get('ads', 'SocialAdsController@index')->name('social.ad.index');
+    Route::post('ads/store', 'SocialAdsController@store')->name('social.ad.store');
+    Route::post('ads/edit', 'SocialAdsController@edit')->name('social.ad.edit');
+    Route::post('ads/delete', 'SocialAdsController@destroy')->name('social.ad.delete');
+    Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
+    Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
 
 
 
