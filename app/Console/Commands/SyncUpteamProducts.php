@@ -46,6 +46,7 @@ class SyncUpteamProducts extends Command
      */
     public function handle()
     { 
+		ini_set('max_execution_time', '300');
 		$api = "https://staging.upteamco.com/1api/files/1627/in/20220104-18-Cache-cd24d9267e8f2c8f866c7bc41d4a72af-1.json";
 		UpteamLog::create(['log_description'=>'Api called '.$api]);
         $ch = curl_init();
@@ -78,8 +79,10 @@ class SyncUpteamProducts extends Command
 			$brand = Brand::firstOrCreate(['name'=>$product['brand']]);
 			$category = Category::where(['title'=>$product['category']])->first();
 			if($category == null) {
+				UpteamLog::create(['log_description'=>$product['category'].' Category Not found for product '.$product['product_name']]);			
 				$mainCategory = Category::firstOrCreate(['title'=>$product['main_category']]);
 				$category = Category::create(['title'=>$product['category'], 'parent_id'=>$mainCategory['id']]);
+				UpteamLog::create(['log_description'=>$product['category'].' Category created']);
 			}
 			$measurement_size_type = 'measurement';
 			$size_value = null;
@@ -91,10 +94,7 @@ class SyncUpteamProducts extends Command
 				$size_value = $product['belt_size'];
 			}
 			
-          
-				
-			$insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
-				[
+			$productToInsert = [
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
 					'stock'=> (int)$product['stock'],
@@ -120,7 +120,12 @@ class SyncUpteamProducts extends Command
 					'is_on_sale'=>1,
 					'price_inr'=>round(Setting::get('usd_to_inr') * $product['rrp']),
 					'price_inr_special'=>round(Setting::get('usd_to_inr') * $product['selling_price_usd']),
-				]
+				];
+				
+			UpteamLog::create(['log_description'=>'Product to insert '.json_encode($productToInsert)]);
+			
+		    $insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
+				$productToInsert
 			); 
 			ProductSupplier::updateOrCreate(['product_id' => $insertedProd->id], [
                 'product_id' => $insertedProd->id,
