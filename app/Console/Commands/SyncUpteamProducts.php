@@ -102,7 +102,7 @@ class SyncUpteamProducts extends Command
 				$size_value = $product['belt_size'];
 				UpteamLog::create(['log_description'=>$product['product_name'].' belt size assigned']);
 			}
-			
+			UpteamLog::create(['log_description'=>' Size assigned']);
 			$productToInsert = [
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
