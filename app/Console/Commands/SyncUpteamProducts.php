@@ -46,6 +46,7 @@ class SyncUpteamProducts extends Command
      */
     public function handle()
     { 
+		ini_set('max_execution_time', '300');
 		$api = "https://staging.upteamco.com/1api/files/1627/in/20220104-18-Cache-cd24d9267e8f2c8f866c7bc41d4a72af-1.json";
 		UpteamLog::create(['log_description'=>'Api called '.$api]);
         $ch = curl_init();
@@ -75,22 +76,33 @@ class SyncUpteamProducts extends Command
 		
 		foreach($productWithKeys as $product) { //dd($product);
 			UpteamLog::create(['log_description'=>'Product importing '.$product['product_name'].' with details '.json_encode($product)]);
-			$brand = Brand::firstOrCreate(['name'=>$product['brand']]);
 			$category = Category::where(['title'=>$product['category']])->first();
+			UpteamLog::create(['log_description'=>' Category details found'. json_encode($category)]);
 			if($category == null) {
+				UpteamLog::create(['log_description'=>$product['category'].' Category Not found for product '.$product['product_name']]);			
 				$mainCategory = Category::firstOrCreate(['title'=>$product['main_category']]);
 				$category = Category::create(['title'=>$product['category'], 'parent_id'=>$mainCategory['id']]);
+				UpteamLog::create(['log_description'=>$product['category'].' Category created']);
+			} 
+			$brand = Brand::where(['name'=>$product['brand']])->first();
+			if($brand == null) {
+				UpteamLog::create(['log_description'=>$product['brand'].' brand insertion']);
+				$brand = Brand::create(['name'=>$product['brand']]);
+				UpteamLog::create(['log_description'=>$product['brand'].' brand inserted']);
 			}
 			$measurement_size_type = 'measurement';
 			$size_value = null;
-			if($product['ring_size'] > 0) {
+			UpteamLog::create(['log_description'=>' Size check']);
+			if($product['ring_size'] != "" and $product['ring_size'] > 0) {
+				UpteamLog::create(['log_description'=>$product['product_name'].' ring size assigned']);
 				$measurement_size_type = 'size';
 				$size_value = $product['ring_size'];
-			}else if($product['belt_size'] > 0) {
+			}else if($product['belt_size'] != "" and $product['belt_size'] > 0) {
 				$measurement_size_type = 'size';
 				$size_value = $product['belt_size'];
+				UpteamLog::create(['log_description'=>$product['product_name'].' belt size assigned']);
 			}
-			
+			UpteamLog::create(['log_description'=>' Size assigned']);
 			$productToInsert = [
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
@@ -118,6 +130,11 @@ class SyncUpteamProducts extends Command
 					'price_inr'=>round(Setting::get('usd_to_inr') * $product['rrp']),
 					'price_inr_special'=>round(Setting::get('usd_to_inr') * $product['selling_price_usd']),
 				];
+
+				
+			UpteamLog::create(['log_description'=>'Product to insert '.json_encode($productToInsert)]);
+			
+
           UpteamLog::create(['log_description'=>'Product values to insert '.$product['product_name'].' with details '.json_encode($productToInsert)]);
 			
 				
