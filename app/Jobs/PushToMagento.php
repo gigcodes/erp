@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
 
 class PushToMagento implements ShouldQueue
 {
@@ -54,10 +55,10 @@ class PushToMagento implements ShouldQueue
         if ($p) {
             $charity = 1;
         }
-
+			
         try {
-
-            //$jobId = app(JobRepository::class)->id;
+			$categorym = $product->categories;  
+			 //$jobId = app(JobRepository::class)->id;
             if($product->status_id == StatusHelper::$finalApproval){
 
                 if ($this->log) {
@@ -66,6 +67,15 @@ class PushToMagento implements ShouldQueue
                     $this->log->queue_id = $this->job->getJobId();
                     $this->log->job_start_time = $date_time;
                     $this->log->save();
+                }
+				$topParent = ProductHelper::getTopParent($categorym->id);
+                if ($website->sale_old_products == 0 and strtoupper($topParent) == "PREOWNED") {
+                    ProductPushErrorLog::log('', $product->id, 'Website do not sale preowned products.', 'error', $website->id, null, null, $this->log->id);
+                    $this->log->message = "Website do not sale preowned products";
+                    $this->log->sync_status = "error";
+                    $this->log->job_end_time = date("Y-m-d H:i:s");
+                    $this->log->save();
+                    return false;
                 }
 
                 if (!$website->website_source || $website->website_source == '') {
@@ -142,7 +152,7 @@ class PushToMagento implements ShouldQueue
                 }
             }
 
-        } catch (\Exception $e) {
+        } catch (\Exception $e) { //dd($e->getMessage());
             if ($this->log) {
                 ProductPushErrorLog::log('', $product->id, $e->getMessage(), 'error', $website->id, null, null, $this->log->id);
                 $this->log->message = $e->getMessage();

@@ -123,10 +123,15 @@ class SyncUpteamProducts extends Command
 					'price_inr'=>round(Setting::get('usd_to_inr') * $product['rrp']),
 					'price_inr_special'=>round(Setting::get('usd_to_inr') * $product['selling_price_usd']),
 				];
+
 				
 			UpteamLog::create(['log_description'=>'Product to insert '.json_encode($productToInsert)]);
 			
-		    $insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
+
+          UpteamLog::create(['log_description'=>'Product values to insert '.$product['product_name'].' with details '.json_encode($productToInsert)]);
+			
+				
+			$insertedProd = Product::updateOrCreate(['sku'=>$product['sku']], 
 				$productToInsert
 			); 
 			ProductSupplier::updateOrCreate(['product_id' => $insertedProd->id], [

@@ -94,7 +94,8 @@ class StoreWebsite extends Model
         'logo_border_color',  
         'text_color',   
         'border_color',   
-        'border_thickness'
+        'border_thickness',
+        'sale_old_products'
     ];
 
     const DB_CONNECTION = [

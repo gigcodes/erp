@@ -488,7 +488,8 @@ if (!empty($notifications)) {
                                                 @if(auth()->user()->checkPermission('productlister-list'))
                                                 <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
                                                 @endif
-                                                <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
+												<a class="dropdown-item" href="{{ route('products.push.conditions') }}">Magento product push conditions</a>
+												<a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
@@ -1518,6 +1519,7 @@ if (!empty($notifications)) {
 											<li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('magento-productt-errors.index') }}">Magento product push errors</a>
                                             </li>
+											
                                             <li class="nav-item">
                                                 <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                             </li>
@@ -1984,6 +1986,7 @@ if (!empty($notifications)) {
 
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                         <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                                        <a class="dropdown-item" href="{{ route('development.flagtask') }}">Flag Tasks</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                         <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                                         <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>

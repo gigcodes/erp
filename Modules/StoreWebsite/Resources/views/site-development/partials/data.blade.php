@@ -4,9 +4,8 @@
     $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
     $userId = auth()->user()->id;
     $pagrank = $categories->perPage() * ($categories->currentPage()- 1) + 1;
-    @endphp
-
-    @foreach($categories as $key => $category)
+    @endphp 
+	 @foreach($categories as $key => $category) 
     <?php
     $site = $category->getDevelopment($category->id, $website->id, $category->site_development_id);//
 
@@ -15,7 +14,7 @@
 
         <tr>
             <td>
-                {{ $pagrank++  }}
+                {{ $pagrank++  }} 
             </td>
             <td>
                 @include("storewebsite::site-development.partials.edit-modal")

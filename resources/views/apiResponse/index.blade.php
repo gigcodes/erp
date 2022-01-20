@@ -151,8 +151,8 @@ form label.required:after{
   <span class="loader-inner"></span>
 </span> -->
 
-<div class="row">
-    <div class="col-lg-12 margin-tb">
+<div class="m-auto row">
+    <div class="col-lg-12 margin-tb p-0 w-100">
         <h2 class="page-heading">Api Response Management</h2>
     </div>
 </div>
@@ -265,39 +265,36 @@ form label.required:after{
 @endif
 
 <form class="form-search-data">
-               
-               <div class="row">
-                   
-                  
-                   
-                     
-                   <div class="col-xs-6 col-md-2 pd-2">
-                       <div class="form-group">
-                       <select class="form-control select select2 required" name="store_website_id"  >
-                                    <option value="">Please select Website</option>
-                                    @foreach($store_websites as $web)
-                                      <?php $sel='';
-                                      if (isset($_GET['store_website_id']) && $_GET['store_website_id']==$web->id)
-                                              $sel=" selected='selected' "; ?>
-                                        <option value="{{ $web->id }}" {{ $sel }} >{{ $web->title }}</option>
-                                    @endforeach
-                    </select>
-                       </div>
-                   </div>
-                   
-                  
-
-                   
-
-                   
-                   <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"></button>
-                   
-               </div>    
-               
-           </form>
-<div class="row">
+   <div class="m-auto row">                  
+       <div class="col-xs-6 col-md-2 pd-2">
+           <div class="form-group">
+                <label for="with_archived">Select Store Website</label>
+                <select class="form-control select select2 required" name="store_website_id"  >
+                    <option value="">Please select Website</option>
+                    @foreach($store_websites as $web)
+                      <?php $sel='';
+                      if (isset($_GET['store_website_id']) && $_GET['store_website_id']==$web->id)
+                              $sel=" selected='selected' "; ?>
+                        <option value="{{ $web->id }}" {{ $sel }} >{{ $web->title }}</option>
+                    @endforeach
+                </select>
+           </div>
+       </div>
+        <div class="form-group ml-3 cls_filter_inputbox">
+            <label for="with_archived">Search Key</label>
+            <input name="api_key" type="text" class="form-control" placeholder="Key" id="api-key">
+        </div>
+        <div class="form-group ml-5 cls_filter_inputbox">
+            <label for="with_archived">Search Value</label>
+            <input name="api_value" type="text" class="form-control" placeholder="Value" id="api-value">
+        </div>
+       <button type="button" onclick="$('.form-search-data').submit();" class="btn btn-image btn-call-data"><img src="{{asset('/images/filter.png')}}"></button>
+       
+   </div>    
+</form>
+<div class="m-auto row">
     <div class="table-responsive">
-        <table class="table table-striped table-bordered" style="width: 99%" id="api_response_table">
+        <table class="table table-striped table-bordered w-100" style="width: 99%" id="api_response_table">
             <thead>
                 <tr>
                     <th width="15%">ID</th>

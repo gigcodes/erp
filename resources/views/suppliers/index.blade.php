@@ -819,6 +819,7 @@
       $('#scraper_name').val(supplier.scraper_name);
       $('#inventory_lifetime').val(supplier.inventory_lifetime);
       $('#est_delivery_time').val(supplier.est_delivery_time);
+      $('#product_type').val(supplier.product_type);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

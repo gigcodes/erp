@@ -18,6 +18,7 @@ use App\StoreWebsiteSalesPrice;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\PushToMagentoCondition;
 
 /**
  * Get Magento service request
@@ -58,6 +59,8 @@ class MagentoService
     public $aclanguagecode = [];
     public $activeLanguages = [];
     public $charity;
+    public $conditions;
+    public $conditionsWithIds;
 
     const SKU_SEPERATOR = "-";
 
@@ -71,38 +74,48 @@ class MagentoService
         if ($p) {
             $this->charity = 1;
         }
-
+		$this->conditionsWithIds = PushToMagentoCondition::where('status', 1)->pluck('id', 'condition')->toArray();
+        $this->conditions = array_keys($this->conditionsWithIds);
     }
 
     public function pushProduct()
     {
         // start to send request if there is token
-
-        if (!$this->validateToken()) {
-            return false;
-        }
+		if(in_array('check_if_website_token_exists', $this->conditions)) {
+			if (!$this->validateToken()) {
+				return false;
+			}
+		}
 
         // started to check for the category
-        if ($this->charity == 0 && !$this->validateCategory()) {
-            return false;
+		if(in_array('validate_category', $this->conditions)) {
+			if ($this->charity == 0 && !$this->validateCategory()) {
+				return false;
+			}
         }
 
         // started to check the product rediness test
-        if (!$this->validateReadiness()) {
-            return false;
+		if(in_array('validate_readiness', $this->conditions)) {
+			if (!$this->validateReadiness()) {
+				return false;
+			}
         }
-
-        if (!$this->validateBrand()) {
-            return false;
+		
+		if(in_array('validate_brand', $this->conditions)) {
+			if (!$this->validateBrand()) {
+				return false;
+			}
         }
-
-        if (!$this->validateProductCategory()) {
-            return false;
+		if(in_array('validate_product_category', $this->conditions)) {
+			if (!$this->validateProductCategory()) {
+				return false;
+			}
         }
 
         // assign reference
-
-        $this->assignReference();
+		if(in_array('assign_product_references', $this->conditions)) {
+			$this->assignReference();
+		}
 
         return $this->assignOperation();
     }
@@ -112,66 +125,102 @@ class MagentoService
 
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . " #1 => " . date("Y-m-d H:i:s"));
-        $this->websiteIds = $this->getWebsiteIds();
+		if(in_array('get_website_ids', $this->conditions)) {
+			$this->websiteIds = $this->getWebsiteIds();
+		}
+		
         \Log::info($this->product->id . " #2 => " . date("Y-m-d H:i:s"));
-        $this->websiteAttributes = $this->getWebsiteAttributes();
+		if(in_array('get_website_attributes', $this->conditions)) {
+			$this->websiteAttributes = $this->getWebsiteAttributes();
+		}
         \Log::info($this->product->id . " #3 => " . date("Y-m-d H:i:s"));
         // start for translation
-
-        $this->startTranslation();
-
+		if(in_array('google_translation', $this->conditions)) {
+			$this->startTranslation();
+		}
         \Log::info($this->product->id . " #4 => " . date("Y-m-d H:i:s"));
-        $this->meta = $this->getMeta();
+		if(in_array('translate_meta', $this->conditions)) {
+			$this->meta = $this->getMeta();
+		}
         \Log::info($this->product->id . " #5 => " . date("Y-m-d H:i:s"));
+		$this->translations = [];
+		if(in_array('get_langauages_translation', $this->conditions)) {
+			$this->translations = $this->getTranslations();
+			if (!$this->translations) {
+				$this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
+				return false;
+			}
+			
+			 // after the translation that validate translation from her
+			$this->activeLanguages = $this->getActiveLanguages();
+			if (!$this->validateTranslation()) {
+				return false;
+			}
 
-        $this->translations = $this->getTranslations();
-        if (!$this->translations) {
-            $this->storeLog("translation_not_found", "No translations found for the product total translation " . count($this->translations), null, null);
-            return false;
-        }
-        // after the translation that validate translation from her
-        $this->activeLanguages = $this->getActiveLanguages();
-        if (!$this->validateTranslation()) {
-            return false;
-        }
+			\Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
 
-        \Log::info($this->product->id . " #6 => " . date("Y-m-d H:i:s"));
-
-        $this->totalRequest += count($this->translations);
+			$this->totalRequest += count($this->translations);
+		}
+        
+       
 
         \Log::info($this->product->id . " #7 => " . date("Y-m-d H:i:s"));
         $this->sizes = $this->getSizes();
         \Log::info($this->product->id . " #8 => " . date("Y-m-d H:i:s"));
         $this->sku = $this->getSku();
         \Log::info($this->product->id . " #9 => " . date("Y-m-d H:i:s"));
-
-        $this->description = $this->getDescription();
+		if(in_array('get_description', $this->conditions)) {
+			$this->description = $this->getDescription();
+		}
         \Log::info($this->product->id . " #10 => " . date("Y-m-d H:i:s"));
-
-        $this->magentoBrand = $this->getMagentoBrand();
-
+		if(in_array('get_magento_brand', $this->conditions)) {
+			$this->magentoBrand = $this->getMagentoBrand();
+		}
         \Log::info($this->product->id . " #11 => " . date("Y-m-d H:i:s"));
         $this->images = $this->getImages();
         \Log::info($this->product->id . " #12 => " . date("Y-m-d H:i:s"));
-        $this->storeWebsiteSize = $this->storeWebsiteSize();
-        if (!$this->validateStoreWebsiteSize()) {
-            return false;
-        }
+		if(in_array('get_store_website_size', $this->conditions)) {
+			$this->storeWebsiteSize = $this->storeWebsiteSize();
+			if(in_array('validate_store_website_size', $this->conditions)) {
+				if (!$this->validateStoreWebsiteSize()) {
+					return false;
+				}
+			}
+		}
         \Log::info($this->product->id . " #13 => " . date("Y-m-d H:i:s"));
-        $this->storeWebsiteColor = $this->storeWebsiteColor();
+		if(in_array('get_store_website_color', $this->conditions)) {
+			$this->storeLog("success", "fetch colors for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_store_website_color']]);
+			$this->storeWebsiteColor = $this->storeWebsiteColor();
+		}
         \Log::info($this->product->id . " #14 => " . date("Y-m-d H:i:s"));
-        $this->measurement = $this->getMeasurements();
+		if(in_array('get_measurements', $this->conditions)) {
+			$this->storeLog("success", "fetch measurements for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_measurements']]);
+			$this->measurement = $this->getMeasurements();
+		}
         \Log::info($this->product->id . " #15 => " . date("Y-m-d H:i:s"));
-        $this->estMinimumDays = $this->getEstimateMinimumDays();
+		
+		if(in_array('get_estimate_minimum_days', $this->conditions)) {
+			$this->storeLog("success", "estimate minimum for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_estimate_minimum_days']]);
+			$this->estMinimumDays = $this->getEstimateMinimumDays();
+		}
         \Log::info($this->product->id . " #16 => " . date("Y-m-d H:i:s"));
-        $this->sizeChart = $this->getSizeChart();
+		if(in_array('get_size_chart', $this->conditions)) {
+			$this->storeLog("success", "get size chart for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_size_chart']]);
+			$this->sizeChart = $this->getSizeChart();
+		}
         \Log::info($this->product->id . " #17 => " . date("Y-m-d H:i:s"));
-        $this->storeColor = $this->getStoreColor();
+		if(in_array('get_store_color', $this->conditions)) {
+			$this->storeLog("success", "fetch store color" . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_store_color']]);
+			$this->storeColor = $this->getStoreColor();
+		}
         \Log::info($this->product->id . " #18 => " . date("Y-m-d H:i:s"));
 
         // get normal and special prices
-
-        $this->getPricing();
+		if(in_array('get_price', $this->conditions)) {
+			$this->storeLog("success", "fetch pricing " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_price']]);
+			$this->getPricing();
+			$this->storeLog("success", "fetched pricing " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['get_price']]);
+		}
 
         \Log::info($this->product->id . " #19 => " . date("Y-m-d H:i:s"));
         return $this->assignProductOperation();
@@ -296,7 +345,7 @@ class MagentoService
         $colorFromSite = \App\StoreWebsiteColor::where("store_website_id", $this->storeWebsite->id)
             ->pluck("erp_color", "platform_id")
             ->toArray();
-
+		    
         return $colorFromSite;
     }
 
@@ -1005,6 +1054,7 @@ class MagentoService
                     $ovverridePrice = 0;
                     $segmentDiscount = 0;
                     $dutyPrice = 0;
+					$price = 0;
                     if ($webStore->is_price_ovveride) {
                         if (!empty($countries)) {
                             foreach ($countries as $cnt) {
@@ -1331,10 +1381,11 @@ class MagentoService
     {
         $token = $this->hasToken();
         if (empty($token)) {
-            $this->storeLog("error", "Not able to generate token for website " . $this->storeWebsite->title);
+            $this->storeLog("error", "Not able to generate token for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['check_if_website_token_exists']]);
             return false;
         } else {
             $this->token = $token;
+            $this->storeLog("success", "Token generated  for website " . $this->storeWebsite->title, null, null, ['error_condition'=>$this->conditionsWithIds['check_if_website_token_exists']]);
             return $token;
         }
     }
@@ -1357,7 +1408,11 @@ class MagentoService
             $this->log = LogListMagento::log($product->id, $message, $type, $storeWebsite->id, $type);
         }
 
-        ProductPushErrorLog::log(null, $product->id, $message, $type, $storeWebsite->id, null, null, $this->log->id);
+		$condition = null;
+		if(isset($extraFiels['error_condition'])) {
+			$condition = $extraFiels['error_condition'];
+		}
+        ProductPushErrorLog::log(null, $product->id, $message, $type, $storeWebsite->id, null, null, $this->log->id, $condition);
 
         return false;
     }

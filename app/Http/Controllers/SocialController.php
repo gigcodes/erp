@@ -24,7 +24,7 @@ class SocialController extends Controller
 		$this->fb=$fb;
 		$this->user_access_token = env('USER_ACCESS_TOKEN','EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD');
 
-		$this->pagez_access_token = env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAO2yF97qtbFJq2pPzKZBOocsJVU3MZA95wKZBd0VkQtiUAP534GYkXaLXI0xJRNjP3Jrv43GTY84cVofQCqipkEEUNnVrU2ZBuzmR6AdkNcngPF318iIR123ZBw2XT2sWZBgCXrFolAokqFZBcL9eQZBsVs3aZBpyOf8FMuJs4FvLG8J9HJNZBJ9IZD');
+		$this->page_access_token = env('PAGE_ACCESS_TOKEN', 'EAAaDLpZAZBZBlgBAM80TuVFQ2SJnJhmTD4BBSkMk1yo2lCY49jvw9TkXuj617kA8lfsiZBVXOnqoBJu3J2uuzMWjbZBovBMHHnlQWRDnyZBh9ntimoirSfP96mNuvulMZCznfn4WPsCtg6ZAUIFTTp6XdD8GRfqrr5PJ8flfEfA19Fzc3jMeE3RXHfXavZBCuoLTsmJX550ZBWSLDUYB8ckSuo5ICZAlKnanlLC1RNf3qOfgXnoQo2jDYgO');
 		$this->page_id= '507935072915757';
 		$this->ad_acc_id= 'act_128125721296439';
 
@@ -426,7 +426,7 @@ class SocialController extends Controller
 			$multiPhotoPost['message']=$message;
 			if($request->has('date') && $request->input('date')>date('Y-m-d'))
 			{
-				$multiPhotoPost['published']="false";
+				$multiPhotoPost['published']="true";
 				$multiPhotoPost['scheduled_publish_time']=strtotime($request->input('date'));
 			}
 			$resp = $this->fb->post('/me/feed',$multiPhotoPost)->getGraphNode()->asArray();

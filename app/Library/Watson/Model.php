@@ -439,7 +439,7 @@ class Model
 
     }
 
-    public static function pushDialog($id)
+    public static function pushDialog($id, $suggested_reply=null, $reply_id=null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -457,7 +457,8 @@ class Model
             $storeParams["title"]       = $dialog->title;
             $values                     = $dialog->response;
             $storeParams["type"]        = ($dialog->type == "folder") ? "folder" : "standard";
-
+			$storeParams["reply"]        = $suggested_reply;
+			$storeParams["reply_id"]        = $reply_id; 
             $genericOutput = [];
             foreach ($values as $value) {
                 $genericOutput["response_type"] = $value->response_type;
