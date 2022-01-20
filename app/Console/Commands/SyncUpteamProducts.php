@@ -76,16 +76,23 @@ class SyncUpteamProducts extends Command
 		
 		foreach($productWithKeys as $product) { //dd($product);
 			UpteamLog::create(['log_description'=>'Product importing '.$product['product_name'].' with details '.json_encode($product)]);
-			$brand = Brand::firstOrCreate(['name'=>$product['brand']]);
 			$category = Category::where(['title'=>$product['category']])->first();
+			UpteamLog::create(['log_description'=>' Category details found'. json_encode($category)]);
 			if($category == null) {
 				UpteamLog::create(['log_description'=>$product['category'].' Category Not found for product '.$product['product_name']]);			
 				$mainCategory = Category::firstOrCreate(['title'=>$product['main_category']]);
 				$category = Category::create(['title'=>$product['category'], 'parent_id'=>$mainCategory['id']]);
 				UpteamLog::create(['log_description'=>$product['category'].' Category created']);
+			} 
+			$brand = Brand::where(['name'=>$product['brand']])->first();
+			if($brand == null) {
+				UpteamLog::create(['log_description'=>$product['brand'].' brand insertion']);
+				$brand = Brand::create(['name'=>$product['brand']]);
+				UpteamLog::create(['log_description'=>$product['brand'].' brand inserted']);
 			}
 			$measurement_size_type = 'measurement';
 			$size_value = null;
+			UpteamLog::create(['log_description'=>' Size check']);
 			if($product['ring_size'] != "" and $product['ring_size'] > 0) {
 				UpteamLog::create(['log_description'=>$product['product_name'].' ring size assigned']);
 				$measurement_size_type = 'size';
