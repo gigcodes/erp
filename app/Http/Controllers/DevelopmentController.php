@@ -1043,9 +1043,7 @@ class DevelopmentController extends Controller
         }
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
-        } else {
-            $issues = $issues->where('developer_tasks.status', 'In Progress');
-        }
+        } 
         $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition =   $whereTaskCondition = "";
         if ($request->get('subject') != '') {
@@ -1099,8 +1097,8 @@ class DevelopmentController extends Controller
         }
      //   dd($task->get());
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(1);//Setting::get('pagination')
-        $tasks = $task->paginate(1);
+        $issues = $issues->paginate(Setting::get('pagination'));//
+        $tasks = $task->paginate(Setting::get('pagination'));
      
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
