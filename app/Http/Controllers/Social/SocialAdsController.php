@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Social\SocialAdset;
+use App\Social\SocialAd;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Setting;
@@ -18,7 +18,7 @@ use Session;
 
 
 
-class SocialAdsetController extends Controller
+class SocialAdsController extends Controller
 {
     /**2
      * Display a listing of the resource.
@@ -29,17 +29,17 @@ class SocialAdsetController extends Controller
     public function index(Request $request)
     {
         $configs = \App\Social\SocialConfig::pluck("name","id");
-        $campaingns = \App\Social\SocialCampaign::pluck("name","ref_campaign_id")->where("ref_campaign_id","!=","");
+        $adsets = \App\Social\SocialAdset::pluck("name","ref_adset_id")->where("ref_adset_id","!=","");
        
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
 
-          //  $query = SocialAdset::where('config_id',$id);
+          //  $query = SocialAd::where('config_id',$id);
 
 
-            $adsets = SocialAdset::orderby('id', 'desc')->paginate(Setting::get('pagination'));
+            $ads = SocialAd::orderby('id', 'desc')->paginate(Setting::get('pagination'));
 
         } else {
-            $adsets = SocialAdset::latest()->paginate(Setting::get('pagination'));
+            $ads = SocialAd::latest()->paginate(Setting::get('pagination'));
         }
         $websites = \App\StoreWebsite::select('id','title')->get();
         
@@ -47,13 +47,13 @@ class SocialAdsetController extends Controller
        
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.adsets.data', compact('campaingns','adsets','configs'))->render(),
-                'links' => (string)$adsets->render()
+                'tbody' => view('social.ads.data', compact('ads','configs','adsets'))->render(),
+                'links' => (string)$ads->render()
             ], 200);
         }
      
 
-        return view('social.adsets.index',compact('adsets', 'configs'));
+        return view('social.ads.index',compact('ads', 'configs','adsets'));
 
     }
     public function socialPostLog($config_id,$post_id,$platform,$title,$description){
@@ -63,7 +63,7 @@ class SocialAdsetController extends Controller
         $Log->platform = $platform;
         $Log->log_title = $title;  
         $Log->log_description = $description;
-        $Log->modal = "SocialAdset";
+        $Log->modal = "SocialAd";
         $Log->save();
         return true;
 }
@@ -75,10 +75,10 @@ class SocialAdsetController extends Controller
      */
    
     public function create() {
-        $configs = \App\Social\SocialConfig::pluck("name","id");
-        $campaingns = \App\Social\SocialCampaign::where("ref_campaign_id","!=","")->get();
         
-        return view('social.adsets.create',compact("configs","campaingns"));
+        $configs = \App\Social\SocialConfig::pluck("name","id");
+        $adsets = \App\Social\SocialAdset::where("ref_adset_id","!=","")->get();
+        return view('social.ads.create',compact("configs","adsets"));
     }
 
     /**
@@ -93,36 +93,20 @@ class SocialAdsetController extends Controller
 	{
         
       
-        $post =  new SocialAdset;
+        $post =  new SocialAd;
         $post->config_id = $request->config_id;
-        $post->campaign_id = $request->campaign_id;
         $post->name = $request->name;
-        $post->billing_event = $request->billing_event;
-        $post->start_time = $request->start_time;
-        $post->end_time = $request->end_time;
-        $post->daily_budget = $request->daily_budget;
-        $post->bid_amount = $request->bid_amount;
+        $post->adset_id = $request->adset_id;
+        $post->adcreative_id = $request->adcreative_id;
         $post->status = $request->status;
-        
-     //   $post->post_by = Auth::user()->id;
-        $post->save();
+       $post->save();
 
 
        $data['name']=$request->input('name');
-		$data['objective']=$request->input('objective');
+		$data['adset_id']=$request->input('adset_id');
 		$data['status']=$request->input('status');
-        $data["special_ad_categories "]=["NONE"];
+        $data["adcreative_id "]=$request->input('adcreative_id');
 
-		if($request->has('buying_type'))
-			$data['buying_type']=$request->input('buying_type');
-		else
-			$data['buying_type']='AUCTION';
-
-		if($request->has('daily_budget'))
-			$data['daily_budget']=$request->input('daily_budget');
-      
-	
-        
         $config =SocialConfig::find($post->config_id );
       
         $this->fb = new Facebook([
@@ -131,9 +115,11 @@ class SocialAdsetController extends Controller
             'default_graph_version' => 'v12.0',
         ]);
         $this->user_access_token =$config->token;
+        $this->ad_acc_id = "act_1227506597778206";
+      
+
         $this->socialPostLog($config->id,$post->id,$config->platform,"message","get page access token");
-        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
-      //  
+      //  $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
         
         if( $this->ad_acc_id!= ""){
     
@@ -142,27 +128,8 @@ class SocialAdsetController extends Controller
 
             try{
         //        dd($data);
-            $data['access_token']=$this->user_access_token;
-             $data['name']=$request->input('name');
-        //	$data['destination_type']=$request->input('destination_type');
-            $data['campaign_id']=$request->input('campaign_id');
-            $data['billing_event']=$request->input('billing_event');
-            $data["bid_amount"]=100;
-          
-        //	$data['start_time']=strtotime($request->input('start_time'));
-             $data['OPTIMIZATION_GOAL'] ='REACH';
-            $data['end_time']=strtotime($request->input('end_time'));
-            $data['targeting']=json_encode(array('geo_locations'=>array('countries' => array('US'))));
-            if($request->has('daily_budget'))
-                $data['daily_budget']= (int) $request->input('daily_budget');
-            $data["bid_amount"]=$request->input('bid_amount');
-            $data["daily_budget"]=$request->input('daily_budget');
-            $data['status']=$request->input('status');
-
-           // $data["bid_amount"]=1000;
-            //$data["daily_budget"]=10000;  
-            
-                $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id.'/adsets';
+                $data['access_token']=$this->user_access_token;
+                $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id.'/ads';
     
                 // Call to Graph api here
                 $curl = curl_init();
@@ -176,45 +143,32 @@ class SocialAdsetController extends Controller
     
     
                 $resp = curl_exec($curl);
-                $this->socialPostLog($config->id,$post->id,$config->platform,"response->create adset",$resp);
-            //    dd($resp);
+                $this->socialPostLog($config->id,$post->id,$config->platform,"response->create ad",$resp);
                 $resp = json_decode($resp);
                 curl_close($curl);
                
             //    dd($resp);
-                if(isset($resp->error->message)){
-                    $post->live_status="error";
-                  //  $post->ref_campaign_id=$resp->id;
-                    $post->save();
+                if(isset($resp->error->message))
                     Session::flash('message',$resp->error->message);
 
-                }else{
-                    $post->live_status="sucess";
-                    $post->ref_adset_id	=$resp->id;
-                    $post->save();
-
-                    Session::flash('message',"adset created  successfully");
-                }    
+                else
+                    Session::flash('message',"Campaign created  successfully");
     
-                return redirect()->route('social.adset.index');
+    
+                return redirect()->route('social.ad.index');
             }
             catch(Exception $e)
             {
                 $this->socialPostLog($config->id,$post->id,$config->platform,"error",$e);
                 Session::flash('message',$e);
-                return redirect()->route('social.adset.index');
+                return redirect()->route('social.ad.index');
             }
         }else{
-            $post->live_status="error";
-            $post->save();
-            return redirect()->route('social.adset.index');
+            return redirect()->route('social.ad.index');
         }
     }else{
-        $post->live_status="error";
-        $post->save();
-    
         Session::flash('message',"problem in getting ad account or token");
-        return redirect()->route('social.adset.index');
+        return redirect()->route('social.ad.index');
     }
 
         
@@ -228,10 +182,10 @@ class SocialAdsetController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\SocialAdset $SocialAdset
+     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\Response
      */
-    public function show(SocialAdset $SocialAdset)
+    public function show(SocialAd $SocialAd)
     {
         //
     }
@@ -239,7 +193,7 @@ class SocialAdsetController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \App\SocialAdset $SocialAdset
+     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
@@ -253,7 +207,7 @@ class SocialAdsetController extends Controller
             'password' => 'required',
             "status"=> 'required',
         ]);
-        $config = SocialAdset::findorfail($request->id);
+        $config = SocialAd::findorfail($request->id);
         $data = $request->except('_token', 'id');
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
@@ -267,10 +221,10 @@ class SocialAdsetController extends Controller
      * Update the specified resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\SocialAdset $SocialAdset
+     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, SocialAdset $SocialAdset)
+    public function update(Request $request, SocialAd $SocialAd)
     {
         //
     }
@@ -278,12 +232,12 @@ class SocialAdsetController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\SocialAdset $SocialAdset
+     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
     {
-        $config = SocialAdset::findorfail($request->id);
+        $config = SocialAd::findorfail($request->id);
         $config->delete();
         return Response::json(array(
             'success' => true,
@@ -359,7 +313,7 @@ class SocialAdsetController extends Controller
     public function history(Request $request)
     {   
         
-    	$logs = SocialPostLog::where("post_id", $request->post_id)->where("modal","SocialAdset")->orderBy("created_at","desc")->get();
+    	$logs = SocialPostLog::where("post_id", $request->post_id)->where("modal","SocialAd")->orderBy("created_at","desc")->get();
         return response()->json(["code" => 200 , "data" => $logs]);
     }
 
