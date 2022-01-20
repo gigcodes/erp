@@ -34,6 +34,7 @@ class SiteDevelopmentController extends Controller
 
         $input = $request->input();
         $masterCategories = SiteDevelopmentMasterCategory::pluck('title', 'id')->toArray();
+        $designDevCategories = SiteDevelopmentMasterCategory::where('title', 'Design')->orWhere('title', 'Functionality')->pluck('title', 'id')->toArray();
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
@@ -145,7 +146,7 @@ class SiteDevelopmentController extends Controller
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers','store_websites', 'designDevCategories'));
     }
 
     public function SendTask(Request $request)
@@ -357,6 +358,38 @@ class SiteDevelopmentController extends Controller
         }
     }
 
+	public function createTask(Request $request) {
+		if($request->task_category == 'Design') {
+			$categoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
+		} else{
+			$categoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
+		}
+		$website = StoreWebsite::where('id', $request->websiteId)->pluck('title')->first();
+		$categories = SiteDevelopmentCategory::select('title', 'id')->get();
+		foreach($categories as $category) {
+			$requests = array(
+                    '_token' => $request->_token,
+                    'task_subject' => $category['title'],
+                    'task_detail' => $website.' '.$category['title'],
+                    'task_asssigned_to' => 6,
+                    'category_id'=>$categoryId,
+                    'site_id'=>$request->websiteId,
+                    'task_type'=>0,
+                    'repository_id'=>null,
+                    'cost'=>null,
+                    'task_id'=>null,
+                    'customer_id'=>null,
+                );
+				$task = Task::where(['category'=>$categoryId,
+                    'site_developement_id'=>$request->websiteId, 'task_subject' => $category['title']])->first();
+					if($task == null) {
+						$check = (new Task)->createTaskFromSortcuts($requests);
+					}
+                
+		}
+		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully',]);
+	}
+	
     public function addSiteDevelopment(Request $request)
     {
 
