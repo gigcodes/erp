@@ -95,6 +95,7 @@
             <th>Pincode</th>
             <th>Country</th>
             <th>Store Website</th>
+            <th>Action</th>
             
           </tr>
         </thead>
@@ -113,8 +114,8 @@
               <td>{{ $c->pincode }}</td>
               <td>{{ $c->country }}</td>
               <td>{{ $c->title }}</td>
-             
-             
+              <td><a href="#" onClick="openInfo({{$c}})"><i class="fa fa-edit"></i></a>
+			  <a href="#" onClick="showMessagePopup({{$c->id}})"><i class="fa fa-eye"></i></a></td>
             </tr>
           @endforeach
         
@@ -128,6 +129,93 @@
 
     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
+	<div id="customer_edit" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+		<!-- Modal content-->
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h4 class="modal-title">Edit Customer</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			  </div>
+
+			  <form action="{{ url('customer/update') }}" method="POST" enctype="multipart/form-data" class="ajax-submit" novalidate="true">
+				@csrf
+				<input type="hidden" name="customer_id" value="" id="customer_id">
+				<div class="modal-body">
+				    <div class="form-group">
+					    <strong>Name</strong>
+					    <input type="text" class="form-control" name="name" value="" required id="name">
+				    </div>
+
+					<div class="form-group">
+					    <strong>Email</strong>
+					    <input type="text" class="form-control" name="email" value="" required id="email">
+				    </div>	
+
+					<div class="form-group">
+					    <strong>Phone</strong>
+					    <input type="text" class="form-control" name="phone" value="" required id="phone">
+				    </div>	
+
+					<div class="form-group">
+					    <strong>Address</strong>
+					    <input type="text" class="form-control" name="address" value="" required id="address">
+				    </div>	
+
+					<div class="form-group">
+					    <strong>City</strong>
+					    <input type="text" class="form-control" name="city" value="" required id="city">
+				    </div>	
+
+					<div class="form-group">
+					    <strong>Pincode</strong>
+					    <input type="text" class="form-control" name="pincode" value="" required id="pincode">
+				    </div>	
+
+					<div class="form-group">
+					    <strong>Country</strong>
+					    <input type="text" class="form-control" name="country" value="" required id="country">
+				    </div>				
+					
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				  <button type="submit" class="btn btn-secondary">Send</button>
+				</div>
+			  </form>
+			</div>
+		</div>
+	</div>
+	
+	<div id="customer_history" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h4 class="modal-title">Customer History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			  </div>
+			   <table class="table table-bordered">
+				<thead>
+				  <tr>
+				    <th>ID</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Phone</th>
+					<th>Address</th>
+					<th>City</th>
+					<th>Pincode</th>
+					<th>Country</th>
+				  </tr>
+				</thead>
+				<tbody id="history">
+				
+				</tbody>
+				</table>
+			  
+			</div>
+		</div>
+	</div>
 
    
 
@@ -136,7 +224,11 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script>
-        
+    $.ajaxSetup({
+		headers: {
+			'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		}
+	});   
         var isLoading = false;
         var page = 1;
         $(document).ready(function () {
@@ -178,8 +270,47 @@
             }            
         });
 
-       
-
+        function openInfo(details) {
+		   $('#customer_id').val(details.id);
+		   $('#name').val(details.name);
+		   $('#email').val(details.email);
+		   $('#phone').val(details.phone);
+		   $('#address').val(details.address);
+		   $('#city').val(details.city);
+		   $('#pincode').val(details.pincode);
+		   $('#country').val(details.country);
+		   $('#customer_edit').modal('show');
+	    }
+		$('.ajax-submit').on('submit', function(e) { 
+			e.preventDefault(); 
+			$.ajax({
+                type: $(this).attr('method'),
+				url: $(this).attr('action'),
+				data: new FormData(this),
+				processData: false,
+				contentType: false,
+				success: function(data) { 
+					if(data.statusCode == 500) { 
+						toastr["error"](data.message);
+					} else {
+						toastr["success"](data.message);
+						setTimeout(function(){
+                         location.reload();
+                        }, 1000);
+					}
+				},
+				done:function(data) {
+					console.log('success '+data);
+				}
+            });
+		});
+		
+	function showMessagePopup(customerId) { 
+		$.get(window.location.origin+"/customer/update/history/"+customerId, function(data){ 
+			$('#history').html(data.records);
+			$('#customer_history').modal('show');
+		});
+	}
   </script>   
   
 @endsection

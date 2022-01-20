@@ -1,20 +1,20 @@
 @foreach ($logs as $log)
 
-<tr @if($log->validated == 0) style="background:red !important;" @endif>
+<tr @if($log->validated == 0) style="background: #a8a8a8!important;" @endif>
     @if($log->product_id)
-    <td><a href="{{ route('products.show', $log->product_id) }}" target="_blank">{{ $log->product_id }}</a></td>
+    <td><a href="{{ route('products.show', $log->product_id) }}" target="_blank" style="color:black;">{{ $log->product_id }}</a></td>
     @else
     <td></td>
     @endif
-    <td>{{ $log->website }}</td>
-    <td class="expand-row table-hover-cell"><span class="td-mini-container">
-            <a href="{{ $log->url }}" target="_blank">{{ strlen( $log->url ) > 20 ? substr( $log->url , 0, 20).'...' :  $log->url }}</a>
+    <td class="Website-task">{{ $log->website }}</td>
+    <td class="expand-row table-hover-cell Website-task"><span class="td-mini-container">
+            <a href="{{ $log->url }}" target="_blank" class="Website-task">{{ strlen( $log->url ) > 20 ? substr( $log->url , 0, 20).'...' :  $log->url }}</a>
         </span>
         <span class="td-full-container hidden">
-            <a href="{{ $log->url }}" target="_blank">{{ $log->url }}</a>
+            <a href="{{ $log->url }}" target="_blank" style="color:black;">{{ $log->url }}</a>
         </span>
     </td>
-    <td class="expand-row table-hover-cell">
+    <td class="expand-row table-hover-cell Website-task">
         <span class="td-mini-container">
             {{ strlen( $log->sku ) > 6 ? substr( $log->sku , 0, 6).'...' :  $log->sku }}
         </span>
@@ -23,35 +23,35 @@
         </span>
 
     </td>
-    <td>
+    <td class="Website-task">
         @isset($log->brand->name))
             {{ $log->brand->name }}
         @endisset
     </td>
-    <td class="expand-row table-hover-cell">
-        <span class="td-mini-container">
+    <td class="expand-row table-hover-cell Website-task">
+        <span class="td-mini-container Website-task">
             {{ strlen( $log->title ) > 6 ? substr( $log->title , 0, 6).'...' :  $log->title }}
         </span>
-        <span class="td-full-container hidden">
+        <span class="td-full-container hidden Website-task">
             {{ $log->title }}
         </span>
     </td>
-    <td>{{ $log->currency }}</td>
+    <td >{{ $log->currency }}</td>
     <td>{{ $log->price }}</td>
-    <td>
+    <td class=" Website-task">
         @if(is_array($log->images))
             @if(array_find('.jpg', $log->images)==1 || array_find('.png', $log->images)==1 || array_find('.jpeg', $log->images)==1 || array_find('.gif', $log->images)==1 ) 
-            <div class="green_img"></div>
+            <div class="green_img  Website-task"></div>
             @else
-            <div class="red_img"></div>
+            <div class="red_img  Website-task"></div>
             @endif
         @elseif(false !== strpos($log->images,'.jpg') || false !== strpos($log->images,'.png') || false !== strpos($log->images,'.jpeg') || false !== strpos($log->images,'.gif') )
-            <div class="green_img"></div>
+            <div class="green_img  Website-task" style="background-color:gray;"></div>
         @else
-            <div class="red_img"></div>
+            <div class="red_img  Website-task"></div>
         @endif
     </td>
-    <td>
+    <td class=" Website-task" >
         @isset($log->created_at)
         {{ $log->created_at->format('d-m-y') }}
         @endisset
@@ -60,12 +60,12 @@
     @if($response != null)
 
     @if(in_array('color',$response['columns']))
-    <td class="expand-row table-hover-cell">
+    <td class="expand-row table-hover-cell Website-task">
         @if(is_array($log->properties))
-        <span class="td-mini-container">
+        <span class="td-mini-container Website-task">
             {{ isset($log->properties['color'])?strlen($log->properties['color']) > 5 ? substr( $log->properties['color'] , 0, 5).'...' :  $log->properties['color']:'' }}
         </span>
-        <span class="td-full-container hidden">
+        <span class="td-full-container hidden Website-task">
             {{ isset($log->properties['color'])?$log->properties['color']:'' }}
         </span>
         @else
@@ -75,13 +75,13 @@
     @endif
 
     @if(in_array('category',$response['columns']))
-    <td class="expand-row table-hover-cell">@if(($log->category != null && $log->category != '') || isset($log->properties['category']))
+    <td class="expand-row table-hover-cell Website-task">@if(($log->category != null && $log->category != '') || isset($log->properties['category']))
         @if(isset($log->properties['category']))
         @if(is_array($log->properties['category']))
-        <span class="td-mini-container">
+        <span class="td-mini-container Website-task">
             {{ count($log->properties['category']) > 2 ? substr( implode(' , ',$log->properties['category']) , 0, 10).'...' : implode(' , ',$log->properties['category']) }}
         </span>
-        <span class="td-full-container hidden">
+        <span class="td-full-container hidden Website-task">
             {{ implode(' , ',$log->properties['category']) }}
         </span>
         @else
@@ -221,7 +221,7 @@
     @endif
 
     @if(in_array('hmeasurement',$response['columns']))
-    <td>@if(isset(unserialize($log->properties)['hmeasurement'])) {{ unserialize($log->properties)['hmeasurement']  }} @endif</td>
+    <td class="Website-task">@if(isset(unserialize($log->properties)['hmeasurement'])) {{ unserialize($log->properties)['hmeasurement']  }} @endif</td>
     @endif
 
     @if(in_array('dmeasurement',$response['columns']))
@@ -233,7 +233,7 @@
     @endif
 
     @endif
-    <td>{{ $log->validation_result }}</td>
+    <td class="Website-task">{{ $log->validation_result }}</td>
     <td>
         <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-task-assign-modal" data-id="{{$log->id}}" title="Load task assign modal"><i class="fa fa-tasks"></i></button>
     </td>

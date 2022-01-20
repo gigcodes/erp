@@ -65,45 +65,46 @@ class OrderReportController extends Controller
       //
       // if ($order->sales_person) {
       //   NotificationQueueController::createNewNotification([
-    	// 		'type' => 'button',
-    	// 		'message' => $order->client_name . ' - ' . $report->status,
-    	// 		'timestamps' => ['+0 minutes'],
-    	// 		'model_type' => Order::class,
-    	// 		'model_id' =>  $report->order_id,
-    	// 		'user_id' => \Auth::id(),
-    	// 		'sent_to' => $order->sales_person,
-    	// 		'role' => '',
-    	// 	]);
+        //      'type' => 'button',
+        //      'message' => $order->client_name . ' - ' . $report->status,
+        //      'timestamps' => ['+0 minutes'],
+        //      'model_type' => Order::class,
+        //      'model_id' =>  $report->order_id,
+        //      'user_id' => \Auth::id(),
+        //      'sent_to' => $order->sales_person,
+        //      'role' => '',
+        //  ]);
       // }
 
-  		// NotificationQueueController::createNewNotification([
-  		// 	'message' => $order->client_name . ' - ' . $report->status,
-  		// 	'timestamps' => ['+0 minutes'],
-  		// 	'model_type' => Order::class,
-  		// 	'model_id' =>  $report->order_id,
-  		// 	'user_id' => \Auth::id(),
-  		// 	'sent_to' => '',
-  		// 	'role' => 'Admin',
-  		// ]);
+        // NotificationQueueController::createNewNotification([
+        //  'message' => $order->client_name . ' - ' . $report->status,
+        //  'timestamps' => ['+0 minutes'],
+        //  'model_type' => Order::class,
+        //  'model_id' =>  $report->order_id,
+        //  'user_id' => \Auth::id(),
+        //  'sent_to' => '',
+        //  'role' => 'Admin',
+        // ]);
 
       return redirect()->back()->with('message', 'Order action was created successfully');
     }
 
     public function statusStore(Request $request) {
-  		$this->validate($request, [
-  			'status'	=> 'required'
-  		]);
+        $this->validate($request, [
+            'status'    => 'required'
+        ]);
 
-  		$status = new OrderStatus;
+        $status = new OrderStatus;
 
-  		$status->status = $request->status;
+        $status->status = $request->status;
 
-  		$status->save();
+        $status->save();
 
-  		return redirect()->back()->with('message', 'Order status was created successfully');
-  	}
+        return redirect()->back()->with('message', 'Order status was created successfully');
+    }
 
     public function orderRefundStatusMessage(Request $request){
+
       $page = $request->page;
       $paginate = 10;
       //return 'asdfsfg';
@@ -111,13 +112,25 @@ class OrderReportController extends Controller
       ->join('customers','orders.customer_id','customers.id')
       ->select('orders.id', 'customer_id','orders.created_at as date', DB::raw("'order' as type"),'customers.phone', 'customers.name', 'customers.email','order_status_id','estimated_delivery_date');
 
+      if($request->order_id && $request->order_id != null){
+            $orders->where('orders.id', $request->order_id);
+        }
+      if($request->customer_name && $request->customer_name != null){
+         $orders->where('customers.name','LIKE','%'.$request->customer_name.'%');
+        }
+
       $order_n_refunds = DB::table('return_exchanges')
       ->join('customers','return_exchanges.customer_id','customers.id')
-      ->select('return_exchanges.id', 'customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name','customers.email',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"))
-      ->union($orders)
-      ->orderBy('date',"DESC")
-      ->get();
+      ->select('return_exchanges.id', 'customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name','customers.email',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"));
+         if($request->order_id && $request->order_id != null){
+             $order_n_refunds->where('return_exchanges.id', $request->order_id);
+         }
+        if($request->customer_name && $request->customer_name != null){
+         $order_n_refunds->where('customers.name','LIKE','%'.$request->customer_name.'%');
+        }
 
+      $order_n_refunds = $order_n_refunds->union($orders)->orderBy('date',"DESC")->get();
+        
       $orderStatusList = OrderStatus::all();
       // $slice = array_slice($refunds->toArray(), $paginate * ($page - 1), $paginate);
       // $order_n_refunds = Paginator::make($slice, count($refunds), $paginate);

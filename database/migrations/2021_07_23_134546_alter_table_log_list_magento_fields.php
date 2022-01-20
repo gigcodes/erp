@@ -15,9 +15,7 @@ class AlterTableLogListMagentoFields extends Migration
     {
         //
         Schema::table('log_list_magentos', function (Blueprint $table) {
-            $table->string("queue")->nullable()->after("product_id");
-            $table->string("queue_id")->nullable()->after("queue");
-            $table->text("extra_attributes")->nullable()->after("queue_id");
+            $table->integer("error_condition")->nullable();
         });
     }
 
