@@ -106,7 +106,7 @@ class SyncUpteamProducts extends Command
 			$productToInsert = [
 					'sku'=>$product['sku'], 
 					'short_description'=>$product['description'], 
-					'stock'=> (int)$product['stock'],
+					'stock'=> $product['stock'],
 					'brand'=>$brand['id'],
 					'name'=>$product['product_name'],
 					'category'=>$category['id'],
