@@ -992,6 +992,48 @@ class DevelopmentController extends Controller
         ]);
     }
 
+	public function automaticTasks(Request $request)
+    {
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        $title = 'Automatic Task List';
+        $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
+      
+        if ((int) $request->get('assigned_to') > 0) {
+            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        }    
+        $whereTaskCondition = "";
+        if ($request->get('subject') != '') {
+            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $task = $task->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+    
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $task = $task->select("tasks.*", "chat_messages.message");
+        
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+          $task = $task->where(function ($query) use ($request) {
+                $query->where("tasks.assign_to", auth()->user()->id)
+                ->orWhere("tasks.master_user_id", auth()->user()->id);
+            });
+        }
+        $task_statuses=TaskStatus::all();
+        $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+       return view('task-module.automatictask', [
+            'users' => $users,
+            'request' => $request,
+            'title' => $title,
+            'task_statuses' => $task_statuses,
+            'tasks'=>$tasks
+        ]);
+    }
+
+
+
      public function flagtask(Request $request)
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
