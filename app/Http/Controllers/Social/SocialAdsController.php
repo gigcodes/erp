@@ -77,8 +77,7 @@ class SocialAdsController extends Controller
     public function create() {
         
         $configs = \App\Social\SocialConfig::pluck("name","id");
-        $adsets = \App\Social\SocialAdset::where("ref_adset_id","!=","")->get();
-        return view('social.ads.create',compact("configs","adsets"));
+        return view('social.ads.create',compact("configs"));
     }
 
     /**
@@ -97,15 +96,17 @@ class SocialAdsController extends Controller
         $post->config_id = $request->config_id;
         $post->name = $request->name;
         $post->adset_id = $request->adset_id;
-        $post->adcreative_id = $request->adcreative_id;
+        $post->creative_id	 = $request->adcreative_id;
         $post->status = $request->status;
+        $post->ad_creative_name = $request->ad_creative_name;
+        $post->ad_set_name = $request->ad_set_name;
        $post->save();
 
 
        $data['name']=$request->input('name');
 		$data['adset_id']=$request->input('adset_id');
 		$data['status']=$request->input('status');
-        $data["adcreative_id "]=$request->input('adcreative_id');
+        $data["creative"]=json_encode(['creative_id'=>$request->input('adcreative_id')]);
 
         $config =SocialConfig::find($post->config_id );
       
@@ -115,7 +116,7 @@ class SocialAdsController extends Controller
             'default_graph_version' => 'v12.0',
         ]);
         $this->user_access_token =$config->token;
-        $this->ad_acc_id = "act_1227506597778206";
+        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
       
 
         $this->socialPostLog($config->id,$post->id,$config->platform,"message","get page access token");
@@ -164,7 +165,44 @@ class SocialAdsController extends Controller
                 return redirect()->route('social.ad.index');
             }
         }else{
-            return redirect()->route('social.ad.index');
+            try{
+                //        dd($data);
+                        $data['access_token']=$this->user_access_token;
+                        $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id.'/ads';
+            
+                        // Call to Graph api here
+                        $curl = curl_init();
+                        curl_setopt($curl, CURLOPT_URL, $url);
+                        curl_setopt($curl, CURLOPT_POST, true);
+                        curl_setopt($curl, CURLOPT_AUTOREFERER, true);
+                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+            
+            
+                        $resp = curl_exec($curl);
+                        $this->socialPostLog($config->id,$post->id,$config->platform,"response->create ad",$resp);
+                        $resp = json_decode($resp);
+                        curl_close($curl);
+                       
+                    //    dd($resp);
+                        if(isset($resp->error->message))
+                            Session::flash('message',$resp->error->message);
+        
+                        else
+                            Session::flash('message',"Campaign created  successfully");
+            
+            
+                        return redirect()->route('social.ad.index');
+                    }
+                    catch(Exception $e)
+                    {
+                        $this->socialPostLog($config->id,$post->id,$config->platform,"error",$e);
+                        Session::flash('message',$e);
+                        return redirect()->route('social.ad.index');
+                    }
+        
         }
     }else{
         Session::flash('message',"problem in getting ad account or token");
@@ -338,61 +376,43 @@ class SocialAdsController extends Controller
         return "";
        
     }
-    private function addMedia($config,$post,$mediaurl,$insta_id){
+    
+    public function getpost(Request $request) {
+        $config = \App\Social\SocialConfig::find($request->id);
+        $postData = $this->getPostData($config);
+        return response()->json($postData);
+     //   return $postData;
+     }
+    public function getPostData($config){
         $token = $config->token;
         $page_id = $config->page_id;
-        $post_id = $post->id;
-        $caption= $post->post_body;
-        $postfields = "image_url=$mediaurl&caption=$caption&access_token=$token";
-        $url = "https://graph.facebook.com/v12.0/$insta_id/media";
-        $ch = curl_init();
-        curl_setopt($ch,CURLOPT_URL,$url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$postfields);
-        $resp = curl_exec($ch);
-        $this->socialPostLog($config->id,$post_id,$config->platform,"response-addMedia",$resp);
-        $resp = json_decode($resp, true);
-
-        if(isset($resp["id"])){
-            $this->socialPostLog($config->id,$post_id,$config->platform,"addMedia",$resp["id"]);
-            return $resp["id"];
-        }
-        return "";
-       
-    }
-    private function publishMedia($config,$post,$media_id,$insta_id){
-        $token = $config->token;
-        $page_id = $config->page_id;
-        $post_id = $post->id;
-        $caption= $post->post_body;
-        $postfields = "creation_id=$media_id&access_token=$token";
-        $url = "https://graph.facebook.com/v12.0/$insta_id/media_publish";
-        $ch = curl_init();
-        curl_setopt($ch,CURLOPT_URL,$url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$postfields);
-        $resp = curl_exec($ch);
-        $this->socialPostLog($config->id,$post_id,$config->platform,"response publishMedia",$resp);
-        $resp = json_decode($resp, true);
+         $this->fb = new Facebook([
+            'app_id' => $config->api_key,
+            'app_secret' =>  $config->api_secret,
+            'default_graph_version' => 'v12.0',
+        ]);
+        $this->ad_acc_id = $this->getAdAccount($config,$this->fb,0);
         
+        $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id."/?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";
 
-        if(isset($resp["id"])){
-            $this->socialPostLog($config->id,$post_id,$config->platform,"publishMedia",$resp["id"]);
-            return $resp["id"];
-            
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_POST, 0);
+        $resp = curl_exec($ch);
+        $resp = json_decode($resp, true);
+       // dd($resp);
+        if(isset($resp["error"])){
+            return ["type"=>"error","message"=>$resp["error"]["message"]];
+        }else{
+            return ["type"=>"success","message"=>$resp];
         }
-        return "";
-       
+      
+
     }
 
     

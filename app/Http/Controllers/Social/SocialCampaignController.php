@@ -177,7 +177,47 @@ class SocialCampaignController extends Controller
                 return redirect()->route('social.campaign.index');
             }
         }else{
-            return redirect()->route('social.campaign.index');
+            try{
+                //        dd($data);
+                $data["special_ad_categories"]=[];
+                $data['access_token']=$this->user_access_token;
+                $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id.'/campaigns';
+    
+                // Call to Graph api here
+                $curl = curl_init();
+                curl_setopt($curl, CURLOPT_URL, $url);
+                curl_setopt($curl, CURLOPT_POST, true);
+                curl_setopt($curl, CURLOPT_AUTOREFERER, true);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+                curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+    
+    
+                $resp = curl_exec($curl);
+                $this->socialPostLog($config->id,$post->id,$config->platform,"response->create campaign",$resp);
+                $resp = json_decode($resp);
+                curl_close($curl);
+                
+            //    dd($resp);
+                if(isset($resp->error->message)){
+                    Session::flash('message',$resp->error->message);
+
+                }else{
+                    $post->ref_campaign_id=$resp->id;
+                    $post->save();
+                    Session::flash('message',"Campaign created  successfully");
+                }    
+            
+                        return redirect()->route('social.campaign.index');
+                    }
+                    catch(Exception $e)
+                    {
+                        $this->socialPostLog($config->id,$post->id,$config->platform,"error",$e);
+                        Session::flash('message',$e);
+                        return redirect()->route('social.campaign.index');
+                    }
+
         }
     }else{
         Session::flash('message',"problem in getting ad account or token");

@@ -97,7 +97,7 @@ class SocialAdCreativeController extends Controller
     public function store(Request $request)
 	{
        
-        dd($request->all());
+       
     $post =  new SocialAdCreative();
     $post->config_id = $request->config_id;
     $post->object_story_title = $request->object_story_title;
@@ -173,9 +173,53 @@ class SocialAdCreativeController extends Controller
             return redirect()->route('social.adcreative.index');
         }
     }else{
-        $post->live_status="error";
-        $post->save();
-        return redirect()->route('social.adcreative.index');
+        try{
+    //        dd($data);
+              $data['access_token']=$this->user_access_token;
+        
+            $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id.'/adcreatives';
+
+            // Call to Graph api here
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_AUTOREFERER, true);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+
+
+            $resp = curl_exec($curl);
+            $this->socialPostLog($config->id,$post->id,$config->platform,"response->create adcreatives",$resp);
+        //    dd($resp);
+            $resp = json_decode($resp);
+            curl_close($curl);
+            
+        //    dd($resp);
+            if(isset($resp->error->message)){
+                $post->live_status="error";
+                //  $post->ref_campaign_id=$resp->id;
+                $post->save();
+                Session::flash('message',$resp->error->message);
+
+            }else{
+                $post->live_status="sucess";
+                $post->ref_adcreative_id	=$resp->id;
+                $post->save();
+
+                Session::flash('message',"adcreative created  successfully");
+            }    
+
+            return redirect()->route('social.adcreative.index');
+        }
+        catch(Exception $e)
+        {
+            $this->socialPostLog($config->id,$post->id,$config->platform,"error",$e);
+            Session::flash('message',$e);
+            return redirect()->route('social.adcreative.index');
+        }
+        
     }
 }else{
     $post->live_status="error";

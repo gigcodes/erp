@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 
-@section('title', 'Social  AdCreatives')
+@section('title', 'Social  Ads')
 
 @section('content')
     <link rel="stylesheet" type="text/css"
@@ -9,11 +9,11 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    @include("social.adcreatives.history")
+    @include("social.ads.history")
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Social  AdCreatives ({{ $adcreatives->total() }})<span class="count-text"></span></h2>
+            <h2 class="page-heading">Social  Ads ({{ $ads->total() }})<span class="count-text"></span></h2>
             <div class="pull-right">
                 <a class="btn btn-secondary create-post">+</a>
             </div>
@@ -27,18 +27,22 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Date</th>
-                            <th style="width:10%">Config Name</th>
-                            <th style="width:30%"> Name</th>
-                            <th style="width:10%">Object Story Title</th>
-                            <th style="width:5%">Live Status</th>
+                            <th style="width:7%"> Name</th>
+                            <th style="width:7%">Config Name</th>
+                           
+                            <th style="width:7%">Adset Name</th>
+                            <!-- <th style="width:10%">Image</th> -->
+                            <th style="width:17%">Creation Name</th>
+                            <th style="width:5%">Status</th>
+                            <th style="width:5%">Live Status    </th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
-                            @include("social.adcreatives.data")
+                            @include("social.ads.data")
                         </tbody>
                     </table>
                 </div>
-                {{ $adcreatives->appends(request()->except('page'))->links() }}
+                {{ $ads->appends(request()->except('page'))->links() }}
             </div>
         </div>
     </div>
@@ -66,7 +70,7 @@
         e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
-                url: "{{ route('social.adcreative.history') }}",
+                url: "{{ route('social.ad.history') }}",
                 type: 'POST',
                 data : { "_token": "{{ csrf_token() }}", post_id : post_id },
                 dataType: 'json',
@@ -97,7 +101,7 @@
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             
-            var $action_url = "{{ route('social.adcreative.create') }}";
+            var $action_url = "{{ route('social.ad.create') }}";
             jQuery.ajax({
 
                 type: "GET",
@@ -105,7 +109,6 @@
                 dataType: 'html',
                 success: function(data) {
                     $("#create-modal").modal('show');
-                    
                     $("#record-content").html(data);
 
                 },
@@ -116,51 +119,70 @@
 
         });
 
+        $(document).on('change','#adset_id',function(){
+            var g_name = $('option:selected', this).attr('rel');
+            $("#ad_set_name").val(g_name);
+            //alert(g_name);
+        });
+        $(document).on('change','#adcreative_id',function(){
+            //alert($(this).attr("rel"));
+            var g_name = $('option:selected', this).attr('rel');
+            $("#ad_creative_name").val(g_name);
+        });
         $(document).on('change','#config_id',function(){
-           // if($(this).val() != ""){
-            // alert($(this).val());
+            //alert("rerere");
+            if($(this).val() != ""){
+             //alert($(this).val());
                 $.ajax({
-                    url:'{{route("social.adcreative.getpost")}}',
+                    url:'{{route("social.ad.getpost")}}',
                     dataType:'json',
                     data:{
                         id:$(this).val(),
                     },
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
                     success:function(result){
-                        console.log(result);
-                        $("#loading-image").hide();
+                        //console.log(result);
                         if(result.type=="success"){
-                            let html = `<option value="">-----Select Post-----</option>`;
-                            if(result.message.posts.data){
-                                console.log(result.message.posts.data);
-                                $.each(result.message.posts.data,function(key,value){
-                                    html += `<option value="${value.id}" rel="${value.message}" >${value.message}</option>`; 
+                            $("#loading-image").hide();
+                            let html = `<option value="">-----Select Adsets-----</option>`;
+                            if(result.message.adsets.data){
+                                console.log("come toadsets adsets ");
+                                console.log(result.message.adsets.data);
+                                $.each(result.message.adsets.data,function(key,value){
+                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
                                 });
                             }
-                            $('#post_id').html(html);
+                            $('#adset_id').html(html);
+                            let c_html = `<option value="">-----Select AdCreative-----</option>`;
+                            if(result.message.adcreatives.data){
+                                console.log("come toadsets adcreatives ");
+                                console.log(result.message.adcreatives.data);
+                                $.each(result.message.adcreatives.data,function(key,value){
+                                    c_html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                });
+                            }
+                            $('#adcreative_id').html(c_html);
+                            
                         }else{
                             $("#loading-image").hide();
                             alert("token Expired");
                         }
                     },
                     error:function(exx){
-                        
+
                     }
                 });
-            //}
+            }
 		});
 
         $(document).on('change','#post_id',function(){
-           // alert($(this).val());
+            alert($(this).val());
             if($(this).val()!= ""){
-                var g_name = $('option:selected', this).attr('rel');
-                $("#object_story_title").val(g_name);
+                var object_story_title = $(this).attr("rel");
+                $("#object_story_title").val(object_story_title);
             }
         });
 
-      
+
         $(window).scroll(function() {
             if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
                 loadMore();

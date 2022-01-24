@@ -19,6 +19,8 @@ class CreateTableSocialAds extends Migration
             $table->string('adset_id');
             $table->string('name');
             $table->string('creative_id')->nullable();
+            $table->string('ad_set_name')->nullable();
+            $table->string('ad_creative_name')->nullable();
             $table->string('status')->nullable();
             $table->string('live_status')->nullable();
             $table->string('ref_ads_id')->nullable();

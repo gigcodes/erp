@@ -205,9 +205,72 @@ class SocialAdsetController extends Controller
                 return redirect()->route('social.adset.index');
             }
         }else{
-            $post->live_status="error";
-            $post->save();
-            return redirect()->route('social.adset.index');
+          
+            try{
+                //        dd($data);
+                $data['access_token']=$this->user_access_token;
+                    $data['name']=$request->input('name');
+            //	$data['destination_type']=$request->input('destination_type');
+                $data['campaign_id']=$request->input('campaign_id');
+                $data['billing_event']=$request->input('billing_event');
+            
+                
+            //	$data['start_time']=strtotime($request->input('start_time'));
+               //  $data['OPTIMIZATION_GOAL'] ='LINK_CLICKS';
+                 //$data['billing_event'] ='IMPRESSIONS';
+                $data['end_time']=strtotime($request->input('end_time'));
+                $data['targeting']=json_encode(array('geo_locations'=>array('countries' => array('US')),"publisher_platforms"=>["instagram"]));
+                $data["bid_amount"]=(int)$request->input('bid_amount');
+                $data["daily_budget"]=(int)$request->input('daily_budget');
+                $data['status']=$request->input('status');
+    
+             //    $data["bid_amount"]=1000;
+                //$data["daily_budget"]=10000;  
+                
+                    $url="https://graph.facebook.com/v12.0/".$this->ad_acc_id.'/adsets';
+        
+                    // Call to Graph api here
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_POST, true);
+                    curl_setopt($curl, CURLOPT_AUTOREFERER, true);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        
+        
+                    $resp = curl_exec($curl);
+                    $this->socialPostLog($config->id,$post->id,$config->platform,"response->create adset",$resp);
+                //    dd($resp);
+                    $resp = json_decode($resp);
+                    curl_close($curl);
+                    
+                //    dd($resp);
+                    if(isset($resp->error->message)){
+                       // dd($resp);
+                        $post->live_status="error";
+                        //  $post->ref_campaign_id=$resp->id;
+                        $post->save();
+                        Session::flash('message',$resp->error->message);
+    
+                    }else{
+                        $post->live_status="sucess";
+                        $post->ref_adset_id	=$resp->id;
+                        $post->save();
+    
+                        Session::flash('message',"adset created  successfully");
+                    }    
+        
+                    return redirect()->route('social.adset.index');
+                }
+                catch(Exception $e)
+                {
+                   // dd($e);
+                    $this->socialPostLog($config->id,$post->id,$config->platform,"error",$e);
+                    Session::flash('message',$e);
+                    return redirect()->route('social.adset.index');
+                }
         }
     }else{
         $post->live_status="error";

@@ -3546,7 +3546,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('adcreative/edit', 'SocialAdCreativeController@edit')->name('social.adcreative.edit');
     Route::post('adcreative/delete', 'SocialAdCreativeController@destroy')->name('social.adcreative.delete');
     Route::get('adcreative/create', 'SocialAdCreativeController@create')->name('social.adcreative.create');
-    Route::get('adcreative/getconfigPost', 'SocialAdCreativeController@create')->name('social.adcreative.getpost');
+    Route::get('adcreative/getconfigPost', 'SocialAdCreativeController@getpost')->name('social.adcreative.getpost');
     
     Route::post('adcreative/history', 'SocialAdCreativeController@history')->name('social.adcreative.history');
 
@@ -3558,6 +3558,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('ads/delete', 'SocialAdsController@destroy')->name('social.ad.delete');
     Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
     Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
+    Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 
 
 
