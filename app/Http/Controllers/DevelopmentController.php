@@ -1128,6 +1128,9 @@ class DevelopmentController extends Controller
             });
         }
         
+        if($request->delivery_date && $request->delivery_date != '') {
+            $task->where('due_date',$request->delivery_date);
+        }
 
         // Sort
         if ($request->order == 'priority') {
@@ -1165,6 +1168,7 @@ class DevelopmentController extends Controller
             }
 			return $data;
 		}
+
 		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
         return view('development.flagtask', [
             'issues' => $issues,
