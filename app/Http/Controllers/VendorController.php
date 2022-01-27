@@ -102,7 +102,7 @@ class VendorController extends Controller
         }
         //getting request
         if ($request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
-            $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null || $request->whatsapp_number != null
+            $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null || $request->whatsapp_number != null || $request->flt_vendor_status != null
         ) {
             //Query Initiate
             if ($isAdmin) {
@@ -180,7 +180,9 @@ class VendorController extends Controller
                 $communication_history = request('communication_history');
                 $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
             }
-
+            if ($request->flt_vendor_status != null) {
+                $query->where('vendor_status', 'LIKE', '%' . $request->flt_vendor_status . '%');
+            }
             if ($request->with_archived != null && $request->with_archived != '') {
                 $pagination = Setting::get('pagination');
                 if (request()->get('select_all') == 'true') {
