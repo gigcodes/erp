@@ -71,7 +71,7 @@
 
                     <div class="col-xs-12 col-sm-12 col-md-3">
                         <div class="form-group">
-                            <input type="file" placeholder="Upload Size Chart" class="form-control" name="size_img"  style="width: 200px;" required/>
+                            <input type="file" placeholder="Upload Size Chart" class="form-control" name="size_img"  style="width: 300px;" required/>
                             @if ($errors->has('size_img'))
                                 <div class="alert alert-danger">{{$errors->first('size_img')}}</div>
                             @endif
