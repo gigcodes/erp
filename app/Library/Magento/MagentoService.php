@@ -1021,7 +1021,7 @@ class MagentoService
         } else {
             $webStores = \App\Website::where("store_website_id", $website->id)->get();
         }
-
+        $product_markup = !empty($website->product_markup)?$website->product_markup:0;
         $product = $this->product;
         $pricesArr = [];
         if (!$webStores->isEmpty()) {
@@ -1070,7 +1070,12 @@ class MagentoService
                             foreach ($countries as $cnt) {
                                 $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
                                 if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
-                                    $ovverridePrice = $discountPrice['total'];
+                                    if (!empty($product_markup) && $product_markup > 0) {
+                                        $prod_markup = ((double)$discountPrice['total']* (double)$product_markup)/100;
+                                        $ovverridePrice = (double)$discountPrice['total'] + $prod_markup;
+                                    }else{
+                                        $ovverridePrice = $discountPrice['total'];
+                                    }
                                     $segmentDiscount = $discountPrice['segment_discount'];
                                     break;
                                 }
