@@ -43,15 +43,23 @@
             </div>
 
             <div class="form-group ml-3">
-                <select class="form-control" name="dev" id="developer" data-placeholder="Developers...">
-                    <option value="">Select Developer</option>
-                    @foreach ($alldevs as $k => $_dev)
-                        <option value="{{ $k }}" {{($k == $dev)?'selected':''}}>{{ $_dev }}</option>
-                    @endforeach
-                </select>
+                 <div class="multiselect">
+                    <div class="selectBox" onclick="showSelectCheckboxes()">
+                        <select class="form-control" name="dev" id="developer" data-placeholder="Developers...">
+                            <option value="">Select Developer</option>
+                        </select>
+                        <div class="overSelect"></div>
+                    </div>
+                    <div id="checkboxes">
+                        <label for="select_all">
+                        <input type="checkbox" id="select_all" checked />Select All</label>
+                        @foreach ($alldevs as $k => $_dev)
+                            <label for="{{ $k }}">
+                            <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" checked />{{ $_dev }}</label>
+                        @endforeach
+                    </div>
+                </div>
             </div>
-
-
 
             <div class="form-group mb-3 col-md-2">
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
@@ -82,7 +90,7 @@
                     <tbody>
                         @foreach ($brands as $brand)
                             <tr>
-                                <td><input type="checkbox" name="taskIds[]" value="{{ $brand->id }}"></td>
+                                <td><input type="checkbox" name="taskIds[]" class="rowCheckbox" value="{{ $brand->id }}"></td>
                                 <td width="2%">{{ $brand->id }}</td>
                                 <td width="14%">{{ $brand->name }}</td>
                                 <td width="5%">{{ $brand->productCountInExternalScraper() }}</td>
@@ -473,7 +481,7 @@
         });
 
         function checkAll(ele) {
-            var checkboxes = document.getElementsByTagName('input');
+            var checkboxes = document.getElementsByClassName('rowCheckbox');
             if (ele.checked) {
                 for (var i = 0; i < checkboxes.length; i++) {
                     if (checkboxes[i].type == 'checkbox') {
@@ -489,5 +497,72 @@
                 }
             }
         }
+
+
+        var expanded = false;
+
+        function showSelectCheckboxes() {
+          var checkboxes = document.getElementById("checkboxes");
+          if (!expanded) {
+            checkboxes.style.display = "block";
+            expanded = true;
+          } else {
+            checkboxes.style.display = "none";
+            expanded = false;
+          }
+        }
+
+        $("#select_all").click(function () {
+            $(".devCheckbox").prop('checked', $(this).prop('checked'));
+        });
+
+        $(".devCheckbox").change(function(){
+            if ($('.devCheckbox:checked').length == $('.devCheckbox').length) {
+               $('#select_all').prop('checked', true);
+            }else{
+                $('#select_all').prop('checked', false);
+            }
+        });
     </script>
+    <style type="text/css">
+        .multiselect {
+          width: 200px;
+        }
+
+        .multiselect .selectBox {
+          position: relative;
+        }
+
+        .multiselect .selectBox select {
+          width: 100%;
+          font-weight: bold;
+        }
+
+        .multiselect .overSelect {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+        }
+
+        .multiselect #checkboxes {
+            display: none;
+            border: 1px #dadada solid;
+            position: absolute;
+            z-index: 999;
+            background: #fff;
+            width: 200px;
+            padding: 5px;
+            color: black;
+        }
+
+        .multiselect #checkboxes label {
+          display: block;
+          color: #333;
+        }
+        .multiselect #checkboxes label input{
+                margin-right: 5px;
+        }
+    </style>
 @endsection
