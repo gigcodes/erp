@@ -181,6 +181,10 @@
                             <label class="form-check-label  mt-2" for="tablet">
                                 Tablet
                             </label>
+                            <input class="mt-2" type="radio" name="is_flag" id="is_flag" value="is_flag">
+                            <label class="form-check-label  mt-2" for="is_flag">
+                                Is Flag
+                            </label>
                             </div>
                               <div class="col-md-7 "style="display: flex;">
                             <button type="submit" class="btn btn-secondary custom-button btn-xs"style="height: 34px; width: 300px !important;" >Send Request</button>
@@ -245,13 +249,14 @@
                 <thead>
                 <th style="width:4%">Date</th>
                 
-                <th style="width:20%">Website</th>
+                <th style="width:19%">Website</th>
                 <th style="width:12%">Name</th>
-                <th style="width:10%">Language</th>
+                <th style="width:9%">Language</th>
                 <th style="width:5%">Desktop</th>
                 <th style="width:5%">Mobile</th>
                 <th style="width:5%">Tablet</th>
-                <th style="width:6%">Set as Default</th>
+                <th style="width:5%">Set as Default</th>
+                <th style="width:3%">Is Flag</th>
                 <th style="width:4%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
@@ -1575,6 +1580,49 @@
             });
 
         });
+
+         function setStoreAsFlag(selector)
+        {
+            var website=$(selector).attr('data-website-id');
+            var store=$(selector).attr('data-store-id');
+            var checked=0;
+            var thisSelector=$(selector);
+
+            if($(selector).prop('checked')==true)
+            {
+                var checked=1;
+            }
+
+            $('.expand-'+website).each(function(){
+
+                console.log($(this).find('.defaultInput'));
+
+                $(this).find('.defaultInput').prop('checked',false);
+            })
+            
+
+            if(checked)
+            {
+                $(selector).prop('checked',true);
+            }
+
+            
+
+            $.get('{{route("set.flag.store")}}'+'/'+website+'/'+store+'/'+checked,function(res)
+            {
+                if(res.status==1)
+                {
+                   toastr['success'](res.message, 'success');
+                }
+                else
+                {
+                    toastr['error'](res.message, 'error');
+                }
+
+
+            })
+
+        }
         
 </script>
 

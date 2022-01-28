@@ -20,6 +20,11 @@
                                 onclick="setStoreAsDefault(this)" data-website-id="{{ $item->website_table_id }}"
                                 data-store-id="{{ $item->website_stores_id }}" /></span> 
                         </td>
+                        <td>
+                             <span class="btn p-0"> <input type="checkbox" class="defaultInput {{ $item->website_stores_flag }}" {{ $item->website_stores_flag ? 'checked' : '' }}
+                                onclick="setStoreAsFlag(this)" data-website-id="{{ $item->website_table_id }}"
+                                data-store-id="{{ $item->website_stores_id }}" /></span> 
+                        </td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
@@ -111,6 +116,14 @@
                                 <input type="radio" name="type" id="tablet" value="tablet">
                                 <label class="form-check-label" for="tablet">
                                     Tablet
+                                </label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="mb-3">
+                                <input type="radio" name="is_flag" id="is_flag" value="is_flag">
+                                <label class="form-check-label" for="is_flag">
+                                    Is Flag
                                 </label>
                             </div>
                         </div>
