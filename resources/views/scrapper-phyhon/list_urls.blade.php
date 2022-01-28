@@ -89,6 +89,31 @@
             </div>
         </div>
     </div>
+        <div class="row">
+        <div class="col-lg-12 margin-tb mb-3">
+            <?php $base_url = URL::to('/'); ?>
+            <div class=" cls_filter_box" style="margin-left: -13px;">
+                <form class="form-inline form-search-data" action="{{ route('scrapper.image.urlList') }}" method="GET">
+                    <div class="col-md-2 pl-5">
+                       <select class="form-control" name="flt_website" id="flt_website">
+                            <option value>Select Website</option>
+                            @foreach($storeWebsites  as $storeWebsite)
+                            <option value="<?php echo $storeWebsite->id; ?>"><?php echo $storeWebsite->title; ?></option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 pd-sm pd-rt">
+                        <input type="text" style="width:100%;" name="scrapper_url" id="scrapper_url"
+                            placeholder="URL" class="form-control">
+                    </div>
+                    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
+                        id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>                    
+                </form>
+                
+            </div>
+        </div>
+
+    </div>
 
     @include('partials.flash_messages')
 
@@ -99,13 +124,15 @@
             <table class="table table-bordered" {{--style="table-layout:fixed;"--}}>
                 <thead>
                     <th style="width:5%">Id</th>
-                    <th style="width:70%">URL</th>
+                    <th style="width:15%">Website</th>
+                    <th style="width:60%">URL</th>
                     <th style="width: 20%;">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
                 @foreach ($urls  as $item)
                     <tr id = "{{$item->id}}">
                         <td>{{$item->id}}</td>
+                        <td>{{$item->wtitle}}</td>
                         <td>{{$item->url}}</td>
                         <td>
                         @if ($item->is_flaged_url==1)
@@ -118,6 +145,7 @@
                         {!! Form::close() !!}
                         @endif
                         <button type="button" class="btn count-dev-customer-tasks" title="Show task history" data-id="{{$item->store_website}}"><i class="fa fa-info-circle"></i></button>
+
 
                           
 
