@@ -593,6 +593,7 @@ class scrapperPhyhon extends Controller
 
      public function imageUrlList(Request $request){
          $flagUrl=isset($request->flagUrl)?$request->flagUrl:'';
+         $storeWebsites = \App\StoreWebsite::get();
         if(isset($request->id)){
             $store_id = $request->id;
 
@@ -606,7 +607,9 @@ class scrapperPhyhon extends Controller
                 $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
 
                 if( $website_store_views ){
-                    $urls = \App\scraperImags::where('store_website',$list->store_website_id)
+                    $urls = \App\scraperImags::join('store_websites', 'store_websites.id','=','scraper_imags.store_website')
+                    ->select('scraper_imags.*','store_websites.title as wtitle','store_websites.id as swid')
+                    ->where('store_website',$list->store_website_id)
                     ->where('website_id',$request->code) // this is language code. dont be confused with column name
                     ->whereRaw('url != "" and url IS  NOT NULL');
                     if(isset($request->startDate) && isset($request->endDate)){
@@ -617,6 +620,12 @@ class scrapperPhyhon extends Controller
                         //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
                     }
 
+               if($request->flt_website && $request->flt_website != null){
+                $urls = $urls->where("store_website",$request->flt_website);
+               }
+               if($request->scrapper_url && $request->scrapper_url != null){
+                    $urls->where('url','LIKE','%'.$request->scrapper_url.'%');
+                }
                     
                     $urls =  $urls->paginate(Setting::get('pagination'));
                 // $images =  $images->paginate(2);
@@ -625,21 +634,25 @@ class scrapperPhyhon extends Controller
                 }
             }
         }else{
-           
-
-               $urls = DB::table('scraper_imags')->whereRaw('url != "" and url IS  NOT NULL');
+               $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id','=','scraper_imags.store_website')->select('scraper_imags.*','store_websites.title as wtitle','store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
                if(!empty($flagUrl)){
                
                 $urls = $urls->where("id",$flagUrl);
                 $flagUrl="#".$flagUrl;
                }
+               if($request->flt_website && $request->flt_website != null){
+                $urls = $urls->where("store_website",$request->flt_website);
+               }
+               
+                if($request->scrapper_url && $request->scrapper_url != null){
+                    $urls->where('url','LIKE','%'.$request->scrapper_url.'%');
+                }
                $urls=$urls->paginate(Setting::get('pagination'));
         //        $urls=$urls->get();
         
 
         }
-       
-        return view('scrapper-phyhon.list_urls', compact('urls','flagUrl'));
+        return view('scrapper-phyhon.list_urls', compact('urls','flagUrl','storeWebsites'));
 
 
     

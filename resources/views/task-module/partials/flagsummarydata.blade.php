@@ -40,7 +40,6 @@
     <td  style="vertical-align: baseline;">
         <div class="d-flex">
         {{ $issue->due_date }}
-        <span> 2021-12-07 00:00:00</span>
         <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="task" style="margin-top: -2px; background: none;"><i class="fa fa-info-circle"></i></button>
        </div>
     </td>
