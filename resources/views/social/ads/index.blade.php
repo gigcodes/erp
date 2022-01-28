@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 
-@section('title', 'Social Posts')
+@section('title', 'Social  Ads')
 
 @section('content')
     <link rel="stylesheet" type="text/css"
@@ -9,34 +9,36 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    @include("social.posts.history")
+    @include("social.ads.history")
    
     <div class="row" id="common-page-layout">
+       
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
+            <h2 class="page-heading">Social  Ads ({{ $ads->total() }})<span class="count-text"></span></h2>
             <div class="pull-right">
                 <a class="btn btn-secondary create-post">+</a>
             </div>
         </div>
+
+        <br>
         @include("social.header_menu")
             
-            @if ($message = Session::get('success'))
-                <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                </div>
-            @endif
-    
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-        <br>
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="col-lg-12 margin-tb">
 
             <div class="col-md-12 margin-tb">
@@ -44,19 +46,22 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Date</th>
-                            <th style="width:25%">Caption</th>
-                            <th style="width:30%">Post</th>
+                            <th style="width:7%"> Name</th>
+                            <th style="width:7%">Config Name</th>
+                           
+                            <th style="width:7%">Adset Name</th>
                             <!-- <th style="width:10%">Image</th> -->
-                            <th style="width:10%">Posted on</th>
+                            <th style="width:17%">Creation Name</th>
                             <th style="width:5%">Status</th>
+                            <th style="width:5%">Live Status    </th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
-                            @include("social.posts.data")
+                            @include("social.ads.data")
                         </tbody>
                     </table>
                 </div>
-                {{ $posts->appends(request()->except('page'))->links() }}
+                {{ $ads->appends(request()->except('page'))->links() }}
             </div>
         </div>
     </div>
@@ -84,7 +89,7 @@
         e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
-                url: "{{ route('social.post.history') }}",
+                url: "{{ route('social.ad.history') }}",
                 type: 'POST',
                 data : { "_token": "{{ csrf_token() }}", post_id : post_id },
                 dataType: 'json',
@@ -115,7 +120,7 @@
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             
-            var $action_url = "{{ route('social.post.create',$id) }}";
+            var $action_url = "{{ route('social.ad.create') }}";
             jQuery.ajax({
 
                 type: "GET",
@@ -133,43 +138,68 @@
 
         });
 
-        $(document).on('submit', '#create-form1', function(e) {
-            e.preventDefault();
-
-            var form = $(this);
-            var postData = new FormData(form[0]);
-
-
-            $.ajax({
-                url:  "{{ route('social.post.store') }}",
-                type: 'POST',
-                data: postData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                }
-            }).done(function(response) {
-
-                if (response.code == 200) {
-                    $("#loading-image").hide();
-                    toastr['success'](response.message, 'Success');
-                    $('#create-modal').modal('hide');
-                    location.reload();
-                } else {
-                    $("#loading-image").hide();
-                  //  toastr['error'](response.message, 'error');
-                    location.reload();
-                }
-
-            }).fail(function(errObj) {
-                //toastr['error'](errObj.responseJSON.message, 'error');
-                $("#loading-image").hide();
-                location.reload();
-            });
+        $(document).on('change','#adset_id',function(){
+            var g_name = $('option:selected', this).attr('rel');
+            $("#ad_set_name").val(g_name);
+            //alert(g_name);
         });
+        $(document).on('change','#adcreative_id',function(){
+            //alert($(this).attr("rel"));
+            var g_name = $('option:selected', this).attr('rel');
+            $("#ad_creative_name").val(g_name);
+        });
+        $(document).on('change','#config_id',function(){
+            //alert("rerere");
+            if($(this).val() != ""){
+             //alert($(this).val());
+                $.ajax({
+                    url:'{{route("social.ad.getpost")}}',
+                    dataType:'json',
+                    data:{
+                        id:$(this).val(),
+                    },
+                    success:function(result){
+                        //console.log(result);
+                        if(result.type=="success"){
+                            $("#loading-image").hide();
+                            let html = `<option value="">-----Select Adsets-----</option>`;
+                            if(result.message.adsets.data){
+                                console.log("come toadsets adsets ");
+                                console.log(result.message.adsets.data);
+                                $.each(result.message.adsets.data,function(key,value){
+                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                });
+                            }
+                            $('#adset_id').html(html);
+                            let c_html = `<option value="">-----Select AdCreative-----</option>`;
+                            if(result.message.adcreatives.data){
+                                console.log("come toadsets adcreatives ");
+                                console.log(result.message.adcreatives.data);
+                                $.each(result.message.adcreatives.data,function(key,value){
+                                    c_html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                });
+                            }
+                            $('#adcreative_id').html(c_html);
+                            
+                        }else{
+                            $("#loading-image").hide();
+                            alert("token Expired");
+                        }
+                    },
+                    error:function(exx){
 
+                    }
+                });
+            }
+		});
+
+        $(document).on('change','#post_id',function(){
+            alert($(this).val());
+            if($(this).val()!= ""){
+                var object_story_title = $(this).attr("rel");
+                $("#object_story_title").val(object_story_title);
+            }
+        });
 
 
         $(window).scroll(function() {

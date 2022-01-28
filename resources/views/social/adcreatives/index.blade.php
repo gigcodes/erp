@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 
-@section('title', 'Social Posts')
+@section('title', 'Social  AdCreatives')
 
 @section('content')
     <link rel="stylesheet" type="text/css"
@@ -9,33 +9,16 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    @include("social.posts.history")
+    @include("social.adcreatives.history")
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
+            <h2 class="page-heading">Social  AdCreatives ({{ $adcreatives->total() }})<span class="count-text"></span></h2>
             <div class="pull-right">
                 <a class="btn btn-secondary create-post">+</a>
             </div>
         </div>
-        @include("social.header_menu")
-            
-            @if ($message = Session::get('success'))
-                <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                </div>
-            @endif
-    
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+
         <br>
         <div class="col-lg-12 margin-tb">
 
@@ -44,19 +27,18 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Date</th>
-                            <th style="width:25%">Caption</th>
-                            <th style="width:30%">Post</th>
-                            <!-- <th style="width:10%">Image</th> -->
-                            <th style="width:10%">Posted on</th>
-                            <th style="width:5%">Status</th>
+                            <th style="width:10%">Config Name</th>
+                            <th style="width:30%"> Name</th>
+                            <th style="width:10%">Object Story Title</th>
+                            <th style="width:5%">Live Status</th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
-                            @include("social.posts.data")
+                            @include("social.adcreatives.data")
                         </tbody>
                     </table>
                 </div>
-                {{ $posts->appends(request()->except('page'))->links() }}
+                {{ $adcreatives->appends(request()->except('page'))->links() }}
             </div>
         </div>
     </div>
@@ -84,7 +66,7 @@
         e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
-                url: "{{ route('social.post.history') }}",
+                url: "{{ route('social.adcreative.history') }}",
                 type: 'POST',
                 data : { "_token": "{{ csrf_token() }}", post_id : post_id },
                 dataType: 'json',
@@ -115,7 +97,7 @@
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             
-            var $action_url = "{{ route('social.post.create',$id) }}";
+            var $action_url = "{{ route('social.adcreative.create') }}";
             jQuery.ajax({
 
                 type: "GET",
@@ -123,6 +105,7 @@
                 dataType: 'html',
                 success: function(data) {
                     $("#create-modal").modal('show');
+                    
                     $("#record-content").html(data);
 
                 },
@@ -133,45 +116,51 @@
 
         });
 
-        $(document).on('submit', '#create-form1', function(e) {
-            e.preventDefault();
+        $(document).on('change','#config_id',function(){
+           // if($(this).val() != ""){
+            // alert($(this).val());
+                $.ajax({
+                    url:'{{route("social.adcreative.getpost")}}',
+                    dataType:'json',
+                    data:{
+                        id:$(this).val(),
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    success:function(result){
+                        console.log(result);
+                        $("#loading-image").hide();
+                        if(result.type=="success"){
+                            let html = `<option value="">-----Select Post-----</option>`;
+                            if(result.message.posts.data){
+                                console.log(result.message.posts.data);
+                                $.each(result.message.posts.data,function(key,value){
+                                    html += `<option value="${value.id}" rel="${value.message}" >${value.message}</option>`; 
+                                });
+                            }
+                            $('#post_id').html(html);
+                        }else{
+                            $("#loading-image").hide();
+                            alert("token Expired");
+                        }
+                    },
+                    error:function(exx){
+                        
+                    }
+                });
+            //}
+		});
 
-            var form = $(this);
-            var postData = new FormData(form[0]);
-
-
-            $.ajax({
-                url:  "{{ route('social.post.store') }}",
-                type: 'POST',
-                data: postData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#loading-image").show();
-                }
-            }).done(function(response) {
-
-                if (response.code == 200) {
-                    $("#loading-image").hide();
-                    toastr['success'](response.message, 'Success');
-                    $('#create-modal').modal('hide');
-                    location.reload();
-                } else {
-                    $("#loading-image").hide();
-                  //  toastr['error'](response.message, 'error');
-                    location.reload();
-                }
-
-            }).fail(function(errObj) {
-                //toastr['error'](errObj.responseJSON.message, 'error');
-                $("#loading-image").hide();
-                location.reload();
-            });
+        $(document).on('change','#post_id',function(){
+           // alert($(this).val());
+            if($(this).val()!= ""){
+                var g_name = $('option:selected', this).attr('rel');
+                $("#object_story_title").val(g_name);
+            }
         });
 
-
-
+      
         $(window).scroll(function() {
             if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
                 loadMore();

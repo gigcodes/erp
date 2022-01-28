@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 
-@section('title', 'Social Posts')
+@section('title', 'Social  Adsets')
 
 @section('content')
     <link rel="stylesheet" type="text/css"
@@ -9,34 +9,35 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    @include("social.posts.history")
+    @include("social.adsets.history")
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
+            <h2 class="page-heading">Social  Adsets ({{ $adsets->total() }})<span class="count-text"></span></h2>
             <div class="pull-right">
                 <a class="btn btn-secondary create-post">+</a>
             </div>
         </div>
+
+        <br>
         @include("social.header_menu")
             
-            @if ($message = Session::get('success'))
-                <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                </div>
-            @endif
-    
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-        <br>
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="col-lg-12 margin-tb">
 
             <div class="col-md-12 margin-tb">
@@ -44,19 +45,21 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Date</th>
-                            <th style="width:25%">Caption</th>
-                            <th style="width:30%">Post</th>
-                            <!-- <th style="width:10%">Image</th> -->
-                            <th style="width:10%">Posted on</th>
+                            <th style="width:10%">Config Name</th>
+                            <th style="width:10%">Campaign Name</th>
+                            <th style="width:30%"> Name</th>
+                            <th style="width:10%">Billing Event</th>
+                            <th style="width:10%">Daily Budget</th>
                             <th style="width:5%">Status</th>
+                            <th style="width:5%">Live Status</th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
-                            @include("social.posts.data")
+                            @include("social.adsets.data")
                         </tbody>
                     </table>
                 </div>
-                {{ $posts->appends(request()->except('page'))->links() }}
+                {{ $adsets->appends(request()->except('page'))->links() }}
             </div>
         </div>
     </div>
@@ -84,7 +87,7 @@
         e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
-                url: "{{ route('social.post.history') }}",
+                url: "{{ route('social.adset.history') }}",
                 type: 'POST',
                 data : { "_token": "{{ csrf_token() }}", post_id : post_id },
                 dataType: 'json',
@@ -115,7 +118,7 @@
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             
-            var $action_url = "{{ route('social.post.create',$id) }}";
+            var $action_url = "{{ route('social.adset.create') }}";
             jQuery.ajax({
 
                 type: "GET",
@@ -123,6 +126,7 @@
                 dataType: 'html',
                 success: function(data) {
                     $("#create-modal").modal('show');
+                    
                     $("#record-content").html(data);
 
                 },
@@ -141,7 +145,7 @@
 
 
             $.ajax({
-                url:  "{{ route('social.post.store') }}",
+                url:  "{{ route('social.adset.store') }}",
                 type: 'POST',
                 data: postData,
                 processData: false,
