@@ -1059,23 +1059,24 @@ class MagentoService
                         }
                         // pricing check for the discount case
 
-                        if (strtoupper($topParent) != "PREOWNED") {
-                            if (!empty($countries)) {
-                                foreach ($countries as $cnt) {
-                                    $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
-                                    if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+
+                        if (!empty($countries)) {
+                            foreach ($countries as $cnt) {
+                                $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
+                                if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+                                    $ovverridePrice = $discountPrice['total'];
+                                    if (strtoupper($topParent) == "PREOWNED") {
                                         if (!empty($product_markup) && $product_markup > 0) {
                                             $prod_markup = ((float)$discountPrice['total'] * (float)$product_markup) / 100;
                                             $ovverridePrice = (float)$discountPrice['total'] + $prod_markup;
-                                        } else {
-                                            $ovverridePrice = $discountPrice['total'];
                                         }
-                                        $segmentDiscount = $discountPrice['segment_discount'];
-                                        break;
                                     }
+                                    $segmentDiscount = $discountPrice['segment_discount'];
+                                    break;
                                 }
                             }
                         }
+
 
                         $magentoPrice = \App\Product::getIvaPrice($magentoPrice);
                         if ($magentoPrice > 0) {
