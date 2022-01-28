@@ -54,7 +54,7 @@
                         </span>
                     </td>
                     <td>{{ $wetransfer->supplier }}</td>
-                    <td>@if($wetransfer->is_processed == 1) Pending @elseif($wetransfer->is_processed == 2) Success @else Failed @endif</td>
+                    <td>@if($wetransfer->is_processed == 1) Pending @elseif($wetransfer->is_processed == 2) Success @elseif($wetransfer->is_processed == 3) Initiated @else Failed @endif</td>
                     <td>{{ $wetransfer->updated_at->format('d-m-Y : H:i:s') }}</td>     
                     <td> 
                         <button style="padding:3px;" type="button" class="btn btn-success show-files-list d-inline" data-json="{{ json_encode($files) }}" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $wetransfer->id }}"> @if(isset($files[0]) and $files[0] != ''){{ count($files) }}@else 0 @endif </button>
