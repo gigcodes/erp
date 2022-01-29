@@ -493,7 +493,6 @@ class scrapperPhyhon extends Controller
 
     public function callScrapper(Request $request)
     {
-
     $client = new Client();
     $res = null;
     $err = null;
@@ -505,6 +504,20 @@ class scrapperPhyhon extends Controller
             'type' => $request->type,
             'name' =>  $request->webName
         ];
+        if($request->webName !=null && $request->is_flag != null){
+            $flagUrls = \App\StoreWebsite::join('websites','store_websites.id','websites.store_website_id')->join('website_stores','websites.id','website_stores.website_id')->where('store_websites.id',$request->webName)->where('website_stores.is_flag',1)->get();
+            $data['flagged'] = true;
+            $count = 1;
+            $fUrl = '';
+            foreach($flagUrls as $flagUrl){
+                $fUrl .= $flagUrl['magento_url'];
+                if($count < count($flagUrls)){
+                    $fUrl .= ',';
+                }
+                $count++;
+            }
+            $data['urls'] = $fUrl;
+        }
         $log_data["request"]=json_encode($data);
         $log_data["url"]=$url;
 
@@ -702,5 +715,4 @@ class scrapperPhyhon extends Controller
             ->with('success', "Url $status successfully");
     }
 }
-
 

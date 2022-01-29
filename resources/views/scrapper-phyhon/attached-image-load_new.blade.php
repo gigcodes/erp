@@ -178,7 +178,8 @@
                 _token: "{{ csrf_token() }}",
                 webName: websiteName,
                 type: typeOfData,
-                data_name: nameOfData
+                data_name: nameOfData,
+                is_flag: $('input[name="is_flag"]:checked').val()
             },
             dataType: "json"
         }).done(function(response) {
