@@ -59,6 +59,7 @@ class SocialPostController extends Controller
         $Log->platform = $platform;
         $Log->log_title = $title;  
         $Log->log_description = $description;
+        $Log->modal = "SocialPost";
         $Log->save();
         return true;
 }
@@ -497,7 +498,7 @@ class SocialPostController extends Controller
     public function history(Request $request)
     {   
         
-    	$logs = SocialPostLog::where("post_id", $request->post_id)->orderBy("created_at","desc")->get();
+    	$logs = SocialPostLog::where("post_id", $request->post_id)->where("modal","SocialPost")->orderBy("created_at","desc")->get();
         return response()->json(["code" => 200 , "data" => $logs]);
     }
 

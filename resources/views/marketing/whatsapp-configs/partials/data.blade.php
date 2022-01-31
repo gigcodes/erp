@@ -11,22 +11,23 @@
 
 <tr>
  
-  <td>{{ $whatsAppConfig->username }}</td>
-  <td>{{ $whatsAppConfig->number }}</td>
-  <td>{{ $whatsAppConfig->provider }}</td>
-  <td>{{ $whatsAppConfig->frequency }}</td>
-  <td>@if($whatsAppConfig->is_customer_support == 1) Yes @else No @endif</td>
-  <td>{{ $whatsAppConfig->send_start }}</td>
-  <td>{{ $whatsAppConfig->send_end }}</td>
-  <td>{{ $whatsAppConfig->device_name }}</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->username }}</td>
+  <td class="p-2 align-middle"></td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->number }}</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->provider }}</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->frequency }}</td>
+  <td class="p-2 align-middle">@if($whatsAppConfig->is_customer_support == 1) Yes @else No @endif</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->send_start }}</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->send_end }}</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->device_name }}</td>
   <!-- <td>{{ $whatsAppConfig->simcard_number }}</td>
   <td>{{ $whatsAppConfig->simcard_owner }}</td>
   <td>{{ $whatsAppConfig->payment }}</td>
   <td>{{ $whatsAppConfig->recharge_date }}</td> -->
-  <td>@if($whatsAppConfig->status == 1) Active @elseif($whatsAppConfig->status == 2) Blocked @elseif($whatsAppConfig->status == 3)  Scan Barcode @else Inactive @endif</td>
-  <td>{{ date('d-m-Y', strtotime($whatsAppConfig->created_at))}}</td>
-  <td>{{ $whatsAppConfig->instance_id }}</td>
-  <td class="whatsAppConfig-action">
+  <td class="p-2 align-middle">@if($whatsAppConfig->status == 1) Active @elseif($whatsAppConfig->status == 2) Blocked @elseif($whatsAppConfig->status == 3)  Scan Barcode @else Inactive @endif</td>
+  <td class="p-2 align-middle">{{ date('d-m-Y', strtotime($whatsAppConfig->created_at))}}</td>
+  <td class="p-2 align-middle">{{ $whatsAppConfig->instance_id }}</td>
+  <td class="whatsAppConfig-action p-2 align-middle">
     <button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-sm"><i class="fa fa-edit"></i></button>
     @if(Auth::user()->hasRole('Admin'))
     <button onclick="deleteConfig({{ $whatsAppConfig->id }})" class="btn btn-sm"><i class="fa fa-trash"></i></button>
