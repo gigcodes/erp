@@ -19,20 +19,23 @@
     <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row m-0">
+   <div class="row">
+       <div class="col-md-12">
+             <h2 class="page-heading">WhatsApp Configs</h2>
+       </div>
+   </div>
+    <div class="row ">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">WhatsApp Configs</h2>
-            
             <div class="pull-left">
                 <form action="{{ route('whatsapp.config.index') }}" method="GET" class="form-inline align-items-start">
-                    <div class="form-group mr-3 mb-3">
+                    <div class="form-group mr-2 mb-3">
                         <input name="term" type="text" class="form-control global" id="term"
                                value="{{ isset($term) ? $term : '' }}"
-                               placeholder="number , provider, username">
+                               placeholder="number , provider, username" style="width:150px !important;">
                     </div>
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-2">
                         <div class='input-group date' id='filter-date'>
-                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" / style="width:100px !important;">
 
                             <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -41,22 +44,22 @@
                     </div>
 
 
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    <button type="submit" class="btn btn-image mt-0"><img src="/images/filter.png" /></button>
                 </form>
             </div>
              
             <div class="pull-left">    
-                  <div class="form-group mr-3 mb-3">
-                       <input type="text" id="username" class="search form-control" placeholder="Username">
+                  <div class="form-group  mb-3">
+                       <input type="text" id="username" class="search form-control" placeholder="Username" style="width:150px !important;">
                   </div>
-                  <div class="form-group mr-3 mb-3  searchicons">
-                      <input type="text" id="number" class="search form-control" placeholder="Mobile Number">
+                  <div class="form-group mb-3  searchicons">
+                      <input type="text" id="number" class="search form-control" placeholder="Mobile Number" style="width:150px !important;">
                   </div>
-                  <div class="form-group mr-3 mb-3  searchicons">
-                      <input type="text" id="provider" class="search form-control" placeholder="Provider">
+                  <div class="form-group  mb-3  searchicons">
+                      <input type="text" id="provider" class="search form-control" placeholder="Provider" style="width:150px !important;">
                   </div>
-                  <div class="form-group mr-3 mb-3  searchicons">
-                     <select class="form-control search" id="customer_support">
+                  <div class="form-group  mb-3  searchicons">
+                     <select class="form-control search" id="customer_support" style="width:150px !important;">
                         <option value="">Select Option</option>
                         <option value="1">Provide Support</option>
                         <option value="0">Does Not Provide Support</option>
@@ -94,22 +97,22 @@
           <tr>
             <!-- <th style="width: 3% !important;">ID</th> -->
             <th style="width: 2% !important;">User</th>
-            <th style="width: 1% !important;">Pass</th>
-            <th style="width: 1.5% !important;">No.</th>
+            <th style="width: 4% !important;">Pass</th>
+            <th style="width: 1% !important;">No.</th>
             <th style="width: 2% !important;">Provider</th>
-            <th style="width: 2% !important;">Freq</th>
-            <th style="width: 2% !important;">C Support</th>
+            <th style="width: 1% !important;">Freq</th>
+            <th style="width: 1% !important;">C Support</th>
             <th style="width: 2% !important;">St Tm</th>
             <th style="width: 2% !important;">End Tm</th>
-            <th style="width: 1% !important;">Device</th>
+            <th style="width: 2% !important;">Device</th>
            <!--  <th style="width: 3% !important;">Sim No.</th>
             <th style="width: 3% !important;">Sim Owner.</th>
             <th style="width: 3% !important;">Pay</th>
             <th style="width: 14% !important;">Rech</th> -->
             <th style="width: 1% !important;">Sts</th>
-            <th style="width: 3% !important;">Started At</th>
+            <th style="width: 2% !important;">Started At</th>
             <th style="width: 2% !important;">Inst Id</th>
-            <th style="width: 8% !important;">Actions</th>
+            <th style="width: 6% !important;">Actions</th>
           </tr>
 
           
