@@ -62,6 +62,7 @@ class PushToMagento implements ShouldQueue
         }
 
         try {
+			$categorym = $product->categories;  
 			//$jobId = app(JobRepository::class)->id;
 			if(in_array('status_condition', $conditions)){ 
 				if($product->status_id == StatusHelper::$finalApproval){
@@ -105,7 +106,7 @@ class PushToMagento implements ShouldQueue
 					}
 							
 					// started to check the validation for the category size is available or not and if not then throw the error
-					$categorym = $product->categories;
+					//$categorym = $product->categories;
 					if ($categorym && !$product->isCharity()) {
 						$categoryparent = $categorym->parent;
 						if(in_array('check_if_size_chart_exists', $conditions)){
