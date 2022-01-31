@@ -8,6 +8,7 @@ use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Setting;
 use App\WeTransferLog;;
 use Response;
+use Validator;
 
 class WeTransferController extends Controller
 {
@@ -64,9 +65,16 @@ class WeTransferController extends Controller
      */
     public function storeFile(Request $request)
     {
+        $validator = Validator::make($request->all(), ['file' => 'required', 'id' => 'required', 'filename' => 'required']);
+        if($validator->fails()) return response()->json(['status' => 400, 'errors' => $validator->errors(), 'success' => false], 400);
+
 		WeTransferLog::create(['link'=>'', 'log_description'=>json_encode($request->all())]);
 		//WeTransferLog::create(['link'=>'', 'log_description'=>json_encode($request->)]);
 		$wetransfer = Wetransfer::find($request->id);
+        if(!$wetransfer) {
+	        WeTransferLog::create(['link'=>'', 'log_description'=>'we transfer item not found']);
+            return response()->json(['status' => 400, 'message' => 'Wetransfer item not found', 'success' => false]);
+        }
         /*if($request->status){
             $wetransfer->is_processed = 2;
             $wetransfer->update();
@@ -95,8 +103,9 @@ class WeTransferController extends Controller
                 
             }*/
 			WeTransferLog::create(['link'=>'', 'log_description'=>'Wetransfer has been stored']);
-            return json_encode(['success' => 'Wetransfer has been stored']);
+            return response()->json(['status' => 200, 'message' => 'Wetransfer has been stored', 'success' => true]);
         }	
+        return response()->json(['status' => 400, 'message' => 'File not found', 'success' => false]);
     }
 
 	public function logs() {
@@ -122,8 +131,10 @@ class WeTransferController extends Controller
 					
 				}*/
 				$response = $this->downloadFromURL( $list->id, $list->url, $list->supplier );
-                WeTransferLog::create(['link'=>$list->url, 'log_description'=>'Downloaded '. $response]);
-				
+                WeTransferLog::create(['link'=>$list->url, 'log_description'=> $response ? 'Download request submitted' : 'Failed to send download request']);
+				$list->update([
+                  'is_processed' => $response ? 3 : 0  
+                ]);
                 /*$file  = $this->downloadWetransferFiles( $list->url );
                 
                 if ( !empty( $file ) ) {
@@ -174,11 +185,11 @@ class WeTransferController extends Controller
                 );
                 Wetransfer::where( 'id', $list->id )->update( $update );*/
                
-            // }	
-			 return response()->json([
-                        'status'      => true,
-                        'message'     => 'Download completed'
-                    ], 200);
+            // }
+                return response()->json([
+                    'status'      => true,
+                    'message'     => $response ? 'Download completed' : 'Download failed'
+                ], 200);
         }
         return response()->json([
             'status'      => true,
@@ -297,6 +308,7 @@ class WeTransferController extends Controller
 
     public static function downloadFromURL($id, $url, $supplier)
     {
+        $payload = sprintf('{"id":%u,"url":"%s"}',$id,$url);
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
 		  CURLOPT_URL => 'http://75.119.154.85:100/download',
@@ -307,10 +319,7 @@ class WeTransferController extends Controller
 		  CURLOPT_FOLLOWLOCATION => true,
 		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 		  CURLOPT_CUSTOMREQUEST => 'POST',
-		  CURLOPT_POSTFIELDS =>'{
-			"url":'.$url.',
-			"id":'.$id.'
-		}',
+		  CURLOPT_POSTFIELDS => $payload,
 		  CURLOPT_HTTPHEADER => array(
 			'Content-Type: text/plain'
 		  ),

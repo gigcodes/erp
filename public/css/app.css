@@ -11394,6 +11394,11 @@ table.table-striped-custom tbody tr td {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.modal-body .Website-task:hover{
+    overflow: visible;
+     white-space:normal;
+}
+
 .action-column img{
     filter: grayscale(100%);
 }
@@ -11457,4 +11462,9 @@ table.table-striped-custom tbody tr td {
 }
 .green_img {
     background: grey !important;
+}
+#reply_history_div tbody tr:hover .Website-task, #quick-reply-list tbody tr:hover .Website-task{
+    overflow: visible;
+    white-space: normal;
+    word-break: break-all;
 }

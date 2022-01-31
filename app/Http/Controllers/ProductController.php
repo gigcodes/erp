@@ -65,6 +65,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Qoraiche\MailEclipse\MailEclipse;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\PushToMagentoCondition;
 
 class ProductController extends Controller
 {
@@ -1806,6 +1807,9 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name, 'success', $website->id, null, null, $log->id, null);
+                    }else{
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'success', $website->id, null, null, null, null);
                     }
                 }
                 $product->isUploaded = 1;
@@ -1815,6 +1819,8 @@ class ProductController extends Controller
                     'result' => 'queuedForDispatch',
                     'status' => 'listed',
                 ]);
+            }else{
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
             }
 
              return response()->json([
@@ -4696,29 +4702,53 @@ class ProductController extends Controller
             ->groupBy("brand", "category")
             ->limit($limit)
             ->get();
-       
-        foreach ($products as $key => $product) {
-   //         dd("testing");
+         foreach ($products as $key => $product) {                      
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-     //       dd($websiteArrays);
+          
             if (!empty($websiteArrays)) {
                 $i = 1;
-                foreach ($websiteArrays as $websiteArray) {
+                foreach ($websiteArrays as $websiteArray) { 
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
                         \Log::info("Product started website found For website" . $website->website);
-                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id, "waiting");
+                        $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id.' status id '.$product->status_id, 'info', $website->id, "waiting");
                         //currently we have 3 queues assigned for this task.
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name, 'success', $website->id, null, null, $log->id, null);
+                        
                         PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         $i++;
+                    } else{
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'error', $website->id, null, null, null, null);
                     }
                 }
+            } else{
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
             }
         }
         return response()->json(["code" => 200, "message" => "Push product successfully"]);
 
+    }
+    
+    public function pushToMagentoConditions(Request $request) {
+        $drConditions = PushToMagentoCondition::all();
+        if (($request->condition && $request->condition != null) && ($request->magento_description && $request->magento_description != null)){
+            $conditions = PushToMagentoCondition::where('condition',$request->condition)->where('description','LIKE','%'.$request->magento_description.'%')->get();
+        }elseif ($request->magento_description && $request->magento_description != null) {
+            $conditions = PushToMagentoCondition::where('description','LIKE','%'.$request->magento_description.'%')->get();
+        }elseif ($request->condition && $request->condition != null) {
+            $conditions = PushToMagentoCondition::where('condition',$request->condition)->get();
+        }else{
+            $conditions = PushToMagentoCondition::all();
+        }
+        return view('products.conditions', compact('conditions','drConditions'));
+    }
+    
+    public function updateConditionStatus(Request $request) {
+        $input = $request->input();
+        PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
+        return 'Status Updated';
     }
 
     public function getPreListProducts()
