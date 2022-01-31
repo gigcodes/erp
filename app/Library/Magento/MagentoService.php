@@ -1059,37 +1059,37 @@ class MagentoService
                         }
                         // pricing check for the discount case
 
-
-                        if (!empty($countries)) {
-                            foreach ($countries as $cnt) {
-                                $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
-                                if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
-                                    $ovverridePrice = $discountPrice['total'];
-                                    if (strtoupper($topParent) == "PREOWNED") {
-                                        if (!empty($product_markup) && $product_markup > 0) {
-                                            $prod_markup = ((float)$discountPrice['total'] * (float)$product_markup) / 100;
-                                            $ovverridePrice = (float)$discountPrice['total'] + $prod_markup;
-                                        }
-                                    }
-                                    $segmentDiscount = $discountPrice['segment_discount'];
-                                    break;
-                                }
-                            }
-                        }
-
-
-                        $magentoPrice = \App\Product::getIvaPrice($magentoPrice);
-                        if ($magentoPrice > 0) {
-                            $totalAmount = $magentoPrice * $dutyPrice / 100;
-                            $magentoPrice = $magentoPrice + $totalAmount;
-                        }
-                        $specialPrice = 0;
-                        if ($magentoPrice > $ovverridePrice) {
-                            $price = $magentoPrice;
-                            $specialPrice = $ovverridePrice;
-                        } else {
-                            $price = $magentoPrice;
-                        }
+						if (strtoupper($topParent) == "PREOWNED") {
+                            if (!empty($product_markup) && $product_markup > 0) {
+                                $prod_markup = ((float)$magentoPrice * (float)$product_markup) / 100;
+                                $ovverridePrice = (float)$magentoPrice + $prod_markup;
+								$price = $ovverridePrice;
+								$specialPrice = $ovverridePrice;
+							}
+                        } else{
+							if (!empty($countries)) {
+								foreach ($countries as $cnt) {
+									$discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
+									if (!empty($discountPrice['total']) && $discountPrice['total'] > 0) {
+										$ovverridePrice = $discountPrice['total'];
+										$segmentDiscount = $discountPrice['segment_discount'];
+										break;
+									}
+								}
+							}
+							$magentoPrice = \App\Product::getIvaPrice($magentoPrice);
+							if ($magentoPrice > 0) {
+								$totalAmount = $magentoPrice * $dutyPrice / 100;
+								$magentoPrice = $magentoPrice + $totalAmount;
+							}
+							$specialPrice = 0;
+							if ($magentoPrice > $ovverridePrice) {
+								$price = $magentoPrice;
+								$specialPrice = $ovverridePrice;
+							} else {
+								$price = $magentoPrice;
+							}
+						}
                     }
 
                     foreach ($countries as $c) {
