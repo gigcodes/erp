@@ -11468,3 +11468,6 @@ table.table-striped-custom tbody tr td {
     white-space: normal;
     word-break: break-all;
 }
+.timeslot .btn-default{
+    height:30px !important;
+}
