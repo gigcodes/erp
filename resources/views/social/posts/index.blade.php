@@ -18,7 +18,24 @@
                 <a class="btn btn-secondary create-post">+</a>
             </div>
         </div>
-
+        @include("social.header_menu")
+            
+            @if ($message = Session::get('success'))
+                <div class="alert alert-success">
+                    <p>{{ $message }}</p>
+                </div>
+            @endif
+    
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         <br>
         <div class="col-lg-12 margin-tb">
 

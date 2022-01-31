@@ -42,31 +42,32 @@
         <div class="row" style="margin:10px;"> 
             <div class="col-12">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
                             <th width="2%">ID</th>
-                            <th width="10%">Store website</th>
-                            <th width="19%">Category</th>
-                            <th width="10%">Reply</th>
+                            <th width="8%">Store website</th>
+                            <th width="10%">Category</th>
+                            <th width="15%">Reply</th>
                             <th width="7%">Model</th>
-                            <th width="15%">Updated On</th>
-                            <th width="15%">Is Pushed To Watson</th>
-                            <th width="5%">Action</th>
+                            <th width="7%">Updated On</th>
+                            <th width="10%">Is Pushed To Watson</th>
+                            <th width="4%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td id="reply-store-website">{{ $reply->website }}</td>
-                                <td id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
-                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
-                                <td id="reply_model">{{ $reply->model }}</td>
+                                <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
+                                <td class="Website-task" id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
+                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
+                                <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
                                 <td id="reply_model">{{ $reply->created_at }}</td>
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
                                 <td id="reply_action">
-                                    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
-                                    <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}"></i>
-                                  @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}"></i> @endif
-                                    <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}"></i></td>
+                                    <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
+                                  @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
+                                    <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
+                                </td>
                             </tr>
                         @endforeach
                     </table>
@@ -104,10 +105,10 @@
     </div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="reply_history_modal">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document"style="width: 60%; max-width: 100%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tracked time history</h5>
+                <h3 class="modal-title">Tracked time history</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -115,12 +116,12 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12" id="reply_history_div">
-                        <table class="table">
+                        <table class="table" style="table-layout:fixed;">
                             <thead>
                                 <tr>
-                                    <th>User Name</th>
-                                    <th>Last Message</th>
-                                    <th>Updated Time</th>
+                                    <th width="11%">User Name</th>
+                                    <th width="60%">Last Message</th>
+                                    <th width="17%">Updated Time</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -238,8 +239,8 @@ $(document).on('click', '.show-reply-history', function() {
                 $.each(data.histories, function(i, item) {
                     $('#reply_history_div table tbody').append(
                         '<tr>\
-                        <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
-                        <td>'+ ((item['last_message'] != null) ? item['last_message'] : '') +'</td>\
+                        <td class="Website-task">'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                        <td class="Website-task">'+ ((item['last_message'] != null) ? item['last_message'] : '') +'</td>\
                         <td>'+ ((item['created_at'] != null) ? item['created_at'] : '') +'</td>\
                         </tr>'
                         );

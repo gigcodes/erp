@@ -1095,7 +1095,7 @@ class TaskModuleController extends Controller
     }
 
 
-    private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
+    public function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
         // echo '<pre>';print_r($tokens);
