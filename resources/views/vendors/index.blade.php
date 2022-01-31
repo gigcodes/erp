@@ -197,6 +197,9 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
+                    <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
+                        <?php echo Form::select("flt_vendor_status",[null=>'Select Status']+$statusList,'',["class" => "form-control"]); ?>
+                    </div>
                     <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-2">
                         <div class="form-check form-check-inline">
                             <input type="checkbox" class="form-check-input"  name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>

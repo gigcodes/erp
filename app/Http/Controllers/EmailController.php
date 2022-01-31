@@ -621,6 +621,7 @@ class EmailController extends Controller
                             $wetransfer = new Wetransfer();
                             $wetransfer->type = 'excel';
                             $wetransfer->url = $matchLink;
+                            $wetransfer->is_processed = 1;
                             $wetransfer->supplier = $request->supplier;
                             $wetransfer->save();
 

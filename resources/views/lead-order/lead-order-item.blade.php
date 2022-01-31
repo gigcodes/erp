@@ -8,12 +8,12 @@
             </td>
             <td>{{ isset($leadOrder['order_date'])? Carbon\Carbon::parse($leadOrder['order_date'])->format('d-m-Y') : '' }}</td>
             <td>{{ isset($leadOrder['product_id'])? $leadOrder['product_id'] : ''}}</td>
-            <td class="expand-row-msg" data-name="leadOrder" data-id="{{$key.'-'.$leadOrder['id']}}">
-                <span class="show-short-leadOrder-{{$key.'-'.$leadOrder['id']}}">{{ isset($leadOrder['name'])? str_limit($leadOrder['name'], 25, '..') : '' }}</span>
-                <span style="word-break:break-all;" class="show-full-leadOrder-{{$key.'-'.$leadOrder['id']}} hidden">{{ isset($leadOrder['name'])? $leadOrder['name'] : ''}}</span>
+            <td class="expand-row-msg Website-task" data-name="leadOrder" data-id="{{$key.'-'.$leadOrder['id']}}">
+                <span class="Website-task show-short-leadOrder-{{$key.'-'.$leadOrder['id']}}">{{ isset($leadOrder['name'])? str_limit($leadOrder['name'], 25, '..') : '' }}</span>
+                <span style="word-break:break-all;" class="Website-task show-full-leadOrder-{{$key.'-'.$leadOrder['id']}} hidden">{{ isset($leadOrder['name'])? $leadOrder['name'] : ''}}</span>
             </td>
 
-            <td>{{ isset($leadOrder['brand_name'])? $leadOrder['brand_name'] : ''}}</td>
+            <td class="Website-task">{{ isset($leadOrder['brand_name'])? $leadOrder['brand_name'] : ''}}</td>
             @if($orderOrLead == 'order')
             <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['default_price'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['default_price'] : 'N/A'}}</td>
             <td>{{ isset($leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['segment_discount'])? $leadOrder->storeWebsiteOrder->storeWebsiteProductPrice['segment_discount'] : 'N/A'}}</td>

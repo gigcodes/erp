@@ -1594,8 +1594,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
-    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
     
 
 
@@ -3351,6 +3349,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/scrapper-python/{id}/url', 'scrapperPhyhon@flagImageUrl')->name('scrapper.url.flag');
 
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
+    Route::get('/set/flag/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setFlagStore')->name('set.flag.store');
 
     Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
     Route::get('/get/stores/language/{website?}', 'scrapperPhyhon@storeLanguageList')->name('store.language.list');
@@ -3532,6 +3531,43 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
     Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
     Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
+   
+
+
+
+    Route::get('campaigns', 'SocialCampaignController@index')->name('social.campaign.index');
+    Route::post('campaign/store', 'SocialCampaignController@store')->name('social.campaign.store');
+    Route::post('campaign/edit', 'SocialCampaignController@edit')->name('social.campaign.edit');
+    Route::post('campaign/delete', 'SocialCampaignController@destroy')->name('social.campaign.delete');
+    Route::get('campaign/create', 'SocialCampaignController@create')->name('social.campaign.create');
+    Route::post('campaign/history', 'SocialCampaignController@history')->name('social.campaign.history');
+
+    
+    Route::get('adsets', 'SocialAdsetController@index')->name('social.adset.index');
+    Route::post('adset/store', 'SocialAdsetController@store')->name('social.adset.store');
+    Route::post('adset/edit', 'SocialAdsetController@edit')->name('social.adset.edit');
+    Route::post('adset/delete', 'SocialAdsetController@destroy')->name('social.adset.delete');
+    Route::get('adset/create', 'SocialAdsetController@create')->name('social.adset.create');
+    Route::post('adset/history', 'SocialAdsetController@history')->name('social.adset.history');
+
+    Route::get('adcreatives', 'SocialAdCreativeController@index')->name('social.adcreative.index');
+    Route::post('adcreative/store', 'SocialAdCreativeController@store')->name('social.adcreative.store');
+    Route::post('adcreative/edit', 'SocialAdCreativeController@edit')->name('social.adcreative.edit');
+    Route::post('adcreative/delete', 'SocialAdCreativeController@destroy')->name('social.adcreative.delete');
+    Route::get('adcreative/create', 'SocialAdCreativeController@create')->name('social.adcreative.create');
+    Route::get('adcreative/getconfigPost', 'SocialAdCreativeController@getpost')->name('social.adcreative.getpost');
+    
+    Route::post('adcreative/history', 'SocialAdCreativeController@history')->name('social.adcreative.history');
+
+
+    
+    Route::get('ads', 'SocialAdsController@index')->name('social.ad.index');
+    Route::post('ads/store', 'SocialAdsController@store')->name('social.ad.store');
+    Route::post('ads/edit', 'SocialAdsController@edit')->name('social.ad.edit');
+    Route::post('ads/delete', 'SocialAdsController@destroy')->name('social.ad.delete');
+    Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
+    Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
+    Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 
 
 
