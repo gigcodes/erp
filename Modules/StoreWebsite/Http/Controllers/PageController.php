@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Language;
 use App\StoreWebsite;
 use App\StoreWebsitePage;
+use App\StoreWebsitePagePullLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -472,6 +473,16 @@ class PageController extends Controller
 
     }
 
+	public function pullLogs($pageId=null) {
+		if($pageId == null) {
+			$logs = StoreWebsitePagePullLog::whereNull('page_id');
+		} else{
+			$logs = StoreWebsitePagePullLog::where('page_id', $pageId);
+		}
+		$logs = $logs->leftJoin('store_websites', 'store_websites.id', 'store_website_page_pull_logs.store_website_id')->select('store_websites.title', 'store_website_page_pull_logs.*')->get();
+		return response()->json(["code" => 200, "data" => $logs]);
+	}
+
     public function pullWebsiteInLive (Request $request, $id)
     {   
         $website = \App\StoreWebsite::where("id", $id)->where("api_token", "!=", "")->where('remote_software', '2')->where("website_source", "magento")->first();
@@ -499,9 +510,27 @@ class PageController extends Controller
                     $pages->updated_at       = isset($d->update_time) ? $d->update_time : "";
 
                     $pages->save();
-
+					
+					
+					StoreWebsitePagePullLog::create([ 'title'=>isset($d->title) ? $d->title : "",
+										'meta_title'=>isset($d->meta_title) ? $d->meta_title : "",
+										'meta_keywords'=>isset($d->meta_keywords) ? $d->meta_keywords : "",
+										'meta_description'=>isset($d->meta_description) ? $d->meta_description : "",
+										'content_heading'=>isset($d->content_heading) ? $d->content_heading : "",
+										'content'=>isset($d->content) ? $d->content : "",
+										'layout'=>isset($d->page_layout) ? $d->page_layout : "",
+										'url_key'=>isset($d->identifier) ? $d->identifier : "",
+										'platform_id'=>$d->id,
+										'page_id'=>$pages->id,
+										'store_website_id'=>$website->id,
+										'response_type'=>'success']);	
+					
                 }
-            }
+            } else{
+				StoreWebsitePagePullLog::create([ 
+										'store_website_id'=>$website->id,
+										'response_type'=>'error']);	
+			}
             return response()->json(["code" => 200, "data" => [], "message" => "Website pages pulled successfully!"]);
         }
 
