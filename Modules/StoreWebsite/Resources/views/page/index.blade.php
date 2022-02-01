@@ -30,12 +30,15 @@
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
-            <div class="col col-md-3">
+            <div class="col col-md-12">
                     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
                         <img src="/images/add.png" style="cursor: default;">
                     </button>
                     <button class="btn btn-secondary push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal" style="width:133px;">Push Storewebsite</button> 
                     <button class="btn btn-secondary pull-by-store-website"  data-toggle="modal" data-target="#pull-by-store-website-modal" style="width:133px;">Pull Storewebsite</button>
+					<button type="button" title="Pull logs" data-id="" class="btn btn-secondary btn-pullLogs" style="width:133px;">
+										Pull Logs
+									</button>
             </div>
                         <form class="form-inline message-search-handler" method="get">
                             <div class="col-md-2">
@@ -66,6 +69,7 @@
                                     <button type="submit" style="display: inline-block;width: 10%; margin-top: -22px;" class="btn btn-sm btn-image btn-search-action">
                                         <img src="/images/search.png" style="cursor: default;">
                                     </button>
+									
                                 </div>
                             </div>
                         </form>
