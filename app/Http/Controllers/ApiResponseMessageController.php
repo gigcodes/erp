@@ -15,6 +15,12 @@ class ApiResponseMessageController extends Controller
         $api=ApiResponseMessage::with(['storeWebsite']);
         if ($request->store_website_id!='')
             $api->where('store_website_id',$request->store_website_id);
+        if($request->api_key != ''){
+            $api->where('key','LIKE','%'.$request->api_key.'%');
+        }
+        if($request->api_value != ''){
+            $api->where('value','LIKE','%'.$request->api_value.'%');
+        }
         $api_response =$api->orderBy('created_at','desc')->paginate(Setting::get('pagination'));
         $store_websites = StoreWebsite::orderBy('created_at','desc')->get();
         if ($request->ajax())

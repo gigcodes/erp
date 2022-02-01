@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/products/published', 'ProductController@published');
     Route::get('/products/pushproductlist', 'ProductController@pushproductlist');
     Route::get('/customers/accounts', 'CustomerController@accounts');
+    Route::post('/customer/update', 'CustomerController@customerUpdate');
+    Route::get('/customer/update/history/{id}', 'CustomerController@customerUpdateHistory');
 
 //Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -303,6 +305,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/listing/users', 'ProductController@showListigByUsers');
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+    Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
+    Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
@@ -421,6 +425,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-inventory')->group(function () {
         Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+        Route::get('/upteam/logs', 'NewProductInventoryController@upteamLogs')->name('product-inventory.upteam.logs');
         Route::get('fetch/images', 'NewProductInventoryController@fetchImgGoogle')->name('product-inventory.fetch.img.google');
         Route::post('/push-in-shopify-records', 'NewProductInventoryController@pushInStore')->name('product-inventory.pushInStore');
         Route::prefix('{id}')->group(function () {
@@ -509,6 +514,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('reply-list/delete', 'ReplyController@replyListDelete')->name('reply.replyList.delete');
     Route::post('reply-list/update', 'ReplyController@replyUpdate')->name('reply.replyUpdate');
     Route::get('reply-history', 'ReplyController@getReplyedHistory')->name('reply.replyhistory');
+    Route::get('reply-logs', 'ChatbotMessageLogsController@replyLogs')->name('reply.replylogs');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
@@ -820,6 +826,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
     Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage')->name('order.status.messages');
+    Route::post('order/status/flag', 'OrderReportController@setFlag')->name('order.status.flag');
 
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
@@ -1407,6 +1414,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
+    Route::get('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks');
+ 
+    Route::post('save/task/message', 'DevelopmentController@saveTaskMessage')->name('development.taskmessage');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -1585,8 +1595,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
-    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
     
 
 
@@ -3342,6 +3350,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/scrapper-python/{id}/url', 'scrapperPhyhon@flagImageUrl')->name('scrapper.url.flag');
 
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
+    Route::get('/set/flag/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setFlagStore')->name('set.flag.store');
 
     Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
     Route::get('/get/stores/language/{website?}', 'scrapperPhyhon@storeLanguageList')->name('store.language.list');
@@ -3473,6 +3482,7 @@ Route::get('chatbot-message-log', 'ChatbotMessageLogsController@index')->name('c
 Route::post('pushwaston', 'ChatbotMessageLogsController@pushwaston');
 
 Route::get('sync-to-watson', 'ChatbotMessageLogsController@pushQuickRepliesToWaston');
+Route::post('push-reply-to-watson', 'ChatbotMessageLogsController@pushRepyToWaston');
 
 Route::get('chatbot-message-log/{id}/history', 'ChatbotMessageLogsController@chatbotMessageLogHistory')->name('chatbot.messages.chatbot.message.log.history');
 
@@ -3505,13 +3515,65 @@ Route::prefix('lead-order')->middleware('auth')->group(function () {
 // Google Scrapper Keyword
 Route::get('/google-scrapper', 'GoogleScrapperController@index')->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', 'GoogleScrapperController@saveKeyword')->name('google-scrapper.keyword.save');
-
+Route::get('/hubstuff_activity_command', function () {
+    \Artisan::call('HubstuffActivity:Command');
+});
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'social'], function () {
     Route::get('config', 'SocialConfigController@index')->name('social.config.index');
     Route::post('config/store', 'SocialConfigController@store')->name('social.config.store');
     Route::post('config/edit', 'SocialConfigController@edit')->name('social.config.edit');
     Route::post('config/delete', 'SocialConfigController@destroy')->name('social.config.delete');
+
+
+    Route::get('posts/{id}', 'SocialPostController@index')->name('social.post.index');
+    Route::post('post/store', 'SocialPostController@store')->name('social.post.store');
+    Route::post('post/edit', 'SocialPostController@edit')->name('social.post.edit');
+    Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
+    Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
+    Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
+   
+
+
+
+    Route::get('campaigns', 'SocialCampaignController@index')->name('social.campaign.index');
+    Route::post('campaign/store', 'SocialCampaignController@store')->name('social.campaign.store');
+    Route::post('campaign/edit', 'SocialCampaignController@edit')->name('social.campaign.edit');
+    Route::post('campaign/delete', 'SocialCampaignController@destroy')->name('social.campaign.delete');
+    Route::get('campaign/create', 'SocialCampaignController@create')->name('social.campaign.create');
+    Route::post('campaign/history', 'SocialCampaignController@history')->name('social.campaign.history');
+
+    
+    Route::get('adsets', 'SocialAdsetController@index')->name('social.adset.index');
+    Route::post('adset/store', 'SocialAdsetController@store')->name('social.adset.store');
+    Route::post('adset/edit', 'SocialAdsetController@edit')->name('social.adset.edit');
+    Route::post('adset/delete', 'SocialAdsetController@destroy')->name('social.adset.delete');
+    Route::get('adset/create', 'SocialAdsetController@create')->name('social.adset.create');
+    Route::post('adset/history', 'SocialAdsetController@history')->name('social.adset.history');
+
+    Route::get('adcreatives', 'SocialAdCreativeController@index')->name('social.adcreative.index');
+    Route::post('adcreative/store', 'SocialAdCreativeController@store')->name('social.adcreative.store');
+    Route::post('adcreative/edit', 'SocialAdCreativeController@edit')->name('social.adcreative.edit');
+    Route::post('adcreative/delete', 'SocialAdCreativeController@destroy')->name('social.adcreative.delete');
+    Route::get('adcreative/create', 'SocialAdCreativeController@create')->name('social.adcreative.create');
+    Route::get('adcreative/getconfigPost', 'SocialAdCreativeController@getpost')->name('social.adcreative.getpost');
+    
+    Route::post('adcreative/history', 'SocialAdCreativeController@history')->name('social.adcreative.history');
+
+
+    
+    Route::get('ads', 'SocialAdsController@index')->name('social.ad.index');
+    Route::post('ads/store', 'SocialAdsController@store')->name('social.ad.store');
+    Route::post('ads/edit', 'SocialAdsController@edit')->name('social.ad.edit');
+    Route::post('ads/delete', 'SocialAdsController@destroy')->name('social.ad.delete');
+    Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
+    Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
+    Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
+
+
+
+
+
    
 
 

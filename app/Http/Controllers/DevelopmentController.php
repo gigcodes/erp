@@ -48,6 +48,7 @@ use App\ChatMessage;
 use App\Helpers\MessageHelper;
 use App\HubstaffHistory;
 use App\UserRate;
+use App\TaskMessage;
 
 class DevelopmentController extends Controller
 {
@@ -991,6 +992,48 @@ class DevelopmentController extends Controller
         ]);
     }
 
+	public function automaticTasks(Request $request)
+    {
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        $title = 'Automatic Task List';
+        $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
+      
+        if ((int) $request->get('assigned_to') > 0) {
+            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        }    
+        $whereTaskCondition = "";
+        if ($request->get('subject') != '') {
+            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $task = $task->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+    
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $task = $task->select("tasks.*", "chat_messages.message");
+        
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+          $task = $task->where(function ($query) use ($request) {
+                $query->where("tasks.assign_to", auth()->user()->id)
+                ->orWhere("tasks.master_user_id", auth()->user()->id);
+            });
+        }
+        $task_statuses=TaskStatus::all();
+        $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+       return view('task-module.automatictask', [
+            'users' => $users,
+            'request' => $request,
+            'title' => $title,
+            'task_statuses' => $task_statuses,
+            'tasks'=>$tasks
+        ]);
+    }
+
+
+
      public function flagtask(Request $request)
     {
         $users = Helpers::getUserArray(User::orderBy('name')->get());
@@ -1012,7 +1055,7 @@ class DevelopmentController extends Controller
         $title = 'Flag Task List';
 
         $issues = DeveloperTask::with('timeSpent')->where('is_flagged', '1');
-        $task =  Task::with('timeSpent')->where('is_flagged', '1');
+        $task =  Task::with('timeSpent')->where('is_flagged', '1'); 
        
        if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
@@ -1042,9 +1085,7 @@ class DevelopmentController extends Controller
         }
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
-        } else {
-            $issues = $issues->where('developer_tasks.status', 'In Progress');
-        }
+        } 
         $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition =   $whereTaskCondition = "";
         if ($request->get('subject') != '') {
@@ -1077,7 +1118,7 @@ class DevelopmentController extends Controller
         
         
         if (!auth()->user()->isReviwerLikeAdmin()) {
-            $task = $issues->where(function ($query) use ($request) {
+            $issues = $issues->where(function ($query) use ($request) {
                 $query->where("developer_tasks.assigned_to", auth()->user()->id)
                 ->orWhere("developer_tasks.master_user_id", auth()->user()->id);
             });
@@ -1087,6 +1128,9 @@ class DevelopmentController extends Controller
             });
         }
         
+        if($request->delivery_date && $request->delivery_date != '') {
+            $task->where('due_date',$request->delivery_date);
+        }
 
         // Sort
         if ($request->order == 'priority') {
@@ -1098,11 +1142,34 @@ class DevelopmentController extends Controller
         }
      //   dd($task->get());
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination'));
+        $issues = $issues->paginate(Setting::get('pagination'));//
         $tasks = $task->paginate(Setting::get('pagination'));
- //      dd($tasks);
+     
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
+		
+		if($request->ajax()) {
+			$data = '';
+			$isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
+            $userID = Auth::user()->id;
+            foreach ($issues as $key => $issue){
+                if ($isReviwerLikeAdmin) {
+                    $data .= view("development.partials.flagsummarydata", compact('issue', 'users', 'statusList', 'task_statuses'));
+				}elseif($issue->created_by == $userID || $issue->master_user_id == $userID ||$issue->assigned_to == $userID) {
+                    $data .= view("development.partials.flagdeveloper-row-view", compact('issue', 'users', 'statusList', 'task_statuses'));
+                }
+            }
+            foreach ($tasks as $key => $issue) {
+                if ($isReviwerLikeAdmin) {
+                    $data .= view("task-module.partials.flagsummarydata", compact('issue', 'users', 'statusList', 'task_statuses'));
+				} elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID) {
+                    $data .= view("task-module.partials.flagdeveloper-row-view", compact('issue', 'users', 'statusList', 'task_statuses'));
+                }
+            }
+			return $data;
+		}
+
+		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
         return view('development.flagtask', [
             'issues' => $issues,
             'users' => $users,
@@ -1112,6 +1179,7 @@ class DevelopmentController extends Controller
             'type' => $type,
             'priority' => $priority,
             'tasks'=>$tasks,
+            'taskMessage'=>$taskMessage,
            // 'countPlanned' => $countPlanned,
             //'countInProgress' => $countInProgress,
             'statusList' => $statusList,
@@ -1119,6 +1187,14 @@ class DevelopmentController extends Controller
             "task_statuses"=>$task_statuses
         ]);
     }
+
+	public function saveTaskMessage(Request $request) {
+		$input = $request->input();
+		TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+		return response()->json([
+		  'success'
+		]);
+	}
 
 
     public function summaryList1(Request $request)
@@ -2816,8 +2892,9 @@ class DevelopmentController extends Controller
     public function saveEstimateDate(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
+       
         //$issue = Issue::find($request->get('issue_id'));
-        $estimate_date = date("Y-m-d", strtotime($request->estimate_date));
+        $estimate_date = date("Y-m-d H:i:s", strtotime($request->estimate_date));
         if ($issue && $request->estimate_date) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $issue->id,
@@ -2828,7 +2905,7 @@ class DevelopmentController extends Controller
                 'user_id' => Auth::id(),
             ]);
         }
-
+      //  dd($estimate_date);
         $issue->estimate_date = $estimate_date;
         $issue->save();
 

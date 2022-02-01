@@ -48,6 +48,15 @@
                   </select>
                </div>
             </div>
+			 <div class="col-md-4">
+               <div class="form-group">
+                  <label for="sale_old_products">Sale PreOwned Products</label>
+                    <select name="sale_old_products" class="form-control">
+					   <option value="0" {{if data.sale_old_products==0}} SELECTED {{/if}} > No </option>
+					   <option value="1" {{if data.sale_old_products==1}} SELECTED {{/if}} > Yes </option>
+                    </select>
+               </div>
+            </div>
             <div class="col-md-4">
                <div class="form-group">
                   <label for="description">Description</label>
@@ -118,6 +127,12 @@
                <div class="form-group">
                   <label for="facebook_remarks">Facebook Remarks</label>
                   <textarea rows="1" name="facebook_remarks" class="form-control" id="facebook_remarks" placeholder="Enter facebook remarks">{{if data}}{{:data.facebook_remarks}}{{/if}}</textarea>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="instagram">Product Markup %</label>
+                  <input type="number" name="product_markup" onkeyup="this.value = fnc(this.value, 0, 100)" value="{{if data}}{{:data.product_markup}}{{/if}}" class="form-control" id="product_markup" placeholder="Enter product markup">
                </div>
             </div>
             <div class="col-md-4">

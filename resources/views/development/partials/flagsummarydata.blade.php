@@ -78,7 +78,7 @@
             </span>
         </div>
     </td>    
-    <td >
+    <td > 
         @if($issue->is_resolved)
             <strong>Done</strong>
         @else
