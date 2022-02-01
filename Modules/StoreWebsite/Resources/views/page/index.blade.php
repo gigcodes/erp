@@ -51,7 +51,7 @@
                             <div class="col-md-1">
                                 <div class="form-group">
                                     <select name="is_pushed" class="form-control">
-                                        <option value=""></option>
+                                        <option value="">Is Pushed</option>
                                         <option value="0">False</option>
                                         <option value="1">True</option>
                                    </select>    
@@ -101,11 +101,40 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Content</th>
+								<th>URL</th>
+								<th>Result</th>
+								<th>Result Type</th>
                                 <th>Updated By</th>
                                 <th>Updated At</th>
                             </tr>
                         </thead>
                         <tbody id="preview-history-tbody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-logs-modal modal" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Store Website</th>
+								<th>Content</th>
+								<th>URL</th>
+								<th>Result Type</th>
+                                <th>Updated At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="page-logs-tbody">
                             
                         </tbody>
                     </table>

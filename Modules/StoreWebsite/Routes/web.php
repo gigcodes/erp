@@ -196,6 +196,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");
         Route::get('/{id}/push', 'PageController@push')->name("store-website.page.push");
         Route::get('/{id}/pull', 'PageController@pull')->name("store-website.page.pull");
+        Route::get('/pull/logs', 'PageController@pullLogs');
+        Route::get('/{id}/pull/logs', 'PageController@pullLogs');
         Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");

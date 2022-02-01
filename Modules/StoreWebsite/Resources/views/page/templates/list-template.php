@@ -106,6 +106,9 @@
                         <button type="button" title="Activities" data-id="{{>prop.id}}" class="btn btn-activities">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </button>
+						 <button type="button" title="Pull logs" data-id="{{>prop.id}}" class="btn btn-pullLogs">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </button>
                     </td>
                   </tr>
                 {{/props}}
