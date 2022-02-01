@@ -254,7 +254,8 @@ var page = {
     afterPull : function(response) {
         if(response.code  == 200) {
             toastr["success"](response.message,"");
-            location.reload();
+			$("#loading-image").hide();
+           // location.reload();
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
@@ -393,10 +394,10 @@ var page = {
                 var user = (v.user) ? v.user.name : "";
                 html += `<tr>
                     <td>`+v.id+`</td>
-                    <td>`+v.title+`</td>
+                    <td>`+v.website+`</td>
                     <td>`+v.content+`</td>
-                    <td>`+v.url+`</td>
-                    <td>`+v.result_type+`</td>
+                    <td>`+v.url_key+`</td>
+                    <td>`+v.response_type+`</td>
                     <td>`+v.created_at+`</td>
                 </tr>`;
             })

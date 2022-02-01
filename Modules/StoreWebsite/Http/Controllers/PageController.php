@@ -253,10 +253,30 @@ class PageController extends Controller
                         $page->created_at       = isset($d->creation_time) ? $d->creation_time : "";
                         $page->updated_at       = isset($d->update_time) ? $d->update_time : "";
                         $page->is_pushed =0;
-                        $page->save();                        
+                        $page->save();      
+
+
+StoreWebsitePagePullLog::create([ 'title'=>isset($d->title) ? $d->title : "",
+										'meta_title'=>isset($d->meta_title) ? $d->meta_title : "",
+										'meta_keywords'=>isset($d->meta_keywords) ? $d->meta_keywords : "",
+										'meta_description'=>isset($d->meta_description) ? $d->meta_description : "",
+										'content_heading'=>isset($d->content_heading) ? $d->content_heading : "",
+										'content'=>isset($d->content) ? $d->content : "",
+										'layout'=>isset($d->page_layout) ? $d->page_layout : "",
+										'url_key'=>isset($d->identifier) ? $d->identifier : "",
+										'platform_id'=>$d->id,
+										'page_id'=>$page->id,
+										'store_website_id'=>$website->id,
+										'response_type'=>'success']);	
+											
                     }
                 }
-            }
+            } else{
+				StoreWebsitePagePullLog::create([ 
+										'page_id'=>$page->id,
+										'store_website_id'=>$website->id,
+										'response_type'=>'error']);	
+			}
             return response()->json(["code" => 200, 'message' => "Website send for pull"]);
         }
 
@@ -479,7 +499,8 @@ class PageController extends Controller
 		} else{
 			$logs = StoreWebsitePagePullLog::where('page_id', $pageId);
 		}
-		$logs = $logs->leftJoin('store_websites', 'store_websites.id', 'store_website_page_pull_logs.store_website_id')->select('store_websites.title', 'store_website_page_pull_logs.*')->get();
+		$logs = $logs->leftJoin('store_websites', 'store_websites.id', 'store_website_page_pull_logs.store_website_id')
+		->select('store_websites.title as website', 'store_website_page_pull_logs.*')->get();
 		return response()->json(["code" => 200, "data" => $logs]);
 	}
 
