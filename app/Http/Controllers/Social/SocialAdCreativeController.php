@@ -109,7 +109,7 @@ class SocialAdCreativeController extends Controller
     $data['name']=$request->input('name');
     $data['object_story_id']=$request->input('object_story_id');
 
-    $config =SocialConfig::find($post->config_id );
+    $config = SocialConfig::find($post->config_id );
   
     $this->fb = new Facebook([
         'app_id' => $config->api_key,

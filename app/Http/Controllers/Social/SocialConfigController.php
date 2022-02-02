@@ -70,15 +70,38 @@ class SocialConfigController extends Controller
             'name' => 'required',
             'email' => 'required',
             'password' => 'required',
-            "status"=> 'required'
-          
+            "status"=> 'required',
+            'token' => 'required',
+            'page_id' => 'required',
+            'page_token' => 'required'
         ]);
 
-        $data = $request->except('_token');
-        $data['password'] = Crypt::encrypt($request->password);
-        SocialConfig::create($data);
+        $curl = curl_init();
 
-        return redirect()->back()->withSuccess('You have successfully stored Config.');
+        $url = sprintf("https://graph.facebook.com/v12.0/me?fields=%s&access_token=%s", 'id,name,instagram_business_account{id,username,profile_picture_url}',$request->page_token);
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        ));
+
+        $response = json_decode(curl_exec($curl), true);
+        curl_close($curl);
+        if($id = $response['instagram_business_account']['id']) {
+            $data = $request->except('_token');
+            $data['account_id'] = $id;
+            $data['password'] = Crypt::encrypt($request->password);
+            SocialConfig::create($data);
+
+            return redirect()->back()->withSuccess('You have successfully stored Config.');
+        }
+        return redirect()->back()->withError('Page Linked Account ID not found.');
     }
 
     /**

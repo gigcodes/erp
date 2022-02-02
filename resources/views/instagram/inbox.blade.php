@@ -1,0 +1,116 @@
+@extends('layouts.app')
+@section('favicon' , 'task.png')
+
+@section('title', 'Message List  | Inbox')
+
+@section('content')
+
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
+    <style type="text/css">
+        .panel-img-shorts {
+            width: 80px;
+            height: 80px;
+            display: inline-block;
+        }
+
+        .panel-img-shorts .remove-img {
+            display: block;
+            float: right;
+            width: 15px;
+            height: 15px;
+        }
+        form.chatbot .col{
+            flex-grow: unset !important;
+        }
+    </style>
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
+            <h2 class="page-heading">Message List | Inbox</h2>
+        </div>
+    </div>
+
+    <div class="row m-0">
+        <div class="col-md-12 pl-3 pr-3">
+            <div class="table-responsive-lg" id="page-view-result">
+                {{-- @include("chatbot::message.partial.list") --}}
+                @include("instagram.partials.message")
+            </div>
+        </div>
+    </div>
+    
+    <div id="contact-chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
+  50% 50% no-repeat;display:none;">
+    </div>
+
+    <script src="/js/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="/js/jsrender.min.js"></script>
+    <script type="text/javascript" src="/js/common-helper.js"></script>
+
+    <script>
+        $(document).on("click", ".load-contact-communication-modal", function() {
+            $("#loading-image").show();
+            const data = $(this).data("id");
+            
+            $.ajax({
+                url: "{{ route('instagram.message.list') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: data,
+                },
+                success: function(response) {
+                    const res = response.messages
+
+                    $("#loading-image").hide();
+                    $("#contact-chat-list-history .modal-body").empty();
+                    $(res.social_contact_thread).each(function(key, value) {
+                        console.log(value);
+                        let sentBy = '';
+                        if(value.type == 1) {
+                            sentBy = `From ${res.social_config.name} To ${res.name} On ${value.sending_at}`
+                        } else {
+                            sentBy = `From ${res.name} To ${res.social_config.name} On ${value.sending_at}`
+                        }
+                        
+                        $("#contact-chat-list-history .modal-body").append(`
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td style="width:50%">${value.text}</td>
+                                    <td style="width:50%">${sentBy}</td>
+                                </tr>    
+                            </table>
+                        `)
+                    })
+                    $("#contact-chat-list-history").modal('show');
+                },
+                error: function(error) {
+                    alert("Counldn't load messages")
+                    $("#loading-image").hide();
+                }
+            })
+        })
+    </script>
+@endsection
+
+<tr class="out-background filter-message '+ reviewed_msg+'" data-message="'+message.message+'">
+    <td style="width:5%"><input data-object_type_id="'+message.object_type_id+'" data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>
+</tr>
+
+<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'"></tr>
