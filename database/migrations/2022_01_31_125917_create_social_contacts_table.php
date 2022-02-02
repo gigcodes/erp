@@ -14,10 +14,10 @@ class CreateSocialContactsTable extends Migration
     public function up()
     {
         Schema::create('social_contacts', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
+            $table->increments('id');
             $table->unsignedBigInteger('social_config_id');
-            $table->string('name');
-            $table->unsignedBigInteger('account_id');
+            $table->string('name')->nullable();
+            $table->string('account_id', 50)->nullable();
             $table->tinyinteger('platform');
             $table->timestamps();
         });

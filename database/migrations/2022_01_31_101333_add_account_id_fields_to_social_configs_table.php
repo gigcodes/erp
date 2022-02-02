@@ -14,8 +14,8 @@ class AddAccountIdFieldsToSocialConfigsTable extends Migration
     public function up()
     {
         Schema::table('social_configs', function (Blueprint $table) {
-            $table->unsignedBigInteger('account_id')->nullable();
-            $table->text('token')->change();
+            $table->string('account_id')->nullable();
+            $table->text('webhook_token')->nullable();
         });
     }
 
@@ -27,7 +27,8 @@ class AddAccountIdFieldsToSocialConfigsTable extends Migration
     public function down()
     {
         Schema::table('social_configs', function (Blueprint $table) {
-            $table->dropColumn('account_id');
+            $table->dropColumn(['account_id','webhook_token']);
         });
     }
 }
+

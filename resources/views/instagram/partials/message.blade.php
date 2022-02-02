@@ -52,6 +52,7 @@ padding: 3px 2px;
         <thead>
             <tr>
                 <th width="2%">Name</th>
+                <th width="2%">Platform</th>
                 <th width="2%">Website</th>
                 <th width="8%">User input</th>
                 <th width="30%">Message Box </th>
@@ -64,6 +65,7 @@ padding: 3px 2px;
             @foreach($socialContact as $contact)
             <tr class="customer-raw-line">
                 <td>{{ $contact->name }}</td>
+                <td>{{ ucfirst($contact->socialConfig->platform) }}</td>
                 <td>{{ $contact->socialConfig->name }}</td>
                 <td  class="log-message-popup" data-log_message="{{ $contact->getLatestSocialContactThread->text }}">{{ substr($contact->getLatestSocialContactThread->text ,0,15) }}...</td>               <td class="message-input p-0 pt-2 pl-3">
                     <div class="cls_textarea_subbox">

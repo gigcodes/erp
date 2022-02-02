@@ -105,6 +105,15 @@
                             @endif
                         </div>
 
+                        <div class="form-group">
+                            <strong>Webhook Verify Token:</strong>
+                            <input type="text" name="webhook_token" class="form-control" value="{{ old('webhook_token') }}" >
+
+                            @if ($errors->has('webhook_token'))
+                            <div class="alert alert-danger">{{$errors->first('webhook_token')}}</div>
+                            @endif
+                        </div>
+
 
     					<div class="form-group">
                             <strong>Status:</strong>
