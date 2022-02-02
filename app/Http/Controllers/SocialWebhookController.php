@@ -34,7 +34,7 @@ class SocialWebhookController extends Controller
 
         \Log::channel('social_webhook')->info("Insagram Webhook (Verify Webhook) => Webhook Verifying.....", ['token' => $verifyToken]);
 
-        $countAccount = SocialConfig::where('token', $verifyToken)->count();
+        $countAccount = SocialConfig::where('webhook_token', $verifyToken)->count();
 
         if ($countAccount == 1) {
             \Log::channel('social_webhook')->info("Insagram Webhook (Verify Webhook) => Webhook Verified", ['token' => $verifyToken]);

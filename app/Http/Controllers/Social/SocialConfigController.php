@@ -71,9 +71,9 @@ class SocialConfigController extends Controller
             'email' => 'required',
             'password' => 'required',
             "status"=> 'required',
-            'token' => 'required',
             'page_id' => 'required',
-            'page_token' => 'required'
+            'page_token' => 'required',
+            'webhook_token' => 'required',
         ]);
         $pageId = $request->page_id;
         $data = $request->except('_token');
@@ -140,9 +140,9 @@ class SocialConfigController extends Controller
           //  'email' => 'required',
          //   'password' => 'required',
             "status"=> 'required',
-            'token' => 'required',
             'page_id' => 'required',
-            'page_token' => 'required'
+            'page_token' => 'required',
+            'webhook_token' => 'required',
         ]);
         $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
