@@ -14,7 +14,7 @@ class AddAccountIdFieldsToSocialConfigsTable extends Migration
     public function up()
     {
         Schema::table('social_configs', function (Blueprint $table) {
-            $table->unsignedBigInteger('account_id')->nullable();
+            $table->string('account_id')->nullable();
             $table->text('token')->change();
         });
     }
