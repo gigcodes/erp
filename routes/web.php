@@ -2092,8 +2092,13 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
+Route::get('access-token', 'InstagramController@receiveMessage');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
+
+    Route::get('inbox', 'SocialWebhookController@inbox');
+    Route::post('send-message', 'SocialWebhookController@sendMessage')->name('instagram.message.send');
+    Route::post('list-message', 'SocialWebhookController@listMessage')->name('instagram.message.list');
 
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');

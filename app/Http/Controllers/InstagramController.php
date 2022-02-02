@@ -25,6 +25,9 @@ use App\Services\Facebook\Facebook;
 use App\Priority;
 use App\Library\Instagram\Helper;
 use App\InstagramUsersList;
+use App\Social\SocialConfig;
+use App\SocialContact;
+use App\SocialContactThread;
 
 class InstagramController extends Controller
 {
@@ -847,5 +850,113 @@ class InstagramController extends Controller
             return \Redirect::back()->withErrors(['msg', 'Please enter full instagram url']);
         }
         
+    }
+
+    public function inbox()
+    {
+        $socialContact = SocialContact::with('socialConfig')->with('getLatestSocialContactThread')->get();
+        return view('instagram.inbox', compact('socialContact'));
+    }
+
+    public function receiveMessage(Request $request)
+    {
+        foreach($request->entry as $entry) {
+            $socialConfig = SocialConfig::where('account_id', $entry['id'])->first();
+            foreach($entry['messaging'] as $msg) {
+                $receptionId = $msg['sender']['id'];
+
+                $socialContact = SocialContact::where('account_id', $receptionId)->first();
+                if(!$socialContact) {
+                    $curl = curl_init();
+                    
+                    $url = sprintf("https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s", $receptionId, 'id,name', $socialConfig->token);
+                    
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL => $url,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => '',
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => 'GET',
+                    ));
+                    
+                    $response = json_decode(curl_exec($curl));
+                    
+                    curl_close($curl);
+                    
+                    if(isset($response->error)) return response()->json(['error' => $response->error->message], 400);
+
+                    $socialContact = SocialContact::create([
+                        'account_id' => $response->id,
+                        'social_config_id' => $socialConfig->id,
+                        'platform' => SocialContact::INSTAGRAM,
+                        'name' => $response->name
+                    ]);
+                }
+
+                SocialContactThread::create([
+                    'social_config_id' => $socialConfig->id,
+                    'social_contact_id' => $socialContact->id,
+                    'user_id' => 0,
+                    'message_id' => $msg['message']['mid'],
+                    'message_type' => SocialContactThread::RECEIVE,
+                    'message' => $msg['message']['text'],
+                    'sending_at' =>  date('Y-m-d H:i:s', $msg['timestamp'])
+                ]);
+            }
+
+            return response()->json('Message stored successfully');
+        }
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $contactInfo = SocialContact::find($request->contactId);
+        $socialConfig = SocialConfig::find($contactInfo->social_config_id);
+
+        $access_token = $socialConfig->api_key."|".$socialConfig->api_secret;
+        
+        $data = array();
+        $data['recipient']['id'] = $contactInfo->account_id;
+        $data['message']['text'] = $request->input;
+
+        
+        $url = "https://graph.facebook.com/v12.0/me/messages?access_token=";
+
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $headers = array(
+        "Content-Type: application/json",
+        );
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $response = curl_exec($curl);
+
+        SocialContactThread::create([
+            'social_config_id' => $socialConfig->id,
+            'social_contact_id' => $contactInfo->id,
+            'user_id' => auth()->id(),
+            'message_id' => $response,
+            'message_type' => SocialContactThread::SEND,
+            'message' => $request->input,
+            'sending_at' =>  \Carbon\Carbon::now()
+        ]);
+    }
+
+    public function listMessage(Request $request)
+    {
+        try {
+            $contactId = $request->id;
+            $contact = SocialContact::with('socialConfig', 'socialContactThread.user')->findOrFail($contactId);
+
+            return response()->json(array('messages' => $contact));
+        }catch(\Exception $e) {
+            return response()->json(array('error' => $e->getMessage()), 500);
+        }
     }
 }
