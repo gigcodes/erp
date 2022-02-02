@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Social\SocialConfig;
 use App\SocialContact;
 use App\SocialContactThread;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SocialWebhookController extends Controller
@@ -48,33 +47,39 @@ class SocialWebhookController extends Controller
     public function receiveMessage(Request $request)
     {
         $data = $request->all();
-        if ($data['object'] == 'instagram') {
-            foreach ($data['entry'] as $entry) {
-                foreach ($entry['messaging'] as $message) {
-                    if(!isset($message['message']['text'])) continue;
-                    
-                    $senderId = $message['sender']['id'];
-                    $recipientId = $message['recipient']['id'];
-                    $type = SocialContactThread::RECEIVE;
-                    $senderAccount = SocialConfig::where('account_id', $recipientId)->first();
+        foreach ($data['entry'] as $entry) {
+            foreach ($entry['messaging'] as $message) {
 
-                    \Log::info("{$senderId}", ['account' => $senderAccount]);
+                if (!isset($message['message']['text'])) continue;
 
-                    if(!$senderAccount) {
-                        $temp = $senderId;
-                        $senderId = $recipientId;
-                        $recipientId = $temp;
-                        $type = SocialContactThread::SEND;
-                    } 
+                $senderId = $message['sender']['id'];
+                $recipientId = $message['recipient']['id'];
+                $type = SocialContactThread::RECEIVE;
+                $senderAccount = SocialConfig::where('account_id', $recipientId)->first();
 
-                    $messageId = $message['message']['mid'];
-                    $text = $message['message']['text'];
-                    $socialAccountId = $entry['id'];
-                    $sendindAt = \Carbon\Carbon::createFromTimestampMs($message['timestamp'])->toDateTimeString();
-                    $account = SocialConfig::where('account_id', $recipientId)->first();
+                
+                if (!$senderAccount) {
+                    $temp = $senderId;
+                    $senderId = $recipientId;
+                    $recipientId = $temp;
+                    $type = SocialContactThread::SEND;
+                }
 
-                    if ($account) {
-                        $user = SocialContact::where('account_id', $senderId)->where('platform', SocialContact::INSTAGRAM)->first();
+                $messageId = $message['message']['mid'];
+                $text = $message['message']['text'];
+                $socialAccountId = $entry['id'];
+                $sendindAt = \Carbon\Carbon::createFromTimestampMs($message['timestamp'])->toDateTimeString();
+                $account = SocialConfig::where('account_id', $recipientId)->first();
+
+                if ($account) {
+                    $object = null;
+                    if ($data['object'] == SocialContact::TEXT_INSTA) {
+                        $object = SocialContact::INSTAGRAM;
+                    } else if ($data['object'] == SocialContact::TEXT_FB) {
+                        $object = SocialContact::FACEBOOK;
+                    }
+                    if ($object) {
+                        $user = SocialContact::where('account_id', $senderId)->where('platform', $object)->first();
                         if (!$user) {
                             $curl = curl_init();
 
@@ -92,15 +97,17 @@ class SocialWebhookController extends Controller
                             ));
 
                             $response = json_decode(curl_exec($curl), true);
+
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             if ($httpcode == 200) {
                                 $user = SocialContact::create([
                                     'account_id' => $senderId,
                                     'social_config_id' => $account->id,
                                     'name' => $response['name'],
-                                    'platform' => SocialContact::INSTAGRAM
+                                    'platform' => $object
                                 ]);
-                                \Log::info("Insagram Webhook (Receive Message) => New user create", ['id' => $senderId, 'data' => $data]);
+
+                                \Log::info("Webhook (Receive Message) => New user create", ['id' => $senderId, 'data' => $data, 'object' => $data['object']]);
                             }
                             curl_close($curl);
                         }
@@ -116,15 +123,15 @@ class SocialWebhookController extends Controller
                                 'sending_at' => $sendindAt
                             ]);
 
-                            \Log::info("Insagram Webhook (Receive Message) => Message Received", ['mid' => $messageId, 'data' => $data]);
-                            echo "Message Received Successfully ( mid : {$messageId})";
+                            \Log::info("Webhook (Receive Message) => Message Received", ['mid' => $messageId, 'data' => $data, 'object' => $data['object']]);
                         } else {
-                            \Log::info("Insagram Webhook (Receive Message) => User not found", ['id' => $senderId, 'data' => $data]);
-                            echo "User not found ( id : {$senderId})";
+                            \Log::info("Webhook (Receive Message) => Object Type not found", ['object' => $data['object'], 'data' => $data, 'object' => $data['object']]);
                         }
+                    } else {
+                        \Log::info("Webhook (Receive Message) => User not found", ['id' => $senderId, 'data' => $data, 'object' => $data['object']]);
                     }
-                    \Log::info("Insagram Webhook (Receive Message) => No account found", ['id' => $socialAccountId, 'data' => $data]);
-                    echo "No account found ( id : {$socialAccountId})";
+                } else {
+                    \Log::info("Webhook (Receive Message) => Account not found ", ['id' => $socialAccountId, 'data' => $data, 'object' => $data['object']]);
                 }
             }
         }
@@ -165,7 +172,7 @@ class SocialWebhookController extends Controller
 
             \Log::info("Send message response", ['response' => $response]);
 
-            if($httpcode == 200) {
+            if ($httpcode == 200) {
                 return response()->json([
                     'message' => "Message sent successfully",
                 ]);
@@ -175,7 +182,6 @@ class SocialWebhookController extends Controller
                     'message' => $response['error']['message'],
                 ], $httpcode);
             }
-            
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),

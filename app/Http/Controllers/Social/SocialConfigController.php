@@ -75,33 +75,42 @@ class SocialConfigController extends Controller
             'page_id' => 'required',
             'page_token' => 'required'
         ]);
+        $pageId = $request->page_id;
+        $data = $request->except('_token');
 
-        $curl = curl_init();
+        if($request->platform == "instagram") {
+            $curl = curl_init();
 
-        $url = sprintf("https://graph.facebook.com/v12.0/me?fields=%s&access_token=%s", 'id,name,instagram_business_account{id,username,profile_picture_url}',$request->page_token);
+            $url = sprintf("https://graph.facebook.com/v12.0/me?fields=%s&access_token=%s", 'id,name,instagram_business_account{id,username,profile_picture_url}',$request->page_token);
 
-        curl_setopt_array($curl, array(
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        ));
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
 
-        $response = json_decode(curl_exec($curl), true);
-        curl_close($curl);
-        if($id = $response['instagram_business_account']['id']) {
-            $data = $request->except('_token');
-            $data['account_id'] = $id;
-            $data['password'] = Crypt::encrypt($request->password);
-            SocialConfig::create($data);
+            $response = json_decode(curl_exec($curl), true);
+            curl_close($curl);
 
-            return redirect()->back()->withSuccess('You have successfully stored Config.');
+            if($id = $response['instagram_business_account']['id']) {
+                $data['account_id'] = $id;
+            } else {
+                return redirect()->back()->withError('Page Linked Account ID not found.');
+            }
+
+        } else {
+            $data['account_id'] = $pageId;
         }
-        return redirect()->back()->withError('Page Linked Account ID not found.');
+        $data['password'] = Crypt::encrypt($request->password);
+        SocialConfig::create($data);
+
+        return redirect()->back()->withSuccess('You have successfully stored Config.');
+
     }
 
     /**
@@ -131,9 +140,43 @@ class SocialConfigController extends Controller
           //  'email' => 'required',
          //   'password' => 'required',
             "status"=> 'required',
+            'token' => 'required',
+            'page_id' => 'required',
+            'page_token' => 'required'
         ]);
+        $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
         $data = $request->except('_token', 'id');
+        
+        if($request->platform == "instagram") {
+            $curl = curl_init();
+
+            $url = sprintf("https://graph.facebook.com/v12.0/me?fields=%s&access_token=%s", 'id,name,instagram_business_account{id,username,profile_picture_url}',$request->page_token);
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+
+            $response = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if($id = $response['instagram_business_account']['id']) {
+                $data['account_id'] = $id;
+            } else {
+                return redirect()->back()->withError('Page Linked Account ID not found.');
+            }
+
+        } else {
+            $data['account_id'] = $pageId;
+        }
+
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
