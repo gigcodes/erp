@@ -1028,7 +1028,7 @@ class OrderController extends Controller
             $store_website_product_price["segment_discount"] = (float)$getPrice['segment_discount'];
             $store_website_product_price["override_price"] = $getPrice['total'];
             $store_website_product_price["status"] = 1;
-            $store_website_product_price['store_website_id'] =$customer->store_website_id;
+            $store_website_product_price['store_website_id'] =15;
         }
 
         \App\StoreWebsiteProductPrice::insert($store_website_product_price);
