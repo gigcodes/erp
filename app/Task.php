@@ -205,7 +205,11 @@ class Task extends Model {
         if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
             
         } else {
-			$data["is_flow_task"] = 1;
+			if(isset($data["is_flow_task"])) {
+				$data["is_flow_task"] = $data["is_flow_task"];
+			} else {
+				$data["is_flow_task"] = 1;
+			}
 				if ($request['task_asssigned_to']) {
                     if (is_array($request['task_asssigned_to'])) {
                         $data["assign_to"] = $request['task_asssigned_to'];

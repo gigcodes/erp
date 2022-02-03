@@ -369,7 +369,8 @@ class SiteDevelopmentController extends Controller
 		$website = StoreWebsite::where('id', $request->websiteId)->pluck('title')->first();
 		
 		$categories = SiteDevelopmentCategory::leftJoin('site_developments', 'site_developments.site_development_category_id', '=','site_development_categories.id')
-		->select('site_development_categories.title', 'site_development_categories.id')->where('site_development_master_category_id', $masterCategoryId)->where('website_id', $request->websiteId)->orderBy('site_development_categories.title', 'asc')->get();
+		->select('site_development_categories.title', 'site_development_categories.id', 'site_developments.id as site_development_id')->where('site_development_master_category_id', $masterCategoryId)
+		->where('website_id', $request->websiteId)->orderBy('site_development_categories.title', 'asc')->get();
 		
 		foreach($categories as $category) {
 			$requests = array(
@@ -377,19 +378,20 @@ class SiteDevelopmentController extends Controller
                     'task_subject' => $category['title'],
                     'task_detail' => $website.' '.$category['title'].$request->task_category,
                     'task_asssigned_to' => 6,
-                    'category_id'=>$category->id,
-                    'site_id'=>$request->websiteId,
+                    'category_id'=>49,
+                    'site_id'=>$category->site_development_id,
                     'task_type'=>0,
                     'repository_id'=>null,
                     'cost'=>null,
                     'task_id'=>null,
                     'customer_id'=>null,
+					'is_flow_task'=>0
                 );
 				$task = Task::where(['category'=>$category->id,
-                    'site_developement_id'=>$request->websiteId, 'task_subject' => $category['title']])->first();
-					if($task == null) {
-						$check = (new Task)->createTaskFromSortcuts($requests);
-					}
+                    'site_developement_id'=>$category->site_development_id, 'task_subject' => $category['title']])->first();
+				if($task == null) {
+					$check = (new Task)->createTaskFromSortcuts($requests);
+				}
                 
 		}
 		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully',]);
