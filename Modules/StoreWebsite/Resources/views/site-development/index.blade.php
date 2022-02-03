@@ -607,7 +607,7 @@
           <div class="form-group">
             <label>Select Task Category</label>
             <div class="input-group">
-				{{ Form::select('task_category', ['Design'=>'Design', 'Development'=>'Functionality'], null, array('class'=>'form-control')) }}
+				{{ Form::select('task_category', ['Design'=>'Design', 'Development'=>'Functionality'], null, array('class'=>'form-control', 'id'=>'task_category')) }}
             </div>
 		 </div>
         </div>
@@ -653,7 +653,7 @@
 					type: 'POST',
 					dataType: 'json',
 					data: {
-						text: text,
+						task_category: text,
 						websiteId: {{$website->id}},
 						"_token": "{{ csrf_token() }}"
 					},
