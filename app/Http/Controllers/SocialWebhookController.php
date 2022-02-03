@@ -34,7 +34,6 @@ class SocialWebhookController extends Controller
         $challange = $hub['hub_challenge'];
 
         // \Log::channel('social_webhook')->info("Insagram Webhook (Verify Webhook) => Webhook Verifying.....",['token' => $verifyToken, 'challange' => $challange] );
-        
         SocialWebhookLog::log(SocialWebhookLog::INFO, "Verify Webhook => Webhook Verifying.....", ['token' => $verifyToken, 'challange' => $challange]);
         
         $countAccount = SocialConfig::where('webhook_token', $verifyToken)->count();
@@ -52,6 +51,8 @@ class SocialWebhookController extends Controller
     public function receiveMessage(Request $request)
     {
         $data = json_decode($request->getContent(), true);
+        SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook => Request Body", ['data' => $data]);
+        
         foreach ($data['entry'] as $entry) {
             foreach ($entry['messaging'] as $message) {
 
