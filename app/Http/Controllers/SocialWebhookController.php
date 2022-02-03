@@ -51,7 +51,7 @@ class SocialWebhookController extends Controller
 
     public function receiveMessage(Request $request)
     {
-        $data = $request->all();
+        $data = json_decode($request->getContent(), true);
         foreach ($data['entry'] as $entry) {
             foreach ($entry['messaging'] as $message) {
 
@@ -103,6 +103,8 @@ class SocialWebhookController extends Controller
 
                             $response = json_decode(curl_exec($curl), true);
 
+                            SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (Receive Message) => Fetched user details using Page access Token", ['response' => $response, 'object' => $data['object'], 'data' => $data]);
+
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             if ($httpcode == 200) {
                                 $user = SocialContact::create([
@@ -113,7 +115,7 @@ class SocialWebhookController extends Controller
                                 ]);
 
                                 // \Log::channel('social_webhook')->info("Webhook (Receive Message) => New user create", ['id' => $senderId, 'data' => $data, 'object' => $data['object']]);
-                                SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (Receive Message) => New user create", ['id' => $senderId, 'object' => $data['object']]);
+                                SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (Receive Message) => New user create", ['id' => $senderId, 'object' => $data['object'], 'data' => $data]);
                                 
                             }
                             curl_close($curl);
@@ -131,18 +133,18 @@ class SocialWebhookController extends Controller
                             ]);
 
                             // \Log::channel('social_webhook')->info("Webhook (Receive Message) => Message Received", ['mid' => $messageId, 'object' => $data['object']]);
-                            SocialWebhookLog::log(SocialWebhookLog::SUCCESS, "Webhook (Receive Message) => Message Received", ['mid' => $messageId, 'object' => $data['object']]);
+                            SocialWebhookLog::log(SocialWebhookLog::SUCCESS, "Webhook (Receive Message) => Message Received", ['mid' => $messageId, 'object' => $data['object'], 'data' => $data]);
                         } else {
-                            // \Log::channel('social_webhook')->info("Webhook (Receive Message) => Object Type not found", ['object' => $data['object'], 'object' => $data['object']]);
-                            SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Receive Message) => Object Type not found", ['object' => $data['object'], 'object' => $data['object']]);
+                            // \Log::channel('social_webhook')->info("Webhook (Receive Message) => User not found", ['id' => $senderId, 'object' => $data['object'], 'data' => $data]);
+                            SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Receive Message) => User not found", ['id' => $senderId, 'object' => $data['object'], 'data' => $data]);
                         }
                     } else {
-                        // \Log::channel('social_webhook')->info("Webhook (Receive Message) => User not found", ['id' => $senderId, 'object' => $data['object']]);
-                        SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Receive Message) => User not found", ['id' => $senderId, 'object' => $data['object']]);
+                        // \Log::channel('social_webhook')->info("Webhook (Receive Message) => Object Type not found", ['object' => $data['object'], 'data' => $data, 'object' => $data['object'], 'data' => $data]);
+                        SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Receive Message) => Object Type not found", ['object' => $data['object'], 'data' => $data, 'object' => $data['object'], 'data' => $data]);
                     }
                 } else {
-                    // \Log::channel('social_webhook')->info("Webhook (Receive Message) => Account not found ", ['id' => $socialAccountId, 'object' => $data['object']]);
-                    SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Receive Message) => Account not found", ['id' => $socialAccountId, 'object' => $data['object']]);
+                    // \Log::channel('social_webhook')->info("Webhook (Receive Message) => Account not found ", ['id' => $socialAccountId, 'object' => $data['object'], 'data' => $data]);
+                    SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Receive Message) => Account not found", ['id' => $socialAccountId, 'object' => $data['object'], 'data' => $data]);
                 }
             }
         }
@@ -184,22 +186,22 @@ class SocialWebhookController extends Controller
 
 
             // \Log::channel('social_webhook')->info("Send message response", ['response' => $response]);
-            SocialWebhookLog::log(SocialWebhookLog::INFO, "Send message response", ['response' => $response]);
+            SocialWebhookLog::log(SocialWebhookLog::INFO, "Send message response", ['response' => $response, 'data' => $data]);
 
             if ($httpcode == 200) {
-                SocialWebhookLog::log(SocialWebhookLog::INFO, "Message sent successfully", ['response' => $response]);
+                SocialWebhookLog::log(SocialWebhookLog::INFO, "Message sent successfully", ['response' => $response, 'data' => $data]);
                 return response()->json([
                     'message' => "Message sent successfully",
                 ]);
             } else {
                 $response = json_decode($response, true);
-                SocialWebhookLog::log(SocialWebhookLog::INFO, "Message not send", ['error' => $response['error']['message']]);
+                SocialWebhookLog::log(SocialWebhookLog::INFO, "Message not send", ['error' => $response['error']['message'], 'data' => $data]);
                 return response()->json([
                     'message' => $response['error']['message'],
                 ], $httpcode);
             }
         } catch (\Exception $e) {
-            SocialWebhookLog::log(SocialWebhookLog::INFO, "Message not send", ['error' => $e->getMessage()]);
+            SocialWebhookLog::log(SocialWebhookLog::INFO, "Message not send", ['error' => $e->getMessage(), 'data' => $data]);
             return response()->json([
                 'message' => $e->getMessage(),
             ], 500);
