@@ -3246,6 +3246,11 @@ Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
 
+//Social-Webhook-Logs
+Route::prefix('social-webhook-logs')->middleware('auth')->group(function () {
+    Route::get('/', 'LogsController@socialWebhookLogs')->name('social-webhook-log.index');
+});
+
 //Image-Logs
 Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::get('/', 'BroadcastController@index')->name('messages.index');

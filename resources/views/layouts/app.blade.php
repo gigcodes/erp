@@ -683,6 +683,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('social-webhook-log.index') }}">Social Webhook Log</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
