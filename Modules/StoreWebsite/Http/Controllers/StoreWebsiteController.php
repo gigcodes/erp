@@ -23,6 +23,8 @@ use App\ProductCancellationPolicie;
 use App\StoreWebsiteUserHistory;
 use App\StoreReIndexHistory;
 use App\BuildProcessHistory;
+use App\SiteDevelopmentCategory;
+use App\SiteDevelopment;
 use Carbon\Carbon;
 use App\Github\GithubRepository;
 
@@ -149,6 +151,16 @@ class StoreWebsiteController extends Controller
             $chat_message = ChatMessage::create($params);
         }
 
+		if($id == 0) {
+			$siteDevelopmentCategories  =  SiteDevelopmentCategory::all();
+			foreach ($siteDevelopmentCategories as $develop) {
+                $site = new SiteDevelopment;
+                $site->site_development_category_id = $develop->id;
+                $site->site_development_master_category_id = $develop->master_category_id;
+                $site->website_id = $records->id;
+                $site->save();
+            }
+		}
         return response()->json(["code" => 200, "data" => $records]);
     }
 
