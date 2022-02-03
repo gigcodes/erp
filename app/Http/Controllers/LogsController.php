@@ -23,4 +23,10 @@ class LogsController extends Controller
         return response()->json(['code' => 200, 'message' => 'Log deleted successfully']);
     }
 
+    public function socialWebhookLogs()
+    {
+        $data = \App\SocialWebhookLog::orderBy('id', 'DESC')->latest()->paginate(100);
+        return view('social-webhook-logs.index', compact('data'));
+    }
+
 }
