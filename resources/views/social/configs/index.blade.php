@@ -65,7 +65,8 @@
             </ul>
         </div>
     @endif
-
+    @include("social.header_menu")
+      
     <div class="table-responsive mt-3">
       <table class="table table-bordered" id="passwords-table">
         <thead>

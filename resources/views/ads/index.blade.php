@@ -374,7 +374,7 @@
 	$(document).ready(function(){
 		//TempJs---------------------
 		// $('#continue-phase-1').click();
-		$(document).on('change','#campaignAds',function(){
+		$(document).on('change','#config_id',function(){
 			$.ajax({
 				url:'{{route("ads.getgroups")}}',
 				dataType:'json',

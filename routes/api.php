@@ -248,3 +248,7 @@ Route::post('google-scrapper-data', '\App\Http\Controllers\Api\v1\GoogleScrapper
 Route::post('out-of-stock-subscription', 'Api\v1\OutOfStockSubscribeController@Subscribe');
 Route::any('get-order-stat', 'Api\v1\OutOfStockSubscribeController@getOrderState');
 Route::post('customer/add_cart_data', 'Api\v1\CustomerController@add_cart_data');
+
+// Social Webhook
+Route::get('webhook/social/receive-message', 'SocialWebhookController@verifyWebhook');
+Route::post('webhook/social/receive-message', 'SocialWebhookController@receiveMessage');

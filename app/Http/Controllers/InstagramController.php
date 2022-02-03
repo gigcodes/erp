@@ -25,6 +25,9 @@ use App\Services\Facebook\Facebook;
 use App\Priority;
 use App\Library\Instagram\Helper;
 use App\InstagramUsersList;
+use App\Social\SocialConfig;
+use App\SocialContact;
+use App\SocialContactThread;
 
 class InstagramController extends Controller
 {

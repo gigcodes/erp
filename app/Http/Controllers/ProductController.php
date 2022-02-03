@@ -215,15 +215,16 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) { 
             $newProducts = Product::query();
-        } else {
+        } else { 
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
-            $newProducts = $newProducts->whereIn('status_id', $statusList);
+            $newProducts = $newProducts->whereIn('status_id', $statusList); //dd($newProducts->limit(10)->get());
+
         } else {
             if ($request->get('submit_for_approval') == "on") {
                 $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
@@ -231,7 +232,6 @@ class ProductController extends Controller
                 $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
             }
         }
-
         // Run through query helper
  //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
@@ -381,7 +381,7 @@ class ProductController extends Controller
 
         if ($request->without_title != null) {
             $newProducts = $newProducts->where("products.name", "");
-        }
+        } 
 
         if ($request->without_size != null) {
             $newProducts = $newProducts->where("products.size", "");
@@ -1807,10 +1807,10 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-						ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name, 'success', $website->id, null, null, $log->id, null);
-					}else{
-						ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'success', $website->id, null, null, null, null);
-					}
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name, 'success', $website->id, null, null, $log->id, null);
+                    }else{
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'success', $website->id, null, null, null, null);
+                    }
                 }
                 $product->isUploaded = 1;
                 $product->save();
@@ -1820,8 +1820,8 @@ class ProductController extends Controller
                     'status' => 'listed',
                 ]);
             }else{
-				ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-			}
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
+            }
 
              return response()->json([
                 'result' => 'No website for push',
@@ -4702,7 +4702,7 @@ class ProductController extends Controller
             ->groupBy("brand", "category")
             ->limit($limit)
             ->get();
-         foreach ($products as $key => $product) {						
+         foreach ($products as $key => $product) {                      
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
           
             if (!empty($websiteArrays)) {
@@ -4716,31 +4716,40 @@ class ProductController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name, 'success', $website->id, null, null, $log->id, null);
-						
-						PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
+                        
+                        PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
                         $i++;
                     } else{
-						ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'error', $website->id, null, null, null, null);
-					}
+                        ProductPushErrorLog::log('', $product->id, 'Started pushing '. $product->name.' website for product not found', 'error', $website->id, null, null, null, null);
+                    }
                 }
             } else{
-				ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
-			}
+                ProductPushErrorLog::log('', $product->id, 'No website found for product'.$product->name, 'error', null, null, null, null, null);
+            }
         }
         return response()->json(["code" => 200, "message" => "Push product successfully"]);
 
     }
-	
-	public function pushToMagentoConditions() {
-		$conditions = PushToMagentoCondition::all();
-		return view('products.conditions', compact('conditions'));
-	}
-	
-	public function updateConditionStatus(Request $request) {
-		$input = $request->input();
-		PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
-		return 'Status Updated';
-	}
+    
+    public function pushToMagentoConditions(Request $request) {
+        $drConditions = PushToMagentoCondition::all();
+        if (($request->condition && $request->condition != null) && ($request->magento_description && $request->magento_description != null)){
+            $conditions = PushToMagentoCondition::where('condition',$request->condition)->where('description','LIKE','%'.$request->magento_description.'%')->get();
+        }elseif ($request->magento_description && $request->magento_description != null) {
+            $conditions = PushToMagentoCondition::where('description','LIKE','%'.$request->magento_description.'%')->get();
+        }elseif ($request->condition && $request->condition != null) {
+            $conditions = PushToMagentoCondition::where('condition',$request->condition)->get();
+        }else{
+            $conditions = PushToMagentoCondition::all();
+        }
+        return view('products.conditions', compact('conditions','drConditions'));
+    }
+    
+    public function updateConditionStatus(Request $request) {
+        $input = $request->input();
+        PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
+        return 'Status Updated';
+    }
 
     public function getPreListProducts()
     {

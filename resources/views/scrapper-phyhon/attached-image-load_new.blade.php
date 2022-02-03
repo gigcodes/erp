@@ -20,6 +20,11 @@
                                 onclick="setStoreAsDefault(this)" data-website-id="{{ $item->website_table_id }}"
                                 data-store-id="{{ $item->website_stores_id }}" /></span> 
                         </td>
+                        <td>
+                             <span class="btn p-0"> <input type="checkbox" class="defaultInput {{ $item->website_stores_flag }}" {{ $item->website_stores_flag ? 'checked' : '' }}
+                                onclick="setStoreAsFlag(this)" data-website-id="{{ $item->website_table_id }}"
+                                data-store-id="{{ $item->website_stores_id }}" /></span> 
+                        </td>
                     <td>
                         <!-- <button data-website={{ $list->storeWebsite->website ?? '' }} type="button" class="btn btn-xs btn-image scrapper-python-modal" title="Scrapper action" data-toggle="modal" data-target="#scrapper-python-modal">
                             <img src="/images/add.png" alt="" style="cursor: pointer">
@@ -114,6 +119,14 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="">
+                            <div class="mb-3">
+                                <input type="radio" name="is_flag" id="is_flag" value="is_flag">
+                                <label class="form-check-label" for="is_flag">
+                                    Is Flag
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer pb-0">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -165,7 +178,8 @@
                 _token: "{{ csrf_token() }}",
                 webName: websiteName,
                 type: typeOfData,
-                data_name: nameOfData
+                data_name: nameOfData,
+                is_flag: $('input[name="is_flag"]:checked').val()
             },
             dataType: "json"
         }).done(function(response) {
