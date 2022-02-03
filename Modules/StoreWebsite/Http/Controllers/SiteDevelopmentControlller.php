@@ -360,16 +360,15 @@ class SiteDevelopmentController extends Controller
 
 	public function createTask(Request $request) {
 		if($request->task_category == 'Design') { 
-			//$categoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
 			$masterCategoryId = SiteDevelopmentMasterCategory::where('title', 'Design')->pluck('id')->first();
 		} else{  
 			$masterCategoryId = SiteDevelopmentMasterCategory::where('title', 'Design')->pluck('id')->first();
-			//$categoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
 		}
 		$website = StoreWebsite::where('id', $request->websiteId)->pluck('title')->first();
 		
 		$categories = SiteDevelopmentCategory::leftJoin('site_developments', 'site_developments.site_development_category_id', '=','site_development_categories.id')
-		->select('site_development_categories.title', 'site_development_categories.id')->where('site_development_master_category_id', $masterCategoryId)->where('website_id', $request->websiteId)->orderBy('site_development_categories.title', 'asc')->get();
+		->select('site_development_categories.title', 'site_development_categories.id', 'site_developments.id as site_development_id')->where('site_development_master_category_id', $masterCategoryId)
+		->where('website_id', $request->websiteId)->orderBy('site_development_categories.title', 'asc')->get();
 		
 		foreach($categories as $category) {
 			$requests = array(
@@ -377,22 +376,57 @@ class SiteDevelopmentController extends Controller
                     'task_subject' => $category['title'],
                     'task_detail' => $website.' '.$category['title'].$request->task_category,
                     'task_asssigned_to' => 6,
-                    'category_id'=>$category->id,
-                    'site_id'=>$request->websiteId,
+                    'category_id'=>49,
+                    'site_id'=>$category->site_development_id,
                     'task_type'=>0,
                     'repository_id'=>null,
                     'cost'=>null,
                     'task_id'=>null,
                     'customer_id'=>null,
+					'is_flow_task'=>0
                 );
-				$task = Task::where(['category'=>$category->id,
-                    'site_developement_id'=>$request->websiteId, 'task_subject' => $category['title']])->first();
+				$task = Task::where(['category'=>49,'site_developement_id'=>$category->site_development_id])->first();
+				if($task == null) {
+					$check = (new Task)->createTaskFromSortcuts($requests);
+				}
+                
+		}
+		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully']);
+	}
+	
+	public function copyTasksFromWebsite(Request $request) {
+		/*$siteDevelopmentCategoryIds = SiteDevelopment::where('website_id', $request->copy_to_website)->pluck('site_development_category_id')->toArray();
+		$siteDevelopment = SiteDevelopment::where('website_id', $request->copy_to_website)->select('id as site_developement_id','site_development_category_id')->get();
+		*/
+		$tasks = Task::leftJoin('site_developments', 'site_developments.id', '=', 'tasks.site_developement_id')
+		->where('site_developments.website_id', $request->copy_from_website)->get(); //dd($tasks);
+		foreach($tasks as $task){
+			$siteDev = SiteDevelopment::where('id', $task['site_developement_id'])->first(); ///dd($siteDev);
+			if($siteDev != null) {
+				$site_development_id = SiteDevelopment::where(['site_development_category_id'=>$siteDev['site_development_category_id'], 'website_id'=>$request->copy_to_website])->pluck('id')->first();
+				if($site_development_id != null){
+					$requests = array(
+						'_token' => $request->_token,
+						'task_subject' => $task['task_subject'],
+						'task_detail' => $task['task_details'],
+						'task_asssigned_to' => 6,
+						'category_id'=>$task['category'],
+						'site_id'=>$site_development_id,
+						'task_type'=>0,
+						'repository_id'=>null,
+						'cost'=>null,
+						'task_id'=>null,
+						'customer_id'=>null,
+						'is_flow_task'=>0
+					);
+					$task = Task::where(['category'=>$task['category'],'site_developement_id'=>$site_development_id])->first();
 					if($task == null) {
 						$check = (new Task)->createTaskFromSortcuts($requests);
 					}
-                
+				}
+			}
 		}
-		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully',]);
+		return response()->json(["code" => 200, "messages" => 'Task copied Sucessfully']);
 	}
 	
     public function addSiteDevelopment(Request $request)

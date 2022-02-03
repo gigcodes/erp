@@ -251,6 +251,7 @@ Route::middleware('auth')->group(function()
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask')->name('site.development.delete.task');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
     Route::post('/create-tasks', 'SiteDevelopmentController@createTask')->name("site-development.create.task");
+    Route::post('/copy-tasks', 'SiteDevelopmentController@copyTasksFromWebsite')->name("site-development.copy.task");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
     Route::post('/save-master-category', 'SiteDevelopmentController@addMasterCategory')->name("site-development.master_category.save");
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");
