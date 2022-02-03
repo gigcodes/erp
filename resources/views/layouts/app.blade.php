@@ -1424,6 +1424,9 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
+                                </li>
                                 @endif
                             </ul>
                         </li>
