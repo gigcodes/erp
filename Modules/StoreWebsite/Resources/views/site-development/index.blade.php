@@ -76,6 +76,10 @@
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
 		<div class="pull-right pr-2 d-flex">
+			<?php echo Form::select("select_website", ["" => "All Website"] + $store_websites, null, ["class" => "form-control globalSelect2", "id" => "copy_from_website"]) ?>
+			<button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from website</button>
+						
+		
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal" id="">Create Tasks</button>
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
@@ -655,6 +659,34 @@
 					data: {
 						task_category: text,
 						websiteId: {{$website->id}},
+						"_token": "{{ csrf_token() }}"
+					},
+					beforeSend: function() {
+						$("#loading-image").show();
+					},
+				}).done(function(data) {
+					$("#loading-image").hide();
+					toastr["success"](data.messages);
+					setTimeout(function(){ refreshPage(); }, 2000);
+				}).fail(function(data) {
+					$('#masterCategorySingle').val('')
+					console.log(data)
+					console.log("error");
+				});
+		}
+	}
+	function copyTasksFromWebsite() {
+		var copy_from_website = $('#copy_from_website').val()
+		if (copy_from_website === '') {
+			alert('Please select website');
+		} else {
+			$.ajax({
+					url: '{{ route('site-development.copy.task') }}',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						copy_from_website: copy_from_website,
+						copy_to_website: {{$website->id}},
 						"_token": "{{ csrf_token() }}"
 					},
 					beforeSend: function() {
