@@ -48,9 +48,12 @@
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
     <div class="row">
+        <div class="col-lg-12">
+             <h2 class="page-heading"> Whatsapp Logs (<span id="count">{{ count($array) }}</span>)</h2>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading"> Whatsapp Logs (<span id="count">{{ count($array) }}</span>)</h2>
-
             <div class="pull-right" style="display: none;">
                 <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">
                     Send Selected
@@ -60,12 +63,12 @@
             </div>
 
         </div>
-        <div class="col-10" style="padding-left:0px;">
+        <div class="col-10 pl-5 pr-5" style="padding-left:0px;">
             <div >
                 <form class="form-inline" action="" method="GET">
-                    <div class="form-group col-md-2 pd-3">
+                    <div class="form-group pd-3">
                         <div class='input-group date' id='filter-date'>
-                            <input type='text' class="form-control search_date" name="date" value="{{ isset($_REQUEST['date']) ? $_REQUEST['date'] : '' }}" placeholder="Date" />
+                            <input type='text' class="form-control search_date" name="date" value="{{ isset($_REQUEST['date']) ? $_REQUEST['date'] : '' }}" placeholder="Date" / style="width:250px !important">
 
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -73,8 +76,8 @@
                         </div>
                     </div>
 
-                    <div class="form-group col-md-2 pd-3">
-                        <select name="message_sent" id="message_sent" class="form-control">
+                    <div class="form-group  pd-3 ml-3 ">
+                        <select name="message_sent" id="message_sent" class="form-control"  style="width:260px !important">
                             <option value="">Message Sent Status</option>
                             @if(isset($_REQUEST['message_sent']) && $_REQUEST['message_sent'] == 'Yes')
                                 <option selected value="Yes">Yes</option>
@@ -90,10 +93,11 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-1 pd-3">
-                        <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
-
-                        <a href="{{ route('whatsapp.log') }}" class="fa fa-refresh" aria-hidden="true"></a>
+                    <div class="form-group  pd-3">
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                            <a href="{{ route('whatsapp.log') }}" class="fa fa-refresh mt-2" aria-hidden="true"></a>
+                        </div>
                     </div>
                 </form>
                
@@ -105,7 +109,7 @@
     @include('partials.flash_messages')
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 pl-5 pr-5 mb-0" style="margin-top: -14px;">
             <div class="panel-group">
                 <div class="panel mt-5 panel-default">
                     <div class="panel-heading">
@@ -147,17 +151,17 @@
 
         </div>
     </div>
-    <div class="mt-3 col-md-12">
-        <table class="table table-bordered table-striped" id="log-table">
+    <div class="mt-1 col-md-12">
+        <table class="table table-bordered table-striped" id="log-table"style="table-layout: fixed;margin-top: -5px;">
             <thead>
             <tr>
-                <th style="width: 1% !important;">Sr.No</th>
-                <th style="width: 1% !important;">Date</th>
-                <th style="width: 1% !important;">Sent ?</th>
-                <th style="width: 3% !important;">Sender Number</th>
-                <th style="width: 3% !important;">Receiver Number</th>
-                <th style="width: 40% !important;">Text</th>
-                <th style="width: 3% !important;">Action</th>
+                <th style="width: 2% !important;">Sr.No</th>
+                <th style="width: 5% !important;">Date</th>
+                <th style="width: 3% !important;">Sent ?</th>
+                <th style="width: 6% !important;">Sender Number</th>
+                <th style="width: 6% !important;">Receiver Number</th>
+                <th style="width: 20% !important;">Text</th>
+                <th style="width: 8% !important;">Action</th>
             </tr>
             
             </thead>

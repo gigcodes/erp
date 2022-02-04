@@ -2095,14 +2095,14 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
-Route::get('access-token', 'InstagramController@receiveMessage');
+
+Route::middleware('auth')->prefix('social')->group(function() {
+    Route::get('inbox', 'SocialAccountController@inbox')->name('social.direct-message');
+    Route::post('send-message', 'SocialAccountController@sendMessage')->name('social.message.send');
+    Route::post('list-message', 'SocialAccountController@listMessage')->name('social.message.list');
+});
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
-
-    Route::get('inbox', 'SocialWebhookController@inbox');
-    Route::post('send-message', 'SocialWebhookController@sendMessage')->name('instagram.message.send');
-    Route::post('list-message', 'SocialWebhookController@listMessage')->name('instagram.message.list');
-
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
     Route::get('auto-comment-history/send-posts', 'UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap');
@@ -3246,6 +3246,11 @@ Route::prefix('twillio')->middleware('auth')->group(function () {
 Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::get('/', 'LogsController@index')->name('logs.index');
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
+});
+
+//Social-Webhook-Logs
+Route::prefix('social-webhook-logs')->middleware('auth')->group(function () {
+    Route::get('/', 'LogsController@socialWebhookLogs')->name('social-webhook-log.index');
 });
 
 //Image-Logs

@@ -151,8 +151,10 @@ class PageController extends Controller
 
         if (!$records) {
             $records = new StoreWebsitePage;
-        }
-
+        } else{
+			StoreWebsitePage::where("url_key",  $records["url_key"])->where("store_website_id", $records['store_website_id'])->update(['is_latest_version_translated'=>0, 'is_latest_version_pushed'=>0]);
+		}
+		  
         if (empty($id)) {
             $post["stores"]  = implode(",", $post["stores"]);
             $string          = str_replace(' ', '-', strtolower($post["title"])); // Replaces all spaces with hyphens.
@@ -165,9 +167,11 @@ class PageController extends Controller
         }
 
         $post['is_pushed']=0;     
-
+		$post['is_latest_version_translated']=1;     
+        $post['is_latest_version_pushed']=0;    
         $records->fill($post);
 
+		           
         // if records has been save then call a request to push
         if ($records->save()) {
             //Logging activity
@@ -177,6 +181,98 @@ class PageController extends Controller
                 activity()->causedBy(auth()->user())->performedOn($records)->log('page updated');
             }
             
+			 $page = \App\StoreWebsitePage::find($records->id);
+			$languages = \App\Language::where("status", 1)->get();
+            foreach ($languages as $l) {
+                if (strtolower($page->language) != strtolower($l->name)) {
+                    $pageExist = \App\StoreWebsitePage::where("url_key", $page->url_key)->where("store_website_id", $page->store_website_id)->where("language", $l->name)->first();
+                    if (!$pageExist) {
+						$newPage = new \App\StoreWebsitePage;
+					} else{
+						$newPage = \App\StoreWebsitePage::find($pageExist->id);
+					}
+
+                        $title = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->title]
+                        );
+
+                        $metaTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->meta_title]
+                        );
+
+                        $metaKeywords = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->meta_keywords]
+                        );
+
+                        $metaDescription = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->meta_description]
+                        );
+
+                        $contentHeading = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->content_heading]
+                        );
+
+                        $content = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->content]
+                        );
+
+                        // assign the stores  column
+                        $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $l->name)
+                            ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
+                            ->join("websites as w", "w.id", "ws.website_id")
+                            ->where("w.store_website_id", $page->store_website_id)
+                            ->select("website_store_views.*")
+                            ->get();
+
+
+                        $stores = [];
+                        if (!$fetchStores->isEmpty()) {
+                            foreach ($fetchStores as $fetchStore) {
+                                $stores[] = $fetchStore->code;
+                            }
+                        }
+
+                        $newPage->title            = !empty($title) ? $title : $page->title;
+                        $newPage->meta_title       = !empty($metaTitle) ? $metaTitle : $page->meta_title;
+                        $newPage->meta_keywords    = !empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
+                        $newPage->meta_description = !empty($metaDescription) ? $metaDescription : $page->meta_description;
+                        $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
+                        $newPage->content          = !empty($content) ? $content : $page->content;
+                        $newPage->layout           = $page->layout;
+                        $newPage->url_key          = $page->url_key;
+                        $newPage->active           = $page->active;
+                        $newPage->stores           = implode(",", $stores);
+                        $newPage->store_website_id = $page->store_website_id;
+                        $newPage->language         = $l->name;
+                        $newPage->copy_page_id     = $page->id;
+                        $newPage->is_pushed =0;
+                        $newPage->is_latest_version_pushed =0;
+                        $newPage->is_latest_version_translated =1;
+                        $newPage->save();
+						
+						\App\Jobs\PushPageToMagento::dispatch($newPage)->onQueue('magetwo');
+                        StoreWebsitePage::where("id", $newPage->id)->update(['is_pushed'=>1, 'is_latest_version_pushed'=>1]);
+
+                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
+                        activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:' . $newPage->title . ' Page URL Key:'. $newPage->url_key);
+                    /*else{
+                        $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
+                    }*/
+                }
+            }
+			
         }
 
         return response()->json(["code" => 200, "data" => $records]);
@@ -224,7 +320,7 @@ class PageController extends Controller
 
         if ($page) {
             \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
-            StoreWebsitePage::where("id", $id)->update(['is_pushed'=>1]);
+            StoreWebsitePage::where("id", $id)->update(['is_pushed'=>1, 'is_latest_version_pushed'=>1]);
             return response()->json(["code" => 200, 'message' => "Website send for push"]);
         }
 
@@ -393,8 +489,10 @@ StoreWebsitePagePullLog::create([ 'title'=>isset($d->title) ? $d->title : "",
                 if (strtolower($page->language) != strtolower($l->name)) {
                     $pageExist = \App\StoreWebsitePage::where("url_key", $page->url_key)->where("store_website_id", $page->store_website_id)->where("language", $l->name)->first();
                     if (!$pageExist) {
-
-                        $newPage = new \App\StoreWebsitePage;
+						$newPage = new \App\StoreWebsitePage;
+					} else{
+						$newPage = \App\StoreWebsitePage::find($pageExist->id);
+					}
 
                         $title = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                             new GoogleTranslate,
@@ -462,13 +560,15 @@ StoreWebsitePagePullLog::create([ 'title'=>isset($d->title) ? $d->title : "",
                         $newPage->language         = $l->name;
                         $newPage->copy_page_id     = $page->id;
                         $newPage->is_pushed =0;
+                        $newPage->is_latest_version_pushed =0;
+                        $newPage->is_latest_version_translated =1;
                         $newPage->save();
 
                         activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
                         activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:' . $newPage->title . ' Page URL Key:'. $newPage->url_key);
-                    }else{
+                    /*else{
                         $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
-                    }
+                    }*/
                 }
             }
 
@@ -567,7 +667,8 @@ StoreWebsitePagePullLog::create([ 'title'=>isset($d->title) ? $d->title : "",
 
         $records = StoreWebsitePage::join("store_website_page_histories as swh","swh.store_website_page_id","store_website_pages.id")
         ->join("store_websites as sw","sw.id","store_website_pages.store_website_id")
-        ->select(["swh.*","sw.id as store_website_id","sw.title as store_website_name","store_website_pages.url_key"])
+        ->join("users","users.id","swh.updated_by")
+        ->select(["swh.*","sw.id as store_website_id","sw.title as store_website_name","store_website_pages.url_key", "users.name as updatedBy"])
         ->orderBy("swh.id","desc");
 
         if($request->store_website_id != null) {

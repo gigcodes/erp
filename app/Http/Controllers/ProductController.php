@@ -215,15 +215,16 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) { 
             $newProducts = Product::query();
-        } else {
+        } else { 
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
         if ($request->get('status_id') != null) {
             $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
-            $newProducts = $newProducts->whereIn('status_id', $statusList);
+            $newProducts = $newProducts->whereIn('status_id', $statusList); //dd($newProducts->limit(10)->get());
+
         } else {
             if ($request->get('submit_for_approval') == "on") {
                 $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
@@ -231,7 +232,6 @@ class ProductController extends Controller
                 $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
             }
         }
-
         // Run through query helper
  //      $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts, true);
         $term = $request->input('term');
@@ -381,7 +381,7 @@ class ProductController extends Controller
 
         if ($request->without_title != null) {
             $newProducts = $newProducts->where("products.name", "");
-        }
+        } 
 
         if ($request->without_size != null) {
             $newProducts = $newProducts->where("products.size", "");

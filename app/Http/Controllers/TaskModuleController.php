@@ -157,7 +157,7 @@ class TaskModuleController extends Controller
             if ($request->filter_by == 2) {
                 $isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
             }
-            
+           
             $data['task']['pending'] = DB::select('
 			SELECT tasks.*
 

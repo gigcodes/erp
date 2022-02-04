@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddAccountIdFieldsToSocialConfigsTable extends Migration
+class DropPageTokenFieldsToSocialConfigsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AddAccountIdFieldsToSocialConfigsTable extends Migration
     public function up()
     {
         Schema::table('social_configs', function (Blueprint $table) {
-            $table->string('account_id')->nullable();
-            $table->text('webhook_token')->nullable();
+            $table->dropColumn('page_token');
         });
     }
 
@@ -27,7 +26,7 @@ class AddAccountIdFieldsToSocialConfigsTable extends Migration
     public function down()
     {
         Schema::table('social_configs', function (Blueprint $table) {
-            $table->dropColumn(['account_id','webhook_token']);
+            $table->string('page_token')->nullable();
         });
     }
 }

@@ -69,7 +69,7 @@
             const data = $(this).data("id");
             
             $.ajax({
-                url: "{{ route('instagram.message.list') }}",
+                url: "{{ route('social.message.list') }}",
                 method: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
