@@ -104,7 +104,7 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Id</th>
+                                <th >Id</th>
                                 <th>Content</th>
 								<th>URL</th>
 								<th>Result</th>
@@ -241,6 +241,14 @@
         });
     }
 	
+	function openUrl(url) {
+		if (url && !url.match(/^http([s]?):\/\/.*/)) {
+			var urlToOpen = 'http://'+url;
+		} else {
+			var urlToOpen = url;
+		}
+		window.open(urlToOpen, '_blank');
+	}
 	
 </script>
 @endsection 

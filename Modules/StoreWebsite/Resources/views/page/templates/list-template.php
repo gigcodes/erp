@@ -85,6 +85,8 @@
                     <td class="Website-task" title="{{:prop.store_website_name}}">{{:prop.store_website_name}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_latest_version_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_latest_version_translated == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{:prop.created_at}}</td>
                     <td>
                         <button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template" style="padding: 0px 1px !important;">
