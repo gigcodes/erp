@@ -11474,3 +11474,6 @@ table.table-striped-custom tbody tr td {
 #app{
     overflow: hidden !important;
 }
+.selectbox{
+    width: 100px !important;
+}
