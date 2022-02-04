@@ -11474,3 +11474,6 @@ table.table-striped-custom tbody tr td {
 #app{
     overflow: hidden !important;
 }
+.btn.btn-edit-template{
+    padding: 1px 0px;
+}

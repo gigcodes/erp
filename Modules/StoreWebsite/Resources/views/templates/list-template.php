@@ -1,92 +1,91 @@
 <script type="text/x-jsrender" id="template-result-block">
-	<div class="table-responsive mt-3">
-		<table class="table table-bordered">
+	<div class="col-md-12 pl-5 pr-5">
+	<div class="table-responsive">
+		<table class="table table-bordered"style="table-layout: fixed;">
 		    <thead>
 		      <tr>
-		      	<th width="2%">Id</th>
-		        <th width="5%">Title</th>
-		        <th width="10%">Website</th>
-		        <th width="2%">Service id</th>
-		        <th width="5%">Remote software</th>
-		        <th width="2%">Facebook</th>
-		        <th width="2%">Instagram</th>
-		        <th width="2%">Published</th>
-				<th width="2%">FCM Key</th>
-				<th width="2%">FCM Id</th>
-				<th width="2%">Icon</th>
-		        <th width="12%">Action</th>
+		      	<th width="2%" class="Website-task"title="Id">Id</th>
+		        <th width="3%" class="Website-task"title="Title">Title</th>
+		        <th width="3%"class="Website-task"title="Website">Website</th>
+		        <th width="4%" class="Website-task"title="Country Duty">Country Duty</th>
+		        <th width="4%" class="Website-task"title="Description">Description</th>
+		        <th width="4%" class="Website-task"title="Service id">Service id</th>
+		        <th width="5%" class="Website-task"title="Remote software">Remote software</th>
+		        <th width="4%" class="Website-task"title="Facebook">Facebook</th>
+		        <th width="4%" class="Website-task"title="Instagram">Instagram</th>
+		        <th width="4%" class="Website-task"title="Published">Published</th>
+				<th width="4%" class="Website-task"title="FCM Key">FCM Key</th>
+				<th width="3%" class="Website-task"title="FCM Id">FCM Id</th>
+				<th width="3%" class="Website-task"title="Icon">Icon</th>
+		        <th width="12%"class="Website-task"title="Action">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.title}}</td>
-			        <td>
-			        	<b>Website : </b>{{:prop.website}}<br>
-			        	<b>Country Duty : </b>{{:prop.country_duty}}<br>
-			        	<b>Description : </b>{{:prop.description}}<br>
-			        </td>
+			        <td class="Website-task" title="{{:prop.title}}">{{:prop.title}}</td>
+			        <td class="Website-task"><b>Website :</b>{{:prop.website}}</td>
+			        <td class="Website-task">{{:prop.country_duty}}</td>
+			        <td class="Website-task">{{:prop.description}}</td>
 			        <td>{{:prop.mailing_service_id}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
-			        	<br>
 			        	<i class="fa fa-comment show-facebook-remarks" data-id="{{>prop.id}}" data-value="{{:prop.facebook_remarks}}"></i>
 			        </td>
 			        <td>{{:prop.instagram}}
-			        	<br>
 			        	<i class="fa fa-comment show-instagram-remarks" data-id="{{>prop.id}}" data-value="{{:prop.instagram_remarks}}"></i>
 			        </td>
 					<td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
-					<td>{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td>{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td class="Website-task">{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td class="Website-task">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
-			        <td>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
+			        <td p-0>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template" style="padding:1px 0px;">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
 
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template">
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"style="padding:1px 0px;">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
 			        	</button>
 
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category">
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category"style="padding:1px 0px;">
 			        		<i class="fa fa-paperclip" aria-hidden="true"></i>
 			        	</button>
 
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands">	
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands"style="padding:1px 0px;">	
 			        		<img width="15px" title="Attach Brands" src="/images/purchase.png">
 			        	</button>
 
-			        	<button type="button" data-id="{{>prop.id}}" class="btn">
+			        	<button type="button" data-id="{{>prop.id}}" class="btn"style="padding:1px 0px;">
                                             <a href="/site-development/{{>prop.id}}">
                                                     <img width="15px" title="Site Development" src="/images/project.png">
                                             </a>
                                         </button> 
 
-                                        <button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
+                                        <button type="button" data-id="{{>prop.id}}" class="btn"style="padding:1px 0px;"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"style="color:gray;"></i></a></button> 
 
-                                        <button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
+                                        <button title="Social media strategy" type="button"  class="btn"style="padding:1px 0px;"><a href="/store-website/{{>prop.id}}/social-strategy" style="color:gray;"><i class="fa fa-fa"></i></a></button> 
 
-                                        <button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
+                                        <button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"style="padding:1px 0px;"><a href="javascript:;"><i class="fa fa-external-link"style="color:gray;"></i></a></button> 
 
-                                        <button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty">
-                                                <a href="javascript:;"><i class="fa fa-info-circle"></i></a>
+                                        <button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty"style="padding:1px 0px;">
+                                                <a href="javascript:;"style="color:gray;"><i class="fa fa-info-circle"></i></a>
                                         </button> 
 
-                                        <button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history">
-                                                <a href="javascript:;"><i class="fa fa-history"></i></a>
+                                        <button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history"style="padding:1px 0px;">
+                                                <a href="javascript:;"style="color:gray;"><i class="fa fa-history"></i></a>
                                         </button>
                                         
-                                        <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template">
-                                            <a href="javascript:void(0);"><i class="fa fa-simplybuilt"></i></a>
+                                        <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template"style="padding:1px 0px;">
+                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
                                         </button>   
-										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history">
-                                            <a href="javascript:void(0);"><i class="fa fa-folder"></i></a>
+										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history"style="padding:1px 0px;">
+                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-folder"></i></a>
                                         </button> 
-										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master">
-                                            <a href="javascript:void(0);"><i class="fa fa-refresh"></i></a>
+										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master"style="padding:1px 0px;">
+                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-refresh"></i></a>
                                         </button> 										
 			        </td>
 			      </tr>
@@ -95,6 +94,7 @@
 		</table>
 		{{:pagination}}
 	</div>
+</div>
 </script>
 
 <script type="text/x-jsrender" id="template-attached-category">
