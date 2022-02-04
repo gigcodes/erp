@@ -25,39 +25,38 @@ a {
 
 </style>
 	<div class="row">
-		<table class="table table-bordered">
+		<table class="table table-bordered"style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-		      	<th style="width:50px;">ID</th> 
-		      	<th style="width:120px;">User</th>
-				<th style="width:100px;">Sender Number</th> 
-				<th style="width:60px;">TASKS</th>
-				<th style="width:60px">Yesterday hours</th>
-				<th style="width:60px">No Time est.</th>
-				<th style="width:60px;">Overdue task</th> 
-				<th style="width:80px;">Last seen</th>
-				<th style="width:80px">Payment Due</th>
-				<th style="width:80px">Due date</th> 			
-				<th style="width:85px;">Paid on</th>
-				<th style="width:30px;">S</th>
+		     <th style="width:2%" class="Website-task" title="ID">ID</th> 
+		     <th style="width:2%" class="Website-task" title="User">User</th>
+		     <th style="width:2%" class="Website-task" title="Rate">Rate</th>
+		     <th style="width:2%" class="Website-task" title="S/F PX">S/F PX</th>
+				<th style="width:3%" class="Website-task" title="S Num">S Num</th> 
+				<th style="width:2%" class="Website-task" title="TASKS">TASKS</th>
+				<th style="width:2%" class="Website-task" title="Yes h">Yes h</th>
+				<th style="width:2%" class="Website-task" title="N Tm e.">N Tm e.</th>
+				<th style="width:2%" class="Website-task" title="Ov task">Ov task</th> 
+				<th style="width:2%" class="Website-task" title="Las s">Las s</th>
+				<th style="width:2%" class="Website-task" title="Pay Due">Pay Due</th>
+				<th style="width:2%" class="Website-task" title="Due date">Due date</th> 			
+				<th style="width:2%" class="Website-task" title="Pai on">Pai on</th>
+				<th style="width:2%" class="Website-task" title="S">S</th>
 				<?php if (Auth::user()->isAdmin()) { ?>
-				<th style="width:148px;">Send</th>
-				<th style="width:160px;">Reply</th>
+				<th style="width:6%" class="Website-task" title="Send" >Send</th>
+				<th style="width:4%" class="Website-task" title="Reply" >Reply</th>
 				<?php } ?>
-
-				<th style="width:285px;">Action</th>
+				<th style="width:19%" class="Website-task" title="Action" >Action</th>
 			</tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td>{{:prop.id}}</td>
-			      	<td><a style="padding:0; white-space: pre-wrap;" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
-			      		</br>
-			      		RATE : {{:prop.hourly_rate}} {{:prop.currency}}
-			      		</br>
-			      		S/F PX : {{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}
+			      	<td class="Website-task">{{:prop.id}}</td>
+			      	<td class="Website-task"><a  title="Task Hours" class="Website-task btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
 					</td>
+					<td class="Website-task"> {{:prop.hourly_rate}} {{:prop.currency}}</td>
+					<td class="Website-task">{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}</td>
 					<td class="number">
                         <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{:prop.id}}">
                             <option>-- Select --</option>
@@ -71,27 +70,27 @@ a {
 
                         </select>
                     </td>
-			        <td>
+			        <td class="Website-task">
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>
-			        <td>{{:prop.yesterday_hrs}}</td>
-			        <td>{{:prop.no_time_estimate}}</td>
+			        <td class="Website-task">{{:prop.yesterday_hrs}}</td>
+			        <td class="Website-task">{{:prop.no_time_estimate}}</td>
 			        <td>{{:prop.overdue_task}}</td>
-			        <td> <span class="today-history" data-id="{{:prop.id}}"> {{:prop.online_now}} </span> </td>
-			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
-			        <td>{{:prop.nextDue}}</td>
-			        <td>
+			        <td class="Website-task"> <span class="today-history" data-id="{{:prop.id}}"> {{:prop.online_now}} </span> </td>
+			        <td class="Website-task"> {{:prop.previousDue}} {{:prop.currency}}</td>
+			        <td class="Website-task">{{:prop.nextDue}}</td>
+			        <td class="Website-task">
 					{{:prop.lastPaidOn}}
 					</td>
-					<td>
+					<td class="Website-task">
 					<span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
 					</td>
 					<?php if (Auth::user()->isAdmin()) { ?>
-					<td>
+					<td class="Website-task">
 						<div class="row">
 							<div class="col-md-12">
 								<div class="d-flex">
-									<input style="width:121px" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+									<input  type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
 									<button class="btn btn-sm btn-image send-message" data-userid="{{:prop.id}}"><img src="/images/filled-sent.png"/></button>
 								</div>
 						</div>
@@ -100,15 +99,15 @@ a {
 					</td>
 					<td>
 					
-						<div style="padding-left:0;" class="col-md-12">
+						<div style="padding-left:0;" class="col-md-12 pr-0">
 								<div class="d-flex">
-									<select name="quickComment" class="form-control quickComment select2-quick-reply" "style" => "width:100%">
+									<select name="quickComment" class="form-control quickComment select2-quick-reply" "style" => "width:100px !important;">
 									<option value="">--Auto Reply--</option>
 									{{props replies}}
 										<option value="">{{>prop}}</option>
 									{{/props}}
 									</select>
-									<a style="padding-top: 5px;" class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+									<a  class="btn mt-2 btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
 								</div>
 							</div> 
 						</div>  
@@ -116,24 +115,25 @@ a {
 					</td>
 					<?php } ?>
 			        <td>
+			        	<div>
 					<?php if (Auth::user()->isAdmin()) { ?>
-					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
+					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages" style="padding: 0px 1px;">
 					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
 					</button>
 					{{if prop.id == <?php echo Auth::id(); ?>}}
-					<a class="btn btn-image" href="#"><img src="/images/view.png"/></a>
+					<a class="btn btn-image" href="#"><img src="/images/view.png"/style="padding: 0px 1px;"></a>
 					{{else}}
-					<a class="btn btn-image" onclick="editUser({{>prop.id}})"><img src="/images/edit.png"/></a>
+					<a class="btn btn-image" onclick="editUser({{>prop.id}})"style="padding: 0px 1px;"><img src="/images/edit.png"/></a>
 					{{/if}}
-					<a href="/user-management/track/{{>prop.id}}">Info</a>
-					<a title="Payments" class="btn btn-image" onclick="payuser({{>prop.id}})"><span class="glyphicon glyphicon-usd"></span></a>
+					<a href="/user-management/track/{{>prop.id}}"style="padding: 0px 1px;">Info</a>
+					<a title="Payments" class="btn btn-image" onclick="payuser({{>prop.id}})"><span class="glyphicon glyphicon-usd"style="padding: 0px 1px;"></span></a>
 					
-					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
-					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
+					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""style="padding: 0px 1px;"></a>
+					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-lock" aria-hidden="true"></i></a>
 					<?php } ?>
-					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
-					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"><i class="fa fa-tasks" aria-hidden="true"></i></a>
-					<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}"><i class="fa fa-envelope-square"></i></button>
+					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"style="padding: 0px 1px;"><i class="fa fa-tasks" aria-hidden="true"></i></a>
+					<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}" style="padding: 0px 1px;"><i class="fa fa-envelope-square"></i></button>
 					{{if prop.team}}
 						<span class="expand-row">
 						<span class="div-team-mini">
@@ -142,7 +142,7 @@ a {
 							<span class="div-team-max hidden">
 							{{if prop.name}}
 							{{props prop.team_members}}
-								<p style="margin:0px;" class="search-team-member" data-keyword="{{:prop.name}}"> {{:prop.name}}</p>
+								<p style="margin:0px; "padding: 0px 1px;" class="search-team-member" data-keyword="{{:prop.name}}"> {{:prop.name}}</p>
 							{{/props}}
 							{{/if}}
 							</span>
@@ -151,42 +151,42 @@ a {
 					{{/if}}
 					<?php if (Auth::user()->isAdmin()) { ?>
 						{{if prop.is_active == 1}}
-							<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
+							<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}" style="padding: 0px 1px;"><img src="/images/do-disturb.png" /></button>
 						{{else}}
-							<button title="Activate user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
+							<button title="Activate user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}" style="padding: 0px 1px;"><img src="/images/do-not-disturb.png" /></button>
 						{{/if}}
 						{{if !prop.user_in_team}}
-							<button type="button" class="btn btn-image load-team-add-modal pd-5" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
+							<button type="button" class="btn btn-image load-team-add-modal pd-5" data-id="{{:prop.id}}"><img src="/images/add.png" / style="padding: 0px 1px;"></button>
 						{{/if}}
 						{{if prop.team}}
-							<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" /></button>
+							<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" / style="padding: 0px 1px;"></button>
 						{{/if}}
 					<?php } ?>
-					<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
+					<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}" style="padding: 0px 1px;"> <i class="fa fa-check" aria-hidden="true"></i></button>
 					{{if !prop.already_approved}}
-						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
+						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"style="padding: 0px 1px;"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 					{{/if}}
 					<?php if (Auth::user()->isAdmin()) { ?>
-						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
+						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"style="padding: 0px 1px;"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					<?php } ?>
 					
-						<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
+						<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"style="padding: 0px 1px;"></i></button>
 
 						<?php if (Auth::user()->isAdmin()) { ?>
 
-                			<button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true"></i></button>
+                			<button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true" style="padding: 0px 1px;"></i></button>
 
-     						<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true"></i></button>
+     						<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true" style="padding: 0px 1px;"></i></button>
 
 							 
 
           				<?php } ?>
-						  <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true"><i class="fa fa comment" aria-hidden="true"></i></button>
+						  <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true" style="padding: 0px 1px;"><i class="fa fa comment" aria-hidden="true"></i></button>
 
 						
 
 						  <!-- <i class="fa fa-comment" aria-hidden="true"></i> -->
-
+          </div>
 					</td>
 			      </tr>
 			    {{/props}}  

@@ -121,27 +121,26 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     @include('partials.flash_messages')
-    <div class="row" id="common-page-layout">
-        <div class="col-lg-12 margin-tb">
+    <div class="row">
+        <div class="col-md-12 p-0">
             <h2 class="page-heading">{{ $title }} <span class="count-text"></span></h2>
         </div>
-        <br>
+    </div>
+    <div class="row" id="common-page-layout">
         <input type="hidden" name="page_no" class="page_no" />
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col">
-                    <div class="h" style="margin-bottom:10px;">
+                    <div class="" style="margin-bottom:10px;">
                         <div class="row">
                             <form class="form-inline message-search-handler" method="post">
                                 <div class="col">
                                     <div class="form-group">
-                                        <label for="keyword">Keyword:</label>
                                         <?php echo Form::text('keyword', request('keyword'), ['class' =>
                                         'form-control data-keyword', 'placeholder' => 'Enter keyword']); ?>
                                     </div>
                                     <div class="form-group">
-                                        <label for="keyword">Active:</label>
-                                        <select name="is_active" class="form-control">
+                                        <select name="is_active" class="form-control" placholder="Active:">
                                             <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
                                             <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
                                             </option>
@@ -149,29 +148,28 @@
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group pl-3">
                                         <label for="button">&nbsp;</label>
-                                        <button style="display: inline-block;width: 10%"
+                                        <button style="display: inline-block;width: 10%;margin-top: -16px;"
                                             class="btn btn-sm btn-image btn-search-action">
                                             <img src="/images/search.png" style="cursor: default;">
                                         </button>
                                     </div>
                                 </div>
                             </form>
-                        </div>
                         @if (auth()->user()->isAdmin())
 
-                            <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission
+                            <button class="btn custom-button btn-xs pull-right mt-0 mr-2 permission-request">Permission
                                 request ( {{ $permissionRequest }} )</button>
 
-                            <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
+                            <button class="btn custom-button btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
 
-                            <button class="btn btn-secondary btn-xs pull-right ml-2 mt-0 mr-2 system-request" data-toggle="modal"
+                            <button class="btn custom-button btn-xs pull-right ml-2 mt-0 mr-2 system-request" data-toggle="modal"
                                 data-target="#system-request">System IPs</button>
 
-                            <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
+                            <button class="btn custom-button btn-xs pull-right today-history"> All user task </button>
                         @endif
-
+                    </div>
                     </div>
                 </div>
             </div>
