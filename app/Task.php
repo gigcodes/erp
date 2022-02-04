@@ -195,7 +195,7 @@ class Task extends Model {
 		}
        
         $data['status'] = 3;
-        
+        $task = 0;
         $taskType = $request['task_type'];
 
         if (isset($request['parent_task_id'])) {
@@ -330,6 +330,7 @@ class Task extends Model {
                 $hubtask->save();
             }
         }
+		return $task;
         return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
     }
 }
