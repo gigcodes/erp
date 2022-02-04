@@ -4750,6 +4750,11 @@ class ProductController extends Controller
         PushToMagentoCondition::where('id', $input['id'])->update(['status'=>$input['status']]);
         return 'Status Updated';
     }
+    public function updateConditionUpteamStatus(Request $request) {
+        $input = $request->input();
+        PushToMagentoCondition::where('id', $input['id'])->update(['upteam_status'=>$input['upteam_status']]);
+        return 'Upteam Status Updated';
+    }
 
     public function getPreListProducts()
     {
