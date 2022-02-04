@@ -59,6 +59,7 @@
                         <th width="5%">URl</th>
                         <th width="15%">Result</th>
                         <th width="2%">Result Type</th>
+                        <th width="2%">Updated by</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -70,6 +71,7 @@
                                                     <td class="Website-task"title="<?php echo $record->url; ?>"><?php echo $record->url; ?></td>
                                                     <td class="Website-task result"title="<?php echo $record->result; ?>"><?php echo $record->result; ?></td>
                                                     <td><?php echo $record->result_type; ?></td>
+                                                    <td><?php echo $record->updatedBy; ?></td>
                                                 </tr>
                                             <?php } ?>
 
