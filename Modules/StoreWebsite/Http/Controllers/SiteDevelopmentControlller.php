@@ -435,7 +435,24 @@ class SiteDevelopmentController extends Controller
 								'message' => $attachment['message'],
 
 							]);
-						}						
+						}	
+						if ($task->hasMedia(config('constants.attach_image_tag'))) {
+							foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
+								$imageExtensions = ['zip'];
+								$explodeImage = explode('.', $media->getUrl());
+								$extension = end($explodeImage);
+
+								if (in_array($extension, $imageExtensions)) {
+									$createdTask->attachMedia($media, config('constants.media_tags'));
+
+									if(!empty($media->filename)){
+										DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+									}
+								} 
+							}
+						}
+
+						
 					}
 				}
 			}
