@@ -399,8 +399,9 @@ class SiteDevelopmentController extends Controller
 		$siteDevelopment = SiteDevelopment::where('website_id', $request->copy_to_website)->select('id as site_developement_id','site_development_category_id')->get();
 		*/
 		$tasks = Task::leftJoin('site_developments', 'site_developments.id', '=', 'tasks.site_developement_id')
-		->where('site_developments.website_id', $request->copy_from_website)->get(); //dd($tasks);
+		->where('site_developments.website_id', $request->copy_from_website)->select('tasks.*')->get(); //dd($tasks);
 		foreach($tasks as $task){
+			$attachment = ChatMessage::whereNotNull('task_id')->where('task_id', $task->id)->where('message', 'like', '%.zip%')->orderBy('id', 'desc')->first();
 			$siteDev = SiteDevelopment::where('id', $task['site_developement_id'])->first(); ///dd($siteDev);
 			if($siteDev != null) {
 				$site_development_id = SiteDevelopment::where(['site_development_category_id'=>$siteDev['site_development_category_id'], 'website_id'=>$request->copy_to_website])->pluck('id')->first();
@@ -419,9 +420,22 @@ class SiteDevelopmentController extends Controller
 						'customer_id'=>null,
 						'is_flow_task'=>0
 					);
-					$task = Task::where(['category'=>$task['category'],'site_developement_id'=>$site_development_id])->first();
-					if($task == null) {
-						$check = (new Task)->createTaskFromSortcuts($requests);
+					$taskNew = Task::where(['category'=>$task['category'],'site_developement_id'=>$site_development_id])->first(); 
+					if($taskNew == null) {
+						$createdTask = (new Task)->createTaskFromSortcuts($requests); 
+						if(isset( $attachment['message'])) {
+							$params = \App\ChatMessage::create([
+								'user_id' => \Auth::user()->id,
+								'task_id' => $createdTask['id'],
+
+								'sent_to_user_id' => 6,
+
+								'erp_user' => \Auth::user()->id,
+								'contact_id' => \Auth::user()->id,
+								'message' => $attachment['message'],
+
+							]);
+						}						
 					}
 				}
 			}
