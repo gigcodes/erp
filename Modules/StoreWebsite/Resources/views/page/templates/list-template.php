@@ -68,6 +68,8 @@
                 <th>Site</th>
                 <th>Active</th>
                 <th>Pushed</th>
+                <th>Is latest version Pushed</th>
+                <th>Is latest version translated</th>
                 <th>Created at</th>
                 <th>Actions</th>
               </tr>
@@ -78,11 +80,13 @@
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
                     <td><input type="text" value="{{:prop.platform_id}}" onchange="save_platform_id({{:prop.id}})"/></td>
                     <td>{{:prop.title}} </td>
-                    <td>{{:prop.url_key}}</td>
+                    <td><a href="#" onclick="openUrl('{{:prop.store_website_name}}/{{:prop.url_key}}')">{{:prop.url_key}}</a></td>
                     <td title="{{:prop.stores}}">{{:prop.stores_small}}</td>
                     <td>{{:prop.store_website_name}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_latest_version_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_latest_version_translated == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{:prop.created_at}}</td>
                     <td>
                         <button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
