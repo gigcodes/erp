@@ -24,6 +24,8 @@
             <h2 class="page-heading">Total Product found ({{$products_count}})</h2>
         </div>
     </div>
+<div class="row">
+    <div class="col-md-12 pl-5 pr-5">
     <form action="{{ action('ProductController@productDescription') }}" method="get">
         <div class="row mb-5">
             <div class="col-md-3">
@@ -43,64 +45,67 @@
             <input type="text" name="sku" class="form-control" id="sku" placeholder="Enter SKU" value="{{isset($request->sku) ? $request->sku : ''}}">
             </div>
             <div class="col-md-1">
-                <button class="btn btn-image btn-default">
+                <button class="btn btn-image mt-0">
                     <img src="{{ asset('images/search.png') }}" alt="Search">
                 </button>
             </div>
         </div>
     </form>
+</div>
+</div>
     
     <div class="row">
         <div class="col-md-12 text-center">
             {{ $products->appends($request->except('page'))->links() }}.
         </div>
     </div>
+    <div class="col-md-12 ">
     <div class="row">
         <div class="col-md-12">
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered" style="table-layout: fixed;">
                 <tr>
-                    <th>Product ID</th>
-                    <th>SKU</th>
-                    <th>Supplier</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Color</th>
-                    <th>Size</th>
-                    <th>Category</th>
-                    <th>Composition</th>
-                    <th>Price</th>
-                    <th>Size System</th>
-                    <th>Discount</th>
-                    <th>Dimensions</th>
-                    <th>Functions</th>
+                    <th width="5%">Product ID</th>
+                    <th width="5%">SKU</th>
+                    <th width="4%">Supplier</th>
+                    <th width="5%">Title</th>
+                    <th width="7%">Description</th>
+                    <th width="6%">Color</th>
+                    <th width="8%">Size</th>
+                    <th width="6%">Category</th>
+                    <th width="6%">Composition</th>
+                    <th width="4%">Price</th>
+                    <th width="6%">Size System</th>
+                    <th width="4%">Discount</th>
+                    <th width="5%">Dimensions</th>
+                    <th width="5%">Functions</th>
                 </tr>
                 @foreach($products as $product)
                     <tr>
                         <td>
-                            <a target="__blank" href="{{$product->supplier_link}}">{{$product->product_id}}</a>
+                            <a target="__blank" href="{{$product->supplier_link}}" style="color:black;">{{$product->product_id}}</a>
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->product->sku) ? $product->product->sku : "-"}}">
                             {{isset($product->product->sku) ? $product->product->sku : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->supplier->supplier) ? $product->supplier->supplier : "-"}}">
                             {{isset($product->supplier->supplier) ? $product->supplier->supplier : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->title) ? $product->title : "-"}}">
                             {{isset($product->title) ? $product->title : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->description) ? $product->description : "-"}}">
                             {{isset($product->description) ? $product->description : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->color) ? $product->color : "-"}}">
                             {{isset($product->color) ? $product->color : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->size) ? $product->size : "-"}}">
                             {{isset($product->size) ? $product->size : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task"title="{{isset($product->product->categories) ? $product->product->categories->title : "-"}}">
                             {{isset($product->product->categories) ? $product->product->categories->title : "-"}}
                         </td>
-                        <td>
+                        <td class="Website-task" title="{{isset($product->composition) ? $product->composition : "-"}}">
                             {{isset($product->composition) ? $product->composition : "-"}}
                         </td>
                         <td>
@@ -125,6 +130,7 @@
             </table>
         </div>
     </div>
+</div>
     <div class="row">
         <div class="col-md-12 text-center">
             {{ $products->appends($request->except('page'))->links() }}.
