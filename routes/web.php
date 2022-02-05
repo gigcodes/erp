@@ -2098,6 +2098,9 @@ Route::middleware('auth')->prefix('social')->group(function() {
     Route::get('inbox', 'SocialAccountController@inbox')->name('social.direct-message');
     Route::post('send-message', 'SocialAccountController@sendMessage')->name('social.message.send');
     Route::post('list-message', 'SocialAccountController@listMessage')->name('social.message.list');
+    Route::get('{account_id}/posts', 'SocialAccountPostController@index')->name('social.account.posts');
+    Route::get('{post_id}/comments', 'SocialAccountCommentController@index')->name('social.account.comments');
+    Route::post('reply-comments', 'SocialAccountCommentController@replyComments')->name('social.account.comments.reply');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -3542,7 +3545,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
     Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
     Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
-   
+
 
 
 
