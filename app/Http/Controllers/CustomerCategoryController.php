@@ -15,6 +15,7 @@ class CustomerCategoryController extends Controller
      */
     public function index()
     {
+        dd("1111");
         $categories = CustomerCategory::all();
 
         return view('customers.category_messages.category.index', compact('categories'));
