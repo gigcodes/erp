@@ -91,11 +91,11 @@ class BrandController extends Controller
         ->orderBy('total_products', "desc")->with('singleBrandTask')->whereNull('brands.deleted_at');
 
         if($devCheckboxs){
-            foreach($request->get("devCheckboxs") as $devCheckbox){
-                $brands->whereHas('brandTask', function ($q) use ($devCheckbox) {
-                    $q->where('assigned_to', $devCheckbox);
+            /* foreach($request->get("devCheckboxs") as $devCheckbox){*/
+                $brands->whereHas('brandTask', function ($q) use ($devCheckboxs) {
+                    $q->whereIn('assigned_to', $devCheckboxs);
                 });
-            }
+            /*}*/
         }
 
         $keyword = request('keyword');
