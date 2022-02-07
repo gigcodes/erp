@@ -210,6 +210,10 @@ class TicketController extends Controller
             $message = $this->generate_erp_response("ticket.send.failed", 0, $default = 'Tickets not found for customer !', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 404);
         }
+        foreach ($tickets as $ticket){
+            $messages = \App\ChatMessage::where("ticket_id",$ticket->id)->select("id","message","created_at")->latest()->get();
+            $ticket->messages=$messages;
+        }
         return response()->json(['status' => 'success', 'tickets' => $tickets], 200);
     }
 }
