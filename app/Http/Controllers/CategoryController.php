@@ -1102,4 +1102,68 @@ class CategoryController extends Controller
             return response()->json(["code" => 500 , "message" => "Category not found"]);
         }
     }
+
+    /**
+     * show interface to copy category data .
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function copyCategory(Request $request)
+    {
+
+        $categories     = Category::where('parent_id',0)->orderBy('title')->get();
+       
+        return view('category.copy-category', compact('categories'));
+        
+        
+    }
+    /**
+     * copy data from One category To Another.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function storeCopyCategory(Request $request)
+    {
+        $sourceCategoryId = $request->sourceCategoryId;
+        $targetCategoryId = $request->targetCategoryId;
+        $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
+
+        $categories     = Category::where('parent_id',$sourceCategoryId)->orderBy('title')->get();
+       
+        $data = [];
+        
+        if($categories){
+            foreach($categories as $category){
+                $data['child'][$category->id] = $category->toArray();
+                $insert_array = $category->toArray();
+                $insert_array['parent_id'] = $targetCategoryId;
+                unset($insert_array['id']);
+                $pid = Category::insertGetId($insert_array);
+                $data['child'][$category->id]['child'] = $this->getChildData($category->id, $pid); 
+            }
+        }
+        return redirect('/category/copyCategory')->with('message', 'Data updated!');
+    }
+
+    /**
+     * find child data from parent.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getChildData($parentId, $pid)
+    {
+        $categories  = Category::where('parent_id',$parentId)->orderBy('title')->get();
+        $data = [];
+        if($categories){
+            foreach($categories as $category){
+                $data[$category->id] = $category->toArray();
+                $insert_array = $category->toArray();
+                $insert_array['parent_id'] = $pid;
+                unset($insert_array['id']);
+                $newpid = Category::insertGetId($insert_array);
+                $data[$category->id]['child'] = $this->getChildData($category->id, $newpid);
+            } 
+        }
+        return $data;
+    }
 }
