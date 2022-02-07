@@ -293,7 +293,7 @@ class SocialWebhookController extends Controller
                         'account_id' => $fromId,
                         'social_config_id' => $socialConfig->id,
                         'name' => $changes['value']['from']['name'],
-                        'platform' => SocialContact::FACEBOOK
+                        'platform' => SocialContact::INSTAGRAM
                     ]);
                 }
                 $socialConfig = $socialContact;
