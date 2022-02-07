@@ -593,7 +593,7 @@ class MagentoService
         $catLinks = [];
         if (!empty($this->categories)) {
             foreach ($this->categories as $category) {
-                $catLinks[] = ['position' => $category['position'], 'category_id' => $category['category_id'],"topParent"=> $category['topParent']];
+                $catLinks[] = ['position' => $category['position'], 'category_id' => $category['category_id']];
             }
         }
         $data['product']['extension_attributes']['category_links'] = $catLinks;

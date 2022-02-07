@@ -8,7 +8,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
-use App\Helpers\ProductHelper;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -313,7 +313,7 @@ class Category extends Model
 
         // Set empty category tree for holding categories
         $categoryTree = [];
-        $topParent =  ProductHelper::getTopParent($id);
+    
 
         // Continue only if category is not null
         if ( $categoryInstance !== NULL && $categoryMulti) {
@@ -337,22 +337,22 @@ class Category extends Model
                 if($categoryMultiChild){
                     if($categoryInstance->parent_id == 0){
                         if($needOrigin) {
-                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id,"topParent"=>$topParent];
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
                         }else{
-                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,"topParent"=>$topParent];
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
                         }
                     }else{
                         if($categoryInstance->parent_id == 0){
                             if($needOrigin) {
-                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id,"topParent"=>$topParent];
+                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
                             }else{
-                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,"topParent"=>$topParent];
+                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
                             }
                         }else{
                             if($needOrigin) {
-                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id,"topParent"=>$topParent];
+                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
                             }else{
-                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id,"topParent"=>$topParent];
+                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id];
                             }
                         }
                     }
