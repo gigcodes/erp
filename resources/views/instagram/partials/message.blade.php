@@ -62,14 +62,14 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th width="7%">Name</th>
+                <th width="8%">Name</th>
                 <th width="2%">Platform</th>
-                <th width="2%">Website</th>
+                <th width="8%">Website</th>
                 <th width="8%">User input</th>
-                <th width="25%">Message Box </th>
-                <th width="2%">From</th>
-                <th width="2%">Shortcuts</th>
-                <th width="2%">Action</th>
+                <th width="30%">Message Box </th>
+                <th width="4%">From</th>
+                <th width="5%">Shortcuts</th>
+                <th width="5%">Action</th>
             </tr>
         </thead>
         <tbody>
