@@ -1650,11 +1650,11 @@ class DevelopmentController extends Controller
         }
 
         $hubstaffTaskId ='';
-        // $hubstaffTaskId = $this->createHubstaffTask(
-        //     $taskSummery,
-        //     $hubstaffUserId,
-        //     $hubstaff_project_id
-        // );
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $taskSummery,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
 
         if ($hubstaffTaskId) {
             $task->hubstaff_task_id = $hubstaffTaskId;
