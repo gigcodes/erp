@@ -6,6 +6,7 @@ use App\CronJob;
 use App\CronJobReport;
 use App\DigitalMarketingPlatform;
 use App\Email;
+use App\EmailLog;
 use App\EmailAddress;
 use App\EmailRemark;
 use App\EmailRunHistories;
@@ -267,7 +268,7 @@ class EmailController extends Controller
         }*/
 
         $mailboxdropdown = $mailboxdropdown->toArray();
-
+        
         return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_categories' => $email_categories, 'email_status' => $email_status, 'reports' => $reports, 'sender_drpdwn' => $sender_drpdwn, 'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from, 'mailboxdropdown' => $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
@@ -1180,5 +1181,23 @@ class EmailController extends Controller
             $eventData = '<tr><td>No data found.</td></tr>';
         }
         return $eventData;
+    }
+    /**
+     * Get Email Logs
+     */
+    public function getEmailLogs($emailid)
+    {
+        $emailLogs = EmailLog::where('email_id', $emailid)->orderBy('id', 'desc')->get();
+       
+        $emailLogData = '';
+        
+        foreach ($emailLogs as $emailLog) {
+            $emailLogData .= "<tr><td>" . $emailLog['created_at'] . "</td><td>" . $emailLog['email_log'] . "</td><td>" . $emailLog['message'] . "</td></tr>";
+        }
+        if ($emailLogData == '') {
+            $emailLogData = '<tr><td>No data found.</td></tr>';
+        }
+        //echo $emailLogData;
+        return $emailLogData;
     }
 }
