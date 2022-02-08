@@ -64,19 +64,19 @@
         <div class="col-md-12">
             <table class="table table-striped table-bordered" style="table-layout: fixed;">
                 <tr>
-                    <th width="5%">Product ID</th>
+                    <th width="6%">Product ID</th>
                     <th width="5%">SKU</th>
                     <th width="4%">Supplier</th>
                     <th width="5%">Title</th>
-                    <th width="7%">Description</th>
+                    <th width="6%">Description</th>
                     <th width="6%">Color</th>
                     <th width="8%">Size</th>
-                    <th width="6%">Category</th>
+                    <th width="5%">Category</th>
                     <th width="6%">Composition</th>
                     <th width="4%">Price</th>
                     <th width="6%">Size System</th>
-                    <th width="4%">Discount</th>
-                    <th width="5%">Dimensions</th>
+                    <th width="5%">Discount</th>
+                    <th width="6%">Dimensions</th>
                     <th width="5%">Functions</th>
                 </tr>
                 @foreach($products as $product)
