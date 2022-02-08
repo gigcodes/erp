@@ -1045,7 +1045,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
-    Route::get('category/copyCategory', 'CategoryController@copyCategory')->name('category.copy');
     Route::post('category/storeCopyCategory', 'CategoryController@storeCopyCategory')->name('category.storeCopy');
 
     Route::get('productSearch/', 'SaleController@searchProduct');
