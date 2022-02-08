@@ -307,9 +307,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
+    Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::get('products/conditions/upteamstatus/update', 'ProductController@updateConditionUpteamStatus')->name('products.push.condition.update');
     
-    Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
@@ -585,7 +585,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
 	Route::get('sizes/new-references', 'SizeController@newSizeReferences');
 	Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
-    Route::resource('category', 'CategoryController');
+    Route::resource('category', 'CategoryController')->except('show');
     Route::resource('category-segment', 'CategorySegmentController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -1046,6 +1046,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
+    Route::post('category/storeCopyCategory', 'CategoryController@storeCopyCategory')->name('category.storeCopy');
 
     Route::get('productSearch/', 'SaleController@searchProduct');
     Route::post('productSearch/', 'SaleController@searchProduct');
@@ -2096,7 +2097,6 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
-
 Route::middleware('auth')->prefix('social')->group(function() {
     Route::get('inbox', 'SocialAccountController@inbox')->name('social.direct-message');
     Route::post('send-message', 'SocialAccountController@sendMessage')->name('social.message.send');
@@ -2105,8 +2105,13 @@ Route::middleware('auth')->prefix('social')->group(function() {
     Route::get('{post_id}/comments', 'SocialAccountCommentController@index')->name('social.account.comments');
     Route::post('reply-comments', 'SocialAccountCommentController@replyComments')->name('social.account.comments.reply');
 });
+Route::get('social/inbox', 'SocialWebhookController@inbox')->name('social.direct-message')->middleware('auth');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
+
+    Route::post('send-message', 'SocialWebhookController@sendMessage')->name('instagram.message.send');
+    Route::post('list-message', 'SocialWebhookController@listMessage')->name('instagram.message.list');
+
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
     Route::get('auto-comment-history/send-posts', 'UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap');
@@ -3549,7 +3554,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
     Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
     Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
-
+   
 
 
 
