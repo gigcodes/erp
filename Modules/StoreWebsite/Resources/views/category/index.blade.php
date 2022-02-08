@@ -111,6 +111,7 @@
 			                	<th>Sl no</th>
 			                	<th>Log case id</th>
 			                	<th>Category id</th>
+			                	<th>Store id</th>
 			                	<th>Log detail</th>
 			                	<th>Description</th>
 			              	</tr>
