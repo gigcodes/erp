@@ -86,7 +86,7 @@
 								{{ Form::select('store_website_id', $websites, null, array('class'=>'form-control','placeholder' => 'Website')) }}
 							</div>
 							<div class="col-md-3">
-								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back', 'attach_images_for_product'=>'Attach images for product', 'dispatch_send_price'=>'Dispatch send price', 'new_erp_lead'=>'New Erp Lead', 'out_of_stock_subscribe'=>'Out of stock subscribe' , 'payment_failed'=>'Payment Failed', 'order_reviews'=>'Order reviews', 'task_pr'=>'Check if PR is merged', 'site_dev'=>'Site Development'], null, array('class'=>'form-control','placeholder'=>'Flow Name')) }}
+								{{ Form::select('flow_name', ['add_to_cart'=>'Add to cart', 'wishlist'=>'Wish List', 'delivered_order'=>'Delivered order', 'newsletters'=>'Newsletters', 'customer_post_purchase'=>'Customer post purchase', 'customer_win_back'=>'Customer Win Back', 'attach_images_for_product'=>'Attach images for product', 'dispatch_send_price'=>'Dispatch send price', 'new_erp_lead'=>'New Erp Lead', 'out_of_stock_subscribe'=>'Out of stock subscribe' , 'payment_failed'=>'Payment Failed', 'order_reviews'=>'Order reviews', 'task_pr'=>'Check if PR is merged', 'site_dev'=>'Site Development','order_received' => 'Order Received'], null, array('class'=>'form-control','placeholder'=>'Flow Name')) }}
 							</div>
 							<div class="col-md-4">
 								<input type="text" class="form-control " name="flow_description" placeholder="Flow Description"/>
