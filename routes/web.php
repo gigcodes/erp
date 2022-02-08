@@ -308,6 +308,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
+    Route::get('products/conditions/upteamstatus/update', 'ProductController@updateConditionUpteamStatus')->name('products.push.condition.update');
+    
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
@@ -2095,7 +2097,14 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
-
+Route::middleware('auth')->prefix('social')->group(function() {
+    Route::get('inbox', 'SocialAccountController@inbox')->name('social.direct-message');
+    Route::post('send-message', 'SocialAccountController@sendMessage')->name('social.message.send');
+    Route::post('list-message', 'SocialAccountController@listMessage')->name('social.message.list');
+    Route::get('{account_id}/posts', 'SocialAccountPostController@index')->name('social.account.posts');
+    Route::get('{post_id}/comments', 'SocialAccountCommentController@index')->name('social.account.comments');
+    Route::post('reply-comments', 'SocialAccountCommentController@replyComments')->name('social.account.comments.reply');
+});
 Route::get('social/inbox', 'SocialWebhookController@inbox')->name('social.direct-message')->middleware('auth');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
