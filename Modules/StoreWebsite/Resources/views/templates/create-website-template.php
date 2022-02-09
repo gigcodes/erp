@@ -317,6 +317,9 @@
                         <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                         {{/if}}
+                        <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{>prop.store_website_id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
+                          <i class="fa fa-history aria-hidden="true""></i>
+                        </a>
                      </div>
                   </div>
                </div>
@@ -374,6 +377,9 @@
                         <button type="button" data-id="" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
                         <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
+                        <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{:data.id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
+                          <i class="fa fa-history aria-hidden="true""></i>
+                        </a>
                      </div>
                   </div>
                </div>
@@ -463,4 +469,5 @@
 	   </div>
    </div>
 </form>  	
+
 </script>

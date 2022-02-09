@@ -25,6 +25,7 @@ use App\StoreReIndexHistory;
 use App\BuildProcessHistory;
 use App\SiteDevelopmentCategory;
 use App\SiteDevelopment;
+use App\LogStoreWebsiteUser;
 use Carbon\Carbon;
 use App\Github\GithubRepository;
 
@@ -42,6 +43,13 @@ class StoreWebsiteController extends Controller
         $services = Service::get();
 
         return view('storewebsite::index', compact('title','services'));
+    }
+    public function logWebsiteUsers($id)
+    {
+        $title = "List | Store Website User Logs";
+        $logstorewebsiteuser = LogStoreWebsiteUser::where("store_website_id", $id)->get();
+
+        return view('storewebsite::log_store_website_users', compact('title','logstorewebsiteuser'));
     }
 
     public function cancellation()
@@ -95,6 +103,22 @@ class StoreWebsiteController extends Controller
         }
         return response()->json(["code" => 200, "data" => $checkCacellation]);
     }
+    public function savelogwebsiteuser($log_case_id,$id,$username,$userEmail,$firstName,$lastName,$password,$website_mode,$msg)
+    {
+        $log = New LogStoreWebsiteUser();
+        $log->log_case_id = $log_case_id;
+        $log->store_website_id = $id;
+        $log->username = $username;
+        $log->username = $username;
+        $log->useremail = $userEmail;
+        $log->first_name = $firstName;
+        $log->last_name = $lastName;
+        $log->password = $password;
+        $log->website_mode = $website_mode;
+        $log->log_msg = $msg;
+        $log->save();
+    }
+
     /**
      * records Page
      * @param  Request $request [description]
@@ -129,6 +153,9 @@ class StoreWebsiteController extends Controller
        
         $records->fill($post);
         $records->save();
+
+
+        $this->savelogwebsiteuser("#1",$post['id'],$post['username'],$post['userEmail'],$post['firstName'],$post['lastName'],$post['password'],$post['website_mode'],"For this Website ".$post['id']." ,A new user has been created.");
 
         if($request->staging_username && $request->staging_password) {
             $message = 'Staging Username: '.$request->staging_username.', Staging Password is: ' . $request->staging_password;
@@ -166,7 +193,6 @@ class StoreWebsiteController extends Controller
 
     public function saveUserInMagento(Request $request) {
         
-
         $post = $request->all();
         $validator = Validator::make($post, [
             'username'   => 'required',
@@ -187,6 +213,8 @@ class StoreWebsiteController extends Controller
             }
             return response()->json(["code" => 500, "error" => $outputString]);
         }
+
+        $this->savelogwebsiteuser("#2",$post['store_id'],$post['username'],$post['userEmail'],$post['firstName'],$post['lastName'],$post['password'],$post['websitemode'],"For this Website ".$post['store_id']." ,A user has been updated.");
 
         $checkUserNameExist = '';
         if(!empty($post['store_website_userid'])) {
@@ -289,6 +317,9 @@ class StoreWebsiteController extends Controller
         $username = $getUser->username;
         $getUser->is_deleted = 1;
         $getUser->save();
+
+
+        $this->savelogwebsiteuser("#3",$getUser['store_website_id'],$getUser['username'],$getUser['email'],$getUser['first_name'],$getUser['last_name'],$getUser['password'],$getUser['website_mode'],"For this Website ".$getUser['store_website_id']." ,User has been Deleted.");
 
         $storeWebsite = StoreWebsite::find($getUser->store_website_id);
         
