@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\Paginator;
 use seo2websites\MagentoHelper\MagentoHelper;
 
 class CategoryController extends Controller
@@ -349,7 +350,7 @@ class CategoryController extends Controller
 
         //$categories = $categories->whereIn("id", [3]);
 
-        $categories = $categories->get();
+        $categories = $categories->paginate(10);
 
         $storeWebsite = StoreWebsite::all();
         $appliedQ     = StoreWebsiteCategory::all();

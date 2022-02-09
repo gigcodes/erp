@@ -72,15 +72,17 @@
 					      	<?php foreach($storeWebsite as $sw) { 
 					      			$checked = ""; 
 					      			$catName = ""; 
+					      			$remote_id = ""; 
 								  ?>
 								  @forelse ($appliedQ as $item)
 									  	@if($item->category_id == $category->id && $item->store_website_id == $sw->id)
 										  	@php $checked = "checked"; $catName = $item->category_name; @endphp
+									  		@php $remote_id = $item->remote_id  @endphp
 									  	@endif
 								  @empty
 								  @endforelse
 					        	<td>
-									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category" type="checkbox" name="category_website">
+									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category" type="checkbox" name="category_website"> {{ $remote_id }}
 									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" class="rename-category" type="text" name="category_name" value="{{ $catName }}">
 								</td>
 					        <?php } ?>
@@ -88,6 +90,7 @@
 					    <?php } ?>
 				    </tbody>
 				</table>
+				{!! $categories->links() !!}
 			</div>
 		</div>
 	</div>
