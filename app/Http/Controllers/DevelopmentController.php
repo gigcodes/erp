@@ -868,7 +868,7 @@ class DevelopmentController extends Controller
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
         if ($request->get('unread_messages', "off") == "unread") {
-            $issues = $issues->where('chat_messages.sent_to_user_id', "developer_tasks.created_by");
+            $issues = $issues->where('chat_messages.sent_to_user_id', Auth::user()->id);
         }
 
         $issues = $issues->select("developer_tasks.*", "chat_messages.message","chat_messages.sent_to_user_id");
