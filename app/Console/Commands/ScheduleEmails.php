@@ -156,6 +156,13 @@ class ScheduleEmails extends Command
 					} else if ($key == 0 and $flow['name'] == 'site_dev') { //
 						$leads = [];
 						$modalType =  Task::class;
+					} else if($key == 0 and $flow['name'] == 'order_received'){
+						$leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
+							->where("customers.store_website_id", $flow['store_website_id'])
+							->whereIn('orders.order_status', ['order received', 'Order received'])
+							->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
+							->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+						$modalType =  Orders::class;
 					}
 					$this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog["id"]);
 				}
