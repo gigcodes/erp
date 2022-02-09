@@ -5,6 +5,7 @@ namespace Modules\StoreWebsite\Http\Controllers;
 use App\Category;
 use App\StoreWebsite;
 use App\StoreWebsiteCategory;
+use App\LogStoreWebsiteCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -338,6 +339,7 @@ class CategoryController extends Controller
 
     public function list(Request $request) {
         ini_set("memory_limit","-1");
+        ini_set('max_execution_time', 1500);
         $title      = "Store Category";
         $categories = Category::query();
 
@@ -354,27 +356,79 @@ class CategoryController extends Controller
 
     return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite', 'appliedQ']));
     }
+    public function logadd($log_case_id,$category_id,$store_id,$log_detail,$log_msg)
+    {
+        $logadd = New LogStoreWebsiteCategory(); 
+        $logadd->log_case_id = $log_case_id;
+        $logadd->category_id = $category_id;
+        $logadd->store_id = $store_id;
+        $logadd->log_detail = $log_detail;
+        $logadd->log_msg = $log_msg;
+        $logadd->save();
+    }
+    public function categoryHistory(request $request)
+    {
+        $category_id = $request->input('category_id');
+        $html = '';
+        $categoryData = LogStoreWebsiteCategory::where('category_id', $category_id)
+            ->orderBy('id', 'ASC')
+            ->get();
+        $i = 1;
+        if (count($categoryData) > 0) {
+            foreach ($categoryData as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' .  $i . '</td>';
+                $html .= '<td>' . $history->log_case_id . '</td>';
+                $html .= '<td>' . $history->category_id . '</td>';
+                $html .= '<td>' . $history->store_id . '</td>';
+                $html .= '<td>' . $history->log_detail . '</td>';
+                $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '</tr>';
 
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
     public function saveStoreCategory(Request $request)
     {
         $storeId = $request->store;
         $catId   = $request->category_id;
+
         if ($catId != null && $storeId != null) {
+
+            $this->logadd('#1',$catId,$storeId,"$catId,$storeId","Category ID and Store id are not null.");
+
             $categoryStore = StoreWebsiteCategory::where("category_id", $catId)->where("store_website_id", $storeId)->first();
             $website       = \App\StoreWebsite::find($storeId);
             $category      = Category::find($catId);
             if ($category->parent_id == 0) {
                 $case = 'single';
+                $this->logadd('#2',$catId,$storeId,$case,"From Category ID found parent_id 0 So case created single.");
             } elseif ($category->parent->parent_id == 0) {
                 $case = 'second';
+                $this->logadd('#3',$catId,$storeId,$case,"From Category ID found parent's parent_id 0 So case created second.");
             } else {
                 $case = 'third';
+                $this->logadd('#4',$catId,$storeId,$case,"From Category ID not found parent_id  So case created third.");
             }
             if ($website && $category) {
             //coppied code
 
             //Check if category
             if ($case == 'single') {
+                $this->logadd('#5',$catId,$storeId,$case,"Check single case is exit");
                 $data['id']       = $category->id;
                 $data['level']    = 1;
                 $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
@@ -383,8 +437,18 @@ class CategoryController extends Controller
 
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     $categ = MagentoHelper::createCategory($parentId, $data, $storeId);
+
+                    if($categ ==  false)
+                    {
+                        $this->logadd('#6',$catId,$storeId,0,"Website not found.");
+                    }
+                    else
+                    {
+                        $this->logadd('#7',$catId,$storeId,$categ,"Found remote id $categ And created category catalog.");
+                    }                    
                 }
                 if ($category) {
+                        $this->logadd('#8',$catId,$storeId,$category->id,"Check Category is an exit.");
                     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->where('remote_id', $categ)->first();
                     if (empty($checkIfExist)) {
                         $storeWebsiteCategory                   = new StoreWebsiteCategory();
@@ -392,12 +456,15 @@ class CategoryController extends Controller
                         $storeWebsiteCategory->store_website_id = $storeId;
                         $storeWebsiteCategory->remote_id        = $categ;
                         $storeWebsiteCategory->save();
+
+                        $this->logadd('#9',$catId,$storeId,$category->id,"If Category is exit then website category stored in case single");
                     }
                 }
             }
 
             //if case second
             if ($case == 'second') {
+                 $this->logadd('#10',$catId,$storeId,$case,"Check second case is exit");
                 $parentCategory = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
                 //if parent remote null then send to magento first
                 if (empty($parentCategory)) {
@@ -412,8 +479,18 @@ class CategoryController extends Controller
 
                         $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
 
+                        if($parentCategoryDetails ==  false)
+                        {
+                            $this->logadd('#11',$catId,$storeId,0,"Website not found.");
+                        }
+                        else
+                        {
+                            $this->logadd('#12',$catId,$storeId,$parentCategoryDetails,"Found remote id $parentCategoryDetails And created category catalog.");
+                        }     
+
                     }
                     if ($parentCategoryDetails) {
+
                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->where('remote_id', $parentCategoryDetails)->first();
                         if (empty($checkIfExist)) {
                             $storeWebsiteCategory                   = new StoreWebsiteCategory();
@@ -421,6 +498,8 @@ class CategoryController extends Controller
                             $storeWebsiteCategory->store_website_id = $storeId;
                             $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
                             $storeWebsiteCategory->save();
+
+                            $this->logadd('#13',$catId,$storeId,$category->id,"If Category is exit then category stored.");
                         }
                     }
 
@@ -439,6 +518,14 @@ class CategoryController extends Controller
 
                     $categoryDetail = MagentoHelper::createCategory($parentRemoteId, $data, $storeId);
 
+                    if($categoryDetail ==  false)
+                    {
+                        $this->logadd('#14',$catId,$storeId,0,"Website not found.");
+                    }
+                    else
+                    {
+                        $this->logadd('#15',$catId,$storeId,$categoryDetail,"Found remote id $categoryDetail And created category catalog.");
+                    }  
                 }
 
                 if ($categoryDetail) {
@@ -449,12 +536,16 @@ class CategoryController extends Controller
                         $storeWebsiteCategory->store_website_id = $storeId;
                         $storeWebsiteCategory->remote_id        = $categoryDetail;
                         $storeWebsiteCategory->save();
+
+
+                        $this->logadd('#16',$catId,$storeId,$category->id,"If Category is exit then website category stored in case second.");
                     }
                 }
             }
 
             //if case third
             if ($case == 'third') {
+                $this->logadd('#17',$catId,$storeId,$case,"Check third case is exit");
                 //Find Parent
                 $parentCategory = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
 
@@ -477,6 +568,14 @@ class CategoryController extends Controller
 
                             $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
 
+                            if($parentCategoryDetails ==  false)
+                            {
+                                $this->logadd('#18',$catId,$storeId,0,"Website not found.");
+                            }
+                            else
+                            {
+                                $this->logadd('#19',$catId,$storeId,$parentCategoryDetails,"Found remote id $parentCategoryDetails And created category catalog.");
+                            }  
                         }
 
                         if ($grandCategoryDetails) {
@@ -487,6 +586,8 @@ class CategoryController extends Controller
                                 $storeWebsiteCategory->store_website_id = $storeId;
                                 $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
                                 $storeWebsiteCategory->save();
+
+                                $this->logadd('#20',$catId,$storeId,$category->id,"If Category is exit then category stored.");
                             }
 
                         }
@@ -508,6 +609,15 @@ class CategoryController extends Controller
 
                         $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
 
+                        if($childCategoryDetails ==  false)
+                        {
+                            $this->logadd('#21',$catId,$storeId,0,"Website not found.");
+                        }
+                        else
+                        {
+                            $this->logadd('#22',$catId,$storeId,$childCategoryDetails,"Found remote id $childCategoryDetails And created category catalog.");
+                        }  
+
                     }
 
                     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->where('remote_id', $childCategoryDetails)->first();
@@ -517,6 +627,8 @@ class CategoryController extends Controller
                         $storeWebsiteCategory->store_website_id = $storeId;
                         $storeWebsiteCategory->remote_id        = $childCategoryDetails;
                         $storeWebsiteCategory->save();
+
+                           $this->logadd('#23',$catId,$storeId,$category->parent->id,"If Category parent id is exit then category stored.");
                     }
 
                     $data['id']       = $category->id;
@@ -528,6 +640,16 @@ class CategoryController extends Controller
 
                         $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $storeId);
 
+
+                        if($childCategoryDetails ==  false)
+                        {
+                            $this->logadd('#24',$catId,$storeId,0,"Website not found.");
+                        }
+                        else
+                        {
+                            $this->logadd('#25',$catId,$storeId,$categoryDetail,"Found remote id $categoryDetail And created category catalog.");
+                        } 
+
                     }
 
                     if ($categoryDetail) {
@@ -538,6 +660,8 @@ class CategoryController extends Controller
                             $storeWebsiteCategory->store_website_id = $storeId;
                             $storeWebsiteCategory->remote_id        = $categoryDetail;
                             $storeWebsiteCategory->save();
+
+                             $this->logadd('#26',$catId,$storeId,$category->id,"If Category is exit then website category stored in case third.");
                         }
                     }
 
@@ -553,6 +677,8 @@ class CategoryController extends Controller
                 if ($categoryStore) {
                     $categoryStore->delete();
                     $msg = "Remove successfully";
+
+                    $this->logadd('#27',$catId,$storeId,$catId,"Website Category is Remove.");
                 }
             } else {
                 StoreWebsiteCategory::updateOrCreate(
@@ -560,6 +686,8 @@ class CategoryController extends Controller
                     ['category_name' => $request->category_name, 'remote_id' => @$categ]
                 );
                 $msg = "Added successfully";
+
+                $this->logadd('#28',$catId,$storeId,$catId,"Website Category update or store.");
             }
         }
 
