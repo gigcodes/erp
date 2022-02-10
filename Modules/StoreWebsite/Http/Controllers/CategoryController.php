@@ -6,12 +6,15 @@ use App\Category;
 use App\StoreWebsite;
 use App\StoreWebsiteCategory;
 use App\LogStoreWebsiteCategory;
+use App\StoreWebsiteCategoryUserHistory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\Paginator;
 use seo2websites\MagentoHelper\MagentoHelper;
+use Illuminate\Support\Facades\Auth;
+
 
 class CategoryController extends Controller
 {
@@ -79,7 +82,20 @@ class CategoryController extends Controller
         return response()->json(["code" => 200, "data" => $storeWebsiteCategory]);
 
     }
-
+    public function deleteCategory(Request $request)
+    {
+       $category = Category::where("id",$request->category_id)->first();
+       $category->deleted_status = 1;
+       $category->update();
+       if($category->deleted_status == 1)
+       {
+            return response()->json(["code" => 200, "msg" =>'Category has been deleted.']);
+       }
+       else
+       {
+            return response()->json(["code" => 500, "msg" =>'Category not deleted.']);
+       }
+    }
     public function delete(Request $request, $id, $store_category_id)
     {
         $storeCategory = StoreWebsiteCategory::where("store_website_id", $id)->where("id", $store_category_id)->first();
@@ -342,20 +358,33 @@ class CategoryController extends Controller
         ini_set("memory_limit","-1");
         ini_set('max_execution_time', 1500);
         $title      = "Store Category";
-        $categories = Category::query();
+        
+        $allcategories = Category::query()->where("deleted_status", "0")->get();
+        $allstoreWebsite = StoreWebsite::query()->get();
+
+
+        $categories = Category::query()->where("deleted_status", "0");
 
         if ($request->keyword != null) {
             $categories = $categories->where("title", "like", "%" . $request->keyword . "%");
+        }
+        if ($request->category_id != null) {
+            $categories = $categories->where("id", $request->category_id);
         }
 
         //$categories = $categories->whereIn("id", [3]);
 
         $categories = $categories->paginate(10);
 
-        $storeWebsite = StoreWebsite::all();
+        $storeWebsite = StoreWebsite::query();
+        if ($request->website_id != null) {
+            $storeWebsite = $storeWebsite->where("id", $request->website_id);
+        }
+        $storeWebsite = $storeWebsite->get();
+        
         $appliedQ     = StoreWebsiteCategory::all();
 
-    return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite', 'appliedQ']));
+    return view("storewebsite::category.index", compact(['title','allcategories','allstoreWebsite','categories', 'storeWebsite', 'appliedQ']));
     }
     public function logadd($log_case_id,$category_id,$store_id,$log_detail,$log_msg)
     {
@@ -384,6 +413,7 @@ class CategoryController extends Controller
                 $html .= '<td>' . $history->store_id . '</td>';
                 $html .= '<td>' . $history->log_detail . '</td>';
                 $html .= '<td>' . $history->log_msg . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -391,6 +421,51 @@ class CategoryController extends Controller
             return response()->json(['html' => $html, 'success' => true], 200);
         } else {
             $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
+    }
+    public function webiteCategoryUserHistory(request $request)
+    {
+        $store_id = $request->input('store_id');
+        $category_id = $request->input('category_id');
+        $html = '';
+        $categoryData = StoreWebsiteCategoryUserHistory::where('category_id', $category_id)->where('store_id', $store_id)
+            ->orderBy('id', 'ASC')
+            ->get();
+        $i = 1;
+        if (count($categoryData) > 0) {
+            foreach ($categoryData as $history) 
+            {
+                $html .= '<tr>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                if($history->website_action == 'checked')
+                {
+                    $html .= '<td>unchecked</td>';
+                }
+                else
+                {
+                    $html .= '<td>checked</td>';
+                }
+                
+                $html .= '<td>' . $history->website_action . '</td>';
+                $html .= '<td>' . $history->user_name . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
             $html .= '<td></td>';
             $html .= '<td></td>';
             $html .= '<td></td>';
@@ -673,6 +748,12 @@ class CategoryController extends Controller
             //end copy
             }
 
+            $swc_user_history = new StoreWebsiteCategoryUserHistory();
+            $swc_user_history->store_id=  $storeId;
+            $swc_user_history->category_id= $catId;
+            $swc_user_history->user_id= Auth::user()->id;
+            $swc_user_history->user_name= Auth::user()->name;
+
             $msg = '';
             if ($request->check == 0) {
                 if ($categoryStore) {
@@ -681,6 +762,7 @@ class CategoryController extends Controller
 
                     $this->logadd('#27',$catId,$storeId,$catId,"Website Category is Remove.");
                 }
+                $swc_user_history->website_action= 'unchecked';
             } else {
                 StoreWebsiteCategory::updateOrCreate(
                     ['category_id' => $catId, 'store_website_id' => $storeId],
@@ -689,7 +771,10 @@ class CategoryController extends Controller
                 $msg = "Added successfully";
 
                 $this->logadd('#28',$catId,$storeId,$catId,"Website Category update or store.");
+                $swc_user_history->website_action= 'checked';
             }
+
+            $swc_user_history->save();
         }
 
         return response()->json(["code" => 200, "message" => $msg]);
