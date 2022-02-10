@@ -129,7 +129,7 @@ class OrderReportController extends Controller
 
       $order_n_refunds = DB::table('return_exchanges')
       ->join('customers','return_exchanges.customer_id','customers.id')
-      ->select('return_exchanges.id', 'is_flag','customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name','customers.email',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"));
+      ->select('return_exchanges.id', 'is_flagged as is_flag','customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name','customers.email',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"));
          if($request->order_id && $request->order_id != null){
              $order_n_refunds->where('return_exchanges.id', $request->order_id);
          }

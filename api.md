@@ -644,6 +644,90 @@ Content-Type: application/json
     "message": "Tickets not found for customer !"
 }
 ```
+##  send Ticket message
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/ticket/send
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "live_chat",
+    "ticket_id":"PWTCR",
+    "message":"Message from customer",
+    "action":"send_messsage",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "tickets": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 3,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
+                "last_name": null,
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "PWTCR",
+                "subject": "Task test",
+                "message": "Message: Hi",
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 01:26:31",
+                "created_at": "2020-09-11 11:48:23",
+                "updated_at": "2020-09-11 12:08:33",
+                "type_of_inquiry": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "status": "open",
+                "messages": [
+                    {
+                        "id": 1795378,
+                        "message": "Testing Message 12345",
+                        "created_at": "2022-02-07 19:49:26",
+                        "user_id": 6,
+                        "send_by": "Customer"
+                    },
+                    {
+                        "id": 1795377,
+                        "message": "Testing Message 12345",
+                        "created_at": "2022-02-07 19:47:45",
+                        "user_id": "",
+                        "send_by": "Admin"
+                    },
+                ]
+            }
+        ],
+        "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+        "next_page_url": null,
+        "path": "http://127.0.0.1:8000/api/ticket/send",
+        "per_page": 15,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
+    }
+}
+```
+
+key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Tickets not found for customer !"
+}
+```
 ## Push Notifications API
 
 **Request:**
