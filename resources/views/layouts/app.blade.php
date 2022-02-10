@@ -728,10 +728,10 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('flow.index') }}">Flows</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Scheduled Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Scheduled Messages</a>
                                         </li>
                                     </ul>
                                 </li>

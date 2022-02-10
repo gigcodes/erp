@@ -496,21 +496,24 @@ class scrapperPhyhon extends Controller
     $client = new Client();
     $res = null;
     $err = null;
+    $store_website = \App\StoreWebsite::find($request->webName);
     $log_data=["user_id"=>\Auth::id(),"action"=>$request->data_name, "website"=>$request->webName,"device"=>$request->type,"created_at"=>Carbon::now(),"updated_at"=>Carbon::now()];
     try{
      //   $url = env("PYTHON_PRODUCT_TEMPLATES")."/".$request->data_name;
         $url = 'http://167.86.88.58:5000/' . $request->data_name;
         $data=[
             'type' => $request->type,
-            'name' =>  $request->webName
+            'name' =>  $store_website->title
         ];
         if($request->webName !=null && $request->is_flag != null){
-            $flagUrls = \App\StoreWebsite::join('websites','store_websites.id','websites.store_website_id')->join('website_stores','websites.id','website_stores.website_id')->where('store_websites.id',$request->webName)->where('website_stores.is_flag',1)->get();
+          //  $flagUrls = \App\StoreWebsite::join('websites','store_websites.id','websites.store_website_id')->join('website_stores','websites.id','website_stores.website_id')->where('store_websites.id',$request->webName)->where('website_stores.is_flag',1)->get();
+          $flagUrls =  \App\scraperImags::where('store_website',$request->webName)->where('is_flaged_url','1')->select('url')->get();
             $data['flagged'] = true;
             $count = 1;
             $fUrl = '';
             foreach($flagUrls as $flagUrl){
-                $fUrl .= $flagUrl['magento_url'];
+             //   $fUrl .= $flagUrl['magento_url'];
+                $fUrl .= $flagUrl['url'];
                 if($count < count($flagUrls)){
                     $fUrl .= ',';
                 }
