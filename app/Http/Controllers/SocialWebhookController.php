@@ -49,7 +49,7 @@ class SocialWebhookController extends Controller
     {
         $data = json_decode($request->getContent(), true);
         SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook => Request Body", ['data' => $data]);
-        
+
         foreach ($data['entry'] as $entry) {
             if (isset($entry['messaging'])) {
                 $this->receiveMessage($entry, $data);
@@ -160,7 +160,9 @@ class SocialWebhookController extends Controller
             } else if ($change['field'] == BusinessPost::FEED && $change['value']['item'] == BusinessPost::VIDEO) {
                 $this->videoUploaded($change, $entry, $data);
             } else if ($change['field'] == BusinessPost::FEED && $change['value']['item'] == BusinessPost::COMMENT) {
-                $this->commentOnPost($change, $entry, $data);
+                $this->commentOnPostFB($change, $entry, $data);
+            } else if ($change['field'] == BusinessPost::COMMENTS && $data['object'] == SocialContact::TEXT_INSTA) {
+                $this->commentOnPostIG($change, $entry, $data);
             } else {
                 SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook => No changes requested found", ['data' => $data]);
             }
@@ -267,7 +269,7 @@ class SocialWebhookController extends Controller
     }
 
     /**
-     * Comment on Post
+     * Comment on Post (FB)
      *  
      * @param array $changes
      * @param array $entry
@@ -275,7 +277,7 @@ class SocialWebhookController extends Controller
      * 
      * @throws Exception
      */
-    private function commentOnPost($changes, $entry, $data)
+    private function commentOnPostFB($changes, $entry, $data)
     {
         try {
             $isAdminComment = 1;
@@ -317,9 +319,83 @@ class SocialWebhookController extends Controller
                 ]
             );
 
-            SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (Post Comment) => Comment Added Successfully", ['data' => $data]);
+            SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (FB - Post Comment) => Comment Added Successfully", ['data' => $data]);
         } catch (\Exception $e) {
-            SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (Post Comment) => {$e->getMessage()}", ['data' => $data]);
+            SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (IG - Post Comment) => {$e->getMessage()}", ['data' => $data]);
+        }
+    }
+
+    /**
+     * Comment on Post (IG)
+     *  
+     * @param array $changes
+     * @param array $entry
+     * @param array $data
+     * 
+     * @throws Exception
+     */
+    private function commentOnPostIG($changes, $entry, $data)
+    {
+        try {
+            $isAdminComment = 1;
+            $isParent = 0;
+            $fromId = $changes['value']['from']['id'];
+            $pageId = $entry['id'];
+            $socialConfig = SocialConfig::where('account_id', $pageId)->firstOrFail();
+            $mediaId = $changes['value']['media']['id'];
+            $igMedia = BusinessPost::find($mediaId);
+            if (!$igMedia) {
+                $response = $this->getIGMedia($mediaId, $socialConfig->page_token);
+                
+                if ($response['http_code'] == 200) {
+                    BusinessPost::create([
+                        'post_id' => $mediaId,
+                        'social_config_id' => $socialConfig->id,
+                        'message' => $response['response']['caption'] ?? NULL,
+                        'item' => $response['response']['media_type'],
+                        'verb' => "add",
+                        'time' => $response['response']['timestamp']
+                    ]);
+                } else {
+                    throw new \Exception('Media not found');
+                }
+            }
+
+            if ($pageId !== $fromId) {
+                $socialContact = SocialContact::where('account_id', $fromId)->first();
+                if (!$socialContact) {
+                    $socialContact = SocialContact::create([
+                        'account_id' => $fromId,
+                        'social_config_id' => $socialConfig->id,
+                        'name' => $changes['value']['from']['username'],
+                        'platform' => SocialContact::INSTAGRAM
+                    ]);
+                }
+                $socialConfig = $socialContact;
+                $isAdminComment = 0;
+            }
+
+            if (isset($changes['value']['parent_id']) && ($changes['value']['parent_id'] !== $mediaId)) $isParent = 1;
+
+            BusinessComment::updateOrCreate(
+                [
+                    'comment_id' => $changes['value']['id']
+                ],
+                [
+                    'post_id' => $mediaId,
+                    'is_admin_comment' => $isAdminComment,
+                    'social_contact_id' => $socialConfig->id,
+                    'message' => $changes['value']['text'] ?? NULL,
+                    'is_parent' => $isParent,
+                    'parent_comment_id' => $changes['value']['parent_id'] ?? NULL,
+                    'verb' => "add",
+                    'time' => Carbon::createFromTimestamp($entry['time'])->toDateTimeString()
+                ]
+            );
+
+            SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (IG - Media Comment) => Comment Added Successfully", ['data' => $data]);
+        } catch (\Exception $e) {
+            SocialWebhookLog::log(SocialWebhookLog::ERROR, "Webhook (IG - Media Comment) => {$e->getMessage()}", ['data' => $data]);
         }
     }
 
@@ -349,6 +425,43 @@ class SocialWebhookController extends Controller
         $response = json_decode(curl_exec($curl), true);
 
         SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (Getting User) => Fetched user details using Page access Token", ['response' => $response, 'user_id' => $userId]);
+
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        return [
+            'response' => $response,
+            'http_code' => $httpcode
+        ];
+    }
+
+    /**
+     * Get Instagram Media Details
+     * 
+     * @param int $userId
+     * @param string $pageAccessToken
+     */
+    private function getIGMedia($mediaId, $pageAccessToken)
+    {
+        $curl = curl_init();
+
+        $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $mediaId, 'caption,media_type,timestamp', $pageAccessToken);
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+        ));
+
+        $response = json_decode(curl_exec($curl), true);
+
+        SocialWebhookLog::log(SocialWebhookLog::INFO, "Webhook (Getting ID Media) => Fetched IG Media using Page access Token", ['response' => $response, 'media_id' => $mediaId]);
 
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 

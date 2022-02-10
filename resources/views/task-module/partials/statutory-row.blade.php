@@ -107,8 +107,14 @@
                 }
                 ?>
             <div class="d-flex">
-                <input type="text" id="getMsg{{$task->id}}" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                @if($task->communication_status == 0)
+                    <input type="text" id="getMsg{{$task->id}}" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                    <button class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                @endif
+                @if($task->communication_status == 1)
+                    <input type="text" id="getMsg{{$task->id}}" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" readonly>
+                    <button readonly class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}"  data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                @endif
                 @if (isset($task->message))
                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                 @endif
@@ -154,6 +160,21 @@
                 <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png"/></a>
             @endif
             <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn pd-5"><img src="/images/delete.png"/></button>
+            @if($task->communication_status == 0)
+                <div class="switch">
+                    <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>"  class="cmn-toggle cmn-toggle-round" type="checkbox">
+                    <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
+                </div>
+            @endif
+            @if($task->communication_status == 1)
+                <div class="switch">
+                    <input id="cmn-toggle-<?php echo $task->id; ?>" task-id="<?php echo $task->id; ?>"  class="cmn-toggle cmn-toggle-round" type="checkbox" checked>
+                    <label for="cmn-toggle-<?php echo $task->id; ?>"></label>
+                </div>
+            @endif
+            <button type="button" title="Recurring history" class="btn recurring-history-btn btn-xs pull-left" data-id="<?php echo $task->id; ?>">
+              <i class="fa fa-history"></i>
+          </button>
         </div>
     </td>
 </tr>
