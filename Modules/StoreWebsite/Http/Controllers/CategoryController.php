@@ -569,13 +569,13 @@ class CategoryController extends Controller
 
                             $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
 
-                            if($parentCategoryDetails ==  false)
+                            if($grandCategoryDetails ==  false)
                             {
                                 $this->logadd('#18',$catId,$storeId,0,"Website not found.");
                             }
                             else
                             {
-                                $this->logadd('#19',$catId,$storeId,$parentCategoryDetails,"Found remote id $parentCategoryDetails And created category catalog.");
+                                $this->logadd('#19',$catId,$storeId,$grandCategoryDetails,"Found remote id $grandCategoryDetails And created category catalog.");
                             }  
                         }
 

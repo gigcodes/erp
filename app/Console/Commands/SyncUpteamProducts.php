@@ -76,7 +76,7 @@ class SyncUpteamProducts extends Command
 		
 		foreach($productWithKeys as $product) { //dd($product);
 			UpteamLog::create(['log_description'=>'Product importing '.$product['product_name'].' with details '.json_encode($product)]);
-			$category = Category::where(['title'=>$product['category']])->first();
+			$category = Category::where(['title'=>$product['category']])->orderBy('id', 'desc')->first();
 			UpteamLog::create(['log_description'=>' Category details found'. json_encode($category)]);
 			if($category == null) {
 				UpteamLog::create(['log_description'=>$product['category'].' Category Not found for product '.$product['product_name']]);			
