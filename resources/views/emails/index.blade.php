@@ -588,7 +588,34 @@
               </tr>
             </thead>
 
-            <tbody id="emailEventData">
+      <tbody id="emailEventData">
+            
+			</tbody>
+          </table>
+        </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="emailLogs" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Email Logs</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+           <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Message</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+
+      <tbody id="emailLogsData">
             
 			</tbody>
           </table>
@@ -657,7 +684,19 @@
 			}
 		}
 	
-
+    function fetchEmailLog(email_id) {
+			if(email_id == ''){
+				$('#emailLogsData').html('<tr><td>No Data Found.</td></tr>');
+				$('#emailLogs').modal('show');
+				return;
+			} else{
+				$.get(window.location.origin+"/email/emaillog/"+email_id, function(data, status){
+					$('#emailLogsData').html(data);
+					$('#emailLogs').modal('show');
+				});
+			}
+		}
+	
         //$("#unread-tab").trigger("click");
 
         var searchSuggestions = {!! json_encode(array_values($search_suggestions), true) !!};
