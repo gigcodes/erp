@@ -861,14 +861,17 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
+        if ($request->get('unread_messages', "off") == "unread") {
+            $issues = $issues->where('chat_messages.sent_to_user_id', Auth::user()->id);
+        }
 
-        $issues = $issues->select("developer_tasks.*", "chat_messages.message");
+        $issues = $issues->select("developer_tasks.*", "chat_messages.message","chat_messages.sent_to_user_id");
 
         // Set variables with modules and users
         $modules = DeveloperModule::orderBy('name')->get();
@@ -974,7 +977,19 @@ class DevelopmentController extends Controller
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         if (request()->ajax()) {
-            //return view("development.partials.summary-load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
+            return view("development.partials.summarydatas",[
+                'issues' => $issues,
+                'users' => $users,
+                'modules' => $modules,
+                'request' => $request,
+                'title' => $title,
+                'type' => $type,
+                'priority' => $priority,
+                'countPlanned' => $countPlanned,
+                'countInProgress' => $countInProgress,
+                'statusList' => $statusList
+                // 'languages' => $languages
+            ]);
         }
 
         return view('development.summarylist', [
@@ -991,6 +1006,48 @@ class DevelopmentController extends Controller
             // 'languages' => $languages
         ]);
     }
+
+	public function automaticTasks(Request $request)
+    {
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        $title = 'Automatic Task List';
+        $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
+      
+        if ((int) $request->get('assigned_to') > 0) {
+            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
+        }    
+        $whereTaskCondition = "";
+        if ($request->get('subject') != '') {
+            $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $task = $task->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('tasks.id', 'LIKE', "%$subject%")->orWhere('task_subject', 'LIKE', "%$subject%")->orWhere("task_details", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+    
+        $task = $task->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, task_id, message  FROM `chat_messages` where task_id > 0 ' . $whereTaskCondition . ' GROUP BY task_id ) m_max'), 'm_max.task_id', '=', 'tasks.id');
+        $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $task = $task->select("tasks.*", "chat_messages.message");
+        
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+          $task = $task->where(function ($query) use ($request) {
+                $query->where("tasks.assign_to", auth()->user()->id)
+                ->orWhere("tasks.master_user_id", auth()->user()->id);
+            });
+        }
+        $task_statuses=TaskStatus::all();
+        $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
+       return view('task-module.automatictask', [
+            'users' => $users,
+            'request' => $request,
+            'title' => $title,
+            'task_statuses' => $task_statuses,
+            'tasks'=>$tasks
+        ]);
+    }
+
+
 
      public function flagtask(Request $request)
     {
@@ -1043,9 +1100,7 @@ class DevelopmentController extends Controller
         }
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
-        } else {
-            $issues = $issues->where('developer_tasks.status', 'In Progress');
-        }
+        } 
         $task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition =   $whereTaskCondition = "";
         if ($request->get('subject') != '') {
@@ -1088,6 +1143,9 @@ class DevelopmentController extends Controller
             });
         }
         
+        if($request->delivery_date && $request->delivery_date != '') {
+            $task->where('due_date',$request->delivery_date);
+        }
 
         // Sort
         if ($request->order == 'priority') {
@@ -1125,6 +1183,7 @@ class DevelopmentController extends Controller
             }
 			return $data;
 		}
+
 		$taskMessage = TaskMessage::where('message_type', 'date_time_reminder_message')->first();
         return view('development.flagtask', [
             'issues' => $issues,
@@ -1593,7 +1652,7 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
         }
 
-
+        $hubstaffTaskId ='';
         $hubstaffTaskId = $this->createHubstaffTask(
             $taskSummery,
             $hubstaffUserId,

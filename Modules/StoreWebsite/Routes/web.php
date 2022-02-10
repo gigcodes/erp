@@ -127,6 +127,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
     Route::prefix('category')->group(function () {
         Route::get('/', 'CategoryController@list')->name("store-website.category.list");
+        Route::post('category-history', 'CategoryController@categoryHistory')->name('store-website.category,categoryHistory');
         Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
     });
 
@@ -196,6 +197,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");
         Route::get('/{id}/push', 'PageController@push')->name("store-website.page.push");
         Route::get('/{id}/pull', 'PageController@pull')->name("store-website.page.pull");
+        Route::get('/pull/logs', 'PageController@pullLogs');
+        Route::get('/{id}/pull/logs', 'PageController@pullLogs');
         Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");
@@ -242,13 +245,14 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function()
 {
   Route::prefix('site-development')->group(function () {
-
-    Route::get('status/update', 'SiteDevelopmentController@siteDevlopmentStatusUpdate')->name('site_devlopment.status.update');
+	Route::get('status/update', 'SiteDevelopmentController@siteDevlopmentStatusUpdate')->name('site_devlopment.status.update');
     Route::post('remark/user_flag', 'SiteDevelopmentController@userRemarkFlag')->name('remark.flag.user');
     Route::post('remark/admin_flag', 'SiteDevelopmentController@adminRemarkFlag')->name('remark.flag.admin');
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask')->name('site.development.delete.task');
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
+    Route::post('/create-tasks', 'SiteDevelopmentController@createTask')->name("site-development.create.task");
+    Route::post('/copy-tasks', 'SiteDevelopmentController@copyTasksFromWebsite')->name("site-development.copy.task");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
     Route::post('/save-master-category', 'SiteDevelopmentController@addMasterCategory')->name("site-development.master_category.save");
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");

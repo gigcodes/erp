@@ -40,7 +40,6 @@
     <td  style="vertical-align: baseline;">
         <div class="d-flex">
         {{ $issue->due_date }}
-        <span> 2021-12-07 00:00:00</span>
         <button type="button" class="btn btn-xs show-date-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="task" style="margin-top: -2px; background: none;"><i class="fa fa-info-circle"></i></button>
        </div>
     </td>
@@ -88,7 +87,7 @@
                 <i class="fa fa-info-circle"></i>
             </button>
             @if ($issue->is_flagged == 1)
-         <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/ style="filter: grayscale(1);"></button>
+         <button type="button" class="btn pr-0 btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"></button>
          @else
          <button type="button" class="btn btn-image flag-task pd-5" data-type="task" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
          @endif

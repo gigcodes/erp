@@ -40,7 +40,7 @@
 			</td>
             <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
             <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
-			
+			<td>{{ $email->category? $email->category->category_name:'' }}</td>
 			<td>
 				
                 <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
@@ -76,6 +76,9 @@
             
 				<a class="btn btn-image btn-ht" onclick="fetchEvents('{{$email['origin_id']}}')">
                   <i class="fa fa-eye" aria-hidden="true"></i>      
+                </a>
+                <a class="btn btn-image btn-ht" title="View Email Log" onclick="fetchEmailLog('{{$email['id']}}')">
+                  <i class="fa fa-history" aria-hidden="true"></i>      
                 </a>
 			</td>  
 

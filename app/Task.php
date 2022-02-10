@@ -83,7 +83,8 @@ class Task extends Model {
 
         'parent_task_id',
 
-		'last_date_time_reminder'
+		'last_date_time_reminder',
+		'is_flow_task'
 
 	];
 
@@ -194,7 +195,7 @@ class Task extends Model {
 		}
        
         $data['status'] = 3;
-        
+        $task = 0;
         $taskType = $request['task_type'];
 
         if (isset($request['parent_task_id'])) {
@@ -202,72 +203,14 @@ class Task extends Model {
         }    
 
         if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
-            $data = [];
-
-            if (is_array($request['task_asssigned_to'])) {
-                $data["assigned_to"] = $request['task_asssigned_to'];
-            } else {
-                $data["assigned_to"] = $request['task_asssigned_to'];
-            }
             
-            $data["subject"]        = $request["task_subject"];
-            $data["task"]           = $request["task_detail"];
-            $data["task_type_id"]   = 1;
-            $data["site_developement_id"]   = $request["site_id"];
-            $data["cost"]   = $request["cost"];
-            $data["status"] = 'In Progress';
-            $data["created_by"] = Auth::id();
-            //echo $data["site_developement_id"]; die;
-            
-            if ($taskType == 5 || $taskType == 6) {
-                $data["task_type_id"]   = 3;
-            }
-            $task = DeveloperTask::create($data);
-            $created = 1;
-            $message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
-            $assignedUserId = $task->assigned_to;
-
-            $newBranchName = null;
-            if (!empty($request['repository_id']) && $request['repository_id'] > 0) {
-                $newBranchName = $this->createBranchOnGithub(
-                    $request['repository_id'],
-                    $task->id,
-                    $task->subject
-                );
-                if ($newBranchName) {
-                    $task->github_branch_name = $newBranchName;
-                    $task->save();
-                }
-            }
-
-            if (is_string($newBranchName) && !empty($newBranchName)) {
-                $message = $request["task_detail"] . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
-            } else {
-                $message = $request["task_detail"];
-            }
-
-            $requestData = new Request();
-            $requestData->setMethod('POST');
-            $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
         } else {
-
-            if ($request['task_type'] == 'quick_task') {
-                $data['is_statutory'] = 0;
-                $data['category'] = 6;
-                /*$data['model_type'] = $request['model_type'];
-                $data['model_id'] = $request['model_id'];*/
-            }
-
-            if ($request['task_type'] == 'note-task') {
-                $main_task = Task::find($request['task_id']);
-                if (is_array($request['task_asssigned_to'])) {
-                    $data["assign_to"] = $request['task_asssigned_to'];
-                } else {
-                    $data["assign_to"] = $request['task_asssigned_to'];
-                }
-            } else {
-                if ($request['task_asssigned_to']) {
+			if(isset($data["is_flow_task"])) {
+				$data["is_flow_task"] = $data["is_flow_task"];
+			} else {
+				$data["is_flow_task"] = 1;
+			}
+				if ($request['task_asssigned_to']) {
                     if (is_array($request['task_asssigned_to'])) {
                         $data["assign_to"] = $request['task_asssigned_to'];
                     } else {
@@ -276,46 +219,8 @@ class Task extends Model {
                 } else {
                     $data['assign_to'] = $request['assign_to_contacts'];
                 }
-            }
             //discussion task
-            if ($request["task_type"] == 3) {
-                $task = Task::find($request["task_subject"]);
-                $data['is_statutory'] = $request["task_type"];
-                $data['task_details'] = $request["task_detail"];
-                $data['task_subject'] = $request["task_subject"];
-                $data["customer_id"]    = $request["customer_id"];
-                if ($request->category_id != null) {
-                    $data['category']     = $request->category_id;
-                }
-                if (!$task) {
-                    $task = Task::create($data);
-                    $remarks = $request["task_subject"];
-                    $created = 1;
-                    $assignedUserId = $task->assign_to;
-                    $message = '#TASK-' . $task->id . ' => ' . $task->task_subject. ". " . $task->task_details;
-                } else {
-                    $remarks = $task->task_subject;
-                }
-                $exist = Remark::where('taskid', $task->id)->where('remark', $remarks)->where('module_type', 'task-note')->first();
-                if (!$exist) {
-                    Remark::create([
-                        'taskid'    => $task->id,
-                        'remark'    => $remarks,
-                        'module_type'   => 'task-note'
-                    ]);
-                }
-                if ($request['note']) {
-                    foreach ($request['note'] as $note) {
-                        if ($note != null) {
-                            Remark::create([
-                                'taskid'    => $task->id,
-                                'remark'    => $note,
-                                'module_type'   => 'task-note'
-                            ]);
-                        }
-                    }
-                }
-            } else {
+            
                 $data['is_statutory'] = $request["task_type"];
                 $data['task_details'] = $request["task_detail"];
                 $data['task_subject'] = $request["task_subject"];
@@ -333,32 +238,8 @@ class Task extends Model {
                 } else {
                     $message = $task->task_subject . ". " . $task->task_details;
                 }
-            }
-
-
-            if ($request['task_type'] != 'note-task') {
-                if ($request['task_asssigned_to']) {
-                    if (is_array($request['task_asssigned_to'])) {
-                        foreach ($request['task_asssigned_to'] as $user_id) {
-                            $task->users()->attach([$user_id => ['type' => User::class]]);
-                        }
-                    } else {
-                        $task->users()->attach([$request['task_asssigned_to'] => ['type' => User::class]]);
-                    }
-                }
-
-                
-
-                if ($request['assign_to_contacts']) {
-                    foreach ($request['assign_to_contacts'] as $contact_id) {
-                        $task->users()->attach([$contact_id => ['type' => Contact::class]]);
-                    }
-                }
-            }
-
-        
-
-            $params = [
+            
+           $params = [
                 'number'       => null,
                 'user_id'      => $data['assign_from'],
                 'approved'     => 1,
@@ -412,7 +293,6 @@ class Task extends Model {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
-
             app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
         }
 
@@ -436,7 +316,6 @@ class Task extends Model {
                     $hubstaff_project_id
                 );
             }
-             
       
             if ($hubstaffTaskId) {
                 $task->hubstaff_task_id = $hubstaffTaskId;
@@ -451,7 +330,7 @@ class Task extends Model {
                 $hubtask->save();
             }
         }
-
+		return $task;
         return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
     }
 }

@@ -13,5 +13,6 @@ class HubstuffCommandLogMessage extends Model
     {
         return $this->belongsTo('App\Loggers\HubstuffCommandLog');
     }
+    
 
 }

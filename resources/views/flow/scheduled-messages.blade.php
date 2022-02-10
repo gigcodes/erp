@@ -68,12 +68,12 @@
             @foreach($messages as $key=>$value)
                 <tr class="{{$value->id}}">
                     <td id="id">{{$i}}</td>
-                    <td id="name">{{$value->customer_id}}</td>
+                    <td id="name">{{$value->customer_name}}</td>
                     <td id="name">{{$value->message}}</td>
                     <td id="name">{{$value->status}}</td>
                     <td id="name">{{$value->is_queue}}</td>
                     <td id="name">{{$value->approved}}</td>
-                    <td id="name">{{$value->user_id}}</td>
+                    <td id="name">{{$value->user_name}}</td>
                     <td id="name">{{($value->message_application_id==3)?'SMS':'Whatsapp'}}</td>
                     <td id="name">{{$value->scheduled_at}}</td>
                     <td>
@@ -85,8 +85,8 @@
             @endforeach
             </tbody>
         </table>
-        @if(isset($data))
-            {{ $data->links() }}
+        @if(isset($messages))
+            {{ $messages->links() }}
         @endif
     </div>
 

@@ -39,11 +39,14 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                     </div>
                     <div class="row" style="float:right;">
                         <div class="col-md-8">
-                            <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
                                 @if($anyCropExist)
-                                    Reject All - Re Crop
+                                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                           Reject All - Re Crop </button>
                                 @else 
-                                    All Rejected - Re Crop
+									@if($product->status_id == 4)  <button type="button" value="reject" class="btn btn-xs btn-secondary pull-right">
+                           Rejected </button> <br> <br>@endif
+                                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                           All Rejected - Re Crop </button>
                                 @endif
                             </button>
                          </div>

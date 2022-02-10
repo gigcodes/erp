@@ -76,6 +76,11 @@
 		<input type="hidden" name="website_id_data" id="website_id_data" value="{{$website->id}}" />
 		<h2 class="page-heading">Site Development   @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
 		<div class="pull-right pr-2 d-flex">
+			<?php echo Form::select("select_website", ["" => "All Website"] + $store_websites, null, ["class" => "form-control globalSelect2", "id" => "copy_from_website"]) ?>
+			<button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from website</button>
+						
+		
+			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTasksModal" id="">Create Tasks</button>
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#masterCategoryModal" id="">Add Category</button>
 			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
 				<button style=" color: #757575" class="btn btn-secondary btn-image ml-2">
@@ -593,6 +598,32 @@
   </div>
 </div>
 
+<div id="createTasksModal" class="modal fade" role="dialog" style="display: none;">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Create Tasks</h4>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Task Category</label>
+            <div class="input-group">
+				{{ Form::select('task_category', ['Design'=>'Design', 'Development'=>'Functionality'], null, array('class'=>'form-control', 'id'=>'task_category')) }}
+            </div>
+		 </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary" onClick="createTasks()">Create</button>
+        </div>
+    </div>
+  </div>
+</div>
+
 <div id="previewDoc" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -607,6 +638,40 @@
         </div>
     </div>
 </div>
+<div id="confirmMessageModal"  class="modal fade" role="dialog">
+  <div class="modal-dialog">
+	<form>
+	<?php echo csrf_field(); ?>
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Choose Assignee</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+    
+
+        <div class="modal-body">
+			<div class="form-group">
+			
+				<label for="task_asssigned_to">Assigned to</label>
+				<select name="task_asssigned_to" id="task_asssigned_to"  class="form-control" aria-placeholder="Select Assigned" style="float: left">
+				@foreach($allUsers as $user)
+							<option value="{{$user->id}}">{{$user->name}}</option>
+							@endforeach               
+                </select>
+				                 
+	        </div>
+		</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary confirm-messge-button1">Send</button>
+        </div>
+		</form>
+    </div>
+
+  </div>
+</div>
 
 @endsection
 
@@ -616,6 +681,99 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
+	 $("#user_id").select2({
+		ajax: {
+			url: '{{ route('user-search') }}',
+			dataType: 'json',
+			data: function(params) {
+				return {
+					q: params.term, // search term
+				};
+			},
+			processResults: function(data, params) {
+				params.page = params.page || 1;
+				return {
+					results: data,
+					pagination: {
+						more: (params.page * 30) < data.total_count
+					}
+				};
+			},
+		},
+		placeholder: "Select User",
+		allowClear: true,
+		minimumInputLength: 2,
+		width: '100%',
+	});
+	$(document).on('click', '.confirm-messge-button1', function (e) {   
+		 e.preventDefault();
+		 if($("#task_asssigned_to").val()!=""){
+			$("#confirmMessageModal").modal("hide");
+			$.ajax({
+				url: '{{ route('site-development.copy.task') }}',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					copy_from_website: copy_from_website,
+					copy_to_website: {{$website->id}},
+					"_token": "{{ csrf_token() }}",
+					task_asssigned_to:$("#task_asssigned_to").val(),
+				},
+				beforeSend: function() {
+					$("#loading-image").show();
+				},
+			}).done(function(data) {
+				$("#loading-image").hide();
+				toastr["success"](data.messages);
+				setTimeout(function(){ refreshPage(); }, 2000);
+			}).fail(function(data) {
+				$('#masterCategorySingle').val('')
+				console.log(data)
+				console.log("error");
+			});
+		}
+		
+		//}
+	 });
+
+	function createTasks() {
+		var text = $('#task_category').val()
+		if (text === '') {
+			alert('Please Enter Master Category');
+		} else {
+			$.ajax({
+					url: '{{ route('site-development.create.task') }}',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						task_category: text,
+						websiteId: {{$website->id}},
+						"_token": "{{ csrf_token() }}"
+					},
+					beforeSend: function() {
+						$("#loading-image").show();
+					},
+				}).done(function(data) {
+					$("#loading-image").hide();
+					toastr["success"](data.messages);
+					setTimeout(function(){ refreshPage(); }, 2000);
+				}).fail(function(data) {
+					$('#masterCategorySingle').val('')
+					console.log(data)
+					console.log("error");
+				});
+		}
+	}
+	function copyTasksFromWebsite() {
+		var copy_from_website = $('#copy_from_website').val()
+		if (copy_from_website === '') {
+			alert('Please select website');
+		} else {
+			$("#confirmMessageModal").modal("show");
+			
+		}
+	}
+
 	$("#change_website").change(function(){
 		var websiteUrl='';
 		websiteUrl="{{route('site-development.index')}}/"+$(this).val()+"/"+location.search;
@@ -721,7 +879,6 @@
 					console.log(data)
 					console.log("error");
 				});
-
 		}
 	}
 

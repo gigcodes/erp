@@ -11454,6 +11454,9 @@ table.table-striped-custom tbody tr td {
     width:100% !important;
     object-fit: cover;
 }
+.td-mini-container a{
+  color: black;
+}
 .text-center.task_queue_list td{
     text-align: left;
 }
@@ -11464,4 +11467,13 @@ table.table-striped-custom tbody tr td {
     overflow: visible;
     white-space: normal;
     word-break: break-all;
+}
+.timeslot .btn-default{
+    height:30px !important;
+}
+#app{
+    overflow: hidden !important;
+}
+.selectbox{
+    width: 100px !important;
 }

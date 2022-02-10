@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
+@endsection
+
 @section('favicon', 'vendor.png')
 
 @section('title', 'Flag Dev Task')
@@ -204,7 +209,12 @@
                     <div class="col-md-2 pd-sm pd-rt status-selection">
                         <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
                     </div>
-
+                    <div class='input-group date mr-3 ml-3' id='datetimepicker'>
+                         <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date">
+                         <span class="input-group-addon">
+                         <span class="glyphicon glyphicon-calendar"></span>
+                         </span>
+                      </div>
 
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
@@ -360,6 +370,7 @@
 							<label for="reminder_message">Reminder Message</label>
 							{{Form::textarea('message', null, array('class'=>'form-control', 'required'))}}
 						</div>
+
 						<div class="form-group">
 							{{Form::hidden('message_type', 'date_time_reminder_message')}}
 							{{Form::hidden('id', null)}}
@@ -1985,5 +1996,20 @@ $(document).on('click', '.show-date-history', function() {
 
 
 
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#datetimepicker').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm:ss'
+  });
+  $('#datetimepicker2').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm:ss'
+  });
+});
 </script>
 @endsection

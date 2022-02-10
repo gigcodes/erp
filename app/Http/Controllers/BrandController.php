@@ -74,6 +74,7 @@ class BrandController extends Controller
         // Set dates
         $keyWord    = $request->get("term", "");
         $dev        = $request->get("dev", "");
+        $devCheckboxs = $request->get("devCheckboxs");
         $madeby     = $request->get("scraper_made_by", 0);
         $scrapeType = $request->get("scraper_type", 0);
  
@@ -89,10 +90,12 @@ class BrandController extends Controller
         ->groupBy("brands.id")
         ->orderBy('total_products', "desc")->with('singleBrandTask')->whereNull('brands.deleted_at');
 
-        if ($dev) {
-            $brands->whereHas('brandTask', function ($q) use ($dev) {
-                $q->where('assigned_to', $dev);
-            });
+        if($devCheckboxs){
+            foreach($request->get("devCheckboxs") as $devCheckbox){
+                $brands->whereHas('brandTask', function ($q) use ($devCheckbox) {
+                    $q->where('assigned_to', $devCheckbox);
+                });
+            }
         }
 
         $keyword = request('keyword');

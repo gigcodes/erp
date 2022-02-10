@@ -308,6 +308,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/push/magento/conditions', 'ProductController@pushToMagentoConditions')->name('products.push.conditions');
     Route::get('products/conditions/status/update', 'ProductController@updateConditionStatus')->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
+    Route::get('products/conditions/upteamstatus/update', 'ProductController@updateConditionUpteamStatus')->name('products.push.condition.update');
+    
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::post('products/changeautopushvalue', 'ProductController@changeAutoPushValue');
     Route::post('product/image/order/change', 'ProductController@changeimageorder');
@@ -489,6 +491,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/size/chart', 'BrandSizeChartController@index')->name('brand/size/chart');
     Route::get('brand/create/size/chart', 'BrandSizeChartController@createSizeChart')->name('brand/create/size/chart');
     Route::post('brand/store/size/chart', 'BrandSizeChartController@storeSizeChart')->name('brand/store/size/chart');
+    Route::post('brand/size/get-child', 'BrandSizeChartController@getChild')->name('brand.getChild');
 
     Route::post('brand/store-category-segment-discount', 'BrandController@storeCategorySegmentDiscount')->name('brand.store_category_segment_discount');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
@@ -583,7 +586,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
 	Route::get('sizes/new-references', 'SizeController@newSizeReferences');
 	Route::post('sizes/new-references/update-size', 'SizeController@updateNewSizeReferences');
-    Route::resource('category', 'CategoryController');
+    Route::resource('category', 'CategoryController')->except('show');
     Route::resource('category-segment', 'CategorySegmentController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -826,6 +829,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
     Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage')->name('order.status.messages');
+    Route::post('order/status/flag', 'OrderReportController@setFlag')->name('order.status.flag');
 
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
@@ -840,6 +844,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
     Route::get('email/events/{originId}', 'EmailController@getEmailEvents');
+    Route::get('email/emaillog/{emailId}', 'EmailController@getEmailLogs');
 
     Route::get('email/order_data/{email?}', 'EmailController@index'); //Purpose : Add Route -  DEVTASK-18283
     Route::post('email/platform-update', 'EmailController@platformUpdate');
@@ -887,6 +892,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
+    Route::get('task/CommunicationTaskStatus', 'TaskModuleController@CommunicationTaskStatus')->name('task.CommunicationTaskStatus'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
     Route::get('task/AssignTaskToUser', 'TaskModuleController@AssignTaskToUser')->name('task.AssignTaskToUser'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
     Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
     Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
@@ -940,6 +946,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
     Route::get('task/user/history', 'TaskModuleController@getUserHistory')->name('task/user/history');
+    Route::post('task/recurring-history', 'TaskModuleController@recurringHistory')->name('task.recurringHistory');
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
     Route::resource('learning', 'LearningModuleController');
@@ -1042,6 +1049,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
+    Route::post('category/storeCopyCategory', 'CategoryController@storeCopyCategory')->name('category.storeCopy');
 
     Route::get('productSearch/', 'SaleController@searchProduct');
     Route::post('productSearch/', 'SaleController@searchProduct');
@@ -1413,6 +1421,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 	
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
+    Route::get('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks');
+ 
     Route::post('save/task/message', 'DevelopmentController@saveTaskMessage')->name('development.taskmessage');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
@@ -1592,8 +1602,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cashflow/getPaymentDetails', 'CashFlowController@getPaymentDetails')->name('cashflow.getPaymentDetails');
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
-    Route::get('cashflow/hubstuff-command-log', 'CashFlowController@hubstuffCommandLog')->name('cashflow.hubstuff.log');
-    Route::get('cashflow/flow-logs-detail', 'CashFlowController@hubstuffCommandLogDetail')->name('cashflow.hubstuff.detail');
     
 
 
@@ -2092,8 +2100,20 @@ Route::middleware('auth')->group(function () {
 Route::get('instagram/logs', 'InstagramPostsController@instagramUserLogs')->name('instagram.logs');
 Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', 'HashtagController@addmailinglist');
+Route::middleware('auth')->prefix('social')->group(function() {
+    Route::get('inbox', 'SocialAccountController@inbox')->name('social.direct-message');
+    Route::post('send-message', 'SocialAccountController@sendMessage')->name('social.message.send');
+    Route::post('list-message', 'SocialAccountController@listMessage')->name('social.message.list');
+    Route::get('{account_id}/posts', 'SocialAccountPostController@index')->name('social.account.posts');
+    Route::get('{post_id}/comments', 'SocialAccountCommentController@index')->name('social.account.comments');
+    Route::post('reply-comments', 'SocialAccountCommentController@replyComments')->name('social.account.comments.reply');
+});
+Route::get('social/inbox', 'SocialWebhookController@inbox')->name('social.direct-message')->middleware('auth');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
+
+    Route::post('send-message', 'SocialWebhookController@sendMessage')->name('instagram.message.send');
+    Route::post('list-message', 'SocialWebhookController@listMessage')->name('instagram.message.list');
 
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
@@ -3102,6 +3122,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('twilio/set_twilio_key_option', 'TwilioController@setTwilioKey')->name('twilio.set_twilio_key_options');
     Route::get('twilio/get_website_wise_key_data', 'TwilioController@getTwilioKeyData')->name('twilio.get_website_wise_key_data');
     Route::get('twilio/erp/logs', 'TwilioController@twilioErpLogs')->name('twilio.erp_logs');
+    Route::get('twilio/account-logs', 'TwilioController@twilioAccountLogs')->name('twilio.account_logs');
 
     /**
      * Watson account management
@@ -3240,6 +3261,11 @@ Route::prefix('image-logs')->middleware('auth')->group(function () {
     Route::post('delete/image/log', 'LogsController@deleteLog')->name('delete.image.log');
 });
 
+//Social-Webhook-Logs
+Route::prefix('social-webhook-logs')->middleware('auth')->group(function () {
+    Route::get('/', 'LogsController@socialWebhookLogs')->name('social-webhook-log.index');
+});
+
 //Image-Logs
 Route::prefix('broadcast-messages')->middleware('auth')->group(function () {
     Route::get('/', 'BroadcastController@index')->name('messages.index');
@@ -3349,6 +3375,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/scrapper-python/{id}/url', 'scrapperPhyhon@flagImageUrl')->name('scrapper.url.flag');
 
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
+    Route::get('/set/flag/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setFlagStore')->name('set.flag.store');
 
     Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
     Route::get('/get/stores/language/{website?}', 'scrapperPhyhon@storeLanguageList')->name('store.language.list');
@@ -3530,6 +3557,43 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Social', 'prefix' => 'soci
     Route::post('post/delete', 'SocialPostController@destroy')->name('social.post.delete');
     Route::get('post/create/{id}', 'SocialPostController@create')->name('social.post.create');
     Route::post('post/history', 'SocialPostController@history')->name('social.post.history');
+   
+
+
+
+    Route::get('campaigns', 'SocialCampaignController@index')->name('social.campaign.index');
+    Route::post('campaign/store', 'SocialCampaignController@store')->name('social.campaign.store');
+    Route::post('campaign/edit', 'SocialCampaignController@edit')->name('social.campaign.edit');
+    Route::post('campaign/delete', 'SocialCampaignController@destroy')->name('social.campaign.delete');
+    Route::get('campaign/create', 'SocialCampaignController@create')->name('social.campaign.create');
+    Route::post('campaign/history', 'SocialCampaignController@history')->name('social.campaign.history');
+
+    
+    Route::get('adsets', 'SocialAdsetController@index')->name('social.adset.index');
+    Route::post('adset/store', 'SocialAdsetController@store')->name('social.adset.store');
+    Route::post('adset/edit', 'SocialAdsetController@edit')->name('social.adset.edit');
+    Route::post('adset/delete', 'SocialAdsetController@destroy')->name('social.adset.delete');
+    Route::get('adset/create', 'SocialAdsetController@create')->name('social.adset.create');
+    Route::post('adset/history', 'SocialAdsetController@history')->name('social.adset.history');
+
+    Route::get('adcreatives', 'SocialAdCreativeController@index')->name('social.adcreative.index');
+    Route::post('adcreative/store', 'SocialAdCreativeController@store')->name('social.adcreative.store');
+    Route::post('adcreative/edit', 'SocialAdCreativeController@edit')->name('social.adcreative.edit');
+    Route::post('adcreative/delete', 'SocialAdCreativeController@destroy')->name('social.adcreative.delete');
+    Route::get('adcreative/create', 'SocialAdCreativeController@create')->name('social.adcreative.create');
+    Route::get('adcreative/getconfigPost', 'SocialAdCreativeController@getpost')->name('social.adcreative.getpost');
+    
+    Route::post('adcreative/history', 'SocialAdCreativeController@history')->name('social.adcreative.history');
+
+
+    
+    Route::get('ads', 'SocialAdsController@index')->name('social.ad.index');
+    Route::post('ads/store', 'SocialAdsController@store')->name('social.ad.store');
+    Route::post('ads/edit', 'SocialAdsController@edit')->name('social.ad.edit');
+    Route::post('ads/delete', 'SocialAdsController@destroy')->name('social.ad.delete');
+    Route::get('ads/create', 'SocialAdsController@create')->name('social.ad.create');
+    Route::post('ads/history', 'SocialAdsController@history')->name('social.ad.history');
+    Route::get('ads/getconfigPost', 'SocialAdsController@getpost')->name('social.ad.getpost');
 
 
 

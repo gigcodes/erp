@@ -683,6 +683,9 @@ if (!empty($notifications)) {
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('social-webhook-log.index') }}">Social Webhook Log</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -725,10 +728,10 @@ if (!empty($notifications)) {
                                             <a class="dropdown-item" href="{{ route('flow.index') }}">Flows</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Emails</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-emails') }}">Scheduled Emails</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Messages</a>
+                                            <a class="dropdown-item" href="{{ route('flow.schedule-messages') }}">Scheduled Messages</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1424,6 +1427,9 @@ if (!empty($notifications)) {
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a href="{{ route('social.direct-message') }}">Direct Messsage</a>
+                                </li>
                                 @endif
                             </ul>
                         </li>
@@ -1442,6 +1448,9 @@ if (!empty($notifications)) {
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('scrap/development/list') }}">Scrapper Tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/automatic/tasks') }}">Automatic Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
@@ -1625,6 +1634,9 @@ if (!empty($notifications)) {
 													</li>
 													<li class="nav-item dropdown">
 														<a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+													</li>
+													<li class="nav-item dropdown">
+														<a href="{{ route('twilio.account_logs') }}">Twilio Account Logs</a>
 													</li>
 													<li class="nav-item dropdown">
 														<a class="dropdown-item" href="{{ url('twilio/getChats') }}">SMS</a>

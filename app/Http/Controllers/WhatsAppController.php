@@ -2288,6 +2288,10 @@ class WhatsAppController extends FindByNumberController
                 return response()->json(['message' => $chat_message]);
 
             } elseif ($context == 'ticket') {
+              $send_ticket_options = [] ; 
+              if(isset($request->send_ticket_options)){
+                  $send_ticket_options = explode(",",$request->send_ticket_options);
+              }
                 $data['ticket_id'] = $request->ticket_id;
                 $module_id = $request->ticket_id;
                 $ticket = \App\Tickets::find($request->ticket_id);
@@ -2313,8 +2317,15 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($ticket->customer) {
                     $whatsappNo = $ticket->customer->whatsapp_number;
                 }
-
-                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $message, null, $chat_message->id);
+                foreach($send_ticket_options as $send_ticket_option){
+                    if($send_ticket_option == "whatsapp"){
+                        $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $message, null, $chat_message->id);
+                    }elseif($send_ticket_option == "send_to_tickets"){
+                        $chat_message->send_to_tickets = 1;
+                        $chat_message->save();
+                    }
+                }
+               
                 return response()->json(['message' => $chat_message]);
 
             } else {
