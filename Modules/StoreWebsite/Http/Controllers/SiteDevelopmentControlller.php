@@ -410,7 +410,7 @@ class SiteDevelopmentController extends Controller
 						'_token' => $request->_token,
 						'task_subject' => $task['task_subject'],
 						'task_detail' => $task['task_details'],
-						'task_asssigned_to' => 6,
+						'task_asssigned_to' => $request->task_asssigned_to,
 						'category_id'=>$task['category'],
 						'site_id'=>$site_development_id,
 						'task_type'=>0,
@@ -428,7 +428,7 @@ class SiteDevelopmentController extends Controller
 								'user_id' => \Auth::user()->id,
 								'task_id' => $createdTask['id'],
 
-								'sent_to_user_id' => 6,
+								'sent_to_user_id' => $request->task_asssigned_to,
 
 								'erp_user' => \Auth::user()->id,
 								'contact_id' => \Auth::user()->id,
@@ -450,7 +450,7 @@ class SiteDevelopmentController extends Controller
 									}
 								} 
 							}
-						}
+						}   
 
 						
 					}

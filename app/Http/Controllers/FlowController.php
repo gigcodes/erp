@@ -31,7 +31,9 @@ class FlowController extends Controller
 
         $current_date = Carbon::now()->format('Y-m-d H:i:s');
         //Chats and Whatsapp
-        $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date);
+        $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date)
+		->leftJoin('customers', 'customers.id', 'chat_messages.customer_id')
+		->leftJoin('users', 'users.id', 'chat_messages.user_id');
         $types = ['0' => 'Whatsapp', '3' => 'SMS'];
         if (request()->message) {
             $messages->where('message', 'LIKE', '%' . request()->message . '%');
@@ -41,7 +43,8 @@ class FlowController extends Controller
             $messages->where('message_application_id', 'LIKE', '%' . request()->message_application_id . '%');
         }
 
-        $messages = $messages->paginate(10);
+        $messages = $messages->select('chat_messages.*', 'customers.name', 'users.name as user_name')->orderBy('chat_messages.id', 'desc')->paginate(20);
+        //$messages = $messages->orderBy('chat_messages.id', 'desc')->paginate(20);
 
 		$message = request()->message;
 		$type = request()->message_application_id;
