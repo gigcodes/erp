@@ -15,7 +15,6 @@ class StoreWebsiteCategoryUserHistory extends Model
         'store_id', 
         'category_id', 
         'user_id', 
-        'user_name', 
         'website_action',
     ];
 }

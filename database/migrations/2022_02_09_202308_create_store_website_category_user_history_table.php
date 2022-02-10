@@ -17,10 +17,9 @@ class CreateStoreWebsiteCategoryUserHistoryTable extends Migration
         if (!Schema::hasTable('store_website_category_user_history')) {
             Schema::create('store_website_category_user_history', function (Blueprint $table) {
                 $table->increments('id');
-                $table->String('store_id');
-                $table->String('category_id');
-                $table->String('user_id');
-                $table->String('user_name');
+                $table->integer('store_id');
+                $table->integer('category_id');
+                $table->integer('user_id');
                 $table->String('website_action');
                 $table->timestamps();
             });

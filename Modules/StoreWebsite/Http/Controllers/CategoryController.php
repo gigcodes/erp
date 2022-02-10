@@ -3,6 +3,7 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Category;
+use App\User;
 use App\StoreWebsite;
 use App\StoreWebsiteCategory;
 use App\LogStoreWebsiteCategory;
@@ -457,7 +458,7 @@ class CategoryController extends Controller
                 }
                 
                 $html .= '<td>' . $history->website_action . '</td>';
-                $html .= '<td>' . $history->user_name . '</td>';
+                $html .= '<td>' . User::where('id',$history->user_id)->first()->name . '</td>';
                 $html .= '</tr>';
 
                 $i++;
@@ -752,7 +753,6 @@ class CategoryController extends Controller
             $swc_user_history->store_id=  $storeId;
             $swc_user_history->category_id= $catId;
             $swc_user_history->user_id= Auth::user()->id;
-            $swc_user_history->user_name= Auth::user()->name;
 
             $msg = '';
             if ($request->check == 0) {
