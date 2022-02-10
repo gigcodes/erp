@@ -574,6 +574,10 @@ class LaravelLogController extends Controller
             $logs = $logs->where('url', 'like', '%' . $request->url . '%');
         }
 
+        if ($request->api_name) {
+            $logs = $logs->where('api_name', 'like', '%' . $request->api_name . '%');
+        }
+
         if ($request->created_at) {
             $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }

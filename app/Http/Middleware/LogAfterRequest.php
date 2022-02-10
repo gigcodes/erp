@@ -27,7 +27,11 @@ class LogAfterRequest
         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
         $endTime    = date("Y-m-d H:i:s");
         $timeTaken  = strtotime($endTime) - strtotime($startTime);
-
+        $route = app('router')->getRoutes()->match($request);
+        $api_name = '';
+        if($route){
+            $api_name = $route->action['controller'];
+        }
         try {
             $r              = new LogRequest;
             $r->ip          = $ip;
@@ -39,6 +43,7 @@ class LogAfterRequest
             $r->start_time  = $startTime;
             $r->end_time    = $endTime;
             $r->time_taken  = $timeTaken;
+            $r->api_name     = $api_name;
             $r->save();
         } catch (\Exception $e) {
             \Log::info("Log after request has issue " . $e->getMessage());
