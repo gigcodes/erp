@@ -71,6 +71,10 @@
         td{
             padding: 4px !important;
         }
+         .c-error{ 
+            border: 1px solid #c51244 !important; 
+        }
+
     </style>
 @endsection
 

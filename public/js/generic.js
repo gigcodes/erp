@@ -389,8 +389,9 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
+    var base_url ="http://localhost/erp_local/public";
     thiss.parent().find('.td-full-container').toggleClass('hidden');
-	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
+	currentChatParams.url =  base_url+"/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,
         load_all: load_all,

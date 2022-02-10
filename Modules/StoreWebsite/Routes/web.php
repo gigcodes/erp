@@ -127,6 +127,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
     Route::prefix('category')->group(function () {
         Route::get('/', 'CategoryController@list')->name("store-website.category.list");
+        Route::post('category-history', 'CategoryController@categoryHistory')->name('store-website.category,categoryHistory');
         Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
     });
 
