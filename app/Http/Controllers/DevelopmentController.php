@@ -1012,10 +1012,9 @@ class DevelopmentController extends Controller
         $users = Helpers::getUserArray(User::orderBy('name')->get());
         $title = 'Automatic Task List';
         $task =  Task::with('timeSpent')->where('is_flow_task', '1'); 
-      
-        if ((int) $request->get('assigned_to') > 0) {
-            $task = $task->where('tasks.assign_to', $request->get('assigned_to'));
-        }    
+        $devCheckboxs = $request->get("devCheckboxs");
+        $dev = [];
+        
         $whereTaskCondition = "";
         if ($request->get('subject') != '') {
             $whereTaskCondition = ' and message like  "%' . $request->get('subject') . '%"';
@@ -1030,11 +1029,25 @@ class DevelopmentController extends Controller
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         $task = $task->select("tasks.*", "chat_messages.message");
         
+        if($devCheckboxs){
+            $count = 1;
+            foreach($request->get("devCheckboxs") as $devCheckbox){
+                if($count == 1)
+                    $task = $task->where('tasks.assign_to', $devCheckbox);
+                else
+                    $task = $task->orWhere('tasks.assign_to', $devCheckbox);
+                $count++;
+                $dev[$devCheckbox] = 1;
+            }
+        }
+
         if (!auth()->user()->isReviwerLikeAdmin()) {
-          $task = $task->where(function ($query) use ($request) {
-                $query->where("tasks.assign_to", auth()->user()->id)
-                ->orWhere("tasks.master_user_id", auth()->user()->id);
-            });
+            if(count($dev) == 0){
+                $task = $task->where(function ($query) use ($request) {
+                    $query->where("tasks.assign_to", auth()->user()->id)
+                    ->orWhere("tasks.master_user_id", auth()->user()->id);
+                });
+            }
         }
         $task_statuses=TaskStatus::all();
         $tasks = $task->paginate(Setting::get('pagination'));//dd($statusList);
@@ -1043,7 +1056,8 @@ class DevelopmentController extends Controller
             'request' => $request,
             'title' => $title,
             'task_statuses' => $task_statuses,
-            'tasks'=>$tasks
+            'tasks'=>$tasks,
+            'dev' => $dev
         ]);
     }
 

@@ -8,8 +8,6 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style type="text/css">
         .numberSend {
             width: 160px;
@@ -150,6 +148,50 @@
             width: 100%;
         }
 
+        .multiselect {
+          width: 200px;
+        }
+
+        .multiselect .selectBox {
+          position: relative;
+        }
+
+        .multiselect .selectBox select {
+          width: 100%;
+          font-weight: bold;
+        }
+
+        .multiselect .overSelect {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+        }
+
+        .multiselect #checkboxes {
+            display: none;
+            border: 1px #dadada solid;
+            position: absolute;
+            z-index: 999;
+            background: #fff;
+            width: 200px;
+            padding: 5px;
+            color: black;
+        }
+
+        .multiselect #checkboxes label {
+          display: block;
+          color: #333;
+        }
+        .multiselect #checkboxes label input{
+                margin-right: 5px;
+        }
+
+        div.checkbox1 {
+            height: 250px;
+            overflow: scroll;
+        }
     </style>
 @endsection
 
@@ -166,25 +208,42 @@
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
             <div class=" cls_filter_box" style="margin-left: -13px;">
-                <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks') }}" method="GET">
-                   @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm pd-rt">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
-                                <option value="">Assigned To</option>
-                                @foreach ($users as $id => $user)
-                                    <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
-                                        value="{{ $id }}">{{ $user }}</option>
-                                @endforeach
-                            </select>
+                <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks_post') }}" method="POST">
+                   @csrf
+                    @if (auth()->user()->isReviwerLikeAdmin())
+                        <div class="form-group ml-3">
+                            <div class="multiselect">
+                                <div class="selectBox" onclick="showSelectCheckboxes()">
+                                    <select class="form-control" name="assigned_to" id="assigned_to" data-placeholder="Developers...">
+                                        <option value="">Assigned To</option>
+                                    </select>
+                                    <div class="overSelect"></div>
+                                </div>
+                                <div id="checkboxes" class="checkbox1">
+                                    <label for="select_all">
+                                    <input type="checkbox" id="select_all" @if(count($dev)==0) 
+                                    checked 
+                                    @endif />Select All</label>
+                                    @foreach ($users as $k => $_dev)
+                                        <label for="{{ $k }}">
+                                            @if(count($dev)>0)
+                                                <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" @if(array_key_exists($k, $dev)) 
+                                                checked
+                                                @endif />{{ $_dev }}</label>
+                                            @else
+                                                <input type="checkbox" value="{{ $k }}" id="{{ $k }}" class="devCheckbox" name="devCheckboxs[]" checked />{{ $_dev }}</label>
+                                            @endif
+                                        @endforeach
+                                </div>
+                            </div>
                         </div>
                     @endif
-                  
-                  
                     <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
 					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
                        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
-                    </a>   
+                    </a>  
+                    <a class="btn btn-secondary assignTask" style="color:white;">Assign Task</a> 
                     
                 </form>
                 
@@ -199,13 +258,15 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
+                        <th width="5%"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
                         <th width="7%">ID</th>
-                        <th width="9%">Subject</th>
+                        <th width="9%">Website</th>
+                        <th width="7%">Subject</th>
                         <th width="12%">Assigned To</th>
-                        <th width="10%">Tracked Time</th>
+                        <th width="8%">Tracked Time</th>
                         <th width="9%">Estimated Time</th>
-                        <th width="12%">Delivery Date</th>
-                        <th width="22%">Communication</th>
+                        <th width="11%">Delivery Date</th>
+                        <th width="20%">Communication</th>
                         <th width="13%">Status</th>
                     </tr>
                 </thead>
@@ -290,6 +351,35 @@
             </div>
         </div>
     </div>
+    <div id="show-task-model-table" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Task</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-inline form-search-data" action="{{ route('task.AssignMultipleTaskToUser') }}" method="POST">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-control mb-2 mr-sm-2 select2 col-md-10" id="user_assigned_to" name="user_assigned_to" required>
+                                <option value="">Assigned To</option>
+                                @foreach ($users as $k => $_dev)
+                                    <option value="{{ $k }}">{{ $_dev }}</option>
+                                @endforeach
+                            </select>
+                            <input type='hidden' name='taskIDs[]' id="tsk_id" value="">
+                        </div> 
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-secondary mb-2">Submit</button>
+                        </div>  
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
@@ -303,10 +393,10 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
     <script src="{{ asset('js/zoom-meetings.js') }}"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/js/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-    <script src="/js/bootstrap-multiselect.min.js"></script>
+    
 	
 	<script>
        $(document).on('click', '.task-submit-reminder', function () {
@@ -365,17 +455,26 @@
             }            
         });
 
+        $(document).on("click", ".assignTask", function(e) {
+            e.preventDefault();
+
+            $IDs = $(".table input:checkbox:checked").map(function() {
+                return $(this).val();
+            }).get();
+
+            if($IDs == ''){
+                alert('Please select any task');
+                return false;
+            }
+            var model = $("#show-task-model-table");
+            $("#tsk_id").val($IDs);
+            model.modal("show");
+        });
        
 
   </script>  
 	
     <script type="text/javascript">
-	
-        $(document).ready(function() {
-            $(".multiselect").multiselect({
-                nonSelectedText: 'Please Select'
-            });
-        });
 
 
         $(document).on('click', '.expand-row-msg', function() {
@@ -1679,29 +1778,7 @@ $(document).on('click', '.show-date-history', function() {
     </script>
     
 <script>
-    $(document).on('change', '.assign-task-user', function () {
-            let id = $(this).attr('data-id');
-            let userId = $(this).val();
-            if (userId == '') {
-                return;
-            }
-            $.ajax({
-                url: "{{route('task.AssignTaskToUser')}}",
-                data: {
-                    user_id: userId,
-                    issue_id: id
-                },
-                success: function () {
-                    toastr["success"]("User assigned successfully!", "Message")
-                },
-                error: function (error) {
-                    toastr["error"](error.responseJSON.message, "Message")
-                    
-                }
-            });
-        });
-
-
+    
     $(document).on('click', '.flag-task', function () {
             var task_id = $(this).data('id');
             var task_type = $(this).data('type');
@@ -1905,7 +1982,48 @@ $(document).on('click', '.show-date-history', function() {
 
      });
 
+     function checkAll(ele) {
+            var checkboxes = document.getElementsByClassName('rowCheckbox');
+            if (ele.checked) {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = true;
+                    }
+                }
+            } else {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    console.log(i)
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = false;
+                    }
+                }
+            }
+        }
 
+     var expanded = false;
+
+        function showSelectCheckboxes() {
+          var checkboxes = document.getElementById("checkboxes");
+          if (!expanded) {
+            checkboxes.style.display = "block";
+            expanded = true;
+          } else {
+            checkboxes.style.display = "none";
+            expanded = false;
+          }
+        }
+
+        $("#select_all").click(function () {
+            $(".devCheckbox").prop('checked', $(this).prop('checked'));
+        });
+
+        $(".devCheckbox").change(function(){
+            if ($('.devCheckbox:checked').length == $('.devCheckbox').length) {
+               $('#select_all').prop('checked', true);
+            }else{
+                $('#select_all').prop('checked', false);
+            }
+        });
 
 </script>
 @endsection

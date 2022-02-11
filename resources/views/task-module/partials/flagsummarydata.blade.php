@@ -1,8 +1,15 @@
 
 <?php   $special_task = \App\Task::find($issue->id); ?>
 <tr style="color:grey;">
+    <td><input type="checkbox" name="taskIds[]" class="rowCheckbox" value="{{ $issue->id }}"></td>
     <td style="display:table-cell;vertical-align: baseline;">
     {{ $issue->id }}
+    </td>
+    <td style="display:table-cell;vertical-align: baseline;">
+        @if($special_task->site_developement_id)
+            {{ $special_task->site_development->store_website->title }}
+        @endif
+    
     </td>
     <td class="Website-task" style="vertical-align: baseline;">    
        {{ $issue->task_subject }}
@@ -10,17 +17,9 @@
        <td>
         <div class="d-flex">
      <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
-        <select class="form-control assign-task-user select2" data-id="{{$issue->id}}" name="assign_to" id="user_{{$issue->id}}">
-            <option value="">Select...</option>
-            <?php $assignedId = isset($issue->assign_to) ? $issue->assign_to : 0; ?>
-            @foreach($users as $id => $name)
-                @if( $assignedId == $id )
-                    <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                    <option value="{{$id}}">{{ $name }}</option>
-                @endif
-            @endforeach
-        </select>
+        @if(isset($special_task->assign_to))
+           {{ $special_task->assignedTo->name }}
+        @endif
         <button style="float:right;padding-right:0px; background: none;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}" data-type="task"><i class="fa fa-info-circle"></i></button>
    <!--     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>-->
     </div>

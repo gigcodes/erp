@@ -333,4 +333,9 @@ class Task extends Model {
 		return $task;
         return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
     }
+
+    public function site_development() 
+	{
+		return $this->belongsTo('App\SiteDevelopment', 'site_developement_id', 'id');
+	}
 }

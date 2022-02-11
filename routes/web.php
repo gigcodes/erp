@@ -894,6 +894,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
     Route::get('task/CommunicationTaskStatus', 'TaskModuleController@CommunicationTaskStatus')->name('task.CommunicationTaskStatus'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
     Route::get('task/AssignTaskToUser', 'TaskModuleController@AssignTaskToUser')->name('task.AssignTaskToUser'); // Purpose : Create Route for Assign Task To User - DEVTASK-21234
+    Route::post('task/AssignMultipleTaskToUser', 'TaskModuleController@AssignMultipleTaskToUser')->name('task.AssignMultipleTaskToUser');
     Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
     Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
     Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
@@ -1422,6 +1423,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     Route::get('development/flagtask', 'DevelopmentController@flagtask')->name('development.flagtask');
     Route::get('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks');
+    Route::post('development/automatic/tasks', 'DevelopmentController@automaticTasks')->name('development.automatic.tasks_post');
  
     Route::post('save/task/message', 'DevelopmentController@saveTaskMessage')->name('development.taskmessage');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
