@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Loggers\LogListMagento;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\StoreMagentoApiSearchProduct;
+use App\LogMagentoApi;
 
 class MagentoProductApiCallCommand extends Command
 {
@@ -45,7 +46,7 @@ class MagentoProductApiCallCommand extends Command
         $produts = LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")
                                 ->where("sync_status", "success")
                                 ->groupBy("product_id", "store_website_id")
-                                ->orderBy("log_list_magentos.id", "desc")
+                                ->orderBy("log_list_magentos.id", "desc")->limit(2)
                                 ->get();
 
         $languages = ['arabic', 'german', 'spanish', 'french', 'italian', 'japanese', 'korean', 'russian', 'chinese'];
@@ -58,14 +59,24 @@ class MagentoProductApiCallCommand extends Command
             foreach ($produts as $p) {
                 $sku = $p->sku . "-" . $p->color;
                 $websiteId = $p->store_website_id;
-
+                $product_ref_id = uniqid();
+                LogMagentoApi::create([
+                    'magento_api_search_product_id' => $product_ref_id,
+                    'api_log' => 'success',
+                    'message' => 'Product Unique id Generated: '
+                ]);
                 try {
                     // $get_store_website = \App\StoreWebsite::find($websiteId);
                     $get_store_website = \App\StoreWebsite::find($websiteId);
-                    $result            = $magentoHelper->getProductBySku($sku, $get_store_website);
-                    
+                    $result            = $magentoHelper->getProductBySku($sku, $get_store_website, null ,$product_ref_id);
+                    LogMagentoApi::create([
+                        'magento_api_search_product_id' => $product_ref_id,
+                        'api_log' => 'helper_output',
+                        'message' => $result
+                    ]);
                     if (isset($result->id)) {
                         $result->success        = true;
+                        $result->log_refid      = $product_ref_id;
                         $result->size_chart_url = "";
         
                         $englishDescription = "";
@@ -121,6 +132,11 @@ class MagentoProductApiCallCommand extends Command
                     }
         
                 } catch (\Exception $e) {
+                    LogMagentoApi::create([
+                        'magento_api_search_product_id' => $product_ref_id,
+                        'api_log' => 'exception',
+                        'message' => $p. " Exception : ". $e->getMessage()
+                    ]);
                     \Log::info("Error from LogListMagentoController 448" . $e->getMessage());
                 }
             }
@@ -151,8 +167,15 @@ class MagentoProductApiCallCommand extends Command
                         $StoreMagentoApiSearchProduct->korean = !empty($value['korean']) ? $value['korean'] : "No";
                         $StoreMagentoApiSearchProduct->russian = !empty($value['russian']) ? $value['russian'] : "No";
                         $StoreMagentoApiSearchProduct->chinese = !empty($value['chinese']) ? $value['chinese'] : "No";
+                        $StoreMagentoApiSearchProduct->log_refid = $value['log_refid'];
 
                     $StoreMagentoApiSearchProduct->save();
+                    
+                    LogMagentoApi::create([
+                        'magento_api_search_product_id' => $value['log_refid'],
+                        'api_log' => 'product stored',
+                        'message' => 'Product stored in Magento API Search Product'
+                    ]);
 
                     if ($value["success"]) {
                         $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::where('website_id', $value['store_website_id'])->first();
@@ -177,9 +200,19 @@ class MagentoProductApiCallCommand extends Command
                         ];
 
                         if ($StoreWebsiteProductCheck == null) {
+                            LogMagentoApi::create([
+                                'magento_api_search_product_id' => $value['log_refid'],
+                                'api_log' => 'add store website',
+                                'message' => $value
+                            ]);
                             $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
                         } else {
                             $StoreWebsiteProductCheck->where('website_id', $value['store_website_id'])->update($addItem);
+                            LogMagentoApi::create([
+                                'magento_api_search_product_id' => $value['log_refid'],
+                                'api_log' => 'upate store website',
+                                'message' => $value
+                            ]);
                         }
                     }
                 }
