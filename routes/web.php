@@ -3235,6 +3235,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('referfriend')->middleware('auth')->group(function () {
     Route::get('/list', 'ReferFriendController@index')->name('referfriend.list');
     Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
+    Route::get('/logAjax', 'ReferFriendController@logAjax')->name('referfriend.logAjax');
 });
 
 //Twillio-SMS
