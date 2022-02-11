@@ -46,7 +46,7 @@ class MagentoProductApiCallCommand extends Command
         $produts = LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")
                                 ->where("sync_status", "success")
                                 ->groupBy("product_id", "store_website_id")
-                                ->orderBy("log_list_magentos.id", "desc")->limit(2)
+                                ->orderBy("log_list_magentos.id", "desc")
                                 ->get();
 
         $languages = ['arabic', 'german', 'spanish', 'french', 'italian', 'japanese', 'korean', 'russian', 'chinese'];
