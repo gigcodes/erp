@@ -57,6 +57,9 @@
         table tr td{
             word-wrap: break-word;
         }
+        div#chat-list-history.modal {
+            z-index: 99999999;
+        }
     </style>
 @endsection
 
