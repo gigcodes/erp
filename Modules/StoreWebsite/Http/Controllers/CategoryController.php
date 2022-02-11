@@ -440,7 +440,8 @@ class CategoryController extends Controller
         $category_id = $request->input('category_id');
         $html = '';
         $categoryData = StoreWebsiteCategoryUserHistory::where('category_id', $category_id)->where('store_id', $store_id)
-            ->orderBy('id', 'ASC')
+            ->leftJoin('users','users.id','=','store_website_category_user_history.user_id')
+            ->orderBy('store_website_category_user_history.id', 'ASC')
             ->get();
         $i = 1;
         if (count($categoryData) > 0) {
@@ -458,7 +459,7 @@ class CategoryController extends Controller
                 }
                 
                 $html .= '<td>' . $history->website_action . '</td>';
-                $html .= '<td>' . User::where('id',$history->user_id)->first()->name . '</td>';
+                $html .= '<td>' . $history->name . '</td>';
                 $html .= '</tr>';
 
                 $i++;
