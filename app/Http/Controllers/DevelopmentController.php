@@ -861,14 +861,17 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
+        if ($request->get('unread_messages', "off") == "unread") {
+            $issues = $issues->where('chat_messages.sent_to_user_id', Auth::user()->id);
+        }
 
-        $issues = $issues->select("developer_tasks.*", "chat_messages.message");
+        $issues = $issues->select("developer_tasks.*", "chat_messages.message","chat_messages.sent_to_user_id");
 
         // Set variables with modules and users
         $modules = DeveloperModule::orderBy('name')->get();
