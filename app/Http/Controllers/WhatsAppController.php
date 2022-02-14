@@ -68,6 +68,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader; //Purpose : Add Modal -
 use Response; //Purpose : Add Modal - DEVTASK-4236
 use Tickets;
 use Validator;
+use App\LogChatMessage;
 use \App\Helpers\TranslationHelper;
 
 class WhatsAppController extends FindByNumberController
@@ -1958,6 +1959,16 @@ class WhatsAppController extends FindByNumberController
         return response()->json($result);
     }
 
+    public function logchatmessage($log_case_id,$task_id,$message,$log_msg)
+    {
+        $log = new LogChatMessage();
+        $log->log_case_id = $log_case_id;
+        $log->task_id = $task_id;
+        $log->message = $message;
+        $log->log_msg = $log_msg;
+        $log->save();
+    }
+
     /**
      * Send message
      *
@@ -1968,8 +1979,6 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
-    
-
         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
@@ -2019,7 +2028,7 @@ class WhatsAppController extends FindByNumberController
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
-
+            $this->logchatmessage("#1",$request->task_id,$request->message,"if the customer message is going to send");
             // update message for chatbot request->customer_id
             if (!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
                 \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.customer_id', $request->customer_id)->where('cr.is_read', 0)->update(['cr.is_read' => 1]);
@@ -2028,16 +2037,20 @@ class WhatsAppController extends FindByNumberController
         } elseif ($context == "purchase") {
             $data['purchase_id'] = $request->purchase_id;
             $module_id = $request->purchase_id;
+            $this->logchatmessage("#2",$request->task_id,$request->message,"if the purchase message is going to send");
         } elseif ($context == 'supplier') {
             $data['supplier_id'] = $request->supplier_id;
             $module_id = $request->supplier_id;
+            $this->logchatmessage("#3",$request->task_id,$request->message,"if the supplier message is going to send");
         } elseif ($context == 'SOP-Data') {
             $data['sop_user_id'] = $request->sop_user_id;
             $module_id = $request->sop_user_id;
+            $this->logchatmessage("#4",$request->task_id,$request->message,"if the supplier message is going to send");
         } elseif ($context == 'chatbot') { //Purpose : Add Chatbotreplay - DEVTASK-18280
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
+             $this->logchatmessage("#5",$request->task_id,$request->message,"if the chatbot message is going to send");
         } elseif ($context == 'user-feedback') {
             $data['user_feedback_id'] = $request->user_id;
             $data['user_feedback_category_id'] = $request->feedback_cat_id;
@@ -2056,9 +2069,11 @@ class WhatsAppController extends FindByNumberController
             $data['sent_to_user_id'] = $u_id;
             $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
             $module_id = $u_id;
+            $this->logchatmessage("#6",$request->task_id,$request->message,"if the user-feedback message is going to send");
         } elseif ($context == 'hubstuff') {
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
+            $this->logchatmessage("#7",$request->task_id,$request->message,"if the hubstuff message is going to send");
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;
@@ -2078,6 +2093,7 @@ class WhatsAppController extends FindByNumberController
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read', 0)->update(['cr.is_read' => 1]);
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read', 0)->update(['cr.is_read' => 1]);
                 }
+                $this->logchatmessage("#8",$request->task_id,$request->message,"update message for chatbot request");
             } elseif ($context == 'charity') {
                 $data['charity_id'] = $request->vendor_id;
                 $charity = CustomerCharity::where('id', $request->vendor_id)->first();
@@ -2091,8 +2107,10 @@ class WhatsAppController extends FindByNumberController
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read', 0)->update(['cr.is_read' => 1]);
                     \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.charity_id', $request->charity_id)->where('cr.is_read', 0)->update(['cr.is_read' => 1]);
                 }
+                $this->logchatmessage("#9",$request->task_id,$request->message,"update message for charity request");
                 unset($data['vendor_id']);
             } elseif ($context == 'task') {
+                $this->logchatmessage("#10",$request->task_id,$request->message,"If context conndition task is exit");
                 $data['task_id'] = $request->task_id;
                 $task = Task::find($request->task_id);
 
@@ -2222,7 +2240,7 @@ class WhatsAppController extends FindByNumberController
                 $params['approved'] = 1;
                 $params['status'] = 2;
                 $chat_message = ChatMessage::create($data);
-
+                $this->logchatmessage("#11",$request->task_id,$request->message,"New chat message is created");
                 $module_id = $request->task_id;
 
                 /** Sent To ChatbotMessage */
@@ -2255,6 +2273,7 @@ class WhatsAppController extends FindByNumberController
                 MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray(), $message_);
 
             } elseif ($context == 'learning') {
+                $this->logchatmessage("#12",$request->task_id,$request->message,"If context learning is exit");
                 $learning = \App\Learning::find($request->issue_id);
                 if ($data['user_id'] == $learning->learning_vendor) {
                     $userId = $data['user_id'];
@@ -2288,6 +2307,7 @@ class WhatsAppController extends FindByNumberController
                 return response()->json(['message' => $chat_message]);
 
             } elseif ($context == 'ticket') {
+                $this->logchatmessage("#13",$request->task_id,$request->message,"If context ticket is exit");
               $send_ticket_options = [] ; 
               if(isset($request->send_ticket_options)){
                   $send_ticket_options = explode(",",$request->send_ticket_options);
@@ -2331,6 +2351,7 @@ class WhatsAppController extends FindByNumberController
             } else {
 
                 if ($context == 'priority') {
+                    $this->logchatmessage("#14",$request->task_id,$request->message,"If context priority is exit");
                     $params = [];
                     $params['message'] = $request->get('message', '');
                     $params['erp_user'] = $request->get('user_id', 0);
@@ -2352,6 +2373,7 @@ class WhatsAppController extends FindByNumberController
                     return response()->json(['message' => $chat_message]);
 
                 } elseif ($context == 'activity') {
+                    $this->logchatmessage("#15",$request->task_id,$request->message,"If context activity is exit");
                     $data['erp_user'] = $request->user_id;
                     $module_id = $request->user_id;
                     $user = User::find($request->user_id);
@@ -2359,18 +2381,22 @@ class WhatsAppController extends FindByNumberController
                         $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message);
                     }
                 } elseif ($context == 'overdue') {
+                    $this->logchatmessage("#16",$request->task_id,$request->message,"If context overdue is exit");
                     $data['erp_user'] = $request->user_id;
                     $user = User::find($request->user_id);
                     $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message);
                 } elseif ($context == 'user') {
+                      $this->logchatmessage("#17",$request->task_id,$request->message,"If context user is exit");
                     $data['erp_user'] = $request->user_id;
                     $module_id = $request->user_id;
                     $user = User::find($request->user_id);
                     $this->sendWithThirdApi($user->phone, $user->whatsapp_number, null, null);
                 } elseif ($context == 'dubbizle') {
+                     $this->logchatmessage("#18",$request->task_id,$request->message,"If context dubbizle is exit");
                     $data['dubbizle_id'] = $request->dubbizle_id;
                     $module_id = $request->dubbizle_id;
                 } elseif ($context == 'time_approval') {
+                     $this->logchatmessage("#19",$request->task_id,$request->message,"If context dubbizle is exit");
                     $summary = HubstaffActivitySummary::find($request->summery_id);
                     if ($summary) {
                         $userId = $summary->user_id;
