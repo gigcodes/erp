@@ -3954,10 +3954,14 @@ class OrderController extends Controller
 
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
         $from = "customercare@sololuxury.co.in";
+		$preview = "";
         if (strtolower($statusModal->status) == "cancel") {
 
             $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
             $storeWebsiteOrder = $order->storeWebsiteOrder;
+			if($emailClass != null) {
+				$preview = $emailClass->render();
+			}
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
                 if ($emailAddress) {
@@ -3973,11 +3977,14 @@ class OrderController extends Controller
                        <td>From </td> <td>
                        <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                        </td></tr><tr>
-                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $emailClass->render() . "</textarea></td>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
         } else {
             $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+			if($emailClass != null) {
+				$preview = $emailClass->render();
+			}
             $storeWebsiteOrder = $order->storeWebsiteOrder;
             if ($storeWebsiteOrder) {
                 $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
@@ -3993,7 +4000,7 @@ class OrderController extends Controller
                        <td>From </td> <td>
                        <input type='email' required id='email_from_mail' class='form-control' name='from_mail' value='" . $from . "' >
                        </td></tr><tr>
-                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $emailClass->render() . "</textarea></td>
+                       <td>Preview </td> <td><textarea name='editableFile' rows='10' id='customEmailContent' >" . $preview . "</textarea></td>
                     </tr>
             </table>";
         }
