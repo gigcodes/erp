@@ -37,7 +37,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                        </select>
                     </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <select class="form-control websites select2" name="website" data-placeholder="website">
+                       <select class="form-control websites select2" name="website" data-placeholder="website" style="width: 100px !important;">
                            <option value=""></option>
                            @foreach($storeWebsites as $w)
                                <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
@@ -45,11 +45,11 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                        </select>
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}">
+                       <input class="form-control" name="name" placeholder="name" value="{{ request('name')  ? request('name') : '' }}" style="width: 162px!important;">
                           
                     </div>  
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}">
+                       <input class="form-control" name="path" placeholder="path"  value="{{ request('path')  ? request('path') : '' }}"style="width: 160px!important;">
                     </div> 
                      <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <a href="{{ route('magento.setting.index') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
@@ -58,7 +58,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                  </form>
 				{{Form::open(array('url'=>route('magento.setting.pushMagentoSettings'), 'class'=>'form-inline'))}}
 					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-						<select class="form-control websites select2" name="store_website_id" data-placeholder="website">
+						<select class="form-control websites select2" name="store_website_id" data-placeholder="website" style="width:100px !important;">
                            <option value=""></option>
                            @foreach($storeWebsites as $w)
                                <option value="{{ $w->id }}" {{ request('website') && request('website') == $w->id ? 'selected' : '' }}>{{ $w->website }}</option>
@@ -71,20 +71,21 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 					<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
                         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#push_logs">Sync Logs</button>
                     </div>
-				</form>		
-				
-             </div>
-         </div> 
-         <div class="col-lg-12 margin-tb pt-3">
-            <div class="pull-left cls_filter_box">
+                    <div class="pull-left cls_filter_box">
                 {{Form::open(array('url'=>route('magento.setting.updateViaFile'), 'class'=>'form-inline','files' => true))}}
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <div class="form-group ml-3 mt-2 cls_filter_inputbox" style="margin-left: 10px;">
                         <?php echo Form::file('file'); ?>
                     </div> 
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;"> 
                         <button type="submit" onclick="confirm('Are you sure you want to update setting ?')" class="btn btn-default">Start sync</button>
                     </div>
                 </form>
+				</form>		
+				
+             </div>
+         </div> 
+
+        
              </div>
          </div> 
      </div>
@@ -94,7 +95,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
         <div class="pull-left"></div>
         <div class="pull-right"></div>
         <div class="col-12 pl-3 pr-3">
-            <div class="table-responsive" style="margin-top:20px;">
+            <div class="table-responsive">
                   <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                     <thead>
                         <tr>
@@ -439,13 +440,13 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 			</div>
 			  <div class="modal-body">
 				<div class="table-responsive mt-3">
-				  <table class="table table-bordered">
+				  <table class="table table-bordered"style="table-layout: fixed;">
 					<thead>
 					  <tr>
-						<th>Date</th>
-						<th>Command</th>
-                        <th>Status</th>
-						<th>Command Output</th>
+						<th width="10%">Date</th>
+						<th width="20%">Command</th>
+                        <th width="25%">Status</th>
+						<th width="25%">Command Output</th>
 					  </tr>
 					</thead>
 					<tbody id="settingsPushLogs">
