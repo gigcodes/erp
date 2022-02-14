@@ -36,6 +36,10 @@
                                 <label for="leads_email">Message Type</label>
                                 {{Form::select('message_application_id', $types, $type, array('class'=>'form-control'))}}
                             </div>
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                <label for="leads_email">Is Queue</label>
+                                {{Form::select('is_queue', $is_queues, $type, array('class'=>'form-control'))}}
+                            </div>
                             <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="{{url('/images/filter.png')}}"/></button>
                         </form>
                     </div>
@@ -71,8 +75,21 @@
                     <td id="name">{{$value->customer_name}}</td>
                     <td id="name">{{$value->message}}</td>
                     <td id="name">{{$value->status}}</td>
-                    <td id="name">{{$value->is_queue}}</td>
-                    <td id="name">{{$value->approved}}</td>
+                    <td id="name">
+                        @if($value->is_queue == 0) {{-- message has been sent --}}
+                            No
+                        @else {{-- message has not been sent --}}
+                            Yes
+                        @endif
+                    </td>
+                    
+                    <td id="name">
+                        @if($value->approved == 0) {{-- message has been approved --}}
+                            Yes
+                        @else {{-- message has not been approved --}}
+                            No
+                        @endif
+                    </td>
                     <td id="name">{{$value->user_name}}</td>
                     <td id="name">{{($value->message_application_id==3)?'SMS':'Whatsapp'}}</td>
                     <td id="name">{{$value->scheduled_at}}</td>

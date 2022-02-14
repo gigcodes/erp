@@ -11072,6 +11072,7 @@ td.title p {
 }
 .whatsAppConfig-action button, .whatsAppConfig-action a i {
     padding: 5px 2px;
+    width: 10%;
 }
 .whatsAppConfig-action button i, .whatsAppConfig-action a i{
     color: black !important;
@@ -11476,4 +11477,7 @@ table.table-striped-custom tbody tr td {
 }
 .selectbox{
     width: 100px !important;
+}
+.show-product-information{
+    color: black;
 }

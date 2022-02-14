@@ -29,5 +29,6 @@ class StoreMagentoApiSearchProduct extends Model
         'russian',
         'chinese',
         'status',
+        'log_refid',
     ];
 }
