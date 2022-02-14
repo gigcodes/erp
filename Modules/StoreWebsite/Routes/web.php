@@ -26,7 +26,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
-
+    
     Route::prefix('{id}')->group(function () {
         
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
@@ -129,7 +129,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::prefix('category')->group(function () {
         Route::get('/', 'CategoryController@list')->name("store-website.category.list");
         Route::post('category-history', 'CategoryController@categoryHistory')->name('store-website.category,categoryHistory');
+        Route::post('website-category-user-history', 'CategoryController@webiteCategoryUserHistory')->name('store-website.category,webiteCategoryUserHistory');
         Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
+        Route::post('/delete-category', 'CategoryController@deleteCategory')->name("store-website.delete-category");
+
     });
 
     Route::prefix('color')->group(function () {
