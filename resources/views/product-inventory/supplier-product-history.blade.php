@@ -30,7 +30,7 @@
 
      <div class="form-group">
                         <div class="row">
-                            
+                        
                             
                             
 
@@ -38,22 +38,10 @@
                                <select class="form-control select-multiple" id="supplier-select" tabindex="-1" aria-hidden="true" name="supplier" onchange="//showStores(this)">
                                     <option value="">Select Supplier</option>
 
-                                    @foreach($suppliers as $supplierId=>$supplier)
-
-                                    @if(isset($request->supplier) && $supplierId==$request->supplier)
-
-                                     <option value="{{$supplierId}}" selected="selected">{{$supplier}}</option>
-
-
-                                    @else
-
-                                     <option value="{{$supplierId}}">{{$supplier}}</option>
-
-
-                                    @endif
-
-                                   
-                                         @endforeach
+                                    @forelse($supplier_droupdown as $supplier)
+                                     <option value="{{$supplier->id}}" {{$supplier->id == request()->supplier?'selected':''}}>{{$supplier->supplier}}</option>
+                                     @empty    
+                                     @endforelse
                                         </select>
                             </div>
 
@@ -83,18 +71,13 @@
                     <tr>
                        
                         <th>Supplier Name</th> 
-                        <th>Last scrapped on</th> 
-                      
+                        <th>Last scrapped on</th>                       
                         <th>Products</th>
-
                         <th> Brands </th>
-                        <?php foreach($columnData as $e) { ?>
-                            <th> <?php echo $e; ?> </th>
-                        <?php } ?> 
+                        @foreach($range as $date) 
+                                    <td>{{$date->format("Y-m-d")}}</td>
+                                            @endforeach 
                         <th>Summary</th>
-                          
-                      
-                      
                     </tr>
                 </thead>
                 <tbody id="product_history">
@@ -166,7 +149,7 @@
 	var page = 1;
 	
 	$(document).ready(function () {
-		loadMore();
+		//loadMore();
 		$(window).scroll(function() {
 			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
 				loadMore();
