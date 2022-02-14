@@ -808,11 +808,60 @@ class StoreWebsiteController extends Controller
         }        
     }
 	
-	public function buildProcessHistory($store_website_id) {
-		$buildHistory = BuildProcessHistory::leftJoin('users', 'users.id', '=', 'build_process_histories.created_by')->where('store_website_id', $store_website_id)->select('users.name as UserName', 'build_process_histories.*')->orderBy('id', 'desc')->get();
-		return view('storewebsite::build_history', compact('buildHistory'));
+    /**
+     * This function is use to add company website address.
+     *
+     * @param Request $request
+     * @param int $store_website_id 
+     * @return JsonResponce
+     */
+	public function addCompanyWebsiteAddress(Request $request, $store_website_id) 
+    {
+        $StoreWebsite = StoreWebsite::where('id', '=', $store_website_id)->first();
+        if ($StoreWebsite != null ) {
+		    return response()->json([
+                "code" => 200, 
+                "data" => $StoreWebsite,                
+            ]);
+        }
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);     
 	}
 	
+    /**
+     * This function is use to Update company's website address.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateCompanyWebsiteAddress(Request $request) 
+    {
+        $post = $request->all();
+            $validator = Validator::make($post, [
+            'website_address' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }            
+            return response()->json(["code" => 500, "error" => "Please fill required fields."]);            
+        }
+       
+        if(!empty($request->store_website_id)){
+            $StoreWebsite = StoreWebsite::find($request->store_website_id);
+            if ($StoreWebsite != null) {
+                $StoreWebsite->website_address = $request->website_address;
+                $StoreWebsite->update();
+                return response()->json(["code" => 200 , "message" => "Address has been saved"]);
+            }
+            return response()->json(["code" => 500, "error" => "Please fill required fields."]);
+        }  
+    }
+
 	public function syncStageToMaster($storeWebId) {
 		$websiteDetails = StoreWebsite::where('id', $storeWebId)->select('server_ip', 'repository_id')->first();
 		if($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository_id'] != null) {

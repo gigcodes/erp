@@ -26,6 +26,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
 
+    Route::post('/update-company-website-address', 'StoreWebsiteController@updateCompanyWebsiteAddress'); 
+    
+
     Route::prefix('{id}')->group(function () {
         
         Route::get('/sync-stage-to-master', 'StoreWebsiteController@syncStageToMaster');
@@ -35,7 +38,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/store-reindex-history', 'StoreWebsiteController@storeReindexHistory');
 
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+
+        Route::get('/add-company-website-address', 'StoreWebsiteController@addCompanyWebsiteAddress');    
         
+
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
         
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
@@ -44,6 +50,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
         
+        
+
         Route::prefix('build-process')->group(function () {
             Route::get('/', 'StoreWebsiteController@buildProcess')->name("store-website.build.process");
             Route::get('/history', 'StoreWebsiteController@buildProcessHistory')->name("store-website.build.process.history");
@@ -154,6 +162,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push', 'WebsiteController@push')->name("store-website.websites.push");
         Route::get('/{id}/push-stores', 'WebsiteController@pushStores')->name("store-website.websites.pushStores");
         Route::get('/{id}/copy-website-struct', 'WebsiteController@copyWebsiteStructure')->name("store-website.websites.copyWebsiteStructure");
+        
     });
 
     Route::prefix('website-stores')->group(function () {

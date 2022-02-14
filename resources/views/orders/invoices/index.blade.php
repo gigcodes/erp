@@ -64,7 +64,7 @@
               
            
             <td>
-               <a class="btn btn-image send-invoice-btn" data-id="{{ $invoice->id }}">
+               <a class="btn btn-image open-invoice-email-popup" data-id="{{ $invoice->id }}">
                <img title="Resend Invoice" src="/images/purchase.png" />
                </a>
                <a title="Edit Invoice" data-toggle="modal" data-target="#editInvoice" class="btn btn-image edit-invoice-btn" href="{{ route('order.edit.invoice',$invoice->id) }}">
@@ -118,6 +118,28 @@
       </div>
    </div>
 </div>
+<div id="addInvoiceEmail"  class="modal" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title">Invoice Email</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body">
+            <div class="form-group" style="width:100%;">
+               <label for="">Email :</label>
+               <input type="text" name="invoice_email" class="form-control" placeholder="Enter email-address" id="invoice_email" data-allow-clear="true">
+            </div>
+         </div>
+       <div class="modal-footer">
+            <button type="button" name="send_invoice_email" class="btn btn-secondary" id="send_invoice_email" data-allow-clear="true">Send invoice</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+       </div>
+     </div>
+   </div>
+ </div>
 <div id="updateInvoiceAddressesold" class="modal fade" role="dialog">
    <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -170,33 +192,48 @@
 @include("partials.modals.edit-invoice-modal")
 @include("partials.modals.invoice-without-order-model")
 <script>
-   $(document).on("click",".send-invoice-btn",function(e){
+   $(document).on("click",".open-invoice-email-popup",function(e){
          e.preventDefault();
          var $this = $(this);
          $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: "/order/"+$this.data("id")+"/mail-invoice",
-            type: "get",
-            beforeSend: function() {
-              $("#loading-image").show();
-            }
+            url: "/order/"+$this.data("id")+"/get-invoice-customer-email",
+            type: "get"
           }).done(function(response) {
-             if(response.code == 200) {
-               toastr['success'](response.message);
-             }else{
-               toastr['error']('Something went wrong');
-             }
-             $("#loading-image").hide();
-          }).fail(function(xhr, status, error) {
-                $("#loading-image").hide();
-                var err = eval("(" + xhr.responseText + ")");
-                toastr['error']( err.message );
-             
+            $('#addInvoiceEmail').modal('show');
+            $("#invoice_email").val(response);
+          }).fail(function(errObj) {
+             $("#addInvoiceEmail").hide();
           });
-      });
+   });
    
+   $(document).on("click","#send_invoice_email",function(e){
+      e.preventDefault();
+      var $this = $(this);
+      $.ajax({
+      headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      url: "/order/"+$this.data("id")+"/mail-invoice",
+      type: "get",
+      beforeSend: function() {
+         $("#loading-image").show();
+      }
+      }).done(function(response) {
+         if(response.code == 200) {
+         toastr['success'](response.message);
+         }else{
+         toastr['error']('Something went wrong');
+         }
+         $("#loading-image").hide();
+         $("#addInvoiceEmail").modal('hide');
+      }).fail(function(xhr, status, error) {
+            $("#loading-image").hide();
+            var err = eval("(" + xhr.responseText + ")");
+            toastr['error']( err.message );
+            $("#addInvoiceEmail").modal('hide');
+         
+      });
+   });
    
       $(document).on("click",".edit-invoice-btn",function(e){
          e.preventDefault();

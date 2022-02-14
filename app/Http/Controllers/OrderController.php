@@ -886,7 +886,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function store(Request $request)
-    {
+    { 
         $this->validate($request, [
             'customer_id' => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -911,6 +911,9 @@ class OrderController extends Controller
 
         if (empty($request->input('order_date'))) {
             $data['order_date'] = date('Y-m-d');
+        }
+        if (!empty($request->website_address)) {
+            $data['website_address_id'] = $request->website_address;
         }
 
         // if ($customer = Customer::where('name', $data['client_name'])->first()) {
@@ -3316,10 +3319,22 @@ class OrderController extends Controller
             'OrderController@viewAllInvoices');
     }
 
+    /**
+     * This function is use to get invoice customer email address.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return string
+     */
+    public function getInvoiceCustomerEmail(Request $request, $id) 
+    {
+        $invoice = Invoice::where("id", $id)->first();
+        return $invoice->orders[0]->customer->email; 
+    }
+
     public function mailInvoice(Request $request, $id)
     {
         $invoice = Invoice::where("id", $id)->first();
-
         if ($invoice) {
 
             $data["invoice"] = $invoice;
@@ -3329,6 +3344,7 @@ class OrderController extends Controller
                     Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
                     return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
                 } catch (InvalidArgumentException $e) {
+                    \Log::info("Sending mail issue at the ordercontroller invoice log->" . $e->getMessage());
                     return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
                 }
             }
@@ -3640,6 +3656,21 @@ class OrderController extends Controller
             }
         }
     }
+    
+    //TODO::Get companyList
+    public function getCompany(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $term = $request->q;
+                $storeWebsites = \App\StoreWebsite::where('website_address', 'like', '%' . $term . '%')->take(100)->get();
+                return $storeWebsites;
+            } catch (\Exception $ex) {
+                //later put exception block message here
+            }
+        }
+    }
+    
     public function getSearchedProducts(Request $request)
     {
         $term = $request->q;
