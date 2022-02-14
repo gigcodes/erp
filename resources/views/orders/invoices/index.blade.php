@@ -131,6 +131,7 @@
             <div class="form-group" style="width:100%;">
                <label for="">Email :</label>
                <input type="text" name="invoice_email" class="form-control" placeholder="Enter email-address" id="invoice_email" data-allow-clear="true">
+               <input type="hidden" name="invoice_id" id="invoice_id" value="" />
             </div>
          </div>
        <div class="modal-footer">
@@ -200,7 +201,8 @@
             type: "get"
           }).done(function(response) {
             $('#addInvoiceEmail').modal('show');
-            $("#invoice_email").val(response);
+            $("#invoice_email").val(response.email);
+            $("#invoice_id").val(response.id);
           }).fail(function(errObj) {
              $("#addInvoiceEmail").hide();
           });
@@ -209,11 +211,12 @@
    $(document).on("click","#send_invoice_email",function(e){
       e.preventDefault();
       var $this = $(this);
+      var id = $("#invoice_id").val();
       $.ajax({
       headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
-      url: "/order/"+$this.data("id")+"/mail-invoice",
+      url: "/order/"+id+"/mail-invoice",
       type: "get",
       beforeSend: function() {
          $("#loading-image").show();
@@ -222,7 +225,7 @@
          if(response.code == 200) {
          toastr['success'](response.message);
          }else{
-         toastr['error']('Something went wrong');
+         toastr['error'](response.message);
          }
          $("#loading-image").hide();
          $("#addInvoiceEmail").modal('hide');

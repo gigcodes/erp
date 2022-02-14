@@ -3324,33 +3324,45 @@ class OrderController extends Controller
      *
      * @param Request $request
      * @param int $id
-     * @return string
+     * @return Array
      */
     public function getInvoiceCustomerEmail(Request $request, $id) 
     {
         $invoice = Invoice::where("id", $id)->first();
-        return $invoice->orders[0]->customer->email; 
+        return [
+            'email' => $invoice->orders[0]->customer->email,
+            'id' => $id
+        ];
     }
 
+    /**
+     * This function is use to Email invoice to customer
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
     public function mailInvoice(Request $request, $id)
     {
-        $invoice = Invoice::where("id", $id)->first();
-        if ($invoice) {
-
-            $data["invoice"] = $invoice;
-            $data["orders"] = $invoice->orders;
-            if ($invoice->orders) {
-                try {
+        try {
+            $invoice = Invoice::where("id", $id)->first();
+            if ($invoice) {
+                $data["invoice"] = $invoice;
+                $data["orders"] = $invoice->orders;
+                if ($invoice->orders) {
                     Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
                     return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
-                } catch (InvalidArgumentException $e) {
-                    \Log::info("Sending mail issue at the ordercontroller invoice log->" . $e->getMessage());
-                    return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
                 }
+            } else {
+                Invoice::where("id", $id)->update(['invoice_error_log' => 'Sorry , there is no matching order found']);
+                return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
             }
+           
+        } catch (\Exception $e) {
+            \Log::info("Sending mail issue at the ordercontroller invoice log->" . $e->getMessage());
+            Invoice::where("id", $id)->update(['invoice_error_log' => $e->getMessage()]);
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
         }
-
-        return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
     }
 
     // public function fetchOrders() {
