@@ -47,7 +47,7 @@ class StoreWebsiteController extends Controller
     public function logWebsiteUsers($id)
     {
         $title = "List | Store Website User Logs";
-        $logstorewebsiteuser = LogStoreWebsiteUser::where("store_website_id", $id)->get();
+        $logstorewebsiteuser = LogStoreWebsiteUser::where("store_website_id", $id)->orderBy('id', 'DESC')->get();
 
         return view('storewebsite::log_store_website_users', compact('title','logstorewebsiteuser'));
     }
