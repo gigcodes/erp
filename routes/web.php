@@ -178,6 +178,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
     Route::get('get-latest-product-for-push', 'Logging\LogListMagentoController@getLatestProductForPush')->name('logging.magento.get-latest-product-for-push');
     Route::post('delete/magento-api-search-history', 'Logging\LogListMagentoController@deleteMagentoApiData')->name('delete.magento.api-search-history');
+    Route::get('log-magento-apis-ajax', 'Logging\LogListMagentoController@logMagentoApisAjax')->name('logging.magento.logMagentoApisAjax');
 });
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
