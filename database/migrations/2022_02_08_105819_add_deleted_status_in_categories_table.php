@@ -17,11 +17,16 @@ class AddDeletedStatusInCategoriesTable extends Migration
             $table->integer('deleted_status')->after('push_type')->index();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
      * @return void
      */
-    
+    public function down()
+    {
+        Schema::table('categories', function (Blueprint $table) {
+            //
+        });
+    }
 }
