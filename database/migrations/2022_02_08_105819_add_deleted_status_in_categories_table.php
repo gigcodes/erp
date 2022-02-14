@@ -17,7 +17,7 @@ class AddDeletedStatusInCategoriesTable extends Migration
             $table->integer('deleted_status')->after('push_type')->index();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
