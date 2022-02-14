@@ -224,13 +224,13 @@
             <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="8%">ID</th>
-                        <th width="11%">Subject</th>
-                        <th width="14%">Assigned To</th>
-                        <th width="13%">Tracked Time</th>
-                        <th width="11%">Estimated Time</th>
-                        <th width="10%">Delivery Date</th>
-                        <th width="35%">Communication</th>
+                        <th width="7%">ID</th>
+                        <th width="9%">Subject</th>
+                        <th width="12%">Assigned To</th>
+                        <th width="10%">Tracked Time</th>
+                        <th width="9%">Estimated Time</th>
+                        <th width="12%">Delivery Date</th>
+                        <th width="22%">Communication</th>
                         <th width="13%">Status</th>
                     </tr>
                 </thead>
@@ -352,8 +352,8 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
-	
-	<script>
+    
+    <script>
         
         var isLoading = false;
         var page = 1;
@@ -381,10 +381,10 @@
                     success: function (data) {  console.log(data);                   
                         $loader.hide();
                         $('#vendor-body').append(data); 
-						isLoading = false;
-						if(data == "") {
-							isLoading = true;
-						}						
+                        isLoading = false;
+                        if(data == "") {
+                            isLoading = true;
+                        }                       
                         
                     },
                     error: function () {
@@ -398,9 +398,9 @@
        
 
   </script>  
-	
+    
     <script type="text/javascript">
-	
+    
         $(document).ready(function() {
             $(".multiselect").multiselect({
                 nonSelectedText: 'Please Select'
