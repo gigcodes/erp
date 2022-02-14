@@ -359,35 +359,105 @@ class SiteDevelopmentController extends Controller
     }
 
 	public function createTask(Request $request) {
-		if($request->task_category == 'Design') {
-			$categoryId = TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
-		} else{
-			$categoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
+		if($request->task_category == 'Design') { 
+			$masterCategoryId = SiteDevelopmentMasterCategory::where('title', 'Design')->pluck('id')->first();
+		} else{  
+			$masterCategoryId = SiteDevelopmentMasterCategory::where('title', 'Design')->pluck('id')->first();
 		}
 		$website = StoreWebsite::where('id', $request->websiteId)->pluck('title')->first();
-		$categories = SiteDevelopmentCategory::select('title', 'id')->get();
+		
+		$categories = SiteDevelopmentCategory::leftJoin('site_developments', 'site_developments.site_development_category_id', '=','site_development_categories.id')
+		->select('site_development_categories.title', 'site_development_categories.id', 'site_developments.id as site_development_id')->where('site_development_master_category_id', $masterCategoryId)
+		->where('website_id', $request->websiteId)->orderBy('site_development_categories.title', 'asc')->get();
+		
 		foreach($categories as $category) {
 			$requests = array(
                     '_token' => $request->_token,
                     'task_subject' => $category['title'],
-                    'task_detail' => $website.' '.$category['title'],
+                    'task_detail' => $website.' '.$category['title'].$request->task_category,
                     'task_asssigned_to' => 6,
-                    'category_id'=>$categoryId,
-                    'site_id'=>$request->websiteId,
+                    'category_id'=>49,
+                    'site_id'=>$category->site_development_id,
                     'task_type'=>0,
                     'repository_id'=>null,
                     'cost'=>null,
                     'task_id'=>null,
                     'customer_id'=>null,
+					'is_flow_task'=>0
                 );
-				$task = Task::where(['category'=>$categoryId,
-                    'site_developement_id'=>$request->websiteId, 'task_subject' => $category['title']])->first();
-					if($task == null) {
-						$check = (new Task)->createTaskFromSortcuts($requests);
-					}
+				$task = Task::where(['category'=>49,'site_developement_id'=>$category->site_development_id])->first();
+				if($task == null) {
+					$check = (new Task)->createTaskFromSortcuts($requests);
+				}
                 
 		}
-		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully',]);
+		return response()->json(["code" => 200, "messages" => 'Task created Sucessfully']);
+	}
+	
+	public function copyTasksFromWebsite(Request $request) {
+		/*$siteDevelopmentCategoryIds = SiteDevelopment::where('website_id', $request->copy_to_website)->pluck('site_development_category_id')->toArray();
+		$siteDevelopment = SiteDevelopment::where('website_id', $request->copy_to_website)->select('id as site_developement_id','site_development_category_id')->get();
+		*/
+		$tasks = Task::leftJoin('site_developments', 'site_developments.id', '=', 'tasks.site_developement_id')
+		->where('site_developments.website_id', $request->copy_from_website)->select('tasks.*')->get(); //dd($tasks);
+		foreach($tasks as $task){
+			$attachment = ChatMessage::whereNotNull('task_id')->where('task_id', $task->id)->where('message', 'like', '%.zip%')->orderBy('id', 'desc')->first();
+			$siteDev = SiteDevelopment::where('id', $task['site_developement_id'])->first(); ///dd($siteDev);
+			if($siteDev != null) {
+				$site_development_id = SiteDevelopment::where(['site_development_category_id'=>$siteDev['site_development_category_id'], 'website_id'=>$request->copy_to_website])->pluck('id')->first();
+				if($site_development_id != null){
+					$requests = array(
+						'_token' => $request->_token,
+						'task_subject' => $task['task_subject'],
+						'task_detail' => $task['task_details'],
+						'task_asssigned_to' => $request->task_asssigned_to,
+						'category_id'=>$task['category'],
+						'site_id'=>$site_development_id,
+						'task_type'=>0,
+						'repository_id'=>null,
+						'cost'=>null,
+						'task_id'=>null,
+						'customer_id'=>null,
+						'is_flow_task'=>0
+					);
+					$taskNew = Task::where(['category'=>$task['category'],'site_developement_id'=>$site_development_id])->first(); 
+					if($taskNew == null) {
+						$createdTask = (new Task)->createTaskFromSortcuts($requests); 
+						if(isset( $attachment['message'])) {
+							$params = \App\ChatMessage::create([
+								'user_id' => \Auth::user()->id,
+								'task_id' => $createdTask['id'],
+
+								'sent_to_user_id' => $request->task_asssigned_to,
+
+								'erp_user' => \Auth::user()->id,
+								'contact_id' => \Auth::user()->id,
+								'message' => $attachment['message'],
+
+							]);
+						}	
+						if ($task->hasMedia(config('constants.attach_image_tag'))) {
+							foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
+								$imageExtensions = ['zip'];
+								$explodeImage = explode('.', $media->getUrl());
+								$extension = end($explodeImage);
+
+								if (in_array($extension, $imageExtensions)) {
+									$createdTask->attachMedia($media, config('constants.media_tags'));
+
+									if(!empty($media->filename)){
+										DB::table('media')->where('filename', $media->filename)->update(['user_id' => Auth::id() ]);
+									}
+								} 
+							}
+						}   
+
+						
+					}
+				}
+			}
+		}
+		return response()->json(["code" => 200, "messages" => 'Task copied Sucessfully']);
 	}
 	
     public function addSiteDevelopment(Request $request)

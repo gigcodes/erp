@@ -195,7 +195,7 @@ class Task extends Model {
 		}
        
         $data['status'] = 3;
-        
+        $task = 0;
         $taskType = $request['task_type'];
 
         if (isset($request['parent_task_id'])) {
@@ -205,7 +205,11 @@ class Task extends Model {
         if ($taskType == "4" || $taskType == "5" || $taskType == "6") {
             
         } else {
-			$data["is_flow_task"] = 1;
+			if(isset($data["is_flow_task"])) {
+				$data["is_flow_task"] = $data["is_flow_task"];
+			} else {
+				$data["is_flow_task"] = 1;
+			}
 				if ($request['task_asssigned_to']) {
                     if (is_array($request['task_asssigned_to'])) {
                         $data["assign_to"] = $request['task_asssigned_to'];
@@ -326,6 +330,7 @@ class Task extends Model {
                 $hubtask->save();
             }
         }
+		return $task;
         return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
     }
 }

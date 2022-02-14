@@ -18,12 +18,16 @@
     <div id="myDiv">
       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
+   <div class="row">
+       <div class="col-md-12 p-0">
+            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS: @if(isset($hashtag)) #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true) <spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif  @endif</h2>
+       </div>
+   </div>
     <div class="row">
         <div class="col-md-12">
-           
-           <div class="row">
+         <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS: @if(isset($hashtag)) #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true) <spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif  @endif</h2>
+           
             <div class="pull-left">
                 <form action="/instagram/hashtag/grid/{{ $hashtag->id }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
@@ -49,7 +53,7 @@
 
         <div class="col-md-2">
             <p>
-                <a href="{{ action('HashtagController@index') }}">Show All Targeted Hashtags</a>
+                <a href="{{ action('HashtagController@index') }}" style="color:#343a40;">Show All Targeted Hashtags</a>
             </p>
         </div>
 
@@ -92,18 +96,24 @@
         </div>
         <div class="col-md-12">
             <div class="table-responsive">
-                <table class="table-striped table table-bordered" id="grid-table">
+                <table class="table-striped table table-bordered" id="grid-table" style="table-layout: fixed;">
                     <thead>
                     <tr>
-                        <th style="width:1%">SN</th>
-                        <th style="width:10%">Hastag</th>
-                        <th style="width:5%">User</th>
-                        <th style="width: 10%;">Image</th>
-                        <th style="width:10%">Caption</th>
-                        <th style="width:10%">Communication</th>
-                        <th style="width:20%">Comments</th>
+                        <th style="width:3%;">SN</th>
+                        <th style="width:7%;">Hastag</th>
+                        <th style="width:11%;">Posted att</th>
+                        <th style="width:4%;">Likes</th>
+                        <th style="width:6%;">comments</th>
+                        <th style="width:12%;">User</th>
+                        <th style="width:5%;">Image</th>
+                        <th style="width:8%;">Caption</th>
+                        <th style="width:8%;">Communication</th>
+                        <th style="width:25%;">Comments</th>
                     </tr>
                     <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th><input type="text" id="username" class="search form-control" placeholder="Id" step="width : 10px"></th>

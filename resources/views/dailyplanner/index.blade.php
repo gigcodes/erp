@@ -16,10 +16,9 @@
               @if (Auth::user()->hasRole('Admin'))
                 <form action="{{ route('dailyplanner.index') }}" class="form-inline" method="GET">
                   <div class="form-group mr-3">
-                    <select class="form-control input-sm ml-3" name="user_id">
+                    <select class="form-control input-sm ml-3" name="user_id" style="width:235px !important;">
                       <option value="">Select a User</option>
-
-                      @foreach ($users_array as $id => $user)
+                       @foreach ($users_array as $id => $user)
                         <option value="{{ $id }}" {{ isset($userid) && $id == $userid ? 'selected' : '' }}>{{ $user }}</option>
                       @endforeach
                     </select>
@@ -27,22 +26,20 @@
 
                   <div class="form-group ml-3">
                     <div class='input-group date' id='planned-datetime'>
-                      <input type='text' class="form-control input-sm" name="planned_at" value="{{ $planned_at }}" />
-
-                      <span class="input-group-addon">
+                      <input type='text' class="form-control input-sm" name="planned_at" value="{{ $planned_at }}" / style="width:200px !important;">
+                       <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                       </span>
                     </div>
                   </div>
-
                   <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
               @endif
             </div>
-			<form action="{{ route('dailyplanner.send.vendor.schedule') }}" class="form-inline" method="post">
+			   <form action="{{ route('dailyplanner.send.vendor.schedule') }}" class="form-inline" method="post">
 				<div class="form-group mr-3">
 					@csrf
-				  <select class="form-control input-sm ml-3" name="user">
+				  <select class="form-control input-sm ml-3" name="user" style="width:235px !important;">
 					<option value="">Select a User</option>
 					 @foreach ($users_array as $id => $user)
                         <option value="{{ $id }}">{{ $user }}</option>
@@ -52,7 +49,7 @@
 
 				<div class="form-group ml-3">
 				  <div class='input-group date'>
-					<input type='text' class="form-control input-sm" id="send-planned-datetime" name="date" value="" />
+					<input type='text' class="form-control input-sm" id="send-planned-datetime" name="date" value="" / style="width:200px !important;">
 					<span class="input-group-addon">
 					  <span class="glyphicon glyphicon-calendar"></span>
 					</span>
@@ -61,13 +58,16 @@
 				<div class="form-group ml-3">
 					<button type="submit" class="btn btn-md btn-secondary"> Send schedule </button>
 				</div>
+        {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a> --}}
+          <div class="form-group ml-3">
+              <button type="button" class="btn btn-md btn-secondary" id="showMeetingsButton">Show Meetings</button>
+          </div>
+          <div class="form-group ml-3">
+             <button type="button" data-toggle="collapse" href="#inProgressFilterCount" class="btn btn-md btn-secondary" id="showMeetingsButton">Spent Time</button>
+          </div>
 			  </form>
 
-            <div class="pull-right">
-              {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a> --}}
-              <button type="button" class="btn btn-xs btn-secondary" id="showMeetingsButton">Show Meetings</button>
-              <button type="button" data-toggle="collapse" href="#inProgressFilterCount" class="btn btn-xs btn-secondary" id="showMeetingsButton">Spent Time</button>
-            </div>
+            
         </div>
     </div>
 
@@ -97,20 +97,20 @@
         </div>
       </div> 
     <?php } ?>
-    <div class="row no-gutters mt-3">
-      <div class="col-xs-12 col-md-12" id="plannerColumn">
+    <div class="row no-gutters ">
+      <div class="col-xs-12 col-md-12 p-5" id="plannerColumn">
         <div class="table-responsive">
           <table class="table table-bordered table-sm">
             <thead>
               <tr>
-                <th width="20%">Time</th>
-                <th width="29%">Planned</th>
+                <th width="10%">Time</th>
+                <th width="25%">Planned</th>
                 <th width="5%">Timezone</th>
                 <th width="10%">Time</th>
-                <th width="7%">Actual Start Time</th>
-                <th width="8%">Actual Complete Time</th>
-                <th width="10%">Remark</th>
-                <th width="49%">Action</th>
+                <th width="10%">Actual Start Time</th>
+                <th width="13%">Actual Complete Time</th>
+                <th width="8%">Remark</th>
+                <th width="10%">Action</th>
               </tr>
             </thead>
 
@@ -213,20 +213,20 @@
                 <tr class="dis-none create-input-table">
                   <td class="p-2"></td>
                   <td class="p-2">
-                    <div class="d-flex">
+                    <div class="d-flex" style="vert">
                       <?php echo Form::select("general_category_id",
                           [ null => "-- Select Category --"] + $generalCategories,
                           isset($task['general_category_id']) ? $task['general_category_id'] : null,
-                          ['class' => 'form-control general_category_id' , 'style' => 'width:100%']
+                          ['class' => 'form-control  select2-selection--single general_category_id' , 'style' => 'width:100%; ']
                         );  ?>
                       &nbsp;&nbsp;  
-                      <select class="selectpicker form-control input-sm plan-task" data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
+                      <select class="selectpicker select2-selection--single form-control input-sm plan-task"  data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
                         @foreach ($tasks as $task)
                           <option data-tokens="{{ $task['id'] }} {{ $task['task_subject'] }} {{ $task['task_details'] }}" value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
                         @endforeach
                       </select>
                       &nbsp;&nbsp;
-                      <input type="text" class="form-control input-sm quick-plan-input" name="task" placeholder="New Plan" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}" value="">
+                      <input type="text" class="form-control select2-selection--single input-sm quick-plan-input" name="task" placeholder="New Plan" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}" value="">
                       &nbsp;&nbsp;
                       <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>
                     </div>

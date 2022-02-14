@@ -131,6 +131,12 @@
             </div>
             <div class="col-md-4">
                <div class="form-group">
+                  <label for="instagram">Product Markup %</label>
+                  <input type="number" name="product_markup" onkeyup="this.value = fnc(this.value, 0, 100)" value="{{if data}}{{:data.product_markup}}{{/if}}" class="form-control" id="product_markup" placeholder="Enter product markup">
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
                   <label for="instagram">Instagram</label>
                   <input type="text" name="instagram" value="{{if data}}{{:data.instagram}}{{/if}}" class="form-control" id="instagram" placeholder="Enter instagram profile">
                </div>

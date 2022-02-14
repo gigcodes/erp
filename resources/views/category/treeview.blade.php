@@ -21,7 +21,9 @@
 
 
                 <div class="d-flex justify-content-between  mx-3">
-
+                    <button type="button" class="btn btn-secondary my-0 mr-3" data-toggle="modal" data-target="#copy-category-popup">
+                        Copy category data
+                    </button>
                     <a href="{{ route('category.map-category') }}" class="btn btn-secondary my-0 mr-3">Edit
                         References</a>
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#category-popup">
@@ -43,6 +45,51 @@
         </div>
     </form>
 
+
+    {{-- <!-- Add category modal --> --}}
+    <div class="modal fade" id="copy-category-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Copy Category Items</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                <form method="POST" action="{{ route('category.storeCopy') }}" id="copy_category_data">
+                    @csrf
+                    <div class="form-group mb-0">
+                        <label for="sourceCategoryId">Source Category Id</label>
+                        <select class="form-control" name="sourceCategoryId" id="sourceCategoryId" required>
+                                <option value=''>Select Source Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                @endforeach
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetCategoryId">Target Category Id</label>
+                        <select class="form-control" name="targetCategoryId" id="targetCategoryId" required>
+                                <option value=''>Select Target Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                @endforeach
+                            </select>
+                    </div>
+                        
+                    <div class="form-group d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button class="btn btn-secondary">Start Copy</button>
+                    </div>
+                </form>
+            </div>
+
+            </div>
+        </div>
+    </div>
 
     {{-- <!-- Add category modal --> --}}
     <div class="modal fade" id="category-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -1223,6 +1270,16 @@
                     toastr["error"]("Oops,something went wrong");
                 }
             });
+        });
+
+        $( "#copy_category_data" ).submit(function( e ) {
+            if($("#sourceCategoryId").val() != $("#targetCategoryId").val()){
+                $(this).closest('form').submit()
+            }  else {
+                alert("Source & target category is same.")
+                e.preventDefault();
+                return false;
+            }    
         });
     </script>
 @endsection

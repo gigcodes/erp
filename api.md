@@ -575,6 +575,101 @@ Content-Type: application/json
                 "id": 3,
                 "customer_id": 3008,
                 "name": "Bardambek Yusupov",
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "PWTCR",
+                "subject": "Task test",
+                "message": "Message: Hi",
+                "resolution_date": null,
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 03:26:31",
+                "created_at": "2020-09-11 13:48:23",
+                "updated_at": "2020-09-11 14:08:33",
+                "type_of_inquiry": null,
+                "last_name": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "notify_on": null,
+                "amount": null,
+                "sku": null,
+                "brand": null,
+                "style": null,
+                "keyword": null,
+                "image": null,
+                "deleted_at": null,
+                "lang_code": null,
+                "status": "open",
+                "messages": [
+                    {
+                        "id": 1814762,
+                        "message": "test",
+                        "created_at": "2022-02-07 09:35:41"
+                    },
+                    {
+                        "id": 1814761,
+                        "message": "test",
+                        "created_at": "2022-02-07 09:34:03"
+                    },
+                    {
+                        "id": 1814760,
+                        "message": "test",
+                        "created_at": "2022-02-07 09:33:54"
+                    }
+                ]
+            }
+        ],
+        "first_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
+        "next_page_url": null,
+        "path": "https://erpdev3.theluxuryunlimited.com/api/ticket/send",
+        "per_page": "10",
+        "prev_page_url": null,
+        "to": 1,
+        "total": 1
+    }
+}
+```
+
+key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Tickets not found for customer !"
+}
+```
+##  send Ticket message
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/ticket/send
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "live_chat",
+    "ticket_id":"PWTCR",
+    "message":"Message from customer",
+    "action":"send_messsage",
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "tickets": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 3,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
                 "last_name": null,
                 "email": "bardam.yus@gmail.com",
                 "ticket_id": "PWTCR",
@@ -590,28 +685,23 @@ Content-Type: application/json
                 "country": null,
                 "phone_no": null,
                 "order_no": null,
-                "status": "open"
-            },
-            {
-                "id": 4,
-                "customer_id": 3008,
-                "name": "Bardambek Yusupov",
-                "last_name": null,
-                "email": "bardam.yus@gmail.com",
-                "ticket_id": "J7XPB",
-                "subject": "About new Products",
-                "message": "Message: Hi",
-                "assigned_to": null,
-                "source_of_ticket": "live_chat",
-                "status_id": 1,
-                "date": "2020-08-25 01:25:30",
-                "created_at": "2020-09-11 11:48:23",
-                "updated_at": "2020-09-11 11:48:23",
-                "type_of_inquiry": null,
-                "country": null,
-                "phone_no": null,
-                "order_no": null,
-                "status": "open"
+                "status": "open",
+                "messages": [
+                    {
+                        "id": 1795378,
+                        "message": "Testing Message 12345",
+                        "created_at": "2022-02-07 19:49:26",
+                        "user_id": 6,
+                        "send_by": "Customer"
+                    },
+                    {
+                        "id": 1795377,
+                        "message": "Testing Message 12345",
+                        "created_at": "2022-02-07 19:47:45",
+                        "user_id": "",
+                        "send_by": "Admin"
+                    },
+                ]
             }
         ],
         "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
