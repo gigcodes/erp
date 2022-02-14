@@ -253,9 +253,37 @@ class ScheduleEmails extends Command
 				if(isset($lead['scraper_id'])) {
 					$scraper_id = $lead['scraper_id'];
 				}
+
+
+				$extraParams = array();
+				if($modalType == 'App\ErpLeads')
+				{
+					$extraParams = ['lead_id' => $lead->id];
+				}
+				elseif($modalType == 'App\CustomerBasketProduct')
+				{
+					$extraParams = ['customer_id' => $lead->id];
+				}
+				elseif($modalType == 'App\Orders')
+				{
+					$extraParams = ['order_id' => $lead->id];
+				}
+				elseif($modalType == 'App\DeveloperTask')
+				{
+					$extraParams = ['developer_task_id' => $lead->id];
+				}
+				elseif($modalType == 'App\Task')
+				{
+					$extraParams = ['task_id' => $lead->id];
+				}
+				elseif($modalType == 'App\Mailinglist')
+				{
+					$extraParams = ['email_id' => $lead->id];
+				}
+				
+
 				if($leadType == 'customer') {
 					$insertParams = [
-						"customer_id"            => $lead->customer_id,
 						"message"                => $flowAction['message_title'],
 						"status"                 => 1,
 						"is_queue"               => 1,
@@ -264,10 +292,14 @@ class ScheduleEmails extends Command
 						"number"                 => null,
 						"message_application_id" => $messageApplicationId,
 						'scheduled_at'     => $created_date,
+						'flow_exit'     => 1,  /* if the message is coming from flow */
 					];
+
+					$createParams = array_merge($extraParams,$insertParams);
+
 					$chatMessage = \App\ChatMessage::firstOrCreate(["customer_id"=>$lead->customer_id,
 						"message"=>$flowAction['message_title'],"status"=>1,"is_queue"=>1,
-						"approved"=>1,"message_application_id"=>$messageApplicationId], $insertParams);
+						"approved"=>1,"message_application_id"=>$messageApplicationId], $createParams);
 				} else {
 					$insertParams = [
 						"user_id"            => $lead->customer_id,
@@ -278,9 +310,13 @@ class ScheduleEmails extends Command
 						"number"                 => null,
 						"message_application_id" => $messageApplicationId,
 						'scheduled_at'     => $created_date,
+						'flow_exit'     => 1,  /* if the message is coming from flow */
 					];
+
+					$createParams = array_merge($extraParams,$insertParams);
+
 					$chatMessage = \App\ChatMessage::firstOrCreate(["user_id"=> $lead->customer_id,"message"=>$flowAction['message_title'],
-						"status"=>1,"is_queue"=>1,"approved"=>1,"message_application_id"=>$messageApplicationId], $insertParams);
+						"status"=>1,"is_queue"=>1,"approved"=>1,"message_application_id"=>$messageApplicationId], $createParams);
 				}
 				
 
