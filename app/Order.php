@@ -88,7 +88,8 @@ class Order extends Model
         'currency',
         'invoice_id',
         'store_currency_code',
-        'monetary_account_id'
+        'monetary_account_id',
+        'website_address_id'
     ];
 
     protected $appends = ['action'];
