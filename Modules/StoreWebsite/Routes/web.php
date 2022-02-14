@@ -20,6 +20,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+    Route::get('/log-website-users/{id}', 'StoreWebsiteController@logWebsiteUsers')->name("store-website.logwebsiteusers");
     Route::post('/save-cancellation', 'StoreWebsiteController@saveCancellation')->name("store-website.save-cancellation");
     Route::post('/generate-file-store', 'StoreWebsiteController@generateStorefile')->name("store-website.generate-file-store");
     

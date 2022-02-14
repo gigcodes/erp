@@ -54,8 +54,8 @@
             $hod = $user->hasRole('HOD of CRM');
         @endphp
 
-    <div class="row mb-5">
-        <div class="col-lg-12 margin-tb">
+    <div class="row">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Quick Supplier Scrapping Info <span class="total-info"></span></h2>
         </div>
     </div>
@@ -103,24 +103,24 @@
     </form>
    <br>
    <?php $totalCountedUrl = 0; ?>
-    <div class="row mt-3">
+    <div class="row ">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
-                <table class="table table-bordered table-striped sort-priority-scrapper">
+                <table class="table table-bordered table-striped sort-priority-scrapper"style="table-layout: fixed;margin-top:-22px;">
                     <thead>
                     <tr>
-                        <th width="7%">Supplier</th>
+                        <th width="8%">Supplier</th>
                         <th width="8%">Server ID</th>
                         <th width="7%">At Restart</th>
-                        <th width="4%">Run Time</th>
+                        <th width="8%">Run Time</th>
                         <th width="5%">New</th>
-                        <th width="8%">Lst Started</th>
-                        <th width="8%">Lst Sts</th>
-                        <th width="5%">Url Cnt</th>
-                        <th width="2%">Task</th>
-                        <th width="11%">Remarks</th>
+                        <th width="10%">Lst Started</th>
+                        <th width="6%">Lst Sts</th>
+                        <th width="6%">Url Cnt</th>
+                        <th width="5%">Task</th>
+                        <th width="12%">Remarks</th>
                         <th width="7%">Full Scrap</th>
-                        <th width="40%">Functions</th>
+                        <th width="30%">Functions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -184,7 +184,7 @@
                                 <?php } ?>
                             </td>
                             <td>
-                                <div class="form-group" style="display: flex;">
+                                <div class="form-group" style="display: flex;margin-bottom: 0px !important;">
                                         <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
                                             <option value="">Select</option>
                                             @foreach($serverIds as $serverId)
@@ -202,7 +202,7 @@
                             </td>
 
                             <td>
-                                <div class="form-group" style="display: flex;" >
+                                <div class="form-group" style="display: flex;margin-bottom: 0px !important;" >
                                         <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
