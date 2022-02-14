@@ -37,6 +37,5 @@ class CreateLogStoreWebsiteUsersTable extends Migration
      */
     public function down()
     {
-        //Schema::dropIfExists('log_scrapers');
+        Schema::dropIfExists('log_store_website_users');
     }
-}
