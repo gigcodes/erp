@@ -6,8 +6,8 @@
     {{ $issue->id }}
     </td>
     <td style="display:table-cell;vertical-align: baseline;">
-        @if($special_task->site_developement_id)
-            {{ $special_task->site_development->store_website->title }}
+        @if($special_task->site_developement_id && $special_task->site_development->store_website)
+                {{ $special_task->site_development->store_website?$special_task->site_development->store_website->title:'' }}
         @endif
     
     </td>
