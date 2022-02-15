@@ -3907,7 +3907,7 @@ class ProductController extends Controller
                 $query->where('product_id', $request->get('product_id'));
             }
         })->with(['productstatushistory' => function ($query) use ($date, $statusarray, $request) {
-            //$query->whereDate('created_at', $date);
+            $query->whereDate('created_at', $date);
             $query->whereIn('new_status', $statusarray);
             if ($request->get('product_id') != '') {
                 $query->where('product_id', $request->get('product_id'));
