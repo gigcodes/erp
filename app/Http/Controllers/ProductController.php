@@ -3884,6 +3884,10 @@ class ProductController extends Controller
         if ($request->get('product_id') != '') {
             // $products = Product::where('id',$request->get('product_id'))->get();
         }
+        if($request->get('sku') !='')
+        {
+            $products = $products->where('sku',$request->get('sku'));
+        }
         if ($request->get('select_date') != '') {
             $date = $request->get('select_date');
         } else {
@@ -3903,7 +3907,7 @@ class ProductController extends Controller
                 $query->where('product_id', $request->get('product_id'));
             }
         })->with(['productstatushistory' => function ($query) use ($date, $statusarray, $request) {
-            $query->whereDate('created_at', $date);
+            //$query->whereDate('created_at', $date);
             $query->whereIn('new_status', $statusarray);
             if ($request->get('product_id') != '') {
                 $query->where('product_id', $request->get('product_id'));
