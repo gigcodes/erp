@@ -93,6 +93,11 @@
          @endif
      </div>
     </td>
+        <td>
+        <button type="button" title="Task Time history" class="btn tasktime-history-btn btn-xs pull-left" data-id="{{$issue->id}}">
+          <i class="fa fa-history"></i>
+      </button>
+    </td>
  
 </tr>
 

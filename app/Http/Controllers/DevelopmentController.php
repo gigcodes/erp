@@ -9,6 +9,7 @@ use App\TaskAttachment;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -1101,7 +1102,7 @@ class DevelopmentController extends Controller
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         } 
-        $task = $task->where('tasks.status', $inprocessStatusID->id);
+        //$task = $task->where('tasks.status', $inprocessStatusID->id);
         $whereCondition =   $whereTaskCondition = "";
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
@@ -1201,6 +1202,34 @@ class DevelopmentController extends Controller
             // 'languages' => $languages,
             "task_statuses"=>$task_statuses
         ]);
+    }
+    public function gettasktimemessage(request $request)
+    {
+        $id = $request->input('id');
+        $html = '';
+        $chatmessages = ChatMessage::where('task_id', $id)->orwhere('developer_task_id', $id)->get();
+        $i = 1;
+        if (count($chatmessages) > 0) {
+            foreach ($chatmessages as $history) {
+                $html .= '<tr>';
+                $html .= '<td>' . $i . '</td>';
+                $html .= '<td>' . $history->message . '</td>';
+                $html .= '<td>' . $history->created_at . '</td>';
+                $html .= '</tr>';
+
+                $i++;
+            }
+            return response()->json(['html' => $html, 'success' => true], 200);
+        }
+         else {
+            $html .= '<tr>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '<td></td>';
+            $html .= '</tr>';
+        }
+        return response()->json(['html' => $html, 'success' => true], 200);
+
     }
 
 	public function saveTaskMessage(Request $request) {

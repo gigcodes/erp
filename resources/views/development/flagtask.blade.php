@@ -220,8 +220,7 @@
                         id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
 					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
                        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
-                    </a>   
-                    
+                    </a> 
                 </form>
                 
             </div>
@@ -243,6 +242,7 @@
                         <th width="12%">Delivery Date</th>
                         <th width="22%">Communication</th>
                         <th width="13%">Status</th>
+                        <th width="13%">Action</th>
                     </tr>
                 </thead>
 
@@ -347,6 +347,30 @@
             </div>
         </div>
     </div>
+    <div id="tasktime-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sl no</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="tasktime-history-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @include("development.partials.time-history-modal")
 @include("task-module.partials.tracked-time-history")
 @include("development.partials.user_history_modal")
@@ -1993,7 +2017,29 @@ $(document).on('click', '.show-date-history', function() {
          });
 
      });
+     $('.tasktime-history-btn').click(function(){
+        var id = $(this).data('id');
+        $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('development.gettasktimemessage') }}",
+            data: {
+              id:id,
+            },
+        }).done(response => {
+          $('#tasktime-history-modal').find('.tasktime-history-list-view').html('');
+            if(response.success==true){
+              $('#tasktime-history-modal').find('.tasktime-history-list-view').html(response.html);
+              $('#tasktime-history-modal').modal('show');
+            }
 
+        }).fail(function(response) {
+
+          alert('Could not fetch payments');
+        });
+    });
 
 
 </script>
