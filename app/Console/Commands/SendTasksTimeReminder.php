@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\ChatMessage;
 use App\DeveloperTask;
 use App\Task;
+use App\TaskMessage;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
@@ -45,13 +46,17 @@ class SendTasksTimeReminder extends Command
         $messageApplicationId = 3;
         $currenttime = date("Y-m-d H:m:s");
         $developertasks = DeveloperTask::where('is_flagged', '1')->get();
+        $est_time_date_message = TaskMessage::where('message_type','est_time_date_message')->first();
+        $est_message = (!empty($est_time_date_message)) ? $est_time_date_message->message : "";
+        $overdue_time_date_message = TaskMessage::where('message_type','overdue_time_date_message')->first();
+        $overdue_message = (!empty($overdue_time_date_message)) ? $overdue_time_date_message->message : "";
         foreach ($developertasks as $developertask) 
         {
             if($developertask->estimate_time == NULL)
             {
                     $insertParams = [
                         "developer_task_id"      => $developertask->id,
-                        "message"                => "Please update your Estimate Time.",
+                        "message"                => $est_message,
                         "status"                 => 1,
                         "is_queue"               => 1,
                         "approved"               => 1,
@@ -64,7 +69,7 @@ class SendTasksTimeReminder extends Command
             {
                 $insertParams = [
                     "developer_task_id"      => $developertask->id,
-                    "message"                => "Please update your Estimate Date.",
+                    "message"                => $est_message,
                     "status"                 => 1,
                     "is_queue"               => 1,
                     "approved"               => 1,
@@ -73,11 +78,11 @@ class SendTasksTimeReminder extends Command
 
                 $chatMessage = \App\ChatMessage::firstOrCreate($insertParams);
             } 
-            if(strtotime($currenttime) > strtotime($task->approximate))
+            if(strtotime($currenttime) > strtotime($developertask->estimate_date))
             {
                 $insertParams = [
                     "developer_task_id"      => $developertask->id,
-                    "message"                => "Your work time is overdue.",
+                    "message"                => $overdue_message,
                     "status"                 => 1,
                     "is_queue"               => 1,
                     "approved"               => 1,
@@ -94,7 +99,7 @@ class SendTasksTimeReminder extends Command
             {
                     $insertParams = [
                         "task_id"                => $task->id,
-                        "message"                => "Please update your Estimate Time.",
+                        "message"                => $est_message,
                         "status"                 => 1,
                         "is_queue"               => 1,
                         "approved"               => 1,
@@ -107,7 +112,7 @@ class SendTasksTimeReminder extends Command
             {
                 $insertParams = [
                     "task_id"                => $task->id,
-                    "message"                => "Please update your Estimate Date.",
+                    "message"                => $est_message,
                     "status"                 => 1,
                     "is_queue"               => 1,
                     "approved"               => 1,
@@ -120,7 +125,7 @@ class SendTasksTimeReminder extends Command
             {
                 $insertParams = [
                     "task_id"                => $task->id,
-                    "message"                => "Your work time is overdue.",
+                    "message"                => $overdue_message,
                     "status"                 => 1,
                     "is_queue"               => 1,
                     "approved"               => 1,

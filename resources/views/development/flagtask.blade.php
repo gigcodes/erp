@@ -209,6 +209,9 @@
                     <div class="col-md-2 pd-sm pd-rt status-selection">
                         <?php echo Form::select('task_status[]', $statusList, request()->get('task_status', array_values($statusList)), ['class' => 'form-control multiselect', 'multiple' => true]); ?>
                     </div>
+                    <a data-toggle="modal" data-target="#reminderTimeMessageModal" class="btn pd-5 task-set-reminder">
+                       <i class="fa fa-plus red-notification " aria-hidden="true"></i>
+                    </a> 
                     <div class='input-group date mr-3 ml-3' id='datetimepicker'>
                          <input name="delivery_date" type='text' class="form-control" placeholder="Search Delivery Date" id="delivery_date">
                          <span class="input-group-addon">
@@ -221,6 +224,7 @@
 					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
                        <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
                     </a> 
+                   
                 </form>
                 
             </div>
@@ -408,6 +412,38 @@
             </div>
         </div>
 </div>
+<div id="reminderTimeMessageModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set / Edit Time Message</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    {{ Form::model($taskMessage, array('url'=>route('development.tasktimemessage'), 'id'=>'task_time_message_form'))}}
+
+                        <div class="form-group">
+                            <label for="reminder_message">Estimated Time / Date Message</label>
+                            <textarea name="est_time_date_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder_message">Overdue Time / Date Message</label>
+                            <textarea name="overdue_time_date_message" rows="3" required class="form-control"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{Form::hidden('message_type', 'task_date_time_reminder_message')}}
+                            <button type="button" class="btn btn-secondary task-time-submit-reminder">Save</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+</div>
 
 @endsection
 
@@ -436,7 +472,21 @@
                 }
             });
         });
-		
+		$(document).on('click', '.task-time-submit-reminder', function () {
+            var task_time_message_form = $("#task_time_message_form").serialize();
+            $.ajax({
+                url: "{{route('development.tasktimemessage')}}",
+                type: 'POST',
+                data: task_time_message_form,
+                success: function () {
+                    toastr['success']('message updated successfully!');
+                },
+                error: function (){
+                    toastr['error']('Something went wrong, Please try again!');
+                }
+            });
+        });
+        
 		
         var isLoading = false;
         var page = 1;

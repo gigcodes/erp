@@ -1232,13 +1232,24 @@ class DevelopmentController extends Controller
 
     }
 
-	public function saveTaskMessage(Request $request) {
+	public function saveTaskMessage(Request $request) 
+    {
 		$input = $request->input();
-		TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
-		return response()->json([
-		  'success'
-		]);
+        TaskMessage::updateOrCreate(['id'=>$input['id']], $input);
+        return response()->json([
+          'success'
+        ]);
 	}
+    public function saveTaskTimeMessage(Request $request) {
+        $est_time_date_message['message'] = $request->est_time_date_message;
+        $overdue_time_date_message['message'] = $request->overdue_time_date_message;
+
+        TaskMessage::updateOrCreate(['message_type'=>'est_time_date_message'], $est_time_date_message);
+        TaskMessage::updateOrCreate(['message_type'=>'overdue_time_date_message'], $overdue_time_date_message);
+        return response()->json([
+          'success'
+        ]);
+    }
 
 
     public function summaryList1(Request $request)
