@@ -57,6 +57,7 @@
             <thead>
             <tr>
                 <th style="">ID</th>
+                <th style="">Task</th>
                 <th style="">Customer</th>
                 <th style="">Message</th>
                 <th style="">Status</th>
@@ -72,6 +73,7 @@
             @foreach($messages as $key=>$value)
                 <tr class="{{$value->id}}">
                     <td id="id">{{$i}}</td>
+                    <td id="task">@if($value->task_id != 0) {{$value->task_id}} @elseif($value->developer_task_id != 0) DEVTASK-{{$value->developer_task_id}} @endif</td>
                     <td id="name">{{$value->customer_name}}</td>
                     <td id="name">{{$value->message}}</td>
                     <td id="name">{{$value->status}}</td>
@@ -84,7 +86,7 @@
                     </td>
                     
                     <td id="name">
-                        @if($value->approved == 0) {{-- message has been approved --}}
+                        @if($value->approved == 1) {{-- message has been approved --}}
                             Yes
                         @else {{-- message has not been approved --}}
                             No
@@ -121,17 +123,6 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-
-          <div class="form-group">
-            <strong>Customer:</strong>
-            <input type="text" name="customer_id" class="form-control" value="{{ old('customer_id') }}" required>
-
-            @if ($errors->has('customer_id'))
-              <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
-            @endif
-          </div>
-
-
           <div class="form-group">
             <strong>Message:</strong>
             <input type="text" name="message" class="form-control" value="{{ old('message') }}" required>
@@ -139,6 +130,11 @@
             @if ($errors->has('message'))
               <div class="alert alert-danger">{{$errors->first('message')}}</div>
             @endif
+          </div>
+		  
+		   <div class="form-group">
+            <strong>Approve:</strong>
+			{{Form::select('approved', [1=>'Yes', 0=>'No'], null, array('class'=>'form-control', 'id'=>'approved'))}}
           </div>
 
         <div class="modal-footer">
@@ -227,8 +223,13 @@
 
       $('#emailAddressEditModal form').attr('action', url);
       $('#emailAddressEditModal').find('input[name="id"]').val(data.id);
-      $('#emailAddressEditModal').find('input[name="customer_id"]').val(data.customer_id);
-      $('#emailAddressEditModal').find('input[name="message"]').val(data.message);
+      //$('#emailAddressEditModal').find('input[name="approved"]').val(data.approved);
+	  var approved = 1;
+	  if(data.approved == false) {
+		  approved = 0;
+	  }
+	   $('#approved').val(approved); console.log(data.approved);
+	   $('#emailAddressEditModal').find('input[name="message"]').val(data.message);
       
     });
 </script>
