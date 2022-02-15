@@ -62,7 +62,7 @@
     <div class="col-md-12 ">
     <div class="row">
         <div class="col-md-12">
-            <table class="table table-striped table-bordered" style="table-layout: fixed;">
+            <table class="table table-striped table-bordered" id="quick-reply-list" style="table-layout: fixed;">
                 <tr>
                     <th width="6%">Product ID</th>
                     <th width="5%">SKU</th>
@@ -84,7 +84,7 @@
                         <td>
                             <a target="__blank" href="{{$product->supplier_link}}" style="color:black;">{{$product->product_id}}</a>
                         </td>
-                        <td class="Website-task" title="{{isset($product->product->sku) ? $product->product->sku : "-"}}">
+                        <td class="Website-task visible-app" title="{{isset($product->product->sku) ? $product->product->sku : "-"}}">
                             {{isset($product->product->sku) ? $product->product->sku : "-"}}
                         </td>
                         <td class="Website-task" title="{{isset($product->supplier->supplier) ? $product->supplier->supplier : "-"}}">
