@@ -28,23 +28,23 @@ a {
 		<table class="table table-bordered"style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-		     <th style="width:2%" class="Website-task" title="ID">ID</th> 
-		     <th style="width:2%" class="Website-task" title="User">User</th>
-		     <th style="width:2%" class="Website-task" title="Rate">Rate</th>
-		     <th style="width:2%" class="Website-task" title="S/F PX">S/F PX</th>
-				<th style="width:3%" class="Website-task" title="S Num">S Num</th> 
-				<th style="width:2%" class="Website-task" title="TASKS">TASKS</th>
-				<th style="width:2%" class="Website-task" title="Yes h">Yes h</th>
-				<th style="width:2%" class="Website-task" title="N Tm e.">N Tm e.</th>
-				<th style="width:2%" class="Website-task" title="Ov task">Ov task</th> 
-				<th style="width:2%" class="Website-task" title="Las s">Las s</th>
-				<th style="width:2%" class="Website-task" title="Pay Due">Pay Due</th>
-				<th style="width:2%" class="Website-task" title="Due date">Due date</th> 			
-				<th style="width:2%" class="Website-task" title="Pai on">Pai on</th>
-				<th style="width:2%" class="Website-task" title="S">S</th>
+		     <th style="width:2%" >ID</th> 
+		     <th style="width:2%">User</th>
+		     <th style="width:2%">Rate</th>
+		     <th style="width:3%">S/F PX</th>
+				<th style="width:3%">S N</th> 
+				<th style="width:3%">Tsk</th>
+				<th style="width:2%">Y h</th>
+				<th style="width:3%">N T e.</th>
+				<th style="width:3%">Ov tsk</th> 
+				<th style="width:3%">Las s</th>
+				<th style="width:3%">P Due</th>
+				<th style="width:3%">Due d</th> 			
+				<th style="width:3%">Pai on</th>
+				<th style="width:1%">S</th>
 				<?php if (Auth::user()->isAdmin()) { ?>
-				<th style="width:6%" class="Website-task" title="Send" >Send</th>
-				<th style="width:4%" class="Website-task" title="Reply" >Reply</th>
+				<th style="width:3%" class="Website-task" title="Send" >Send</th>
+				<th style="width:3%" class="Website-task" title="Reply" >Reply</th>
 				<?php } ?>
 				<th style="width:19%" class="Website-task" title="Action" >Action</th>
 			</tr>
@@ -52,11 +52,11 @@ a {
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td class="Website-task">{{:prop.id}}</td>
+			      	<td class="Website-task"title="{{:prop.id}}">{{:prop.id}}</td>
 			      	<td class="Website-task"><a  title="Task Hours" class="Website-task btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
 					</td>
-					<td class="Website-task"> {{:prop.hourly_rate}} {{:prop.currency}}</td>
-					<td class="Website-task">{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}</td>
+					<td class="Website-task"title="{{:prop.hourly_rate}} {{:prop.currency}}"> {{:prop.hourly_rate}} {{:prop.currency}}</td>
+					<td class="Website-task"title="Fixed price Job">{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Hourly Per Task {{else prop.fixed_price_user_or_job == 3}} Salaried  {{/if}}</td>
 					<td class="number">
                         <select class="form-control ui-autocomplete-input whatsapp_number" data-user-id="{{:prop.id}}">
                             <option>-- Select --</option>
@@ -70,23 +70,23 @@ a {
 
                         </select>
                     </td>
-			        <td class="Website-task">
+			        <td class="Website-task"title="{{:prop.pending_tasks}}/{{:prop.total_tasks}}">
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>
-			        <td class="Website-task">{{:prop.yesterday_hrs}}</td>
-			        <td class="Website-task">{{:prop.no_time_estimate}}</td>
+			        <td class="Website-task" title="{{:prop.yesterday_hrs}}">{{:prop.yesterday_hrs}}</td>
+			        <td class="Website-task"title="{{:prop.no_time_estimate}}">{{:prop.no_time_estimate}}</td>
 			        <td>{{:prop.overdue_task}}</td>
-			        <td class="Website-task"> <span class="today-history" data-id="{{:prop.id}}"> {{:prop.online_now}} </span> </td>
-			        <td class="Website-task"> {{:prop.previousDue}} {{:prop.currency}}</td>
-			        <td class="Website-task">{{:prop.nextDue}}</td>
-			        <td class="Website-task">
+			        <td class="Website-task"title="{{:prop.online_now}}"> <span class="today-history" data-id="{{:prop.id}}"> {{:prop.online_now}} </span> </td>
+			        <td class="Website-task" title="{{:prop.previousDue}} {{:prop.currency}}"> {{:prop.previousDue}} {{:prop.currency}}</td>
+			        <td class="Website-task" title="{{:prop.nextDue}}">{{:prop.nextDue}}</td>
+			        <td class="Website-task"title="{{:prop.lastPaidOn}}">
 					{{:prop.lastPaidOn}}
 					</td>
-					<td class="Website-task">
+					<td class="Website-task"title="">
 					<span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
 					</td>
 					<?php if (Auth::user()->isAdmin()) { ?>
-					<td class="Website-task">
+					<td class="Website-task" title="">
 						<div class="row">
 							<div class="col-md-12">
 								<div class="d-flex">
@@ -107,7 +107,7 @@ a {
 										<option value="">{{>prop}}</option>
 									{{/props}}
 									</select>
-									<a  class="btn mt-2 btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+									<a  class="btn mt-2 btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;color:gray;"></a>
 								</div>
 							</div> 
 						</div>  
